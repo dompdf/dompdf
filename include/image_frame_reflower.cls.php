@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_reflower.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: image_frame_reflower.cls.php,v 1.4 2005-03-04 20:28:02 benjcarson Exp $ */
 
 /**
  * Image reflower class
@@ -83,12 +83,12 @@ class Image_Frame_Reflower extends Frame_Reflower {
       
     } 
     
-//     // Resample images if the sizes were set in px or were auto
-//     if ( strpos($style->width, "px") !== false )
-//       $width = ((float)rtrim($width, "px")) * 72 / DOMPDF_DPI;
-    
-//     if ( strpos($style->height, "px") !== false )
-//       $height = ((float)rtrim($height, "px")) * 72 / DOMPDF_DPI;
+    // Resample images if the sizes were auto
+    if ( $style->width === "auto" ) 
+      $width = ((float)rtrim($width, "px")) * 72 / DOMPDF_DPI;
+ 
+    if ( $style->height === "auto" )
+      $height = ((float)rtrim($height, "px")) * 72 / DOMPDF_DPI;
     
     $this->_frame->get_style()->width = $width . "pt";
     $this->_frame->get_style()->height = $height . "pt";

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.3 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.4 2005-03-04 20:28:02 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -528,10 +528,13 @@ class Cellmap {
   function remove_row(Frame $row) {
 
     // FIXME: handle row-groups
+
+    $key = $row->get_id();
+    if ( !isset($this->_frames[$key]) )
+      return;  // Presumably this row has alredy been removed
     
     $this->_row = $this->_num_rows--;
 
-    $key = $row->get_id();
     $rows = $this->_frames[$key]["rows"];
     $columns = $this->_frames[$key]["columns"];
 

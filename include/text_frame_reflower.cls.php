@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.2 2005-03-04 20:28:02 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -146,7 +146,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     if ( ($i = strpos($text, "\n")) === false) 
       return false;
 
-    return $i;
+    return $i+1;
     
   }
   
@@ -167,6 +167,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     
     // Handle white-space property:
     // http://www.w3.org/TR/CSS21/text.html#propdef-white-space
+
     switch ($style->white_space) {
 
     default:
@@ -231,8 +232,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
       
       if ( $split == 0 ) {
         
-        // Trim spaces from the beginning of the line
-        $this->_frame->set_text(ltrim($text, " \n\r\t"));
+        // Trim newlines from the beginning of the line
+        //$this->_frame->set_text(ltrim($text, "\n\r"));
 
         $this->_block_parent->add_line();
         $this->_frame->position();
@@ -240,10 +241,19 @@ class Text_Frame_Reflower extends Frame_Reflower {
         // Layout the new line
         $this->_layout_line();
 
-      } else if ( $split < strlen($this->_frame->get_text()) ) 
-        // Split the line if required        
+      } else if ( $split < strlen($this->_frame->get_text()) ) {
+
+        // Split the line if required
         $this->_frame->split_text($split);
-        
+
+        // Remove any trailing newlines
+        $t = $this->_frame->get_text();
+
+        if ( $split > 1 && $t{$split-1} == "\n" )
+          $this->_frame->set_text( substr($t, 0, -1) );
+                
+      }
+      
       if ( $add_line ) {
         $this->_block_parent->add_line();
         $this->_frame->position();
