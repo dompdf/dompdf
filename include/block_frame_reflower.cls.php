@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.5 2005-02-14 08:46:53 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.6 2005-03-02 21:26:53 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -46,7 +46,7 @@
  * @package dompdf
  */
 class Block_Frame_Reflower extends Frame_Reflower {
-  const MIN_JUSTIFY_WIDTH = 0.77;  // (Minimum line width to justify, as
+  const MIN_JUSTIFY_WIDTH = 0.80;  // (Minimum line width to justify, as
                                    // fraction of available width)
 
   function __construct(Block_Frame_Decorator $frame) { parent::__construct($frame); }

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.3 2005-03-02 18:37:17 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.4 2005-03-02 21:26:53 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -63,6 +63,16 @@ class PDFLib_Adapter implements Canvas {
    */
   static public $PAPER_SIZES = array(); // Set to
                                         // CPDF_Adapter::$PAPER_SIZES below.
+
+  /**
+   * Fudge factor to adjust reported font heights
+   *
+   * CPDF reports larger font heights than PDFLib.  This factor
+   * adjusts the height reported by get_font_height().
+   *
+   * @var float
+   */
+  const FONT_HEIGHT_SCALE = 1.2;
 
   /**
    * Whether to create PDFs in memory or on disk
@@ -175,7 +185,7 @@ class PDFLib_Adapter implements Canvas {
     }
     
     $this->_pdf->set_parameter("topdown", "true");
-
+    
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");    
 
     $this->_page_number = $this->_page_count = 1;
@@ -447,7 +457,17 @@ class PDFLib_Adapter implements Canvas {
    * @return int the font descriptor for the font
    */
   protected function _load_font($font, $encoding = "auto", $options = "") {
-    
+
+    // Check if the font is a native font
+    // Embed non-native fonts
+    $native_fonts = array("helvetica", "times-roman", "courier", "zapfdingbats");
+    $test = strtolower(basename($font));
+    if ( in_array($test, $native_fonts) ) {
+      $native = true;
+      $font = basename($font);
+    } else
+      $native = false;
+
     $key = $font .":". $encoding .":". $options;
     
     if ( isset($this->_fonts[$key]) )
@@ -455,17 +475,8 @@ class PDFLib_Adapter implements Canvas {
 
     else {
       // Embed non-native fonts
-      $native_fonts = array("helvetica", "times-roman", "courier", "zapfdingbats");
-      $embed = true;
-      $test = strtolower($font);
-      foreach ($native_fonts as $f) {
-        if ( strpos($test, $f) !== false ) {
-          $embed = false;
-          break;
-        }
-      }
 
-      if ( $embed )
+      if ( !$native )
         $options .= " embedding=true";
                       
       return $this->_fonts[$font] =
@@ -575,8 +586,9 @@ class PDFLib_Adapter implements Canvas {
     $this->_set_fill_color($color);
 
     $y += (float)$size;
-    $adjust = (float)$adjust;
+    $adjust = -(float)$adjust;
     $angle = -(float)$angle;
+
     $this->_pdf->fit_textline(utf8_decode($text), $x, $y, "rotate=$angle wordspacing=$adjust");
     
   }
@@ -599,8 +611,12 @@ class PDFLib_Adapter implements Canvas {
     $fh = $this->_load_font($font);
 
     $this->_pdf->setfont($fh, $size);
-    return $this->_pdf->get_value("fontsize", 0);
     
+    $asc = $this->_pdf->get_value("ascender", $fh);
+    $desc = $this->_pdf->get_value("descender", $fh);
+
+    // $desc is usually < 0,    
+    return self::FONT_HEIGHT_SCALE * $size * ($asc - $desc);
   }
 
   //........................................................................
@@ -653,7 +669,7 @@ class PDFLib_Adapter implements Canvas {
     header("Cache-Control: private");
     header("Content-type: application/pdf");
     $attach = isset($options["Attachment"]) ? "attachment" : "inline";
-    header("Content-disposition: $attach; filename='$filename'");
+    header("Content-disposition: $attach; filename=\"$filename\"");
     header("Content-length: " . $size);
 
     if ( self::$IN_MEMORY )

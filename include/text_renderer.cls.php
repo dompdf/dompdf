@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: text_renderer.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: text_renderer.cls.php,v 1.2 2005-03-02 21:26:53 benjcarson Exp $ */
 /**
  * Renders text frames
  *
@@ -96,10 +96,11 @@ class Text_Renderer extends Abstract_Renderer {
     $stack = array();
     while ( $p = $p->get_parent() )
       $stack[] = $p;
-
+    
     while ( count($stack) > 0 ) {
       $f = array_pop($stack);
 
+      $deco_y = $y;
       if ( ($text_deco = $f->get_style()->text_decoration) === "none" )
         continue;
 
@@ -111,15 +112,15 @@ class Text_Renderer extends Abstract_Renderer {
         continue;
 
       case "underline":
-        $y += $height * (1 + self::UNDERLINE_OFFSET);
+        $deco_y += $height * (1 + self::UNDERLINE_OFFSET);
         break;
 
       case "overline":
-        $y += $height * self::OVERLINE_OFFSET;
+        $deco_y += $height * self::OVERLINE_OFFSET;
         break;
 
       case "line-through":
-        $y -= $height * ( 0.25 + self::LINETHROUGH_OFFSET);
+        $deco_y -= $height * ( 0.25 + self::LINETHROUGH_OFFSET);
         break;
 
       }
@@ -128,7 +129,7 @@ class Text_Renderer extends Abstract_Renderer {
       
       $x1 = $x - self::DECO_EXTENSION;
       $x2 = $x + $style->width + $dx + self::DECO_EXTENSION;
-      $this->_canvas->line($x1, $y, $x2, $y, $color, 0.5);
+      $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, 0.5);
 
     }
   }
