@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.3 2005-03-16 03:42:36 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -249,8 +249,9 @@ class DOMPDF {
       $this->_xml->loadHTMLFile($file);
       restore_error_handler();
 
-    } else       
+    } else
       $this->load_html(file_get_contents($file));
+    
   }
 
   /**
@@ -269,7 +270,7 @@ class DOMPDF {
       $str = ob_get_contents();      
       ob_end_clean();
     }
-    
+
     // Store parsing warnings as messages
     set_error_handler("record_warnings");
     $this->_xml->loadHTML($str);

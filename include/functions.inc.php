@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: functions.inc.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.2 2005-03-16 03:42:36 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -133,7 +133,11 @@ function explode_url($url) {
   $file = "";
 
   $arr = parse_url($url);
-  if ( array_key_exists("scheme", $arr) && $arr["scheme"] != "file" ) {
+
+  if ( array_key_exists("scheme", $arr) &&
+       $arr["scheme"] != "file" &&
+       strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
+    {
     $protocol = $arr["scheme"] . "://";
 
     if ( array_key_exists("user", $arr) ) {
@@ -169,6 +173,7 @@ function explode_url($url) {
       $file .= "#" . $arr["fragment"];
 
   } else {
+    
     $i = strpos($url, "file://");
     if ( $i !== false)
       $url = substr($url, $i + 7);

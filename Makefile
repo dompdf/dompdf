@@ -5,7 +5,7 @@
 # Creates documentation & distribution packages
 #
 ###################################################################
-VERSION=0.4
+VERSION=0.4.1
 DIST_FILES = dompdf.php dompdf_config.inc.php INSTALL LICENSE.LGPL \
 			 load_font.php README HACKING TODO \
 			 include/*.php lib/class.pdf.php lib/res/*.css  \

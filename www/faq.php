@@ -16,7 +16,14 @@
   Maximum execution time of 30 seconds exceeded in /var/www/dompdf/dompdf.php
   on line XXX</a></li>
 
-<li><a href="#tables">I have a big table and it's broken!</a></li>
+<li><a href="#no_block_parent">I'm getting the following error:<br/>
+Fatal error: Uncaught exception 'DOMPDF_Exception' with message 'No
+block-level parent found. Not good.' in
+C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
+...
+</a></li>
+
+<li><a href="#tables">I have a big table and it's broken!</a></li><!-- ' -->
 
 </ol>
 
@@ -83,11 +90,24 @@ endless loop, thus giving rise to this error.</p>
 <a href="#FAQ">[back to top]</a>
 <div class="divider2" style="background-position: 49% 0%">&nbsp;</div>
 
+<a name="no_block_parent"> </a>
+<h3>I'm getting the following error:<br/>
+Fatal error: Uncaught exception 'DOMPDF_Exception' with message 'No
+block-level parent found. Not good.' in
+C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
+...</h3>
+
+<p>This should be fixed in versions 0.4.1 and up.  The error was
+caused by <code>parse_url()</code> thinking that the 'c' in 'c:\' was
+a protocol.  Version 0.4.1 works around this issue.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider2" style="background-position: 49% 0%">&nbsp;</div>
+
 <a name="tables"> </a>
 <h3>I have a big table and it's broken!</h3>
 
-<p>Currently tables can not span pages.  If they do, their layout breaks.  This will 
-hopefully be fixed soon.</p>
+<p>This is fixed in versions 0.4 and higher.  Previous versions did not support tables that spanned pages.</p>
 
 <a href="#FAQ">[back to top]</a>
 <div class="divider1" style="background-position: 33% 0%">&nbsp;</div>
