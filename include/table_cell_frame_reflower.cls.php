@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.3 2005-03-10 18:59:18 benjcarson Exp $ */
 
 
 /**
@@ -122,9 +122,10 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     $this->_frame->set_content_height($this->_calculate_content_height());
 
     $height = max($height, $this->_frame->get_content_height());
-
+    
     // Let the cellmap know our height
     $cell_height = $height / count($cells["rows"])  + $top_space + $bottom_space;
+    
     foreach ($cells["rows"] as $i) 
       $cellmap->set_row_height($i, $cell_height);
       

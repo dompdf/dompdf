@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.3 2005-03-10 18:59:19 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -46,11 +46,18 @@
  * @package dompdf
  */
 class Table_Frame_Reflower extends Frame_Reflower {
-  
-  protected $_state;   // Used to cache results between get_min_max_width
-                       // call & assign_widths call
 
-  function __construct(Table_Frame_Decorator $frame) { parent::__construct($frame); }
+  /**
+   * Cache of results between call to get_min_max_width and assign_widths
+   *
+   * @var array
+   */
+  protected $_state;
+  
+  function __construct(Table_Frame_Decorator $frame) {
+    $this->_state = null;
+    parent::__construct($frame);
+  }
   
   //........................................................................
 
@@ -295,7 +302,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     // Table layout algorithm:
     // http://www.w3.org/TR/CSS21/tables.html#auto-table-layout
 
-    if ( !isset($this->_min_width) || !isset($this->_max_width) ) 
+    if ( is_null($this->_state) )
       $this->get_min_max_width();
 
     $cb = $this->_frame->get_containing_block();
@@ -378,7 +385,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     // Assign heights to our cells
     $cellmap->assign_frame_heights();
-    $rows =& $cellmap->get_rows();
+    $rows = $cellmap->get_rows();
 
     // Determine our height
     $height = 0;
@@ -395,7 +402,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $page->table_reflow_end();
     
     // Debugging:
-    //    echo ($this->_frame->get_cellmap());
+    //echo ($this->_frame->get_cellmap());
   }
 
   //........................................................................
@@ -411,6 +418,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     
     // Find the min/max width of the table and sort the columns into
     // absolute/percent/auto arrays
+    $this->_state = array();
     $this->_state["min_width"] = 0;
     $this->_state["max_width"] = 0;
 
