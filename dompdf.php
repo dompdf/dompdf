@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.3 2005-03-02 00:51:23 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.4 2005-03-02 18:37:15 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -193,7 +193,7 @@ switch ( $sapi ) {
     $paper = DOMPDF_DEFAULT_PAPER_SIZE;
 
   if ( isset($opts["o"]) )
-    $orientaion = $opts["o"];
+    $orientation = $opts["o"];
   else
     $orientation = "portrait";
 

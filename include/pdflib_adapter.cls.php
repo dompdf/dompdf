@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.2 2005-03-02 17:34:42 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.3 2005-03-02 18:37:17 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -112,6 +112,13 @@ class PDFLib_Adapter implements Canvas {
    * @var array
    */
   private $_fonts;
+
+  /**
+   * List of objects (templates) to add to multiple pages
+   *
+   * @var array
+   */
+  private $_objs;
   
   /**
    * Current page number
@@ -176,7 +183,8 @@ class PDFLib_Adapter implements Canvas {
     
     $this->_imgs = array();
     $this->_fonts = array();
-
+    $this->_objs = array();
+    
     // Set up font paths
     $families = Font_Metrics::get_font_families();
     foreach ($families as $family => $files) {
@@ -208,6 +216,15 @@ class PDFLib_Adapter implements Canvas {
    * Close the pdf
    */
   protected function _close() {
+    $this->_place_objects();
+
+    if ( isset($this->_page_text) ) {
+      extract($this->_page_text);
+      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                          array($this->_page_number, $this->_page_count), $text);
+      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+    }
+    
     $this->_pdf->end_page_ext("");
     $this->_pdf->end_document("");
   }
@@ -234,9 +251,11 @@ class PDFLib_Adapter implements Canvas {
    *
    * @return int
    */
-  function open_object() {
+  function open_object() {    
+    $this->_pdf->suspend_page("");
     $ret = $this->_pdf->begin_template($this->_width, $this->_height);
     $this->_pdf->save();
+    $this->_objs[$ret] = array("start_page" => $this->_page_number);
     return $ret;
   }
 
@@ -259,17 +278,34 @@ class PDFLib_Adapter implements Canvas {
   function close_object() {
     $this->_pdf->restore();
     $this->_pdf->end_template();
+    $this->_pdf->resume_page("pagenumber=".$this->_page_number);
   }
 
   /**
    * Adds the specified object to the document
    *
-   * @param int $object
+   * $where can be one of:
+   * - 'add' add to current page only
+   * - 'all' add to every page from the current one onwards
+   * - 'odd' add to all odd numbered pages from now on
+   * - 'even' add to all even numbered pages from now on
+   * - 'next' add the object to the next page only
+   * - 'nextodd' add to all odd numbered pages from the next one
+   * - 'nexteven' add to all even numbered pages from the next one
+   *
+   * @param int $object the object handle returned by open_object()
    * @param string $where
    */
   function add_object($object, $where = 'all') {
-    // FIXME
-    //$this->_pdf->fit_image($object, 0, 0, 
+
+    if ( strpos($where, "next") !== false ) {
+      $this->_objs[$object]["start_page"]++;
+      $where = str_replace("next", "", $where);
+      if ( $where == "" )
+        $where = "add";
+    }
+    
+    $this->_objs[$object]["where"] = $where;
   }
 
   /**
@@ -281,9 +317,40 @@ class PDFLib_Adapter implements Canvas {
    * @param int $object
    */
   function stop_object($object) {
-    // FIXME
+
+    $start = $this->_objs[$object]["start_page"];
+    $where = $this->_objs[$object]["where"];
+    
+    // Place the object on this page if required
+    if ( $this->_page_number >= $start &&
+         (($this->_page_number % 2 == 0 && $where == "even") ||
+          ($this->_page_number % 2 == 1 && $where == "odd") ||
+          ($where == "all")) )
+      $this->_pdf->fit_image($object,0,0,"");
+
+    unset($this->_objs[$object]);
   }
 
+  /**
+   * Add all active objects to the current page
+   */
+  protected function _place_objects() {
+
+    foreach ( $this->_objs as $obj => $props ) {
+      $start = $props["start_page"];
+      $where = $props["where"];
+
+      // Place the object on this page if required
+      if ( $this->_page_number >= $start &&
+           (($this->_page_number % 2 == 0 && $where == "even") ||
+            ($this->_page_number % 2 == 1 && $where == "odd") ||
+            ($where == "all")) ) {
+        $this->_pdf->fit_image($obj,0,$this->_height,"");
+      }
+    }
+    
+  }
+  
   function get_width() { return $this->_width; }
 
   function get_height() { return $this->_height; }
@@ -500,15 +567,17 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0) {
-
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
     
     $fh = $this->_load_font($font);
     
     $this->_pdf->setfont($fh, $size);
     $this->_set_fill_color($color);
+
     $y += (float)$size;
-    $this->_pdf->show_xy(utf8_decode($text), $x, $y);
+    $adjust = (float)$adjust;
+    $angle = -(float)$angle;
+    $this->_pdf->fit_textline(utf8_decode($text), $x, $y, "rotate=$angle wordspacing=$adjust");
     
   }
   
@@ -538,14 +607,32 @@ class PDFLib_Adapter implements Canvas {
 
   function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
                      $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
-    // FIXME
+    $this->_page_text = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
+
+    // Add the text to the first page
+    $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                        array($this->_page_number, $this->_page_count), $text);
+    $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
   }
 
   //........................................................................
 
   function new_page() {
+
+    // Add objects to the current page
+    $this->_place_objects();
+
+    if ( isset($this->_page_text) ) {
+      extract($this->_page_text);
+      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                          array($this->_page_number, $this->_page_count), $text);
+      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+    }
+
+    $this->_page_number++;
     $this->_pdf->end_page_ext("");
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");
+
   }
 
   //........................................................................

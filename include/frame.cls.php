@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.2 2005-02-06 21:01:15 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.3 2005-03-02 18:37:17 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -110,6 +110,7 @@ class Frame {
                                      "w" => null,
                                      "h" => null);
 
+    unset($this->_style);    
     $this->_style = clone $this->_original_style;
     
   }
