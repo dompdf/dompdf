@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdf_adapter.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: pdf_adapter.cls.php,v 1.2 2005-02-05 17:32:04 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -448,7 +448,7 @@ class PDF_Adapter implements Canvas {
 
   //........................................................................
 
-  function polygon(&$points, $color, $width = null, $style = array(),
+  function polygon($points, $color, $width = null, $style = array(),
                    $fill = false, $blend = "Normal", $opacity = 1.0) {
 
     $this->_set_fill_color($color);

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.2 2005-02-01 15:11:31 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.3 2005-02-05 17:32:04 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -54,20 +54,52 @@ class Page_Frame_Decorator extends Frame_Decorator {
    */
   protected $_bottom_page_margin;
   
-
+  /**
+   * Flag indicating page is full.
+   *
+   * @var bool
+   */
+  protected $_page_full;
+  
   //........................................................................
 
+  /**
+   * Class constructor
+   *
+   * @param Frame $frame the frame to decorate
+   */
   function __construct(Frame $frame) {
     parent::__construct($frame);
+    $this->_page_full = false;
+    $this->_bottom_page_margin = null;
   }
   
   //........................................................................
 
+  /**
+   * Set the frame's containing block.  Overridden to set $this->_bottom_page_margin.
+   *
+   * @param float $x
+   * @param float $y
+   * @param float $w
+   * @param float $h
+   */
   function set_containing_block($x = null, $y = null, $w = null, $h = null) {
     parent::set_containing_block($x,$y,$w,$h);
     $w = $this->get_containing_block("w");
     if ( isset($h) )
-      $this->_bottom_page_margin = $h - $this->_frame->get_style()->length_in_pt($this->_frame->get_style()->margin_bottom, $w);
+      $this->_bottom_page_margin = $h; // - $this->_frame->get_style()->length_in_pt($this->_frame->get_style()->margin_bottom, $w);
+  }
+
+  //........................................................................
+
+  /**
+   * Returns true if the page is full and is no longer accepting frames.
+   *
+   * @return bool
+   */
+  function is_page_full() {
+    return $this->_page_full;
   }
 
   //........................................................................
@@ -101,6 +133,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
          or
          ($prev && in_array($prev->get_style()->page_break_after, $page_breaks)) ) {
       $frame->split();
+      $this->_page_full = true;
       return;
     }
     
@@ -225,6 +258,18 @@ class Page_Frame_Decorator extends Frame_Decorator {
     
     // Determine the frame's maximum y value
     $max_y = $frame->get_position("y") + $frame->get_margin_height();
+
+    // If a split is to occur here, then the bottom margins & paddings all
+    // parents of $frame must fit on the page as well:
+    $p = $frame->get_parent();
+    while ( $p ) {
+      $style = $p->get_style();
+      $max_y += $style->get_length_in_pt(array($style->margin_bottom,
+                                               $style->padding_bottom,
+                                               $style->border_bottom_width));
+      $p = $p->get_parent();
+    }
+
     
     // Check if $frame flows off the page    
     if ( $max_y <= $this->_bottom_page_margin ) 
@@ -234,7 +279,8 @@ class Page_Frame_Decorator extends Frame_Decorator {
     // yes: can we split here?
     if ( $this->_page_break_allowed($frame) ) {
       $frame->split();
-      return $frame;
+      $this->_page_full = true;
+      return;
       
     } else {
       // backtrack until we can find a suitable place to split.
@@ -244,7 +290,8 @@ class Page_Frame_Decorator extends Frame_Decorator {
         
         if ( $this->_page_break_allowed($iter) ) {
           $iter->split();
-          return $iter;
+          $this->_page_full = true;
+          return;
         }
 
         if ( $next = $iter->get_last_child() ) {
@@ -268,6 +315,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       }
       // No valid page break found.  Just break at $frame.
       $frame->split();
+      $this->_page_full = true;
       return $frame;
     }
     

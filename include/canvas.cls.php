@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: canvas.cls.php,v 1.1.1.1 2005-01-25 22:56:01 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.2 2005-02-05 17:32:04 benjcarson Exp $ */
 
 /**
  * Main rendering interface
@@ -128,7 +128,7 @@ interface Canvas {
   /**
    * Draws a polygon
    *
-   * The ploygon is formed by joining all the points stored in the $points
+   * The polygon is formed by joining all the points stored in the $points
    * array.  $points has the following structure:
    * <code>
    * array(0 => array(x, y),
@@ -147,7 +147,7 @@ interface Canvas {
    * @param array $style
    * @param bool fill  Fills the polygon if true
    */
-  function polygon(&$points, $color, $width = null, $style = null, $fill = false);
+  function polygon($points, $color, $width = null, $style = null, $fill = false);
 
   /**
    * Draws a circle at x,y with radius $r1

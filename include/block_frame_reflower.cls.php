@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.2 2005-02-01 15:11:30 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.3 2005-02-05 17:32:04 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -405,12 +405,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     foreach ( $this->_frame->get_children() as $child ) {
       
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-
-      // Don't add the child to the line if a page break has occurred
       $child->reflow();
       
       // Don't add the child to the line if a page break has occurred
-      if ( $split = $page->check_page_break($child) )
+      if ( $page->check_page_break($child) )
         break;      
       
 //       if ( $child->reflow() ) 
