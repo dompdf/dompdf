@@ -39,9 +39,15 @@
     <li style="list-style-image: url('images/arrow_03.gif');"><a href="examples.php#demo">demo</a></li>
   </ul>
 <h2>Support</h2>
-  <p>Send bug reports &amp; support questions to <a style="white-space:
-  nowrap" href="mailto:dompdf%40digitaljunkies%2eca">dompdf at
-  digitaljunkies.ca</a>.  A FAQ is on its way.</p>
+  <ul>
+    <li style="list-style-image: url('images/arrow_04.gif');"><a href="faq.php">FAQ</a></li>
+  </ul>
+
+  <p>Send bug reports &amp; support questions to
+  <a href="http://sourceforge.net/projects/dompdf/">SourceForge</a>
+  or send an email to <a style="white-space: nowrap"
+  href="mailto:dompdf%40digitaljunkies%2eca">dompdf at
+  digitaljunkies.ca</a>.</p>
   
 </td>
 

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.2 2005-02-01 15:11:30 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.3 2005-02-14 08:47:07 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -50,6 +50,11 @@
  */
 class Cellmap {
 
+  /**
+   * Border style weight lookup for collapsed border resolution.
+   *
+   * @var array
+   */
   static protected $_BORDER_STYLE_SCORE = array("inset"  => 1,
                                                 "groove" => 2,
                                                 "outset" => 3,
@@ -60,20 +65,75 @@ class Cellmap {
                                                 "double" => 8,
                                                 "none"   => 0);
 
+  /**
+   * The table object this cellmap is attached to.
+   *
+   * @var Table_Frame_Decorator
+   */
   protected $_table;
   
+  /**
+   * The total number of rows in the table
+   *
+   * @var int
+   */
   protected $_num_rows;
+
+  /**
+   * The total number of columns in the table
+   *
+   * @var int
+   */
   protected $_num_cols;
 
+  /**
+   * 2D array mapping <row,column> to frames
+   *
+   * @var array
+   */
   protected $_cells;
+
+  /**
+   * 1D array of column dimensions
+   *
+   * @var array
+   */
   protected $_columns;
+
+  /**
+   * 1D array of row dimensions
+   *
+   * @var array
+   */
   protected $_rows;
 
+  /**
+   * 2D array of border specs
+   *
+   * @var array
+   */
   protected $_borders;
-  
+
+  /**
+   * 1D Array mapping frames to (multiple) <row, col> pairs, keyed on
+   * frame_id.
+   *
+   * @var array
+   */
   protected $_frames;
 
+  /**
+   * Current column when adding cells, 0-based
+   *
+   * @var int
+   */
   private $__col;
+
+  /**
+   * Current row when adding cells, 0-based
+   *
+   * @var int
+   */
   private $__row;
   
   //........................................................................
@@ -89,16 +149,15 @@ class Cellmap {
     $this->_num_rows = 0;
     $this->_num_cols = 0;
 
-    $this->_cells  = array(); // 2D array mapping row,column to frames
-    $this->_frames = array(); // 1D array mapping frames to (multiple) <row,col> pairs
+    $this->_cells  = array();
+    $this->_frames = array();
 
-    $this->_columns = array(); // 1D array of column dimensions
-    $this->_rows = array();    // 1D array of row dimensions
+    $this->_columns = array();
+    $this->_rows = array();   
 
-    $this->_borders = array(); // 2D array of border specs
+    $this->_borders = array();
     
-    $this->__col = $this->__row = 0; // Current row/column when adding
-                                     // cells, 0-based
+    $this->__col = $this->__row = 0;
   }
   
   //........................................................................
@@ -460,6 +519,36 @@ class Cellmap {
   }
 
   //........................................................................
+
+  /**
+   * Remove a row from the cellmap.
+   *
+   * @param Frame
+   */
+  function remove_row(Frame $row) {
+
+    // FIXME: handle row-groups
+    
+    $this->_row = $this->_num_rows--;
+
+    $key = $row->get_id();
+    $rows = $this->_frames[$key]["rows"];
+    $columns = $this->_frames[$key]["columns"];
+
+    // Remove all frames from this row
+    foreach ( $rows as $row ) {
+      foreach ( $columns as $col ) {
+        $frame = $this->_cells[$row][$col];
+        unset($this->_frames[ $frame->get_id() ]);
+        unset($this->_cells[$row][$col]);
+      }
+    }
+
+    unset($this->_frames[$key]);
+
+  }
+
+  //........................................................................
   
   function assign_x_positions() {
     // Pre-condition: widths must be resolved and assigned to columns and
@@ -477,13 +566,17 @@ class Cellmap {
   function assign_frame_heights() {
     // Pre-condition: widths and heights of each column & row must be
     // calcluated
-
+    
     foreach ( $this->_frames as $arr ) {
       $frame = $arr["frame"];
       
       $h = 0;
-      foreach( $arr["rows"] as $row )
+      foreach( $arr["rows"] as $row ) {
+        if ( !isset($this->_rows[$row]) )
+          // The row has been removed because of a page split, so skip it.
+          continue;
         $h += $this->_rows[$row]["height"];
+      }
       
       if ( $frame instanceof Table_Cell_Frame_Decorator )
         $frame->set_cell_height($h);

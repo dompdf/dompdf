@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
 
 
 /**
@@ -57,6 +57,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
   //........................................................................
 
   function reflow() {
+ 
     $style = $this->_frame->get_style();
     
     $table = Table_Frame_Decorator::find_parent_table($this->_frame);
@@ -100,6 +101,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     $content_x = $x + $left_space;
     $content_y = $line_y = $y + $top_space;
 
+    // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $w);
     $this->_frame->increase_line_width($indent);
 
@@ -108,9 +110,10 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
+      
       $child->set_containing_block($content_x, $content_y, $cb_w, $h);
       $child->reflow();
-
+      
       $this->_frame->add_frame_to_line( $child );
     }
 

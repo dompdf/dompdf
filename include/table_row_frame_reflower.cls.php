@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_row_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_row_frame_reflower.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
 
 /**
  * Reflows table rows
@@ -55,13 +55,20 @@ class Table_Row_Frame_Reflower extends Frame_Reflower {
   //........................................................................ 
 
   function reflow() {
+    $page = $this->_frame->get_root();
+
+    if ( $page->is_full() )
+      return;
+    
     $this->_frame->position();
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
     
-    foreach ($this->_frame->get_children() as $child) {      
+    foreach ($this->_frame->get_children() as $child) {
+      
       $child->set_containing_block($cb);
       $child->reflow();
+
     }
 
     $table = Table_Frame_Decorator::find_parent_table($this->_frame);

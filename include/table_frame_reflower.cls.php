@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -83,9 +83,9 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $right = $right == "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
     
     $delta = $left + $right + $style->length_in_pt(array($style->padding_left,
-                                                           $style->border_left_width,
-                                                           $style->border_right_width,
-                                                           $style->padding_right), $cb["w"]);
+                                                         $style->border_left_width,
+                                                         $style->border_right_width,
+                                                         $style->padding_right), $cb["w"]);
     
     if ( $width !== "auto" ) {
       
@@ -272,6 +272,20 @@ class Table_Frame_Reflower extends Frame_Reflower {
   //........................................................................
 
   function reflow() {
+
+    // Check if a page break is forced
+    $page = $this->_frame->get_root();
+    $page->check_forced_page_break($this->_frame);
+
+    // Bail if the page is full
+    if ( $page->is_full() )
+      return;    
+
+    // Let the page know that we're reflowing a table so that splits
+    // are suppressed (simply setting page-break-inside: avoid won't
+    // work because we may have an arbitrary number of block elements
+    // inside tds.)
+    $page->table_reflow_start();
     
     // Collapse vertical margins, if required
     $this->_collapse_margins();
@@ -349,8 +363,17 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     // Set the containing block of each child & reflow
     foreach ( $this->_frame->get_children() as $child ) {
-      $child->set_containing_block($content_x, $content_y, $width, $h);      
+
+      // Bail if the page is full
+      if ( $page->is_full() )
+        break;
+      
+      $child->set_containing_block($content_x, $content_y, $width, $h);
       $child->reflow();
+
+      // Check if a split has occured
+      $page->check_page_break($child);
+      
     }
 
     // Assign heights to our cells
@@ -369,6 +392,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
       $style->border_style = "none";
     }
 
+    $page->table_reflow_end();
+    
     // Debugging:
     //    echo ($this->_frame->get_cellmap());
   }

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_factory.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic
@@ -162,7 +162,7 @@ class Frame_Factory {
     $decorator .= "_Frame_Decorator";
     $reflower .= "_Frame_Reflower";
 
-    $deco = new $decorator($frame, $dompdf);
+    $deco = new $decorator($frame); //, $dompdf);
     $deco->set_positioner( new $positioner($deco) );
     $reflow = new $reflower($deco);
     

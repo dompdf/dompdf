@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -593,6 +593,7 @@ class Style {
         $b = hexdec(substr($colour, 5, 2));
 
       } else if ( strpos($colour, "rgb") !== false ) {
+
         // rgb( r,g,b ) format
         $i = strpos($colour, "(");
         $j = strpos($colour, ")");
@@ -601,7 +602,7 @@ class Style {
         if ($i === false || $j === false)
           return null;
 
-        $triplet = explode(",", substr($colour, $i, -$j));
+        $triplet = explode(",", substr($colour, $i+1, $j-$i-1));
 
         if (count($triplet) != 3)
           return null;

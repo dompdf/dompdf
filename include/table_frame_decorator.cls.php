@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -75,12 +75,33 @@ class Table_Frame_Decorator extends Frame_Decorator {
   }
 
   //........................................................................
-
+  
   function reset() {
     parent::reset();
+    $this->_cellmap->reset();
     $this->_min_width = null;
     $this->_max_width = null;
     $this->_state = array();                                
+  }
+  
+  //........................................................................
+
+  /**
+   * Split the table at $row.  $row and all subsequent rows will be
+   * added to the clone.  This method is overidden in order to remove
+   * frames from the cellmap properly.
+   *
+   * @param Frame $row
+   */
+  function split($child = null) {
+    parent::split($child);
+
+    // Update the cellmap
+    $iter = $child;
+    while ($iter) {
+      $this->_cellmap->remove_row($iter);
+      $iter = $iter->get_next_sibling();
+    }
   }
   
   //........................................................................

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.4 2005-02-06 21:01:11 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.5 2005-02-14 08:46:53 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -287,12 +287,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Check if a page break is forced
     $page = $this->_frame->get_root();
     $page->check_forced_page_break($this->_frame);
+
+    // Bail if the page is full
     if ( $page->is_full() )
-      return;
-    
-    // if ( $page->check_forced_page_break( $this->_frame ) )
-    //   return;
-    
+      return;    
     
     // Collapse margins if required
     $this->_collapse_margins();
@@ -302,8 +300,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();    
     $cb = $this->_frame->get_containing_block();
     list($x, $y) = $this->_frame->get_position();
-
-    //$page_margin = $cb["h"] + $cb["y"];
         
     // Determine the constraints imposed by this frame: calculate the width
     // of the content area:
@@ -344,7 +340,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $this->_frame->set_current_line($line_y);
     
     // Set the containing blocks and reflow each child
-    //$split_flg = false;
     foreach ( $this->_frame->get_children() as $child ) {
 
       // Bail out if the page is full
@@ -357,36 +352,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
         break;      
-      
-//       if ( $child->reflow() ) 
-//         // The child split, so we shouldn't have to
-//         continue;
-      
-//       $y = $child->get_position("y");
-//       $h = $child->get_margin_height();
-
-//       // Find the previous block element
-//       $p = $child->get_prev_sibling();
-//       while ($p) {
-//         if (in_array($p->get_style()->display, Style::$BLOCK_TYPES))
-//           break;
-//         $p = $p->get_prev_sibling();
-//       }
-      
-//       // Check if we need to create a new page      
-//       if ( $style->page_break_inside !== "avoid" && $y + $h > $page_margin ) {
-
-//         if ( $split = $this->_locate_page_break( $child ) ) {
-//           // Remove split from the frame's line
-//           $this->_frame->remove_frames_from_line($split);
-          
-//           $this->_frame->split($split);
-//           $split_flg = true;
-//           break;
-//         }
-
-//       }
-      
+            
       // It's okay to add the frame to the line
       $this->_frame->add_frame_to_line( $child );
     }
@@ -395,8 +361,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style->height = $this->_calculate_restricted_height();
     
     $this->_text_align();
-    
-    //return $split_flg;
+
   }
 
   //........................................................................
