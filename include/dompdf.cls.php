@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.3 2005-03-16 03:42:36 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.4 2005-03-17 18:18:44 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -338,7 +338,7 @@ class DOMPDF {
    */
   function set_paper($size, $orientation = "portrait") {
     $this->_paper_size = $size;
-    $this->_orientation = $orientation;
+    $this->_paper_orientation = $orientation;
   }
   
   //........................................................................ 
@@ -393,7 +393,7 @@ class DOMPDF {
       }
     }
     
-    $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_orientation);
+    $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
     
     $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
 
