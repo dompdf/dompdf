@@ -218,14 +218,14 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   if ( strtolower($ext) === ".ttf") {
     foreach ($fonts as $var => $font) {
       if ( is_null($font) ) {
-        $entry[$var] = DOMPDF_FONT_DIR . substr(basename($normal), 0, -4) . ".afm";
+        $entry[$var] = DOMPDF_FONT_DIR . substr(basename($normal), 0, -4);
         continue;
       }
       $dest = DOMPDF_FONT_DIR . substr(basename($font),0, -4);
       echo "Generating .afm for $font...\n";
       exec( _TTF2AFM . " " . escapeshellarg($font) . " " . $dest . " &> /dev/null", $output, $ret );
       
-      $entry[$var] = $dest . ".afm";
+      $entry[$var] = $dest;
     }
 
   }

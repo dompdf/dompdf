@@ -51,7 +51,7 @@ PDF: (Note remote stylesheets, images &amp; inline PHP have been disabled.)</p>
 <p>Paper size and orientaion:
 <select name="paper">
 <?php
-foreach ( array_keys(PDF_Adapter::$PAPER_SIZES) as $size )
+foreach ( array_keys(CPDF_Adapter::$PAPER_SIZES) as $size )
   echo "<option ". ($size == "letter" ? "selected " : "" ) . "value=\"$size\">$size</option>\n";
 ?>
 </select>

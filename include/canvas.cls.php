@@ -37,21 +37,18 @@
  * @version 0.3
  */
 
-/* $Id: canvas.cls.php,v 1.2 2005-02-05 17:32:04 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Main rendering interface
  *
- * Currently only {@link PDF_Adapter} implements this interface.  However,
- * additional implementations (e.g. using PDFlib, FPDF or even GD) would be
- * nice to see someday ;).
+ * Currently only {@link CPDF_Adapter} and {@link PDFLib_Adapter}
+ * implement this interface.
  *
  * Implementations should measure x and y increasing to the left and down,
  * respectively, with the origin in the top left corner.  Implementations
  * are free to use a unit other than points for length, but I can't
- * guarantee that the results will look any good.  If a different unit is
- * used, the {@link Font_Metrics} class will likely have to take this into
- * account.
+ * guarantee that the results will look any good.
  *
  * @package dompdf
  */
@@ -131,8 +128,8 @@ interface Canvas {
    * The polygon is formed by joining all the points stored in the $points
    * array.  $points has the following structure:
    * <code>
-   * array(0 => array(x, y),
-   *       1 => array(x, y),
+   * array(0 => x1,
+   *       1 => y1,
    *       ...
    *       );
    * </code>
@@ -167,8 +164,17 @@ interface Canvas {
   function circle($x, $y, $r1, $color, $width = null, $style = null, $fill = false);
 
   /**
-   * {@internal Add an image to the page at the specifed x & y coords}}
-   * @access private
+   * Add an image to the pdf.
+   *
+   * The image is placed at the specified x and y coordinates with the
+   * given width and height.
+   *
+   * @param string $img_url the path to the image
+   * @param string $img_type the type (e.g. extension) of the image
+   * @param float $x x position
+   * @param float $y y position
+   * @param int $w width (in pixels)
+   * @param int $h height (in pixels)
    */
   function image($img_url, $img_type, $x, $y, $w, $h);
 
@@ -189,11 +195,47 @@ interface Canvas {
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0);
 
   /**
+   * Calculates text size, in points
+   *
+   * @param string $text the text to be sized
+   * @param string $font the desired font
+   * @param float  $size the desired font size
+   * @param float  $spacing word spacing, if any
+   * @return float
+   */
+  function get_text_width($text, $font, $size, $spacing = 0);
+
+  /**
+   * Calculates font height, in points
+   *
+   * @param string $font
+   * @param float $size
+   * @return float
+   */
+  function get_font_height($font, $size);
+
+  
+  /**
    * Starts a new page
    *
    * Subsequent drawing operations will appear on the new page.
    */
   function new_page();
+
+  /**
+   * Streams the PDF directly to the browser
+   *
+   * @param string $filename the name of the PDF file
+   * @param array  $options associative array, 'Attachment' => 0 or 1, 'compress' => 1 or 0
+   */
+  function stream($filename, $options = null);
+
+  /**
+   * Returns the PDF as a string
+   *
+   * @return string
+   */
+  function output();
   
 }
 ?>

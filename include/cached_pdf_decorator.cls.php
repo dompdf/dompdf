@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cached_pdf_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:01 benjcarson Exp $ */
+/* $Id: cached_pdf_decorator.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Caching canvas implementation
@@ -46,19 +46,19 @@
  * This is useful for static forms/pages that do not need to be re-rendered
  * all the time.
  *
- * This class decorates normal PDF_Adapters.  It is currently completely
+ * This class decorates normal CPDF_Adapters.  It is currently completely
  * experimental.
  *
  * @access private
  * @package dompdf
  */
-class Cached_PDF_Decorator extends PDF_Adapter implements Canvas {
+class Cached_PDF_Decorator extends CPDF_Adapter implements Canvas {
   protected $_pdf;
   protected $_cache_id;
   protected $_current_page_id;
   protected $_fonts;  // fonts used in this document
   
-  function __construct($cache_id, PDF_Adapter $pdf) {
+  function __construct($cache_id, CPDF_Adapter $pdf) {
     $this->_pdf = $pdf;
     $this->_cache_id = $cache_id;
     $this->_fonts = array();

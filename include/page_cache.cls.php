@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_cache.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: page_cache.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Caches individual rendered PDF pages
@@ -126,7 +126,7 @@ class Page_Cache {
   }
 
   // Adds the cached document referenced by $id to the provided pdf
-  static function insert_cached_document(PDF_Adapter $pdf, $id, $new_page = true) {
+  static function insert_cached_document(CPDF_Adapter $pdf, $id, $new_page = true) {
     $res = self::__query("SELECT font_name FROM page_fonts WHERE id='" . pg_escape_string($id) . "'");
 
     // Ensure that the fonts needed by the cached document are loaded into

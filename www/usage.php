@@ -30,7 +30,7 @@ method is also useful as a redirection target.</p>
 <td class="input">paper</td>  <td>optional</td>
 
 <td class="description">the paper size.  Defaults to 'letter' (unless the default has been
-changed in dompdf_config.inc.php).  See include/pdf_adapter.cls.php, or
+changed in dompdf_config.inc.php).  See include/cpdf_adapter.cls.php, or
 invoke dompdf.php on the command line with the -l switch for accepted paper
 sizes.</td>
 </tr>
@@ -195,22 +195,22 @@ underlying PDF class directly.  You can do this by embedding PHP code within
 &lt;script type="text/php"&gt; &lt;/script&gt; tags.  This code is evaluated
 during the rendering phase and you have access to a few internal objects and
 operations.  In particular, the <code>$pdf</code> variable is the current instance of
-PDF_Adapter.  Using this object, you can write and draw directly on the
-current page.  Using the <code>PDF_Adapter::open_object()</code>,
-<code>PDF_Adapter::close_object()</code> and
-<code>PDF_Adapter::add_object()</code> methods, you can create text and
+CPDF_Adapter.  Using this object, you can write and draw directly on the
+current page.  Using the <code>CPDF_Adapter::open_object()</code>,
+<code>CPDF_Adapter::close_object()</code> and
+<code>CPDF_Adapter::add_object()</code> methods, you can create text and
 drawing objects that appear on every page of your PDF (useful for headers &amp;
 footers).</p>
 
 <p>The following variables are defined for you during the second pass of PHP
 execution:</p>
 <pre>
-  $pdf         the current instance of PDF_Adapter
+  $pdf         the current instance of CPDF_Adapter
   $PAGE_NUM    the current page number
   $PAGE_COUNT  the total number of pages in the document
 </pre>
 
-<p>For more complete documentation of the PDF_Adapter API, see the <a
+<p>For more complete documentation of the CPDF_Adapter API, see the <a
 href="http://www.digitaljunkies.ca/dompdf/doc/">API documentation</a>.</p>
 
 <?php include("foot.inc"); ?>

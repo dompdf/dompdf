@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -55,7 +55,6 @@ class Image_Frame_Decorator extends Frame_Decorator {
     parent::__construct($frame);
     $url = $frame->get_node()->getAttribute("src");
     
-
     if ( !DOMPDF_ENABLE_REMOTE && strstr($url, "://") ) {
       $this->_remote = false;
       $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";

@@ -130,7 +130,7 @@ input_file   required    a rawurlencoded() path to the HTML file to
 
 paper        optional    the paper size.  Defaults to 'letter' (unless the
                          default has been changed in dompdf_config.inc.php).
-                         See include/pdf_adapter.cls.php, or invoke
+                         See include/cpdf_adapter.cls.php, or invoke
                          dompdf.php on the command line with the -l switch
                          for accepted paper sizes.
 
@@ -241,21 +241,21 @@ underlying PDF class directly.  You can do this by embedding PHP code within
 <script type="text/php"> </script> tags.  This code is evaluated during the
 rendering phase and you have access to a few internal objects and
 operations.  In particular, the $pdf variable is the current instance of
-PDF_Adapter.  Using this object, you can write and draw directly on the
-current page.  Using the PDF_Adapter::open_object(),
-PDF_Adapter::close_object() and PDF_Adapter::add_object() methods, you can
+CPDF_Adapter.  Using this object, you can write and draw directly on the
+current page.  Using the CPDF_Adapter::open_object(),
+CPDF_Adapter::close_object() and CPDF_Adapter::add_object() methods, you can
 create text and drawing objects that appear on every page of your PDF
 (useful for headers & footers).
 
 The following variables are defined for you during the second pass of PHP
 execution:
 
-  $pdf         the current instance of PDF_Adapter
+  $pdf         the current instance of CPDF_Adapter
   $PAGE_NUM    the current page number
   $PAGE_COUNT  the total number of pages in the document
 
-For more complete documentation of the PDF_Adapter API, see either
-include/pdf_adapter.cls.php and include/canvas.cls.php directly, or check
+For more complete documentation of the CPDF_Adapter API, see either
+include/cpdf_adapter.cls.php and include/canvas.cls.php directly, or check
 out the online documentation at http://www.digitaljunkies.ca/dompdf/doc
 
 That's it!  Have fun!

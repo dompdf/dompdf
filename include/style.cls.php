@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -764,15 +764,15 @@ class Style {
     $families = explode(",", $this->_props["font_family"]);
     reset($families);
     $font = null;
-    while ( !$font ) {
-
-      if ( !current($families) )
-        throw new DOMPDF_Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] ."'");
-
+    while ( current($families) ) {
       list(,$family) = each($families);
       $font = Font_Metrics::get_font($family, $subtype);
+
+      if ( $font )
+        return $font;
     }
-    return $font;
+    throw new DOMPDF_Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] ."'");
+    
   }
 
   /**

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: renderer.cls.php,v 1.2 2005-02-28 18:46:32 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -108,12 +108,7 @@ class Renderer extends Abstract_Renderer {
       echo $frame;
       flush();
     }                      
-      
-//     if ( $frame->get_node()->nodeName == "img" ) {
-//       $this->_renderers["image"]->render($frame);
-//       return; // Skip children
-//     }
-      
+
     $display = $frame->get_style()->display;
     
     switch ($display) {

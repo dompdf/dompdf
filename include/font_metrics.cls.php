@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: font_metrics.cls.php,v 1.1.1.1 2005-01-25 22:56:01 benjcarson Exp $ */
+/* $Id: font_metrics.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
 
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 
@@ -90,8 +90,8 @@ class Font_Metrics {
    */
   static function init() {
     if (!self::$_pdf) {
-      self::$_pdf = new Cpdf();
       self::load_font_families();
+      self::$_pdf = Canvas_Factory::get_instance();
     }
   }
 
@@ -105,8 +105,7 @@ class Font_Metrics {
    * @return float
    */
   static function get_text_width($text, $font, $size, $spacing = 0) {
-    self::$_pdf->selectFont($font);
-    return self::$_pdf->getTextWidth($size, utf8_decode($text), $spacing);
+    return self::$_pdf->get_text_width($text, $font, $size, $spacing);
   }
 
   /**
@@ -117,8 +116,7 @@ class Font_Metrics {
    * @return float
    */
   static function get_font_height($font, $size) {
-    self::$_pdf->selectFont($font);
-    return self::$_pdf->getFontHeight($size);
+    return self::$_pdf->get_font_height($font, $size);
   }
 
   /**
@@ -177,6 +175,15 @@ class Font_Metrics {
     if ( $data != "" )
       eval ('self::$_font_lookup = ' . $data . ";");
 
+  }
+
+  /**
+   * Returns the current font lookup table
+   *
+   * @return array
+   */
+  static function get_font_families() {
+    return self::$_font_lookup;
   }
 
   static function set_font_family($fontname, $entry) {

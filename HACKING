@@ -27,7 +27,7 @@ For starters, I can point out some of the OO design patterns used in dompdf:
   strategy     Frame_Reflower, *_Frame_Reflower classes, Positioner,
                *_Positioner classes
   facade       dompdf
-  adapter      PDF_Adapter    
+  adapter      CPDF_Adapter, PDFLib_Adapter
 
 Also, see the main doc comment in dompdf.cls.php for a general overview of 
 the rendering process.

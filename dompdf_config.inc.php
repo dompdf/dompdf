@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.2 2005-02-01 15:11:28 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.3 2005-03-02 00:51:23 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -84,11 +84,29 @@ define("DOMPDF_TEMP_DIR", "/tmp");
 define("TTF2AFM", "/usr/bin/ttf2pt1");
 
 /**
+ * The PDF rendering backend to use
+ *
+ * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class)
+ * and 'auto'.  'auto' will look for PDFLib and use it if found, or if
+ * not it will fall back on CPDF.
+ *
+ * Both PDFLib & CPDF rendering backends provide sufficient rendering
+ * capabilities for dompdf, however additional features (e.g. object,
+ * image and font support, etc.)  differ between backends.  Please see
+ * {@link PDFLib_Adapter}, {@link CPDF_Adapter} and the documentation
+ * for each backend for more information.
+ * 
+ * @link http://www.pdflib.com
+ * @link http://www.ros.co.nz/pdf
+ */
+define("DOMPDF_PDF_BACKEND", "auto");
+
+/**
  * The default paper size.
  *
  * If you live outside of North America, feel free to change this ;)
  *
- * @see PDF_Adapter::PAPER_SIZES for valid sizes
+ * @see CPDF_Adapter::PAPER_SIZES for valid sizes
  */
 define("DOMPDF_DEFAULT_PAPER_SIZE", "letter");
 

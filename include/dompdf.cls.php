@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.1.1.1 2005-01-25 22:56:01 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -56,9 +56,9 @@
  *
  * {@link Frame}s are then decorated (in the design pattern sense of the
  * word) based on their CSS display property ({@link
- * http://www.w3.org/TR/CSS21/visuren.html#propdef-display}).
- * Frame_Decorators augment the basic {@link Frame} class by adding
- * additional properties and methods specific to the particular type of
+ * http://www.w3.org/TR/CSS21/visuren.html#propdef-display}). 
+/* Frame_Decorators augment the basic {@link Frame} class by adding
+ *  additional properties and methods specific to the particular type of
  * {@link Frame}.  For example, in the CSS layout model, block frames (
  * display: block; ) contain line boxes that are usually filled with text or
  * other inline frames.  The Block_Frame_Decorator therefore adds a $lines
@@ -79,11 +79,11 @@
  * Frame}s are rendered using an adapted {@link Cpdf} class, originally
  * written by Wayne Munro, http://www.ros.co.nz/pdf/.  (Some performance
  * related changes have been made to the original {@link Cpdf} class, and
- * the {@link PDF_Adapter} class provides a simple, stateless interface to
+ * the {@link CPDF_Adapter} class provides a simple, stateless interface to
  * PDF generation.)
  *
  *
- * @package dompdf 
+ * @package dompdf
  */
 class DOMPDF {
   
@@ -332,7 +332,7 @@ class DOMPDF {
   /**
    * Sets the paper size & orientation
    *
-   * @param string $size 'letter', 'legal', 'A4', etc. {@link PDF_Adapter::$PAPER_SIZES}
+   * @param string $size 'letter', 'legal', 'A4', etc. {@link CPDF_Adapter::$PAPER_SIZES}
    * @param string $orientation 'portrait' or 'landscape'
    */
   function set_paper($size, $orientation = "portrait") {
@@ -392,9 +392,7 @@ class DOMPDF {
       }
     }
     
-    $this->_pdf = new PDF_Adapter($this->_paper_size, $this->_orientation);
-    if ( !is_null($this->_cache_id) )
-      $this->_pdf = new Cached_PDF_Decorator($this->_cache_id, $this->_pdf);
+    $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_orientation);
     
     $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
 

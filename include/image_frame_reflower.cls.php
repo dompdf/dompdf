@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_reflower.cls.php,v 1.2 2005-02-28 18:46:32 benjcarson Exp $ */
+/* $Id: image_frame_reflower.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
 
 /**
  * Image reflower class
@@ -55,9 +55,10 @@ class Image_Frame_Reflower extends Frame_Reflower {
     // We need to grab our *parent's* style because images are wrapped...
     
     $style = $this->_frame->get_parent()->get_style();
+
     $width = $style->width;
     $height = $style->height;
-
+    
     // Determine the image's size
     list($img_width, $img_height, $type) = getimagesize($this->_frame->get_image_url());
 
