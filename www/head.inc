@@ -4,7 +4,7 @@
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>DOMPDF - The PHP 5 HTML to PDF Converter</title>
+<title>dompdf - The PHP 5 HTML to PDF Converter</title>
 <link rel="stylesheet" href="style.css" type="text/css"/>
 <link rel="SHORTCUT ICON" href="http://<?php echo $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]);?>/images/favicon.ico"/>
 </head>
