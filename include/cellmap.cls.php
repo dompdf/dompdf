@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.1.1.1 2005-01-25 22:56:01 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.2 2005-02-01 15:11:30 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -80,20 +80,7 @@ class Cellmap {
 
   function __construct(Table_Frame_Decorator $table) {
     $this->_table = $table;
-    
-    $this->_num_rows = 0;
-    $this->_num_cols = 0;
-
-    $this->_cells  = array(); // 2D array mapping row,column to frames
-    $this->_frames = array(); // 1D array mapping frames to (multiple) <row,col> pairs
-
-    $this->_columns = array(); // 1D array of column dimensions
-    $this->_rows = array();    // 1D array of row dimensions
-
-    $this->_borders = array(); // 2D array of border specs
-    
-    $this->__col = $this->__row = 0; // Current row/column when adding
-                                     // cells, 0-based
+    $this->reset();
   }
 
   //........................................................................

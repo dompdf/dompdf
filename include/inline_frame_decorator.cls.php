@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: inline_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: inline_frame_decorator.cls.php,v 1.2 2005-02-01 15:11:31 benjcarson Exp $ */
 
 /**
  * Decorates frames for inline layout
@@ -49,8 +49,13 @@ class Inline_Frame_Decorator extends Frame_Decorator {
   
   function __construct(Frame $frame) { parent::__construct($frame); }
 
-  function split(Frame $frame) {
+  function split($frame = null) {
 
+    if ( is_null($frame) ) {
+      $this->get_parent()->split($this);
+      return;
+    }
+    
     if ( $frame->get_parent() !== $this )
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
         

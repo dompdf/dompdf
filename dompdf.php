@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.1.1.1 2005-01-25 22:55:59 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.2 2005-02-01 15:11:28 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -100,6 +100,7 @@ function getoptions() {
 
     switch ($_SERVER["argv"][$i]) {
 
+    case "--help":
     case "-h":
       $opts["h"] = true;
       $i++;

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.2 2005-02-01 15:11:31 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -47,23 +47,19 @@
  */
 class Page_Frame_Decorator extends Frame_Decorator {
   
-  // public members
+  /**
+   * y value of bottom page margin
+   *
+   * @var float
+   */
+  protected $_bottom_page_margin;
   
-  // protected members
-  protected $_page_height;
-  
-  // private members
 
   //........................................................................
 
   function __construct(Frame $frame) {
     parent::__construct($frame);
-    $this->_page_height = null;
   }
-
-  //........................................................................
-
-  function get_page_height() { return $this->_page_height; }
   
   //........................................................................
 
@@ -71,13 +67,217 @@ class Page_Frame_Decorator extends Frame_Decorator {
     parent::set_containing_block($x,$y,$w,$h);
     $w = $this->get_containing_block("w");
     if ( isset($h) )
-      $this->_page_height = $h - $this->_frame->get_style()->length_in_pt(array($this->_frame->get_style()->margin_top,
-                                                                                $this->_frame->get_style()->margin_bottom), $w);
+      $this->_bottom_page_margin = $h - $this->_frame->get_style()->length_in_pt($this->_frame->get_style()->margin_bottom, $w);
   }
+
   //........................................................................
 
-  function split(Frame $frame) {
-    $frame->reset();
+  /**
+   * Check if a forced page break is required before $frame.  This uses the
+   * frame's page_break_before property as well as the preceeding frame's
+   * page_break_after property.
+   *
+   * @link http://www.w3.org/TR/CSS21/page.html#forced
+   *
+   * @param Frame $frame the frame to check
+   * @return bool true if a page break occured
+   */
+  function check_forced_page_break(Frame $frame) {
+
+    $block_types = array("block", "list-item", "table");
+    $page_breaks = array("always", "left", "right");
+    
+    $style = $frame->get_style();
+
+    if ( !in_array($style->display, $block_types) )
+      return;
+
+    // Find the previous block-level sibling
+    $prev = $frame->get_prev_sibling();
+    while ( $prev && !in_array($prev->get_style()->display, $block_types) )
+      $prev = $prev->get_prev_sibling();
+
+    if ( in_array($style->page_break_before, $page_breaks)
+         or
+         ($prev && in_array($prev->get_style()->page_break_after, $page_breaks)) ) {
+      $frame->split();
+      return;
+    }
+    
+  }
+
+  /**
+   * Determine if a page break is allowed before $frame
+   *
+   * @param Frame $frame the frame to check
+   * @return bool true if a break is allowed, false otherwise
+   */
+  protected function _page_break_allowed(Frame $frame) {
+    /**
+     *
+     * http://www.w3.org/TR/CSS21/page.html#allowed-page-breaks
+     * /*
+     * In the normal flow, page breaks can occur at the following places:
+     * 
+     *    1. In the vertical margin between block boxes. When a page
+     *    break occurs here, the used values of the relevant
+     *    'margin-top' and 'margin-bottom' properties are set to '0'.
+     *    2. Between line boxes inside a block box.
+     * 
+     * These breaks are subject to the following rules:
+     * 
+     *   * Rule A: Breaking at (1) is allowed only if the
+     *     'page-break-after' and 'page-break-before' properties of
+     *     all the elements generating boxes that meet at this margin
+     *     allow it, which is when at least one of them has the value
+     *     'always', 'left', or 'right', or when all of them are
+     *     'auto'.
+     *
+     *   * Rule B: However, if all of them are 'auto' and the
+     *     nearest common ancestor of all the elements has a
+     *     'page-break-inside' value of 'avoid', then breaking here is
+     *     not allowed.
+     *
+     *   * Rule C: Breaking at (2) is allowed only if the number of
+     *     line boxes between the break and the start of the enclosing
+     *     block box is the value of 'orphans' or more, and the number
+     *     of line boxes between the break and the end of the box is
+     *     the value of 'widows' or more.
+     *
+     *   * Rule D: In addition, breaking at (2) is allowed only if
+     *     the 'page-break-inside' property is 'auto'.
+     * 
+     * If the above doesn't provide enough break points to keep
+     * content from overflowing the page boxes, then rules B and D are
+     * dropped in order to find additional breakpoints.
+     * 
+     * If that still does not lead to sufficient break points, rules A
+     * and C are dropped as well, to find still more break points.
+     */
+
+    $block_types = array("block", "list-item", "table");
+
+    // Block Frames (1):
+    if ( in_array($frame->get_style(), $block_types) ) {
+      
+      // Rules A & B
+      
+      if ( $frame->get_style()->page_break_before == "avoid" )
+        return false;
+      
+      // Find the preceeding block-level sibling
+      $prev = $frame->get_prev_sibling();
+      while ( $prev && !in_array($prev->get_style()->display, $block_types) )
+        $prev = $prev->get_prev_sibling();
+
+      // Does the previous element allow a page break after?
+      if ( $prev && $prev->get_style()->page_break_after == "avoid" )
+        return false;
+
+      // If both $prev & $frame have the same parent, check the parent's
+      // page_break_inside property.
+      $parent = $frame->get_parent();
+      if ( $prev && $parent && $parent->get_style()->page_break_inside == "avoid" )
+        return false;
+
+      // If the frame is the first block-level frame, use the value from
+      // $frame's parent instead.    
+      if ( !$prev && $parent ) 
+        return $this->page_break_allowed( $parent );
+        
+      return true;
+    
+    }
+
+    // Inline frames (2):    
+    else if ( in_array($frame->get_style(), Style::$INLINE_TYPES) ) {
+      
+      // Rule C
+      $block_parent = $frame->find_block_parent();
+      if ( count($block_parent->get_lines() ) < $frame->get_style()->orphans )
+        return false;
+
+      // FIXME: Checking widows is tricky without having laid out the
+      // remaining line boxes.  Just ignore it for now...
+
+      // Rule D
+      if ( $block_parent->get_style()->page_break_inside == "avoid" )
+        return false;
+
+      return true;
+            
+    } else {
+      // FIXME: handle tables here?
+      return false;
+    }
+  
+  }
+  
+  /**
+   * Check if $frame will fit on the page.  If the frame does not fit,
+   * the frame tree is modified so that a page break occurs in the
+   * correct location.
+   *
+   * @param Frame $frame the frame to check
+   * @return Frame the frame following the page break
+   */
+  function check_page_break(Frame $frame) {
+    
+    // Determine the frame's maximum y value
+    $max_y = $frame->get_position("y") + $frame->get_margin_height();
+    
+    // Check if $frame flows off the page    
+    if ( $max_y <= $this->_bottom_page_margin ) 
+      // no: do nothing (?)
+      return;
+    
+    // yes: can we split here?
+    if ( $this->_page_break_allowed($frame) ) {
+      $frame->split();
+      return $frame;
+      
+    } else {
+      // backtrack until we can find a suitable place to split.
+      $iter = $frame->get_prev_sibling();
+
+      while ( $iter ) {
+        
+        if ( $this->_page_break_allowed($iter) ) {
+          $iter->split();
+          return $iter;
+        }
+
+        if ( $next = $iter->get_last_child() ) {
+          $iter = $next;
+          continue;
+        }
+
+        if ( $next = $iter->get_prev_sibling() ) {
+          $iter = $next;
+          continue;
+        }
+
+        $parent = $this->get_parent();
+        if ( $parent && $next = $parent->get_prev_sibling() ) {
+          $iter = $next;
+          continue;
+        }
+
+        break;
+        
+      }
+      // No valid page break found.  Just break at $frame.
+      $frame->split();
+      return $frame;
+    }
+    
+  }
+  
+  //........................................................................
+
+  function split($frame = null) {
+    if ( !is_null($frame) )
+      $frame->reset();
   }
 
 }

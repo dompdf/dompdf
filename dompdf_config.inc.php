@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.1.1.1 2005-01-25 22:56:00 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.2 2005-02-01 15:11:28 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -122,7 +122,7 @@ define("DOMPDF_DPI", "150");
  * pages) is a security risk.  Set this option to false if you wish to process
  * untrusted documents.
  */
-define("DOMPDF_ENABLE_PHP", false);
+define("DOMPDF_ENABLE_PHP", true);
 
 
 /**

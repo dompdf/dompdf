@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.2 2005-02-01 15:11:31 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -218,28 +218,6 @@ abstract class Frame_Decorator extends Frame {
 
   //........................................................................
 
-  // Returns true if this frame is the first on the page
-  function is_first_on_page() {
-
-    if ( $this instanceof Page_Frame_Decorator )
-      return null;
-    
-    $iter = $this;
-    while ( $iter ) {
-      if ( $iter->get_parent() instanceof Page_Frame_Decorator )
-        return true;
-      
-      if ( $iter->get_prev_sibling() ) 
-        return false;
-      
-      $iter = $iter->get_parent();
-    }
-
-    return true;
-  }
-  
-  //........................................................................
-
   /**
    * Split this frame at $child.
    *
@@ -249,11 +227,16 @@ abstract class Frame_Decorator extends Frame {
    *
    * @param Frame $child
    */
-  function split(Frame $child) {
+  function split($child = null) {
+
+    if ( is_null( $child ) ) {
+      $this->get_parent()->split($this);
+      return;
+    }
     
     if ( $child->get_parent() !== $this )
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
-        
+
     $split = $this->copy( $this->_frame->get_node()->cloneNode() ); 
     $this->get_parent()->insert_child_after($split, $this);
 
@@ -263,6 +246,9 @@ abstract class Frame_Decorator extends Frame {
       $frame = $iter;      
       $iter = $iter->get_next_sibling();
       $frame->reset();
+      // Presumably we're splitting across page boundaries.  Keep this
+      // from happening more than once.
+      $frame->get_style()->page_break_before = "avoid";
       $split->append_child($frame);
     }
 
