@@ -46,7 +46,7 @@
  * @version 0.3
  */
 
-/* $Id: html.css,v 1.1.1.1 2005-01-25 22:56:19 benjcarson Exp $ */
+/* $Id: html.css,v 1.2 2005-02-06 21:01:16 benjcarson Exp $ */
 
 
 html { 
@@ -60,6 +60,7 @@ div, map, dt, isindex {
 }
 
 body {
+  page-break-before: avoid;
   display: block;
   margin: 8px;
 }

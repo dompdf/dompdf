@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.2 2005-02-01 15:11:31 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.3 2005-02-06 21:01:15 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -246,9 +246,6 @@ abstract class Frame_Decorator extends Frame {
       $frame = $iter;      
       $iter = $iter->get_next_sibling();
       $frame->reset();
-      // Presumably we're splitting across page boundaries.  Keep this
-      // from happening more than once.
-      $frame->get_style()->page_break_before = "avoid";
       $split->append_child($frame);
     }
 

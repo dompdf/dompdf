@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_reflower.cls.php,v 1.2 2005-02-05 17:32:04 benjcarson Exp $ */
+/* $Id: page_frame_reflower.cls.php,v 1.3 2005-02-06 21:01:15 benjcarson Exp $ */
 
 /**
  * Reflows pages
@@ -74,7 +74,7 @@ class Page_Frame_Reflower extends Frame_Reflower {
 
       $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
       $child->reflow();
-      
+      $this->_frame->next_page();
     }
   }  
 }

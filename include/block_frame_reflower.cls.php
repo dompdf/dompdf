@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.3 2005-02-05 17:32:04 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.4 2005-02-06 21:01:11 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -282,74 +282,17 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   //........................................................................
 
-  protected function _resolve_page_break() {
-    // Resolve -before and -after page break properties so that we only have
-    // to check -before
-    $style = $this->_frame->get_style();
-
-    $next = $this->_frame->get_next_sibling();
-    while ( $next && $next->get_node()->nodeType != 1 ) // DOMElement
-      $next = $next->get_next_sibling();
-    
-    if ( !$next )
-      return;
-    
-    $next_style = $next->get_style();
-    
-    if ( $style->page_break_after == "always" ||
-         $next_style->page_break_before == "always" )
-      $next_style->page_break_before = "always";
-
-    else if ( $style->page_break_after == "avoid" ||
-              $next_style->page_break_after == "avoid" )
-      $next_style->page_break_before = "avoid";
-
-    else
-      $next_style->page_break_before = "auto";
-    
-  }
-  
-  protected function _locate_page_break(Frame $child) {
-
-    // Presumably $child flows off the page; we just need to figure out
-    // where exactly the page break should be.
-    $c_style = $child->get_style();
-    
-    if ( $c_style->page_break_before !== "avoid" )
-      return $child;
-
-    // Find the first available location to split the page
-
-    $p = $child->get_prev_sibling();
-    while ($p && $p->get_node()->nodeType != 1 )
-      $p = $p->get_prev_sibling();
-    
-    while ($p) {
-      if ( $p->get_style()->page_break_before !== "avoid" )
-        break;
-
-      // Find the next block level sibling
-      while ($p) {
-        if ( in_array($p->get_style()->display, Style::$BLOCK_TYPES) )
-          break;
-        $p = $p->get_prev_sibling();
-      }
-    }
-
-    if ($p)
-      return $p;
-    
-    return null;
-  }
-  
-  //........................................................................
-
   function reflow() {
 
     // Check if a page break is forced
     $page = $this->_frame->get_root();
-    if ( $page->check_forced_page_break( $this->_frame ) )
+    $page->check_forced_page_break($this->_frame);
+    if ( $page->is_full() )
       return;
+    
+    // if ( $page->check_forced_page_break( $this->_frame ) )
+    //   return;
+    
     
     // Collapse margins if required
     $this->_collapse_margins();
@@ -403,6 +346,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Set the containing blocks and reflow each child
     //$split_flg = false;
     foreach ( $this->_frame->get_children() as $child ) {
+
+      // Bail out if the page is full
+      if ( $page->is_full() )
+        break;
       
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
       $child->reflow();

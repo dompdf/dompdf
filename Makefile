@@ -22,14 +22,6 @@ dist: dompdf-$(VERSION).tar.gz
 doc: dompdf-doc-$(VERSION).tar.gz
 web: dompdf-web-$(VERSION).tar.gz
 
-%.pdf: %.html
-	@echo "Creating $@ from $<"
-	@./dompdf $<
-
-test/php_test.pdf: test/php_test.php
-	@echo "Creating $@ from $<"
-	@./dompdf $<
-
 clean: 
 	@rm -f dompdf-$(VERSION).* dompdf-doc-$(VERSION).* dompdf-web-$(VERSION).*
 
