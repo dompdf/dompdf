@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.1 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.2 2005-03-02 17:34:42 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -532,6 +532,13 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->setfont($fh, $size);
     return $this->_pdf->get_value("fontsize", 0);
     
+  }
+
+  //........................................................................
+
+  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
+                     $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
+    // FIXME
   }
 
   //........................................................................
