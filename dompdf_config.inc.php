@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.3 2005-03-02 00:51:23 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.4 2005-03-04 20:30:15 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");

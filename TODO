@@ -1,52 +1,39 @@
 - where/how to resolve text-transform, font-variant, letter-spacing?
 
-- *** DONE *** word-spacing: determine additional space needed when calculating flow, but
-  don't actually adjust any values directly.  Add word-spacing to
-  canvas->text() adjust parameter during rendering.
+- superscript/subscript (vertical-align)
+
+- font differences for CPDF->selectFont().  Equivalent thing for
+   PDFLib?
+
+- document getting non-latin glyphs working
+
+- write a 'quick start' guide
+
+- support for links
+
+- "Firstly a suggestion. When an image doesn't have width and height tags
+specified it renders the picture, but if the picture is in a table cell
+the table cell has a width of 0. This isn't really a bug, and yes people
+really should be specifying the width and height, but I thought I'd point
+it out anyway."
+
+- render form controls?
 
 - Need to handle *2 style relative column widths (specified in table attributes),
   col/colgroup tags
 
-- *** DONE - better now *** Collapsed table border model is pretty hackish
-
 - *** Partly done: tbody tested *** test tbody/thead/tfoot tags
-
-- *** DONE, mostly *** Need to translate HTML presentational tags &
-  attributes into css in general (see include/attribute_translator)
-
-- *** DONE *** paging/page-breaks
 
 - inline-block positioning is a little screwy, esp. when text is justified.
   Should figure out a better way of accounting for block frame heights wrt lines.
   (reflow vs. position?, adding blocks to lines)
-
-- *** DONE *** firm up class interfaces, refactor
 
 - table splitting: split rows, redraw thead & tfoot elements across split tables
 
 - potential optimization: refrain from traversing the tree in Stylesheet and
   merge it with the decoration step; use a visitor?
 
-- *** DONE *** log errors/warnings somewhere, probably in session or to a file
-
-- *** DONE *** don't die if stylesheets can't be loaded. just issue a warning
-
-- *** DONE *** page breaking is still a little messy... block level elements can run off
-  the end of the page.  We really need to split the block *at* the current
-  child, not the next one.
-
-- *** DONE *** text decoration on longer elements is shifted a little to the left.
-
-- *** DONE *** table column widths borked when width is set from padding?
-
-- *** DONE *** prevent circular loading of CSS pages
-
-- *** DONE - implemented Cellmap instead *** To handle rowspans & to improve
-  collapsed border resolution: consider adding 4 'neighbor' arrays to each
-  table_cell_frame_decorator: top, right, bottom & left.  These lists point
-  to adjacent cells in the appropriate direction.  Rowspanned cells might be
-  able to report (actual_height / rowspan) as the height they contribute to
-  the row...
+- log errors/warnings somewhere, probably in session or to a file
 
 - generated PDFs crash kpdf
 

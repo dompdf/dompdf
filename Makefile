@@ -5,11 +5,12 @@
 # Creates documentation & distribution packages
 #
 ###################################################################
-VERSION=0.3.3
+VERSION=0.4
 DIST_FILES = dompdf.php dompdf_config.inc.php INSTALL LICENSE.LGPL \
 			 load_font.php README HACKING TODO \
-			 include/*.php lib/class.pdf.php lib/res/*.*  \
-		     lib/fonts/dompdf_font_family_cache.dist \
+			 include/*.php lib/class.pdf.php lib/res/*.css  \
+			 lib/res/*.png \
+			 lib/fonts/dompdf_font_family_cache.dist \
 			 lib/fonts/Helvetica*.afm lib/fonts/Times-*.afm \
 			 lib/fonts/Courier*.afm lib/fonts/ZapfDingbats.afm \
 			 test/*.html test/*.css test/*.png test/*.php \

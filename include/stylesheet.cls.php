@@ -37,13 +37,13 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.2 2005-03-04 20:30:16 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
  * {@link Stylesheet::DEFAULT_STYLESHEET}
  */
-define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . "/res/html.css");
+define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "html.css");
 
 /**
  * The master stylesheet class
@@ -236,6 +236,7 @@ class Stylesheet {
    */
   private function _specificity($selector) {
     // http://www.w3.org/TR/CSS21/cascade.html#specificity
+
     $a = ($selector === "!style attribute") ? 1 : 0;
     
     $b = min(substr_count($selector, "#"), 255);
@@ -264,6 +265,7 @@ class Stylesheet {
     
     // Parse the selector     
     //$s = preg_split("/([ :>.#+])/", $selector, -1, PREG_SPLIT_DELIM_CAPTURE);
+
     $delimiters = array(" ", ">", ".", "#", "+", ":", "[");
 
     // Add an implicit space at the beginning of the selector if there is no

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: canvas_factory.cls.php,v 1.1 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: canvas_factory.cls.php,v 1.2 2005-03-04 20:30:15 benjcarson Exp $ */
 
 /**
  * Create canvas instances
@@ -56,11 +56,11 @@ class Canvas_Factory {
 
   static function get_instance($paper = null, $orientation = null,  $class = null) {
 
-    if ( isset($class) && class_exists($class) )
+    if ( isset($class) && class_exists($class, false) )
       $class .= "_Adapter";
     
     else if ( (DOMPDF_PDF_BACKEND == "auto" || DOMPDF_PDF_BACKEND == "PDFLib" ) &&
-              class_exists("PDFLib") )
+              class_exists("PDFLib", false) )
       $class = "PDFLib_Adapter";
 
     else if ( (DOMPDF_PDF_BACKEND == "auto" || DOMPDF_PDF_BACKEND == "Cpdf") )
