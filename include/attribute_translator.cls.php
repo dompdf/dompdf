@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: attribute_translator.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.2 2005-02-28 18:46:32 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -53,17 +53,17 @@ class Attribute_Translator {
   // thank you var_export() :D
   static private $__ATTRIBUTE_LOOKUP =
     array (//'caption' => array ( 'align' => '', ),
-           'img' => 
+           'img_inner' =>  // img tags actually end up wrapping img_inner elements
            array ('align' => array('bottom' => 'vertical-align: baseline;',
                                    'middle' => 'vertical-align: middle;',
                                    'top' => 'vertical-align: top;',
                                    'left' => 'float: left;',
                                    'right' => 'float: right;'),
                   'border' => 'border-width: %0.2f px;',
-                  'height' => 'height: %s;',
+                  'height' => 'height: %spx;',
                   'hspace' => 'padding-left: %0.2f px; padding-right: %0.2f px;',
                   'vspace' => 'padding-top: %0.2f px; padding-bottom: %0.2f px;',
-                  'width' => 'width: %s;',
+                  'width' => 'width: %spx;',
                   ),
            'table' => 
            array (array('left' => '',

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: renderer.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.2 2005-02-28 18:46:32 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -109,10 +109,10 @@ class Renderer extends Abstract_Renderer {
       flush();
     }                      
       
-    if ( $frame->get_node()->nodeName == "img" ) {
-      $this->_renderers["image"]->render($frame);
-      return; // Skip children
-    }
+//     if ( $frame->get_node()->nodeName == "img" ) {
+//       $this->_renderers["image"]->render($frame);
+//       return; // Skip children
+//     }
       
     $display = $frame->get_style()->display;
     
@@ -143,6 +143,10 @@ class Renderer extends Abstract_Renderer {
       $this->_renderers["list-bullet"]->render($frame);
       break;
 
+    case "-dompdf-image":
+      $this->_renderers["image"]->render($frame);
+      break;
+      
     case "none":
       $node = $frame->get_node();
           

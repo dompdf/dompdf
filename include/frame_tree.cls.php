@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.2 2005-02-28 18:46:32 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -140,8 +140,10 @@ class Frame_Tree {
   /**
    * Recursively adds {@link Frame} objects to the tree
    *
-   * Recursively build a tree of Frame objects based on a dom tree.  No layout
-   * information is calculated at this time.
+   * Recursively build a tree of Frame objects based on a dom tree.
+   * No layout information is calculated at this time, although the
+   * tree may be adjusted (i.e. nodes and frames for generated content
+   * and images may be created).
    *
    * @param DomNode $node the current DomNode being considered
    * @return Frame
@@ -149,8 +151,8 @@ class Frame_Tree {
   protected function _build_tree_r(DomNode $node) {
     
     $frame = new Frame($node);
-    $frame->set_id(uniqid(rand()));
-    $this->_registry[ $frame->get_id() ] = $frame;
+    $frame->set_id( $id = uniqid(rand()));
+    $this->_registry[ $id ] = $frame;
     
     if ( !$node->hasChildNodes() )
       return $frame;
@@ -164,6 +166,23 @@ class Frame_Tree {
       // Skip empty #text nodes
       if ( $child->nodeName == "#text" && $child->nodeValue == "" )
         continue;
+
+      // Add a container frame for images
+      if ( $child->nodeName == "img" ) {
+        $img_node = $child->ownerDocument->createElement("img_inner");
+        
+        // Move attributes to inner node
+        foreach ( $child->attributes as $attr => $attr_node ) {
+          // Skip style, but move all other attributes
+          if ( $attr == "style" )
+            continue;
+          
+          $img_node->setAttribute($attr, $attr_node->value);
+          $child->removeAttribute($attr);
+        }
+      
+        $child->appendChild($img_node);
+      }
       
       $frame->append_child($this->_build_tree_r($child), false);
 

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: image_frame_reflower.cls.php,v 1.2 2005-02-28 18:46:32 benjcarson Exp $ */
 
 /**
  * Image reflower class
@@ -52,44 +52,46 @@ class Image_Frame_Reflower extends Frame_Reflower {
   }
 
   function reflow() {
-    $this->_frame->position();
+    // We need to grab our *parent's* style because images are wrapped...
     
-    $style = $this->_frame->get_style();
+    $style = $this->_frame->get_parent()->get_style();
     $width = $style->width;
     $height = $style->height;
-    
-    if ( $width === "auto" || is_percent($width) ) {
 
-      // Determine the image's size
-      list($img_width, $img_height, $type) = getimagesize($this->_frame->get_image_url());
+    // Determine the image's size
+    list($img_width, $img_height, $type) = getimagesize($this->_frame->get_image_url());
 
-      if ( $width === "auto" )
-        $style->width = $img_width * 72 / DOMPDF_DPI;
-      else {
-        // Percentage
-        $width = (float)rtrim($width, "%");
-        $style->width = $width * $img_width / 100;
-      }
-    } else 
-      // Resolve the length into points (no need for 2nd param as % vals are
-      // handled above)
-      $style->width = $style->length_in_pt($width);
+    if ( is_percent($width) )
+      $width = ((float)rtrim($width,"%")) * $img_width / 100;
+
+    if ( is_percent($height) )
+      $height = ((float)rtrim($height,"%")) * $img_height / 100;
+                 
+    $width = $style->length_in_pt($width);
+    $height = $style->length_in_pt($height);
+
+    if ( $width === "auto" && $height === "auto" ) {
+      $width = $img_width;
+      $height = $img_height;
       
-
-    if ( $height === "auto" || is_percent($height) ) {
-      if ( !isset($img_height) )
-        list($img_width, $img_height, $type) = getimagesize($this->_frame->get_image_url());
-
-      if ( $height === "auto" )
-        $style->height = $img_height * 72 / DOMPDF_DPI;
-      else {
-        // Percentage
-        $height = (float)rtrim($height, "%");
-        $style->height = $height * $img_height / 100;
-      }
-
-    } else
-      $style->height = $style->length_in_pt($height);
+    } else if ( $width === "auto" && $height !== "auto" ) {
+      $width = (float)$height / $img_height * $img_width;
+      
+    } else if ( $width !== "auto" && $height === "auto" ) {
+      $height = (float)$width / $img_width * $img_height;
+      
+    } 
+    
+//     // Resample images if the sizes were set in px or were auto
+//     if ( strpos($style->width, "px") !== false )
+//       $width = ((float)rtrim($width, "px")) * 72 / DOMPDF_DPI;
+    
+//     if ( strpos($style->height, "px") !== false )
+//       $height = ((float)rtrim($height, "px")) * 72 / DOMPDF_DPI;
+    
+    $this->_frame->get_style()->width = $width . "pt";
+    $this->_frame->get_style()->height = $height . "pt";
+    
   }
 }
 ?>

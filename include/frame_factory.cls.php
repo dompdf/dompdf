@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_factory.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.3 2005-02-28 18:46:32 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic
@@ -85,8 +85,7 @@ class Frame_Factory {
         $decorator = "Inline";
         $reflower = "Inline";
       }
-      break;
-    
+      break;   
 
     case "table":
       $positioner = "Block";
@@ -136,6 +135,12 @@ class Frame_Factory {
       $reflower = "List_Bullet";
       break;
 
+    case "-dompdf-image":
+      $positioner = "Inline";
+      $decorator = "Image";
+      $reflower = "Image";
+      break;
+      
     case "-dompdf-br":
       $positioner = "Inline";
       $decorator = "Inline";
@@ -152,17 +157,11 @@ class Frame_Factory {
 
     }
 
-    // Images are another special case
-    if ( $frame->get_node()->nodeName == "img" ) {
-      $decorator = "Image";
-      $reflower = "Image";
-    }
-    
     $positioner .= "_Positioner";
     $decorator .= "_Frame_Decorator";
     $reflower .= "_Frame_Reflower";
 
-    $deco = new $decorator($frame); //, $dompdf);
+    $deco = new $decorator($frame, $dompdf);
     $deco->set_positioner( new $positioner($deco) );
     $reflow = new $reflower($deco);
     
@@ -175,7 +174,26 @@ class Frame_Factory {
     }
 
     $deco->set_reflower( $reflow );
-        
+
+//     // Images are a special case
+//     if ( $frame->get_node()->nodeName == "img" ) {
+
+//       // FIXME: This is a hack
+//       $node =$frame->get_node()->ownerDocument->createElement("img_sub");
+//       $node->setAttribute("src", $frame->get_node()->getAttribute("src"));
+      
+//       $img_frame = new Frame( $node );
+
+//       $style = $frame->get_style()->get_stylesheet()->create_style();
+//       $style->inherit($frame->get_style());
+//       $img_frame->set_style( $style );
+
+//       $img_deco = new Image_Frame_Decorator($img_frame, $dompdf);
+//       $img_deco->set_reflower( new Image_Frame_Reflower($img_deco) );
+//       $deco->append_child($img_deco);
+
+//     }   
+    
     return $deco;
   }
   
