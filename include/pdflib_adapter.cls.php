@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.4 2005-03-02 21:26:53 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.5 2005-03-17 19:23:42 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -216,7 +216,7 @@ class PDFLib_Adapter implements Canvas {
 
         else
           continue;
-                
+
         $this->_pdf->set_parameter("FontOutline", "\{$face\}=\{$file\}");
       }
     }
@@ -328,6 +328,9 @@ class PDFLib_Adapter implements Canvas {
    */
   function stop_object($object) {
 
+    if ( !array_key_exists($object, $this->_objs) )
+      return;
+    
     $start = $this->_objs[$object]["start_page"];
     $where = $this->_objs[$object]["where"];
     
@@ -464,23 +467,24 @@ class PDFLib_Adapter implements Canvas {
     $test = strtolower(basename($font));
     if ( in_array($test, $native_fonts) ) {
       $native = true;
-      $font = basename($font);
-    } else
+      $font = basename($font);      
+    } else {
       $native = false;
+      $options .= " embedding=true";
+    }
 
-    $key = $font .":". $encoding .":". $options;
     
+    $key = $font .":". $encoding .":". $options;
+
     if ( isset($this->_fonts[$key]) )
       return $this->_fonts[$key];
 
     else {
       // Embed non-native fonts
 
-      if ( !$native )
-        $options .= " embedding=true";
-                      
-      return $this->_fonts[$font] =
-        $this->_pdf->load_font($font, $encoding, $options);
+
+      $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
+      return $this->_fonts[$key];
     }
   }
 
@@ -608,8 +612,9 @@ class PDFLib_Adapter implements Canvas {
   //........................................................................
 
   function get_font_height($font, $size) {
+   
     $fh = $this->_load_font($font);
-
+    
     $this->_pdf->setfont($fh, $size);
     
     $asc = $this->_pdf->get_value("ascender", $fh);
