@@ -1,0 +1,135 @@
+array (
+  'sans-serif' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Helvetica.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Helvetica-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Helvetica-BoldOblique.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Helvetica-BoldOblique.afm',   
+  ),
+  'times' =>
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Times-Roman.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Times-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Times-BoldItalic.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Times-BoldItalic.afm',
+  ),
+  'times-roman' =>
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Times-Roman.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Times-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Times-BoldItalic.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Times-BoldItalic.afm',
+  ),
+  'courier' =>
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Courier.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Courier-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Courier-BoldOblique.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Courier-BoldOblique.afm',
+  ),
+  'helvetica' =>
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Helvetica.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Helvetica-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Helvetica-BoldOblique.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Helvetica-BoldOblique.afm',   
+  ),
+  'zapfdingbats' =>
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'ZapfDingbats.afm',
+    'bold' => DOMPDF_FONT_DIR . 'ZapfDingbats.afm',
+    'italic' => DOMPDF_FONT_DIR . 'ZapfDingbats.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'ZapfDingbats.afm',   
+  ),
+  'serif' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Times-Roman.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Times-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Times-Italic.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Times-BoldItalic.afm',
+  ),
+  'monospace' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Courier.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Courier-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Courier-BoldOblique.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Courier-BoldOblique.afm',
+  ),
+  'fixed' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'Courier.afm',
+    'bold' => DOMPDF_FONT_DIR . 'Courier-Bold.afm',
+    'italic' => DOMPDF_FONT_DIR . 'Courier-BoldOblique.afm',
+    'bold_italic' => DOMPDF_FONT_DIR . 'Courier-BoldOblique.afm',
+  ),
+//  'arial' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Arial.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'Arial_Bold.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'Arial_Italic.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Arial_Bold_Italic.afm',
+//  ),
+//  'comic sans' =>
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Comic_Sans_MS.ttf',
+//    'bold' => DOMPDF_FONT_DIR . 'Comic_Sans_MS_Bold.ttf',
+//    'italic' => DOMPDF_FONT_DIR . 'Comic_Sans_MS.ttf',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Comic_Sans_MS.ttf',
+//  ),
+//  'georgia' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Georgia.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'Georgia_Bold.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'Georgia_Italic.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Georgia_Bold_Italic.afm',
+//  ),
+//  'lucida console' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'lucon.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'lucon.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'lucon.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'lucon.afm',
+//  ),
+//  'times new roman' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Times_New_Roman.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'Times_New_Roman_Bold.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'Times_New_Roman_Italic.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Times_New_Roman_Bold_Italic.afm',
+//  ),
+//  'trebuchet' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Trebuchet_MS.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'Trebuchet_MS_Bold.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'Trebuchet_MS_Italic.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Trebuchet_MS_Bold_Italic.afm',
+//  ),
+//  'trebuchet ms' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Trebuchet_MS.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'Trebuchet_MS_Bold.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'Trebuchet_MS_Italic.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Trebuchet_MS_Bold_Italic.afm',
+//  ),
+//  'silkscreen' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'slkscr.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'slkscrb.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'slkscr.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'slkscr.afm',
+//  ),
+//  'silkscreen expanded' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'slkscre.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'slkscreb.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'slkscre.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'slkscre.afm',
+//  ),
+//  'verdana' => 
+//  array (
+//    'normal' => DOMPDF_FONT_DIR . 'Verdana.afm',
+//    'bold' => DOMPDF_FONT_DIR . 'Verdana_Bold.afm',
+//    'italic' => DOMPDF_FONT_DIR . 'Verdana_Italic.afm',
+//    'bold_italic' => DOMPDF_FONT_DIR . 'Verdana_Bold_Italic.afm',
+//  ),
+)

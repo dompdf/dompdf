@@ -1,0 +1,174 @@
+body, select {
+  color: #7d7a7a;
+  font-family: 'trebuchet ms', verdana, sans-serif;
+}
+
+a:link, a:visited, a:active { 
+  color: #5F83BA; 
+  text-decoration: none;
+}
+
+a:hover { 
+  color: #5f83ba; 
+  text-decoration: underline; 
+}
+
+a img { border: none; }
+
+pre,
+code { 
+  font-size: 0.8em;
+  font-family: "lucida console", monospace;
+}
+
+select { font-size: 0.8em; font-weight: bold; }
+
+#header {
+  background-image: url('images/h_bar.gif');
+  background-repeat: repeat-x;
+  background-position: bottom right;
+  height: 50px;
+}
+
+#footer {
+  font-size: 0.75em;
+  padding-top: 12px;
+  background-image: url('images/h_bar.gif');
+  background-repeat: repeat-x;
+  background-position: top left;
+  height: 35px;
+}
+
+#logo {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.badges { float: right; }
+
+#left_col, #content {
+  vertical-align: top;  
+}
+
+#left_col {
+  padding: 3px 3px 2em 3px;
+  margin-top: 2px;
+  width: 210px;
+  padding-right: 10px;
+  background-image: url('images/v_bar.gif');
+  background-repeat: repeat-y;
+  background-position: top right;
+}
+
+#left_col h2 {
+  font-size: 1.0em;
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+}
+
+#left_col ul {
+  margin-top: 0.25em;
+  padding-left: 0px;
+}
+
+#left_col ul { margin-left: 0px; }
+
+#left_col ul li { list-style-position: inside; }
+
+#left_col p { font-size: 0.8em; }
+
+#content {
+  padding-left: 2em;
+  min-width: 400px;
+  width: 60%;
+}
+
+.message { 
+  margin-top: 1em;
+  border: 1px dashed #5E83BA;
+}
+
+#content li {
+  margin-top: 0.5em;
+  vertical-align: top;
+}
+
+#content>*>li { 
+  margin-right: 40px;  /* keep things in line */
+}
+
+#content h2 {
+  text-align: right;
+  color: #4A9166;
+}
+
+#content h3 { 
+  margin-top: 2em;
+}
+
+#content p {
+  text-align: justify;
+}
+
+#content div.divider1,  
+#content div.divider2 { 
+  margin-top: 0.5em;
+  margin-left: 15%;
+  height: 20px;
+  width: 60%;
+}
+
+#content table td { padding: 0.5em; }
+
+
+#content div.divider1,  
+#content div.divider2,
+#content table td.bar1,
+#content table td.bar2 { 
+  background-image: url('images/h_bar.gif');
+  background-repeat: repeat-x;
+}
+
+#content div.divider1,
+#content table td.bar1 { 
+  background-position: bottom right;
+}
+
+#content div.divider2,
+#content table td.bar2 { 
+  background-position: top left;
+}
+
+#content table td.input { 
+  white-space: nowrap;
+  font-family: "lucida console", monospace; 
+  font-size: 0.8em;
+}
+
+#content table td.description { 
+  padding-left: 2em;
+}
+
+#content textarea { 
+  padding: 4px;
+  width: 100%;
+  border: 1px dashed #5F83BA;
+}
+
+#content input { 
+  border: 1px dashed #5F83BA;
+  background-color: #fff;
+  color: #7d7a7a;
+  font-family: 'trebuchet ms', verdana, sans-serif;
+}
+
+.newsitem { 
+  margin-top: 0.75em;
+  color: #5F83BA;
+}
+
+.posted_date { 
+  font-size: 0.8em;
+  color: #4A9166;
+}

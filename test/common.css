@@ -1,0 +1,128 @@
+/* Notes
+-----------------------------------------------------------------------*/
+.note_form { 
+  display: none;
+}
+
+
+/* Page
+-----------------------------------------------------------------------*/
+.page {
+  background-color: white;
+  padding: 20px;
+  font-size: 0.7em;
+  margin-bottom: 15px;
+  margin-right: 5px;
+}
+
+.page table.header td h1 { 
+  margin: 0px;
+}
+
+.page table.header { 
+  border-bottom: 1px solid black;
+}
+
+.page h1 {
+  text-align: center;
+  color: black;
+  font-style: normal;
+  font-size: 2em;
+}
+
+.page h2 {
+  text-align: center;
+  color: black;
+}
+
+.page h3 {
+  color: black;
+  font-size: 1em;
+}
+
+.page p { 
+  text-align: justify;
+  font-size: 1em;
+}
+
+.page em {
+  font-weight: bold;
+  font-style: normal;
+  text-decoration: underline;
+  margin-left: 1%;
+  margin-right: 1%;
+
+}
+
+.money_table {
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.money {
+  text-align: right;
+  padding-right: 20px;
+}
+
+.money_field {
+  text-align: right;
+  padding: 0px 15px 5px 15px;
+  font-weight: bold;
+}
+
+.total_label {
+  border-top: 2px double black;
+  font-weight: bold;
+}
+
+.total_field {
+  border-top: 2px double black;
+  text-align: right;
+  padding: 0px 15px 5px 15px;
+  font-weight: bold;
+}
+
+.written_field { 
+  border-bottom: 0.1pt solid black;
+}
+
+.page .indent * { margin-left: 4em; }
+
+.checkbox { 
+  border: 1px solid black;
+  padding: 1px 2px;
+  font-size: 7px;
+  font-weight: bold;
+}
+
+table.fax_head { 
+  width: 100%;
+  font-weight: bold;
+  font-size: 1.1em;
+  border-bottom: 1px solid black;
+}
+
+/* Sales-agreement specific
+-----------------------------------------------------------------------*/
+table.sa_signature_box { 
+  margin: 2em auto 2em auto;
+}
+
+table.sa_signature_box tr td { 
+  padding-top: 1.5em;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.special_conditions { 
+  font-style: italic;
+  margin-left: 2em; 
+  white-space: pre;
+  font-weight: bold;
+}
+
+.page h2 { 
+  text-align: left;
+}
+

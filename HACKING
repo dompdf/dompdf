@@ -1,0 +1,33 @@
+dompdf v0.3 - PHP5 HTML to PDF converter
+========================================
+
+http://www.digitaljunkies.ca/dompdf
+Copyright (c) 2004 Benj Carson
+R&OS PDF class (class.pdf.php) Copyright (c) 2001-04 Wayne Munro
+
+Send bug reports, patches, feature requests, complaints & hate mail (no spam
+thanks) to <benjcarson@digitaljunkies.ca>
+
+Hacking
+-------
+
+If you are interested in extending or modifying dompdf, please feel free to
+contact me (Benj Carson) by email at benjcarson@digitaljunkies.ca.  If you
+let me know what you'd like to try, I can maybe point you to the relevant
+sections of the source.  If you've added some features, or fixed some bugs,
+please send me a patch and I'll include your changes in the main
+distribution.
+
+For starters, I can point out some of the OO design patterns used in dompdf:
+  
+  Pattern      Classes
+  -------      -------
+  composite    Frame
+  decorator    Frame_Decorator, *_Frame_Decorator classes
+  strategy     Frame_Reflower, *_Frame_Reflower classes, Positioner,
+               *_Positioner classes
+  facade       dompdf
+  adapter      PDF_Adapter    
+
+Also, see the main doc comment in dompdf.cls.php for a general overview of 
+the rendering process.

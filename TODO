@@ -1,0 +1,184 @@
+- where/how to resolve text-transform, font-variant, letter-spacing?
+
+- *** DONE *** word-spacing: determine additional space needed when calculating flow, but
+  don't actually adjust any values directly.  Add word-spacing to
+  canvas->text() adjust parameter during rendering.
+
+- Need to handle *2 style relative column widths (specified in table attributes),
+  col/colgroup tags
+
+- *** DONE - better now *** Collapsed table border model is pretty hackish
+
+- *** Partly done: tbody tested *** test tbody/thead/tfoot tags
+
+- *** DONE, mostly *** Need to translate HTML presentational tags &
+  attributes into css in general (see include/attribute_translator)
+
+- *** DONE *** paging/page-breaks
+
+- inline-block positioning is a little screwy, esp. when text is justified.
+  Should figure out a better way of accounting for block frame heights wrt lines.
+  (reflow vs. position?, adding blocks to lines)
+
+- *** DONE *** firm up class interfaces, refactor
+
+- table splitting: split rows, redraw thead & tfoot elements across split tables
+
+- potential optimization: refrain from traversing the tree in Stylesheet and
+  merge it with the decoration step; use a visitor?
+
+- *** DONE *** log errors/warnings somewhere, probably in session or to a file
+
+- *** DONE *** don't die if stylesheets can't be loaded. just issue a warning
+
+- *** DONE *** page breaking is still a little messy... block level elements can run off
+  the end of the page.  We really need to split the block *at* the current
+  child, not the next one.
+
+- *** DONE *** text decoration on longer elements is shifted a little to the left.
+
+- *** DONE *** table column widths borked when width is set from padding?
+
+- *** DONE *** prevent circular loading of CSS pages
+
+- *** DONE - implemented Cellmap instead *** To handle rowspans & to improve
+  collapsed border resolution: consider adding 4 'neighbor' arrays to each
+  table_cell_frame_decorator: top, right, bottom & left.  These lists point
+  to adjacent cells in the appropriate direction.  Rowspanned cells might be
+  able to report (actual_height / rowspan) as the height they contribute to
+  the row...
+
+- generated PDFs crash kpdf
+
+- pseudo-selectors:
+   :before
+   :after
+   :first-child
+   :first-line
+   :first-letter
+   :link
+
+- lists
+  table captions
+  nested tables
+  absolutely positioned elements
+  relatively positioned elements
+  floats
+  images (DONE: jpeg & png only)
+
+- Property support:
+  azimuth                | N/A
+  background-attachment  | 
+  background-color       | y
+  background-image       | untested
+  background-position    | 
+  background-repeat      | 
+  background             | 
+  border-collapse        | y
+  border-color           | y
+  border-spacing         | y
+  border-style           | y
+  border-top             | y
+  border-right           | y
+  border-bottom          | y
+  border-left            | y
+  border-top-color       | y
+  border-right-color     | y
+  border-bottom-color    | y
+  border-left-color      | y
+  border-top-style       | y
+  border-right-style     | y
+  border-bottom-style    | y
+  border-left-style      | y
+  border-top-width       | y
+  border-right-width     | y
+  border-bottom-width    | y
+  border-left-width      | y
+  border-width           | y
+  border                 | y
+  bottom                 | 
+  caption-side           | 
+  clear                  | 
+  clip                   | 
+  color                  | y
+  content                | 
+  counter-increment      | 
+  counter-reset          | 
+  cue-after              | N/A
+  cue-before             | N/A
+  cue                    | N/A
+  cursor                 | N/A
+  direction              | 
+  display                | block|inline|table|table-row|table-row-group|table-cell|list-item (sorta)
+  elevation              | N/A
+  empty-cells            | 
+  float                  | 
+  font-family            | y
+  font-size              | y
+  font-style             | y
+  font-variant           | y
+  font-weight            | y
+  font                   | y
+  height                 | y
+  left                   | 
+  letter-spacing         | 
+  line-height            | y
+  list-style-image       | 
+  list-style-position    | 
+  list-style-type        | non-numeric only
+  list-style             | 
+  margin-right           | y
+  margin-left            | y
+  margin-top             | y
+  margin-bottom          | y
+  margin                 | y
+  max-height             | y
+  max-width              | y
+  min-height             | y
+  min-width              | y
+  orphans                | 
+  outline-color          | 
+  outline-style          | 
+  outline-width          | 
+  outline                | 
+  overflow               | 
+  padding-top            | y
+  padding-right          | y
+  padding-bottom         | y
+  padding-left           | y
+  padding                | y
+  page-break-after       | y
+  page-break-before      | y
+  page-break-inside      | y
+  pause-after            | N/A
+  pause-before           | N/A
+  pause                  | N/A
+  pitch-range            | N/A
+  pitch                  | N/A
+  play-during            | N/A
+  position               | 
+  quotes                 | 
+  richness               | N/A
+  right                  | 
+  speak-header           | N/A
+  speak-numeral          | N/A
+  speak-punctuation      | N/A
+  speak                  | N/A
+  speech-rate            | N/A
+  stress                 | N/A
+  table-layout           | y
+  text-align             | y
+  text-decoration        | y
+  text-indent            | y
+  text-transform         | y
+  top                    | 
+  unicode-bidi           | 
+  vertical-align         | within table-cells
+  visibility             | 
+  voice-family           | N/A
+  volume                 | N/A
+  white-space            | y
+  widows                 | 
+  width                  | y
+  word-spacing           | y
+  z-index                | 

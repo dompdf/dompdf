@@ -1,0 +1,440 @@
+<?php
+/**
+ * DOMPDF - PHP5 HTML to PDF renderer
+ *
+ * File: $RCSfile: dompdf.cls.php,v $
+ * Created on: 2004-06-09
+ *
+ * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library in the file LICENSE.LGPL; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+ * 02111-1307 USA
+ *
+ * Alternatively, you may distribute this software under the terms of the
+ * PHP License, version 3.0 or later.  A copy of this license should have
+ * been distributed with this file in the file LICENSE.PHP .  If this is not
+ * the case, you can obtain a copy at http://www.php.net/license/3_0.txt.
+ *
+ * The latest version of DOMPDF might be available at:
+ * http://www.digitaljunkies.ca/dompdf
+ *
+ * @link http://www.digitaljunkies.ca/dompdf
+ * @copyright 2004 Benj Carson
+ * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * @package dompdf
+ * @version 0.3
+ */
+
+/* $Id: dompdf.cls.php,v 1.1.1.1 2005-01-25 22:56:01 benjcarson Exp $ */
+
+/**
+ * DOMPDF - PHP5 HTML to PDF renderer
+ *
+ * DOMPDF loads HTML and does its best to render it as a PDF.  It gets its
+ * name from the new DomDocument PHP5 extension.  Source HTML is first
+ * parsed by a DomDocument object.  DOMPDF takes the resulting DOM tree and
+ * attaches a {@link Frame} object to each one.  {@link Frame} objects store
+ * positioning and layout information and each has a reference to a {@link
+ * Style} object.
+ *
+ * Style information is loaded and parsed (see {@link Stylesheet}) and is
+ * applied to the frames in the tree by using XPath.  CSS selectors are
+ * converted into XPath queries, and the computed {@link Style} objects are
+ * applied to the {@link Frame}s.
+ *
+ * {@link Frame}s are then decorated (in the design pattern sense of the
+ * word) based on their CSS display property ({@link
+ * http://www.w3.org/TR/CSS21/visuren.html#propdef-display}).
+ * Frame_Decorators augment the basic {@link Frame} class by adding
+ * additional properties and methods specific to the particular type of
+ * {@link Frame}.  For example, in the CSS layout model, block frames (
+ * display: block; ) contain line boxes that are usually filled with text or
+ * other inline frames.  The Block_Frame_Decorator therefore adds a $lines
+ * property as well as methods to add {@link Frame}s to lines and to add
+ * additional lines.  {@link Frame}s also are attached to specific
+ * Positioner and Reflower objects that contain the positioining and layout
+ * algorithm for a specific type of frame, respectively.  This is an
+ * application of the Strategy pattern.
+ *
+ * Layout, or reflow, proceeds recursively (post-order) starting at the root
+ * of the document.  Space constraints (containing block width & height) are
+ * pushed down, and resolved positions and sizes bubble up.  Thus, every
+ * {@link Frame} in the document tree is traversed once (except for tables
+ * which use a two-pass layout algorithm).  If you are interested in the
+ * details, see the reflow() method of a Reflower class.
+ * 
+ * Rendering is relatively straightforward once layout is complete. {@link
+ * Frame}s are rendered using an adapted {@link Cpdf} class, originally
+ * written by Wayne Munro, http://www.ros.co.nz/pdf/.  (Some performance
+ * related changes have been made to the original {@link Cpdf} class, and
+ * the {@link PDF_Adapter} class provides a simple, stateless interface to
+ * PDF generation.)
+ *
+ *
+ * @package dompdf 
+ */
+class DOMPDF {
+  
+  
+  /**
+   * DomDocument representing the HTML document
+   *
+   * @var DomDocument
+   */
+  protected $_xml;
+
+  /**
+   * Frame_Tree derived from the DOM tree
+   *
+   * @var Frame_Tree
+   */
+  protected $_tree;
+
+  /**
+   * Stylesheet for the document
+   *
+   * @var Stylesheet
+   */
+  protected $_css;
+
+  /**
+   * Actual PDF renderer
+   *
+   * @var Canvas
+   */
+  protected $_pdf;
+
+  /**
+   * Desired paper size ('letter', 'legal', 'A4', etc.)
+   *
+   * @var string
+   */
+  protected $_paper_size;
+
+  /**
+   * Paper orientation ('portrait' or 'landscape')
+   *
+   * @var string
+   */
+  protected $_paper_orientation;
+
+  private $_cache_id;
+
+  /**
+   * Base hostname
+   *
+   * Used for relative paths/urls
+   * @var string
+   */
+  protected $_base_host;
+
+  /**
+   * Absolute base path
+   *
+   * Used for relative paths/urls
+   * @var string
+   */
+  protected $_base_path;
+
+  /**
+   * Protcol used to request file (file://, http://, etc)
+   *
+   * @var string
+   */
+  protected $_protocol;
+  
+
+  /**
+   * Class constructor
+   */
+  function __construct() {
+    $this->_messages = array();
+    $this->_xml = new DomDocument();
+    $this->_xml->preserveWhiteSpace = true;
+    $this->_tree = new Frame_Tree($this->_xml);
+    $this->_css = new Stylesheet();
+    $this->_pdf = null;
+    $this->_paper_size = "letter";
+    $this->_paper_orientation = "portrait";
+    $this->_base_host = "";
+    $this->_base_path = "";
+    $this->_cache_id = null;
+  }
+
+  /**
+   * Returns the underlying {@link Frame_Tree} object
+   *
+   * @return Frame_Tree
+   */
+  function get_tree() { return $this->_tree; }
+
+  //........................................................................ 
+
+  /**
+   * Sets the protocol to use
+   *
+   * @param string $proto
+   */
+  // FIXME: validate these
+  function set_protocol($proto) { $this->_protocol = $proto; }
+
+  /**
+   * Sets the base hostname
+   *
+   * @param string $host
+   */
+  function set_host($host) { $this->_base_host = $host; }
+
+  /**
+   * Sets the base path
+   *
+   * @param string $path
+   */
+  function set_base_path($path) { $this->_base_path = $path; }
+
+  /**
+   * Returns the protocol in use
+   *
+   * @return string
+   */
+  function get_protocol() { return $this->_protocol; }
+
+  /**
+   * Returns the base hostname
+   *
+   * @return string
+   */
+  function get_host() { return $this->_base_host; }
+
+  /**
+   * Returns the base path
+   *
+   * @return string
+   */
+  function get_base_path() { return $this->_base_path; }
+  
+  //........................................................................ 
+
+  /**
+   * Loads an HTML file
+   *
+   * Parse errors are stored in the global array _dompdf_warnings.
+   *
+   * @param string $file a filename or url to load
+   */
+  function load_html_file($file) {
+    // Store parsing warnings as messages (this is to prevent output to the
+    // browser if the html is ugly and the dom extension complains,
+    // preventing the pdf from being streamed.)
+    list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
+
+    if ( !DOMPDF_ENABLE_REMOTE &&
+         ($this->_protocol != "" && $this->_protocol != "file://" ) )
+      throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
+         
+    if ( !DOMPDF_ENABLE_PHP ) {
+      set_error_handler("record_warnings");
+      $this->_xml->loadHTMLFile($file);
+      restore_error_handler();
+
+    } else       
+      $this->load_html(file_get_contents($file));
+  }
+
+  /**
+   * Loads an HTML string
+   *
+   * Parse errors are stored in the global array _dompdf_warnings.
+   *
+   * @param string $str HTML text to load
+   */
+  function load_html($str) {
+
+    // Parse embedded php, first-pass
+    if ( DOMPDF_ENABLE_PHP ) {
+      ob_start();
+      eval("?" . ">$str");
+      $str = ob_get_contents();      
+      ob_end_clean();
+    }
+    
+    // Store parsing warnings as messages
+    set_error_handler("record_warnings");
+    $this->_xml->loadHTML($str);
+    restore_error_handler();
+  }
+
+  /**
+   * Builds the {@link Frame_Tree}, loads any CSS and applies the styles to
+   * the {@link Frame_Tree}
+   */
+  protected function _process_html() {
+    $this->_tree->build_tree();
+    
+    $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET);    
+
+    // load <link rel="STYLESHEET" ... /> tags
+    $links = $this->_xml->getElementsByTagName("link");    
+    foreach ($links as $link) {
+      if ( strtolower($link->getAttribute("rel")) == "stylesheet" ||
+           strtolower($link->getAttribute("type")) == "text/css" ) {
+        $url = $link->getAttribute("href");
+        $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
+
+        $this->_css->load_css_file($url);
+      }
+
+    }
+
+    // load <style> tags
+    $styles = $this->_xml->getElementsByTagName("style");
+    foreach ($styles as $style) {
+      // Accept all <style> tags by default (note this is contrary to W3C
+      // HTML 4.0 spec:
+      // http://www.w3.org/TR/REC-html40/present/styles.html#adef-media
+      // which states that the default media type is 'screen'
+      if ( $style->hasAttributes() &&
+           $media = $style->getAttribute("media") &&
+           !in_array($media, Stylesheet::$ACCEPTED_MEDIA_TYPES) )
+        continue;
+      
+      $css = "";
+      if ( $style->hasChildNodes() ) {
+        
+        $child = $style->firstChild;
+        while ( $child ) {
+          $css .= $child->nodeValue; // Handle <style><!-- blah --></style>
+          $child = $child->nextSibling;
+        }
+        
+      } else
+        $css = $style->nodeValue;
+
+      
+      $this->_css->load_css($css);
+    }
+  }
+
+  //........................................................................ 
+
+  /**
+   * Sets the paper size & orientation
+   *
+   * @param string $size 'letter', 'legal', 'A4', etc. {@link PDF_Adapter::$PAPER_SIZES}
+   * @param string $orientation 'portrait' or 'landscape'
+   */
+  function set_paper($size, $orientation = "portrait") {
+    $this->_paper_size = $size;
+    $this->_orientation = $orientation;
+  }
+  
+  //........................................................................ 
+
+  /**
+   * Enable experimental caching capability
+   * @access private
+   */
+  function enable_caching($cache_id) {
+    $this->_cache_id = $cache_id;
+  }
+  
+  //........................................................................ 
+
+  /**
+   * Renders the HTML to PDF
+   */
+  function render() {
+      
+    $this->_process_html();
+    
+    $this->_css->apply_styles($this->_tree);
+
+    $root = null;
+    
+    foreach ($this->_tree->get_frames() as $frame) {
+
+      // Set up the root frame
+      if ( is_null($root) ) {
+        $root = Frame_Factory::decorate_root( $this->_tree->get_root() );
+        continue;
+      }
+
+      // Create the appropriate decorators, reflowers & positioners.
+      $deco = Frame_Factory::decorate_frame($frame, $this);
+      $deco->set_root($root);
+
+      // FIXME: handle generated content
+      if ( $frame->get_style()->display == "list-item" &&
+           in_array( $frame->get_style()->list_style_type, List_Bullet_Frame_Decorator::$BULLET_TYPES) ) {
+        
+        // Insert a list-bullet frame
+        $node = $this->_xml->createElement("bullet"); // arbitrary choice
+        $b_f = new Frame($node);
+
+        $style = $this->_css->create_style();
+        $style->display = "-dompdf-list-bullet";
+        $style->inherit($frame->get_style());
+        $b_f->set_style($style);
+        
+        $deco->prepend_child( Frame_Factory::decorate_frame($b_f) );
+      }
+    }
+    
+    $this->_pdf = new PDF_Adapter($this->_paper_size, $this->_orientation);
+    if ( !is_null($this->_cache_id) )
+      $this->_pdf = new Cached_PDF_Decorator($this->_cache_id, $this->_pdf);
+    
+    $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
+
+    // This is where the magic happens:
+    $root->reflow();
+
+    $renderer = new Renderer($this->_pdf);
+
+    $renderer->render($root);
+    
+  }
+  
+  //........................................................................ 
+
+  /**
+   * Streams the PDF to the client
+   *
+   * The file will always open a download dialog.
+   *
+   * @param string $filename the name of the streamed file
+   */
+  function stream($filename) {
+    if (!is_null($this->_pdf))
+      $this->_pdf->stream($filename);
+  }
+
+  /**
+   * Returns the PDF as a string
+   *
+   * @return string
+   */
+  function output() {
+    global $_dompdf_debug;
+    if ( is_null($this->_pdf) )
+      return null;
+    
+    return $this->_pdf->output( $_dompdf_debug );
+  }
+  
+  //........................................................................ 
+  
+}
+?>
