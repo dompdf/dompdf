@@ -2,7 +2,7 @@
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
  *
- * File: $RCSfile: pdf_adapter.cls.php,v $
+ * File: $RCSfile: cpdf_adapter.cls.php,v $
  * Created on: 2004-08-04
  *
  * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
@@ -37,16 +37,15 @@
  * @version 0.3
  */
 
-/* $Id: pdf_adapter.cls.php,v 1.2 2005-02-05 17:32:04 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.1 2005-03-02 00:38:47 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
-//require_once(DOMPDF_DIR . "/lib/class.ezpdf.php");
 
 /**
  * PDF rendering interface
  *
- * PDF_Adapter provides a simple stateless interface to the stateful one
+ * CPDF_Adapter provides a simple stateless interface to the stateful one
  * provided by the Cpdf class.
  *
  * Unless otherwise mentioned, all dimensions are in points (1/72 in).  The
@@ -58,7 +57,8 @@ require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
  *
  * @package dompdf
  */
-class PDF_Adapter implements Canvas {
+class CPDF_Adapter implements Canvas {
+
   /**
    * Dimensions of paper sizes in points
    *
@@ -160,7 +160,7 @@ class PDF_Adapter implements Canvas {
   /**
    * Class constructor
    *
-   * @param string $paper  The size of paper to use in this PDF ({@link PDF_Adapter::$PAPER_SIZES})
+   * @param string $paper  The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
    * @param string $orientation The orienation of the document (either 'landscape' or 'portrait')
    */
   function __construct($paper = "letter", $orientation = "portrait") {    
@@ -205,8 +205,8 @@ class PDF_Adapter implements Canvas {
    *
    * The return value is an integer ID for the new object.
    *
-   * @see PDF_Adapter::close_object()
-   * @see PDF_Adapter::add_object()
+   * @see CPDF_Adapter::close_object()
+   * @see CPDF_Adapter::add_object()
    *
    * @return int
    */
@@ -219,7 +219,7 @@ class PDF_Adapter implements Canvas {
   /**
    * Reopens an existing 'object'
    *
-   * @see PDF_Adapter::open_object()
+   * @see CPDF_Adapter::open_object()
    * @param int $object  the ID of a previously opened object
    */
   function reopen_object($object) {
@@ -230,7 +230,7 @@ class PDF_Adapter implements Canvas {
   /**
    * Closes the current 'object'
    *
-   * @see PDF_Adapter::open_object()
+   * @see CPDF_Adapter::open_object()
    */
   function close_object() {
     $this->_pdf->restoreState();
@@ -241,7 +241,7 @@ class PDF_Adapter implements Canvas {
    * Adds a specified 'object' to the document
    *
    * $object int specifying an object created with {@link
-   * PDF_Adapter::open_object()}.  $where can be one of:
+   * CPDF_Adapter::open_object()}.  $where can be one of:
    * - 'add' add to current page only
    * - 'all' add to every page from the current one onwards
    * - 'odd' add to all odd numbered pages from now on
@@ -355,7 +355,7 @@ class PDF_Adapter implements Canvas {
    * Valid blend modes are (case-sensitive):
    *
    * Normal, Multiply, Screen, Overlay, Darken, Lighten,
-   * ColorDogde, ColorBurn, HardLight, SoftLight, Difference,
+   * ColorDodge, ColorBurn, HardLight, SoftLight, Difference,
    * Exclusion
    *
    * @param string $mode the blending mode to use
@@ -388,12 +388,12 @@ class PDF_Adapter implements Canvas {
    * @see Cpdf::setLineStyle()
    *
    * @param float width
-   * @param string corner
+   * @param string cap
    * @param string join
    * @param array dash
    */
-  protected function _set_line_style($width, $corner, $join, $dash) {
-    $this->_pdf->setLineStyle($width, $corner, $join, $dash);
+  protected function _set_line_style($width, $cap, $join, $dash) {
+    $this->_pdf->setLineStyle($width, $cap, $join, $dash);
   }
   
   //........................................................................
@@ -489,7 +489,6 @@ class PDF_Adapter implements Canvas {
 
   function image($img_url, $img_type, $x, $y, $w, $h) {
     
-    
     switch ($img_type) {
     case "jpeg":
     case "jpg":
@@ -500,7 +499,7 @@ class PDF_Adapter implements Canvas {
       $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
       break;
 
-    default:
+    default:      
       break;
     }
     
@@ -517,10 +516,25 @@ class PDF_Adapter implements Canvas {
 
     $this->_set_line_transparency($blend, $opacity);
     $this->_set_fill_transparency($blend, $opacity);
+    $font .= ".afm";
     
     $this->_pdf->selectFont($font);
     $this->_pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, utf8_decode($text), $angle, $adjust);
 
+  }
+
+  //........................................................................
+
+  function get_text_width($text, $font, $size, $spacing = 0) {
+    $this->_pdf->selectFont($font);
+    return $this->_pdf->getTextWidth($size, utf8_decode($text), $spacing);
+  }
+
+  //........................................................................
+
+  function get_font_height($font, $size) {
+    $this->_pdf->selectFont($font);
+    return $this->_pdf->getFontHeight($size);
   }
 
   /**
