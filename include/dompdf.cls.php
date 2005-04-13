@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.4 2005-03-17 18:18:44 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.5 2005-04-13 20:27:32 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -415,9 +415,9 @@ class DOMPDF {
    *
    * @param string $filename the name of the streamed file
    */
-  function stream($filename) {
+  function stream($filename, $options = null) {
     if (!is_null($this->_pdf))
-      $this->_pdf->stream($filename);
+      $this->_pdf->stream($filename, $options);
   }
 
   /**

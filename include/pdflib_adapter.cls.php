@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.5 2005-03-17 19:23:42 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.6 2005-04-13 20:27:32 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -460,6 +460,7 @@ class PDFLib_Adapter implements Canvas {
    * @return int the font descriptor for the font
    */
   protected function _load_font($font, $encoding = "auto", $options = "") {
+    $options = "";
 
     // Check if the font is a native font
     // Embed non-native fonts
@@ -670,11 +671,12 @@ class PDFLib_Adapter implements Canvas {
       
       
     $filename = str_replace(array("\n","'"),"", $filename);
+    $attach = isset($options["Attachment"]) ? "attachment" : "inline";
     
     header("Cache-Control: private");
     header("Content-type: application/pdf");
-    $attach = isset($options["Attachment"]) ? "attachment" : "inline";
-    header("Content-disposition: $attach; filename=\"$filename\"");
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+
     header("Content-length: " . $size);
 
     if ( self::$IN_MEMORY )
