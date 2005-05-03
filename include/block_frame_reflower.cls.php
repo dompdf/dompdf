@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.6 2005-03-02 21:26:53 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.7 2005-05-03 17:58:26 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -173,6 +173,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $height = $this->_calculate_content_height();
     
+    $cb = $this->_frame->get_containing_block();
+
     if ( !($style->overflow === "visible" ||
            ($style->overflow === "hidden" && $height === "auto")) ) {
 
@@ -185,7 +187,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $min_height = $style->length_in_pt($min_height, $cb["h"]);
         $max_height = $style->length_in_pt($max_height, $cb["h"]);
 
-      } else {
+      } else if ( isset($cb["w"]) {
 
         if ( strpos($min_height, "%") !== false )
           $min_height = 0;

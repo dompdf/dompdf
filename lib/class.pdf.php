@@ -3547,7 +3547,14 @@ class  Cpdf {
       for  ($i =  $this->nCallback;$i>0;$i--) {
 
         // call each function
-        $info =  array('x' => $x, 'y' => $y, 'angle' => $angle, 'status' => 'sol', 'p' => $this->callback[$i]['p'], 'nCallback' => $this->callback[$i]['nCallback'], 'height' => $this->callback[$i]['height'], 'decender' => $this->callback[$i]['decender']);
+        $info =  array('x' => $x,
+                       'y' => $y,
+                       'angle' => $angle,
+                       'status' => 'sol',
+                       'p' => $this->callback[$i]['p'],
+                       'nCallback' => $this->callback[$i]['nCallback'],
+                       'height' => $this->callback[$i]['height'],
+                       'decender' => $this->callback[$i]['decender']);
 
         $func =  $this->callback[$i]['f'];
 
@@ -3558,6 +3565,7 @@ class  Cpdf {
     if  ($angle ==  0) {
 
       $this->objects[$this->currentContents]['c'].=  "\n".'BT '.sprintf('%.3f', $x) .' '.sprintf('%.3f', $y) .' Td';
+
     } else {
 
       $a =  deg2rad((float)$angle);

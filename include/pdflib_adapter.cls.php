@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.6 2005-04-13 20:27:32 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.7 2005-05-03 17:58:26 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -185,6 +185,7 @@ class PDFLib_Adapter implements Canvas {
     }
     
     $this->_pdf->set_parameter("topdown", "true");
+    $this->_pdf->set_value("compress", 0);
     
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");    
 
@@ -473,7 +474,6 @@ class PDFLib_Adapter implements Canvas {
       $native = false;
       $options .= " embedding=true";
     }
-
     
     $key = $font .":". $encoding .":". $options;
 
@@ -591,7 +591,7 @@ class PDFLib_Adapter implements Canvas {
     $this->_set_fill_color($color);
 
     $y += (float)$size;
-    $adjust = -(float)$adjust;
+    $adjust = (float)$adjust;
     $angle = -(float)$angle;
 
     $this->_pdf->fit_textline(utf8_decode($text), $x, $y, "rotate=$angle wordspacing=$adjust");
