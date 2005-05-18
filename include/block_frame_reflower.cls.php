@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.7 2005-05-03 17:58:26 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.8 2005-05-18 21:25:18 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -187,7 +187,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $min_height = $style->length_in_pt($min_height, $cb["h"]);
         $max_height = $style->length_in_pt($max_height, $cb["h"]);
 
-      } else if ( isset($cb["w"]) {
+      } else if ( isset($cb["w"]) ) {
 
         if ( strpos($min_height, "%") !== false )
           $min_height = 0;

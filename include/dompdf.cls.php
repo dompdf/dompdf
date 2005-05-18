@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.5 2005-04-13 20:27:32 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.6 2005-05-18 21:25:18 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -239,7 +239,7 @@ class DOMPDF {
     // browser if the html is ugly and the dom extension complains,
     // preventing the pdf from being streamed.)
     list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
-
+    
     if ( !DOMPDF_ENABLE_REMOTE &&
          ($this->_protocol != "" && $this->_protocol != "file://" ) )
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
@@ -293,7 +293,7 @@ class DOMPDF {
            strtolower($link->getAttribute("type")) == "text/css" ) {
         $url = $link->getAttribute("href");
         $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
-
+        
         $this->_css->load_css_file($url);
       }
 

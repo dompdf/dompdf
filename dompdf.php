@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.4 2005-03-02 18:37:15 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.5 2005-05-18 21:25:17 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -199,8 +199,6 @@ switch ( $sapi ) {
 
   if ( isset($opts["b"]) )
     $base_path = $opts["b"];
-  else
-    $base_path = dirname($file);
 
   if ( isset($opts["f"]) )
     $outfile = $opts["f"];
@@ -241,8 +239,6 @@ switch ( $sapi ) {
 
    if ( isset($_GET["base_path"]) )
      $base_path = rawurldecode($_GET["base_path"]);
-   else
-     $base_path = dirname(realpath($_SERVER["SCRIPT_FILENAME"]));
 
    if ( isset($_GET["output_file"]) )
      $outfile = rawurldecode($_GET["output_file"]);
@@ -274,7 +270,10 @@ if ( $file == "-" ) {
 } else 
   $dompdf->load_html_file($file);
 
-$dompdf->set_base_path($base_path);
+if ( isset($base_path) ) {
+  $dompdf->set_base_path($base_path);
+}
+
 $dompdf->set_paper($paper, $orientation);
 
 $dompdf->render();
