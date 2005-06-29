@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: attribute_translator.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.4 2005-06-29 23:32:17 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -66,9 +66,10 @@ class Attribute_Translator {
                   'width' => 'width: %s;',
                   ),
            'table' => 
-           array (array('left' => '',
+           array (array(//'left' => '',
                         'center' => 'margin-left: auto; margin-right: auto;',
-                        'right' => ''),
+                        //'right' => ''
+                        ),
                   'bgcolor' => 'background-color: %s;',
                   'border' => '!set_table_border',
                   'cellpadding' => '!set_table_cellpadding',

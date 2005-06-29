@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.5 2005-05-18 21:25:17 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.6 2005-06-29 23:32:16 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -83,8 +83,8 @@ function usage() {
     "        \tdirectory of html_file.\n".
     " -f file\tthe output filename.  Default is the input [html_file].pdf.\n".
     " -v     \tverbose: display html parsing warnings and file not found errors.\n".
-    " -d     \tDebugging.  Produce of debugging output and complain about invalid\n".
-    "        \tevery frame in the is printed to stdout.\n\n";
+    " -d     \tvery verbose:  display oodles of debugging output: every frame".
+    "        \tin the tree printed to stdout.\n\n";
   
 }
 

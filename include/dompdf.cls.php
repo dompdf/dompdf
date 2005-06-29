@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.6 2005-05-18 21:25:18 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.7 2005-06-29 23:32:17 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -377,8 +377,7 @@ class DOMPDF {
       $deco->set_root($root);
 
       // FIXME: handle generated content
-      if ( $frame->get_style()->display == "list-item" &&
-           in_array( $frame->get_style()->list_style_type, List_Bullet_Frame_Decorator::$BULLET_TYPES) ) {
+      if ( $frame->get_style()->display == "list-item" ) {
         
         // Insert a list-bullet frame
         $node = $this->_xml->createElement("bullet"); // arbitrary choice
@@ -389,8 +388,7 @@ class DOMPDF {
         $style->inherit($frame->get_style());
         $b_f->set_style($style);
         
-        $deco->prepend_child( Frame_Factory::decorate_frame($b_f) );
-      }
+        $deco->prepend_child( Frame_Factory::decorate_frame($b_f) );          
     }
     
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
@@ -403,7 +401,9 @@ class DOMPDF {
     $renderer = new Renderer($this->_pdf);
 
     $renderer->render($root);
-    
+
+    // Clean up cached images
+    Image_Frame_Decorator::clear_image_cache();
   }
   
   //........................................................................ 

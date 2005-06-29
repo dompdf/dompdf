@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_row_frame_reflower.cls.php,v 1.2 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: table_row_frame_reflower.cls.php,v 1.3 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Reflows table rows
@@ -70,6 +70,9 @@ class Table_Row_Frame_Reflower extends Frame_Reflower {
       $child->reflow();
 
     }
+
+    if ( $page->is_full() )
+      return;
 
     $table = Table_Frame_Decorator::find_parent_table($this->_frame);
     $cellmap = $table->get_cellmap();

@@ -2,8 +2,8 @@
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
  *
- * File: $RCSfile: list_bullet_renderer.cls.php,v $
- * Created on: 2004-06-23
+ * File: $RCSfile: list_bullet_image_frame_decorator.cls.php,v $
+ * Created on: 2005-06-28
  *
  * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
  *
@@ -34,61 +34,74 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.4.1
  */
 
-/* $Id: list_bullet_renderer.cls.php,v 1.2 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: list_bullet_image_frame_decorator.cls.php,v 1.1 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
- * Renders list bullets
+ * Decorates frames for list bullets with custom images
  *
  * @access private
  * @package dompdf
  */
-class List_Bullet_Renderer extends Abstract_Renderer {
+class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
+
+  /**
+   * The underlying image frame
+   * 
+   * @var Image_Frame_Decorator
+   */
+  protected $_img;
+
+  /**
+   * The image's dimensions
+   *
+   * @var array
+   */
+  protected $_size;
   
-  function __construct(Canvas $canvas) {
-    parent::__construct($canvas);
-  }
-  
-  //........................................................................
-
-  function render(Frame $frame) {
-
-    $style = $frame->get_style();
-
-    $bullet_style = $style->list_style_type;
-    $bullet_size = List_Bullet_Frame_Decorator::BULLET_SIZE;
-    $line_height = $style->length_in_pt($style->line_height, $frame->get_containing_block("w"));
-
-    $fill = false;
+  /**
+   * Class constructor
+   *
+   * @param Frame $frame the bullet frame to decorate
+   * @param DOMPDF $dompdf the document's dompdf object
+   */
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    $url = $frame->style->list_style_image;
+    $frame->get_node()->setAttribute("src", $url);
+    $this->_img = new Image_Frame_Decorator($frame, $dompdf);
+    parent::__construct($this->_img);
+    $this->_size = getimagesize($this->_img->get_image_url());
     
-    switch ($bullet_style) {
-      
-    default:
-    case "disc":
-      $fill = true;
+  }
 
-    case "circle":
-      if ( !$fill )
-        $fill = false;
-      
-      list($x,$y) = $frame->get_position();
-      $x += $bullet_size /2;
-      $y += $line_height /2 + $bullet_size / 2;
-      $r = $bullet_size / 2;
-      $this->_canvas->circle($x, $y, $r, $style->color, null, null, $fill);
-      break;
+  /**
+   * Return the bullet's width
+   *
+   * @return int
+   */
+  function get_width() {
+    return $this->_size[0];
+  }
 
-    case "square":
-      list($x, $y) = $frame->get_position();
-      $w = $bullet_size / 2;
-      $x += $bullet_size / 2 - $w / 2;
-      $y += $line_height / 2;
-      $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
-      break;
+  /**
+   * Override get_margin_width()
+   *
+   * @return int
+   */
+  function get_margin_width() {
+    return $this->_size[0] + List_Bullet_Frame_Decorator::BULLET_PADDING;
+  }
 
-    }
+  /**
+   * Override get_margin_height()
+   *
+   * @return int
+   */
+  function get_margin_height() {
+    return $this->_size[1] + List_Bullet_Frame_Decorator::BULLET_PADDING;
   }
 }
+
 ?>

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.4 2005-03-04 20:28:02 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.5 2005-06-29 23:32:17 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -245,8 +245,10 @@ class Cellmap {
   function get_frame_width($frame) {
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) 
+    if ( !array_key_exists($key, $this->_frames) ) {
+      echo $this;
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+    }
 
     $cols = $this->_frames[$key]["columns"];
     $w = 0;

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_factory.cls.php,v 1.3 2005-02-28 18:46:32 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic
@@ -130,8 +130,12 @@ class Frame_Factory {
         $positioner = "Inline";
       else        
         $positioner = "List_Bullet";
+
+      if ( $frame->get_style()->list_style_image != "none" )
+        $decorator = "List_Bullet_Image";
+      else
+        $decorator = "List_Bullet";
       
-      $decorator = "List_Bullet";
       $reflower = "List_Bullet";
       break;
 

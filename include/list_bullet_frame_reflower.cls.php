@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: list_bullet_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: list_bullet_frame_reflower.cls.php,v 1.2 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Reflows list bullets
@@ -54,7 +54,7 @@ class List_Bullet_Frame_Reflower extends Frame_Reflower {
   function reflow() {
     $style = $this->_frame->get_style();
     
-    $style->width = List_Bullet_Frame_Decorator::BULLET_SIZE / 2;
+    $style->width = $this->_frame->get_width();
     $this->_frame->position();
 
     if ( $style->list_style_position == "inside" ) {

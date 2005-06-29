@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.3 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -47,29 +47,70 @@
  */
 class Image_Frame_Decorator extends Frame_Decorator {
 
-  protected $_remote;
+  /**
+   * Array of downloaded images.  Cached so that identical images are
+   * not needlessly downloaded.
+   *
+   * @var array
+   */
+  static protected $_cache = array();
+ 
+  /**
+   * The path to the image file (note that remote images are
+   * downloaded locally to DOMPDF_TEMP_DIR).
+   *
+   * @var string
+   */
   protected $_image_url;
+
+  /**
+   * The image's file extension (i.e. png, jpeg, gif)
+   *
+   * @var string
+   */
   protected $_image_ext;
-  
+
+  /**
+   * Class constructor
+   *
+   * @param Frame $frame the frame to decorate
+   * @param DOMPDF $dompdf the document's dompdf object (required to resolve relative & remote urls)
+   */
   function __construct(Frame $frame, DOMPDF $dompdf) {
     parent::__construct($frame);
     $url = $frame->get_node()->getAttribute("src");
+
+    $proto = $dompdf->get_protocol();
+    $remote = ($proto != "" && $proto != "file://");
     
-    if ( !DOMPDF_ENABLE_REMOTE && strstr($url, "://") ) {
-      $this->_remote = false;
+    if ( !DOMPDF_ENABLE_REMOTE && $remote ) {
       $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
 
-    } else if ( DOMPDF_ENABLE_REMOTE && strstr($url, "://") ) {
+
+    } else if ( DOMPDF_ENABLE_REMOTE && $remote ) {
       // Download remote files to a temporary directory
-      $this->_remote = true;
+      $url = build_url($dompdf->get_protocol(),
+                       $dompdf->get_host(),
+                       $dompdf->get_base_path(),
+                       $url);
+
+      if ( isset(self::$_cache[$url]) ) {
+        $this->_image_url = self::$_cache[$url];
+        //echo "Using cached image $url (" . $this->_image_url . ")\n";
+        
+      } else {
+           
+        //echo "Downloading file $url to temporary location: ";
+        $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+        //echo $this->_image_url . "\n";
+
+        file_put_contents($this->_image_url, file_get_contents($url));
+
+        self::$_cache[$url] = $this->_image_url;
+      }
       
-      $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-
-      file_put_contents($this->_image_url, file_get_contents($url));
-
     } else {
 
-      $this->_remote = false;
       $this->_image_url = build_url($dompdf->get_protocol(),
                                     $dompdf->get_host(),
                                     $dompdf->get_base_path(),
@@ -78,7 +119,7 @@ class Image_Frame_Decorator extends Frame_Decorator {
     }
 
     if ( !is_readable($this->_image_url) || !filesize($this->_image_url) ) {
-      $this->_remote = false;
+      echo "File " .$this->_image_url . " is not readable.\n";
       $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
     }
 
@@ -91,17 +132,19 @@ class Image_Frame_Decorator extends Frame_Decorator {
     
   }
 
-  function __destruct() {
-//     if ( $this->_remote )
-//       unlink( $this->_image_url );
-  }
-
   function get_image_url() {
     return $this->_image_url;
   }
 
   function get_image_ext() {
     return $this->_image_ext;
+  }
+
+  static function clear_image_cache() {
+    if ( count(self::$_cache) ) {
+      foreach (self::$_cache as $file)
+        unlink($file);
+    }
   }
 }
 ?>

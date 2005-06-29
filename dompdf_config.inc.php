@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.4 2005-03-04 20:30:15 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.5 2005-06-29 23:32:16 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -149,7 +149,7 @@ define("DOMPDF_ENABLE_PHP", true);
  * If this setting is set to true, DOMPDF will access remote sites for
  * images and CSS files as required.
  */
-define("DOMPDF_ENABLE_REMOTE", false);
+define("DOMPDF_ENABLE_REMOTE", true);
  
 /**
  * DOMPDF autoload function

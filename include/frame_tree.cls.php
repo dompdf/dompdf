@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -151,7 +151,7 @@ class Frame_Tree {
   protected function _build_tree_r(DomNode $node) {
     
     $frame = new Frame($node);
-    $frame->set_id( $id = uniqid(rand()));
+    $id = $frame->get_id();
     $this->_registry[ $id ] = $frame;
     
     if ( !$node->hasChildNodes() )

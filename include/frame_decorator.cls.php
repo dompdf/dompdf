@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.3 2005-02-06 21:01:15 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -65,7 +65,8 @@ abstract class Frame_Decorator extends Frame {
 
   // Return a copy of this frame with $node as its node
   function copy(DomNode $node) {
-    $frame = new Frame($node);    
+    $frame = new Frame($node);
+    $frame->set_id( uniqid(rand()) );
     $frame->set_style(clone $this->_frame->get_original_style());
     $deco = Frame_Factory::decorate_frame($frame);
     $deco->set_root($this->_root);

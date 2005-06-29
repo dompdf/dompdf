@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1508,7 +1508,23 @@ class Style {
 
     $this->_props["border_spacing"] = $arr[0] . " " . $arr[1];
   }
-      
+
+  /**
+   * Sets the list style image
+   *
+   * @link http://www.w3.org/TR/CSS21/generate.html#propdef-list-style-image
+   * @param $val
+   */
+  function set_list_style_image($val) {
+    // Strip url(' ... ') from url values
+    if ( strpos($val, "url") !== false ) {
+      $val = preg_replace("/url\(['\"]([^'\")]+)['\"]?)/","\\1", $val);
+    } else {
+      $val = "none";
+    }
+    $this->_props["list_style_image"] = $val;
+  }
+  
   /**
    * Sets the list style
    *
@@ -1518,10 +1534,28 @@ class Style {
    * @param $val
    */
   function set_list_style($val) {
-    // FIXME:
-    //throw new DOMPDF_Exception("FIXME: need to implement this.");
-    global $_dompdf_warnings;
-    $_dompdf_warnings[] = "FIXME: list_style not implemented yet.";
+    $arr = explode(" ", str_replace(",", " ", $val));
+
+    $types = array("disc", "circle", "square", "decimal",
+                   "decimal-leading-zero", "lower-roman",
+                   "upper-roman", "lower-greek", "lower-latin",
+                   "upper-latin", "armenian", "georgian",
+                   "lower-alpha", "upper-alpha", "none");
+
+    $positions = array("inside", "outside");
+    
+    foreach ($arr as $value) {
+      if ( strpos($value, "url") !== false ) {
+        $this->set_list_style_image($value);
+        continue;
+      }
+
+      if ( in_array($value, $types) ) {
+        $this->_props["list_style_type"] = $value;
+      } else if ( in_array($value, $positions) ) {
+        $this->_props["list_style_position"] = $value;
+      }
+    }
   }
 
   /**

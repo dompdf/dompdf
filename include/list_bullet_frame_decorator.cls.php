@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.4.1
  */
 
-/* $Id: list_bullet_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: list_bullet_frame_decorator.cls.php,v 1.2 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Decorates frames for list bullet rendering
@@ -64,6 +64,10 @@ class List_Bullet_Frame_Decorator extends Frame_Decorator {
 
   function get_margin_height() {
     return self::BULLET_SIZE + self::BULLET_PADDING;
+  }
+
+  function get_width() {
+    return self::BULLET_SIZE / 2;
   }
   
   //........................................................................

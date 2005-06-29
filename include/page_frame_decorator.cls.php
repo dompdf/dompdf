@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.5 2005-02-14 08:47:07 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.6 2005-06-29 23:32:18 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -236,7 +236,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
      *
      * We will also allow breaks between table rows.  However, when
      * splitting a table, the table headers should carry over to the
-     * next page.
+     * next page (but they don't yet).
      */
 
     $block_types = array("block", "list-item", "table");
@@ -363,7 +363,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
     // Determine the frame's maximum y value
     $max_y = $frame->get_position("y") + $frame->get_margin_height();
 
-    // If a split is to occur here, then the bottom margins & paddings all
+    // If a split is to occur here, then the bottom margins & paddings of all
     // parents of $frame must fit on the page as well:
     $p = $frame->get_parent();
     while ( $p ) {

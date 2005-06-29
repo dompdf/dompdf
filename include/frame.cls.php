@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.3 2005-03-02 18:37:17 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.4 2005-06-29 23:32:17 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -96,7 +96,8 @@ class Frame {
                              "y" => null);
 
     $this->_decorator = null;
-  
+
+    $this->set_id( uniqid(rand()) );
   }
 
   //........................................................................
@@ -465,6 +466,7 @@ class Frame {
     
     $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
     $str .= (string)$this->_node . "<br/>";
+    $str .= "Id: " .$this->get_id() . "<br/>";
     if ( $this->_node->nodeName == "#text" ) {
       $tmp = htmlspecialchars($this->_node->nodeValue);
       $str .= "<pre>'" .  substr($tmp,0,70) .
