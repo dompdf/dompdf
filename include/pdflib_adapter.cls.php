@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.7 2005-05-03 17:58:26 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.8 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -184,7 +184,7 @@ class PDFLib_Adapter implements Canvas {
       $this->_pdf->begin_document($this->_file,"");
     }
     
-    $this->_pdf->set_parameter("topdown", "true");
+    //    $this->_pdf->set_parameter("topdown", "true");
     $this->_pdf->set_value("compress", 0);
     
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");    
@@ -489,12 +489,23 @@ class PDFLib_Adapter implements Canvas {
     }
   }
 
+  /**
+   * Remaps y coords from 4th to 1st quadrant
+   *
+   * @param float $y
+   * @return float
+   */
+  protected function y($y) { return $this->_height - $y; }
+
   //........................................................................
 
   function line($x1, $y1, $x2, $y2, $color, $width, $style = null) {
     $this->_set_line_style($width, "butt", "", $style);
     $this->_set_stroke_color($color);
 
+    $y1 = $this->y($y1);
+    $y2 = $this->y($y2);
+    
     $this->_pdf->moveto($x1,$y1);
     $this->_pdf->lineto($x2, $y2);
     $this->_pdf->stroke();
@@ -506,7 +517,9 @@ class PDFLib_Adapter implements Canvas {
     $this->_set_stroke_color($color);
     $this->_set_line_style($width, "square", "miter", $style);
 
-    $this->_pdf->rect($x1, $y1 + $h, $w, $h);
+    $y1 = $this->y($y1) - $h;
+
+    $this->_pdf->rect($x1, $y1, $w, $h);
     $this->_pdf->stroke();
   }
 
@@ -514,7 +527,10 @@ class PDFLib_Adapter implements Canvas {
 
   function filled_rectangle($x1, $y1, $w, $h, $color) {
     $this->_set_fill_color($color);
-    $this->_pdf->rect($x1, $y1 + $h, $w, $h);
+
+    $y1 = $this->y($y1) - $h;
+
+    $this->_pdf->rect($x1, $y1, $w, $h);
     $this->_pdf->fill();
   }
 
@@ -528,12 +544,12 @@ class PDFLib_Adapter implements Canvas {
     if ( !$fill && isset($width) )
       $this->_set_line_style($width, "square", "miter", $style);
 
-    $y = array_pop($points);
+    $y = $this->y(array_pop($points));
     $x = array_pop($points);
     $this->_pdf->moveto($x,$y);
     
     while (count($points) > 1) {
-      $y = array_pop($points);
+      $y = $this->y(array_pop($points));
       $x = array_pop($points);
       $this->_pdf->lineto($x,$y);      
     }
@@ -552,7 +568,9 @@ class PDFLib_Adapter implements Canvas {
     $this->_set_stroke_color($color);
 
     if ( !$fill && isset($width) )
-      $this->_set_line_style($width, "square", "miter", $style);
+      $this->_set_line_style($width, "round", "round", $style);
+
+    $y = $this->y($y);
     
     $this->_pdf->circle($x, $y, $r);
 
@@ -577,7 +595,8 @@ class PDFLib_Adapter implements Canvas {
         $this->_pdf->load_image($img_type, $img_url, "");
     }
     
-    $this->_pdf->fit_image($img, $x, $y + $h, "boxsize=\{$w $h} fitmethod=entire");
+    $y = $this->y($y) - $h;
+    $this->_pdf->fit_image($img, $x, $y, "boxsize=\{$w $h} fitmethod=entire");
        
   }
 
@@ -590,7 +609,8 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->setfont($fh, $size);
     $this->_set_fill_color($color);
 
-    $y += (float)$size;
+    $y = $this->y($y) - Font_Metrics::get_font_height($font, $size);
+
     $adjust = (float)$adjust;
     $angle = -(float)$angle;
 
@@ -634,6 +654,8 @@ class PDFLib_Adapter implements Canvas {
     // Add the text to the first page
     $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
                         array($this->_page_number, $this->_page_count), $text);
+
+    $y = $this->y($y);
     $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
   }
 

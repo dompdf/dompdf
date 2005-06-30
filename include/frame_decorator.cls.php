@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.5 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -66,7 +66,6 @@ abstract class Frame_Decorator extends Frame {
   // Return a copy of this frame with $node as its node
   function copy(DomNode $node) {
     $frame = new Frame($node);
-    $frame->set_id( uniqid(rand()) );
     $frame->set_style(clone $this->_frame->get_original_style());
     $deco = Frame_Factory::decorate_frame($frame);
     $deco->set_root($this->_root);
@@ -91,7 +90,12 @@ abstract class Frame_Decorator extends Frame {
   function get_original_style() { return $this->_frame->get_original_style(); }
   function get_containing_block($i = null) { return $this->_frame->get_containing_block($i); }
   function get_position($i = null) { return $this->_frame->get_position($i); }
-  function get_decorator() { return $this; }
+//   function get_decorator() {
+//     if ( isset($this->_decorator) )
+//       return $this->_decorator;
+//     else
+//       return $this;
+//   }
 
   function get_margin_height() { return $this->_frame->get_margin_height(); }
   function get_margin_width() { return $this->_frame->get_margin_width(); }
@@ -111,21 +115,21 @@ abstract class Frame_Decorator extends Frame {
   function __toString() { return $this->_frame->__toString(); }
   
   function prepend_child(Frame $child, $update_node = true) {
-    if ( $child instanceof Frame_Decorator )
+    while ( $child instanceof Frame_Decorator )
       $child = $child->_frame;
     
     $this->_frame->prepend_child($child, $update_node);
   }
 
   function append_child(Frame $child, $update_node = true) {
-    if ( $child instanceof Frame_Decorator )
+    while ( $child instanceof Frame_Decorator )
       $child = $child->_frame;
 
     $this->_frame->append_child($child, $update_node);
   }
 
   function insert_child_before(Frame $new_child, Frame $ref, $update_node = true) {
-    if ( $new_child instanceof Frame_Decorator )
+    while ( $new_child instanceof Frame_Decorator )
       $new_child = $new_child->_frame;
 
     if ( $ref instanceof Frame_Decorator )
@@ -135,7 +139,7 @@ abstract class Frame_Decorator extends Frame {
   }
 
   function insert_child_after(Frame $new_child, Frame $ref, $update_node = true) {
-    if ( $new_child instanceof Frame_Decorator )
+    while ( $new_child instanceof Frame_Decorator )
       $new_child = $new_child->_frame;
 
     if ( $ref instanceof Frame_Decorator )
@@ -145,7 +149,7 @@ abstract class Frame_Decorator extends Frame {
   }
 
   function remove_child(Frame $child, $update_node = true) {
-    if ( $child instanceof Frame_Decorator )
+    while  ( $child instanceof Frame_Decorator )
       $child = $new_child->_frame;
 
     $this->_frame->remove_child($child, $update_node);
@@ -154,28 +158,65 @@ abstract class Frame_Decorator extends Frame {
   //........................................................................
 
   function get_parent() {
+
     $p = $this->_frame->get_parent();
-    return !is_null($p) ? $p->get_decorator() : null;
+    
+    if ( $p && $deco = $p->get_decorator() ) {
+      while ( $tmp = $deco->get_decorator() )
+        $deco = $tmp;      
+      return $deco;
+    } else if ( $p )
+      return $p;
+    else
+      return null;
   }
 
   function get_first_child() {
     $c = $this->_frame->get_first_child();
-    return !is_null($c) ? $c->get_decorator() : null;
+    if ( $c && $deco = $c->get_decorator() ) {
+      while ( $tmp = $deco->get_decorator() )
+        $deco = $tmp;      
+      return $deco;
+    } else if ( $c )
+      return $c;
+    else
+      return null;
   }
 
   function get_last_child() {
     $c = $this->_frame->get_last_child();
-    return !is_null($c) ? $c->get_decorator() : null;
+    if ( $c && $deco = $c->get_decorator() ) {
+      while ( $tmp = $deco->get_decorator() )
+        $deco = $tmp;      
+      return $deco;
+    } else if ( $c )
+      return $c;
+    else
+      return null;
   }
 
   function get_prev_sibling() {
     $s = $this->_frame->get_prev_sibling();
-    return !is_null($s) ? $s->get_decorator() : null;
+    if ( $s && $deco = $s->get_decorator() ) {
+      while ( $tmp = $deco->get_decorator() )
+        $deco = $tmp;      
+      return $deco;
+    } else if ( $s )
+      return $s;
+    else
+      return null;
   }
   
   function get_next_sibling() {
     $s = $this->_frame->get_next_sibling();
-    return !is_null($s) ? $s->get_decorator() : null;
+    if ( $s && $deco = $s->get_decorator() ) {
+      while ( $tmp = $deco->get_decorator() )
+        $deco = $tmp;      
+      return $deco;
+    } else if ( $s )
+      return $s;
+    else
+      return null;
   }
 
   function get_children() {
@@ -188,16 +229,30 @@ abstract class Frame_Decorator extends Frame {
   
   //........................................................................
 
-  function set_positioner(Positioner $posn) { $this->_positioner = $posn; }
+  function set_positioner(Positioner $posn) {
+    $this->_positioner = $posn;
+    if ( $this->_frame instanceof Frame_Decorator )
+      $this->_frame->set_positioner($posn);
+  }
   
   //........................................................................
 
-  function set_reflower(Frame_Reflower $reflower) { $this->_reflower = $reflower; }
+  function set_reflower(Frame_Reflower $reflower) {
+    $this->_reflower = $reflower;
+    if ( $this->_frame instanceof Frame_Decorator )
+      $this->_frame->set_reflower( $reflower );
+  }
+  
   function get_reflower() { return $this->_reflower; }
-
+  
   //........................................................................
   
-  function set_root(Frame $root) { $this->_root = $root; }
+  function set_root(Frame $root) {
+    $this->_root = $root;
+      if ( $this->_frame instanceof Frame_Decorator )
+        $this->_frame->set_root($root);
+  }
+  
   function get_root() { return $this->_root; }
   
   //........................................................................
@@ -206,7 +261,7 @@ abstract class Frame_Decorator extends Frame {
 
     // Find our nearest block level parent
     $p = $this->get_parent();
-
+    
     while ( $p ) {
       if ( in_array($p->get_style()->display, Style::$BLOCK_TYPES) )
         break;
@@ -264,7 +319,7 @@ abstract class Frame_Decorator extends Frame {
     return $this->_reflower->reflow();
   }
 
-  final function get_min_max_width() { return $this->_reflower->get_min_max_width(); }
+  final function get_min_max_width() { return $this->get_reflower()->get_min_max_width(); }
   
   //........................................................................
 

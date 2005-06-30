@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.7 2005-06-29 23:32:17 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.8 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -307,7 +307,7 @@ class DOMPDF {
       // http://www.w3.org/TR/REC-html40/present/styles.html#adef-media
       // which states that the default media type is 'screen'
       if ( $style->hasAttributes() &&
-           $media = $style->getAttribute("media") &&
+           ($media = $style->getAttribute("media")) &&
            !in_array($media, Stylesheet::$ACCEPTED_MEDIA_TYPES) )
         continue;
       
@@ -388,7 +388,8 @@ class DOMPDF {
         $style->inherit($frame->get_style());
         $b_f->set_style($style);
         
-        $deco->prepend_child( Frame_Factory::decorate_frame($b_f) );          
+        $deco->prepend_child( Frame_Factory::decorate_frame($b_f, $this) );
+      }
     }
     
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
@@ -405,7 +406,7 @@ class DOMPDF {
     // Clean up cached images
     Image_Frame_Decorator::clear_image_cache();
   }
-  
+    
   //........................................................................ 
 
   /**

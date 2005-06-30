@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.3 2005-03-10 18:59:19 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.4 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -93,10 +93,15 @@ class Table_Frame_Reflower extends Frame_Reflower {
                                                          $style->border_left_width,
                                                          $style->border_right_width,
                                                          $style->padding_right), $cb["w"]);
+
+    $min_table_width = $style->length_in_pt( $style->min_width, $cb["w"] - $delta );
     
     if ( $width !== "auto" ) {
       
       $preferred_width = $style->length_in_pt($width, $cb["w"]) - $delta;
+
+      if ( $preferred_width < $min_table_width )
+        $preferred_width = $min_table_width;
       
       if ( $preferred_width > $min_width )        
         $width = $preferred_width;
@@ -112,6 +117,9 @@ class Table_Frame_Reflower extends Frame_Reflower {
       else 
         $width = $min_width;
 
+      if ( $width < $min_table_width )
+        $width = $min_table_width;
+      
     }
     
     // Store our resolved width
@@ -448,7 +456,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
         $this->_state["auto_min"] += $columns[$i]["min-width"];
       }
     }
-    
+
     return array($this->_state["min_width"], $this->_state["max_width"],
                  "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
   }

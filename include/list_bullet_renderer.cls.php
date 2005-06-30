@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: list_bullet_renderer.cls.php,v 1.2 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: list_bullet_renderer.cls.php,v 1.3 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Renders list bullets
@@ -56,38 +56,52 @@ class List_Bullet_Renderer extends Abstract_Renderer {
   function render(Frame $frame) {
 
     $style = $frame->get_style();
-
-    $bullet_style = $style->list_style_type;
-    $bullet_size = List_Bullet_Frame_Decorator::BULLET_SIZE;
     $line_height = $style->length_in_pt($style->line_height, $frame->get_containing_block("w"));
 
-    $fill = false;
-    
-    switch ($bullet_style) {
-      
-    default:
-    case "disc":
-      $fill = true;
+    // Handle list-style-image
+    if ( $style->list_style_image != "none" ) {
 
-    case "circle":
-      if ( !$fill )
-        $fill = false;
-      
       list($x,$y) = $frame->get_position();
-      $x += $bullet_size /2;
-      $y += $line_height /2 + $bullet_size / 2;
-      $r = $bullet_size / 2;
-      $this->_canvas->circle($x, $y, $r, $style->color, null, null, $fill);
-      break;
+      $w = $frame->get_width();
+      $h = $frame->get_height();
+      $x += $w / 2;
+      $y += $line_height / 2 - $h / 2;
 
-    case "square":
-      list($x, $y) = $frame->get_position();
-      $w = $bullet_size / 2;
-      $x += $bullet_size / 2 - $w / 2;
-      $y += $line_height / 2;
-      $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
-      break;
+      $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h);
+      
+    } else {
 
+      $bullet_style = $style->list_style_type;
+      $bullet_size = List_Bullet_Frame_Decorator::BULLET_SIZE;
+
+      $fill = false;
+      
+      switch ($bullet_style) {
+      
+      default:
+      case "disc":
+        $fill = true;
+        
+      case "circle":
+        if ( !$fill )
+          $fill = false;
+      
+        list($x,$y) = $frame->get_position();
+        $x += $bullet_size / 2 + List_Bullet_Frame_Decorator::BULLET_PADDING;
+        $y += $line_height - $bullet_size;
+        $r = $bullet_size / 2;
+        $this->_canvas->circle($x, $y, $r, $style->color, 0.2, null, $fill);
+        break;
+
+      case "square":
+        list($x, $y) = $frame->get_position();
+        $w = $bullet_size;
+        $x += List_Bullet_Frame_Decorator::BULLET_PADDING;
+        $y += $line_height - $w - List_Bullet_Frame_Decorator::BULLET_PADDING;
+        $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
+        break;
+
+      }
     }
   }
 }

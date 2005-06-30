@@ -1,2 +1,3 @@
 #!/bin/sh
-php -f dompdf.php -- $@
+dir=`dirname $0`
+php -f $dir/dompdf.php -- $@

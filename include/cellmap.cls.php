@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.5 2005-06-29 23:32:17 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.6 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -228,6 +228,8 @@ class Cellmap {
   }
 
   function get_frame_position($frame) {
+    global $_dompdf_warnings;
+    
     $key = $frame->get_id();
 
     if ( !array_key_exists($key, $this->_frames) ) 
@@ -236,8 +238,17 @@ class Cellmap {
     $col = $this->_frames[$key]["columns"][0];
     $row = $this->_frames[$key]["rows"][0];
 
-    $x = $this->_columns[$col]["x"];
-    $y = $this->_rows[$row]["y"];
+    if ( !isset($this->_columns[$col])) {
+      $_dompdf_warnings[] = "Frame not found in columns array.  Check your table layout for missing or extra TDs.";
+      $x = 0;
+    } else 
+      $x = $this->_columns[$col]["x"];
+    
+    if ( !isset($this->_rows[$row])) {
+      $_dompdf_warnings[] = "Frame not found in row array.  Check your table layout for missing or extra TDs.";
+      $y = 0;
+    } else 
+      $y = $this->_rows[$row]["y"];
 
     return array($x, $y, "x" => $x, "y" => $y);
   }

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: list_bullet_frame_reflower.cls.php,v 1.2 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: list_bullet_frame_reflower.cls.php,v 1.3 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Reflows list bullets
@@ -47,7 +47,7 @@
  */
 class List_Bullet_Frame_Reflower extends Frame_Reflower {
 
-  function __construct(List_Bullet_Frame_Decorator $frame) { parent::__construct($frame); }
+  function __construct(Frame_Decorator $frame) { parent::__construct($frame); }
     
   //........................................................................
 

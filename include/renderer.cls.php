@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: renderer.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.4 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -78,7 +78,7 @@ class Renderer extends Abstract_Renderer {
   function render(Frame $root) {
 
     // count() doesn't work on iterated elements
-    // FIXME: look into the ArrayAccess interface - need 5.1 for SPL better
+    // FIXME: look into the ArrayAccess interface - need 5.1 for better SPL
     // support.
     $count = 0;
     foreach ($root->get_children() as $page)
@@ -103,7 +103,7 @@ class Renderer extends Abstract_Renderer {
    */
   protected function _render_frame(Frame $frame) {    
     global $_dompdf_debug;
-    
+
     if ( $_dompdf_debug ) {
       echo $frame;
       flush();

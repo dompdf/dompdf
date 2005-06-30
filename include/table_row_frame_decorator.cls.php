@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_row_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_row_frame_decorator.cls.php,v 1.2 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table row layout
@@ -65,7 +65,7 @@ class Table_Row_Frame_Decorator extends Frame_Decorator {
     $p = Table_Frame_Decorator::find_parent_table($this);
     
     $erroneous_frames = array();
-    foreach ($this->get_children() as $child) {
+    foreach ($this->get_children() as $child) {      
       $display = $child->get_style()->display;
 
       if ( $display != "table-cell" )

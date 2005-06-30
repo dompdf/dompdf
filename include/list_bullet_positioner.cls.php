@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: list_bullet_positioner.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: list_bullet_positioner.cls.php,v 1.2 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Positions list bullets
@@ -60,7 +60,7 @@ class List_Bullet_Positioner extends Positioner {
     
     // Note: this differs from most frames in that we must position
     // ourselves after determining our width
-    $x = $cb["x"] - $style->width - List_Bullet_Frame_Decorator::BULLET_PADDING;
+    $x = $cb["x"] - $this->_frame->get_width();
 
     $p = $this->_frame->find_block_parent();
 

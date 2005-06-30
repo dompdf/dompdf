@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.6 2005-06-29 23:32:16 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.7 2005-06-30 03:02:11 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -278,6 +278,11 @@ $dompdf->set_paper($paper, $orientation);
 
 $dompdf->render();
 
+if ( isset($opts["v"]) || isset($opts["d"]) ) {
+  foreach ($_dompdf_warnings as $msg)
+    echo $msg . "\n";
+}
+     
 if ( $save_file ) {
 //   if ( !is_writable($outfile) ) 
 //     throw new DOMPDF_Exception("'$outfile' is not writable.");

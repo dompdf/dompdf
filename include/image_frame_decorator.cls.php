@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.3 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.4 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -77,6 +77,8 @@ class Image_Frame_Decorator extends Frame_Decorator {
    * @param DOMPDF $dompdf the document's dompdf object (required to resolve relative & remote urls)
    */
   function __construct(Frame $frame, DOMPDF $dompdf) {
+    global $_dompdf_warnings;
+    
     parent::__construct($frame);
     $url = $frame->get_node()->getAttribute("src");
 
@@ -119,7 +121,7 @@ class Image_Frame_Decorator extends Frame_Decorator {
     }
 
     if ( !is_readable($this->_image_url) || !filesize($this->_image_url) ) {
-      echo "File " .$this->_image_url . " is not readable.\n";
+      $_dompdf_warnings[] = "File " .$this->_image_url . " is not readable.\n";
       $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
     }
 

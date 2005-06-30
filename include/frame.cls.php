@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.4 2005-06-29 23:32:17 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.5 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -253,7 +253,9 @@ class Frame {
     $this->_style = $style;
   }
   
-  function set_decorator(Frame_Decorator $decorator) { $this->_decorator = $decorator; }
+  function set_decorator(Frame_Decorator $decorator) {
+    $this->_decorator = $decorator;
+  }
   
   function set_containing_block($x = null, $y = null, $w = null, $h = null) {
     if ( is_array($x) ) 
@@ -458,6 +460,7 @@ class Frame {
 
   // Debugging function:
   function __toString() {
+
     // Skip empty text frames
     if ( $this->_node->nodeName == "#text" &&
          preg_replace("/\s/", "", $this->_node->data) === "" )
@@ -467,6 +470,8 @@ class Frame {
     $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
     $str .= (string)$this->_node . "<br/>";
     $str .= "Id: " .$this->get_id() . "<br/>";
+    $str .= "Class: " .get_class($this) . "<br/>";
+    
     if ( $this->_node->nodeName == "#text" ) {
       $tmp = htmlspecialchars($this->_node->nodeValue);
       $str .= "<pre>'" .  substr($tmp,0,70) .
@@ -487,7 +492,11 @@ class Frame {
         " (" . (string)$this->_next_sibling->_node . ") " .
         "<br/>";
 
-    $str .= "Decorator: " . get_class($this->_decorator) . "<br/>";
+    $d = $this->get_decorator();
+    while ($d && $d != $d->get_decorator()) {
+      $str .= "Decorator: " . get_class($d) . "<br/>";
+      $d = $d->get_decorator();
+    }
 
     $str .= "Position: " . pre_r($this->_position, true);
     $str .= "\nContaining block: " . pre_r($this->_containing_block, true);

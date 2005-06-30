@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.4.2
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.2 2005-03-04 20:28:02 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.3 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Reflows text frames.

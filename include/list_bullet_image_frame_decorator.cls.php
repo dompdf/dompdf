@@ -37,7 +37,7 @@
  * @version 0.4.1
  */
 
-/* $Id: list_bullet_image_frame_decorator.cls.php,v 1.1 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: list_bullet_image_frame_decorator.cls.php,v 1.2 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Decorates frames for list bullets with custom images
@@ -55,12 +55,19 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
   protected $_img;
 
   /**
-   * The image's dimensions
+   * The image's width in pixels
    *
-   * @var array
+   * @var int
    */
-  protected $_size;
+  protected $_width;
   
+  /**
+   * The image's height in pixels
+   *
+   * @var int
+   */
+  protected $_height;
+
   /**
    * Class constructor
    *
@@ -68,11 +75,15 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
    * @param DOMPDF $dompdf the document's dompdf object
    */
   function __construct(Frame $frame, DOMPDF $dompdf) {
-    $url = $frame->style->list_style_image;
+    $url = $frame->get_style()->list_style_image;
     $frame->get_node()->setAttribute("src", $url);
     $this->_img = new Image_Frame_Decorator($frame, $dompdf);
     parent::__construct($this->_img);
-    $this->_size = getimagesize($this->_img->get_image_url());
+    list($width, $height) = getimagesize($this->_img->get_image_url());
+
+    // Resample the bullet image to be consistent with 'auto' sized images
+    $this->_width = ((float)rtrim($width, "px")) * 72 / DOMPDF_DPI;
+    $this->_height = ((float)rtrim($height, "px")) * 72 / DOMPDF_DPI;
     
   }
 
@@ -82,16 +93,25 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
    * @return int
    */
   function get_width() {
-    return $this->_size[0];
+    return $this->_width;
   }
 
+  /**
+   * Return the bullet's height
+   *
+   * @return int
+   */
+  function get_height() {
+    return $this->_height;
+  }
+  
   /**
    * Override get_margin_width()
    *
    * @return int
    */
   function get_margin_width() {
-    return $this->_size[0] + List_Bullet_Frame_Decorator::BULLET_PADDING;
+    return $this->_width + List_Bullet_Frame_Decorator::BULLET_PADDING;
   }
 
   /**
@@ -100,8 +120,27 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
    * @return int
    */
   function get_margin_height() {
-    return $this->_size[1] + List_Bullet_Frame_Decorator::BULLET_PADDING;
+    return $this->_height + List_Bullet_Frame_Decorator::BULLET_PADDING;
   }
+
+  /**
+   * Return image url
+   *
+   * @return string
+   */
+  function get_image_url() {
+    return $this->_img->get_image_url();
+  }
+
+  /**
+   * Return the image extension
+   *
+   * @return string
+   */
+  function get_image_ext() {
+    return $this->_img->get_image_ext();
+  }
+  
 }
 
 ?>

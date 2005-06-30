@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.5 2005-06-30 03:02:12 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1516,12 +1516,14 @@ class Style {
    * @param $val
    */
   function set_list_style_image($val) {
+    
     // Strip url(' ... ') from url values
     if ( strpos($val, "url") !== false ) {
-      $val = preg_replace("/url\(['\"]([^'\")]+)['\"]?)/","\\1", $val);
+      $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/","\\1", trim($val));
     } else {
       $val = "none";
     }
+
     $this->_props["list_style_image"] = $val;
   }
   
