@@ -10,6 +10,11 @@ td {
 </style>
 <body>
 <table>
+<thead>
+<tr>
+<td colspan="20">Header</td>
+</tr>
+</thead>
 <?php
 $i_max = 40;
 $j_max = 20;

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.5 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.6 2005-08-03 21:20:44 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1147,7 +1147,7 @@ class Style {
    *
    * $size can be any acceptable CSS size
    *
-   * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size   
+   * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
    * @param string|float $size
    */
   function set_font_size($size) {

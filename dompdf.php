@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.7 2005-06-30 03:02:11 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.8 2005-08-03 21:20:42 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -212,9 +212,11 @@ switch ( $sapi ) {
   if ( isset($opts["v"]) ) 
     $_dompdf_show_warnings = true;
 
-  if ( isset($opts["d"]) ) 
+  if ( isset($opts["d"]) ) {
+    $_dompdf_show_warnings = true;
     $_dompdf_debug = true;
-
+  }
+  
   $delete  = false;
   $save_file = true;
   
@@ -278,9 +280,10 @@ $dompdf->set_paper($paper, $orientation);
 
 $dompdf->render();
 
-if ( isset($opts["v"]) || isset($opts["d"]) ) {
+if ( $_dompdf_show_warnings ) {
   foreach ($_dompdf_warnings as $msg)
     echo $msg . "\n";
+  flush();
 }
      
 if ( $save_file ) {

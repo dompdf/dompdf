@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.5 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.6 2005-08-03 21:20:44 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -72,6 +72,22 @@ abstract class Frame_Decorator extends Frame {
     return $deco;
   }
 
+  /**
+   * Create a deep copy: copy this node and all children
+   *
+   * @return Frame
+   */
+  function deep_copy() {
+    $frame = new Frame($this->get_node()->cloneNode());
+    $frame->set_style(clone $this->_frame->get_original_style());
+    $deco = Frame_Factory::decorate_frame($frame);
+    $deco->set_root($this->_root);
+
+    foreach ($this->get_children() as $child)
+      $deco->append_child($child->deep_copy());
+
+    return $deco;
+  }
   //........................................................................
   
   // Delegate calls to decorated frame object
@@ -142,9 +158,9 @@ abstract class Frame_Decorator extends Frame {
     while ( $new_child instanceof Frame_Decorator )
       $new_child = $new_child->_frame;
 
-    if ( $ref instanceof Frame_Decorator )
+    while ( $ref instanceof Frame_Decorator )
       $ref = $ref->_frame;
-
+    
     $this->_frame->insert_child_after($new_child, $ref, $update_node);
   }
 

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.8 2005-05-18 21:25:18 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.9 2005-08-03 21:20:44 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -316,10 +316,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $cb["w"]);
     $this->_frame->increase_line_width($indent);
-
-
-    // Resolve page break properties
-    //$this->_resolve_page_break();
     
     // Determine the content edge
     $top = $style->length_in_pt(array($style->margin_top,
@@ -328,7 +324,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     $bottom = $style->length_in_pt(array($style->border_bottom_width,
                                          $style->margin_bottom,
-                                         $style->padding_bottom), $cb["w"]);
+                                         $style->padding_bottom), $cb["h"]);
 
     $cb_x = $x + $left +
       $style->length_in_pt($style->border_left_width, $cb["w"]) +
