@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.9 2005-08-03 21:20:44 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.10 2005-09-15 21:11:19 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -359,7 +359,7 @@ class PDFLib_Adapter implements Canvas {
            (($this->_page_number % 2 == 0 && $where == "even") ||
             ($this->_page_number % 2 == 1 && $where == "odd") ||
             ($where == "all")) ) {
-        $this->_pdf->fit_image($obj,0,$this->_height,"");
+        $this->_pdf->fit_image($obj,0,0,"");
       }
     }
     
@@ -461,7 +461,6 @@ class PDFLib_Adapter implements Canvas {
    * @return int the font descriptor for the font
    */
   protected function _load_font($font, $encoding = "auto", $options = "") {
-    $options = "";
 
     // Check if the font is a native font
     // Embed non-native fonts
@@ -509,7 +508,7 @@ class PDFLib_Adapter implements Canvas {
 
     $y1 = $this->y($y1);
     $y2 = $this->y($y2);
-    
+
     $this->_pdf->moveto($x1,$y1);
     $this->_pdf->lineto($x2, $y2);
     $this->_pdf->stroke();
@@ -659,7 +658,6 @@ class PDFLib_Adapter implements Canvas {
     $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
                         array($this->_page_number, $this->_page_count), $text);
 
-    $y = $this->y($y);
     $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
   }
 
