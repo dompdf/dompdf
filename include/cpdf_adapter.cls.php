@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.2 2005-03-04 20:28:02 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.3 2005-11-10 16:12:53 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -184,7 +184,11 @@ class CPDF_Adapter implements Canvas {
     
     $this->_pdf = new Cpdf($size);
     $this->_pdf->addInfo("Creator", "DOMPDF Converter");
+    // Silence pedantic warnings about missing TZ settings
+    $tz = @date_default_timezone_get();
+    date_default_timezone_set("UTC");
     $this->_pdf->addInfo("CreationDate", date("Y-m-d"));
+    date_default_timezone_set($tz);
     $this->_width = $size[2];
     $this->_height= $size[3];
     $this->_pdf->openHere('Fit');
@@ -493,7 +497,7 @@ class CPDF_Adapter implements Canvas {
   //........................................................................
 
   function image($img_url, $img_type, $x, $y, $w, $h) {
-    
+
     switch ($img_type) {
     case "jpeg":
     case "jpg":
@@ -503,11 +507,11 @@ class CPDF_Adapter implements Canvas {
     case "png":
       $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
       break;
-
+      
     default:      
       break;
     }
-    
+    pre_r($this->_pdf->messages);
     return;
   }
 

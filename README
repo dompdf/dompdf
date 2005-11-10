@@ -1,5 +1,5 @@
-dompdf v0.3 - PHP5 HTML to PDF converter
-========================================
+dompdf v0.4.2 - PHP5 HTML to PDF converter
+==========================================
 
 http://www.digitaljunkies.ca/dompdf
 Copyright (c) 2004 Benj Carson
@@ -23,17 +23,27 @@ Table of Contents:
 Overview
 --------
 
-dompdf is a (mostly) CSS2.1 compliant HTML layout and rendering engine
-written in PHP.  dompdf is a style-driven renderer: dompdf will download and
-read external stylesheets, inline style tags, and the style attributes of
-individual HTML elements.  It also supports most presentational HTML
-attributes.  For a list of supported CSS properties, see the TODO file.
+dompdf is an HTML to PDF converter.  At its heart, dompdf is (mostly)
+CSS2.1 compliant HTML layout and rendering engine written in PHP.  It is
+a style-driven renderer: it will download and read external stylesheets,
+inline style tags, and the style attributes of individual HTML elements.  It
+also supports most presentational HTML attributes.</p>
 
-PDF rendering is provided using a modified version the R&OS PDF class
-written by Wayne Munro, http://www.ros.co.nz/pdf/. (Some performance
-related changes have been made to the original.)  Eventually there will be
-support for alternative rendering backends (PDFlib and ClibPDF, for
-example, or even image rendering with GD).
+PDF rendering is currently provided either by PDFLib (www.pdflib.com)
+or by a bundled version the R&amp;OS CPDF class written by Wayne Munro
+(www.ros.co.nz/pdf).  (Some performance related changes have been made
+to the R&amp;OS class, however).  In order to use PDFLib with dompdf,
+the PDFLib PECL extension is required.  Using PDFLib improves
+performance and reduces the memory requirements of dompdf somewhat,
+while the R&amp;OS CPDF class, though slightly slower, eliminates any
+dependencies on external PDF libraries.
+
+dompdf was entered in the Zend PHP 5 Contest and placed 20th overall.
+
+Please note that dompdf works only with PHP 5.  There are no plans for
+a PHP 4 port.  If your web host does not offer PHP 4, I suggest either pestering
+them, or setting up your own PHP 5 box and using it to run dompdf.  Your scripts
+on your web host can redirect PDF requests to your PHP 5 box.
 
 This package should contain:
 
@@ -72,7 +82,8 @@ Features
   collapsed border models, individual cell styling, (no nested tables yet
   however)
 
-* limited image support (png & jpeg only)
+* limited image support (png & jpeg with the R&OS PDF class, gif, png & jpeg 
+  with PDFLib)
 
 * no dependencies on external PDF libraries, thanks to the R&OS PDF class
 
@@ -82,7 +93,7 @@ Features
 Requirements
 ------------
 
-* PHP 5.0.0+, although most later pre-5.0 snaps should work as well.
+* PHP 5.0.0+
 
 * Some fonts.  PDFs internally support Helvetica, Times-Roman, Courier &
   Zapf-Dingbats, but if you wish to use other fonts you will need to install
@@ -105,8 +116,7 @@ Limitations (Known Issues)
 
 * large files can take a while to render
 
-* ordered lists are currently not supported (should be working in the next
-  release, however)
+* ordered lists are currently not supported
 
 Usage
 -----

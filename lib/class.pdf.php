@@ -1110,7 +1110,7 @@ class  Cpdf {
 
       $this->infoObject = $id;
 
-      $date = 'D:'.date('Ymd');
+      $date = 'D:'.@date('Ymd');
 
       $this->objects[$id] = array('t'=>'info', 'info'=>array('Creator'=>'R and OS php pdf writer, http://www.ros.co.nz', 'CreationDate'=>$date));
 

@@ -37,6 +37,8 @@ select { font-size: 0.8em; font-weight: bold; }
   background-repeat: repeat-x;
   background-position: top left;
   height: 35px;
+  vertical-align: middle;
+  clear: both;
 }
 
 #logo {
@@ -50,7 +52,7 @@ select { font-size: 0.8em; font-weight: bold; }
 #left_col, #content {
   vertical-align: top;  
 }
-
+/*
 #left_col {
   padding: 3px 3px 2em 3px;
   margin-top: 2px;
@@ -59,6 +61,15 @@ select { font-size: 0.8em; font-weight: bold; }
   background-image: url('images/v_bar.gif');
   background-repeat: repeat-y;
   background-position: top right;
+}
+*/
+
+#left_col {
+  padding: 3px 3px 2em 3px;
+  margin-top: 2px;
+  width: 210px;
+  padding-right: 10px;
+  float: left;
 }
 
 #left_col h2 {
@@ -79,10 +90,17 @@ select { font-size: 0.8em; font-weight: bold; }
 #left_col p { font-size: 0.8em; }
 
 #content {
-  padding-left: 2em;
+  margin: 0em 0px 0px 210px;
+  padding: 1em 1em 1em 4em;
   min-width: 400px;
   width: 60%;
+  background-image: url('images/v_bar.gif');
+  background-repeat: repeat-y;
+  background-position: top left;
 }
+
+#content #toc+a+h2,
+#content #toc+h2 { margin-top: -1.5em; }
 
 .message { 
   margin-top: 1em;
@@ -113,9 +131,10 @@ select { font-size: 0.8em; font-weight: bold; }
 
 #content div.divider1,  
 #content div.divider2 { 
-  margin-top: 0.5em;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
   margin-left: 15%;
-  height: 20px;
+  height: 25px;
   width: 60%;
 }
 
@@ -163,12 +182,54 @@ select { font-size: 0.8em; font-weight: bold; }
   font-family: 'trebuchet ms', verdana, sans-serif;
 }
 
-.newsitem { 
+#toc {
+  margin-top: -1em;
+  margin-left: -3em;
+  font-size: 0.8em;
+}
+
+/*
+#toc>h2:first-child {
+  background-image: url('images/h_bar.gif');
+  background-repeat: repeat-x;
+  background-position: top left;
+  padding-top: 0.5em;
+}
+*/
+
+#toc h2 { 
+  font-size: 1em; 
+  text-align: left; 
+  padding-left: 1em;
+}
+
+#toc ul ul {
+  padding-left: 20px;
+}
+
+.news_headline { 
   margin-top: 0.75em;
   color: #5F83BA;
+}
+
+p.news_body {
 }
 
 .posted_date { 
   font-size: 0.8em;
   color: #4A9166;
+}
+
+.answers>h3:before { 
+  content: "Q: ";
+  color:  #4A9166;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.answers>h3+p:before { 
+  content: "A: ";
+  color: #5F83BA;
+  font-size: 30px;
+  font-weight: bold;
 }

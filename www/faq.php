@@ -23,12 +23,14 @@ C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
 ...
 </a></li>
 
-<li><a href="#tables">I have a big table and it's broken!</a></li><!-- ' -->
+<li><a href="#tables">I have a big table and it's broken!</a></li>
 
+<li><a href="#footers">Is there a way to add headers and footers?</a></li>
+<!-- ' -->
 </ol>
 
 <div class="divider1">&nbsp;</div>
-
+<div class="answers">
 <a name="hello_world"> </a>
 <h3>Is there a 'hello world' script for dompdf?</h3>
 
@@ -111,4 +113,19 @@ a protocol.  Version 0.4.1 works around this issue.</p>
 
 <a href="#FAQ">[back to top]</a>
 <div class="divider1" style="background-position: 33% 0%">&nbsp;</div>
+
+<a name="footers"> </a>
+<h3>Is there a way to add headers and footers?</h3>
+
+<p>Yes, you can add headers and footers using inline PHP.  Have a look
+at the demo_01.html file in the www/test/ directory.  It adds a header
+and footer using PDF_Adapter->page_text().  It also adds text
+superimposed over the rendered text using a PDF 'object'.  This object
+is added using CPDF_Adapter->add_object().  See <a
+href="usage.php#inline">usage.php</a> for more info on inline PHP.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider2" style="background-position: 49% 0%">&nbsp;</div>
+
+</div>
 <? include "foot.inc" ?>

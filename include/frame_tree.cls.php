@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.5 2005-11-10 16:12:53 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -156,8 +156,14 @@ class Frame_Tree {
     
     if ( !$node->hasChildNodes() )
       return $frame;
-    
-    foreach ($node->childNodes as $child) {
+
+    // Fixes 'cannot access undefined property for object with
+    // overloaded access', fix by Stefan radulian
+    // <stefan.radulian@symbion.at>    
+    //foreach ($node->childNodes as $child) {
+    for ($i = 0; $i < $node->childNodes->length; $i++) {
+
+      $child = $node->childNodes->item($i);
 
       // Skip non-displaying nodes
       if ( in_array( $child->nodeName, self::$_HIDDEN_TAGS) )

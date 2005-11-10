@@ -19,6 +19,14 @@ if ( isset( $_POST["html"] ) ) {
 
 ?>
 <?php include("head.inc"); ?>
+<div id="toc">
+<h2>On this page:</h2>
+<ul>
+<?php echo li_arrow() ?><a href="#samples">Samples</a></li>
+<?php echo li_arrow() ?><a href="#demo">Demo</a></li>
+</ul>
+</div>
+
 <a name="samples"> </a>
 <h2>Samples</h2>
 
@@ -44,7 +52,7 @@ foreach ( $test_files as $file ) {
 <a name="demo"> </a>
 <h2>Demo</h2>
 <p>Enter your html snippet in the text box below to see it rendered as a
-PDF: (Note remote stylesheets, images &amp; inline PHP have been disabled.)</p>
+PDF: (Note by default, remote stylesheets, images &amp; are disabled.)</p>
 
 <form action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
 <div>

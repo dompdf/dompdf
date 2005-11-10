@@ -1,3 +1,11 @@
+<?php
+function li_arrow() {
+  return '<li style="list-style-image: url(\'images/arrow_0' . rand(1,6) . '.gif\');">';  
+}
+function li_star() {
+  return '<li style="list-style-image: url(\'images/star_0' . rand(1,5) . '.gif\');">';  
+}
+?>
 <?php echo '<?' . 'xml version="1.0" encoding="iso-8859-1"?' . '>'; ?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -13,12 +21,10 @@
 <div id="header">
 <a href="index.php"><img id="logo" src="images/title.gif" alt="dompdf"/></a>
 </div>
-<table cellspacing="0" cellpadding="0">
-<tr>
-<td id="left_col">
+<div id="left_col">
 <h2>dompdf Homepage</h2>
   <ul>
-    <li style="list-style-image: url('images/arrow_01.gif');"><a style="font-size: 0.8em;" href="http://digitaljunkies.ca/dompdf/">digitaljunkies.ca/dompdf</a></li>
+    <li style="list-style-image: url('images/star_02.gif');"><a style="font-size: 0.8em;" href="http://digitaljunkies.ca/dompdf/">digitaljunkies.ca/dompdf</a></li>
   </ul>
   
 <h2>About dompdf</h2>
@@ -35,7 +41,7 @@
   </ul>
 <h2>Examples</h2>
   <ul>
-    <li style="list-style-image: url('images/arrow_02.gif');"><a href="examples.php#samples">samples</a></li>
+    <li style="list-style-image: url('images/arrow_02.gif');"><a href="examples.php">samples</a></li>
     <li style="list-style-image: url('images/arrow_03.gif');"><a href="examples.php#demo">demo</a></li>
   </ul>
 <h2>Support</h2>
@@ -48,8 +54,5 @@
   or send an email to <a style="white-space: nowrap"
   href="mailto:dompdf%40digitaljunkies%2eca">dompdf at
   digitaljunkies.ca</a>.</p>
-  
-</td>
-
-<td>
+</div>  
 <div id="content">

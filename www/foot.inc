@@ -1,4 +1,4 @@
-</div></td></tr></table>
+</div>
 
 <div id="footer">
 <div class="badges">

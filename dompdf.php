@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.8 2005-08-03 21:20:42 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.9 2005-11-10 16:12:53 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -67,7 +67,7 @@
  *
  */
 
-function usage() {
+function dompdf_usage() {
   echo
     "\nUsage: {$_SERVER["argv"][0]} [options] html_file\n\n".
     "html_file can be a filename, a url if fopen_wrappers are enabled, or the '-' \n".
@@ -174,7 +174,7 @@ switch ( $sapi ) {
   $opts = getoptions();
  
   if ( isset($opts["h"]) || (!isset($opts["filename"]) && !isset($opts["l"])) ) {
-    usage();
+    dompdf_usage();
     exit;
   }
 

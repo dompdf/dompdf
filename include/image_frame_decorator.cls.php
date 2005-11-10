@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.4 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.5 2005-11-10 16:12:53 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -82,6 +82,13 @@ class Image_Frame_Decorator extends Frame_Decorator {
     parent::__construct($frame);
     $url = $frame->get_node()->getAttribute("src");
 
+    // We need to preserve the file extenstion
+    $i = strrpos($url, ".");
+    if ( $i === false )
+      throw new DOMPDF_Exception("Unknown image type: $url.");
+
+    $ext = strtolower(substr( $url, $i+1 ));
+    
     $proto = $dompdf->get_protocol();
     $remote = ($proto != "" && $proto != "file://");
     
@@ -101,14 +108,24 @@ class Image_Frame_Decorator extends Frame_Decorator {
         //echo "Using cached image $url (" . $this->_image_url . ")\n";
         
       } else {
-           
-        //echo "Downloading file $url to temporary location: ";
-        $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-        //echo $this->_image_url . "\n";
 
-        file_put_contents($this->_image_url, file_get_contents($url));
+        // Convert gifs to pngs (convert function will handle downloading remote file)
+        if ( $ext == "gif" ) {
 
-        self::$_cache[$url] = $this->_image_url;
+          $this->_image_url = $this->_convert_gif_to_png($url);
+          $ext = "png";
+
+        } else {
+
+          //echo "Downloading file $url to temporary location: ";
+          $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+          //echo $this->_image_url . "\n";
+          
+          file_put_contents($this->_image_url, file_get_contents($url));
+        
+          self::$_cache[$url] = $this->_image_url;
+        }
+        
       }
       
     } else {
@@ -118,30 +135,68 @@ class Image_Frame_Decorator extends Frame_Decorator {
                                     $dompdf->get_base_path(),
                                     $url);
       
+      if ( $ext == "gif" ) {
+        $this->_image_url = $this->_convert_gif_to_png($this->_image_url);
+        $ext = "png";
+      }
+        
     }
 
     if ( !is_readable($this->_image_url) || !filesize($this->_image_url) ) {
       $_dompdf_warnings[] = "File " .$this->_image_url . " is not readable.\n";
       $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
     }
-
-    // We need to preserve the file extenstion
-    $i = strrpos($url, ".");
-    if ( $i === false )
-      throw new DOMPDF_Exception("Unknown image type: $url.");
     
-    $this->_image_ext = strtolower(substr( $url, $i+1 ));
+    $this->_image_ext = $ext;
     
   }
 
+  /**
+   * Return the image's url
+   *
+   * @return string The url of this image
+   */
   function get_image_url() {
     return $this->_image_url;
   }
 
+  /**
+   * Return the image's file extension
+   *
+   * @return string The image's file extension
+   */
   function get_image_ext() {
     return $this->_image_ext;
   }
 
+  /**
+   * Convert a GIF image to a PNG image
+   *
+   * @return string The url of the newly converted image 
+   */  
+  protected function _convert_gif_to_png($image_url) {
+    global $_dompdf_warnings;
+    
+    if ( !function_exists("imagecreatefromgif") ) {
+      $_dompdf_warnings[] = "Function imagecreatefromgif() not found.  Cannot convert gif image: $image_url.";      
+      return DOMPDF_LIB_DIR . "/res/broken_image.png";
+    }
+
+    $im = imagecreatefromgif($image_url);
+    imageinterlace($im, 0);
+    
+    $filename = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+    imagepng($im, $filename);
+
+    self::$_cache[$image_url] = $filename;
+    return $filename;
+    
+  }
+  
+  /**
+   * Unlink all cached images (i.e. temporary images either downloaded
+   * or converted)
+   */
   static function clear_image_cache() {
     if ( count(self::$_cache) ) {
       foreach (self::$_cache as $file)

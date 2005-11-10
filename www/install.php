@@ -1,4 +1,21 @@
 <?php include("head.inc");?>
+
+<div id="toc">
+<h2>On this page:</h2>
+<ul>
+<?php echo li_arrow() ?><a href="#requirements">Requirements</a></li>
+<?php echo li_arrow() ?><a href="#installation">Installation</a></li>
+<?php echo li_arrow() ?><a href="#fonts">Font Installation</a></li>
+<ul>
+<?php echo li_arrow() ?><a href="#all_platforms">Note for all platforms</a></li>
+<?php echo li_arrow() ?><a href="#unix">Linux/Unix</a></li>
+<ul><?php echo li_arrow() ?><a href="#load_font"><pre>load_font.php</pre></a></li></ul>
+<?php echo li_arrow() ?><a href="#windows">Windows</a></li>
+</ul>
+<?php echo li_arrow() ?><a href="#hacking">Hacking</a></li>
+</ul>
+</div>
+
 <a name="requirements"> </a>
 <h2>Requirements</h2>
 
@@ -11,7 +28,7 @@ extension enabled.</li>
 <li style="list-style-image: url('images/star_05.gif');">Some fonts.  PDFs
 internally support Helvetica, Times-Roman, Courier &amp; Zapf-Dingbats, but
 if you wish to use other fonts you will need to install some fonts.  dompdf
-supports the same fonts as the underlying R&amp;OS PDF class: Type 1 (.pfb
+supports the same fonts as the underlying PDF backends: Type 1 (.pfb
 with the corresponding .afm) and TrueType (.ttf).  At the minimum, you
 should probably have the Microsoft core fonts (now available at: <a
 href="http://corefonts.sourceforge.net/">http://corefonts.sourceforge.net/</a>).
@@ -20,7 +37,7 @@ See <a href="#fonts">below</a> for font installation instructions.</li>
 <li style="list-style-image: url('images/star_04.gif');">ttf2pt1 (available
 at <a
 href="http://ttf2pt1.sourceforge.net">http://ttf2pt1.sourceforge.net</a>) is
-required to install new ttf fonts.</li>
+required to install new ttf fonts when using the CPDF backend.</li>
 
 </ul>
 
@@ -30,7 +47,9 @@ required to install new ttf fonts.</li>
 <ol>
 <li>Untar/unzip the source package in a directory accessible by your webserver.</li>
 
-<li>Edit dompdf_config.inc.php to fit your installation.</li>
+<li>Edit dompdf_config.inc.php to fit your installation.  If you leave
+the DOMPDF_PDF_BACKEND setting at 'auto' dompdf will use PDFLib if it
+is installed, otherwise it will use the bundled R&amp;OS CPDF class.</li>
 
 <li><p>Give your webserver write permission on the path specified in
 <code>DOMPDF_FONT_DIR</code> (lib/fonts by default).  Under *nix, ideally
@@ -53,6 +72,7 @@ sticky bit:</p>
 <a name="fonts"> </a>
 <h2>Font Installation</h2>
 
+<a name="all_platforms"> </a>
 <h3>Note for all platforms</h3>
 
 <p>PDFs include support by default for Helvetica, Times-Roman, Courier and
@@ -65,6 +85,7 @@ the distributed dompdf_font_family_cache.dist file in lib/fonts.  Copy this
 file to lib/fonts/dompdf_font_family_cache and edit it directly to match the
 files present in your lib/fonts directory.</p>
 
+<a name="unix"> </a>
 <h3>Linux/Unix</h3>
 
 <p>The load_font.php utility installs and converts TrueType fonts for use with
@@ -84,11 +105,14 @@ specified file.  It searches for files with the same base name followed by
 find the correct files, you can specify them on the command line.</p>
 
 <p>In addition to copying the files to the dompdf font directory, it also
-generates .afm files.  The R&amp;OS PDF class requires both the ttf file and an
+generates .afm files.  The R&amp;OS CPDF class requires both the ttf file and an
 afm file, which describes glyph metrics.  The afm file is generated using
 the ttf2pt1 utlity (available at <a
-href="http://ttf2pt1.sourceforge.net">http://ttf2pt1.sourceforge.net</a>).</p>
+href="http://ttf2pt1.sourceforge.net">http://ttf2pt1.sourceforge.net</a>).  
+If you are using the PDFLib backend, you will not need to create afm
+files for the fonts.</p>
 
+<a name="load_font"> </a>
 <p>load_font.php usage:</p>
 
 <table>
@@ -125,6 +149,7 @@ $ php -f load_font.php -- sans-serif /home/dude_mcbacon/myfonts/Verdana.ttf \
                                      /home/dude_mcbacon/myfonts/V_Bold.ttf
 </pre>
 
+<a name="windows"> </a>
 <h3>Windows</h3>
 
 <p>(Note I don't have a windows test box at the moment, so these instructions
