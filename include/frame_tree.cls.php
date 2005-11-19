@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.5 2005-11-10 16:12:53 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.6 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -133,8 +133,9 @@ class Frame_Tree {
 
     if ( is_null($html) )
       throw new DOMPDF_Exception("Requested HTML document contains no data.");
-    
+
     $this->_root = $this->_build_tree_r($html);
+
   }
 
   /**
@@ -161,18 +162,29 @@ class Frame_Tree {
     // overloaded access', fix by Stefan radulian
     // <stefan.radulian@symbion.at>    
     //foreach ($node->childNodes as $child) {
-    for ($i = 0; $i < $node->childNodes->length; $i++) {
 
-      $child = $node->childNodes->item($i);
+    // Store the children in an array so that the tree can be modified
+    $children = array();
+    for ($i = 0; $i < $node->childNodes->length; $i++)
+      $children[] = $node->childNodes->item($i);
+
+    foreach ($children as $child) {
 
       // Skip non-displaying nodes
-      if ( in_array( $child->nodeName, self::$_HIDDEN_TAGS) )
+      if ( in_array( strtolower($child->nodeName), self::$_HIDDEN_TAGS) ) {
+        if ( strtolower($child->nodeName) != "head" &&
+             strtolower($child->nodeName) != "style" ) {
+          $child->parentNode->removeChild($child);
+        }
         continue;
+      }
 
-      // Skip empty #text nodes
-      if ( $child->nodeName == "#text" && $child->nodeValue == "" )
+      // Skip empty text nodes
+      if ( $child->nodeName == "#text" && $child->nodeValue == "" ) {
+        $child->parentNode->removeChild($child);
         continue;
-
+      }
+      
       // Add a container frame for images
       if ( $child->nodeName == "img" ) {
         $img_node = $child->ownerDocument->createElement("img_inner");

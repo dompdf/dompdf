@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: php_evaluator.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: php_evaluator.cls.php,v 1.2 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Executes inline PHP code during the rendering process
@@ -66,6 +66,9 @@ class PHP_Evaluator {
     eval(utf8_decode($code)); 
         
   }
-  
+
+  function render($frame) {
+    $this->evaluate($frame->get_node()->nodeValue);
+  }
 }
 ?>

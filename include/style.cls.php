@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.6 2005-08-03 21:20:44 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -322,6 +322,13 @@ class Style {
                                  "word_spacing");
     }
 
+  }
+
+  /**
+   * "Destructor": foricbly free all references held by this object
+   */
+  function dispose() {
+    unset($this->_stylesheet);
   }
   
   /**

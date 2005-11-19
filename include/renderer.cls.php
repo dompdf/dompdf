@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: renderer.cls.php,v 1.4 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.5 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -50,58 +50,38 @@
  */
 class Renderer extends Abstract_Renderer {
 
+  /**
+   * The Canvas object representing the pdf
+   *
+   * @var Canvas
+   */
   protected $_canvas;
-  protected $_renderers;
-  
-  function __construct(Canvas $canvas) {
-    $this->_canvas = $canvas;
-    
-    // FIXME: should prolly do this on demand:
-    // Create a multitude of individual renderers
-    $this->_renderers["block"] = new Block_Renderer($canvas);
-    $this->_renderers["inline"] = new Inline_Renderer($canvas);
-    $this->_renderers["text"] = new Text_Renderer($canvas);
-    $this->_renderers["image"] = new Image_Renderer($canvas);
-    $this->_renderers["table-cell"] = new Table_Cell_Renderer($canvas);
-    $this->_renderers["list-bullet"] = new List_Bullet_Renderer($canvas);
-    $this->_renderers["php"] = new PHP_Evaluator($canvas);
-  }
-  
-  //........................................................................
-
 
   /**
-   * Render all frames recursively
+   * Array of renderers for specific frame types
    *
-   * @param Frame $root the root frame
+   * @var array
    */
-  function render(Frame $root) {
+  protected $_renderers;
 
-    // count() doesn't work on iterated elements
-    // FIXME: look into the ArrayAccess interface - need 5.1 for better SPL
-    // support.
-    $count = 0;
-    foreach ($root->get_children() as $page)
-      $count++;
-
-    $this->_canvas->set_page_count($count);
-
-
-    // Create pages
-    foreach ( $root->get_children() as $page ) {
-      if ( $page !== $root->get_first_child() )
-        $this->_canvas->new_page();
-
-      $this->_render_frame($page);
-    }
+  
+  function __construct(Canvas $canvas) {
+    $this->_canvas = $canvas;    
   }
   
+  /**
+   * Advance the canvas to the next page
+   */  
+  function new_page() {
+    $this->_canvas->new_page();
+  }
+
   /**
    * Render frames recursively
    *
    * @param Frame $frame the frame to render
    */
-  protected function _render_frame(Frame $frame) {    
+  function render(Frame $frame) {    
     global $_dompdf_debug;
 
     if ( $_dompdf_debug ) {
@@ -120,26 +100,26 @@ class Renderer extends Abstract_Renderer {
     case "table-header-group":
     case "table-footer-group":
     case "inline-table":
-      $this->_renderers["block"]->render($frame);
+      $this->_render_frame("block", $frame);
       break;
 
     case "inline":
       if ( $frame->get_node()->nodeName == "#text" )
-        $this->_renderers["text"]->render($frame);
+        $this->_render_frame("text", $frame);
       else
-        $this->_renderers["inline"]->render($frame);
+        $this->_render_frame("inline", $frame);
       break;
 
     case "table-cell":
-      $this->_renderers["table-cell"]->render($frame);
+      $this->_render_frame("table-cell", $frame);
       break;
 
     case "-dompdf-list-bullet":
-      $this->_renderers["list-bullet"]->render($frame);
+      $this->_render_frame("list-bullet", $frame);
       break;
 
     case "-dompdf-image":
-      $this->_renderers["image"]->render($frame);
+      $this->_render_frame("image", $frame);
       break;
       
     case "none":
@@ -149,7 +129,7 @@ class Renderer extends Abstract_Renderer {
            ( $node->getAttribute("type") == "text/php" ||
              $node->getAttribute("language") == "php" ) ) {
         // Evaluate embedded php scripts
-        $this->_renderers["php"]->evaluate($node->nodeValue);
+        $this->_render_frame("php", $frame);
       }
 
       // Don't render children, so skip to next iter
@@ -161,7 +141,55 @@ class Renderer extends Abstract_Renderer {
     }
 
     foreach ($frame->get_children() as $child)
-      $this->_render_frame($child);
+      $this->render($child);
+
+  }
+
+  /**
+   * Render a single frame
+   *
+   * Creates Renderer objects on demand
+   *
+   * @param string $type type of renderer to use
+   * @param Frame $frame the frame to render
+   */
+  protected function _render_frame($type, $frame) {
+
+    if ( !isset($this->_renderers[$type]) ) {
+      
+      switch ($type) {
+      case "block":
+        $this->_renderers["block"] = new Block_Renderer($this->_canvas);
+        break;
+
+      case "inline":
+        $this->_renderers["inline"] = new Inline_Renderer($this->_canvas);
+        break;
+
+      case "text":
+        $this->_renderers["text"] = new Text_Renderer($this->_canvas);
+        break;
+
+      case "image":
+        $this->_renderers["image"] = new Image_Renderer($this->_canvas);
+        break;
+      
+      case "table-cell":
+        $this->_renderers["table-cell"] = new Table_Cell_Renderer($this->_canvas);
+        break;
+
+      case "list-bullet":
+        $this->_renderers["list-bullet"] = new List_Bullet_Renderer($this->_canvas);
+        break;
+
+      case "php":
+        $this->_renderers["php"] = new PHP_Evaluator($this->_canvas);
+        break;
+
+      }
+    }
+    
+    $this->_renderers[$type]->render($frame);
 
   }
 }

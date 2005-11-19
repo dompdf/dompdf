@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.6 2005-08-03 21:20:42 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -191,7 +191,7 @@ $_dompdf_warnings = array();
  *
  * @var bool
  */
-$_dompdf_show_warnings = false;
+$_dompdf_show_warnings = true;
 
 /**
  * If true, the entire tree is dumped to stdout in dompdf.cls.php 

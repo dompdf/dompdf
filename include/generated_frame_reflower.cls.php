@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: generated_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: generated_frame_reflower.cls.php,v 1.2 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Reflows generated content frames (decorates reflower)
@@ -52,7 +52,7 @@ class Generated_Frame_Reflower extends Frame_Reflower {
   function __construct(Frame $frame) {
     parent::__construct($frame);
   }
-
+  
   function set_reflower(Frame_Reflower $reflow) {
     $this->_reflower = $reflow;
   }

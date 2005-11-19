@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.6 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -67,6 +67,13 @@ class Page_Frame_Decorator extends Frame_Decorator {
    * @var int
    */
   protected $_in_table;
+
+  /**
+   * The pdf renderer
+   *
+   * @var Renderer
+   */
+  protected $_renderer;
   
   //........................................................................
 
@@ -81,9 +88,26 @@ class Page_Frame_Decorator extends Frame_Decorator {
     $this->_in_table = 0;
     $this->_bottom_page_margin = null;
   }
-  
-  //........................................................................
 
+  
+  /**
+   * Set the renderer used for this pdf
+   *
+   * @param Renderer $renderer the renderer to use
+   */
+  function set_renderer($renderer) {
+    $this->_renderer = $renderer;
+  }
+
+  /**
+   * Return the renderer used for this pdf
+   *
+   * @return Renderer
+   */
+  function get_renderer() {
+    return $this->_renderer;
+  }
+  
   /**
    * Set the frame's containing block.  Overridden to set $this->_bottom_page_margin.
    *
@@ -99,8 +123,6 @@ class Page_Frame_Decorator extends Frame_Decorator {
       $this->_bottom_page_margin = $h; // - $this->_frame->get_style()->length_in_pt($this->_frame->get_style()->margin_bottom, $w);
   }
 
-  //........................................................................
-
   /**
    * Returns true if the page is full and is no longer accepting frames.
    *
@@ -114,6 +136,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
    * Start a new page by resetting the full flag.
    */
   function next_page() {
+    $this->_renderer->new_page();
     $this->_page_full = false;
   }
 
@@ -131,8 +154,6 @@ class Page_Frame_Decorator extends Frame_Decorator {
     $this->_in_table--;
   }
   
-  //........................................................................
-
   /**
    * Check if a forced page break is required before $frame.  This uses the
    * frame's page_break_before property as well as the preceeding frame's

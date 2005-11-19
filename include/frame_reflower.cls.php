@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: frame_reflower.cls.php,v 1.2 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Base reflower class
@@ -53,6 +53,10 @@ abstract class Frame_Reflower {
 
   function __construct(Frame $frame) {
     $this->_frame = $frame;
+  }
+
+  function dispose() {
+    unset($this->_frame);
   }
   
   protected function _collapse_margins() {

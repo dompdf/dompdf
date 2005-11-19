@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.3 2005-03-10 18:59:18 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.4 2005-11-19 01:07:11 benjcarson Exp $ */
 
 
 /**
@@ -53,7 +53,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
   function __construct(Frame $frame) {
     parent::__construct($frame);
   }
-
+  
   //........................................................................
 
   function reflow() {

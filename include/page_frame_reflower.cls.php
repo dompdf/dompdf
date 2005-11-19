@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_reflower.cls.php,v 1.3 2005-02-06 21:01:15 benjcarson Exp $ */
+/* $Id: page_frame_reflower.cls.php,v 1.4 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Reflows pages
@@ -70,11 +70,23 @@ class Page_Frame_Reflower extends Frame_Reflower {
     $content_width = $cb["w"] - $left - $right;
     $content_height = $cb["h"] - $top - $bottom;
 
-    foreach ($this->_frame->get_children() as $child) {
+    $child = $this->_frame->get_first_child();
+
+    while ($child) {
 
       $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
       $child->reflow();
-      $this->_frame->next_page();
+      $next_child = $child->get_next_sibling();
+      
+      // Render the page
+      $this->_frame->get_renderer()->render($child);
+      if ( $next_child )
+        $this->_frame->next_page();
+
+      // Dispose of all frames on the old page
+      $child->dispose(true);
+      
+      $child = $next_child;
     }
   }  
 }

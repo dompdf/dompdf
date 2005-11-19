@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: functions.inc.php,v 1.2 2005-03-16 03:42:36 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.3 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -277,4 +277,46 @@ function record_warnings($errno, $errstr, $errfile, $errline) {
   
   $_dompdf_warnings[] = $errstr;
 }
+
+/**
+ * Dump memory usage
+ */
+function print_memusage() {
+  global $memusage;
+  echo ("Memory Usage\n");
+  $prev = 0;
+  $initial = reset($memusage);
+  echo (str_pad("Initial:", 40) . $initial . "\n\n");
+          
+  foreach ($memusage as $key=>$mem) {
+    $mem -= $initial;
+    echo (str_pad("$key:" , 40));
+    echo (str_pad("$mem", 12) . "(diff: " . ($mem - $prev) . ")\n");
+    $prev = $mem;
+  }
+
+  echo ("\n" . str_pad("Total:", 40) . memory_get_usage()) . "\n";
+}
+
+/**
+ * Initialize memory profiling code
+ */
+function enable_mem_profile() {
+    global $memusage;
+    $memusage = array("Startup" => memory_get_usage());
+    register_shutdown_function("print_memusage");
+  }
+
+/**
+ * Record the current memory usage
+ *
+ * @param string $location a meaningful location
+ */
+function mark_memusage($location) {
+  global $memusage;
+  if ( isset($memusage) )
+    $memusage[$location] = memory_get_usage();
+}
+
+
 ?>

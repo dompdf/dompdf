@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.3 2005-03-16 03:42:36 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.4 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -226,7 +226,7 @@ class Stylesheet {
     }
     
     $this->_parse_css($css);
-    
+
   }
 
   /**
@@ -564,7 +564,11 @@ class Stylesheet {
       
     }
     
-    // We're done!
+    // We're done!  Clean out the registry of all styles since we
+    // won't be needing this later.
+    foreach ( array_keys($this->_styles) as $key ) {
+      unset($this->_styles[$key]);
+    }
     
   }
   

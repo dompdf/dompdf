@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.6 2005-08-03 21:20:44 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -47,21 +47,64 @@
  */
 abstract class Frame_Decorator extends Frame {
   
-  // protected members
+  /**
+   * The root node of the DOM tree
+   *
+   * @var Frame
+   */
   protected $_root;
+
+  /**
+   * The decorated frame
+   *
+   * @var Frame
+   */
   protected $_frame;
+
+  /**
+   * Positioner object used to position this frame (Strategy pattern)
+   *
+   * @var Positioner
+   */
   protected $_positioner;
+
+  /**
+   * Reflower object used to calculate frame dimensions (Strategy pattern)
+   *
+   * @var Frame_Reflower
+   */
   protected $_reflower;
   
-  //........................................................................
-
+  /**
+   * Class constructor
+   *
+   * @param Frame $frame the decoration target
+   */
   function __construct(Frame $frame) {
     $this->_frame = $frame;
     $this->_root = null;
     $frame->set_decorator($this);
   }
 
-  //........................................................................
+  /**
+   * "Destructor": foribly free all references held by this object
+   *
+   * @param bool $recursive if true, call dispose on all children
+   */
+  function dispose($recursive = false) {
+    
+    if ( $recursive ) {
+      while ( $child = $this->get_first_child() )
+        $child->dispose(true);
+    }
+    
+    unset($this->_root);
+    $this->_frame->dispose(false);
+    unset($this->_frame);
+    unset($this->_positioner);
+    unset($this->_reflower);
+
+  }
 
   // Return a copy of this frame with $node as its node
   function copy(DomNode $node) {
@@ -224,6 +267,9 @@ abstract class Frame_Decorator extends Frame {
   }
   
   function get_next_sibling() {
+    if ( !isset($this->_frame) ) {
+      throw new Exception("no frame");
+    }
     $s = $this->_frame->get_next_sibling();
     if ( $s && $deco = $s->get_decorator() ) {
       while ( $tmp = $deco->get_decorator() )
@@ -332,7 +378,7 @@ abstract class Frame_Decorator extends Frame {
     // Uncomment this to see the frames before they're laid out, instead of
     // during rendering.
     //echo $this->_frame; flush();
-    return $this->_reflower->reflow();
+    $this->_reflower->reflow();
   }
 
   final function get_min_max_width() { return $this->get_reflower()->get_min_max_width(); }

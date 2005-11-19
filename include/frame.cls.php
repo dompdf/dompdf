@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.5 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.6 2005-11-19 01:07:11 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -53,30 +53,100 @@
  */
 class Frame {
   
-  // protected properties
-  protected $_node;      // DOMNode object
-  protected $_id;        // Frame id (used to reference Frame from node)
-  protected $_style;     // Calculated style
-  protected $_original_style; // Originally assigned style
+  /**
+   * The DOMNode object this frame represents
+   *
+   * @var DOMNode
+   */
+  protected $_node;
 
+  /**
+   * Unique identifier for this frame.  Used to reference this frame
+   * via the node.
+   *
+   * @var string
+   */
+  protected $_id;
+
+  /**
+   * This frame's calculated style
+   *
+   * @var Style
+   */
+  protected $_style;
+
+  /**
+   * This frame's original style.  Needed for cases where frames are
+   * split across pages.
+   *
+   * @var Style
+   */
+  protected $_original_style;
+  
+  /**
+   * This frame's parent in the document tree.
+   *
+   * @var Frame
+   */
   protected $_parent;
-  protected $_first_child; // Doubly-linked list of children
+
+  /**
+   * This frame's first child.  All children are handled as a
+   * doubly-linked list.
+   *
+   * @var Frame
+   */
+  protected $_first_child;
+
+  /**
+   * This frame's last child.
+   *
+   * @var Frame
+   */
   protected $_last_child;
 
-  protected $_prev_sibling; // Our neighbors in the DLL
+  /**
+   * This frame's previous sibling in the document tree.
+   *
+   * @var Frame
+   */
+  protected $_prev_sibling;
+
+  /**
+   * This frame's next sibling in the document tree.
+   *
+   * @var Frame
+   */
   protected $_next_sibling;
   
-  // Layout properties:
-  protected $_containing_block;  // array(x,y, w,h)
-  
-  protected $_position; // Position on page of the top-left corner of the
-                        // margin box: array(x, y)
+  /**
+   * This frame's containing block (used in layout): array(x, y, w, h)
+   *
+   * @var array
+   */
+  protected $_containing_block;
 
-  // Reflow object
+  /**
+   * Position on the page of the top-left corner of the margin box of
+   * this frame: array(x,y)
+   *
+   * @var array
+   */
+  protected $_position;
+
+  /**
+   * This frame's decorator
+   *
+   * @var Frame_Decorator
+   */
   protected $_decorator;
     
-  //........................................................................
-  
+
+  /**
+   * Class constructor
+   *
+   * @param DOMNode $node the DOMNode this frame represents
+   */
   function __construct(DomNode $node) {
     $this->_node = $node;
       
@@ -100,7 +170,45 @@ class Frame {
     $this->set_id( uniqid(rand()) );
   }
 
-  //........................................................................
+  /**
+   * "Destructor": forcibly free all references held by this frame
+   *
+   * @param bool $recursive if true, call dispose on all children
+   */
+  function dispose($recursive = false) {
+
+    if ( $recursive ) {
+      while ( $child = $this->_first_child )
+        $child->dispose(true);
+    }
+
+    // Remove this frame from the tree
+    if ( $this->_prev_sibling ) {
+      $this->_prev_sibling->_next_sibling = $this->_next_sibling;      
+    }
+
+    if ( $this->_next_sibling ) {
+      $this->_next_sibling->_prev_sibling = $this->_prev_sibling;
+    }
+
+    if ( $this->_parent && $this->_parent->_first_child === $this ) {
+      $this->_parent->_first_child = $this->_next_sibling;
+    }
+
+    if ( $this->_parent && $this->_parent->_last_child === $this ) {
+      $this->_parent->_last_child = $this->_prev_sibling;
+    }
+
+    if ( $this->_parent ) {
+      $this->_parent->get_node()->removeChild($this->_node);
+    }
+
+    $this->_style->dispose();
+    unset($this->_style);
+    $this->_original_style->dispose();
+    unset($this->_original_style);
+    
+  }
 
   // Re-initialize the frame
   function reset() {
@@ -123,8 +231,8 @@ class Frame {
   function get_id() { return $this->_id; }
   function get_style() { return $this->_style; }
   function get_original_style() { return $this->_original_style; }
-  function get_decorator() { return $this->_decorator;}
   function get_parent() { return $this->_parent; }
+  function get_decorator() { return $this->_decorator; }
   function get_first_child() { return $this->_first_child; }
   function get_last_child() { return $this->_last_child; }
   function get_prev_sibling() { return $this->_prev_sibling; }
