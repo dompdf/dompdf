@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: canvas.cls.php,v 1.3 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.4 2005-11-19 20:12:45 benjcarson Exp $ */
 
 /**
  * Main rendering interface
@@ -130,6 +130,8 @@ interface Canvas {
    * <code>
    * array(0 => x1,
    *       1 => y1,
+   *       2 => x2,
+   *       3 => y2,
    *       ...
    *       );
    * </code>
@@ -142,26 +144,26 @@ interface Canvas {
    * @param array $color
    * @param float $width
    * @param array $style
-   * @param bool fill  Fills the polygon if true
+   * @param bool  $fill  Fills the polygon if true
    */
   function polygon($points, $color, $width = null, $style = null, $fill = false);
 
   /**
-   * Draws a circle at x,y with radius $r1
+   * Draws a circle at $x,$y with radius $r
    *
    * See {@link Style::munge_colour()} for the format of the colour array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)
    *
-   * @param float $x1
-   * @param float $y1
-   * @param float $r1
+   * @param float $x
+   * @param float $y
+   * @param float $r
    * @param array $color
    * @param float $width
    * @param array $style
    * @param bool $fill Fills the circle if true   
    */   
-  function circle($x, $y, $r1, $color, $width = null, $style = null, $fill = false);
+  function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false);
 
   /**
    * Add an image to the pdf.
@@ -190,7 +192,6 @@ interface Canvas {
    * @param float $size the font size, in points
    * @param array $color
    * @param float $adjust word spacing adjustment
-   * @param float $angle angle to write the text at, measured CW starting from the x-axis
    */
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0);
 

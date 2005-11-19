@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.10 2005-11-19 01:33:41 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.11 2005-11-19 20:12:45 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -45,7 +45,7 @@
  * DOMPDF loads HTML and does its best to render it as a PDF.  It gets its
  * name from the new DomDocument PHP5 extension.  Source HTML is first
  * parsed by a DomDocument object.  DOMPDF takes the resulting DOM tree and
- * attaches a {@link Frame} object to each one.  {@link Frame} objects store
+ * attaches a {@link Frame} object to each node.  {@link Frame} objects store
  * positioning and layout information and each has a reference to a {@link
  * Style} object.
  *
@@ -56,31 +56,32 @@
  *
  * {@link Frame}s are then decorated (in the design pattern sense of the
  * word) based on their CSS display property ({@link
- * http://www.w3.org/TR/CSS21/visuren.html#propdef-display}). 
-/* Frame_Decorators augment the basic {@link Frame} class by adding
- *  additional properties and methods specific to the particular type of
- * {@link Frame}.  For example, in the CSS layout model, block frames (
- * display: block; ) contain line boxes that are usually filled with text or
+ * http://www.w3.org/TR/CSS21/visuren.html#propdef-display}).
+ * Frame_Decorators augment the basic {@link Frame} class by adding
+ * additional properties and methods specific to the particular type of
+ * {@link Frame}.  For example, in the CSS layout model, block frames
+ * (display: block;) contain line boxes that are usually filled with text or
  * other inline frames.  The Block_Frame_Decorator therefore adds a $lines
  * property as well as methods to add {@link Frame}s to lines and to add
  * additional lines.  {@link Frame}s also are attached to specific
- * Positioner and Reflower objects that contain the positioining and layout
- * algorithm for a specific type of frame, respectively.  This is an
- * application of the Strategy pattern.
+ * Positioner and {@link Frame_Reflower} objects that contain the
+ * positioining and layout algorithm for a specific type of frame,
+ * respectively.  This is an application of the Strategy pattern.
  *
  * Layout, or reflow, proceeds recursively (post-order) starting at the root
  * of the document.  Space constraints (containing block width & height) are
  * pushed down, and resolved positions and sizes bubble up.  Thus, every
  * {@link Frame} in the document tree is traversed once (except for tables
  * which use a two-pass layout algorithm).  If you are interested in the
- * details, see the reflow() method of a Reflower class.
+ * details, see the reflow() method of the Reflower classes.
  * 
  * Rendering is relatively straightforward once layout is complete. {@link
  * Frame}s are rendered using an adapted {@link Cpdf} class, originally
  * written by Wayne Munro, http://www.ros.co.nz/pdf/.  (Some performance
  * related changes have been made to the original {@link Cpdf} class, and
  * the {@link CPDF_Adapter} class provides a simple, stateless interface to
- * PDF generation.)
+ * PDF generation.)  PDFLib support has now also been added, via the {@link
+ * PDFLib_Adapter}.
  *
  *
  * @package dompdf

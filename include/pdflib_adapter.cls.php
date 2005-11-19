@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.10 2005-09-15 21:11:19 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.11 2005-11-19 20:12:45 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -175,7 +175,16 @@ class PDFLib_Adapter implements Canvas {
     
     $this->_pdf = new PDFLib();
     $this->_pdf->set_info("Creator", "DOMPDF Converter");
-    $this->_pdf->set_info("Date", date("Y-m-d"));
+
+    // Silence pedantic warnings about missing TZ settings
+    if ( function_exists("date_default_timezone_get") ) {
+      $tz = @date_default_timezone_get();
+      date_default_timezone_set("UTC");
+      $this->_pdf->set_info("Date", date("Y-m-d"));
+      date_default_timezone_set($tz);
+    } else {
+      $this->_pdf->set_info("Date", date("Y-m-d"));
+    }
 
     if ( self::$IN_MEMORY )
       $this->_pdf->begin_document("","");

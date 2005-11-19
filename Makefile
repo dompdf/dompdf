@@ -28,10 +28,10 @@ clean:
 
 dompdf-doc-$(VERSION).tar.gz:
 	@rm -rf dompdf-$(VERSION)/doc
-	@phpdoc -po dompdf -dn dompdf -t dompdf-$(VERSION)/doc -d . -ti 'DOMPDF API Documentation'
+	@~/bin/phpdocumentor-1.3.0rc3/phpdoc -d . -t dompdf-$(VERSION)/doc -ti "dompdf" -dn "packages" -o HTML:frames:default -pp off
 	tar cvzf dompdf-doc-$(VERSION).tar.gz dompdf-$(VERSION)/doc
 	zip -9 -r dompdf-doc-$(VERSION).zip dompdf-$(VERSION)/doc
-	@rm -rf dompdf-$(VERSION)
+	@rm -rf dompdf-$(VERSION)/doc
 
 dompdf-$(VERSION).tar.gz: $(DIST_FILES)
 	@rm -rf dompdf-$(VERSION)
