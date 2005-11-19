@@ -58,8 +58,8 @@ fopen-wrappers)</li>
 tables, including row &amp; column spans, separate &amp; collapsed border
 models, individual cell styling, multi-page tables (no nested tables yet however)</li>
 
-<li style="list-style-image: url('images/star_05.gif');">limited image
-support (png &amp; jpeg with the bundled R&amp;OS PDF class, gif, png &amp; jpeg with PDFLib)</li>
+<li style="list-style-image: url('images/star_05.gif');">image
+support (png, gif &amp; jpeg)</li>
 
 <li style="list-style-image: url('images/star_01.gif');">no dependencies on
 external PDF libraries, thanks to the R&amp;OS PDF class</li>
@@ -81,7 +81,7 @@ nested</li>
 currently unsupported.</li>
 
 <li style="list-style-image: url('images/star_03.gif');'">absolute &amp; relative
-positioning and floats do not work,yet.</li>
+positioning and floats do not work, yet.</li>
 
 <li style="list-style-image: url('images/star_04.gif');">not particularly
 tolerant to poorly-formed HTML or CSS input (using Tidy first may help)</li>

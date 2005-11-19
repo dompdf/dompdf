@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.8 2005-11-19 01:33:41 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -325,7 +325,7 @@ class Style {
   }
 
   /**
-   * "Destructor": foricbly free all references held by this object
+   * "Destructor": forcibly free all references held by this object
    */
   function dispose() {
     unset($this->_stylesheet);

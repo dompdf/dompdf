@@ -27,7 +27,7 @@ dompdf is an HTML to PDF converter.  At its heart, dompdf is (mostly)
 CSS2.1 compliant HTML layout and rendering engine written in PHP.  It is
 a style-driven renderer: it will download and read external stylesheets,
 inline style tags, and the style attributes of individual HTML elements.  It
-also supports most presentational HTML attributes.</p>
+also supports most presentational HTML attributes.
 
 PDF rendering is currently provided either by PDFLib (www.pdflib.com)
 or by a bundled version the R&amp;OS CPDF class written by Wayne Munro
@@ -82,8 +82,7 @@ Features
   collapsed border models, individual cell styling, (no nested tables yet
   however)
 
-* limited image support (png & jpeg with the R&OS PDF class, gif, png & jpeg 
-  with PDFLib)
+* limited image support (gif, png & jpeg)
 
 * no dependencies on external PDF libraries, thanks to the R&OS PDF class
 

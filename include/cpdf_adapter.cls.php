@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.3 2005-11-10 16:12:53 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.4 2005-11-19 01:33:41 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -511,7 +511,7 @@ class CPDF_Adapter implements Canvas {
     default:      
       break;
     }
-    pre_r($this->_pdf->messages);
+    
     return;
   }
 

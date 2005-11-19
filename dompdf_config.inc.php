@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.8 2005-11-19 01:33:41 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -99,7 +99,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  * @link http://www.pdflib.com
  * @link http://www.ros.co.nz/pdf
  */
-define("DOMPDF_PDF_BACKEND", "CPDF");
+define("DOMPDF_PDF_BACKEND", "auto");
 
 /**
  * The default paper size.
@@ -149,7 +149,7 @@ define("DOMPDF_ENABLE_PHP", true);
  * If this setting is set to true, DOMPDF will access remote sites for
  * images and CSS files as required.
  */
-define("DOMPDF_ENABLE_REMOTE", true);
+define("DOMPDF_ENABLE_REMOTE", false);
  
 /**
  * DOMPDF autoload function
@@ -191,7 +191,7 @@ $_dompdf_warnings = array();
  *
  * @var bool
  */
-$_dompdf_show_warnings = true;
+$_dompdf_show_warnings = false;
 
 /**
  * If true, the entire tree is dumped to stdout in dompdf.cls.php 

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.9 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.10 2005-11-19 01:33:41 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -363,11 +363,7 @@ class DOMPDF {
     
     $this->_process_html();
 
-    mark_memusage("load & process html");
-    
     $this->_css->apply_styles($this->_tree);
-
-    mark_memusage("apply styles");
 
     $root = null;
     
@@ -398,20 +394,14 @@ class DOMPDF {
         $deco->prepend_child( Frame_Factory::decorate_frame($b_f, $this) );
       }
     }
-
-    mark_memusage("decorate frames");
     
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
 
-    mark_memusage("create canvas");
-        
     $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
     $root->set_renderer(new Renderer($this->_pdf));
     
     // This is where the magic happens:
     $root->reflow();
-
-    mark_memusage("reflow & rendering");
     
     // Clean up cached images
     Image_Frame_Decorator::clear_image_cache();

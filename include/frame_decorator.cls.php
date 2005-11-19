@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.7 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.8 2005-11-19 01:33:41 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -267,9 +267,6 @@ abstract class Frame_Decorator extends Frame {
   }
   
   function get_next_sibling() {
-    if ( !isset($this->_frame) ) {
-      throw new Exception("no frame");
-    }
     $s = $this->_frame->get_next_sibling();
     if ( $s && $deco = $s->get_decorator() ) {
       while ( $tmp = $deco->get_decorator() )
