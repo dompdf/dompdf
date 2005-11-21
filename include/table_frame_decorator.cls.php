@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.3 2005-08-03 21:20:44 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.4 2005-11-21 16:56:47 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -136,7 +136,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
       $this->insert_child_before($new_header, $child);
     }
     
-    if ( $new_header ) {
+    if ( isset($new_header) ) {
       parent::split($new_header);
     } else {
       parent::split($child);    
