@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.8 2005-11-19 01:33:41 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.9 2005-11-21 18:48:44 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -587,13 +587,13 @@ class Style {
       
     default:
 
-      if ( strlen($colour) == 4 ) {
+      if ( strlen($colour) == 4 && $colour{0} == "#" ) {
         // #rgb format
         $r = hexdec($colour{1} . $colour{1});
         $g = hexdec($colour{2} . $colour{2});
         $b = hexdec($colour{3} . $colour{3});
 
-      } else if ( strlen($colour) == 7 ) {
+      } else if ( strlen($colour) == 7 && $colour{0} == "#" ) {
         // #rrggbb format
         $r = hexdec(substr($colour, 1, 2));
         $g = hexdec(substr($colour, 3, 2));
