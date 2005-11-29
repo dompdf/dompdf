@@ -37,7 +37,7 @@
  * @version 0.4.2
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.3 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.4 2005-11-29 17:59:11 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -95,15 +95,15 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $frame_width = $text_width + $mbp_width;
 
 // Debugging:
-//     pre_r("Text: '" . htmlspecialchars($text). "'");
-//     pre_r("width: " .$frame_width);
-//     pre_r("cb[w]: " .$line_width);
-//     pre_r("available width: " . $available_width);
-//     pre_r("current line width: " . $current_line_width);
-
+//    pre_r("Text: '" . htmlspecialchars($text). "'");
+//    pre_r("width: " .$frame_width);
+//    pre_r("cb[w]: " .$line_width);
+//    pre_r("available width: " . $available_width);
+//    pre_r("current line width: " . $current_line_width);
+    
 //     pre_r($words);
     
-    if ( $frame_width < $available_width ) 
+    if ( $frame_width <= $available_width ) 
       return false;
 
     // Determine the split point

@@ -4344,7 +4344,7 @@ class  Cpdf {
 
       $pdata =  '';
 
-      while  ($p<$len) {
+      while  ($p < $len) {
 
         $chunkLen =  $this->PRVT_getBytes($data, $p, 4);
 
