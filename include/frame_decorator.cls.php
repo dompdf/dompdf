@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.8 2005-11-19 01:33:41 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.9 2005-12-07 21:32:30 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -352,7 +352,8 @@ abstract class Frame_Decorator extends Frame {
     if ( $child->get_parent() !== $this )
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
 
-    $split = $this->copy( $this->_frame->get_node()->cloneNode() ); 
+    $split = $this->copy( $this->_frame->get_node()->cloneNode() );
+    $split->reset();
     $this->get_parent()->insert_child_after($split, $this);
 
     // Add $frame and all following siblings to the new split node

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.4 2005-11-21 16:56:47 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.5 2005-12-07 21:32:30 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -104,7 +104,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    */
   function __construct(Frame $frame) {
     parent::__construct($frame);
-    $this->_cellmap = new Cellmap($this);
+    $this->_cellmap = new Cellmap($this);    
     $this->_min_width = null;
     $this->_max_width = null;
     $this->_headers = array();
@@ -117,6 +117,9 @@ class Table_Frame_Decorator extends Frame_Decorator {
     $this->_cellmap->reset();
     $this->_min_width = null;
     $this->_max_width = null;
+    $this->_headers = array();
+    $this->_footers = array();    
+    $this->_reflower->reset();
   }
   
   //........................................................................
@@ -130,16 +133,30 @@ class Table_Frame_Decorator extends Frame_Decorator {
    */
   function split($child = null) {
 
-    // Insert copies of the table headers after $child
-    foreach ($this->_headers as $header) {
-      $new_header = $header->deep_copy();
-      $this->insert_child_before($new_header, $child);
-    }
-    
-    if ( isset($new_header) ) {
-      parent::split($new_header);
+    // If $child is a header or if it is the first non-header row, do
+    // not duplicate headers, simply move the table to the next page.    
+    if ( !in_array($child, $this->_headers) &&
+         !in_array($child->get_prev_sibling(), $this->_headers) ) {
+      
+      $first_header = null;
+      
+      // Insert copies of the table headers before $child
+      foreach ($this->_headers as $header) {
+
+        $new_header = $header->deep_copy();
+
+        if ( is_null($first_header) )
+          $first_header = $new_header;
+        
+        $this->insert_child_before($new_header, $child);
+      }
+      
+      parent::split($first_header);
+      
     } else {
-      parent::split($child);    
+
+      parent::split($child);
+
     }
     
     // Update the cellmap

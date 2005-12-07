@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.6 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.7 2005-12-07 21:32:30 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -141,7 +141,6 @@ class Frame {
    */
   protected $_decorator;
     
-
   /**
    * Class constructor
    *

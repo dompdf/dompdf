@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.5 2005-11-19 20:12:45 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.6 2005-12-07 21:32:30 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -115,6 +115,8 @@ class CPDF_Adapter implements Canvas {
                               "tabloid" => array(0,0,792.00, 1224.00),
                               "executive" => array(0,0,521.86,756.00),
                               "folio" => array(0,0,612.00,936.00),
+                              "commerical #10 envelope" => array(0,0,684,297),
+                              "catalog #10 1/2 envelope" => array(0,0,648,864),
                               "8.5x11" => array(0,0,612.00,792.00),
                               "8.5x14" => array(0,0,612.00,1008.0),
                               "11x17"  => array(0,0,792.00, 1224.00));

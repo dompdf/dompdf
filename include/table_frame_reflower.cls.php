@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.5 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.6 2005-12-07 21:32:30 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -59,6 +59,13 @@ class Table_Frame_Reflower extends Frame_Reflower {
     parent::__construct($frame);
   }
 
+  /**
+   * State is held here so it needs to be reset along with the decorator
+   */
+  function reset() {
+    $this->_state = null;
+  }
+  
   //........................................................................
 
   protected function _assign_widths() {

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.7 2005-08-03 21:20:44 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.8 2005-12-07 21:32:30 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -145,7 +145,7 @@ class Cellmap {
 
   //........................................................................
 
-  function reset() {
+  function reset() {    
     $this->_num_rows = 0;
     $this->_num_cols = 0;
 
@@ -220,8 +220,9 @@ class Cellmap {
   function get_spanned_cells($frame) {
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) 
+    if ( !array_key_exists($key, $this->_frames) ) {
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+    }
       
     return $this->_frames[$key];
     
@@ -232,8 +233,9 @@ class Cellmap {
     
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) 
+    if ( !array_key_exists($key, $this->_frames) ) {
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+    }
 
     $col = $this->_frames[$key]["columns"][0];
     $row = $this->_frames[$key]["rows"][0];
