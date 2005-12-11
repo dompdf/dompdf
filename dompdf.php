@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.10 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.11 2005-12-11 18:14:07 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -289,7 +289,9 @@ if ( $_dompdf_show_warnings ) {
 if ( $save_file ) {
 //   if ( !is_writable($outfile) ) 
 //     throw new DOMPDF_Exception("'$outfile' is not writable.");
-
+  if ( strtolower(DOMPDF_PDF_BACKEND) == "gd" ) 
+    $outfile = str_replace(".pdf", ".png", $outfile);
+    
   file_put_contents($outfile, $dompdf->output());
   exit(0);
 }

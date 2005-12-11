@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.6 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.7 2005-12-11 18:14:07 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -167,7 +167,7 @@ class CPDF_Adapter implements Canvas {
   /**
    * Class constructor
    *
-   * @param string $paper  The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
+   * @param mixed  $paper  The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
    * @param string $orientation The orienation of the document (either 'landscape' or 'portrait')
    */
   function __construct($paper = "letter", $orientation = "portrait") {    
