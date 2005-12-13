@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.11 2005-12-11 18:14:07 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.12 2005-12-13 22:56:37 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -95,7 +95,7 @@ function getoptions() {
   if ( $_SERVER["argc"] == 1 )
     return $opts;
   
-  $i = 0;
+  $i = 1;
   while ($i < $_SERVER["argc"]) {
 
     switch ($_SERVER["argv"][$i]) {

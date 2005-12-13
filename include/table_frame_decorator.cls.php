@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.5 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.6 2005-12-13 22:56:37 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -132,12 +132,12 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @param Frame $row
    */
   function split($child = null) {
-
+    
     // If $child is a header or if it is the first non-header row, do
     // not duplicate headers, simply move the table to the next page.    
-    if ( !in_array($child, $this->_headers) &&
+    if ( count($this->_headers) && !in_array($child, $this->_headers) && 
          !in_array($child->get_prev_sibling(), $this->_headers) ) {
-      
+
       $first_header = null;
       
       // Insert copies of the table headers before $child
