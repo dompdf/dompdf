@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.8 2005-11-19 01:33:41 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.9 2005-12-30 21:10:12 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -86,18 +86,30 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
 /**
  * The PDF rendering backend to use
  *
- * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class)
- * and 'auto'.  'auto' will look for PDFLib and use it if found, or if
- * not it will fall back on CPDF.
+ * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class),
+ * 'GD' and 'auto'.  'auto' will look for PDFLib and use it if found,
+ * or if not it will fall back on CPDF.  'GD' renders PDFs to graphic
+ * files.  {@link Canvas_Factory} ultimately determines which
+ * rendering class to instantiate based on this setting.
  *
  * Both PDFLib & CPDF rendering backends provide sufficient rendering
  * capabilities for dompdf, however additional features (e.g. object,
  * image and font support, etc.)  differ between backends.  Please see
- * {@link PDFLib_Adapter}, {@link CPDF_Adapter} and the documentation
- * for each backend for more information.
+ * {@link PDFLib_Adapter} for more information on the PDFLib backend
+ * and {@link CPDF_Adapter} and lib/class.pdf.php for more information
+ * on CPDF.  Also see the documentation for each backend at the links
+ * below.
+ *
+ * The GD rendering backend is a little different than PDFLib and
+ * CPDF.  Several features of CPDF and PDFLib are not supported or do
+ * not make any sense when creating image files.  For example,
+ * multiple pages are not supported, nor are PDF 'objects'.  Have a
+ * look at {@link GD_Adapter} for more information.  GD support is new
+ * and experimental, so use it at your own risk.
  * 
  * @link http://www.pdflib.com
  * @link http://www.ros.co.nz/pdf
+ * @link http://www.php.net/image
  */
 define("DOMPDF_PDF_BACKEND", "auto");
 

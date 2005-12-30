@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.5 2005-11-10 16:12:53 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.6 2005-12-30 21:10:13 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -120,8 +120,15 @@ class Image_Frame_Decorator extends Frame_Decorator {
           //echo "Downloading file $url to temporary location: ";
           $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
           //echo $this->_image_url . "\n";
+
+          $old_err = set_error_handler("record_warnings");
+          $image = file_get_contents($url);
+          set_error_handler($old_err);
+
+          if ( strlen($image) == 0 )
+            $image = file_get_contents(DOMPDF_LIB_DIR . "/res/broken_image.png");
           
-          file_put_contents($this->_image_url, file_get_contents($url));
+          file_put_contents($this->_image_url, $image);
         
           self::$_cache[$url] = $this->_image_url;
         }
@@ -173,7 +180,7 @@ class Image_Frame_Decorator extends Frame_Decorator {
    * Convert a GIF image to a PNG image
    *
    * @return string The url of the newly converted image 
-   */  
+   */
   protected function _convert_gif_to_png($image_url) {
     global $_dompdf_warnings;
     
@@ -182,12 +189,20 @@ class Image_Frame_Decorator extends Frame_Decorator {
       return DOMPDF_LIB_DIR . "/res/broken_image.png";
     }
 
+    $old_err = set_error_handler("record_warnings");
     $im = imagecreatefromgif($image_url);
-    imageinterlace($im, 0);
-    
-    $filename = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-    imagepng($im, $filename);
 
+    if ( $im ) {
+      imageinterlace($im, 0);
+    
+      $filename = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+      imagepng($im, $filename);
+
+    } else {
+      $filename = DOMPDF_LIB_DIR . "/res/broken_image.png";
+
+    }
+    
     self::$_cache[$image_url] = $filename;
     return $filename;
     

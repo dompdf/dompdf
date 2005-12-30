@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.12 2005-12-13 22:56:37 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.13 2005-12-30 21:10:12 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -163,7 +163,7 @@ require_once("dompdf_config.inc.php");
 global $_dompdf_show_warnings;
 global $_dompdf_debug;
 
-$old_limit = ini_set("memory_limit", "32M");
+$old_limit = ini_set("memory_limit", "80M");
 
 $sapi = php_sapi_name();
 
@@ -217,7 +217,6 @@ switch ( $sapi ) {
     $_dompdf_debug = true;
   }
   
-  $delete  = false;
   $save_file = true;
   
   break;
@@ -251,11 +250,6 @@ switch ( $sapi ) {
      $save_file = true;
    else
      $save_file = false;
-
-   if ( isset($_GET["delete"]) )
-     $delete = true;
-   else
-     $delete = false;
 
    break;
 }
@@ -298,7 +292,5 @@ if ( $save_file ) {
 
 if ( !headers_sent() ) {
   $dompdf->stream($outfile);
-  if ( $delete && dirname($file) === "/tmp")
-    unlink($file);
 }
 ?>

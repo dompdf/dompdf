@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.4 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.5 2005-12-30 21:10:13 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -259,8 +259,12 @@ class Stylesheet {
    * @return string
    */
   private function _css_selector_to_xpath($selector) {
-    $selector = preg_replace("/\\s+/", " ", trim($selector));
 
+    // Collapse white space and strip whitespace around delimiters
+//     $search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
+//     $replace = array(" ", "\\1");
+//     $selector = preg_replace($search, $replace, trim($selector));
+    
     // Initial query (non-absolute)
     $query = "//";
     
@@ -479,8 +483,8 @@ class Stylesheet {
     foreach ($this->_styles as $selector => $style) {
 
       $query = $this->_css_selector_to_xpath($selector);
-//       pre_r($selector);
-//       pre_r($query);
+//       pre_var_dump($selector);
+//       pre_var_dump($query);
 //       echo ($style);
       
       // Retrieve the nodes      
@@ -743,8 +747,9 @@ class Stylesheet {
   private function _parse_sections($str) {
     // Pre-process: collapse all whitespace and strip whitespace around '>',
     // '.', ':', '+', '#'
-    $patterns = array("/[\s\n]+/", "/\s+([>.:+#])\s+/");
-    $replacements = array(" ", "\1");
+    
+    $patterns = array("/[\\s\n]+/", "/\\s+([>.:+#])\\s+/");
+    $replacements = array(" ", "\\1");
     $str = preg_replace($patterns, $replacements, $str);
 
     $sections = explode("}", $str);

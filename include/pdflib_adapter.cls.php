@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.11 2005-11-19 20:12:45 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.12 2005-12-30 21:10:13 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -193,9 +193,7 @@ class PDFLib_Adapter implements Canvas {
       $this->_pdf->begin_document($this->_file,"");
     }
     
-    //    $this->_pdf->set_parameter("topdown", "true");
-    $this->_pdf->set_value("compress", 0);
-    
+    //    $this->_pdf->set_parameter("topdown", "true");    
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");    
 
     $this->_page_number = $this->_page_count = 1;
@@ -693,6 +691,12 @@ class PDFLib_Adapter implements Canvas {
   //........................................................................
 
   function stream($filename, $options = null) {
+
+    if ( isset($options["compress"]) && $options["compress"] != 1 )
+      $this->_pdf->set_value("compress", 0);
+    else
+      $this->_pdf->set_value("compress", 1);
+    
     $this->_close();
 
     if ( self::$IN_MEMORY ) {
@@ -702,9 +706,9 @@ class PDFLib_Adapter implements Canvas {
     } else
       $size = filesize($this->_file);
       
-      
+    
     $filename = str_replace(array("\n","'"),"", $filename);
-    $attach = isset($options["Attachment"]) ? "attachment" : "inline";
+    $attach = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
     
     header("Cache-Control: private");
     header("Content-type: application/pdf");

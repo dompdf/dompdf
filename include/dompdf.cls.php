@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.11 2005-11-19 20:12:45 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.12 2005-12-30 21:10:13 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -413,9 +413,18 @@ class DOMPDF {
   /**
    * Streams the PDF to the client
    *
-   * The file will always open a download dialog.
+   * The file will always open a download dialog.  The options
+   * parameter controls the output headers.  Accepted headers are:
+   *
+   * 'Accept-Ranges' => 1 or 0 - if this is not set to 1, then this header is not included, off by default
+   *    this header seems to have caused some problems despite tha fact that it is supposed to solve
+   *    them, so I am leaving it off by default.
+   * 'compress' = > 1 or 0 - apply content stream compression, this is on (1) by default
+   * 'Attachment' => 1 or 0 - if 1, force the browser to open a download dialog, on (1) by default
+   *
    *
    * @param string $filename the name of the streamed file
+   * @param array  $options header options (see above)
    */
   function stream($filename, $options = null) {
     if (!is_null($this->_pdf))

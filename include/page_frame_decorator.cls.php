@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.8 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.9 2005-12-30 21:10:13 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -354,6 +354,11 @@ class Page_Frame_Decorator extends Frame_Decorator {
 //         echo "Body's first child.\n";
         return false;
       }
+
+      // Skip breaks on empty text nodes
+      if ( $frame->get_node()->nodeName == "#text" &&
+           $frame->get_node()->nodeValue == "" )
+        return false;
       
       return true;
  
