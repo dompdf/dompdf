@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: canvas.cls.php,v 1.4 2005-11-19 20:12:45 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.5 2005-12-30 21:23:14 benjcarson Exp $ */
 
 /**
  * Main rendering interface
@@ -234,9 +234,10 @@ interface Canvas {
   /**
    * Returns the PDF as a string
    *
+   * @param array  $options associative array: 'compress' => 1 or 0
    * @return string
    */
-  function output();
+  function output($options = null);
   
 }
 ?>

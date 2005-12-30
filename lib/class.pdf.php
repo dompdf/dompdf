@@ -1506,7 +1506,7 @@ class  Cpdf {
           // then implement ZLIB based compression on this content stream
           $res.= " /Filter /FlateDecode";
 
-          $tmp =  gzcompress($tmp,  3);
+          $tmp =  gzcompress($tmp,  6);
         }
 
         if  ($this->encrypted) {

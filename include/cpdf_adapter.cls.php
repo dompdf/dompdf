@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.7 2005-12-11 18:14:07 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.8 2005-12-30 21:23:14 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -621,9 +621,15 @@ class CPDF_Adapter implements Canvas {
    *
    * @return string
    */
-  function output() {
-    //return $this->_pdf->ezOutput(1);
-    return $this->_pdf->output(1);
+  function output($options = null) {
+
+    if ( isset($options["compress"]) && $options["compress"] != 1 )
+      $debug = 1;
+    else
+      $debug = 0;
+    
+    return $this->_pdf->output($debug);
+    
   }
   
   //........................................................................

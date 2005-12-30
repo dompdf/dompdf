@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.12 2005-12-30 21:10:13 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.13 2005-12-30 21:23:14 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -695,7 +695,7 @@ class PDFLib_Adapter implements Canvas {
     if ( isset($options["compress"]) && $options["compress"] != 1 )
       $this->_pdf->set_value("compress", 0);
     else
-      $this->_pdf->set_value("compress", 1);
+      $this->_pdf->set_value("compress", 6);
     
     $this->_close();
 
@@ -741,7 +741,12 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
-  function output() {
+  function output($options = null) {
+    if ( isset($options["compress"]) && $options["compress"] != 1 )
+      $this->_pdf->set_value("compress", 0);
+    else
+      $this->_pdf->set_value("compress", 6);
+    
     $this->_close();
     
     if ( self::$IN_MEMORY )
