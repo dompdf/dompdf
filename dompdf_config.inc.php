@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.9 2005-12-30 21:10:12 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.10 2005-12-30 22:45:49 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -111,7 +111,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
  */
-define("DOMPDF_PDF_BACKEND", "auto");
+define("DOMPDF_PDF_BACKEND", "pdflib");
 
 /**
  * The default paper size.

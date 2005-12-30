@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.8 2005-12-30 21:23:14 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.9 2005-12-30 22:45:49 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -163,6 +163,13 @@ class CPDF_Adapter implements Canvas {
    * @var string
    */
   private $_page_text;
+
+  /**
+   * Array of pages for accesing after rendering is initially complete
+   *
+   * @var array
+   */
+  private $_pages;
   
   /**
    * Class constructor
@@ -171,6 +178,7 @@ class CPDF_Adapter implements Canvas {
    * @param string $orientation The orienation of the document (either 'landscape' or 'portrait')
    */
   function __construct($paper = "letter", $orientation = "portrait") {    
+
     if ( is_array($paper) )
       $size = $paper;
     else if ( array_key_exists(strtolower($paper), self::$PAPER_SIZES) )
@@ -205,6 +213,7 @@ class CPDF_Adapter implements Canvas {
     $this->_page_number = $this->_page_count = 1;
     $this->_page_text = null;
 
+    $this->_pages = array($this->_pdf->getFirstPageId());
   }
 
   /**
@@ -576,33 +585,48 @@ class CPDF_Adapter implements Canvas {
                      $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
     
     $this->_page_text = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
-
-    $this->_set_line_transparency($blend, $opacity);
-    $this->_set_fill_transparency($blend, $opacity);
-
-    // Add the text to the first page
-    $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                        array($this->_page_number, $this->_page_count), $text);
-    $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);    
   }
   
   //........................................................................
 
   function new_page() {
-    $this->_page_number++;
+    $this->_page_count++;
 
     $ret = $this->_pdf->newPage();
-    if ( isset($this->_page_text) ) {
-      extract($this->_page_text);
-      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                          array($this->_page_number, $this->_page_count), $text);
-      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
-    }
+    $this->_pages[] = $ret;
     return $ret;
   }
   
   //........................................................................
 
+  /**
+   * Add text to each page after rendering is complete
+   */
+  protected function _add_page_text() {
+    
+    if ( !isset($this->_page_text) )
+      return;
+      
+    extract($this->_page_text);
+      
+    $page_number = 1;
+    $page_text = $text;
+      
+    foreach ($this->_pages as $pid) {
+
+        
+      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                          array($page_number, $this->_page_count), $page_text);
+
+      $this->reopen_object($pid);        
+      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+      $this->close_object();
+
+      $page_number++;
+
+    }
+  }
+  
   /**
    * Streams the PDF directly to the browser
    *
@@ -610,6 +634,9 @@ class CPDF_Adapter implements Canvas {
    * @param array  $options associative array, 'Attachment' => 0 or 1, 'compress' => 1 or 0
    */
   function stream($filename, $options = null) {
+    // Add page text
+    $this->_add_page_text();
+    
     $options["Content-Disposition"] = $filename;
     $this->_pdf->stream($options);
   }
@@ -622,6 +649,8 @@ class CPDF_Adapter implements Canvas {
    * @return string
    */
   function output($options = null) {
+    // Add page text
+    $this->_add_page_text();
 
     if ( isset($options["compress"]) && $options["compress"] != 1 )
       $debug = 1;

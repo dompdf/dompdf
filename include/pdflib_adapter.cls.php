@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.13 2005-12-30 21:23:14 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.14 2005-12-30 22:45:49 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -152,6 +152,13 @@ class PDFLib_Adapter implements Canvas {
   private $_page_text;
 
   /**
+   * Array of pages for accesing after rendering is initially complete
+   *
+   * @var array
+   */
+  private $_pages;  
+  
+  /**
    * Class constructor
    *
    * @param string $paper The size of paper to use ({@link PDFLib_Adapter::$PAPER_SIZES})
@@ -236,14 +243,13 @@ class PDFLib_Adapter implements Canvas {
   protected function _close() {
     $this->_place_objects();
 
-    if ( isset($this->_page_text) ) {
-      extract($this->_page_text);
-      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                          array($this->_page_number, $this->_page_count), $text);
-      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+    // Close all pages
+    $this->_pdf->suspend_page("");
+    for ($p = 1; $p <= $this->_page_count; $p++) {
+      $this->_pdf->resume_page("pagenumber=$p");
+      $this->_pdf->end_page_ext("");
     }
     
-    $this->_pdf->end_page_ext("");
     $this->_pdf->end_document("");
   }
 
@@ -661,11 +667,6 @@ class PDFLib_Adapter implements Canvas {
                      $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
     $this->_page_text = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
 
-    // Add the text to the first page
-    $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                        array($this->_page_number, $this->_page_count), $text);
-
-    $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
   }
 
   //........................................................................
@@ -675,23 +676,47 @@ class PDFLib_Adapter implements Canvas {
     // Add objects to the current page
     $this->_place_objects();
 
-    if ( isset($this->_page_text) ) {
-      extract($this->_page_text);
-      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                          array($this->_page_number, $this->_page_count), $text);
-      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
-    }
-
-    $this->_page_number++;
-    $this->_pdf->end_page_ext("");
+    $this->_pdf->suspend_page("");
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");
+    $this->_page_number = ++$this->_page_count;
 
+  }
+
+  //........................................................................
+
+  /**
+   * Add text to each page after rendering is complete
+   */
+  protected function _add_page_text() {
+    
+    if ( !isset($this->_page_text) )
+      return;
+      
+    extract($this->_page_text);
+      
+    $page_text = $text;
+    $this->_pdf->suspend_page("");
+    
+    for ($p = 1; $p <= $this->_page_count; $p++) {
+
+      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                          array($p, $this->_page_count), $page_text);
+
+      $this->_pdf->resume_page("pagenumber=$p");        
+      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+      $this->_pdf->suspend_page("");
+      
+    }
+    $this->_pdf->resume_page("pagenumber=".$this->_page_number);
   }
 
   //........................................................................
 
   function stream($filename, $options = null) {
 
+    // Add page text
+    $this->_add_page_text();
+    
     if ( isset($options["compress"]) && $options["compress"] != 1 )
       $this->_pdf->set_value("compress", 0);
     else
@@ -712,7 +737,7 @@ class PDFLib_Adapter implements Canvas {
     
     header("Cache-Control: private");
     header("Content-type: application/pdf");
-    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header("Content-Disposition: $attach; filename=\"$filename\"");
 
     header("Content-length: " . $size);
 
@@ -742,6 +767,10 @@ class PDFLib_Adapter implements Canvas {
   //........................................................................
 
   function output($options = null) {
+
+    // Add page text
+    $this->_add_page_text();
+
     if ( isset($options["compress"]) && $options["compress"] != 1 )
       $this->_pdf->set_value("compress", 0);
     else
