@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.14 2005-12-30 22:45:49 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.15 2005-12-30 23:20:11 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -603,6 +603,11 @@ class PDFLib_Adapter implements Canvas {
     $w = (int)$w;
     $h = (int)$h;
 
+    $img_type = strtolower($img_type);
+    
+    if ( $img_type == "jpg" )
+      $img_type = "jpeg";
+    
     if ( isset($this->_imgs[$img_url]) )
       $img = $this->_imgs[$img_url];
 
@@ -612,7 +617,7 @@ class PDFLib_Adapter implements Canvas {
     }
     
     $y = $this->y($y) - $h;
-    $this->_pdf->fit_image($img, $x, $y, "boxsize=\{$w $h} fitmethod=entire");
+    $this->_pdf->fit_image($img, $x, $y, 'boxsize={'. "$w $h" .'} fitmethod=entire');
        
   }
 
