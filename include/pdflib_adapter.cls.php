@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.15 2005-12-30 23:20:11 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.16 2006-01-03 21:27:46 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -147,7 +147,7 @@ class PDFLib_Adapter implements Canvas {
   /**
    * Text to display on every page
    *
-   * @var string
+   * @var array
    */
   private $_page_text;
 
@@ -204,7 +204,7 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");    
 
     $this->_page_number = $this->_page_count = 1;
-    $this->_page_text = null;
+    $this->_page_text = array();
     
     $this->_imgs = array();
     $this->_fonts = array();
@@ -670,7 +670,7 @@ class PDFLib_Adapter implements Canvas {
 
   function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
                      $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
-    $this->_page_text = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
+    $this->_page_text[] = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
 
   }
 
@@ -694,24 +694,29 @@ class PDFLib_Adapter implements Canvas {
    */
   protected function _add_page_text() {
     
-    if ( !isset($this->_page_text) )
+    if ( !count($this->_page_text) )
       return;
-      
-    extract($this->_page_text);
-      
-    $page_text = $text;
+
     $this->_pdf->suspend_page("");
-    
+
     for ($p = 1; $p <= $this->_page_count; $p++) {
 
-      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                          array($p, $this->_page_count), $page_text);
-
       $this->_pdf->resume_page("pagenumber=$p");        
-      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+
+      foreach ($this->_page_text as $pt) {
+        extract($pt);
+      
+        $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                            array($p, $this->_page_count), $text);
+
+        $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+      
+      }
+      
       $this->_pdf->suspend_page("");
       
     }
+    
     $this->_pdf->resume_page("pagenumber=".$this->_page_number);
   }
 

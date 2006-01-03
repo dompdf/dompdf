@@ -1,8 +1,8 @@
-dompdf v0.4.2 - PHP5 HTML to PDF converter
-==========================================
+dompdf - PHP5 HTML to PDF converter
+===================================
 
 http://www.digitaljunkies.ca/dompdf
-Copyright (c) 2004 Benj Carson
+Copyright (c) 2004-2005 Benj Carson
 R&OS PDF class (class.pdf.php) Copyright (c) 2001-04 Wayne Munro
 
 Send bug reports, patches, feature requests, complaints & hate mail (no spam
@@ -82,7 +82,7 @@ Features
   collapsed border models, individual cell styling, (no nested tables yet
   however)
 
-* limited image support (gif, png & jpeg)
+* image support (gif, png & jpeg)
 
 * no dependencies on external PDF libraries, thanks to the R&OS PDF class
 
@@ -107,8 +107,6 @@ Limitations (Known Issues)
 --------------------------
 
 * tables can not be nested
-
-* tables can not span pages
 
 * not particularly tolerant to poorly-formed HTML input (using Tidy first
   may help).

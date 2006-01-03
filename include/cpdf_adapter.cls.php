@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.9 2005-12-30 22:45:49 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.10 2006-01-03 21:27:46 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -160,7 +160,7 @@ class CPDF_Adapter implements Canvas {
   /**
    * Text to display on every page
    *
-   * @var string
+   * @var array
    */
   private $_page_text;
 
@@ -211,7 +211,7 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->openHere('Fit');
     
     $this->_page_number = $this->_page_count = 1;
-    $this->_page_text = null;
+    $this->_page_text = array();
 
     $this->_pages = array($this->_pdf->getFirstPageId());
   }
@@ -584,7 +584,7 @@ class CPDF_Adapter implements Canvas {
   function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
                      $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
     
-    $this->_page_text = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
+    $this->_page_text[] = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
   }
   
   //........................................................................
@@ -604,26 +604,26 @@ class CPDF_Adapter implements Canvas {
    */
   protected function _add_page_text() {
     
-    if ( !isset($this->_page_text) )
+    if ( !count($this->_page_text) )
       return;
-      
-    extract($this->_page_text);
-      
+
     $page_number = 1;
-    $page_text = $text;
-      
+
     foreach ($this->_pages as $pid) {
 
-        
-      $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                          array($page_number, $this->_page_count), $page_text);
+      foreach ($this->_page_text as $pt) {
+        extract($pt);
 
-      $this->reopen_object($pid);        
-      $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
-      $this->close_object();
+        $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                            array($page_number, $this->_page_count), $text);
+
+        $this->reopen_object($pid);        
+        $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+        $this->close_object();        
+      }
 
       $page_number++;
-
+      
     }
   }
   
