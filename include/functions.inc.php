@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: functions.inc.php,v 1.3 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.4 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -92,16 +92,16 @@ function pre_var_dump($mixed) {
  * @return string
  */
 function build_url($protocol, $host, $base_path, $url) {
-  if ( strlen($url) == 0 )
+  if ( mb_strlen($url) == 0 )
     return $protocol . $host . rtrim($base_path, "/\\") . "/";
 
   // Is the url already fully qualified?
-  if ( strpos($url, "://") !== false )
+  if ( mb_strpos($url, "://") !== false )
     return $url;
     
   $ret = $protocol;
 
-  if ( !in_array(strtolower($protocol), array("http://", "https://",
+  if ( !in_array(mb_strtolower($protocol), array("http://", "https://",
                                               "ftp://", "ftps://")) )
     // We ignore the host for local file access.
     $host = "";
@@ -136,7 +136,7 @@ function explode_url($url) {
 
   if ( array_key_exists("scheme", $arr) &&
        $arr["scheme"] != "file" &&
-       strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
+       mb_strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
     {
     $protocol = $arr["scheme"] . "://";
 
@@ -157,7 +157,7 @@ function explode_url($url) {
 
     if ( array_key_exists("path", $arr) && $arr["path"] !== "" ) {
       // Do we have a trailing slash?
-      if ( $arr["path"]{ strlen($arr["path"]) - 1 } == "/" ) {
+      if ( $arr["path"]{ mb_strlen($arr["path"]) - 1 } == "/" ) {
         $path = $arr["path"];
         $file = "";
       } else {
@@ -174,9 +174,9 @@ function explode_url($url) {
 
   } else {
     
-    $i = strpos($url, "file://");
+    $i = mb_strpos($url, "file://");
     if ( $i !== false)
-      $url = substr($url, $i + 7);
+      $url = mb_substr($url, $i + 7);
 
     $protocol = ""; // "file://"; ? why doesn't this work... It's because of
                     // network filenames like //COMPU/SHARENAME
@@ -221,7 +221,7 @@ function dec2roman($num) {
   $num = strrev((string)$num);
 
   $ret = "";
-  switch (strlen($num)) {
+  switch (mb_strlen($num)) {
 
   case 4:
     $ret .= $thou[$num{3}];
@@ -248,7 +248,57 @@ function dec2roman($num) {
  * @param float $value
  * @return bool
  */
-function is_percent($value) { return false !== strpos($value, "%"); }
+function is_percent($value) { return false !== mb_strpos($value, "%"); }
+
+/**
+ * mb_string compatibility
+ */
+
+if ( !function_exists("mb_strlen") ) {
+  function mb_strlen($str) {
+    return strlen($str);
+  }
+}
+
+if ( !function_exists("mb_strpos") ) {
+  function mb_strpos($haystack, $needle, $offset = 0) {
+    return strpos($haystack, $needle, $offset);
+  }
+}
+
+if ( !function_exists("mb_strrpos") ) {
+  function mb_strrpos($haystack, $needle, $offset = 0) {
+    return strrpos($haystack, $needle, $offset);
+  }
+}
+
+if ( !function_exists("mb_substr") ) {
+  function mb_substr($str, $start, $length = null) {
+    if ( is_null($length) )
+      return substr($str, $start);
+    else
+      return substr($str, $start, $length);
+  }
+}
+
+if ( !function_exists("mb_strtolower") ) {
+  function mb_strtolower($str) {
+    return strtolower($str);
+  }
+}
+
+if ( !function_exists("mb_strtoupper") ) {
+  function mb_strtoupper($str) {
+    return strtoupper($str);
+  }
+}
+
+if ( !function_exists("mb_substr_count") ) {
+  function mb_substr_count($haystack, $needle) {
+    return substr_count($haystack, $needle);
+  }
+}
+
 
 /**
  * Stores warnings in an array for display later
@@ -266,7 +316,8 @@ function is_percent($value) { return false !== strpos($value, "%"); }
  * @param string $errline
  */
 function record_warnings($errno, $errstr, $errfile, $errline) {
-  if ( $errno != E_WARNING )
+
+  if ( !($errno & (E_WARNING | E_NOTICE)) ) // Not a warning or notice
     throw new DOMPDF_Exception($errstr);
 
   global $_dompdf_warnings;

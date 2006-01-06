@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.12 2005-12-30 21:10:13 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.13 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -290,8 +290,8 @@ class DOMPDF {
     // load <link rel="STYLESHEET" ... /> tags
     $links = $this->_xml->getElementsByTagName("link");    
     foreach ($links as $link) {
-      if ( strtolower($link->getAttribute("rel")) == "stylesheet" ||
-           strtolower($link->getAttribute("type")) == "text/css" ) {
+      if ( mb_strtolower($link->getAttribute("rel")) == "stylesheet" ||
+           mb_strtolower($link->getAttribute("type")) == "text/css" ) {
         $url = $link->getAttribute("href");
         $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
         

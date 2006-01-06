@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_row_group_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_row_group_frame_reflower.cls.php,v 1.2 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Reflows table row groups (e.g. tbody tags)
@@ -52,6 +52,8 @@ class Table_Row_Group_Frame_Reflower extends Frame_Reflower {
   }
 
   function reflow() {
+    $page = $this->_frame->get_root();
+
     $style = $this->_frame->get_style();
     
     // Our width is equal to the width of our parent table
@@ -60,8 +62,16 @@ class Table_Row_Group_Frame_Reflower extends Frame_Reflower {
     $cb = $this->_frame->get_containing_block();
     
     foreach ( $this->_frame->get_children() as $child) {
+      // Bail if the page is full
+      if ( $page->is_full() )
+        break;
+
       $child->set_containing_block($cb["x"], $cb["y"], $cb["w"], $cb["h"]);
       $child->reflow();
+
+      // Check if a split has occured
+      $page->check_page_break($child);
+      
     }
 
     $cellmap = $table->get_cellmap();
@@ -73,7 +83,7 @@ class Table_Row_Group_Frame_Reflower extends Frame_Reflower {
     if ( $table->get_style()->border_collapse === "collapse" ) 
       // Unset our borders because our cells are now using them
       $style->border_style = "none";
-    
+ 
   }
 
 }

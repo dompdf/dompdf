@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: attribute_translator.cls.php,v 1.4 2005-06-29 23:32:17 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.5 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -284,7 +284,7 @@ class Attribute_Translator {
   static protected function _resolve_target($node, $target, $value) {
     if ( $target{0} == "!" ) {
       // Function call
-      $func = "_" . substr($target, 1);
+      $func = "_" . mb_substr($target, 1);
       return self::$func($node, $value);
     }
 

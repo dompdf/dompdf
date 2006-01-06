@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: php_evaluator.cls.php,v 1.2 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: php_evaluator.cls.php,v 1.3 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Executes inline PHP code during the rendering process
@@ -64,7 +64,6 @@ class PHP_Evaluator {
     $PAGE_COUNT = $this->_canvas->get_page_count();
 
     eval(utf8_decode($code)); 
-        
   }
 
   function render($frame) {

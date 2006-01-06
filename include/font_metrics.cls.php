@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: font_metrics.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: font_metrics.cls.php,v 1.3 2006-01-06 07:26:38 benjcarson Exp $ */
 
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 
@@ -133,8 +133,8 @@ class Font_Metrics {
    */
   static function get_font($family, $subtype = "normal") {
     
-    $family = str_replace( array("'", '"'), "", strtolower($family));
-    $subtype = strtolower($subtype);
+    $family = str_replace( array("'", '"'), "", mb_strtolower($family));
+    $subtype = mb_strtolower($subtype);
     
     if ( !array_key_exists($family, self::$_font_lookup) )
       $family = DOMPDF_DEFAULT_FONT;
@@ -187,7 +187,7 @@ class Font_Metrics {
   }
 
   static function set_font_family($fontname, $entry) {
-    self::$_font_lookup[strtolower($fontname)] = $entry;
+    self::$_font_lookup[mb_strtolower($fontname)] = $entry;
   }
 }
 

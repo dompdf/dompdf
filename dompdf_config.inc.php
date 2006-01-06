@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf_config.inc.php,v 1.10 2005-12-30 22:45:49 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.11 2006-01-06 07:26:38 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -114,6 +114,17 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
 define("DOMPDF_PDF_BACKEND", "pdflib");
 
 /**
+ * PDFlib license key
+ *
+ * If you are using a licensed, commercial version of PDFlib, specify
+ * your license key here.  If you are using PDFlib-Lite or are evaluating
+ * the commercial version of PDFlib, comment out this setting.
+ *
+ * @link http://www.pdflib.com
+ */
+#define("DOMPDF_PDFLIB_LICENSE", "your license key here");
+
+/**
  * The default paper size.
  *
  * If you live outside of North America, feel free to change this ;)
@@ -172,7 +183,7 @@ define("DOMPDF_ENABLE_REMOTE", false);
  * @param string $class
  */
 function DOMPDF_autoload($class) {
-  $filename = strtolower($class) . ".cls.php";
+  $filename = mb_strtolower($class) . ".cls.php";
   require_once(DOMPDF_INC_DIR . "/$filename");
 }
 

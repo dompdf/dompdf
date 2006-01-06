@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.10 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.11 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -145,7 +145,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( isset($cb["h"]) ) 
       $height = $style->length_in_pt($height, $cb["h"]);
       
-    else if ( strpos($height, "%") !== false )
+    else if ( mb_strpos($height, "%") !== false )
       $height = "auto";
 
     else
@@ -189,12 +189,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
       } else if ( isset($cb["w"]) ) {
 
-        if ( strpos($min_height, "%") !== false )
+        if ( mb_strpos($min_height, "%") !== false )
           $min_height = 0;
         else
           $min_height = $style->length_in_pt($min_height, $cb["w"]);
       
-        if ( strpos($max_height, "%") !== false )
+        if ( mb_strpos($max_height, "%") !== false )
           $max_height = "none";
         else
           $max_height = $style->length_in_pt($max_height, $cb["w"]);
@@ -259,7 +259,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
             
             $frame->set_position( $frame->get_position("x") + $dx );
             $frame->set_text_spacing($spacing);
-            $dx += substr_count($frame->get_text(), " ") * $spacing;
+            $dx += mb_substr_count($frame->get_text(), " ") * $spacing;
           }
 
           // The line (should) now occupy the entire width

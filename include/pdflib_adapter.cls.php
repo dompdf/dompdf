@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.16 2006-01-03 21:27:46 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.17 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -167,12 +167,12 @@ class PDFLib_Adapter implements Canvas {
   function __construct($paper = "letter", $orientation = "portrait") {
     if ( is_array($paper) )
       $size = $paper;
-    else if ( array_key_exists(strtolower($paper), self::$PAPER_SIZES) )
+    else if ( array_key_exists(mb_strtolower($paper), self::$PAPER_SIZES) )
       $size = self::$PAPER_SIZES[$paper];
     else
       $size = self::$PAPER_SIZES["letter"];
 
-    if ( strtolower($orientation) == "landscape" ) {
+    if ( mb_strtolower($orientation) == "landscape" ) {
       $a = $size[3];
       $size[3] = $size[2];
       $size[2] = $a;
@@ -181,6 +181,13 @@ class PDFLib_Adapter implements Canvas {
     $this->_height= $size[3];
     
     $this->_pdf = new PDFLib();
+    
+	if ( defined("DOMPDF_PDFLIB_LICENSE") )
+      $this->_pdf->set_parameter( "license", DOMPDF_PDFLIB_LICENSE);
+    
+	$this->_pdf->set_parameter("textformat", "utf8"); 
+    $this->_pdf->set_parameter("fontwarning", "false");
+    
     $this->_pdf->set_info("Creator", "DOMPDF Converter");
 
     // Silence pedantic warnings about missing TZ settings
@@ -200,7 +207,6 @@ class PDFLib_Adapter implements Canvas {
       $this->_pdf->begin_document($this->_file,"");
     }
     
-    //    $this->_pdf->set_parameter("topdown", "true");    
     $this->_pdf->begin_page_ext($this->_width, $this->_height, "");    
 
     $this->_page_number = $this->_page_count = 1;
@@ -322,7 +328,7 @@ class PDFLib_Adapter implements Canvas {
    */
   function add_object($object, $where = 'all') {
 
-    if ( strpos($where, "next") !== false ) {
+    if ( mb_strpos($where, "next") !== false ) {
       $this->_objs[$object]["start_page"]++;
       $where = str_replace("next", "", $where);
       if ( $where == "" )
@@ -473,9 +479,9 @@ class PDFLib_Adapter implements Canvas {
    * @param string $font
    * @return int the font descriptor for the font
    */
-  protected function _load_font($font, $encoding = "auto", $options = "") {
+  protected function _load_font($font, $encoding = null, $options = "") {
 
-    // Check if the font is a native font
+    // Check if the font is a native PDF font
     // Embed non-native fonts
     $native_fonts = array("courier", "courier-bold", "courier-oblique", "courier-boldoblique",
                           "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
@@ -484,11 +490,22 @@ class PDFLib_Adapter implements Canvas {
 
     $test = strtolower(basename($font));
     if ( in_array($test, $native_fonts) ) {
-      $native = true;
       $font = basename($font);      
-    } else {
-      $native = false;
+
+    } else {      
+      // Embed non-native fonts
       $options .= " embedding=true";
+    }
+
+    if ( is_null($encoding) ) {
+
+      // Unicode encoding is only available for the commerical
+      // version of PDFlib and not PDFlib-Lite
+      if ( defined("DOMPDF_PDFLIB_LICENSE") ) 
+        $encoding = "unicode";
+      else
+        $encoding = "auto";
+
     }
     
     $key = $font .":". $encoding .":". $options;
@@ -497,12 +514,12 @@ class PDFLib_Adapter implements Canvas {
       return $this->_fonts[$key];
 
     else {
-      // Embed non-native fonts
-
 
       $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
       return $this->_fonts[$key];
+
     }
+    
   }
 
   /**
@@ -624,7 +641,6 @@ class PDFLib_Adapter implements Canvas {
   //........................................................................
 
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
-    
     $fh = $this->_load_font($font);
     
     $this->_pdf->setfont($fh, $size);
@@ -635,7 +651,8 @@ class PDFLib_Adapter implements Canvas {
     $adjust = (float)$adjust;
     $angle = -(float)$angle;
 
-    $this->_pdf->fit_textline(utf8_decode($text), $x, $y, "rotate=$angle wordspacing=$adjust");
+    //$this->_pdf->fit_textline(utf8_decode($text), $x, $y, "rotate=$angle wordspacing=$adjust");
+    $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$adjust");
     
   }
   
@@ -645,9 +662,8 @@ class PDFLib_Adapter implements Canvas {
     $fh = $this->_load_font($font);
 
     // Determine the additional width due to extra spacing
-    $num_spaces = substr_count($text," ");
+    $num_spaces = mb_substr_count($text," ");
     $delta = $spacing * $num_spaces;
-    
     return $this->_pdf->stringwidth($text, $fh, $size) + $delta;
   }
 
@@ -736,7 +752,7 @@ class PDFLib_Adapter implements Canvas {
 
     if ( self::$IN_MEMORY ) {
       $data = $this->_pdf->get_buffer();
-      $size = strlen($data);
+      $size = mb_strlen($data);
 
     } else
       $size = filesize($this->_file);

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:00 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.2 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -238,7 +238,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
   }
 
   function counter_value($id = self::DEFAULT_COUNTER, $type = "decimal") {
-    $type = strtolower($type);
+    $type = mb_strtolower($type);
     if ( !array_key_exists($id, $this->_counters) )
       $this->_counters[$id] = 0;
 
@@ -255,7 +255,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
       return dec2roman($this->_counters[$id]);
 
     case "upper-roman":
-      return strtoupper(dec2roman($this->_counters[$id]));
+      return mb_strtoupper(dec2roman($this->_counters[$id]));
 
     case "lower-latin":
     case "lower-alpha":

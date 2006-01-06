@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: text_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: text_frame_decorator.cls.php,v 1.2 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Decorates Frame objects for text layout
@@ -122,7 +122,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
 
   // Text manipulation methods
   
-  // Split the text in this frame at the offset specified.  The remaining
+  // split the text in this frame at the offset specified.  The remaining
   // text is added a sibling frame following this one and is returned.
   function split_text($offset) {
     if ( $offset == 0 )

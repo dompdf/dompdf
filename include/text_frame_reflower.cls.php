@@ -37,7 +37,7 @@
  * @version 0.4.2
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.4 2005-11-29 17:59:11 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.5 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -76,7 +76,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     
     $available_width = $line_width - $current_line_width;
 
-    // Split the text into words
+    // split the text into words
     $words = preg_split('/([\s-]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
     $wc = count($words);
 
@@ -128,7 +128,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
       $str .= $word;
     }      
     
-    $offset = strlen($str);
+    $offset = mb_strlen($str);
 
 // More debugging:
 //     pre_var_dump($str);
@@ -143,7 +143,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
   protected function _newline_break($text) {
 
-    if ( ($i = strpos($text, "\n")) === false) 
+    if ( ($i = mb_strpos($text, "\n")) === false) 
       return false;
 
     return $i+1;
@@ -241,16 +241,16 @@ class Text_Frame_Reflower extends Frame_Reflower {
         // Layout the new line
         $this->_layout_line();
 
-      } else if ( $split < strlen($this->_frame->get_text()) ) {
+      } else if ( $split < mb_strlen($this->_frame->get_text()) ) {
 
-        // Split the line if required
+        // split the line if required
         $this->_frame->split_text($split);
 
         // Remove any trailing newlines
         $t = $this->_frame->get_text();
 
         if ( $split > 1 && $t{$split-1} == "\n" )
-          $this->_frame->set_text( substr($t, 0, -1) );
+          $this->_frame->set_text( mb_substr($t, 0, -1) );
                 
       }
       

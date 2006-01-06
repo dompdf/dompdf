@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.6 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.7 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -58,7 +58,7 @@ class Frame_Tree {
    * @var array
    */
   static protected $_HIDDEN_TAGS = array("area", "base", "basefont", "head",
-                                         "meta", "style", "title",
+                                         "meta", "style", "title", "colgroup",
                                          "noembed", "noscript", "param", "#comment");  
   /**
    * The main DomDocument
@@ -171,9 +171,9 @@ class Frame_Tree {
     foreach ($children as $child) {
 
       // Skip non-displaying nodes
-      if ( in_array( strtolower($child->nodeName), self::$_HIDDEN_TAGS) ) {
-        if ( strtolower($child->nodeName) != "head" &&
-             strtolower($child->nodeName) != "style" ) {
+      if ( in_array( mb_strtolower($child->nodeName), self::$_HIDDEN_TAGS) ) {
+        if ( mb_strtolower($child->nodeName) != "head" &&
+             mb_strtolower($child->nodeName) != "style" ) {
           $child->parentNode->removeChild($child);
         }
         continue;

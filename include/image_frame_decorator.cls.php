@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.6 2005-12-30 21:10:13 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.7 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -83,11 +83,11 @@ class Image_Frame_Decorator extends Frame_Decorator {
     $url = $frame->get_node()->getAttribute("src");
 
     // We need to preserve the file extenstion
-    $i = strrpos($url, ".");
+    $i = mb_strrpos($url, ".");
     if ( $i === false )
       throw new DOMPDF_Exception("Unknown image type: $url.");
 
-    $ext = strtolower(substr( $url, $i+1 ));
+    $ext = mb_strtolower(mb_substr( $url, $i+1 ));
     
     $proto = $dompdf->get_protocol();
     $remote = ($proto != "" && $proto != "file://");
@@ -202,6 +202,8 @@ class Image_Frame_Decorator extends Frame_Decorator {
       $filename = DOMPDF_LIB_DIR . "/res/broken_image.png";
 
     }
+
+    set_error_handler($old_err);
     
     self::$_cache[$image_url] = $filename;
     return $filename;

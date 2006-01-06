@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.13 2005-12-30 21:10:12 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.14 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -182,7 +182,7 @@ switch ( $sapi ) {
     echo "\nUnderstood paper sizes:\n";
     
     foreach (array_keys(CPDF_Adapter::$PAPER_SIZES) as $size)
-      echo "  " . strtoupper($size) . "\n";
+      echo "  " . mb_strtoupper($size) . "\n";
     exit;
   }
   $file = $opts["filename"];

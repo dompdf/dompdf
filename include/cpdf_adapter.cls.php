@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.10 2006-01-03 21:27:46 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.11 2006-01-06 07:26:38 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -181,12 +181,12 @@ class CPDF_Adapter implements Canvas {
 
     if ( is_array($paper) )
       $size = $paper;
-    else if ( array_key_exists(strtolower($paper), self::$PAPER_SIZES) )
+    else if ( array_key_exists(mb_strtolower($paper), self::$PAPER_SIZES) )
       $size = self::$PAPER_SIZES[$paper];
     else
       $size = self::$PAPER_SIZES["letter"];
 
-    if ( strtolower($orientation) == "landscape" ) {
+    if ( mb_strtolower($orientation) == "landscape" ) {
       $a = $size[3];
       $size[3] = $size[2];
       $size[2] = $a;

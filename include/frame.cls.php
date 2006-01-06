@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.7 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.8 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -580,9 +580,9 @@ class Frame {
     $str .= "Class: " .get_class($this) . "<br/>";
     
     if ( $this->_node->nodeName == "#text" ) {
-      $tmp = htmlspecialchars($this->_node->nodeValue);
-      $str .= "<pre>'" .  substr($tmp,0,70) .
-        (strlen($tmp) > 70 ? "..." : "") . "'</pre>";
+      $tmp = htmlspecialchars(utf8_decode($this->_node->nodeValue));
+      $str .= "<pre>'" .  mb_substr($tmp,0,70) .
+        (mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";
     }
     if ( $this->_parent )
       $str .= "\nParent:" . $this->_parent->_node->nodeName .

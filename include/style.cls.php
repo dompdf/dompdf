@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.9 2005-11-21 18:48:44 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.10 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -396,49 +396,49 @@ class Style {
         continue;
       }
       
-      if ( ($i = strpos($l, "pt"))  !== false ) {
-        $ret += substr($l, 0, $i);
+      if ( ($i = mb_strpos($l, "pt"))  !== false ) {
+        $ret += mb_substr($l, 0, $i);
         continue;
       }
 
-      if ( ($i = strpos($l, "px"))  !== false ) {
-        $ret += substr($l, 0, $i);
+      if ( ($i = mb_strpos($l, "px"))  !== false ) {
+        $ret += mb_substr($l, 0, $i);
         continue;
       }
 
-      if ( ($i = strpos($l, "em"))  !== false ) {
-        $ret += substr($l, 0, $i) * $this->__get("font_size");
+      if ( ($i = mb_strpos($l, "em"))  !== false ) {
+        $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
         continue;
       }
       
       // FIXME: em:ex ratio?
-      if ( ($i = strpos($l, "ex"))  !== false ) {
-        $ret += substr($l, 0, $i) * $this->__get("font_size");
+      if ( ($i = mb_strpos($l, "ex"))  !== false ) {
+        $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
         continue;
       }
       
-      if ( ($i = strpos($l, "%"))  !== false ) {
-        $ret += substr($l, 0, $i)/100 * $ref_size;
+      if ( ($i = mb_strpos($l, "%"))  !== false ) {
+        $ret += mb_substr($l, 0, $i)/100 * $ref_size;
         continue;
       }
       
-      if ( ($i = strpos($l, "in")) !== false ) {
-        $ret += substr($l, 0, $i) * 72;
+      if ( ($i = mb_strpos($l, "in")) !== false ) {
+        $ret += mb_substr($l, 0, $i) * 72;
         continue;
       }
           
-      if ( ($i = strpos($l, "cm")) !== false ) {
-        $ret += substr($l, 0, $i) * 72 / 2.54;
+      if ( ($i = mb_strpos($l, "cm")) !== false ) {
+        $ret += mb_substr($l, 0, $i) * 72 / 2.54;
         continue;
       }
 
-      if ( ($i = strpos($l, "mm")) !== false ) {
-        $ret += substr($l, 0, $i) * 72 / 25.4;
+      if ( ($i = mb_strpos($l, "mm")) !== false ) {
+        $ret += mb_substr($l, 0, $i) * 72 / 25.4;
         continue;
       }
           
-      if ( ($i = strpos($l, "pc")) !== false ) {
-        $ret += substr($l, 0, $i) / 12;
+      if ( ($i = mb_strpos($l, "pc")) !== false ) {
+        $ret += mb_substr($l, 0, $i) / 12;
         continue;
       }
           
@@ -587,29 +587,29 @@ class Style {
       
     default:
 
-      if ( strlen($colour) == 4 && $colour{0} == "#" ) {
+      if ( mb_strlen($colour) == 4 && $colour{0} == "#" ) {
         // #rgb format
         $r = hexdec($colour{1} . $colour{1});
         $g = hexdec($colour{2} . $colour{2});
         $b = hexdec($colour{3} . $colour{3});
 
-      } else if ( strlen($colour) == 7 && $colour{0} == "#" ) {
+      } else if ( mb_strlen($colour) == 7 && $colour{0} == "#" ) {
         // #rrggbb format
-        $r = hexdec(substr($colour, 1, 2));
-        $g = hexdec(substr($colour, 3, 2));
-        $b = hexdec(substr($colour, 5, 2));
+        $r = hexdec(mb_substr($colour, 1, 2));
+        $g = hexdec(mb_substr($colour, 3, 2));
+        $b = hexdec(mb_substr($colour, 5, 2));
 
-      } else if ( strpos($colour, "rgb") !== false ) {
+      } else if ( mb_strpos($colour, "rgb") !== false ) {
 
         // rgb( r,g,b ) format
-        $i = strpos($colour, "(");
-        $j = strpos($colour, ")");
+        $i = mb_strpos($colour, "(");
+        $j = mb_strpos($colour, ")");
         
         // Bad colour value
         if ($i === false || $j === false)
           return null;
 
-        $triplet = explode(",", substr($colour, $i+1, $j-$i-1));
+        $triplet = explode(",", mb_substr($colour, $i+1, $j-$i-1));
 
         if (count($triplet) != 3)
           return null;
@@ -617,7 +617,7 @@ class Style {
         foreach (array_keys($triplet) as $c) {
           $triplet[$c] = trim($triplet[$c]);
           
-          if ( $triplet[$c]{strlen($triplet[$c]) - 1} == "%" ) 
+          if ( $triplet[$c]{mb_strlen($triplet[$c]) - 1} == "%" ) 
             $triplet[$c] = round($triplet[$c] * 0.255);
         }
 
@@ -682,8 +682,8 @@ class Style {
       return;
     }
     
-    if ( $prop !== "content" && is_string($val) && strpos($val, "url") === false ) {
-      $val = strtolower(trim(str_replace(array("\n", "\t"), array(" "), $val)));
+    if ( $prop !== "content" && is_string($val) && mb_strpos($val, "url") === false ) {
+      $val = mb_strtolower(trim(str_replace(array("\n", "\t"), array(" "), $val)));
       $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
     }
     
@@ -838,11 +838,11 @@ class Style {
     }
 
     // Ensure relative sizes resolve to something
-    if ( ($i = strpos($fs, "em")) !== false ) 
-      $fs = substr($fs, 0, $i) * $this->_parent_font_size;
+    if ( ($i = mb_strpos($fs, "em")) !== false ) 
+      $fs = mb_substr($fs, 0, $i) * $this->_parent_font_size;
 
-    else if ( ($i = strpos($fs, "ex")) !== false ) 
-      $fs = substr($fs, 0, $i) * $this->_parent_font_size;
+    else if ( ($i = mb_strpos($fs, "ex")) !== false ) 
+      $fs = mb_substr($fs, 0, $i) * $this->_parent_font_size;
 
     else
       $fs = $this->length_in_pt($fs);
@@ -1525,7 +1525,7 @@ class Style {
   function set_list_style_image($val) {
     
     // Strip url(' ... ') from url values
-    if ( strpos($val, "url") !== false ) {
+    if ( mb_strpos($val, "url") !== false ) {
       $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/","\\1", trim($val));
     } else {
       $val = "none";
@@ -1554,7 +1554,7 @@ class Style {
     $positions = array("inside", "outside");
     
     foreach ($arr as $value) {
-      if ( strpos($value, "url") !== false ) {
+      if ( mb_strpos($value, "url") !== false ) {
         $this->set_list_style_image($value);
         continue;
       }

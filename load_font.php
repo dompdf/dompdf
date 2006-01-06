@@ -184,7 +184,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   $fonts = compact("normal", "bold", "italic", "bold_italic");
   $entry = array();
     
-  if ( strtolower($ext) === ".pfb" || strtolower($ext) === ".ttf" ) {
+  if ( mb_strtolower($ext) === ".pfb" || mb_strtolower($ext) === ".ttf" ) {
 
     // Copy the files to the font directory.
     foreach ($fonts as $var => $src) {
@@ -215,13 +215,13 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
     
     
   // If the extension is a ttf, try and convert the fonts to afm too
-  if ( strtolower($ext) === ".ttf") {
+  if ( mb_strtolower($ext) === ".ttf") {
     foreach ($fonts as $var => $font) {
       if ( is_null($font) ) {
-        $entry[$var] = DOMPDF_FONT_DIR . substr(basename($normal), 0, -4);
+        $entry[$var] = DOMPDF_FONT_DIR . mb_substr(basename($normal), 0, -4);
         continue;
       }
-      $dest = DOMPDF_FONT_DIR . substr(basename($font),0, -4);
+      $dest = DOMPDF_FONT_DIR . mb_substr(basename($font),0, -4);
       echo "Generating .afm for $font...\n";
       exec( _TTF2AFM . " " . escapeshellarg($font) . " " . $dest . " &> /dev/null", $output, $ret );
       
@@ -233,7 +233,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   // FIXME: how to generate afms from pfb?
   
   // Store the fonts in the lookup table
-  Font_Metrics::set_font_family(strtolower($fontname), $entry);
+  Font_Metrics::set_font_family(mb_strtolower($fontname), $entry);
     
   // Save the changes
   Font_Metrics::save_font_families();

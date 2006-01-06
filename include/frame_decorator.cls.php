@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.9 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.10 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -334,7 +334,7 @@ abstract class Frame_Decorator extends Frame {
   //........................................................................
 
   /**
-   * Split this frame at $child.
+   * split this frame at $child.
    *
    * The current frame is cloned and $child and all children following
    * $child are added to the clone.  The clone is then passed to the

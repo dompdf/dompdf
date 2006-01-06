@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.5 2005-12-30 21:10:13 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.6 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -240,13 +240,13 @@ class Stylesheet {
 
     $a = ($selector === "!style attribute") ? 1 : 0;
     
-    $b = min(substr_count($selector, "#"), 255);
+    $b = min(mb_substr_count($selector, "#"), 255);
 
-    $c = min(substr_count($selector, ".") +
-             substr_count($selector, ">") +
-             substr_count($selector, "+"), 255);
+    $c = min(mb_substr_count($selector, ".") +
+             mb_substr_count($selector, ">") +
+             mb_substr_count($selector, "+"), 255);
     
-    $d = min(substr_count($selector, " "), 255);
+    $d = min(mb_substr_count($selector, " "), 255);
 
     return ($a << 24) | ($b << 16) | ($c << 8) | ($d);
   }
@@ -279,7 +279,7 @@ class Stylesheet {
       $selector = " $selector";
 
     $tok = "";
-    $len = strlen($selector);
+    $len = mb_strlen($selector);
     $i = 0;
                    
     while ( $i < $len ) {
@@ -304,7 +304,7 @@ class Stylesheet {
         // the current token
         $expr = $s == " " ? "descendant" : "child";
 
-        if ( substr($query, -1, 1) != "/" )
+        if ( mb_substr($query, -1, 1) != "/" )
           $query .= "/";
 
         if ( !$tok )
@@ -322,7 +322,7 @@ class Stylesheet {
         $attr = $s == "." ? "class" : "id";
 
         // empty class/id == *
-        if ( substr($query, -1, 1) == "/" )
+        if ( mb_substr($query, -1, 1) == "/" )
           $query .= "*";
         
         $query .= "[@$attr=\"$tok\"]";
@@ -331,7 +331,7 @@ class Stylesheet {
 
       case "+":
         // All sibling elements that folow the current token
-        if ( substr($query, -1, 1) != "/" )
+        if ( mb_substr($query, -1, 1) != "/" )
           $query .= "/";
 
         $query .= "following-sibling::$tok";
@@ -341,7 +341,7 @@ class Stylesheet {
       case "[":
         // Attribute selectors.  All with an attribute matching the following token(s)
         $attr_delimiters = array("=", "]", "~", "|");
-        $tok_len = strlen($tok);
+        $tok_len = mb_strlen($tok);
         $j = 0;
         
         $attr = "";
@@ -447,7 +447,7 @@ class Stylesheet {
     
     
     // Trim the trailing '/' from the query
-    if ( strlen($query) > 2 )
+    if ( mb_strlen($query) > 2 )
       $query = rtrim($query, "/");
     
     return $query;
@@ -633,7 +633,7 @@ class Stylesheet {
           break;
 
         case "media":
-          if ( in_array(strtolower(trim($match[3])), self::$ACCEPTED_MEDIA_TYPES ) ) {
+          if ( in_array(mb_strtolower(trim($match[3])), self::$ACCEPTED_MEDIA_TYPES ) ) {
             $this->_parse_sections($match[5]);
           }
           break;
@@ -726,12 +726,12 @@ class Stylesheet {
       if ($prop == "")
         continue;
 
-      $i = strpos($prop, ":");
+      $i = mb_strpos($prop, ":");
       if ( $i === false )
         continue;
 
-      $prop_name = strtolower(substr($prop, 0, $i));
-      $value = substr($prop, $i+1);
+      $prop_name = mb_strtolower(mb_substr($prop, 0, $i));
+      $value = mb_substr($prop, $i+1);
       $style->$prop_name = $value;
 
     }
@@ -754,10 +754,10 @@ class Stylesheet {
 
     $sections = explode("}", $str);
     foreach ($sections as $sect) {
-      $i = strpos($sect, "{");
+      $i = mb_strpos($sect, "{");
 
-      $selectors = explode(",", substr($sect, 0, $i));
-      $style = $this->_parse_properties(trim(substr($sect, $i+1)));
+      $selectors = explode(",", mb_substr($sect, 0, $i));
+      $style = $this->_parse_properties(trim(mb_substr($sect, $i+1)));
 
       // Assign it to the selected elements
       foreach ($selectors as $selector) {

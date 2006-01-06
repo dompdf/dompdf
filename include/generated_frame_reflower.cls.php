@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: generated_frame_reflower.cls.php,v 1.2 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: generated_frame_reflower.cls.php,v 1.3 2006-01-06 07:26:38 benjcarson Exp $ */
 
 /**
  * Reflows generated content frames (decorates reflower)
@@ -87,7 +87,7 @@ class Generated_Frame_Reflower extends Frame_Reflower {
     
     $content = $style->content;
     
-    // Split on spaces, except within quotes
+    // split on spaces, except within quotes
     if (!preg_match_all($re, $content, $matches, PREG_SET_ORDER))
       return;
     
@@ -105,16 +105,16 @@ class Generated_Frame_Reflower extends Frame_Reflower {
       
       if ( array_key_exists(1, $match) && $match[1] !== "" ) {
         // counters?(...)
-        $match[1] = strtolower(trim($match[1]));
+        $match[1] = mb_strtolower(trim($match[1]));
                   
         // Handle counter() references:
         // http://www.w3.org/TR/CSS21/generate.html#content
         
-        $i = strpos($match[1], ")");
+        $i = mb_strpos($match[1], ")");
         if ( $i === false )
           continue;
         
-        $args = explode(",", substr($match[1], 7, $i - 7));
+        $args = explode(",", mb_substr($match[1], 7, $i - 7));
         $counter_id = $args[0];
         
         if ( $match[1]{7} == "(" ) {
@@ -169,13 +169,13 @@ class Generated_Frame_Reflower extends Frame_Reflower {
           // FIXME:
         } else if ( $match[7] === "no-close-quote" ) {
           // FIXME:
-        } else if ( strpos($match[7],"attr(") === 0 ) {
+        } else if ( mb_strpos($match[7],"attr(") === 0 ) {
 
-          $i = strpos($match[7],")");
+          $i = mb_strpos($match[7],")");
           if ( $i === false )
             continue;
           
-          $attr = substr($match[7], 6, $i - 6);
+          $attr = mb_substr($match[7], 6, $i - 6);
           if ( $attr == "" )
             continue;
           
