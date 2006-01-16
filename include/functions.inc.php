@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: functions.inc.php,v 1.4 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.5 2006-01-16 16:23:54 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -317,8 +317,8 @@ if ( !function_exists("mb_substr_count") ) {
  */
 function record_warnings($errno, $errstr, $errfile, $errline) {
 
-  if ( !($errno & (E_WARNING | E_NOTICE)) ) // Not a warning or notice
-    throw new DOMPDF_Exception($errstr);
+  if ( !($errno & (E_WARNING | E_NOTICE | E_USER_NOTICE | E_USER_WARNING )) ) // Not a warning or notice
+    throw new DOMPDF_Exception($errstr . " $errno");
 
   global $_dompdf_warnings;
   global $_dompdf_show_warnings;

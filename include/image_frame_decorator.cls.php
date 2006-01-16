@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.7 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.8 2006-01-16 16:23:54 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -82,12 +82,15 @@ class Image_Frame_Decorator extends Frame_Decorator {
     parent::__construct($frame);
     $url = $frame->get_node()->getAttribute("src");
 
+    // Remove dynamic part of url
+    $tmp = preg_replace('/\?.*/','',$url);
+    
     // We need to preserve the file extenstion
-    $i = mb_strrpos($url, ".");
+    $i = mb_strrpos($tmp, ".");
     if ( $i === false )
       throw new DOMPDF_Exception("Unknown image type: $url.");
 
-    $ext = mb_strtolower(mb_substr( $url, $i+1 ));
+    $ext = mb_strtolower(mb_substr($tmp, $i+1));
     
     $proto = $dompdf->get_protocol();
     $remote = ($proto != "" && $proto != "file://");
@@ -109,29 +112,21 @@ class Image_Frame_Decorator extends Frame_Decorator {
         
       } else {
 
-        // Convert gifs to pngs (convert function will handle downloading remote file)
-        if ( $ext == "gif" ) {
-
-          $this->_image_url = $this->_convert_gif_to_png($url);
-          $ext = "png";
-
-        } else {
-
-          //echo "Downloading file $url to temporary location: ";
-          $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-          //echo $this->_image_url . "\n";
-
-          $old_err = set_error_handler("record_warnings");
-          $image = file_get_contents($url);
-          set_error_handler($old_err);
-
-          if ( strlen($image) == 0 )
-            $image = file_get_contents(DOMPDF_LIB_DIR . "/res/broken_image.png");
-          
-          file_put_contents($this->_image_url, $image);
+        //echo "Downloading file $url to temporary location: ";
+        $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+        //echo $this->_image_url . "\n";
         
-          self::$_cache[$url] = $this->_image_url;
-        }
+        $old_err = set_error_handler("record_warnings");
+        $image = file_get_contents($url);
+        restore_error_handler();
+        
+        if ( strlen($image) == 0 )
+          $image = file_get_contents(DOMPDF_LIB_DIR . "/res/broken_image.png");
+          
+        file_put_contents($this->_image_url, $image);
+        
+        self::$_cache[$url] = $this->_image_url;
+        
         
       }
       
@@ -141,18 +136,17 @@ class Image_Frame_Decorator extends Frame_Decorator {
                                     $dompdf->get_host(),
                                     $dompdf->get_base_path(),
                                     $url);
-      
-      if ( $ext == "gif" ) {
-        $this->_image_url = $this->_convert_gif_to_png($this->_image_url);
-        $ext = "png";
-      }
-        
+              
     }
 
     if ( !is_readable($this->_image_url) || !filesize($this->_image_url) ) {
       $_dompdf_warnings[] = "File " .$this->_image_url . " is not readable.\n";
       $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
     }
+
+    // Assume for now that all dynamic images are pngs
+    if ( $ext == "php" )
+      $ext = "png";
     
     $this->_image_ext = $ext;
     
@@ -174,40 +168,6 @@ class Image_Frame_Decorator extends Frame_Decorator {
    */
   function get_image_ext() {
     return $this->_image_ext;
-  }
-
-  /**
-   * Convert a GIF image to a PNG image
-   *
-   * @return string The url of the newly converted image 
-   */
-  protected function _convert_gif_to_png($image_url) {
-    global $_dompdf_warnings;
-    
-    if ( !function_exists("imagecreatefromgif") ) {
-      $_dompdf_warnings[] = "Function imagecreatefromgif() not found.  Cannot convert gif image: $image_url.";      
-      return DOMPDF_LIB_DIR . "/res/broken_image.png";
-    }
-
-    $old_err = set_error_handler("record_warnings");
-    $im = imagecreatefromgif($image_url);
-
-    if ( $im ) {
-      imageinterlace($im, 0);
-    
-      $filename = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-      imagepng($im, $filename);
-
-    } else {
-      $filename = DOMPDF_LIB_DIR . "/res/broken_image.png";
-
-    }
-
-    set_error_handler($old_err);
-    
-    self::$_cache[$image_url] = $filename;
-    return $filename;
-    
   }
   
   /**

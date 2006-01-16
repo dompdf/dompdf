@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.11 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.12 2006-01-16 16:23:54 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -170,6 +170,13 @@ class CPDF_Adapter implements Canvas {
    * @var array
    */
   private $_pages;
+
+  /**
+   * Array of temporary cached images to be deleted when processing is complete
+   *
+   * @var array
+   */
+  private $_image_cache;
   
   /**
    * Class constructor
@@ -214,8 +221,21 @@ class CPDF_Adapter implements Canvas {
     $this->_page_text = array();
 
     $this->_pages = array($this->_pdf->getFirstPageId());
+
+    $this->_image_cache = array();
   }
 
+  /**
+   * Class destructor
+   *
+   * Deletes all temporary image files
+   */
+  function __destruct() {
+    foreach ($this->_image_cache as $img) {
+      unlink($img);
+    }
+  }
+  
   /**
    * Returns the Cpdf instance
    *
@@ -450,6 +470,40 @@ class CPDF_Adapter implements Canvas {
                               
   //........................................................................
 
+  /**
+   * Convert a GIF image to a PNG image
+   *
+   * @return string The url of the newly converted image 
+   */
+  protected function _convert_gif_to_png($image_url) {
+    global $_dompdf_warnings;
+    
+    if ( !function_exists("imagecreatefromgif") ) {
+      $_dompdf_warnings[] = "Function imagecreatefromgif() not found.  Cannot convert gif image: $image_url.";      
+      return DOMPDF_LIB_DIR . "/res/broken_image.png";
+    }
+
+    $old_err = set_error_handler("record_warnings");
+    $im = imagecreatefromgif($image_url);
+
+    if ( $im ) {
+      imageinterlace($im, 0);
+    
+      $filename = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+      imagepng($im, $filename);
+
+    } else {
+      $filename = DOMPDF_LIB_DIR . "/res/broken_image.png";
+
+    }
+
+    restore_error_handler();
+
+    $this->_image_cache[] = $filename;
+    
+    return $filename;
+    
+  }
 
   function rectangle($x1, $y1, $w, $h, $color, $width, $style = array(),
                      $blend = "Normal", $opacity = 1.0) {
@@ -516,6 +570,8 @@ class CPDF_Adapter implements Canvas {
 
   function image($img_url, $img_type, $x, $y, $w, $h) {
 
+    $img_type = mb_strtolower($img_type);
+    
     switch ($img_type) {
     case "jpeg":
     case "jpg":
@@ -523,6 +579,12 @@ class CPDF_Adapter implements Canvas {
       break;
 
     case "png":
+      $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
+      break;
+
+    case "gif":
+      // Convert gifs to pngs
+      $img_url = $this->_convert_gif_to_png($img_url);
       $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
       break;
       

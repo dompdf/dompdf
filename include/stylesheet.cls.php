@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.6 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.7 2006-01-16 16:23:54 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -209,7 +209,7 @@ class Stylesheet {
     
     if ( !DOMPDF_ENABLE_REMOTE &&
          ($this->_protocol != "" && $this->_protocol != "file://") ) {
-      record_warnings(E_USER_ERROR, "Remote CSS file '$file' requested, but DOMPDF_ENABLE_REMOTE is false.", __FILE__, __LINE__);
+      record_warnings(E_USER_WARNING, "Remote CSS file '$file' requested, but DOMPDF_ENABLE_REMOTE is false.", __FILE__, __LINE__);
       return; 
     }
     
@@ -221,7 +221,7 @@ class Stylesheet {
     restore_error_handler();
 
     if ( $css == "" ) {
-      record_warnings(E_USER_ERROR, "Unable to load css file $file", __FILE__, __LINE__);;
+      record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);;
       return;
     }
     
