@@ -5,6 +5,8 @@
 <ol>
 <li><a href="#hello_world">Is there a 'hello world' script for dompdf?</a></li>
 
+<li><a href="#save">How do I save a PDF to disk?</a></li>
+
 <li><a href="#dom">I'm getting the following error: <br/>
  Fatal error: DOMPDF_autoload() [function.require]: Failed opening required
  '/var/www/dompdf/include/domdocument.cls.php'
@@ -26,6 +28,12 @@ C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
 <li><a href="#tables">I have a big table and it's broken!</a></li>
 
 <li><a href="#footers">Is there a way to add headers and footers?</a></li>
+
+<li><a href="#zend_optimizer">I'm getting the following error:<br/>
+Cannot access undefined property for object with
+overloaded property access in
+/var/www/dompdf/include/frame_tree.cls.php on line 160
+</a></li>
 <!-- ' -->
 </ol>
 
@@ -44,10 +52,10 @@ $html =
     '&lt;/body&gt;&lt;/html&gt;';
 
 $dompdf = new DOMPDF();
-$dompdf->load_html($html);
+$dompdf-&gt;load_html($html);
 
-$dompdf->render();
-$dompdf->stream("hello_world.pdf");
+$dompdf-&gt;render();
+$dompdf-&gt;stream("hello_world.pdf");
 
 ?&gt;
 </pre>
@@ -58,6 +66,44 @@ dompdf_config.inc.php to match your installation.</p>
 
 <a href="#FAQ">[back to top]</a>
 <div class="divider2" style="background-position: 25% 0%">&nbsp;</div>
+
+<a name="save"> </a>
+<h3>How do I save a PDF to disk?</h3>
+
+<p>If you are using the included <a href="usage.php#web">dompdf.php</a> script you
+can pass it the "save_file" option in conjunction with the "output_file" option.</p>
+
+<p>If you are using the DOMPDF class, you can save the generated PDF
+by calling <code>$dompdf-&gt;output()</code>:</p>
+
+<pre>
+require_once("dompdf_config.inc.php");
+$html = 
+    '&lt;html&gt;&lt;body&gt;'.
+    '&lt;p&gt;Foo&lt;/p&gt;'.
+    '&lt;/body&gt;&lt;/html&gt;';
+
+$dompdf = new DOMPDF();
+$dompdf-&gt;load_html($html);
+
+$dompdf-&gt;render();
+
+// The next call will store the entire PDF as a string in $pdf
+
+$pdf = $dompdf-&gt;output();  
+
+// You can now write $pdf to disk, store it in a database or stream it
+// to the client.
+
+file_put_contents("saved_pdf.pdf", $pdf);
+</pre>
+
+<p>Note that typically <code>dompdf-&gt;stream()</code> and
+<code>dompdf-&gt;output()</code> are mutually exclusive.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 721px 0%">&nbsp;</div>
+
 
 <a name="dom"> </a>
 <h3>I'm getting the following error: <br/>
@@ -79,18 +125,18 @@ will also be removed.  You can check which switches were used to compile
 PHP with <code>phpinfo()</code>.</p>
 
 <a href="#FAQ">[back to top]</a>
-<div class="divider1" style="background-position: 73% 0%">&nbsp;</div>
+<div class="divider1" style="background-position: 239px 0%">&nbsp;</div>
 
 <a name="exec_time"> </a>
 <h3>I'm getting the following error: <br/> Fatal error:
   Maximum execution time of 30 seconds exceeded in /var/www/dompdf/dompdf.php
   on line XXX</h3>
 
-<p>Nested tables are not supported yet (v0.3.2) and can cause dompdf to enter an
+<p>Nested tables are not supported yet (v0.4.3) and can cause dompdf to enter an
 endless loop, thus giving rise to this error.</p>
 
 <a href="#FAQ">[back to top]</a>
-<div class="divider2" style="background-position: 49% 0%">&nbsp;</div>
+<div class="divider1" style="background-position: 300px 0%">&nbsp;</div>
 
 <a name="no_block_parent"> </a>
 <h3>I'm getting the following error:<br/>
@@ -104,7 +150,7 @@ caused by <code>parse_url()</code> thinking that the 'c' in 'c:\' was
 a protocol.  Version 0.4.1 works around this issue.</p>
 
 <a href="#FAQ">[back to top]</a>
-<div class="divider2" style="background-position: 49% 0%">&nbsp;</div>
+<div class="divider2" style="background-position: 130px 0%">&nbsp;</div>
 
 <a name="tables"> </a>
 <h3>I have a big table and it's broken!</h3>
@@ -112,20 +158,88 @@ a protocol.  Version 0.4.1 works around this issue.</p>
 <p>This is fixed in versions 0.4 and higher.  Previous versions did not support tables that spanned pages.</p>
 
 <a href="#FAQ">[back to top]</a>
-<div class="divider1" style="background-position: 33% 0%">&nbsp;</div>
+<div class="divider1" style="background-position: 812px 0%">&nbsp;</div>
 
 <a name="footers"> </a>
 <h3>Is there a way to add headers and footers?</h3>
 
-<p>Yes, you can add headers and footers using inline PHP.  Have a look
-at the demo_01.html file in the www/test/ directory.  It adds a header
-and footer using PDF_Adapter->page_text().  It also adds text
-superimposed over the rendered text using a PDF 'object'.  This object
-is added using CPDF_Adapter->add_object().  See <a
-href="usage.php#inline">usage.php</a> for more info on inline PHP.</p>
+<p>Yes, you can add headers and footers using inline PHP.  Headers and
+footers are added by accessing the PDF renderer directly using inline
+PHP embedded in your HTML file.  This is similar to creating PDFs with
+FPDF or ezPDF from R&amp;OS, in that you can draw lines, boxes and text
+directly on the PDF.  Here are step by step instructions:</p>
+
+<ol>
+<li> Somewhere in your html file, near the top, open a script tag with a "text/php" type:
+<pre>
+  &lt;script type="text/php"&gt;
+</pre>
+</li>
+
+<li> Check if the $pdf variable is set.  dompdf sets this variable when evaluating embedded PHP.
+<pre>
+  &lt;script type="text/php"&gt;
+ 
+  if ( isset($pdf) ) {
+</pre>
+</li>
+
+<li> Pick a font:
+<pre>
+  &lt;script type="text/php"&gt;
+ 
+  if ( isset($pdf) ) {
+  
+    $font = Font_Metrics::get_font("verdana", "bold");
+</pre>
+</li>
+
+<li> Use the CPDF_Adapter::page_text() method to set text that will be
+displayed on every page:
+
+<pre>
+  &lt;script type="text/php"&gt;
+ 
+  if ( isset($pdf) ) {
+  
+    $font = Font_Metrics::get_font("verdana", "bold");
+    $pdf-&gt;page_text(72, 18, "Fancy Header", $font, 6, array(0,0,0));
+
+  }
+  &lt;/script&gt;
+</pre>
+
+In this example, the text will be displayed 72pt (1 in) from the left
+edge of the page and 18pt (1/4 in) from the top of the page, in 6pt
+font.  The last argument to page_text() is the colour which takes an
+array of the form array(r,g,b) where each of r, g, and b are between
+0.0 and 1.0.  </li>
+
+<li> There are several other methods available.  See the API
+documentation for the CPDF_Adapter class (<a
+href="doc/">http://www.digitaljunkies.ca/dompdf/doc</a>) for more
+details.  Also have a look at the demo_01.html file in the www/test/
+directory.  It adds a header and footer using
+PDF_Adapter->page_text().  It also adds text superimposed over the
+rendered text using a PDF 'object'.  This object is added using
+CPDF_Adapter->add_object().  See <a
+href="usage.php#inline">usage.php</a> for more info on inline PHP.</li>
+</ol>
 
 <a href="#FAQ">[back to top]</a>
-<div class="divider2" style="background-position: 49% 0%">&nbsp;</div>
+<div class="divider2" style="background-position: 12px 0%">&nbsp;</div>
+
+<a name="zend_optimizer"> </a>
+<h3>I'm getting the following error:<br/>
+Cannot access undefined property for object with
+overloaded property access in
+/var/www/dompdf/include/frame_tree.cls.php on line 160</h3>
+
+<p>This error is caused by an incompatibility with the Zend Optimizer.
+Disable the optimizer when using dompdf.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 991px 0%">&nbsp;</div>
 
 </div>
-<? include "foot.inc" ?>
+<?php include "foot.inc" ?>
