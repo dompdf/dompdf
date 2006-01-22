@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_reflower.cls.php,v 1.5 2005-03-16 03:51:25 benjcarson Exp $ */
+/* $Id: image_frame_reflower.cls.php,v 1.6 2006-01-22 20:16:42 benjcarson Exp $ */
 
 /**
  * Image reflower class
@@ -52,8 +52,15 @@ class Image_Frame_Reflower extends Frame_Reflower {
   }
 
   function reflow() {
-    // We need to grab our *parent's* style because images are wrapped...
     
+    // Set the frame's width
+    $this->get_min_max_width();
+    
+  }
+
+  function get_min_max_width() {
+
+    // We need to grab our *parent's* style because images are wrapped...
     $style = $this->_frame->get_parent()->get_style();
 
     $width = $style->width;
@@ -91,6 +98,8 @@ class Image_Frame_Reflower extends Frame_Reflower {
     
     $this->_frame->get_style()->width = $width . "pt";
     $this->_frame->get_style()->height = $height . "pt";
+
+    return array( $width, $width, "min" => $width, "max" => $width);
     
   }
 }

@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.4
  */
 
-/* $Id: dompdf_config.inc.php,v 1.12 2006-01-16 16:23:54 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.13 2006-01-22 20:16:41 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -94,7 +94,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  *
  * Both PDFLib & CPDF rendering backends provide sufficient rendering
  * capabilities for dompdf, however additional features (e.g. object,
- * image and font support, etc.)  differ between backends.  Please see
+ * image and font support, etc.) differ between backends.  Please see
  * {@link PDFLib_Adapter} for more information on the PDFLib backend
  * and {@link CPDF_Adapter} and lib/class.pdf.php for more information
  * on CPDF.  Also see the documentation for each backend at the links
@@ -111,7 +111,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
  */
-define("DOMPDF_PDF_BACKEND", "cpdf");
+define("DOMPDF_PDF_BACKEND", "auto");
 
 /**
  * PDFlib license key
