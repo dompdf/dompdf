@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.10 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.11 2006-03-16 16:07:54 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -171,6 +171,7 @@ abstract class Frame_Decorator extends Frame {
   function set_position($x = null, $y = null) {
     $this->_frame->set_position($x, $y);
   }
+  
   function __toString() { return $this->_frame->__toString(); }
   
   function prepend_child(Frame $child, $update_node = true) {

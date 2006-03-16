@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_renderer.cls.php,v 1.2 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: image_renderer.cls.php,v 1.3 2006-03-16 16:07:54 benjcarson Exp $ */
 
 /**
  * Image renderer
@@ -55,7 +55,7 @@ class Image_Renderer extends Abstract_Renderer {
 
     // Render background & borders
     //parent::render($frame);
-    
+    $p = $frame->get_parent();
     $style = $frame->get_style();
     
     $cb = $frame->get_containing_block();

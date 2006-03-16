@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.3 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.4 2006-03-16 16:07:54 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -133,11 +133,11 @@ class Block_Frame_Decorator extends Frame_Decorator {
       return;
     }
 
-    if ( $frame->get_margin_width() == 0 )
-      return;
-    
     $w = $frame->get_margin_width();
 
+    if ( $w == 0 )
+      return;
+    
     // Debugging code:
 
 //     pre_r("\nAdding frame to line:");

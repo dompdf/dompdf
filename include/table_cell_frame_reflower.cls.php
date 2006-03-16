@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.4 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.5 2006-03-16 16:07:54 benjcarson Exp $ */
 
 
 /**
@@ -119,6 +119,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
 
     // Determine our height
     $height = $style->length_in_pt($style->height, $w);
+
     $this->_frame->set_content_height($this->_calculate_content_height());
 
     $height = max($height, $this->_frame->get_content_height());

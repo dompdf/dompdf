@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_cell_frame_decorator.cls.php,v 1.2 2006-03-16 16:07:54 benjcarson Exp $ */
 
 /**
  * Decorates table cells for layout
@@ -111,11 +111,14 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
         break;
 
       }
-
+      
       // Move our children
-      foreach ( $this->get_children() as $child ) 
-        $child->set_position(null,  $child->get_position("y") + $delta );
-
+//       foreach ( $this->get_children() as $child )
+//         $child->set_position(null,  $child->get_position("y") + $delta );
+      foreach ( $this->get_lines() as $i => $line ) {
+        foreach ( $line["frames"] as $frame )
+          $frame->set_position( null, $frame->get_position("y") + $delta );
+      }
     }
         
   }
