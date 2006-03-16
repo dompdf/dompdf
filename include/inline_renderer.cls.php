@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: inline_renderer.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: inline_renderer.cls.php,v 1.2 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Renders inline frames
@@ -65,14 +65,14 @@ class Inline_Renderer extends Abstract_Renderer {
                     $style->length_in_pt($bp["right"]["width"]),
                     $style->length_in_pt($bp["bottom"]["width"]),
                     $style->length_in_pt($bp["left"]["width"]));
-    
+
     // Draw the background & border behind each child.  To do this we need
     // to figure out just how much space each child takes:
     list($x, $y) = $frame->get_first_child()->get_position();
     $w = null;
     $h = 0;
-    $x += $widths[3];
-    $y += $widths[0];
+//     $x += $widths[3];
+//     $y += $widths[0];
     
     $first_row = true;
 
@@ -82,7 +82,10 @@ class Inline_Renderer extends Abstract_Renderer {
       
       if ( !is_null($w) && $child_x < $x + $w ) {
 
-        // The next child is on another line.  Draw the background on this line.
+        // The next child is on another line.  Draw the background &
+        // borders on this line.
+
+        // Background:
         if ( ($bg = $style->background_color) !== "transparent" ) 
           $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color);
 
@@ -90,8 +93,8 @@ class Inline_Renderer extends Abstract_Renderer {
         if ( $first_row ) {
 
           if ( $bp["left"]["style"] != "none" && $bp["left"]["width"] > 0 ) {
-            $method = "_border_" . $bp["left"]["style"];
-            $this->$method($x, $y, $h, $bp["left"]["color"], $widths, "left");
+            $method = "_border_" . $bp["left"]["style"];            
+            $this->$method($x, $y, $h + $widths[0] + $widths[2], $bp["left"]["color"], $widths, "left");
           }
           $first_row = false;
         }
@@ -99,16 +102,16 @@ class Inline_Renderer extends Abstract_Renderer {
         // Draw the top & bottom borders
         if ( $bp["top"]["style"] != "none" && $bp["top"]["width"] > 0 ) {
           $method = "_border_" . $bp["top"]["style"];
-          $this->$method($x, $y, $w, $bp["top"]["color"], $widths, "top");
+          $this->$method($x, $y, $w + $widths[1] + $widths[3], $bp["top"]["color"], $widths, "top");
         }
         
         if ( $bp["bottom"]["style"] != "none" && $bp["bottom"]["width"] > 0 ) {
           $method = "_border_" . $bp["bottom"]["style"];
-          $this->$method($x, $y + $h, $w, $bp["bottom"]["color"], $widths, "bottom");
+          $this->$method($x, $y + $h + $widths[0] + $widths[2], $w + $widths[1] + $widths[3], $bp["bottom"]["color"], $widths, "bottom");
         }
         
-        $x = $child_x + $widths[3];
-        $y = $child_y + $widths[0];
+        $x = $child_x;
+        $y = $child_y;
         $w = $child_w;
         $h = $child_h;
         continue;
@@ -125,8 +128,12 @@ class Inline_Renderer extends Abstract_Renderer {
     
     // Handle the last child
     if ( ($bg = $style->background_color) !== "transparent" ) 
-      $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color);
-    
+      $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $style->background_color);
+
+    // Add the border widths
+    $w += $widths[1] + $widths[3];
+    $h += $widths[0] + $widths[2];
+
     // If this is the first row, draw the left border too
     if ( $first_row && $bp["left"]["style"] != "none" && $widths[3] > 0 ) {
       $method = "_border_" . $bp["left"]["style"];
@@ -146,7 +153,6 @@ class Inline_Renderer extends Abstract_Renderer {
     
     // Draw the right border
     if ( $bp["right"]["style"] != "none" && $widths[1] > 0 ) {
-
       $method = "_border_" . $bp["right"]["style"];
       $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
     }

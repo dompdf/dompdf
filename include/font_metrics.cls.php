@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: font_metrics.cls.php,v 1.3 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: font_metrics.cls.php,v 1.4 2006-03-16 05:24:47 benjcarson Exp $ */
 
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 
@@ -136,7 +136,7 @@ class Font_Metrics {
     $family = str_replace( array("'", '"'), "", mb_strtolower($family));
     $subtype = mb_strtolower($subtype);
     
-    if ( !array_key_exists($family, self::$_font_lookup) )
+    if ( !isset(self::$_font_lookup[$family]) )
       $family = DOMPDF_DEFAULT_FONT;
 
     if ( !in_array($subtype, array("normal", "bold", "italic", "bold_italic")) )

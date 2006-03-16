@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.12 2006-01-16 16:23:54 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.13 2006-03-16 05:24:47 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -188,7 +188,7 @@ class CPDF_Adapter implements Canvas {
 
     if ( is_array($paper) )
       $size = $paper;
-    else if ( array_key_exists(mb_strtolower($paper), self::$PAPER_SIZES) )
+    else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) )
       $size = self::$PAPER_SIZES[$paper];
     else
       $size = self::$PAPER_SIZES["letter"];
@@ -213,8 +213,8 @@ class CPDF_Adapter implements Canvas {
       $this->_pdf->addInfo("CreationDate", date("Y-m-d"));
     }
 
-    $this->_width = $size[2];
-    $this->_height= $size[3];
+    $this->_width = $size[2] - $size[0];
+    $this->_height= $size[3] - $size[1];
     $this->_pdf->openHere('Fit');
     
     $this->_page_number = $this->_page_count = 1;

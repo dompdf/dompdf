@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.7 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.8 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -57,8 +57,8 @@ class Frame_Tree {
    *
    * @var array
    */
-  static protected $_HIDDEN_TAGS = array("area", "base", "basefont", "head",
-                                         "meta", "style", "title", "colgroup",
+  static protected $_HIDDEN_TAGS = array("area", "base", "basefont", "head", "style",
+                                         "meta", "title", "colgroup",
                                          "noembed", "noscript", "param", "#comment");  
   /**
    * The main DomDocument
@@ -114,7 +114,7 @@ class Frame_Tree {
    * @param string $id
    * @return Frame
    */
-  function get_frame($id) { return array_key_exists($id, $this->_registry) ? $this->_registry[$id] : null; }
+  function get_frame($id) { return isset($this->_registry[$id]) ? $this->_registry[$id] : null; }
 
   /**
    * Returns a post-order iterator for all frames in the tree
@@ -169,13 +169,11 @@ class Frame_Tree {
       $children[] = $node->childNodes->item($i);
 
     foreach ($children as $child) {
-
       // Skip non-displaying nodes
-      if ( in_array( mb_strtolower($child->nodeName), self::$_HIDDEN_TAGS) ) {
+      if ( in_array( mb_strtolower($child->nodeName), self::$_HIDDEN_TAGS) )  {
         if ( mb_strtolower($child->nodeName) != "head" &&
-             mb_strtolower($child->nodeName) != "style" ) {
+             mb_strtolower($child->nodeName) != "style" ) 
           $child->parentNode->removeChild($child);
-        }
         continue;
       }
 

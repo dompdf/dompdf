@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.10 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.11 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -439,7 +439,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // no: do nothing (?)
       return false;
 
-//     echo "check_page_break\n";
+//    echo "check_page_break\n";
     
     // yes: determine page break location
     $iter = $frame;
@@ -457,7 +457,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       }
       
       if ( $this->_page_break_allowed($iter) ) {
-//          echo "break allowed, splitting.\n";          
+//        echo "break allowed, splitting.\n";
         $iter->split();
         $this->_page_full = true;
         $this->_in_table = $in_table;
@@ -506,7 +506,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
     }
 
     $this->_in_table = $in_table;
-    
+
     // No valid page break found.  Just break at $frame.
 //     echo "no valid break found, just splitting.\n";
 

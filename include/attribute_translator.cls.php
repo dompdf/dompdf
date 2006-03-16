@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: attribute_translator.cls.php,v 1.5 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.6 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -246,7 +246,7 @@ class Attribute_Translator {
     $node = $frame->get_node();
     $tag = $node->tagName;
 
-    if ( !array_key_exists($tag, self::$__ATTRIBUTE_LOOKUP) )
+    if ( !isset(self::$__ATTRIBUTE_LOOKUP[$tag]) )
       return;
 
     $valid_attrs = self::$__ATTRIBUTE_LOOKUP[$tag];
@@ -256,7 +256,7 @@ class Attribute_Translator {
       $style .= ";";
     
     foreach ($attrs as $attr => $attr_node ) {
-      if ( !array_key_exists($attr, $valid_attrs) )
+      if ( !isset($valid_attrs[$attr]) )
         continue;
 
       $value = $attr_node->value;
@@ -266,7 +266,7 @@ class Attribute_Translator {
       // Look up $value in $target, if $target is an array:
       if ( is_array($target) ) {
 
-        if ( array_key_exists($value, $target) ) 
+        if ( isset($target[$value]) ) 
           $style .= " " . self::_resolve_target($node, $target[$value], $value);
 
       } else {
@@ -464,7 +464,7 @@ class Attribute_Translator {
     if ( $value{0} == "-" || $value{0} == "+" )
       $value = self::$_last_basefont_size + (int)$value;
 
-    if ( array_key_exists($value, self::$_font_size_lookup) )
+    if ( isset(self::$_font_size_lookup[$value]) )
       $style .= "; font-size: " . self::$_font_size_lookup[$value] . ";";
     else
       $style .= "; font-size: $value;";

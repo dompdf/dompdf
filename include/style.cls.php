@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.10 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.11 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -482,7 +482,7 @@ class Style {
   function merge(Style $style) {
     $this->_props = array_merge($this->_props, $style->_props);
 
-    if ( array_key_exists("font_size", $style->_props) )
+    if ( isset($style->_props["font_size"]) )
       $this->__font_size_calculated = false;    
   }
 
@@ -677,7 +677,7 @@ class Style {
 
     $prop = str_replace("-", "_", $prop);
     
-    if ( !array_key_exists($prop, self::$_defaults) ) {
+    if ( !isset(self::$_defaults[$prop]) ) {
       $_dompdf_warnings[] = "'$prop' is not a valid CSS2 property.";
       return;
     }
@@ -708,7 +708,7 @@ class Style {
    */
   function __get($prop) {
     
-    if ( !array_key_exists($prop, self::$_defaults) ) 
+    if ( !isset(self::$_defaults[$prop]) ) 
       throw new DOMPDF_Exception("'$prop' is not a valid CSS2 property.");
 
     $method = "get_$prop";

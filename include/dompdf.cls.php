@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.13 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.14 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -303,6 +303,7 @@ class DOMPDF {
     // load <style> tags
     $styles = $this->_xml->getElementsByTagName("style");
     foreach ($styles as $style) {
+
       // Accept all <style> tags by default (note this is contrary to W3C
       // HTML 4.0 spec:
       // http://www.w3.org/TR/REC-html40/present/styles.html#adef-media
@@ -324,7 +325,11 @@ class DOMPDF {
       } else
         $css = $style->nodeValue;
 
-      
+      // Set the base path of the Stylesheet to that of the file being processed
+      $this->_css->set_protocol($this->_protocol);
+      $this->_css->set_host($this->_base_host);
+      $this->_css->set_base_path($this->_base_path);
+
       $this->_css->load_css($css);
     }
     

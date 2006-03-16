@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: abstract_renderer.cls.php,v 1.1.1.1 2005-01-25 22:56:00 benjcarson Exp $ */
+/* $Id: abstract_renderer.cls.php,v 1.2 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Base renderer class

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame.cls.php,v 1.8 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.9 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -635,7 +635,7 @@ class Frame {
     $str .= "\n";
     if ( php_sapi_name() == "cli" )
       $str = strip_tags(str_replace(array("<br/>","<b>","</b>"),
-                                    array("\n",chr(27)."[01;33m", chr(27)."[0m"),
+                                    array("\n","",""),
                                     $str));
     
     return $str;

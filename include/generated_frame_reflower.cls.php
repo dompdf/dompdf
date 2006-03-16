@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: generated_frame_reflower.cls.php,v 1.3 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: generated_frame_reflower.cls.php,v 1.4 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Reflows generated content frames (decorates reflower)
@@ -94,16 +94,16 @@ class Generated_Frame_Reflower extends Frame_Reflower {
     $text = "";
 
     foreach ($matches as $match) {
-      if ( array_key_exists(2, $match) && $match[2] !== "" )
+      if ( isset($match[2]) && $match[2] !== "" )
         $match[1] = $match[1];
       
-      if ( array_key_exists(6, $match) && $match[6] !== "" )
+      if ( isset($match[6]) && $match[6] !== "" )
         $match[4] = $match[6];
 
-      if ( array_key_exists(8, $match) && $match[8] !== "" )
+      if ( isset($match[8]) && $match[8] !== "" )
         $match[7] = $match[8];
       
-      if ( array_key_exists(1, $match) && $match[1] !== "" ) {
+      if ( isset($match[1]) && $match[1] !== "" ) {
         // counters?(...)
         $match[1] = mb_strtolower(trim($match[1]));
                   
@@ -120,7 +120,7 @@ class Generated_Frame_Reflower extends Frame_Reflower {
         if ( $match[1]{7} == "(" ) {
           // counter(name [,style])
           
-          if ( array_key_exists(1, $args) )
+          if ( isset($args[1]) )
             $type = $args[1];
           else
             $type = null;
@@ -132,12 +132,12 @@ class Generated_Frame_Reflower extends Frame_Reflower {
 
         } else if ( $match[1]{7} == "s" ) {
           // counters(name, string [,style])
-          if ( array_key_exists(1, $args) )
+          if ( isset($args[1]) )
             $string = $this->_parse_string(trim($args[1]));
           else
             $string = "";
           
-          if ( array_key_exists(2, $args) )
+          if ( isset($args[2]) )
             $type = $args[2];
           else
             $type = null;
@@ -154,11 +154,11 @@ class Generated_Frame_Reflower extends Frame_Reflower {
           // countertops?
           continue;
         
-      } else if ( array_key_exists(4, $match) && $match[4] !== "" ) {
+      } else if ( isset($match[4]) && $match[4] !== "" ) {
         // String match        
         $text .= $this->_parse_string($match[4]);
 
-      } else if ( array_key_exists(7, $match) && $match[7] !== "" ) {
+      } else if ( isset($match[7]) && $match[7] !== "" ) {
         // Directive match
         
         if ( $match[7] === "open-quote" ) {

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.2 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.3 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -102,7 +102,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
   }
 
   function clear_line($i) {
-    if ( array_key_exists($i, $this->_lines) )
+    if ( isset($this->_lines[$i]) )
       unset($this->_lines[$i]);
   }
   
@@ -230,7 +230,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
   }
 
   function increment_counter($id = self::DEFAULT_COUNTER, $increment = 1) {
-    if ( !array_key_exists($id, $this->_counters) )
+    if ( !isset($this->_counters[$id]) )
       $this->_counters[$id] = $increment;
     else
       $this->_counters[$id] += $increment;
@@ -239,7 +239,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
   function counter_value($id = self::DEFAULT_COUNTER, $type = "decimal") {
     $type = mb_strtolower($type);
-    if ( !array_key_exists($id, $this->_counters) )
+    if ( !isset($this->_counters[$id]) )
       $this->_counters[$id] = 0;
 
     switch ($type) {

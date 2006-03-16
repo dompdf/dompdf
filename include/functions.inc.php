@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.4
  */
 
-/* $Id: functions.inc.php,v 1.5 2006-01-16 16:23:54 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.6 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -50,6 +50,7 @@
  * @param bool $return
  *
  */
+if ( !function_exists("pre_r") ) {
 function pre_r($mixed, $return = false) {
   if ($return)
     return "<pre>" . print_r($mixed, true) . "</pre>";
@@ -65,6 +66,7 @@ function pre_r($mixed, $return = false) {
   flush();
 
 }
+}
 
 /**
  * var_dump wrapper for html/cli output
@@ -74,12 +76,14 @@ function pre_r($mixed, $return = false) {
  *
  * @param mixed $mixed variable or expression to display.
  */
+if ( !function_exists("pre_var_dump") ) {
 function pre_var_dump($mixed) {
   if ( php_sapi_name() != "cli")
     echo("<pre>");
   var_dump($mixed);
   if ( php_sapi_name() != "cli")
     echo("</pre>");
+}
 }
 
 /**
@@ -134,28 +138,28 @@ function explode_url($url) {
 
   $arr = parse_url($url);
 
-  if ( array_key_exists("scheme", $arr) &&
+  if ( isset($arr["scheme"]) &&
        $arr["scheme"] != "file" &&
        mb_strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
     {
     $protocol = $arr["scheme"] . "://";
 
-    if ( array_key_exists("user", $arr) ) {
+    if ( isset($arr["user"]) ) {
       $host .= $arr["user"];
 
-      if ( array_key_exists("pass", $arr) )
+      if ( isset($arr["pass"]) )
         $host .= "@" . $arr["pass"];
 
       $host .= ":";
     }
 
-    if ( array_key_exists("host", $arr) )
+    if ( isset($arr["host"]) )
       $host .= $arr["host"];
 
-    if ( array_key_exists("port", $arr) )
+    if ( isset($arr["port"]) )
       $host .= ":" . $arr["port"];
 
-    if ( array_key_exists("path", $arr) && $arr["path"] !== "" ) {
+    if ( isset($arr["path"]) && $arr["path"] !== "" ) {
       // Do we have a trailing slash?
       if ( $arr["path"]{ mb_strlen($arr["path"]) - 1 } == "/" ) {
         $path = $arr["path"];
@@ -166,10 +170,10 @@ function explode_url($url) {
       }
     }
 
-    if ( array_key_exists("query", $arr) ) 
+    if ( isset($arr["query"]) ) 
       $file .= "?" . $arr["query"];
 
-    if ( array_key_exists("fragment", $arr) )
+    if ( isset($arr["fragment"]) )
       $file .= "#" . $arr["fragment"];
 
   } else {

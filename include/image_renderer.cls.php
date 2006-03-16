@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_renderer.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: image_renderer.cls.php,v 1.2 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Image renderer
@@ -45,7 +45,7 @@
  * @access private
  * @package dompdf
  */
-class Image_Renderer extends Block_Renderer {
+class Image_Renderer extends Abstract_Renderer {
 
   function __construct(Canvas $canvas) {
     parent::__construct($canvas);
@@ -54,7 +54,7 @@ class Image_Renderer extends Block_Renderer {
   function render(Frame $frame) {
 
     // Render background & borders
-    parent::render($frame);
+    //parent::render($frame);
     
     $style = $frame->get_style();
     

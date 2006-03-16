@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.17 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.18 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -167,7 +167,7 @@ class PDFLib_Adapter implements Canvas {
   function __construct($paper = "letter", $orientation = "portrait") {
     if ( is_array($paper) )
       $size = $paper;
-    else if ( array_key_exists(mb_strtolower($paper), self::$PAPER_SIZES) )
+    else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) )
       $size = self::$PAPER_SIZES[$paper];
     else
       $size = self::$PAPER_SIZES["letter"];
@@ -177,8 +177,8 @@ class PDFLib_Adapter implements Canvas {
       $size[3] = $size[2];
       $size[2] = $a;
     }
-    $this->_width = $size[2];
-    $this->_height= $size[3];
+    $this->_width = $size[2] - $size[0];
+    $this->_height= $size[3] - $size[1]; 
     
     $this->_pdf = new PDFLib();
     
@@ -348,7 +348,7 @@ class PDFLib_Adapter implements Canvas {
    */
   function stop_object($object) {
 
-    if ( !array_key_exists($object, $this->_objs) )
+    if ( !isset($this->_objs[$object]) )
       return;
     
     $start = $this->_objs[$object]["start_page"];

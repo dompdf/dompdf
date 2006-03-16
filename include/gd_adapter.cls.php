@@ -97,13 +97,13 @@ class GD_Adapter implements Canvas {
    * @param mixed  $size         The size of image to create: array(x1,y1,x2,y2) or "letter", "legal", etc.
    * @param string $orientation  The orientation of the document (either 'landscape' or 'portrait')
    * @param float  $aa_factor    Anti-aliasing factor, 1 for no AA
-   * @param array  $bg_color     Image background color: array(r,g,b,a), 0 <= r,g,b <= 255, 0 <= a <= 127
+   * @param array  $bg_color     Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
    */
-  function __construct($size, $orientation = "portrait", $aa_factor = 1, $bg_color = array(255,255,255,0) ) {
+  function __construct($size, $orientation = "portrait", $aa_factor = 1, $bg_color = array(1,1,1,0) ) {
 
     if ( !is_array($size) ) {
 
-      if ( array_key_exists( strtolower($size), CPDF_Adapter::$PAPER_SIZES) ) 
+      if ( isset(CPDF_Adapter::$PAPER_SIZES[ strtolower($size)]) ) 
         $size = CPDF_Adapter::$PAPER_SIZES[$size];
       else
         $size = CPDF_Adapter::$PAPER_SIZES["letter"];
@@ -122,14 +122,14 @@ class GD_Adapter implements Canvas {
     $size[2] *= $aa_factor;
     $size[3] *= $aa_factor;
     
-    $this->_width = $size[2];
-    $this->_height = $size[3];
+    $this->_width = $size[2] - $size[0];
+    $this->_height = $size[3] - $size[1];
 
     $this->_img = imagecreatetruecolor($this->_width, $this->_height);
 
     if ( is_null($bg_color) || !is_array($bg_color) ) {
       // Pure white bg
-      $bg_color = array(255,255,255,0);
+      $bg_color = array(1,1,1,0);
     }
 
     $this->_bg_color = $this->_allocate_color($bg_color);
@@ -205,7 +205,7 @@ class GD_Adapter implements Canvas {
     $r *= 255;
     $g *= 255;
     $b *= 255;
-    $a *= 255;
+    $a *= 127;
     
     // Clip values
     $r = $r > 255 ? 255 : $r;

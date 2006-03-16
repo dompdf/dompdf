@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.7 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.8 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -133,6 +133,11 @@ class Table_Frame_Decorator extends Frame_Decorator {
    */
   function split($child = null) {
     
+    if ( is_null($child) ) {
+      parent::split();
+      return;
+    }
+      
     // If $child is a header or if it is the first non-header row, do
     // not duplicate headers, simply move the table to the next page.    
     if ( count($this->_headers) && !in_array($child, $this->_headers) && 
@@ -150,27 +155,23 @@ class Table_Frame_Decorator extends Frame_Decorator {
         
         $this->insert_child_before($new_header, $child);
       }
-      
+
       parent::split($first_header);
       
     } else {
+      
+      if ( in_array($child->get_style()->display, self::$ROW_GROUPS) )
+        $iter = $child->get_first_child();
+      else
+        $iter = $child;
 
+      while ($iter) {
+        $this->_cellmap->remove_row($iter);
+        $iter = $iter->get_next_sibling();
+      }
+    
       parent::split($child);
-
     }
-    
-    // Update the cellmap
-    if ( in_array($child->get_style()->display, self::$ROW_GROUPS) )
-      $iter = $child->get_first_child();
-    else
-      $iter = $child;
-    
-    while ($iter) {
-      $this->_cellmap->remove_row($iter);
-      $iter = $iter->get_next_sibling();
-    }
-
-    
   }
   
   /**

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.8 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.9 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -220,7 +220,7 @@ class Cellmap {
   function get_spanned_cells($frame) {
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) {
+    if ( !isset($this->_frames[$key]) ) {
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
     }
       
@@ -233,7 +233,7 @@ class Cellmap {
     
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) {
+    if ( !isset($this->_frames[$key]) ) {
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
     }
 
@@ -258,7 +258,7 @@ class Cellmap {
   function get_frame_width($frame) {
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) {
+    if ( !isset($this->_frames[$key]) ) {
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
     }
 
@@ -274,14 +274,16 @@ class Cellmap {
   function get_frame_height($frame) {
     $key = $frame->get_id();
 
-    if ( !array_key_exists($key, $this->_frames) ) 
+    if ( !isset($this->_frames[$key]) ) 
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
 
     $rows = $this->_frames[$key]["rows"];
     $h = 0;
-    foreach ($rows as $i)
+    foreach ($rows as $i) {
+      if ( !isset($this->_rows[$i]) ) 
+        throw new Exception("foo");
       $h += $this->_rows[$i]["height"];
-    
+    }
     return $h;
     
   }
@@ -345,7 +347,7 @@ class Cellmap {
     $display = $style->display;
     
     $collapse = $this->_table->get_style()->border_collapse == "collapse";
-
+    
     // Recursively add the frames within tables, table-row-groups and table-rows
     if ( $display == "table-row" ||
          $display == "table" ||
@@ -541,8 +543,6 @@ class Cellmap {
    */
   function remove_row(Frame $row) {
 
-    // FIXME: handle row-groups
-
     $key = $row->get_id();
     if ( !isset($this->_frames[$key]) )
       return;  // Presumably this row has alredy been removed
@@ -553,11 +553,11 @@ class Cellmap {
     $columns = $this->_frames[$key]["columns"];
 
     // Remove all frames from this row
-    foreach ( $rows as $row ) {
-      foreach ( $columns as $col ) {
-        $frame = $this->_cells[$row][$col];
+    foreach ( $rows as $r ) {
+      foreach ( $columns as $c ) {
+        $frame = $this->_cells[$r][$c];
         unset($this->_frames[ $frame->get_id() ]);
-        unset($this->_cells[$row][$col]);
+        unset($this->_cells[$r][$c]);
       }
     }
 
@@ -565,6 +565,24 @@ class Cellmap {
 
   }
 
+  /**
+   * Remove a rows from a group from the cellmap
+   *
+   * @param Frame
+   * @param Frame $row $row and all subsequent rows will be removed from the cellmap
+   */
+  function remove_rows_from_group(Frame $group, Frame $row) {
+
+    $g_key = $group->get_id();
+    $r_key = $row->get_id();
+    
+    if ( !isset($this->_frames[$key]) )
+      return; // Already done
+    
+    $rows = $this->_frames[$r_key]["rows"];
+    
+  }
+  
   //........................................................................
   
   function assign_x_positions() {

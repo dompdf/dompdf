@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_reflower.cls.php,v 1.6 2006-01-22 20:16:42 benjcarson Exp $ */
+/* $Id: image_frame_reflower.cls.php,v 1.7 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * Image reflower class
@@ -95,9 +95,31 @@ class Image_Frame_Reflower extends Frame_Reflower {
       $width = ((float)rtrim($width, "px")) * 72 / DOMPDF_DPI;
       $height = ((float)rtrim($height, "px")) * 72 / DOMPDF_DPI;
     }
-    
-    $this->_frame->get_style()->width = $width . "pt";
-    $this->_frame->get_style()->height = $height . "pt";
+
+    // Synchronize the styles
+    $inner_style = $this->_frame->get_style();
+    $inner_style->width = $style->width = $width . "pt";
+    $inner_style->height = $style->height = $height . "pt";
+
+    $inner_style->padding_top = $style->padding_top;
+    $inner_style->padding_right = $style->padding_right;
+    $inner_style->padding_bottom = $style->padding_bottom;
+    $inner_style->padding_left = $style->padding_left;
+
+    $inner_style->border_top_width = $style->border_top_width;
+    $inner_style->border_right_width = $style->border_right_width;
+    $inner_style->border_bottom_width = $style->border_bottom_width;
+    $inner_style->border_left_width = $style->border_left_width;
+
+    $inner_style->border_top_style = $style->border_top_style;
+    $inner_style->border_right_style = $style->border_right_style;
+    $inner_style->border_bottom_style = $style->border_bottom_style;
+    $inner_style->border_left_style = $style->border_left_style;
+
+    $inner_style->margin_top = $style->margin_top;
+    $inner_style->margin_right = $style->margin_right;
+    $inner_style->margin_bottom = $style->margin_bottom;
+    $inner_style->margin_left = $style->margin_left;
 
     return array( $width, $width, "min" => $width, "max" => $width);
     

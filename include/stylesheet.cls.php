@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.7 2006-01-16 16:23:54 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.8 2006-03-16 05:24:47 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -136,6 +136,27 @@ class Stylesheet {
     $this->_page_style = null;
   }
 
+  /**
+   * Set the base protocol
+   *
+   * @param string $proto
+   */
+  function set_protocol($proto) { $this->_protocol = $proto; }
+
+  /**
+   * Set the base host
+   *
+   * @param string $host
+   */
+  function set_host($host) { $this->_base_host = $host; }
+
+  /**
+   * Set the base path
+   *
+   * @param string $path
+   */
+  function set_base_path($path) { $this->_base_path = $path; }
+
 
   /**
    * add a new Style object to the stylesheet
@@ -150,7 +171,7 @@ class Stylesheet {
     if (!is_string($key))
       throw new DOMPDF_Exception("CSS rule must be keyed by a string.");
 
-    if ( array_key_exists($key, $this->_styles) )
+    if ( isset($this->_styles[$key]) )
       $this->_styles[$key]->merge($style);
     else
       $this->_styles[$key] = clone $style;
@@ -167,7 +188,7 @@ class Stylesheet {
    * @return Style
    */
   function lookup($key) {
-    if ( !array_key_exists($key, $this->_styles) )
+    if ( !isset($this->_styles[$key]) )
       return null;
     
     return $this->_styles[$key];
@@ -200,7 +221,7 @@ class Stylesheet {
     global $_dompdf_warnings;
     
     // Prevent circular references
-    if ( array_key_exists($file, $this->_loaded_files) )
+    if ( isset($this->_loaded_files[$file]) )
       return;
 
     $this->_loaded_files[$file] = true;
@@ -546,7 +567,7 @@ class Stylesheet {
       }
       
       // Grab the applicable styles
-      if ( array_key_exists($id, $styles) ) {
+      if ( isset($styles[$id]) ) {
         
         $applied_styles = $styles[ $frame->get_id() ];
 
@@ -597,7 +618,7 @@ class Stylesheet {
       "( @([^\s]+)\s+([^{;]*) (?:;|({)) )?    # Match @rules followed by ';' or '{'                 \n".
       "(?(1)                                  # Only parse sub-sections if we're in an @rule...     \n".
       "  (?(4)                                # ...and if there was a leading '{'                   \n".
-      "    \s*( (?:(?>[^{;]+) (?:;|({))       # Parse rulesets and individual @page rules           \n".
+      "    \s*( (?:(?>[^{}]+) ({)?            # Parse rulesets and individual @page rules           \n".
       "            (?(6) (?>[^}]*) }) \s*)+?  \n".
       "       )                               \n".
       "   })                                  # Balancing '}'                                \n".
