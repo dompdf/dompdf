@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_decorator.cls.php,v 1.2 2006-03-16 16:07:54 benjcarson Exp $ */
+/* $Id: table_cell_frame_decorator.cls.php,v 1.3 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates table cells for layout
@@ -52,8 +52,8 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
   
   //........................................................................
 
-  function __construct(Frame $frame) {
-    parent::__construct($frame);
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
     $this->_resolved_borders = array();
     $this->_content_height = 0;    
   }
@@ -113,8 +113,6 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
       }
       
       // Move our children
-//       foreach ( $this->get_children() as $child )
-//         $child->set_position(null,  $child->get_position("y") + $delta );
       foreach ( $this->get_lines() as $i => $line ) {
         foreach ( $line["frames"] as $frame )
           $frame->set_position( null, $frame->get_position("y") + $delta );

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.9 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.10 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -280,8 +280,9 @@ class Cellmap {
     $rows = $this->_frames[$key]["rows"];
     $h = 0;
     foreach ($rows as $i) {
-      if ( !isset($this->_rows[$i]) ) 
+      if ( !isset($this->_rows[$i]) )  {
         throw new Exception("foo");
+      }
       $h += $this->_rows[$i]["height"];
     }
     return $h;
@@ -566,20 +567,37 @@ class Cellmap {
   }
 
   /**
-   * Remove a rows from a group from the cellmap
+   * Remove a row group from the cellmap.
    *
-   * @param Frame
-   * @param Frame $row $row and all subsequent rows will be removed from the cellmap
+   * @param Frame $group  The group to remove
    */
-  function remove_rows_from_group(Frame $group, Frame $row) {
+  function remove_row_group(Frame $group) {
+    $key = $group->get_id();
+    if ( !isset($this->_frames[$key]) )
+      return;  // Presumably this row has alredy been removed
+
+    $iter = $group->get_first_child();
+    while ($iter) {
+      $this->remove_row($iter);
+      $iter = $iter->get_next_sibling();
+    }
+      
+    unset($this->_frames[$key]);
+  }
+  
+  /**
+   * Update a row group after rows have been removed
+   *
+   * @param Frame $group    The group to update
+   * @param Frame $last_row The last row in the row group
+   */
+  function update_row_group(Frame $group, Frame $last_row) {
 
     $g_key = $group->get_id();
-    $r_key = $row->get_id();
-    
-    if ( !isset($this->_frames[$key]) )
-      return; // Already done
-    
-    $rows = $this->_frames[$r_key]["rows"];
+    $r_key = $last_row->get_id();
+
+    $r_rows = $this->_frames[$r_key]["rows"];
+    $this->_frames[$g_key]["rows"] = range( $this->_frames[$g_key]["rows"][0], end($r_rows) );
     
   }
   

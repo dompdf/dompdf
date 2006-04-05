@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.11 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.12 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -82,8 +82,8 @@ class Page_Frame_Decorator extends Frame_Decorator {
    *
    * @param Frame $frame the frame to decorate
    */
-  function __construct(Frame $frame) {
-    parent::__construct($frame);
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
     $this->_page_full = false;
     $this->_in_table = 0;
     $this->_bottom_page_margin = null;
@@ -377,9 +377,9 @@ class Page_Frame_Decorator extends Frame_Decorator {
       }
 
       // Check the table's parent element
-      $parent = $p->get_parent();
+      $table_parent = $p->get_parent();
       
-      if ( $parent->get_style()->page_break_inside == "avoid" ) {
+      if ( $table_parent->get_style()->page_break_inside == "avoid" ) {
 //          echo "table->parent: page-break-inside: avoid\n";
         return false;
       }

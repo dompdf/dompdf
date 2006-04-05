@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: dompdf_config.inc.php,v 1.13 2006-01-22 20:16:41 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.14 2006-04-05 20:08:55 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -150,6 +150,8 @@ define("DOMPDF_DEFAULT_FONT", "serif");
  * style attributes (i.e. if the image's native width is 600 pixels and you
  * specify the image's width as 72 points, the image will have a DPI of 600
  * in the rendered PDF.
+ *
+ * @var int
  */
 define("DOMPDF_DPI", "150");
 
@@ -162,6 +164,8 @@ define("DOMPDF_DPI", "150");
  * Enabling this for documents you do not trust (e.g. arbitrary remote html
  * pages) is a security risk.  Set this option to false if you wish to process
  * untrusted documents.
+ *
+ * @var bool
  */
 define("DOMPDF_ENABLE_PHP", true);
 
@@ -171,6 +175,8 @@ define("DOMPDF_ENABLE_PHP", true);
  *
  * If this setting is set to true, DOMPDF will access remote sites for
  * images and CSS files as required.
+ *
+ * @var bool 
  */
 define("DOMPDF_ENABLE_REMOTE", false);
  

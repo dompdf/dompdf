@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.5 2006-03-16 16:07:54 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.6 2006-04-05 20:09:00 benjcarson Exp $ */
 
 
 /**
@@ -129,7 +129,9 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     
     foreach ($cells["rows"] as $i) 
       $cellmap->set_row_height($i, $cell_height);
-      
+
+    $style->height = $height;
+    
     // FIXME: where should this go?
     $this->_text_align();
   }

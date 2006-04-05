@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.4 2006-03-16 16:07:54 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.5 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -56,8 +56,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
   
   //........................................................................
 
-  function __construct(Frame $frame) {
-    parent::__construct($frame);    
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
     $this->_lines = array(array("frames" => array(),
                                 "wc" => 0,
                                 "y" => null,

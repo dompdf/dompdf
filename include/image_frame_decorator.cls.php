@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.8 2006-01-16 16:23:54 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -79,7 +79,7 @@ class Image_Frame_Decorator extends Frame_Decorator {
   function __construct(Frame $frame, DOMPDF $dompdf) {
     global $_dompdf_warnings;
     
-    parent::__construct($frame);
+    parent::__construct($frame, $dompdf);
     $url = $frame->get_node()->getAttribute("src");
 
     // Remove dynamic part of url

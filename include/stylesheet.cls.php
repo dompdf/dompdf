@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.8 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -358,7 +358,35 @@ class Stylesheet {
         $query .= "following-sibling::$tok";
         $tok = "";
         break;
-       
+
+      case ":":
+        // Pseudo-classes
+        switch ($tok) {
+
+        case "first-child":
+          break;
+
+        case "link":
+          $query .= "[@href]";
+          $tok = "";
+          break;
+
+        case "first-line":
+          break;
+
+        case "first-letter":
+          break;
+
+        case "before":
+          break;
+
+        case "after":
+          break;
+        
+        }
+        
+        break;
+        
       case "[":
         // Attribute selectors.  All with an attribute matching the following token(s)
         $attr_delimiters = array("=", "]", "~", "|");
@@ -444,8 +472,7 @@ class Stylesheet {
       }
     }
     $i++;
-  
-        
+      
 //       case ":":
 //         // Pseudo selectors: ignore for now.  Partially handled directly
 //         // below.
@@ -504,15 +531,15 @@ class Stylesheet {
     foreach ($this->_styles as $selector => $style) {
 
       $query = $this->_css_selector_to_xpath($selector);
-//       pre_var_dump($selector);
-//       pre_var_dump($query);
-//       echo ($style);
+       pre_var_dump($selector);
+       pre_var_dump($query);
+//        echo ($style);
       
       // Retrieve the nodes      
       $nodes = $xp->query($query);
 
       foreach ($nodes as $node) {
-        
+        //echo $node->nodeName . "\n";
         // Retrieve the node id
         if ( $node->nodeType != 1 ) // Only DOMElements get styles
           continue;

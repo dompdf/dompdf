@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_row_frame_decorator.cls.php,v 1.2 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: table_row_frame_decorator.cls.php,v 1.3 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table row layout
@@ -49,8 +49,8 @@ class Table_Row_Frame_Decorator extends Frame_Decorator {
 
   // protected members
   
-  function __construct(Frame $frame) {
-    parent::__construct($frame);
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
   }
   
   //........................................................................ 

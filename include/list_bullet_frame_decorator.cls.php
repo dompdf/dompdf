@@ -37,7 +37,7 @@
  * @version 0.4.1
  */
 
-/* $Id: list_bullet_frame_decorator.cls.php,v 1.3 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: list_bullet_frame_decorator.cls.php,v 1.4 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates frames for list bullet rendering
@@ -54,8 +54,8 @@ class List_Bullet_Frame_Decorator extends Frame_Decorator {
   
   //........................................................................
 
-  function __construct(Frame $frame) {
-    parent::__construct($frame);
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
   }
   
   function get_margin_width() {

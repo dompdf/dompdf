@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.18 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.19 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -109,6 +109,20 @@ class PDFLib_Adapter implements Canvas {
    */
   private $_height;
 
+  /**
+   * Last fill colour used
+   *
+   * @var array
+   */
+  private $_last_fill_color;
+
+  /**
+   * Last stroke colour used
+   *
+   * @var array
+   */
+  private $_last_stroke_color;
+  
   /**
    * Cache of image handles
    *
@@ -458,7 +472,12 @@ class PDFLib_Adapter implements Canvas {
    *
    * @param array $color array(r,g,b)
    */
-  protected function _set_stroke_color($color) {
+  protected function _set_stroke_color($color) {    
+    if($this->_last_stroke_color == $color)
+    	return;
+
+    $this->_last_stroke_color = $color;
+    
     list($r,$g,$b) = $color;
     $this->_pdf->setcolor("stroke", "rgb", $r, $g, $b, 0);    
   }
@@ -469,6 +488,11 @@ class PDFLib_Adapter implements Canvas {
    * @param array $color array(r,g,b)
    */
   protected function _set_fill_color($color) {
+    if($this->_last_fill_color == $color)
+    	return;
+    
+    $this->_last_fill_color = $color;
+    
     list($r,$g,$b) = $color;
     $this->_pdf->setcolor("fill", "rgb", $r, $g, $b, 0);    
   }
@@ -655,6 +679,12 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$adjust");
     
   }
+
+  //........................................................................
+
+  function add_named_dest($anchorname) {
+    $this->_pdf->add_nameddest($anchorname);
+  }
   
   //........................................................................
 
@@ -765,7 +795,7 @@ class PDFLib_Adapter implements Canvas {
     header("Content-type: application/pdf");
     header("Content-Disposition: $attach; filename=\"$filename\"");
 
-    header("Content-length: " . $size);
+    //header("Content-length: " . $size);
 
     if ( self::$IN_MEMORY )
       echo $data;

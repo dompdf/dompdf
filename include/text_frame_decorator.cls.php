@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: text_frame_decorator.cls.php,v 1.2 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: text_frame_decorator.cls.php,v 1.3 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates Frame objects for text layout
@@ -50,11 +50,11 @@ class Text_Frame_Decorator extends Frame_Decorator {
   // protected members
   protected $_text_spacing;
   
-  function __construct(Frame $frame) {
+  function __construct(Frame $frame, DOMPDF $dompdf) {
     if ( $frame->get_node()->nodeName != "#text" )
       throw new DOMPDF_Exception("Text_Decorator can only be applied to #text nodes.");
     
-    parent::__construct($frame);
+    parent::__construct($frame, $dompdf);
     $this->_text_spacing = null;
   }
 

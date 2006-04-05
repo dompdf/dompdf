@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_factory.cls.php,v 1.4 2005-06-29 23:32:18 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.5 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic
@@ -52,16 +52,17 @@
  */
 class Frame_Factory {
 
-  static function decorate_root(Frame $root) {
-    $frame = new Page_Frame_Decorator($root);
+  static function decorate_root(Frame $root, DOMPDF $dompdf) {
+    $frame = new Page_Frame_Decorator($root, $dompdf);
     $frame->set_reflower( new Page_Frame_Reflower($frame) );
     $root->set_decorator($frame);
     return $frame;
   }
 
   // FIXME: this is admittedly a little smelly...
-  static function decorate_frame(Frame $frame, $dompdf = null) {
-      
+  static function decorate_frame(Frame $frame, $dompdf) {
+    if ( is_null($dompdf) )
+      throw new Exception("foo");
     switch ($frame->get_style()->display) {
       
     case "block":
@@ -103,7 +104,7 @@ class Frame_Factory {
     case "table-header-group":
     case "table-footer-group":
       $positioner = "Null";
-      $decorator = "Null";
+      $decorator = "Table_Row_Group";
       $reflower = "Table_Row_Group";
       break;
       
@@ -176,11 +177,11 @@ class Frame_Factory {
       $gen->set_reflower( $reflow );
       $reflow = $gen;
     }
-
+    
     $deco->set_reflower( $reflow );
 
-//     // Images are a special case
-//     if ( $frame->get_node()->nodeName == "img" ) {
+    // Images are a special case
+//    if ( $frame->get_node()->nodeName == "img" ) {
 
 //       // FIXME: This is a hack
 //       $node =$frame->get_node()->ownerDocument->createElement("img_sub");

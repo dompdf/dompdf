@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_tree.cls.php,v 1.8 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -186,13 +186,13 @@ class Frame_Tree {
       // Add a container frame for images
       if ( $child->nodeName == "img" ) {
         $img_node = $child->ownerDocument->createElement("img_inner");
-        
+     
         // Move attributes to inner node        
         foreach ( $child->attributes as $attr => $attr_node ) {
           // Skip style, but move all other attributes
           if ( $attr == "style" )
             continue;
-          
+       
           $img_node->setAttribute($attr, $attr_node->value);
         }
 
@@ -204,7 +204,7 @@ class Frame_Tree {
 
         $child->appendChild($img_node);
       }
-      
+   
       $frame->append_child($this->_build_tree_r($child), false);
 
     }

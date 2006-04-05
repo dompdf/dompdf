@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.6 2005-12-07 21:32:30 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.7 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -449,7 +449,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     foreach (array_keys($columns) as $i) {
       $this->_state["min_width"] += $columns[$i]["min-width"];
       $this->_state["max_width"] += $columns[$i]["max-width"];
-
+      
       if ( $columns[$i]["absolute"] > 0 ) {
         $this->_state["absolute"][] = $i;
         $this->_state["absolute_used"] += $columns[$i]["absolute"];

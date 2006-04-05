@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.8 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -102,8 +102,8 @@ class Table_Frame_Decorator extends Frame_Decorator {
    *
    * @param Frame $frame the frame to decorate
    */
-  function __construct(Frame $frame) {
-    parent::__construct($frame);
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
     $this->_cellmap = new Cellmap($this);    
     $this->_min_width = null;
     $this->_max_width = null;
@@ -158,11 +158,13 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
       parent::split($first_header);
       
+    } else if ( in_array($child->get_style()->display, self::$ROW_GROUPS) ) {
+
+      // Individual rows should have already been handled
+      parent::split($child);
+      
     } else {
       
-      if ( in_array($child->get_style()->display, self::$ROW_GROUPS) )
-        $iter = $child->get_first_child();
-      else
         $iter = $child;
 
       while ($iter) {

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.14 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.15 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -377,7 +377,7 @@ class DOMPDF {
 
       // Set up the root frame
       if ( is_null($root) ) {
-        $root = Frame_Factory::decorate_root( $this->_tree->get_root() );
+        $root = Frame_Factory::decorate_root( $this->_tree->get_root(), $this );
         continue;
       }
 

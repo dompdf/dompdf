@@ -46,7 +46,7 @@
  * @version 0.3
  */
 
-/* $Id: html.css,v 1.3 2005-03-02 00:51:25 benjcarson Exp $ */
+/* $Id: html.css,v 1.4 2006-04-05 20:09:00 benjcarson Exp $ */
 
 
 html { 
@@ -228,6 +228,11 @@ q:before {
 
 q:after {
   content: close-quote;
+}
+
+a:link {
+  color: #00c;
+  text-decoration: underline;
 }
 
 b, strong {

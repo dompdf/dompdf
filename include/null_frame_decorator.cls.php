@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: null_frame_decorator.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: null_frame_decorator.cls.php,v 1.2 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Dummy decorator
@@ -47,8 +47,8 @@
  */
 class Null_Frame_Decorator extends Frame_Decorator {
 
-  function __construct(Frame $frame) {
-    parent::__construct($frame);
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
     $style = $this->_frame->get_style();
     $style->width = 0;
     $style->height = 0;

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_decorator.cls.php,v 1.11 2006-03-16 16:07:54 benjcarson Exp $ */
+/* $Id: frame_decorator.cls.php,v 1.12 2006-04-05 20:09:00 benjcarson Exp $ */
 
 /**
  * Base Frame_Decorator class
@@ -76,13 +76,21 @@ abstract class Frame_Decorator extends Frame {
   protected $_reflower;
   
   /**
+   * Reference to the current dompdf instance
+   *
+   * @var DOMPDF
+   */
+  protected $_dompdf;
+
+  /**
    * Class constructor
    *
    * @param Frame $frame the decoration target
    */
-  function __construct(Frame $frame) {
+  function __construct(Frame $frame, DOMPDF $dompdf) {
     $this->_frame = $frame;
     $this->_root = null;
+    $this->_dompdf = $dompdf;
     $frame->set_decorator($this);
   }
 
@@ -110,7 +118,7 @@ abstract class Frame_Decorator extends Frame {
   function copy(DomNode $node) {
     $frame = new Frame($node);
     $frame->set_style(clone $this->_frame->get_original_style());
-    $deco = Frame_Factory::decorate_frame($frame);
+    $deco = Frame_Factory::decorate_frame($frame, $this->_dompdf);
     $deco->set_root($this->_root);
     return $deco;
   }
@@ -123,7 +131,7 @@ abstract class Frame_Decorator extends Frame {
   function deep_copy() {
     $frame = new Frame($this->get_node()->cloneNode());
     $frame->set_style(clone $this->_frame->get_original_style());
-    $deco = Frame_Factory::decorate_frame($frame);
+    $deco = Frame_Factory::decorate_frame($frame, $this->_dompdf);
     $deco->set_root($this->_root);
 
     foreach ($this->get_children() as $child)
@@ -171,7 +179,6 @@ abstract class Frame_Decorator extends Frame {
   function set_position($x = null, $y = null) {
     $this->_frame->set_position($x, $y);
   }
-  
   function __toString() { return $this->_frame->__toString(); }
   
   function prepend_child(Frame $child, $update_node = true) {

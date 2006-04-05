@@ -2,7 +2,7 @@
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
  *
- * File: $RCSfile: inline_frame_decorator.cls.php,v $
+ * File: $RCSfile: table_row_group_frame_decorator.cls.php,v $
  * Created on: 2004-06-02
  *
  * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
@@ -31,53 +31,67 @@
  * http://www.digitaljunkies.ca/dompdf
  *
  * @link http://www.digitaljunkies.ca/dompdf
- * @copyright 2004 Benj Carson
+ * @copyright 2004-6 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
  */
 
-/* $Id: inline_frame_decorator.cls.php,v 1.3 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id */
 
 /**
- * Decorates frames for inline layout
+ * Table row group decorator
+ *
+ * Overrides split() method for tbody, thead & tfoot elements
  *
  * @access private
  * @package dompdf
  */
-class Inline_Frame_Decorator extends Frame_Decorator {
-  
-  function __construct(Frame $frame, DOMPDF $dompdf) { parent::__construct($frame, $dompdf); }
+class Table_Row_Group_Frame_Decorator extends Frame_Decorator {
 
-  function split($frame = null) {
+  /**
+   * Class constructor
+   *
+   * @param Frame $frame   Frame to decorate
+   * @param DOMPDF $dompdf Current dompdf instance
+   */
+  function __construct(Frame $frame, DOMPDF $dompdf) {
+    parent::__construct($frame, $dompdf);
+  }
 
-    if ( is_null($frame) ) {
-      $this->get_parent()->split($this);
+  /**
+   * Override split() to remove all child rows and this element from the cellmap
+   *
+   * @param Frame $child
+   */
+  function split($child = null) {
+
+    if ( is_null($child) ) {
+      parent::split();
+      return;
+    }
+
+
+    // Remove child & all subsequent rows from the cellmap
+    $cellmap = $this->get_parent()->get_cellmap();
+    $iter = $child;
+
+    while ( $iter ) {
+      $cellmap->remove_row($iter);
+      $iter = $iter->get_next_sibling();
+    }
+
+    // If we are splitting at the first child remove the
+    // table-row-group from the cellmap as well
+    if ( $child === $this->get_first_child() ) {
+      $cellmap->remove_row_group($this);
+      parent::split();
       return;
     }
     
-    if ( $frame->get_parent() !== $this )
-      throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
-        
-    $split = $this->copy( $this->_frame->get_node()->cloneNode() ); 
-    $this->get_parent()->insert_child_after($split, $this);
-
-    // Unset the split node's left style properties since we don't want them
-    // to propagate
-    $style = $split->get_style();
-    $style->margin_left = "0";
-    $style->padding_left = "0";
-    $style->border_left_width = "0";
+    $cellmap->update_row_group($this, $child->get_prev_sibling());
+    parent::split($child);
     
-    // Add $frame and all following siblings to the new split node
-    $iter = $frame;
-    while ($iter) {
-      $frame = $iter;      
-      $iter = $iter->get_next_sibling();
-      $frame->reset();
-      $split->append_child($frame);
-    }
   }
-  
-} 
-?>
+}
+ 
+   
