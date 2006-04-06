@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: inline_renderer.cls.php,v 1.2 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: inline_renderer.cls.php,v 1.3 2006-04-06 00:59:27 benjcarson Exp $ */
 
 /**
  * Renders inline frames
@@ -109,6 +109,14 @@ class Inline_Renderer extends Abstract_Renderer {
           $method = "_border_" . $bp["bottom"]["style"];
           $this->$method($x, $y + $h + $widths[0] + $widths[2], $w + $widths[1] + $widths[3], $bp["bottom"]["color"], $widths, "bottom");
         }
+
+        // Handle anchors & links
+        if ( $frame->get_node()->nodeName == "a" ) {
+                    
+          if ( $href = $frame->get_node()->getAttribute("href") )
+            $this->_canvas->add_link($href, $x, $y, $w, $h);
+
+        }
         
         $x = $child_x;
         $y = $child_y;
@@ -155,6 +163,16 @@ class Inline_Renderer extends Abstract_Renderer {
     if ( $bp["right"]["style"] != "none" && $widths[1] > 0 ) {
       $method = "_border_" . $bp["right"]["style"];
       $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
+    }
+
+    // Handle anchors & links
+    if ( $frame->get_node()->nodeName == "a" ) {
+
+      if ( $name = $frame->get_node()->getAttribute("name") )
+        $this->_canvas->add_named_dest($name);
+
+      if ( $href = $frame->get_node()->getAttribute("href") )
+        $this->_canvas->add_link($href, $x, $y, $w, $h);
     }
   }
 }

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.13 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.14 2006-04-06 00:59:27 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -610,6 +610,44 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->selectFont($font);
     $this->_pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, utf8_decode($text), $angle, $adjust);
 
+  }
+
+  //........................................................................
+
+  /**
+   * Add a named destination (similar to <a name="foo">...</a> in html)
+   *
+   * @param string $anchorname The name of the named destination
+   */
+  function add_named_dest($anchorname) {
+    $this->_pdf->addDestination($anchorname,"Fit");
+  }
+
+  //........................................................................
+
+  /**
+   * Add a link to the pdf
+   *
+   * @param string $url The url to link to
+   * @param float  $x   The x position of the link
+   * @param float  $y   The y position of the link
+   * @param float  $width   The width of the link
+   * @param float  $height   The height of the link
+   */
+  function add_link($url, $x, $y, $width, $height) {
+
+    $y = $this->y($y) - $height;
+
+    if ( strpos($url, '#') === 0 ) {
+      // Local link
+      $name = substr($url,1);
+      if ( $name )
+        $this->_pdf->addInternalLink($name, $x, $y, $x + $width, $y + $height);
+
+    } else {
+      $this->_pdf->addLink(rawurldecode($url), $x, $y, $x + $width, $y + $height);
+    }
+    
   }
 
   //........................................................................

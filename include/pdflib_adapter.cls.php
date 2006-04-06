@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.19 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.20 2006-04-06 00:59:27 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -682,8 +682,37 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
+  /**
+   * Add a named destination (similar to <a name="foo">...</a> in html)
+   *
+   * @param string $anchorname The name of the named destination
+   */
   function add_named_dest($anchorname) {
-    $this->_pdf->add_nameddest($anchorname);
+    $this->_pdf->add_nameddest($anchorname,"");
+  }
+  
+  //........................................................................
+
+  /**
+   * Add a link to the pdf
+   *
+   * @param string $url The url to link to
+   * @param float  $x   The x position of the link
+   * @param float  $y   The y position of the link
+   * @param float  $width   The width of the link
+   * @param float  $height   The height of the link
+   */
+  function add_link($url, $x, $y, $width, $height) {
+    $y = $this->y($y) - $height;
+    if ( strpos($url, '#') === 0 ) {
+      // Local link
+      $name = substr($url,1);
+      if ( $name )
+        $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} destname=". substr($url,1) . " linewidth=0");
+    } else {
+      $action = $this->_pdf->create_action("URI", "url=" . rawurldecode($url));
+      $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} action={activate=$action} linewidth=0");
+    }
   }
   
   //........................................................................
@@ -782,7 +811,7 @@ class PDFLib_Adapter implements Canvas {
 
     if ( self::$IN_MEMORY ) {
       $data = $this->_pdf->get_buffer();
-      $size = mb_strlen($data);
+      $size = strlen($data);
 
     } else
       $size = filesize($this->_file);

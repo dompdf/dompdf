@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.10 2006-04-06 00:59:27 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -531,8 +531,8 @@ class Stylesheet {
     foreach ($this->_styles as $selector => $style) {
 
       $query = $this->_css_selector_to_xpath($selector);
-       pre_var_dump($selector);
-       pre_var_dump($query);
+//        pre_var_dump($selector);
+//        pre_var_dump($query);
 //        echo ($style);
       
       // Retrieve the nodes      

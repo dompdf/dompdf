@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: canvas.cls.php,v 1.5 2005-12-30 21:23:14 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.6 2006-04-06 00:59:27 benjcarson Exp $ */
 
 /**
  * Main rendering interface
@@ -195,6 +195,24 @@ interface Canvas {
    */
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0);
 
+  /**
+   * Add a named destination (similar to <a name="foo">...</a> in html)
+   *
+   * @param string $anchorname The name of the named destination
+   */
+  function add_named_dest($anchorname);
+
+  /**
+   * Add a link to the pdf
+   *
+   * @param string $url The url to link to
+   * @param float  $x   The x position of the link
+   * @param float  $y   The y position of the link
+   * @param float  $width   The width of the link
+   * @param float  $height   The height of the link
+   */
+  function add_link($url, $x, $y, $width, $height);
+  
   /**
    * Calculates text size, in points
    *
