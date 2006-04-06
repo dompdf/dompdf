@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.10 2006-04-06 00:59:27 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.11 2006-04-06 21:29:41 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -234,9 +234,12 @@ class Stylesheet {
       return; 
     }
     
+    // Fix submitted by Nick Oostveen for aliased directory support:
     if ( $this->_protocol == "" )
       $file = $this->_base_path . $filename;
-
+    else
+      $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
+    
     set_error_handler("record_warnings");
     $css = file_get_contents($file);
     restore_error_handler();

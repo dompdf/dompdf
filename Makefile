@@ -22,7 +22,8 @@ all: dist
 dist: dompdf-$(VERSION).tar.gz
 doc: dompdf-doc-$(VERSION).tar.gz
 web: dompdf-web-$(VERSION).tar.gz
-changelog: cvs2cl -T -P --no-wrap
+changelog:
+	cvs2cl -T -P --no-wrap
 
 clean: 
 	@rm -f dompdf-$(VERSION).* dompdf-doc-$(VERSION).* dompdf-web-$(VERSION).*

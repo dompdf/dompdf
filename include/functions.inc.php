@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: functions.inc.php,v 1.6 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.7 2006-04-06 21:29:40 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -189,8 +189,27 @@ function explode_url($url) {
     $path = realpath(dirname($url)) . "/";
     $file = basename($url);
   }
+  
+  // Fix submitted by Nick Oostveen for aliased directory support:
+  $path = realpath(dirname($url));
+	
+  // Check that the path exists
+  if ( $path !== false ) {
+    $path .= '/';	
+  } else {
+    // generate a url to access the file if no real path found.
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+    $host = $_SERVER["HTTP_HOST"];
 
+    if ( substr($arr["path"], 0, 1) == '/' ) {
+      $path = dirname($arr["path"]);
+    }
+    else {
+      $path = '/' . rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/') . '/' . $arr["path"];
+    }
+  }
     
+  $file = basename($url);
     
   $ret = array($protocol, $host, $path, $file,
                "protocol" => $protocol,

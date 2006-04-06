@@ -13,12 +13,17 @@ a:hover {
   text-decoration: underline; 
 }
 
-a img { border: none; }
+img { border: none; }
 
 pre,
 code { 
   font-size: 0.8em;
   font-family: "lucida console", monospace;
+}
+
+pre {
+  background-color: #f8f8f8; 
+  padding: 10px;
 }
 
 select { font-size: 0.8em; font-weight: bold; }
@@ -45,6 +50,7 @@ select { font-size: 0.8em; font-weight: bold; }
   position: absolute;
   top: 0px;
   right: 0px;
+  border: none;
 }
 
 .badges { float: right; }
@@ -88,6 +94,8 @@ select { font-size: 0.8em; font-weight: bold; }
 #left_col ul li { list-style-position: inside; }
 
 #left_col p { font-size: 0.8em; }
+
+#left_col iframe { margin-left: 40px; margin-top: 10px; }
 
 #content {
   margin: 0em 0px 0px 210px;
@@ -233,3 +241,29 @@ p.news_body {
   font-size: 30px;
   font-weight: bold;
 }
+
+/* Method definitions from phpdoc */
+.method-definition {
+  background-image: url('images/h_bar.gif');
+  background-position: bottom center;
+  background-repeat: repeat-x;
+  padding: 10px 10px 20px 10px;  
+  margin-bottom: 1em;
+}
+
+.method-title {
+  color: #5F83BA;
+}
+
+.var-name,
+.method-name,
+.method-title {
+  font-weight: bold;
+}
+
+.var-type,
+.method-result {
+  color: #4A9166;
+  font-style: italic;  
+}
+
