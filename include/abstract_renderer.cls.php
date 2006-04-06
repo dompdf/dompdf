@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: abstract_renderer.cls.php,v 1.2 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: abstract_renderer.cls.php,v 1.3 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Base renderer class
@@ -47,17 +47,264 @@
  */
 abstract class Abstract_Renderer {
 
-  // protected properties
-  protected $_canvas;  // Rendering target
+  /**
+   * Rendering backend
+   *
+   * @var Canvas
+   */
+  protected $_canvas;
 
-  function __construct(Canvas $canvas) { $this->_canvas = $canvas; }
+  /**
+   * Current dompdf instance
+   *
+   * @var DOMPDF
+   */
+  protected $_dompdf;
   
-  //........................................................................
-
+  /**
+   * Class constructor
+   *
+   * @param DOMPDF $dompdf The current dompdf instance
+   */
+  function __construct(DOMPDF $dompdf) {
+    $this->_dompdf = $dompdf;
+    $this->_canvas = $dompdf->get_canvas();
+  }
+  
+  /**
+   * Render a frame.
+   *
+   * Specialized in child classes
+   *
+   * @param Frame $frame The frame to render
+   */
   abstract function render(Frame $frame);
 
   //........................................................................
 
+  /**
+   * Render a background image over a rectangular area
+   *
+   * @param string $img      The background image to load
+   * @param float  $x        The left edge of the rectangular area
+   * @param float  $y        The top edge of the rectangular area
+   * @param float  $width    The width of the rectangular area
+   * @param float  $height   The height of the rectangular area
+   * @param string $repeat   {repeat|repeat-x|repeat-y|no-repeat}
+   * @param array  $position The background-position value (either in % or in px) (array(x,y))
+   * @param array  $bg_color The background-color value
+   */
+  protected function _background_image($url, $x, $y, $width, $height, $repeat, $position, $bg_color) {
+    list($img, $ext) = Image_Cache::resolve_url($url,
+                                                $this->_dompdf->get_protocol(),
+                                                $this->_dompdf->get_host(),
+                                                $this->_dompdf->get_base_path());
+
+    // Bail if the image is no good
+    if ( $img == DOMPDF_LIB_DIR . "/res/broken_image.png" )
+      return;
+    
+    $ext = strtolower($ext);
+    
+    list($img_w, $img_h) = getimagesize($img);
+
+    $bg_width = round($width * DOMPDF_DPI / 72);
+    $bg_height = round($height * DOMPDF_DPI / 72);
+    
+    // Create a new image to fit over the background rectangle
+    $bg = imagecreatetruecolor($bg_width, $bg_height);
+    if ( $bg_color == "transparent" )
+      $bg_color = array(1,1,1);
+    list($r,$g,$b) = $bg_color;
+    $r *= 255; $g *= 255; $b *= 255;
+
+    // Clip values
+    $r = $r > 255 ? 255 : $r;
+    $g = $g > 255 ? 255 : $g;
+    $b = $b > 255 ? 255 : $b;
+      
+    $r = $r < 0 ? 0 : $r;
+    $g = $g < 0 ? 0 : $g;
+    $b = $b < 0 ? 0 : $b;
+
+    $clear = imagecolorallocate($bg,round($r),round($g),round($b));
+    imagecolortransparent($bg, $clear);
+    imagefill($bg,1,1,$clear);
+    
+    switch ($ext) {
+
+    case "png":
+      $src = imagecreatefrompng($img);
+      break;
+      
+    case "jpg":
+    case "jpeg":
+      $src = imagecreatefromjpeg($img);
+      break;
+      
+    case "gif":
+      $src = imagecreatefromgif($img);
+      break;
+
+    default:
+      return; // Unsupported image type
+    }
+
+    list($bg_x,$bg_y) = $position;
+
+
+    if ( is_percent($bg_x) ) {
+      // The point $bg_x % from the left edge of the image is placed
+      // $bg_x % from the left edge of the background rectangle
+      $p = ((float)$bg_x)/100.0;
+      $x1 = $p * $img_w;
+      $x2 = $p * $bg_width;
+
+      $bg_x = $x2 - $x1;
+    }
+      
+    if ( is_percent($bg_y) ) {
+      // The point $bg_y % from the left edge of the image is placed
+      // $bg_y % from the left edge of the background rectangle
+      $p = ((float)$bg_y)/100.0;
+      $y1 = $p * $img_h;
+      $y2 = $p * $bg_height;
+
+      $bg_y = $y2 - $y1;
+    }
+
+    // Copy regions from the source image to the background
+    if ( $repeat == "no-repeat" ||
+         ($repeat == "repeat-x" && $img_w >= $bg_width) ||
+         ($repeat == "repeat-y" && $img_h >= $bg_height) ||
+         ($repeat == "repeat" && $img_w >= $bg_width && $img_h >= $bg_height) ) {
+      
+      // Simply place the image on the background
+      $src_x = 0;
+      $src_y = 0;
+      $dst_x = $bg_x;
+      $dst_y = $bg_y;
+      
+      if ( $bg_x < 0 ) {
+        $dst_x = 0;
+        $src_x = -$bg_x;
+      }
+
+      if ( $bg_y < 0 ) {
+        $dst_y = 0;
+        $src_y = -$bg_y;
+      }
+
+      $bg_x = round($bg_x * DOMPDF_DPI / 72);
+      $bg_y = round($bg_y * DOMPDF_DPI / 72);
+
+      imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);      
+
+    } else if ( $repeat == "repeat-x" ) {
+      $src_x = 0;
+      $src_y = 0;
+
+      $dst_y = $bg_y;
+
+      if ( $bg_y < 0 ) {
+        $dst_y = 0;
+        $src_y = -$bg_y;
+      }
+
+      if ( $bg_x < 0 ) 
+        $start_x = $bg_x;
+      else
+        $start_x = $bg_x % $img_w - $img_w;
+
+      for ( $bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w ) {
+        if ( $bg_x < 0 ) {
+          $dst_x = 0;
+          $src_x = -$bg_x;
+          $w = $img_w + $bg_x;
+        } else {          
+          $dst_x = $bg_x;
+          $src_x = 0;
+          $w = $img_w;
+        }
+        imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);      
+      }
+      
+    } else if ( $repeat == "repeat-y" ) {
+      $src_x = 0;
+      $src_y = 0;
+
+      $dst_x = $bg_x;
+
+      if ( $bg_x < 0 ) {
+        $dst_x = 0;
+        $src_x = -$bg_x;
+      }
+
+      if ( $bg_y < 0 ) 
+        $start_y = $bg_y;
+      else
+        $start_y = $bg_y % $img_h - $img_h;
+
+      for ( $bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h ) {
+        if ( $bg_y < 0 ) {
+          $dst_y = 0;
+          $src_y = -$bg_y;
+          $h = $img_h + $bg_y;
+        } else {          
+          $dst_y = $bg_y;
+          $src_y = 0;
+          $h = $img_h;
+        }
+        imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $h);
+      }
+      
+    } else {
+
+      if ( $bg_x < 0 ) 
+        $start_x = $bg_x;
+      else
+        $start_x = $bg_x % $img_w - $img_w;
+
+      if ( $bg_y < 0 ) 
+        $start_y = $bg_y;
+      else
+        $start_y = $bg_y % $img_h - $img_h;
+      
+      for ( $bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h ) {
+        for ( $bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w ) {
+
+          if ( $bg_x < 0 ) {
+            $dst_x = 0;
+            $src_x = -$bg_x;
+            $w = $img_w + $bg_x;
+          } else {          
+            $dst_x = $bg_x;
+            $src_x = 0;
+            $w = $img_w;
+          }
+          
+          if ( $bg_y < 0 ) {
+            $dst_y = 0;
+            $src_y = -$bg_y;
+            $h = $img_h + $bg_y;
+          } else {          
+            $dst_y = $bg_y;
+            $src_y = 0;
+            $h = $img_h;
+          }
+          imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $h);
+        }
+      }
+    }
+
+
+    
+    $tmp_file = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+    imagepng($bg, $tmp_file);
+    $this->_canvas->image($tmp_file, "png", $x, $y, $width, $height);
+    unlink($tmp_file);
+  }
+  
   protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     return;
   }

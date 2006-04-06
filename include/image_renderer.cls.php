@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_renderer.cls.php,v 1.3 2006-03-16 16:07:54 benjcarson Exp $ */
+/* $Id: image_renderer.cls.php,v 1.4 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Image renderer
@@ -46,10 +46,6 @@
  * @package dompdf
  */
 class Image_Renderer extends Abstract_Renderer {
-
-  function __construct(Canvas $canvas) {
-    parent::__construct($canvas);
-  }
 
   function render(Frame $frame) {
 

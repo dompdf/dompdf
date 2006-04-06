@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.11 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.12 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -128,6 +128,13 @@ class Style {
    */
   protected $_props;
 
+  /**
+   * Cached property values
+   *
+   * @var array
+   */
+  protected $_prop_cache;
+  
   /**
    * Font size of parent element in document tree.  Used for relative font
    * size resolution.
@@ -676,6 +683,7 @@ class Style {
     global $_dompdf_warnings;
 
     $prop = str_replace("-", "_", $prop);
+    $this->_prop_cache[$prop] = null;
     
     if ( !isset(self::$_defaults[$prop]) ) {
       $_dompdf_warnings[] = "'$prop' is not a valid CSS2 property.";
@@ -688,7 +696,7 @@ class Style {
     }
     
     $method = "set_$prop";
-    
+
     if ( method_exists($this, $method) )
       $this->$method($val);
     else 
@@ -711,16 +719,20 @@ class Style {
     if ( !isset(self::$_defaults[$prop]) ) 
       throw new DOMPDF_Exception("'$prop' is not a valid CSS2 property.");
 
+    if ( isset($this->_prop_cache[$prop]) )
+      return $this->_prop_cache[$prop];
+    
     $method = "get_$prop";
 
     // Fall back on defaults if property is not set
     if ( !isset($this->_props[$prop]) )
       $this->_props[$prop] = self::$_defaults[$prop];
 
-    if ( method_exists($this, $method) ) 
-      return $this->$method();
+    if ( method_exists($this, $method) )
+      return $this->_prop_cache[$prop] = $this->$method();
 
-    return $this->_props[$prop];
+
+    return $this->_prop_cache[$prop] = $this->_props[$prop];
   }
 
 
@@ -902,7 +914,7 @@ class Style {
   function get_background_color() {
     return $this->munge_color( $this->_props["background_color"] );
   }
-
+  
   /**
    * Returns the background position as an array
    *
@@ -964,7 +976,10 @@ class Style {
         break;
         
       case "center":
-        $y = "50%";
+        if ( $tmp[0] == "left" || $tmp[0] == "right" || $tmp[0] == "center" )
+          $y = "50%";
+        else
+          $x = "50%";
         break;
         
       default:
@@ -1147,6 +1162,23 @@ class Style {
       $col = self::$_defaults["background_color"];
     
     $this->_props["background_color"] = is_array($col) ? $col["hex"] : $col;
+  }
+
+  /**
+   * Set the background image url
+   *
+   * @link http://www.w3.org/TR/CSS21/colors.html#background-properties
+   * @param string $url
+   */
+  function set_background_image($val) {
+
+    if ( mb_strpos($val, "url") !== false ) {
+      $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/","\\1", trim($val));
+    } else {
+      $val = "none";
+    }
+
+    $this->_props["background_image"] = $val;
   }
 
   /**

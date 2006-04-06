@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_decorator.cls.php,v 1.3 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: table_cell_frame_decorator.cls.php,v 1.4 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Decorates table cells for layout
@@ -87,7 +87,7 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
 
     $new_height = $height - $v_space;    
     $style->height = $new_height;
-    
+
     if ( $new_height > $this->_content_height ) {
       // Adjust our vertical alignment
       $valign = $style->vertical_align;
@@ -97,7 +97,7 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
       default:
       case "baseline":
         // FIXME: this isn't right
-
+        
       case "top":
         // Don't need to do anything
         return;
@@ -111,13 +111,13 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
         break;
 
       }
-      
+   
       // Move our children
       foreach ( $this->get_lines() as $i => $line ) {
         foreach ( $line["frames"] as $frame )
           $frame->set_position( null, $frame->get_position("y") + $delta );
       }
-    }
+   }
         
   }
 

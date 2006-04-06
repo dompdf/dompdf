@@ -5,7 +5,7 @@
 # Creates documentation & distribution packages
 #
 ###################################################################
-VERSION=0.4.4
+VERSION=0.5
 DIST_FILES = dompdf.php dompdf_config.inc.php INSTALL ChangeLog LICENSE.LGPL \
 			 load_font.php README HACKING TODO \
 			 include/*.php lib/class.pdf.php lib/res/*.css  \
@@ -22,6 +22,7 @@ all: dist
 dist: dompdf-$(VERSION).tar.gz
 doc: dompdf-doc-$(VERSION).tar.gz
 web: dompdf-web-$(VERSION).tar.gz
+changelog: cvs2cl -T -P --no-wrap
 
 clean: 
 	@rm -f dompdf-$(VERSION).* dompdf-doc-$(VERSION).* dompdf-web-$(VERSION).*

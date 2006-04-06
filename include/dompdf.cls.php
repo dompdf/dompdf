@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.cls.php,v 1.15 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.16 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -226,6 +226,13 @@ class DOMPDF {
    */
   function get_base_path() { return $this->_base_path; }
   
+  /**
+   * Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)
+   *
+   * @return Canvas
+   */
+  function get_canvas() { return $this->_pdf; }
+  
   //........................................................................ 
 
   /**
@@ -404,13 +411,13 @@ class DOMPDF {
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
 
     $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
-    $root->set_renderer(new Renderer($this->_pdf));
+    $root->set_renderer(new Renderer($this));
     
     // This is where the magic happens:
     $root->reflow();
     
     // Clean up cached images
-    Image_Frame_Decorator::clear_image_cache();
+    Image_Cache::clear();
   }
     
   //........................................................................ 

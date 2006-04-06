@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.6 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.7 2006-04-06 19:30:46 benjcarson Exp $ */
 
 
 /**
@@ -134,6 +134,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     
     // FIXME: where should this go?
     $this->_text_align();
+
   }
   
 }

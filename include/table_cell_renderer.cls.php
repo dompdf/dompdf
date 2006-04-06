@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_renderer.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_cell_renderer.cls.php,v 1.2 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Renders table cells
@@ -46,10 +46,6 @@
  * @package dompdf
  */
 class Table_Cell_Renderer extends Block_Renderer {
-
-  function __construct(Canvas $canvas) {
-    parent::__construct($canvas);
-  }
   
   //........................................................................
 
@@ -62,13 +58,16 @@ class Table_Cell_Renderer extends Block_Renderer {
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color );
     }
 
-    if ( ($img = $style->background_image) !== "none" ) {
-      list($x, $y, $w, $h) = $frame->get_padding_box();
-      list($bx, $by) = $style->background_position;
-      $bx = $style->length_in_pt($bx, $w);
-      $by = $style->length_in_pt($by, $h);      
-      $this->_canvas->image($img, $x + $bx, $y + $by);
+    if ( ($url = $style->background_image) && $url !== "none" ) {
+      list($bg_x, $bg_y) = $style->background_position;
+      $repeat = $style->background_repeat;
 
+      if ( !is_percent($bg_x) )
+        $bg_x = $style->length_in_pt($bg_x);
+      if ( !is_percent($bg_y) )
+        $bg_y = $style->length_in_pt($bg_y);
+          
+      $this->_background_image($url, $x, $y, $w, $h, $repeat, array($bg_x,$bg_y), $style->background_color);
     }
 
     if ( $style->border_collapse != "collapse" ) {

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.10 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering
@@ -82,73 +82,10 @@ class Image_Frame_Decorator extends Frame_Decorator {
     parent::__construct($frame, $dompdf);
     $url = $frame->get_node()->getAttribute("src");
 
-    // Remove dynamic part of url
-    $tmp = preg_replace('/\?.*/','',$url);
-    
-    // We need to preserve the file extenstion
-    $i = mb_strrpos($tmp, ".");
-    if ( $i === false )
-      throw new DOMPDF_Exception("Unknown image type: $url.");
-
-    $ext = mb_strtolower(mb_substr($tmp, $i+1));
-    
-    $proto = $dompdf->get_protocol();
-    $remote = ($proto != "" && $proto != "file://");
-    
-    if ( !DOMPDF_ENABLE_REMOTE && $remote ) {
-      $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
-
-
-    } else if ( DOMPDF_ENABLE_REMOTE && $remote ) {
-      // Download remote files to a temporary directory
-      $url = build_url($dompdf->get_protocol(),
-                       $dompdf->get_host(),
-                       $dompdf->get_base_path(),
-                       $url);
-
-      if ( isset(self::$_cache[$url]) ) {
-        $this->_image_url = self::$_cache[$url];
-        //echo "Using cached image $url (" . $this->_image_url . ")\n";
-        
-      } else {
-
-        //echo "Downloading file $url to temporary location: ";
-        $this->_image_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-        //echo $this->_image_url . "\n";
-        
-        $old_err = set_error_handler("record_warnings");
-        $image = file_get_contents($url);
-        restore_error_handler();
-        
-        if ( strlen($image) == 0 )
-          $image = file_get_contents(DOMPDF_LIB_DIR . "/res/broken_image.png");
-          
-        file_put_contents($this->_image_url, $image);
-        
-        self::$_cache[$url] = $this->_image_url;
-        
-        
-      }
-      
-    } else {
-
-      $this->_image_url = build_url($dompdf->get_protocol(),
-                                    $dompdf->get_host(),
-                                    $dompdf->get_base_path(),
-                                    $url);
-              
-    }
-
-    if ( !is_readable($this->_image_url) || !filesize($this->_image_url) ) {
-      $_dompdf_warnings[] = "File " .$this->_image_url . " is not readable.\n";
-      $this->_image_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
-    }
-
-    // Assume for now that all dynamic images are pngs
-    if ( $ext == "php" )
-      $ext = "png";
-    
-    $this->_image_ext = $ext;
+    list($this->_image_url, $this->_image_ext) = Image_Cache::resolve_url($url,
+                                                                          $dompdf->get_protocol(),
+                                                                          $dompdf->get_host(),
+                                                                          $dompdf->get_base_path());
     
   }
 

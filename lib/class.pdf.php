@@ -1584,11 +1584,10 @@ class  Cpdf {
 
         $this->objects[$id]['info']['BitsPerComponent'] = 8;
       } else  if  ($options['type'] == 'png') {
-
+        
         $this->objects[$id]['info']['Filter'] = '/FlateDecode';
 
         $this->objects[$id]['info']['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
-
         if  (strlen($options['pdata'])) {
 
           $tmp =  ' [ /Indexed /DeviceRGB '.(strlen($options['pdata']) /3-1) .' ';
@@ -1616,10 +1615,44 @@ class  Cpdf {
               $this->objects[$id]['info']['Mask'] =  $tmp;
 
               break;
+
+            case 'color-key':
+              $tmp = ' [ '.
+                $options['transparency']['r'] . ' ' . $options['transparency']['r'] .
+                $options['transparency']['g'] . ' ' . $options['transparency']['g'] .
+                $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
+                ' ] ';
+              $this->objects[$id]['info']['Mask'] = $tmp;
+              pre_r($tmp);
+              break;
+                
             }
           }
         } else {
 
+          if  (isset($options['transparency'])) {
+
+            switch ($options['transparency']['type']) {
+
+            case  'indexed':
+
+              $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
+
+              $this->objects[$id]['info']['Mask'] =  $tmp;
+
+              break;
+
+            case 'color-key':
+              $tmp = ' [ '.
+                $options['transparency']['r'] . ' ' . $options['transparency']['r'] . ' ' .
+                $options['transparency']['g'] . ' ' . $options['transparency']['g'] . ' ' .
+                $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
+                ' ] ';
+              $this->objects[$id]['info']['Mask'] = $tmp;
+              break;
+                
+            }
+          }
           $this->objects[$id]['info']['ColorSpace'] = '/'.$options['color'];
         }
 
@@ -4405,7 +4438,7 @@ class  Cpdf {
         case  'tRNS':
 
           //this chunk can only occur once and it must occur after the PLTE chunk and before IDAT chunk
-          //print "tRNS found, color type = ".$info['colorType']."<BR>";
+          //print "tRNS found, color type = ".$info['colorType']."\n";
           $transparency =  array();
 
           if  ($info['colorType'] ==  3) {
@@ -4455,7 +4488,8 @@ class  Cpdf {
             $transparency['b'] =  $this->PRVT_getBytes($data, $p+12, 2);
             // b from truecolor
 
-
+            $transparency['type'] = 'color-key';
+            
           } else {
 
             //unsupported transparency type

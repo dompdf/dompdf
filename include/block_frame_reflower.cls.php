@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.12 2006-03-16 16:07:54 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.13 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -281,7 +281,59 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
 
   }
+  /**
+   * Align inline children vertically
+   */
+  function vertical_align() {
+    // Align each child vertically after each line is reflowed
+    foreach ( $this->_frame->get_lines() as $i => $line ) {
+                 
+      foreach ( $line["frames"] as $frame ) {
+        $style = $frame->get_style();
 
+        if ( $style->display != "inline" && $style->display != "text" )
+          continue;
+
+        $align = $style->vertical_align;
+
+        $frame_h = $style->length_in_pt($style->height);
+        
+        switch ($align) {
+
+        case "baseline":
+          $y = $line["y"] + $line["h"] - $frame_h;
+          break;
+          
+        case "middle":
+          $y = $line["y"] + ($line["h"] + $frame_h) / 2;
+          break;
+          
+        case "sub":
+          $y = $line["y"] + 0.9 * $line["h"];
+          break;
+          
+        case "super":
+          $y = $line["y"] + 0.1 * $line["h"];
+          break;
+          
+        case  "text-top":
+        case "top": // Not strictly accurate, but good enough for now
+          $y = $line["y"];
+          break;
+          
+        case "text-bottom":
+        case "bottom":
+          $y = $line["y"] + $line["h"] - $frame_h;
+          break;
+        }
+
+        $x = $frame->get_position("x");
+        $frame->set_position($x, $y);
+        
+      }
+    }
+  }
+  
   //........................................................................
 
   function reflow() {
@@ -360,6 +412,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     
     $this->_text_align();
 
+    $this->vertical_align();
   }
 
   //........................................................................

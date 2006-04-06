@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: inline_renderer.cls.php,v 1.3 2006-04-06 00:59:27 benjcarson Exp $ */
+/* $Id: inline_renderer.cls.php,v 1.4 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Renders inline frames
@@ -46,10 +46,6 @@
  * @package dompdf
  */
 class Inline_Renderer extends Abstract_Renderer {
-
-  function __construct(Canvas $canvas) {
-    parent::__construct($canvas);
-  }
   
   //........................................................................
 
@@ -73,6 +69,13 @@ class Inline_Renderer extends Abstract_Renderer {
     $h = 0;
 //     $x += $widths[3];
 //     $y += $widths[0];
+
+    list($bg_x, $bg_y) = $style->background_position;
+    $bg_repeat = $style->background_repeat;
+    if ( !is_percent($bg_x) )
+      $bg_x = $style->length_in_pt($bg_x);
+    if ( !is_percent($bg_y) )
+      $bg_y = $style->length_in_pt($bg_y);
     
     $first_row = true;
 
@@ -86,9 +89,13 @@ class Inline_Renderer extends Abstract_Renderer {
         // borders on this line.
 
         // Background:
-        if ( ($bg = $style->background_color) !== "transparent" ) 
+        if ( ($bg = $style->background_color) !== "transparent" )
           $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color);
 
+        if ( ($url = $style->background_image) && $url !== "none" ) {
+          $this->_background_image($url, $x, $y, $w, $h, $bg_repeat, array($bg_x,$bg_y), $style->background_color);
+        }
+        
         // If this is the first row, draw the left border
         if ( $first_row ) {
 
@@ -117,7 +124,7 @@ class Inline_Renderer extends Abstract_Renderer {
             $this->_canvas->add_link($href, $x, $y, $w, $h);
 
         }
-        
+
         $x = $child_x;
         $y = $child_y;
         $w = $child_w;
@@ -138,6 +145,10 @@ class Inline_Renderer extends Abstract_Renderer {
     if ( ($bg = $style->background_color) !== "transparent" ) 
       $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $style->background_color);
 
+    if ( ($url = $style->background_image) && $url !== "none" )           
+      $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $bg_repeat, array($bg_x,$bg_y), $style->background_color);
+
+        
     // Add the border widths
     $w += $widths[1] + $widths[3];
     $h += $widths[0] + $widths[2];

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: list_bullet_renderer.cls.php,v 1.3 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: list_bullet_renderer.cls.php,v 1.4 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Renders list bullets
@@ -46,10 +46,6 @@
  * @package dompdf
  */
 class List_Bullet_Renderer extends Abstract_Renderer {
-  
-  function __construct(Canvas $canvas) {
-    parent::__construct($canvas);
-  }
   
   //........................................................................
 

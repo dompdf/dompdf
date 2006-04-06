@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: renderer.cls.php,v 1.5 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.6 2006-04-06 19:30:46 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -51,24 +51,12 @@
 class Renderer extends Abstract_Renderer {
 
   /**
-   * The Canvas object representing the pdf
-   *
-   * @var Canvas
-   */
-  protected $_canvas;
-
-  /**
    * Array of renderers for specific frame types
    *
    * @var array
    */
   protected $_renderers;
-
-  
-  function __construct(Canvas $canvas) {
-    $this->_canvas = $canvas;    
-  }
-  
+    
   /**
    * Advance the canvas to the next page
    */  
@@ -159,27 +147,27 @@ class Renderer extends Abstract_Renderer {
       
       switch ($type) {
       case "block":
-        $this->_renderers["block"] = new Block_Renderer($this->_canvas);
+        $this->_renderers["block"] = new Block_Renderer($this->_dompdf);
         break;
 
       case "inline":
-        $this->_renderers["inline"] = new Inline_Renderer($this->_canvas);
+        $this->_renderers["inline"] = new Inline_Renderer($this->_dompdf);
         break;
 
       case "text":
-        $this->_renderers["text"] = new Text_Renderer($this->_canvas);
+        $this->_renderers["text"] = new Text_Renderer($this->_dompdf);
         break;
 
       case "image":
-        $this->_renderers["image"] = new Image_Renderer($this->_canvas);
+        $this->_renderers["image"] = new Image_Renderer($this->_dompdf);
         break;
       
       case "table-cell":
-        $this->_renderers["table-cell"] = new Table_Cell_Renderer($this->_canvas);
+        $this->_renderers["table-cell"] = new Table_Cell_Renderer($this->_dompdf);
         break;
 
       case "list-bullet":
-        $this->_renderers["list-bullet"] = new List_Bullet_Renderer($this->_canvas);
+        $this->_renderers["list-bullet"] = new List_Bullet_Renderer($this->_dompdf);
         break;
 
       case "php":

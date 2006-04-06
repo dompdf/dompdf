@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: dompdf_config.inc.php,v 1.14 2006-04-05 20:08:55 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.15 2006-04-06 19:30:37 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -145,11 +145,13 @@ define("DOMPDF_DEFAULT_FONT", "serif");
 /**
  * Image DPI setting
  *
- * This setting determines the default DPI setting for jpeg & png images.
- * The DPI may be overridden by explictly setting the image's width & height
- * style attributes (i.e. if the image's native width is 600 pixels and you
- * specify the image's width as 72 points, the image will have a DPI of 600
- * in the rendered PDF.
+ * This setting determines the default DPI setting for images.  The
+ * DPI may be overridden for inline images by explictly setting the
+ * image's width & height style attributes (i.e. if the image's native
+ * width is 600 pixels and you specify the image's width as 72 points,
+ * the image will have a DPI of 600 in the rendered PDF.  The DPI of
+ * background images can not be overridden and is controlled entirely
+ * via this parameter.
  *
  * @var int
  */

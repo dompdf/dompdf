@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: text_renderer.cls.php,v 1.2 2005-03-02 21:26:53 benjcarson Exp $ */
+/* $Id: text_renderer.cls.php,v 1.3 2006-04-06 19:30:46 benjcarson Exp $ */
 /**
  * Renders text frames
  *
@@ -50,11 +50,7 @@ class Text_Renderer extends Abstract_Renderer {
   const OVERLINE_OFFSET = 0.25;    // Relative to top of text,         "
   const LINETHROUGH_OFFSET = 0.0;  // Relative to centre of text,      "
   const DECO_EXTENSION = 0.75;        // How far to extend lines past either end, in pt
-  
-  function __construct(Canvas $canvas) {
-    parent::__construct($canvas);
-  }
-  
+    
   //........................................................................
 
   function render(Frame $frame) {
