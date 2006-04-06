@@ -1,0 +1,655 @@
+2006-04-06 15:29  tag dompdf-0-5
+
+2006-04-06 15:29  benjcarson
+
+* Makefile, include/functions.inc.php, include/stylesheet.cls.php,
+  www/style.css, www/usage.php:
+
+  - added dompdf class reference to usage.php
+  - incorporated fixes from Nick Oostveen for aliased directory support
+
+2006-04-06 13:30  benjcarson
+
+* Makefile, dompdf_config.inc.php, include/abstract_renderer.cls.php,
+  include/block_frame_reflower.cls.php, include/block_renderer.cls.php,
+  include/dompdf.cls.php, include/image_cache.cls.php,
+  include/image_frame_decorator.cls.php, include/image_renderer.cls.php,
+  include/inline_renderer.cls.php, include/list_bullet_renderer.cls.php,
+  include/renderer.cls.php, include/style.cls.php,
+  include/table_cell_frame_decorator.cls.php,
+  include/table_cell_frame_reflower.cls.php,
+  include/table_cell_renderer.cls.php, include/text_renderer.cls.php,
+  lib/class.pdf.php:
+
+  - added support for background-image
+  - added support for vertical-align
+
+2006-04-05 18:59  benjcarson
+
+* include/: canvas.cls.php, cpdf_adapter.cls.php, gd_adapter.cls.php,
+  inline_renderer.cls.php, pdflib_adapter.cls.php, stylesheet.cls.php:
+
+  - added support for hyperlinks (both internal and external)
+
+2006-04-05 14:08  benjcarson
+
+* dompdf_config.inc.php, include/block_frame_decorator.cls.php,
+  include/cellmap.cls.php, include/dompdf.cls.php, include/frame.cls.php,
+  include/frame_decorator.cls.php, include/frame_factory.cls.php,
+  include/frame_tree.cls.php, include/image_frame_decorator.cls.php,
+  include/image_frame_reflower.cls.php,
+  include/inline_frame_decorator.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/null_frame_decorator.cls.php,
+  include/page_frame_decorator.cls.php, include/pdflib_adapter.cls.php,
+  include/stylesheet.cls.php, include/table_cell_frame_decorator.cls.php,
+  include/table_cell_frame_reflower.cls.php,
+  include/table_frame_decorator.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_decorator.cls.php,
+  include/table_row_group_frame_decorator.cls.php,
+  include/text_frame_decorator.cls.php, lib/res/html.css:
+
+  - fixed image rendering within table cells
+  - fixed page breaks occurring within tbody
+  - incorporated patches from Jeremy Buchman:
+     cache fill & stroke colour in PDFLib adapter
+     underline links
+  - fixed vertical align in table cells
+
+2006-03-16 09:07  benjcarson
+
+* include/: block_frame_decorator.cls.php, block_frame_reflower.cls.php,
+  frame_decorator.cls.php, image_renderer.cls.php,
+  table_cell_frame_decorator.cls.php, table_cell_frame_reflower.cls.php:
+
+  - fixed vertical-align of images in table cells
+
+2006-03-15 22:24  benjcarson
+
+* include/: abstract_renderer.cls.php, attribute_translator.cls.php,
+  block_frame_decorator.cls.php, cellmap.cls.php, cpdf_adapter.cls.php,
+  dompdf.cls.php, font_metrics.cls.php, frame.cls.php, frame_tree.cls.php,
+  functions.inc.php, gd_adapter.cls.php, generated_frame_reflower.cls.php,
+  image_frame_reflower.cls.php, image_renderer.cls.php,
+  inline_renderer.cls.php, page_frame_decorator.cls.php,
+  pdflib_adapter.cls.php, style.cls.php, stylesheet.cls.php,
+  table_frame_decorator.cls.php:
+
+  - some fixes for frame not found in cellmap errors
+  - improved rendering borders around images
+  - speed improvments (array_key_exists -> isset) by Jeremy Buchman <jbuchman@pviq.com>
+
+2006-01-22 15:01  benjcarson
+
+* www/faq.php:
+
+  - updated faq
+
+2006-01-22 13:16  benjcarson
+
+* dompdf_config.inc.php, include/image_frame_reflower.cls.php:
+
+  - fixed image sizing in tables (get_min_max_width() not defined properly for images)
+
+2006-01-16 09:23  benjcarson
+
+* dompdf, dompdf_config.inc.php, include/cpdf_adapter.cls.php,
+  include/functions.inc.php, include/image_frame_decorator.cls.php,
+  include/stylesheet.cls.php:
+
+  - fixed gif support so images can be added directly via CPDF_Adapter->image()
+
+2006-01-06 00:26  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, load_font.php,
+  include/attribute_translator.cls.php,
+  include/block_frame_decorator.cls.php,
+  include/block_frame_reflower.cls.php, include/cpdf_adapter.cls.php,
+  include/dompdf.cls.php, include/font_metrics.cls.php,
+  include/frame.cls.php, include/frame_decorator.cls.php,
+  include/frame_tree.cls.php, include/functions.inc.php,
+  include/generated_frame_reflower.cls.php,
+  include/image_frame_decorator.cls.php,
+  include/page_frame_decorator.cls.php, include/pdflib_adapter.cls.php,
+  include/php_evaluator.cls.php, include/style.cls.php,
+  include/stylesheet.cls.php, include/table_frame_decorator.cls.php,
+  include/table_row_group_frame_reflower.cls.php,
+  include/text_frame_decorator.cls.php,
+  include/text_frame_reflower.cls.php, test/entities.html,
+  test/latin1.html, test/pages.html, test/special.html, test/symbols.html,
+  test/unicode.html:
+
+  - unicode support:
+    - converted string functions to mb_* varieties
+    - fiddled with pdflib: unicode now works for commercial version of pdflib
+    - many changes, plus test case thanks to Jeremy Buchman <jbuchman@pviq.com>
+  - added complete HTML 4.0 entities test (from WDG HTML reference)
+
+2006-01-03 14:27  benjcarson
+
+* HACKING, INSTALL, README, include/cpdf_adapter.cls.php,
+  include/pdflib_adapter.cls.php:
+
+  - allow multiple calls to page_text
+
+2005-12-30 16:20  benjcarson
+
+* Makefile, include/pdflib_adapter.cls.php, test/pages.html:
+
+  - fixed problem with image handling and pdflib
+
+2005-12-30 15:45  benjcarson
+
+* dompdf_config.inc.php, include/cpdf_adapter.cls.php,
+  include/pdflib_adapter.cls.php, test/pages.html:
+
+  - fixed page number/page count handling
+
+2005-12-30 14:23  benjcarson
+
+* include/canvas.cls.php, include/cpdf_adapter.cls.php,
+  include/pdflib_adapter.cls.php, lib/class.pdf.php:
+
+  - added options to dompdf->output() to enable/disable pdf compression
+
+2005-12-30 14:10  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, include/dompdf.cls.php,
+  include/image_frame_decorator.cls.php,
+  include/page_frame_decorator.cls.php, include/pdflib_adapter.cls.php,
+  include/stylesheet.cls.php:
+
+  - fixed handling of + CSS selector
+  - incorporated comment suggestions made by Leblanc Meneses (leblanc@tamu.edu)
+
+2005-12-13 15:56  benjcarson
+
+* dompdf.php, include/table_frame_decorator.cls.php:
+
+  - fixed problems with table page breaks
+
+2005-12-11 11:14  benjcarson
+
+* dompdf.php, include/canvas_factory.cls.php, include/cpdf_adapter.cls.php,
+  include/gd_adapter.cls.php:
+
+  - added GD rendering backend
+
+2005-12-07 14:32  benjcarson
+
+* include/: block_frame_reflower.cls.php, cellmap.cls.php,
+  cpdf_adapter.cls.php, frame.cls.php, frame_decorator.cls.php,
+  page_frame_decorator.cls.php, table_frame_decorator.cls.php,
+  table_frame_reflower.cls.php:
+
+  - adjusted text-align: justify to work a little better
+  - Improved page break behaviour in general and specifically for tables:
+    - tables now respect the page-break-inside property
+    - a few bugs with header duplication were fixed (extra or missing table headers on new page)
+  - removed redundant call to reset() at page_frame_decorator level: may fix "frame not found in cellmap" errors
+
+2005-11-29 10:59  benjcarson
+
+* include/text_frame_reflower.cls.php, lib/class.pdf.php:
+
+  - fixed erroneous line breaks when available width is exactly equal to line width
+
+2005-11-21 11:48  benjcarson
+
+* include/style.cls.php:
+
+  - improved handling of colour values
+
+2005-11-21 09:56  tag dompdf-0-4-3
+
+2005-11-21 09:56  benjcarson
+
+* include/table_frame_decorator.cls.php:
+
+  - fixed uninitialized variable typo
+
+2005-11-19 13:12  benjcarson
+
+* Makefile, include/canvas.cls.php, include/cpdf_adapter.cls.php,
+  include/dompdf.cls.php, include/pdflib_adapter.cls.php:
+
+  - compatibility fixes for 5.0.5
+
+2005-11-18 18:33  benjcarson
+
+* Makefile, README, dompdf_config.inc.php, include/cpdf_adapter.cls.php,
+  include/dompdf.cls.php, include/frame_decorator.cls.php,
+  include/style.cls.php, www/index.php:
+
+  - removed debugging code
+
+2005-11-18 18:07  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, run-tests.sh, include/dompdf.cls.php,
+  include/frame.cls.php, include/frame_decorator.cls.php,
+  include/frame_reflower.cls.php, include/frame_tree.cls.php,
+  include/functions.inc.php, include/generated_frame_reflower.cls.php,
+  include/page_frame_decorator.cls.php,
+  include/page_frame_reflower.cls.php, include/php_evaluator.cls.php,
+  include/renderer.cls.php, include/style.cls.php,
+  include/stylesheet.cls.php, include/table_cell_frame_reflower.cls.php,
+  include/table_frame_reflower.cls.php, test/pages.html:
+
+  - reduced memory consumption on multi-page pdfs
+
+2005-11-10 09:12  benjcarson
+
+* INSTALL, README, TODO, dompdf.php, include/cpdf_adapter.cls.php,
+  include/frame_tree.cls.php, include/image_frame_decorator.cls.php,
+  lib/class.pdf.php, test/image.html, www/examples.php, www/faq.php,
+  www/foot.inc, www/head.inc, www/index.php, www/install.php,
+  www/style.css, www/usage.php:
+
+  - added gif support
+
+2005-09-15 15:11  benjcarson
+
+* include/pdflib_adapter.cls.php:
+
+  - fixed rendering of page text for pdflib backend
+
+2005-08-03 15:20  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, include/block_frame_reflower.cls.php,
+  include/cellmap.cls.php, include/frame_decorator.cls.php,
+  include/pdflib_adapter.cls.php, include/style.cls.php,
+  include/table_frame_decorator.cls.php, test/long_table.php:
+
+  - make table headers appear on multiple pages
+
+2005-06-29 21:02  tag dompdf-0-4-2
+
+2005-06-29 21:02  benjcarson
+
+* Makefile, dompdf, dompdf.php, run-tests.sh, include/cellmap.cls.php,
+  include/dompdf.cls.php, include/frame.cls.php,
+  include/frame_decorator.cls.php, include/image_frame_decorator.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/list_bullet_frame_reflower.cls.php,
+  include/list_bullet_image_frame_decorator.cls.php,
+  include/list_bullet_positioner.cls.php,
+  include/list_bullet_renderer.cls.php, include/pdflib_adapter.cls.php,
+  include/renderer.cls.php, include/style.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_decorator.cls.php,
+  include/text_frame_reflower.cls.php, test/pages.html, test/ul.html:
+
+  - added support for list-style-image
+  - improved output for normal <ul>s
+  - fixed/worked around render bug in xpdf, discontinued use of topdown mode for pdflib
+  - made -v flag actually work properly: dump $_dompdf_warnings after rendering is complete
+  - made cellmap more tolerant to broken tables (continue rendering, issue useful warning)
+
+2005-06-29 17:32  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, include/attribute_translator.cls.php,
+  include/cellmap.cls.php, include/dompdf.cls.php, include/frame.cls.php,
+  include/frame_decorator.cls.php, include/frame_factory.cls.php,
+  include/frame_tree.cls.php, include/image_frame_decorator.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/list_bullet_frame_reflower.cls.php,
+  include/list_bullet_image_frame_decorator.cls.php,
+  include/list_bullet_renderer.cls.php,
+  include/page_frame_decorator.cls.php, include/style.cls.php,
+  include/table_row_frame_reflower.cls.php:
+
+  - fixed remote image handling
+  - started work on using images for list-bullets
+
+2005-05-18 15:25  benjcarson
+
+* dompdf.php, include/block_frame_reflower.cls.php, include/dompdf.cls.php:
+
+  - fixed bug with handling of remote files
+
+2005-05-03 11:58  benjcarson
+
+* include/block_frame_reflower.cls.php, include/pdflib_adapter.cls.php,
+  lib/class.pdf.php:
+
+  - several minor fixes
+
+2005-04-13 14:27  benjcarson
+
+* include/: dompdf.cls.php, pdflib_adapter.cls.php:
+
+  - fixed handling of stream options (e.g. attachment)
+
+2005-03-17 12:25  benjcarson
+
+* lib/fonts/dompdf_font_family_cache.dist:
+
+  - didn't mean to commit that change to font family dist...
+
+2005-03-17 12:23  benjcarson
+
+* include/pdflib_adapter.cls.php, lib/fonts/dompdf_font_family_cache.dist:
+
+  - fixed issue with pdflib loading fonts incorrectly
+
+2005-03-17 11:18  benjcarson
+
+* include/dompdf.cls.php, test/demo_01.html:
+
+  - thought i fixed this...
+
+2005-03-15 20:51  tag dompdf-0-4-1
+
+2005-03-15 20:51  benjcarson
+
+* include/image_frame_reflower.cls.php:
+
+  - fixed bug in image reflow code
+
+2005-03-15 20:42  benjcarson
+
+* Makefile, include/dompdf.cls.php, include/functions.inc.php,
+  include/stylesheet.cls.php, www/faq.php:
+
+  - fixed "no block parent error"
+
+2005-03-10 11:59  benjcarson
+
+* include/: table_cell_frame_reflower.cls.php,
+  table_frame_reflower.cls.php:
+
+  - fixed some issues with nested tables
+
+2005-03-04 13:30  benjcarson
+
+* Makefile, TODO, dompdf_config.inc.php, include/canvas_factory.cls.php,
+  include/stylesheet.cls.php, lib/fonts/dompdf_font_family_cache.dist,
+  www/faq.php:
+
+  - Committing version 0.4:
+   - table spanning works!
+  - potentially fix IIS?  have not tested
+  - fix auto backend detection
+  - change format of the font family cache (breaks BC): need to remove .afm extension from path
+
+2005-03-04 13:28  benjcarson
+
+* include/: cellmap.cls.php, cpdf_adapter.cls.php,
+  image_frame_reflower.cls.php, text_frame_reflower.cls.php:
+
+  - fixes to text layout
+  - use DOMPDF_DPI when image dims are auto
+  - fix bug in cellmap
+
+2005-03-02 14:26  benjcarson
+
+* include/block_frame_reflower.cls.php, include/pdflib_adapter.cls.php,
+  include/text_renderer.cls.php, test/entities.html:
+
+  - adjust font size reported by pdlib to more closely match that reported by CPDF.
+
+2005-03-02 11:37  benjcarson
+
+* dompdf.php, include/frame.cls.php, include/pdflib_adapter.cls.php:
+
+  - added object (template) support to PDFLib_Adapter
+
+2005-03-02 10:34  benjcarson
+
+* include/pdflib_adapter.cls.php:
+
+  - added page_text() function
+
+2005-03-01 17:51  benjcarson
+
+* HACKING, README, dompdf.php, dompdf_config.inc.php, load_font.php,
+  include/attribute_translator.cls.php,
+  include/cached_pdf_decorator.cls.php, include/canvas.cls.php,
+  include/canvas_factory.cls.php, include/dompdf.cls.php,
+  include/font_metrics.cls.php, include/frame_tree.cls.php,
+  include/image_frame_decorator.cls.php,
+  include/image_frame_reflower.cls.php, include/page_cache.cls.php,
+  include/pdflib_adapter.cls.php, include/renderer.cls.php,
+  include/style.cls.php, lib/res/html.css, test/demo_01.html,
+  test/image.html, www/examples.php, www/usage.php:
+
+  - added new rendering backend: PDFLib.
+    Rendering backend can be selected using the DOMPDF_PDF_BACKEND config option.
+
+2005-03-01 17:38  benjcarson
+
+* include/: cpdf_adapter.cls.php, pdf_adapter.cls.php:
+
+  - renamed pdf_adapter.cls.php to cpdf_adapter.cls.php
+
+2005-02-28 11:46  benjcarson
+
+* include/: attribute_translator.cls.php, frame_factory.cls.php,
+  frame_tree.cls.php, image_frame_reflower.cls.php, renderer.cls.php:
+
+  - fixes to image handling code
+
+2005-02-14 01:46  benjcarson
+
+* Makefile, include/block_frame_reflower.cls.php, include/cellmap.cls.php,
+  include/frame_factory.cls.php, include/page_frame_decorator.cls.php,
+  include/style.cls.php, include/table_cell_frame_reflower.cls.php,
+  include/table_frame_decorator.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_reflower.cls.php, test/long_table.php,
+  test/pages.html, www/head.inc:
+
+  - initial work on table page breaking code:
+    tested with a simple table: success!
+  - still need to handle table headers and footers properly
+  - fixed bug in style.cls.php where rgb(r,g,b) colour values were not being
+    parsed properly.
+
+2005-02-06 14:01  benjcarson
+
+* Makefile, include/block_frame_reflower.cls.php, include/frame.cls.php,
+  include/frame_decorator.cls.php, include/page_frame_decorator.cls.php,
+  include/page_frame_reflower.cls.php, lib/res/html.css, test/pages.html:
+
+  - finished rework of paging code.
+
+2005-02-05 10:32  benjcarson
+
+* include/: block_frame_reflower.cls.php, canvas.cls.php,
+  page_frame_decorator.cls.php, page_frame_reflower.cls.php,
+  pdf_adapter.cls.php:
+
+  - more work on page layout, still incomplete.
+
+2005-02-01 08:11  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, include/block_frame_reflower.cls.php,
+  include/cellmap.cls.php, include/frame_decorator.cls.php,
+  include/inline_frame_decorator.cls.php,
+  include/page_frame_decorator.cls.php, test/google.html, test/pages.html:
+
+  - begin rework of paging code, part 1.
+
+2005-01-25 16:12  benjcarson
+
+* Makefile, dompdf, www/about.php, www/head.inc:
+
+  - added dompdf shell script
+  - added Makefile
+  - removed duplicate file
+
+2005-01-25 16:02  benjcarson
+
+* www/file.php:
+
+  - removed file.php
+
+2005-01-25 15:55  tag start
+
+2005-01-25 15:55  benjcarson
+
+* HACKING, dompdf.php, INSTALL, LICENSE.LGPL, README, TODO,
+  dompdf_config.inc.php, load_font.php, include/abstract_renderer.cls.php,
+  include/block_frame_decorator.cls.php, include/dompdf_exception.cls.php,
+  include/file.skel, include/block_frame_reflower.cls.php,
+  include/block_positioner.cls.php, include/block_renderer.cls.php,
+  include/br_frame_reflower.cls.php, include/cached_pdf_decorator.cls.php,
+  include/canvas.cls.php, include/cellmap.cls.php, include/dompdf.cls.php,
+  include/font_metrics.cls.php, include/frame.cls.php,
+  include/frame_decorator.cls.php, include/frame_factory.cls.php,
+  include/frame_reflower.cls.php, include/frame_tree.cls.php,
+  include/functions.inc.php, include/generated_frame_reflower.cls.php,
+  include/inline_frame_decorator.cls.php,
+  include/inline_frame_reflower.cls.php, include/inline_positioner.cls.php,
+  include/inline_renderer.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/list_bullet_frame_reflower.cls.php,
+  include/list_bullet_positioner.cls.php,
+  include/list_bullet_renderer.cls.php,
+  include/null_frame_decorator.cls.php,
+  include/null_frame_reflower.cls.php, include/null_positioner.cls.php,
+  include/page_cache.cls.php, include/page_frame_decorator.cls.php,
+  include/page_frame_reflower.cls.php, include/pdf_adapter.cls.php,
+  include/php_evaluator.cls.php, include/positioner.cls.php,
+  include/renderer.cls.php, include/style.cls.php,
+  include/stylesheet.cls.php, include/attribute_translator.cls.php,
+  include/dompdf_internal_exception.cls.php,
+  include/image_frame_decorator.cls.php,
+  include/image_frame_reflower.cls.php, include/image_renderer.cls.php,
+  include/table_cell_frame_decorator.cls.php,
+  include/table_cell_frame_reflower.cls.php,
+  include/table_cell_positioner.cls.php,
+  include/table_cell_renderer.cls.php,
+  include/table_frame_decorator.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_decorator.cls.php,
+  include/table_row_frame_reflower.cls.php,
+  include/table_row_group_frame_reflower.cls.php,
+  include/table_row_positioner.cls.php,
+  include/text_frame_decorator.cls.php,
+  include/text_frame_reflower.cls.php, include/text_renderer.cls.php,
+  lib/class.pdf.php, lib/fonts/.cvsignore, lib/fonts/Arial.afm,
+  lib/fonts/Arial_Bold.afm, lib/fonts/Arial_Bold_Italic.afm,
+  lib/fonts/Arial_Italic.afm, lib/fonts/Georgia.afm,
+  lib/fonts/Georgia_Bold.afm, lib/fonts/Georgia_Bold_Italic.afm,
+  lib/fonts/Georgia_Italic.afm, lib/fonts/Times_New_Roman.afm,
+  lib/fonts/Times_New_Roman_Bold.afm,
+  lib/fonts/Times_New_Roman_Bold_Italic.afm,
+  lib/fonts/Times_New_Roman_Italic.afm, lib/fonts/Trebuchet_MS.afm,
+  lib/fonts/Trebuchet_MS_Bold.afm, lib/fonts/Trebuchet_MS_Bold_Italic.afm,
+  lib/fonts/Trebuchet_MS_Italic.afm, lib/fonts/Verdana.afm,
+  lib/fonts/Verdana_Bold.afm, lib/fonts/Verdana_Bold_Italic.afm,
+  lib/fonts/Courier.afm, lib/fonts/Verdana_Italic.afm, lib/fonts/lucon.afm,
+  lib/fonts/slkscr.afm, lib/fonts/slkscrb.afm, lib/fonts/slkscre.afm,
+  lib/fonts/slkscreb.afm, lib/fonts/Courier-Bold.afm,
+  lib/fonts/Courier-BoldOblique.afm, lib/fonts/Courier-Oblique.afm,
+  lib/fonts/Helvetica.afm, lib/fonts/Helvetica-Bold.afm,
+  lib/fonts/Helvetica-BoldOblique.afm, lib/fonts/Helvetica-Oblique.afm,
+  lib/fonts/Times-Bold.afm, lib/fonts/Times-BoldItalic.afm,
+  lib/fonts/Times-Italic.afm, lib/fonts/Times-Roman.afm,
+  lib/fonts/ZapfDingbats.afm, lib/fonts/dompdf_font_family_cache.dist,
+  lib/res/broken_image.png, lib/res/html.css, test/border_test.html,
+  test/common.css, test/demo_01.html, test/dompdf_simple.png,
+  test/google.html, test/html_attributes.html, test/image.html,
+  test/large_table.htm, test/margin.html, test/pages.html,
+  test/php_test.php, test/print_static.css, test/simple_ul.html,
+  test/table.html, test/table_01.html, www/about.php, www/examples.php,
+  www/file.php, www/foot.inc, www/head.inc, www/index.php, www/install.php,
+  www/style.css, www/usage.php, www/images/arrow_01.gif,
+  www/images/arrow_02.gif, www/images/arrow_03.gif,
+  www/images/arrow_04.gif, www/images/arrow_05.gif,
+  www/images/arrow_06.gif, www/images/css2.png,
+  www/images/dompdf_simple.png, www/images/favicon.ico,
+  www/images/favicon.png, www/images/h_bar.gif, www/images/left_arrow.gif,
+  www/images/logo.png, www/images/logo.xcf,
+  www/images/php5-power-micro.png, www/images/small_logo.png,
+  www/images/star_01.gif, www/images/star_02.gif, www/images/star_03.gif,
+  www/images/star_04.gif, www/images/star_05.gif, www/images/title.gif,
+  www/images/v_bar.gif, www/images/xhtml10.png:
+
+  Initial revision
+
+2005-01-25 15:55  benjcarson
+
+* HACKING, dompdf.php, INSTALL, LICENSE.LGPL, README, TODO,
+  dompdf_config.inc.php, load_font.php, include/abstract_renderer.cls.php,
+  include/block_frame_decorator.cls.php, include/dompdf_exception.cls.php,
+  include/file.skel, include/block_frame_reflower.cls.php,
+  include/block_positioner.cls.php, include/block_renderer.cls.php,
+  include/br_frame_reflower.cls.php, include/cached_pdf_decorator.cls.php,
+  include/canvas.cls.php, include/cellmap.cls.php, include/dompdf.cls.php,
+  include/font_metrics.cls.php, include/frame.cls.php,
+  include/frame_decorator.cls.php, include/frame_factory.cls.php,
+  include/frame_reflower.cls.php, include/frame_tree.cls.php,
+  include/functions.inc.php, include/generated_frame_reflower.cls.php,
+  include/inline_frame_decorator.cls.php,
+  include/inline_frame_reflower.cls.php, include/inline_positioner.cls.php,
+  include/inline_renderer.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/list_bullet_frame_reflower.cls.php,
+  include/list_bullet_positioner.cls.php,
+  include/list_bullet_renderer.cls.php,
+  include/null_frame_decorator.cls.php,
+  include/null_frame_reflower.cls.php, include/null_positioner.cls.php,
+  include/page_cache.cls.php, include/page_frame_decorator.cls.php,
+  include/page_frame_reflower.cls.php, include/pdf_adapter.cls.php,
+  include/php_evaluator.cls.php, include/positioner.cls.php,
+  include/renderer.cls.php, include/style.cls.php,
+  include/stylesheet.cls.php, include/attribute_translator.cls.php,
+  include/dompdf_internal_exception.cls.php,
+  include/image_frame_decorator.cls.php,
+  include/image_frame_reflower.cls.php, include/image_renderer.cls.php,
+  include/table_cell_frame_decorator.cls.php,
+  include/table_cell_frame_reflower.cls.php,
+  include/table_cell_positioner.cls.php,
+  include/table_cell_renderer.cls.php,
+  include/table_frame_decorator.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_decorator.cls.php,
+  include/table_row_frame_reflower.cls.php,
+  include/table_row_group_frame_reflower.cls.php,
+  include/table_row_positioner.cls.php,
+  include/text_frame_decorator.cls.php,
+  include/text_frame_reflower.cls.php, include/text_renderer.cls.php,
+  lib/class.pdf.php, lib/fonts/.cvsignore, lib/fonts/Arial.afm,
+  lib/fonts/Arial_Bold.afm, lib/fonts/Arial_Bold_Italic.afm,
+  lib/fonts/Arial_Italic.afm, lib/fonts/Georgia.afm,
+  lib/fonts/Georgia_Bold.afm, lib/fonts/Georgia_Bold_Italic.afm,
+  lib/fonts/Georgia_Italic.afm, lib/fonts/Times_New_Roman.afm,
+  lib/fonts/Times_New_Roman_Bold.afm,
+  lib/fonts/Times_New_Roman_Bold_Italic.afm,
+  lib/fonts/Times_New_Roman_Italic.afm, lib/fonts/Trebuchet_MS.afm,
+  lib/fonts/Trebuchet_MS_Bold.afm, lib/fonts/Trebuchet_MS_Bold_Italic.afm,
+  lib/fonts/Trebuchet_MS_Italic.afm, lib/fonts/Verdana.afm,
+  lib/fonts/Verdana_Bold.afm, lib/fonts/Verdana_Bold_Italic.afm,
+  lib/fonts/Courier.afm, lib/fonts/Verdana_Italic.afm, lib/fonts/lucon.afm,
+  lib/fonts/slkscr.afm, lib/fonts/slkscrb.afm, lib/fonts/slkscre.afm,
+  lib/fonts/slkscreb.afm, lib/fonts/Courier-Bold.afm,
+  lib/fonts/Courier-BoldOblique.afm, lib/fonts/Courier-Oblique.afm,
+  lib/fonts/Helvetica.afm, lib/fonts/Helvetica-Bold.afm,
+  lib/fonts/Helvetica-BoldOblique.afm, lib/fonts/Helvetica-Oblique.afm,
+  lib/fonts/Times-Bold.afm, lib/fonts/Times-BoldItalic.afm,
+  lib/fonts/Times-Italic.afm, lib/fonts/Times-Roman.afm,
+  lib/fonts/ZapfDingbats.afm, lib/fonts/dompdf_font_family_cache.dist,
+  lib/res/broken_image.png, lib/res/html.css, test/border_test.html,
+  test/common.css, test/demo_01.html, test/dompdf_simple.png,
+  test/google.html, test/html_attributes.html, test/image.html,
+  test/large_table.htm, test/margin.html, test/pages.html,
+  test/php_test.php, test/print_static.css, test/simple_ul.html,
+  test/table.html, test/table_01.html, www/about.php, www/examples.php,
+  www/file.php, www/foot.inc, www/head.inc, www/index.php, www/install.php,
+  www/style.css, www/usage.php, www/images/arrow_01.gif,
+  www/images/arrow_02.gif, www/images/arrow_03.gif,
+  www/images/arrow_04.gif, www/images/arrow_05.gif,
+  www/images/arrow_06.gif, www/images/css2.png,
+  www/images/dompdf_simple.png, www/images/favicon.ico,
+  www/images/favicon.png, www/images/h_bar.gif, www/images/left_arrow.gif,
+  www/images/logo.png, www/images/logo.xcf,
+  www/images/php5-power-micro.png, www/images/small_logo.png,
+  www/images/star_01.gif, www/images/star_02.gif, www/images/star_03.gif,
+  www/images/star_04.gif, www/images/star_05.gif, www/images/title.gif,
+  www/images/v_bar.gif, www/images/xhtml10.png:
+
+  Welcome to SourceForge.net!
+
