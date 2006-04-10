@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.11 2006-04-06 21:29:41 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.12 2006-04-10 17:40:21 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -348,8 +348,15 @@ class Stylesheet {
         // empty class/id == *
         if ( mb_substr($query, -1, 1) == "/" )
           $query .= "*";
+
+        // Match multiple classes: $tok contains the current selected
+        // class.  Search for class attributes with class="$tok",
+        // class=".* $tok .*" and class=".* $tok"
         
-        $query .= "[@$attr=\"$tok\"]";
+        // This doesn't work because libxml only supports XPath 1.0...
+        //$query .= "[matches(@$attr,\"^${tok}\$|^${tok}[ ]+|[ ]+${tok}\$|[ ]+${tok}[ ]+\")]";
+        
+        $query .= "[@$attr = \"$tok\" or starts-with(@$attr, \"$tok \") or contains(@$attr,\" $tok \") or substring(@$attr, string-length(@$attr) - string-length(\"$tok\")) = \" $tok\"]";
         $tok = "";
         break;
 
@@ -534,8 +541,8 @@ class Stylesheet {
     foreach ($this->_styles as $selector => $style) {
 
       $query = $this->_css_selector_to_xpath($selector);
-//        pre_var_dump($selector);
-//        pre_var_dump($query);
+//       pre_var_dump($selector);
+//       pre_var_dump($query);
 //        echo ($style);
       
       // Retrieve the nodes      

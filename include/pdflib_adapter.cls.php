@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.20 2006-04-06 00:59:27 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.21 2006-04-10 17:40:21 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -710,7 +710,14 @@ class PDFLib_Adapter implements Canvas {
       if ( $name )
         $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} destname=". substr($url,1) . " linewidth=0");
     } else {
-      $action = $this->_pdf->create_action("URI", "url=" . rawurldecode($url));
+      
+      list($proto, $host, $path, $file) = explode_url($url);
+      if ( $proto == "" || $proto == "file://" )
+        return; // Local links are not allowed
+      $url = build_url($proto, $host, $path, $file);
+      $url = str_replace("=", "%3D", rawurldecode($url));
+
+      $action = $this->_pdf->create_action("URI", "url=" . $url);
       $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} action={activate=$action} linewidth=0");
     }
   }

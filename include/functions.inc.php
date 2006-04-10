@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: functions.inc.php,v 1.7 2006-04-06 21:29:40 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.8 2006-04-10 17:40:21 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -198,8 +198,9 @@ function explode_url($url) {
     $path .= '/';	
   } else {
     // generate a url to access the file if no real path found.
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
-    $host = $_SERVER["HTTP_HOST"];
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';    
+    
+    $host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : php_uname("n");
 
     if ( substr($arr["path"], 0, 1) == '/' ) {
       $path = dirname($arr["path"]);
