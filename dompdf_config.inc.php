@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: dompdf_config.inc.php,v 1.15 2006-04-06 19:30:37 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.16 2006-04-23 18:41:29 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 ini_set("zend.ze1_compatibility_mode", "0");
@@ -180,7 +180,7 @@ define("DOMPDF_ENABLE_PHP", true);
  *
  * @var bool 
  */
-define("DOMPDF_ENABLE_REMOTE", false);
+define("DOMPDF_ENABLE_REMOTE", true);
  
 /**
  * DOMPDF autoload function

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.13 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.14 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -58,24 +58,24 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   protected function _calculate_width($width) {
     $style = $this->_frame->get_style();
-    $cb = $this->_frame->get_containing_block();
+    $w = $this->_frame->get_containing_block("w");
     
-    $r = $style->length_in_pt($style->margin_right, $cb["w"]);
-    $l = $style->length_in_pt($style->margin_left, $cb["w"]);    
-
+    $r = $style->length_in_pt($style->margin_right, $w);
+    $l = $style->length_in_pt($style->margin_left, $w);    
+    
     // Handle 'auto' values
     $dims = array($style->border_left_width,
                   $style->border_right_width,
                   $style->padding_left,
                   $style->padding_right,
                   $width !== "auto" ? $width : 0,
-                  $l !== "auto" ? $l : 0,
-                  $r !== "auto" ? $r : 0);
+                  $r !== "auto" ? $r : 0,
+                  $l !== "auto" ? $l : 0);
     
-    $sum = $style->length_in_pt($dims, $cb["w"]);
+    $sum = $style->length_in_pt($dims, $w);
 
     // Compare to the containing block
-    $diff = $cb["w"] - $sum;
+    $diff = $w - $sum;
 
     if ( $diff > 0 ) {
 
@@ -96,7 +96,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
       // We are over constrained--set margin-right to the difference
       $r = $diff;
-
+      
     }
     
     return array("width"=> $width, "margin_left" => $l, "margin_right" => $r);
@@ -110,8 +110,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( !isset($cb["w"]) )
       throw new DOMPDF_Exception("Box property calculation requires containing block width");
 
-    $width = $style->length_in_pt($style->width, $cb["w"]);
-
+    // Treat width 100% as auto
+    if ( $style->width === "100%" )
+      $width = "auto";
+    else
+      $width = $style->length_in_pt($style->width, $cb["w"]);
+    
     extract($this->_calculate_width($width));
 
     // Handle min/max width
@@ -219,6 +223,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   protected function _text_align() {
     $style = $this->_frame->get_style();
+    $w = $this->_frame->get_containing_block("w");
+    $width = $style->length_in_pt($style->width, $w);
     
     // Adjust the justification of each of our lines.
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-align
@@ -232,7 +238,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       foreach ($this->_frame->get_lines() as $line) {
 
         // Move each child over by $dx
-        $dx = $style->width - $line["w"];        
+        $dx = $width - $line["w"];
         foreach($line["frames"] as $frame) 
           $frame->set_position( $frame->get_position("x") + $dx );
 
@@ -245,10 +251,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
         
         // Only set the spacing if the line is long enough.  This is really
         // just an aesthetic choice ;)
-        if ( $line["w"] > self::MIN_JUSTIFY_WIDTH * $style->width ) {
+        if ( $line["w"] > self::MIN_JUSTIFY_WIDTH * $width ) {
           // Set the spacing for each child
           if ( $line["wc"] > 1 )
-            $spacing = ($style->width - $line["w"]) / ($line["wc"] - 1);
+            $spacing = ($width - $line["w"]) / ($line["wc"] - 1);
           else
             $spacing = 0;
           
@@ -263,7 +269,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
           }
 
           // The line (should) now occupy the entire width
-          $this->_frame->set_line($i, null, $style->width);
+          $this->_frame->set_line($i, null, $width);
 
         }
       }
@@ -273,7 +279,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     case "centre":
       foreach ($this->_frame->get_lines() as $i => $line) {
         // Centre each line by moving each frame in the line by:
-        $dx = ($style->width - $line["w"]) / 2;
+        $dx = ($width - $line["w"]) / 2;
         foreach ($line["frames"] as $frame) 
           $frame->set_position( $frame->get_position("x") + $dx );
       }
@@ -296,7 +302,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
         $align = $style->vertical_align;
 
-        $frame_h = $style->length_in_pt($style->height);
+        $frame_h = $frame->get_margin_height();
         
         switch ($align) {
 

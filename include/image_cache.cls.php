@@ -81,7 +81,10 @@ class Image_Cache {
     $ext = mb_strtolower(mb_substr($tmp, $i+1));
     
     $remote = ($proto != "" && $proto != "file://");
-    
+
+    $parsed_url = explode_url($url);
+    $remote = $remote || ($parsed_url['protocol'] != "");
+
     if ( !DOMPDF_ENABLE_REMOTE && $remote ) {
       $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
 
@@ -91,8 +94,8 @@ class Image_Cache {
       $url = build_url($proto, $host, $base_path, $url);
 
       if ( isset(self::$_cache[$url]) ) {
-        $this->_image_url = self::$_cache[$url];
-        //echo "Using cached image $url (" . $this->_image_url . ")\n";
+        $resolved_url = self::$_cache[$url];
+        echo "Using cached image $url (" . $resolved_url . ")\n";
         
       } else {
 
@@ -104,9 +107,11 @@ class Image_Cache {
         $image = file_get_contents($url);
         restore_error_handler();
         
-        if ( strlen($image) == 0 )
+        if ( strlen($image) == 0 ) {
           $image = file_get_contents(DOMPDF_LIB_DIR . "/res/broken_image.png");
-          
+          $ext = "png";
+        }
+        
         file_put_contents($resolved_url, $image);
         
         self::$_cache[$url] = $resolved_url;

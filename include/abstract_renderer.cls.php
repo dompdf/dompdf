@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: abstract_renderer.cls.php,v 1.3 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: abstract_renderer.cls.php,v 1.4 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * Base renderer class
@@ -90,16 +90,28 @@ abstract class Abstract_Renderer {
    * @param float  $y        The top edge of the rectangular area
    * @param float  $width    The width of the rectangular area
    * @param float  $height   The height of the rectangular area
-   * @param string $repeat   {repeat|repeat-x|repeat-y|no-repeat}
-   * @param array  $position The background-position value (either in % or in px) (array(x,y))
-   * @param array  $bg_color The background-color value
+   * @param Style  $style    The associated Style object
    */
-  protected function _background_image($url, $x, $y, $width, $height, $repeat, $position, $bg_color) {
+  protected function _background_image($url, $x, $y, $width, $height, $style) {
+    $sheet = $style->get_stylesheet();
+    
     list($img, $ext) = Image_Cache::resolve_url($url,
-                                                $this->_dompdf->get_protocol(),
-                                                $this->_dompdf->get_host(),
-                                                $this->_dompdf->get_base_path());
+                                                $sheet->get_protocol(),
+                                                $sheet->get_host(),
+                                                $sheet->get_base_path());
 
+    list($bg_x, $bg_y) = $style->background_position;
+    $repeat = $style->background_repeat;
+
+    if ( !is_percent($bg_x) )
+      $bg_x = $style->length_in_pt($bg_x);
+    if ( !is_percent($bg_y) )
+      $bg_y = $style->length_in_pt($bg_y);
+
+    $repeat = $style->background_repeat;
+    $position = $style->background_position;
+    $bg_color = $style->background_color;
+    
     // Bail if the image is no good
     if ( $img == DOMPDF_LIB_DIR . "/res/broken_image.png" )
       return;
@@ -115,6 +127,7 @@ abstract class Abstract_Renderer {
     $bg = imagecreatetruecolor($bg_width, $bg_height);
     if ( $bg_color == "transparent" )
       $bg_color = array(1,1,1);
+    
     list($r,$g,$b) = $bg_color;
     $r *= 255; $g *= 255; $b *= 255;
 
@@ -149,9 +162,6 @@ abstract class Abstract_Renderer {
     default:
       return; // Unsupported image type
     }
-
-    list($bg_x,$bg_y) = $position;
-
 
     if ( is_percent($bg_x) ) {
       // The point $bg_x % from the left edge of the image is placed

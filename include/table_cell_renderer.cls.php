@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_renderer.cls.php,v 1.2 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: table_cell_renderer.cls.php,v 1.3 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * Renders table cells
@@ -58,16 +58,8 @@ class Table_Cell_Renderer extends Block_Renderer {
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color );
     }
 
-    if ( ($url = $style->background_image) && $url !== "none" ) {
-      list($bg_x, $bg_y) = $style->background_position;
-      $repeat = $style->background_repeat;
-
-      if ( !is_percent($bg_x) )
-        $bg_x = $style->length_in_pt($bg_x);
-      if ( !is_percent($bg_y) )
-        $bg_y = $style->length_in_pt($bg_y);
-          
-      $this->_background_image($url, $x, $y, $w, $h, $repeat, array($bg_x,$bg_y), $style->background_color);
+    if ( ($url = $style->background_image) && $url !== "none" ) {          
+      $this->_background_image($url, $x, $y, $w, $h, $style);
     }
 
     if ( $style->border_collapse != "collapse" ) {

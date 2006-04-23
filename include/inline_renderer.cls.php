@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: inline_renderer.cls.php,v 1.4 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: inline_renderer.cls.php,v 1.5 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * Renders inline frames
@@ -69,13 +69,6 @@ class Inline_Renderer extends Abstract_Renderer {
     $h = 0;
 //     $x += $widths[3];
 //     $y += $widths[0];
-
-    list($bg_x, $bg_y) = $style->background_position;
-    $bg_repeat = $style->background_repeat;
-    if ( !is_percent($bg_x) )
-      $bg_x = $style->length_in_pt($bg_x);
-    if ( !is_percent($bg_y) )
-      $bg_y = $style->length_in_pt($bg_y);
     
     $first_row = true;
 
@@ -93,7 +86,7 @@ class Inline_Renderer extends Abstract_Renderer {
           $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color);
 
         if ( ($url = $style->background_image) && $url !== "none" ) {
-          $this->_background_image($url, $x, $y, $w, $h, $bg_repeat, array($bg_x,$bg_y), $style->background_color);
+          $this->_background_image($url, $x, $y, $w, $h, $style);
         }
         
         // If this is the first row, draw the left border
@@ -146,7 +139,7 @@ class Inline_Renderer extends Abstract_Renderer {
       $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $style->background_color);
 
     if ( ($url = $style->background_image) && $url !== "none" )           
-      $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $bg_repeat, array($bg_x,$bg_y), $style->background_color);
+      $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $style);
 
         
     // Add the border widths

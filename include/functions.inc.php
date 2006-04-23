@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: functions.inc.php,v 1.8 2006-04-10 17:40:21 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.9 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -186,30 +186,30 @@ function explode_url($url) {
                     // network filenames like //COMPU/SHARENAME
     
     $host = ""; // localhost, really
-    $path = realpath(dirname($url)) . "/";
     $file = basename($url);
+    
+    // Fix submitted by Nick Oostveen for aliased directory support:
+    $path = realpath(dirname($url));
+	
+    // Check that the path exists
+    if ( $path !== false ) {
+      $path .= '/';
+      
+    } else {
+      // generate a url to access the file if no real path found.
+      $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';    
+      
+      $host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : php_uname("n");
+      
+      if ( substr($arr["path"], 0, 1) == '/' ) {
+        $path = dirname($arr["path"]);
+      }
+      else {
+        $path = '/' . rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/') . '/' . $arr["path"];
+      }
+    }
   }
   
-  // Fix submitted by Nick Oostveen for aliased directory support:
-  $path = realpath(dirname($url));
-	
-  // Check that the path exists
-  if ( $path !== false ) {
-    $path .= '/';	
-  } else {
-    // generate a url to access the file if no real path found.
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';    
-    
-    $host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : php_uname("n");
-
-    if ( substr($arr["path"], 0, 1) == '/' ) {
-      $path = dirname($arr["path"]);
-    }
-    else {
-      $path = '/' . rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/') . '/' . $arr["path"];
-    }
-  }
-    
   $file = basename($url);
     
   $ret = array($protocol, $host, $path, $file,

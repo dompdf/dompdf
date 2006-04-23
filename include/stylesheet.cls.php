@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.12 2006-04-10 17:40:21 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.13 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -159,6 +159,27 @@ class Stylesheet {
 
 
   /**
+   * Return the base protocol for this stylesheet
+   *
+   * @return string
+   */
+  function get_protocol() { return $this->_protocol; }
+
+  /**
+   * Return the base host for this stylesheet
+   *
+   * @return string
+   */
+  function get_host() { return $this->_base_host; }
+
+  /**
+   * Return the base path for this stylesheet
+   *
+   * @return string
+   */
+  function get_base_path() { return $this->_base_path; }
+  
+  /**
    * add a new Style object to the stylesheet
    *
    * add_style() adds a new Style object to the current stylesheet, or
@@ -225,8 +246,9 @@ class Stylesheet {
       return;
 
     $this->_loaded_files[$file] = true;
-    
-    list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = explode_url($file);
+    $parsed_url = explode_url($file);
+
+    list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
     
     if ( !DOMPDF_ENABLE_REMOTE &&
          ($this->_protocol != "" && $this->_protocol != "file://") ) {

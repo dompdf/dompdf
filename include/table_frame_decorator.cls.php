@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.9 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.10 2006-04-23 18:41:36 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -285,7 +285,8 @@ class Table_Frame_Decorator extends Frame_Decorator {
           // Okay, I have absolutely no idea why I need this clone here, but
           // if it's omitted, php (as of 2004-07-28) segfaults.
           $frame->set_style(clone $style);
-          $table_row = Frame_Factory::decorate_frame($frame);
+          $table_row = Frame_Factory::decorate_frame($frame, $this->_dompdf);
+          $table_row->set_root($this->_root);
           
           // Add the cell to the row
           $table_row->append_child($child);
