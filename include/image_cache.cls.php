@@ -82,6 +82,7 @@ class Image_Cache {
     
     $remote = ($proto != "" && $proto != "file://");
 
+    // Fix for remote images by Fabrizio Battino <fabryb@fastwebnet.it>
     $parsed_url = explode_url($url);
     $remote = $remote || ($parsed_url['protocol'] != "");
 

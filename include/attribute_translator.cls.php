@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: attribute_translator.cls.php,v 1.6 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.7 2006-05-04 17:39:59 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -66,7 +66,7 @@ class Attribute_Translator {
                   'width' => 'width: %s;',
                   ),
            'table' => 
-           array (array(//'left' => '',
+           array ("align" => array(//'left' => '',
                         'center' => 'margin-left: auto; margin-right: auto;',
                         //'right' => ''
                         ),
@@ -254,7 +254,7 @@ class Attribute_Translator {
     $style = rtrim($node->getAttribute("style"), "; ");
     if ( $style != "" )
       $style .= ";";
-    
+
     foreach ($attrs as $attr => $attr_node ) {
       if ( !isset($valid_attrs[$attr]) )
         continue;
@@ -288,7 +288,7 @@ class Attribute_Translator {
       return self::$func($node, $value);
     }
 
-    return sprintf($target, $value);
+    return $value ? sprintf($target, $value) : "";
   }
 
   //.....................................................................
