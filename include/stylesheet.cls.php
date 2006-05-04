@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.13 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.14 2006-05-04 19:37:08 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -218,10 +218,11 @@ class Stylesheet {
   /**
    * create a new Style object associated with this stylesheet
    *
+   * @param Style $parent The style of this style's parent in the DOM tree
    * @return Style
    */
-  function create_style() {
-    return new Style($this);
+  function create_style($parent = null) {
+    return new Style($this, $parent);
   }
   
 
@@ -589,27 +590,25 @@ class Stylesheet {
     $root_flg = false;
     foreach ($tree->get_frames() as $frame) {
       // pre_r($frame->get_node()->nodeName . ":");
-      
-      // Find nearest DOMElement parent
-      $p = $frame;      
-      while ( $p = $p->get_parent() )
-        if ($p->get_node()->nodeType == 1 )
-          break;
-      
-      // Inherit a new style from the frame's nearest parent with a style
+            
       if ( !$root_flg && $this->_page_style ) {
         $style = $this->_page_style;
         $root_flg = true;
 
       } else 
         $style = $this->create_style();
-        
-      if ( $p ) 
-        $style->inherit( $p->get_style() );
 
+      // Find nearest DOMElement parent
+      $p = $frame;      
+      while ( $p = $p->get_parent() )
+        if ($p->get_node()->nodeType == 1 )
+          break;
+      
       // Styles can only be applied directly to DOMElements; anonymous
       // frames inherit from their parent
       if ( $frame->get_node()->nodeType != 1 ) {
+        if ( $p )
+          $style->inherit($p->get_style());
         $frame->set_style($style);
         continue;
       }
@@ -638,6 +637,11 @@ class Stylesheet {
           foreach ($arr as $s) 
             $style->merge($s);
         }
+      }
+
+      // Inherit parent's styles if required
+      if ( $p ) {
+        $style->inherit( $p->get_style() );
       }
 
 //       pre_r($frame->get_node()->nodeName . ":");

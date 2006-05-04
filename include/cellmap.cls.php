@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: cellmap.cls.php,v 1.10 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.11 2006-05-04 19:37:08 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -637,6 +637,36 @@ class Cellmap {
         $frame->get_style()->height = $h;
     }
 
+  }
+
+  //........................................................................
+
+  /**
+   * Re-adjust frame height if the table height is larger than its content
+   */
+  function set_frame_heights($table_height, $content_height) {
+
+   
+    // Distribute the increased height proportionally amongst each row
+    foreach ( $this->_frames as $arr ) {
+      $frame = $arr["frame"];
+
+      $h = 0;
+      foreach ($arr["rows"] as $row ) {
+        if ( !isset($this->_rows[$row]) )
+          continue;
+
+        $h += $this->_rows[$row]["height"];
+      }
+     
+      $new_height = ($h / $content_height) * $table_height;
+      
+      if ( $frame instanceof Table_Cell_Frame_Decorator )
+        $frame->set_cell_height($new_height);
+      else
+        $frame->get_style()->height = $new_height;
+    }
+    
   }
   
   //........................................................................

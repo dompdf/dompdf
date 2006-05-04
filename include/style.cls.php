@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.13 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.14 2006-05-04 19:37:08 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -468,13 +468,13 @@ class Style {
     $this->_parent_font_size = $parent->get_font_size();
     
     foreach (self::$_inherited as $prop) {
-      if ( isset($parent->_props[$prop]) ) 
+      if ( !isset($this->_props[$prop]) && isset($parent->_props[$prop]) ) 
         $this->_props[$prop] = $parent->_props[$prop];
     }
-    
+      
     foreach (array_keys($this->_props) as $prop) {
-      if ( $this->_props[$prop] == "inherit" && isset($parent->_props[$prop]) ) 
-        $this->_props[$prop] = $parent->_props[$prop];
+      if ( $this->_props[$prop] == "inherit" )
+        $this->$prop = $parent->$prop;
     }
           
     return $this;

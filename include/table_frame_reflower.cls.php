@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.7 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.8 2006-05-04 19:37:08 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -290,7 +290,81 @@ class Table_Frame_Reflower extends Frame_Reflower {
       
     }
   }
+
+  //........................................................................
       
+  // Determine the frame's height based on min/max height
+  protected function _calculate_height() {
+
+    $style = $this->_frame->get_style();
+    $height = $style->height;
+
+    $cellmap = $this->_frame->get_cellmap();    
+    $cellmap->assign_frame_heights();
+    $rows = $cellmap->get_rows();
+
+    // Determine our content height
+    $content_height = 0;
+    foreach ( $rows as $r )
+      $content_height += $r["height"];    
+
+    $cb = $this->_frame->get_containing_block();
+    
+    if ( !($style->overflow === "visible" ||
+           ($style->overflow === "hidden" && $height === "auto")) ) {
+
+      // Only handle min/max height if the height is independent of the frame's content
+    
+      $min_height = $style->min_height;
+      $max_height = $style->max_height;
+
+      if ( isset($cb["h"]) ) {
+        $min_height = $style->length_in_pt($min_height, $cb["h"]);
+        $max_height = $style->length_in_pt($max_height, $cb["h"]);
+
+      } else if ( isset($cb["w"]) ) {
+
+        if ( mb_strpos($min_height, "%") !== false )
+          $min_height = 0;
+        else
+          $min_height = $style->length_in_pt($min_height, $cb["w"]);
+      
+        if ( mb_strpos($max_height, "%") !== false )
+          $max_height = "none";
+        else
+          $max_height = $style->length_in_pt($max_height, $cb["w"]);
+      }
+
+      if ( $max_height !== "none" && $min_height > $max_height )
+        // Swap 'em
+        list($max_height, $min_height) = array($min_height, $max_height);
+      
+      if ( $max_height !== "none" && $height > $max_height )
+        $height = $max_height;
+
+      if ( $height < $min_height )
+        $height = $min_height;
+
+    } else {
+
+      // Use the content height or the height value, whichever is greater
+      if ( $height !== "auto" ) {
+        $height = $style->length_in_pt($height, $cb["h"]);
+      
+        if ( $height <= $content_height )
+          $height = $content_height;
+        else 
+          $cellmap->set_frame_heights($height,$content_height);
+        
+      } else
+        $height = $content_height;
+      
+    }
+
+    
+    return $height;
+    
+  }
   //........................................................................
 
   function reflow() {
@@ -398,16 +472,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
       
     }
 
-    // Assign heights to our cells
-    $cellmap->assign_frame_heights();
-    $rows = $cellmap->get_rows();
-
-    // Determine our height
-    $height = 0;
-    foreach ( $rows as $r )
-      $height += $r["height"];
-    
-    $style->height = $height;
+    // Assign heights to our cells: 
+    $style->height = $this->_calculate_height();
         
     if ( $style->border_collapse === "collapse" ) {
       // Unset our borders because our cells are now using them
