@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: font_metrics.cls.php,v 1.4 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: font_metrics.cls.php,v 1.5 2006-05-25 19:52:57 benjcarson Exp $ */
 
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 
@@ -142,6 +142,9 @@ class Font_Metrics {
     if ( !in_array($subtype, array("normal", "bold", "italic", "bold_italic")) )
       //throw new DOMPDF_Exception("Font subtype '$subtype' is unsupported.");
       return self::$_font_lookup[DOMPDF_DEFAULT_FONT]["normal"];
+    
+    if ( !isset(self::$_font_lookup[$family][$subtype]) )
+      return null;
     
     return self::$_font_lookup[$family][$subtype];
   }

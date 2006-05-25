@@ -37,7 +37,7 @@
  * @version 0.4
  */
 
-/* $Id: functions.inc.php,v 1.9 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.10 2006-05-25 19:52:57 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -203,8 +203,7 @@ function explode_url($url) {
       
       if ( substr($arr["path"], 0, 1) == '/' ) {
         $path = dirname($arr["path"]);
-      }
-      else {
+      } else {
         $path = '/' . rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/') . '/' . $arr["path"];
       }
     }

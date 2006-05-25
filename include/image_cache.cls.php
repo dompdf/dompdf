@@ -80,10 +80,16 @@ class Image_Cache {
 
     $ext = mb_strtolower(mb_substr($tmp, $i+1));
     
-    $remote = ($proto != "" && $proto != "file://");
+    // Is this a relative URL?
+    if ( strpos($url, "://") === false && $url{0} != "/" ) {
+      // Prepend the base path to the url
+      $url = rtrim($base_path,"/") . "/" . $url;
+    }
 
     // Fix for remote images by Fabrizio Battino <fabryb@fastwebnet.it>
     $parsed_url = explode_url($url);
+
+    $remote = ($proto != "" && $proto != "file://");
     $remote = $remote || ($parsed_url['protocol'] != "");
 
     if ( !DOMPDF_ENABLE_REMOTE && $remote ) {
@@ -96,13 +102,13 @@ class Image_Cache {
 
       if ( isset(self::$_cache[$url]) ) {
         $resolved_url = self::$_cache[$url];
-        echo "Using cached image $url (" . $resolved_url . ")\n";
+        //echo "Using cached image $url (" . $resolved_url . ")\n";
         
       } else {
 
         //echo "Downloading file $url to temporary location: ";
         $resolved_url = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-        //echo $this->_image_url . "\n";
+        //echo $resolved_url . "\n";
         
         $old_err = set_error_handler("record_warnings");
         $image = file_get_contents($url);
@@ -117,12 +123,12 @@ class Image_Cache {
         
         self::$_cache[$url] = $resolved_url;
         
-        
       }
       
     } else {
 
       $resolved_url = build_url($proto, $host, $base_path, $url);
+      //echo $resolved_url . "\n";
               
     }
 
