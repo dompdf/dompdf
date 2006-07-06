@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_reflower.cls.php,v 1.2 2005-11-19 01:07:11 benjcarson Exp $ */
+/* $Id: frame_reflower.cls.php,v 1.3 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Base reflower class
@@ -58,11 +58,11 @@ abstract class Frame_Reflower {
   function dispose() {
     unset($this->_frame);
   }
-  
+
   protected function _collapse_margins() {
     $cb = $this->_frame->get_containing_block();
     $style = $this->_frame->get_style();
-    
+
     $t = $style->length_in_pt($style->margin_top, $cb["h"]);
     $b = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
@@ -71,13 +71,13 @@ abstract class Frame_Reflower {
       $style->margin_top = "0pt";
       $t = 0;
     }
-    
+
     if ( $b === "auto" ) {
       $style->margin_bottom = "0pt";
       $b = 0;
     }
-    
-    // Collapse vertical margins: 
+
+    // Collapse vertical margins:
     $n = $this->_frame->get_next_sibling();
     while ( $n && !in_array($n->get_style()->display, Style::$BLOCK_TYPES) )
       $n = $n->get_next_sibling();
@@ -95,7 +95,7 @@ abstract class Frame_Reflower {
     $f = $this->_frame->get_first_child();
     while ( $f && !in_array($f->get_style()->display, Style::$BLOCK_TYPES) )
       $f = $f->get_next_sibling();
-    
+
     if ( $f ) {
       $t = max( $t, $style->length_in_pt($f->get_style()->margin_top, $cb["w"]));
       $style->margin_top = "$t pt";
@@ -109,7 +109,7 @@ abstract class Frame_Reflower {
     $y = $this->_frame->get_position("y");
     $h = $style->length_in_pt($style->height);
     // Check if we need to move to a new page
-    if ( $y + $h >= $this->_frame->get_root()->get_page_height() ) 
+    if ( $y + $h >= $this->_frame->get_root()->get_page_height() )
       return true;
 
   }
@@ -126,11 +126,11 @@ abstract class Frame_Reflower {
   // this if necessary.
   function get_min_max_width() {
     $style = $this->_frame->get_style();
-    
+
     // Handle degenerate case
     if ( !$this->_frame->get_first_child() )
       return array(0,0,"min" => 0, "max" => 0);
-    
+
     $low = array();
     $high = array();
 
@@ -157,7 +157,7 @@ abstract class Frame_Reflower {
         $iter->next();
 
       }
-      
+
       if ( $inline_max == 0 && $iter->valid() ) {
         list($low[], $high[]) = $iter->current()->get_min_max_width();
         continue;
@@ -168,9 +168,9 @@ abstract class Frame_Reflower {
 
       if ( $inline_min > 0 )
         $low[] = $inline_min;
-      
+
     }
-    
+
     $min = count($low) ? max($low) : 0;
     $max = count($high) ? max($high) : 0;
 
@@ -190,15 +190,15 @@ abstract class Frame_Reflower {
       if ( $min < $width )
         $min = $width;
     }
-    
+
     $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
 
     $min += $delta;
     $max += $delta;
-    
+
     return array($min, $max, "min"=>$min, "max"=>$max);
-  }  
-  
+  }
+
 }
 
 ?>

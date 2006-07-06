@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: text_renderer.cls.php,v 1.3 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: text_renderer.cls.php,v 1.4 2006-07-06 23:34:02 benjcarson Exp $ */
 /**
  * Renders text frames
  *
@@ -131,3 +131,5 @@ class Text_Renderer extends Abstract_Renderer {
   }
 
 }
+
+?>

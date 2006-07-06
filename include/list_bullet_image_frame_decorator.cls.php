@@ -37,7 +37,7 @@
  * @version 0.4.1
  */
 
-/* $Id: list_bullet_image_frame_decorator.cls.php,v 1.2 2005-06-30 03:02:12 benjcarson Exp $ */
+/* $Id: list_bullet_image_frame_decorator.cls.php,v 1.3 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Decorates frames for list bullets with custom images
@@ -78,7 +78,7 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
     $url = $frame->get_style()->list_style_image;
     $frame->get_node()->setAttribute("src", $url);
     $this->_img = new Image_Frame_Decorator($frame, $dompdf);
-    parent::__construct($this->_img);
+    parent::__construct($this->_img, $dompdf);
     list($width, $height) = getimagesize($this->_img->get_image_url());
 
     // Resample the bullet image to be consistent with 'auto' sized images

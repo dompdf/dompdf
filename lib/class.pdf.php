@@ -3202,7 +3202,7 @@ class  Cpdf {
     $attachment =  $options["Attachment"] ?  "attachment" :  "inline";
 
 
-    header('Content-Disposition: $attachment; filename="'.$fileName.'"');
+    header("Content-Disposition: $attachment; filename=\"$fileName\"");
 
 
     if  (isset($options['Accept-Ranges']) &&  $options['Accept-Ranges'] ==  1) {

@@ -45,6 +45,11 @@ require_once("dompdf_config.inc.php");
  */
 define("_TTF2AFM", TTF2AFM . " -a -GAef -OW ");
 
+if ( !file_exists(TTF2AFM) ) {
+  die("Unable to locate the ttf2afm / ttf2pt1 executable (checked " . TTF2AFM . ").\n");
+}
+  
+  
 /**
  * Display command line usage
  * 

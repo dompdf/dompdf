@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_renderer.cls.php,v 1.3 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: block_renderer.cls.php,v 1.4 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Renders block frames
@@ -46,24 +46,24 @@
  * @package dompdf
  */
 class Block_Renderer extends Abstract_Renderer {
-  
+
   //........................................................................
 
   function render(Frame $frame) {
     $style = $frame->get_style();
     list($x, $y, $w, $h) = $frame->get_padding_box();
-    
+
     // Draw our background, border and content
-    if ( ($bg = $style->background_color) !== "transparent" ) {      
+    if ( ($bg = $style->background_color) !== "transparent" ) {
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color );
     }
 
-    if ( ($url = $style->background_image) && $url !== "none" )       
-      $this->_background_image($url, $x, $y, $w, $h, $style); //$repeat, array($bg_x,$bg_y), $style->background_color);
-    
+    if ( ($url = $style->background_image) && $url !== "none" )
+      $this->_background_image($url, $x, $y, $w, $h, $style);
+
 
     $this->_render_border($frame);
-    
+
   }
 
   protected function _render_border(Frame_Decorator $frame, $corner_style = "bevel") {
@@ -104,13 +104,13 @@ class Block_Renderer extends Abstract_Renderer {
         $x += $w;
         break;
       default:
-        break;        
+        break;
       }
-      $method = "_border_" . $props["style"];      
+      $method = "_border_" . $props["style"];
 
       $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style);
-    }        
-  }  
+    }
+  }
 }
 
 ?>

@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.14 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.15 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -59,10 +59,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
   protected function _calculate_width($width) {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
-    
+
     $r = $style->length_in_pt($style->margin_right, $w);
-    $l = $style->length_in_pt($style->margin_left, $w);    
-    
+    $l = $style->length_in_pt($style->margin_left, $w);
+
     // Handle 'auto' values
     $dims = array($style->border_left_width,
                   $style->border_right_width,
@@ -71,7 +71,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
                   $width !== "auto" ? $width : 0,
                   $r !== "auto" ? $r : 0,
                   $l !== "auto" ? $l : 0);
-    
+
     $sum = $style->length_in_pt($dims, $w);
 
     // Compare to the containing block
@@ -80,10 +80,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( $diff > 0 ) {
 
       // Find auto properties and get them to take up the slack
-      if ( $width === "auto" ) 
+      if ( $width === "auto" )
         $width = $diff;
-        
-      else if ( $l === "auto" && $r === "auto" ) 
+
+      else if ( $l === "auto" && $r === "auto" )
         $l = $r = round($diff / 2);
 
       else if ( $l === "auto" )
@@ -91,14 +91,14 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
       else if ( $r === "auto" )
         $r = $diff;
-      
+
     } else if ($diff < 0) {
 
       // We are over constrained--set margin-right to the difference
       $r = $diff;
-      
+
     }
-    
+
     return array("width"=> $width, "margin_left" => $l, "margin_right" => $r);
   }
 
@@ -115,7 +115,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $width = "auto";
     else
       $width = $style->length_in_pt($style->width, $cb["w"]);
-    
+
     extract($this->_calculate_width($width));
 
     // Handle min/max width
@@ -125,13 +125,13 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( $max_width !== "none" && $min_width > $max_width)
       // Swap 'em
       list($max_width, $min_width) = array($min_width, $max_width);
-    
+
     if ( $max_width !== "none" && $width > $max_width )
       extract($this->_calculate_width($max_width));
-    
+
     if ( $width < $min_width )
-      extract($this->_calculate_width($min_width));    
-      
+      extract($this->_calculate_width($min_width));
+
     return array($width, $margin_left, $margin_right);
 
   }
@@ -140,50 +140,52 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   // Determine the unrestricted height of content within the block
   protected function _calculate_content_height() {
+
+    // Calculate the actual height
+    $height = 0;
+    
+    // Add the height of all lines
+    foreach ($this->_frame->get_lines() as $line)
+      $height += $line["h"];
+
+    return $height;
+  }
+
+  // Determine the frame's restricted height
+  protected function _calculate_restricted_height() {
     $style = $this->_frame->get_style();
+    $content_height = $this->_calculate_content_height();
     $cb = $this->_frame->get_containing_block();
 
     $height = $style->height;
 
     // Handle percentage heights
-    if ( isset($cb["h"]) ) 
+    if ( isset($cb["h"]) ) {
       $height = $style->length_in_pt($height, $cb["h"]);
-      
-    else if ( mb_strpos($height, "%") !== false )
+
+    } else if ( mb_strpos($height, "%") !== false )
       $height = "auto";
 
     else
       $height = $style->length_in_pt($height, $cb["w"]);
 
-    // FIXME: not sure about this...  What if height is specified precisely,
-    // but overflow is visible?
-    if ( $style->overflow === "visible" ||
-         ($style->overflow === "hidden" && $height === "auto") ) {
+    // Remove margin, padding & borders
+    $height -= $style->length_in_pt( array($style->margin_top,
+                                           $style->padding_top,
+                                           $style->border_top_width,
+                                           $style->border_bottom_width,
+                                           $style->padding_bottom,
+                                           $style->margin_bottom),
+                                     $cb["h"]);
 
-      // Calculate the actual height
-      $height = 0;
+    // Expand the height if overflow is visible
+    if ( $content_height > $height && $style->overflow === "visible" )
+      $height = $content_height;
 
-      // Add the height of all lines
-      foreach ($this->_frame->get_lines() as $line)
-        $height += $line["h"];
-
-    }
-
-    return $height;
-  }
-  
-  // Determine the frame's restricted height
-  protected function _calculate_restricted_height() {
-    $style = $this->_frame->get_style();
-    $height = $this->_calculate_content_height();
-    
-    $cb = $this->_frame->get_containing_block();
-
+    // Only handle min/max height if the height is independent of the frame's content
     if ( !($style->overflow === "visible" ||
            ($style->overflow === "hidden" && $height === "auto")) ) {
 
-      // Only handle min/max height if the height is independent of the frame's content
-    
       $min_height = $style->min_height;
       $max_height = $style->max_height;
 
@@ -197,7 +199,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
           $min_height = 0;
         else
           $min_height = $style->length_in_pt($min_height, $cb["w"]);
-      
+
         if ( mb_strpos($max_height, "%") !== false )
           $max_height = "none";
         else
@@ -207,7 +209,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       if ( $max_height !== "none" && $min_height > $max_height )
         // Swap 'em
         list($max_height, $min_height) = array($min_height, $max_height);
-      
+
       if ( $max_height !== "none" && $height > $max_height )
         $height = $max_height;
 
@@ -216,7 +218,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
 
     return $height;
-    
+
   }
 
   //........................................................................
@@ -225,7 +227,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
     $width = $style->length_in_pt($style->width, $w);
-    
+
     // Adjust the justification of each of our lines.
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-align
     switch ($style->text_align) {
@@ -239,16 +241,16 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
         // Move each child over by $dx
         $dx = $width - $line["w"];
-        foreach($line["frames"] as $frame) 
+        foreach($line["frames"] as $frame)
           $frame->set_position( $frame->get_position("x") + $dx );
 
       }
       break;
 
-      
+
     case "justify":
       foreach ($this->_frame->get_lines() as $i => $line) {
-        
+
         // Only set the spacing if the line is long enough.  This is really
         // just an aesthetic choice ;)
         if ( $line["w"] > self::MIN_JUSTIFY_WIDTH * $width ) {
@@ -257,12 +259,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
             $spacing = ($width - $line["w"]) / ($line["wc"] - 1);
           else
             $spacing = 0;
-          
+
           $dx = 0;
           foreach($line["frames"] as $frame) {
             if ( !$frame instanceof Text_Frame_Decorator )
               continue;
-            
+
             $frame->set_position( $frame->get_position("x") + $dx );
             $frame->set_text_spacing($spacing);
             $dx += mb_substr_count($frame->get_text(), " ") * $spacing;
@@ -280,7 +282,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       foreach ($this->_frame->get_lines() as $i => $line) {
         // Centre each line by moving each frame in the line by:
         $dx = ($width - $line["w"]) / 2;
-        foreach ($line["frames"] as $frame) 
+        foreach ($line["frames"] as $frame)
           $frame->set_position( $frame->get_position("x") + $dx );
       }
       break;
@@ -293,7 +295,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
   function vertical_align() {
     // Align each child vertically after each line is reflowed
     foreach ( $this->_frame->get_lines() as $i => $line ) {
-                 
+
       foreach ( $line["frames"] as $frame ) {
         $style = $frame->get_style();
 
@@ -303,30 +305,30 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $align = $style->vertical_align;
 
         $frame_h = $frame->get_margin_height();
-        
+
         switch ($align) {
 
         case "baseline":
           $y = $line["y"] + $line["h"] - $frame_h;
           break;
-          
+
         case "middle":
           $y = $line["y"] + ($line["h"] + $frame_h) / 2;
           break;
-          
+
         case "sub":
           $y = $line["y"] + 0.9 * $line["h"];
           break;
-          
+
         case "super":
           $y = $line["y"] + 0.1 * $line["h"];
           break;
-          
+
         case  "text-top":
         case "top": // Not strictly accurate, but good enough for now
           $y = $line["y"];
           break;
-          
+
         case "text-bottom":
         case "bottom":
           $y = $line["y"] + $line["h"] - $frame_h;
@@ -335,11 +337,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
         $x = $frame->get_position("x");
         $frame->set_position($x, $y);
-        
+
       }
     }
   }
-  
+
   //........................................................................
 
   function reflow() {
@@ -350,17 +352,17 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     // Bail if the page is full
     if ( $page->is_full() )
-      return;    
-    
+      return;
+
     // Collapse margins if required
     $this->_collapse_margins();
-    
+
     $this->_frame->position();
 
-    $style = $this->_frame->get_style();    
+    $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
     list($x, $y) = $this->_frame->get_position();
-        
+
     // Determine the constraints imposed by this frame: calculate the width
     // of the content area:
     list($w, $left, $right) = $this->_calculate_restricted_width();
@@ -374,7 +376,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $cb["w"]);
     $this->_frame->increase_line_width($indent);
-    
+
     // Determine the content edge
     $top = $style->length_in_pt(array($style->margin_top,
                                       $style->padding_top,
@@ -391,31 +393,31 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $cb_y = $line_y = $y + $top;
 
     $cb_h = ($cb["h"] + $cb["y"]) - $bottom - $cb_y;
-    
+
     // Set the y position of the first line in this block
     $this->_frame->set_current_line($line_y);
-    
+
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
 
       // Bail out if the page is full
       if ( $page->is_full() )
         break;
-      
+
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
       $child->reflow();
-      
+
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
-        break;      
-            
+        break;
+
       // It's okay to add the frame to the line
       $this->_frame->add_frame_to_line( $child );
     }
 
     // Determine our height
     $style->height = $this->_calculate_restricted_height();
-    
+
     $this->_text_align();
 
     $this->vertical_align();

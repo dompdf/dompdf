@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: stylesheet.cls.php,v 1.14 2006-05-04 19:37:08 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.15 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -379,7 +379,8 @@ class Stylesheet {
         // This doesn't work because libxml only supports XPath 1.0...
         //$query .= "[matches(@$attr,\"^${tok}\$|^${tok}[ ]+|[ ]+${tok}\$|[ ]+${tok}[ ]+\")]";
         
-        $query .= "[@$attr = \"$tok\" or starts-with(@$attr, \"$tok \") or contains(@$attr,\" $tok \") or substring(@$attr, string-length(@$attr) - string-length(\"$tok\")) = \" $tok\"]";
+        // Query improvement by Michael Sheakoski <michael@mjsdigital.com>:
+        $query .= "[contains(concat(' ', @$attr, ' '), concat(' ', '$tok', ' '))]";
         $tok = "";
         break;
 

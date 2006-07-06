@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_positioner.cls.php,v 1.1.1.1 2005-01-25 22:56:03 benjcarson Exp $ */
+/* $Id: table_cell_positioner.cls.php,v 1.2 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Positions table cells
@@ -59,3 +59,4 @@ class Table_Cell_Positioner extends Positioner {
 
   }
 }
+?>

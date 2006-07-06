@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: abstract_renderer.cls.php,v 1.4 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: abstract_renderer.cls.php,v 1.5 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Base renderer class
@@ -94,12 +94,17 @@ abstract class Abstract_Renderer {
    */
   protected function _background_image($url, $x, $y, $width, $height, $style) {
     $sheet = $style->get_stylesheet();
+
+    // Skip degenerate cases
+    if ( $width == 0 || $height == 0 )
+      return;
     
     list($img, $ext) = Image_Cache::resolve_url($url,
                                                 $sheet->get_protocol(),
                                                 $sheet->get_host(),
                                                 $sheet->get_base_path());
 
+    
     list($bg_x, $bg_y) = $style->background_position;
     $repeat = $style->background_repeat;
 
@@ -122,7 +127,7 @@ abstract class Abstract_Renderer {
 
     $bg_width = round($width * DOMPDF_DPI / 72);
     $bg_height = round($height * DOMPDF_DPI / 72);
-    
+
     // Create a new image to fit over the background rectangle
     $bg = imagecreatetruecolor($bg_width, $bg_height);
     if ( $bg_color == "transparent" )

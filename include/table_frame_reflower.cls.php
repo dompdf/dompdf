@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.8 2006-05-04 19:37:08 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.9 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -53,7 +53,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
    * @var array
    */
   protected $_state;
-  
+
   function __construct(Table_Frame_Decorator $frame) {
     $this->_state = null;
     parent::__construct($frame);
@@ -65,12 +65,12 @@ class Table_Frame_Reflower extends Frame_Reflower {
   function reset() {
     $this->_state = null;
   }
-  
+
   //........................................................................
 
   protected function _assign_widths() {
     $style = $this->_frame->get_style();
-    
+
     // Find the min/max width of the table and sort the columns into
     // absolute/percent/auto arrays
     $min_width = $this->_state["min_width"];
@@ -86,66 +86,66 @@ class Table_Frame_Reflower extends Frame_Reflower {
     // Determine the actual width of the table
     $cb = $this->_frame->get_containing_block();
     $columns =& $this->_frame->get_cellmap()->get_columns();
-    
+
     $width = $style->width;
 
     // Calcluate padding & border fudge factor
     $left = $style->margin_left;
     $right = $style->margin_right;
-    
+
     $left = $left == "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
     $right = $right == "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
-    
+
     $delta = $left + $right + $style->length_in_pt(array($style->padding_left,
                                                          $style->border_left_width,
                                                          $style->border_right_width,
                                                          $style->padding_right), $cb["w"]);
 
     $min_table_width = $style->length_in_pt( $style->min_width, $cb["w"] - $delta );
-    
+
     if ( $width !== "auto" ) {
-      
+
       $preferred_width = $style->length_in_pt($width, $cb["w"]) - $delta;
 
       if ( $preferred_width < $min_table_width )
         $preferred_width = $min_table_width;
-      
-      if ( $preferred_width > $min_width )        
+
+      if ( $preferred_width > $min_width )
         $width = $preferred_width;
-      else 
-        $width = $min_width;      
-      
+      else
+        $width = $min_width;
+
     } else {
 
       if ( $max_width + $delta < $cb["w"] )
         $width = $max_width;
       else if ( $cb["w"] - $delta > $min_width )
         $width = $cb["w"] - $delta;
-      else 
+      else
         $width = $min_width;
 
       if ( $width < $min_table_width )
         $width = $min_table_width;
-      
+
     }
-    
+
     // Store our resolved width
     $style->width = $width;
 
     $cellmap = $this->_frame->get_cellmap();
-    
+
     // If the whole table fits on the page, then assign each column it's max width
     if ( $width == $max_width ) {
 
       foreach (array_keys($columns) as $i)
         $cellmap->set_column_width($i, $columns[$i]["max-width"]);
-        
+
       return;
     }
-    
+
     // Determine leftover and assign it evenly to all columns
     if ( $width > $min_width ) {
-      
+
       // We have four cases to deal with:
       //
       // 1. All columns are auto--no widths have been specified.  In this
@@ -165,29 +165,29 @@ class Table_Frame_Reflower extends Frame_Reflower {
       // Case 1:
       if ( $absolute_used == 0 && $percent_used == 0 ) {
         $increment = $width - $min_width;
-        
-        foreach (array_keys($columns) as $i) 
-          $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment * ($columns[$i]["max-width"] / $max_width)); 
+
+        foreach (array_keys($columns) as $i)
+          $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment * ($columns[$i]["max-width"] / $max_width));
         return;
       }
-      
+
 
       // Case 2
       if ( $absolute_used > 0 && $percent_used == 0 ) {
 
-        if ( count($auto) > 0 ) 
+        if ( count($auto) > 0 )
           $increment = ($width - $auto_min - $absolute_used) / count($auto);
         else
           $increment = 0;
-        
+
         // Use the absolutely specified width or the increment
         foreach (array_keys($columns) as $i) {
-          
-          if ( $columns[$i]["absolute"] > 0 ) 
+
+          if ( $columns[$i]["absolute"] > 0 )
             $cellmap->set_column_width($i, $columns[$i]["min-width"]);
           else
             $cellmap->set_column_width($i,$columns[$i]["min-width"] + $increment);
-          
+
         }
         return;
       }
@@ -201,22 +201,22 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
         // Scale percent values if the total percentage is > 100, or if all
         // values are specified as percentages.
-        if ( $percent_used > 100 || count($auto) == 0) 
+        if ( $percent_used > 100 || count($auto) == 0)
           $scale = 100 / $percent_used;
         else
           $scale = 1;
 
         // Account for the minimum space used by the unassigned auto columns
         $used_width = $auto_min;
-        
+
         foreach ($percent as $i) {
           $columns[$i]["percent"] *= $scale;
 
           $slack = $width - $used_width;
-          
+
           $w = min($columns[$i]["percent"] * $width/100, $slack);
-            
-          if ( $w < $columns[$i]["min-width"] ) 
+
+          if ( $w < $columns[$i]["min-width"] )
             $w = $columns[$i]["min-width"];
 
           $cellmap->set_column_width($i, $w);
@@ -235,19 +235,19 @@ class Table_Frame_Reflower extends Frame_Reflower {
         }
         return;
       }
-      
+
       // Case 4:
 
       // First-come, first served
       if ( $absolute_used > 0 && $percent_used > 0 ) {
-        
+
         $used_width = $auto_min;
 
         foreach ($absolute as $i) {
           $cellmap->set_column_width($i, $columns[$i]["min-width"]);
           $used_width +=  $columns[$i]["min-width"];
         }
-        
+
         // Scale percent values if the total percentage is > 100 or there
         // are no auto values to take up slack
         if ( $percent_used > 100 || count($auto) == 0 )
@@ -256,10 +256,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
           $scale = 1;
 
         $remaining_width = $width - $used_width;
-        
+
         foreach ($percent as $i) {
           $slack = $remaining_width - $used_width;
-          
+
           $columns[$i]["percent"] *= $scale;
           $w = min($columns[$i]["percent"] * $remaining_width / 100, $slack);
 
@@ -269,52 +269,52 @@ class Table_Frame_Reflower extends Frame_Reflower {
           $columns[$i]["used-width"] = $w;
           $used_width += $w;
         }
-              
+
         if ( count($auto) > 0 ) {
           $increment = ($width - $used_width) / count($auto);
-        
+
           foreach ($auto as $i)
             $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
-        
+
         }
 
         return;
       }
 
-      
+
     } else { // we are over constrained
 
       // Each column gets its minimum width
-      foreach (array_keys($columns) as $i) 
+      foreach (array_keys($columns) as $i)
         $cellmap->set_column_width($i, $columns[$i]["min-width"]);
-      
+
     }
   }
 
   //........................................................................
-      
+
   // Determine the frame's height based on min/max height
   protected function _calculate_height() {
 
     $style = $this->_frame->get_style();
     $height = $style->height;
 
-    $cellmap = $this->_frame->get_cellmap();    
+    $cellmap = $this->_frame->get_cellmap();
     $cellmap->assign_frame_heights();
     $rows = $cellmap->get_rows();
 
     // Determine our content height
     $content_height = 0;
     foreach ( $rows as $r )
-      $content_height += $r["height"];    
+      $content_height += $r["height"];
 
     $cb = $this->_frame->get_containing_block();
-    
+
     if ( !($style->overflow === "visible" ||
            ($style->overflow === "hidden" && $height === "auto")) ) {
 
       // Only handle min/max height if the height is independent of the frame's content
-    
+
       $min_height = $style->min_height;
       $max_height = $style->max_height;
 
@@ -328,7 +328,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
           $min_height = 0;
         else
           $min_height = $style->length_in_pt($min_height, $cb["w"]);
-      
+
         if ( mb_strpos($max_height, "%") !== false )
           $max_height = "none";
         else
@@ -338,7 +338,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
       if ( $max_height !== "none" && $min_height > $max_height )
         // Swap 'em
         list($max_height, $min_height) = array($min_height, $max_height);
-      
+
       if ( $max_height !== "none" && $height > $max_height )
         $height = $max_height;
 
@@ -350,20 +350,20 @@ class Table_Frame_Reflower extends Frame_Reflower {
       // Use the content height or the height value, whichever is greater
       if ( $height !== "auto" ) {
         $height = $style->length_in_pt($height, $cb["h"]);
-      
+
         if ( $height <= $content_height )
           $height = $content_height;
-        else 
+        else
           $cellmap->set_frame_heights($height,$content_height);
-        
+
       } else
         $height = $content_height;
-      
+
     }
 
-    
+
     return $height;
-    
+
   }
   //........................................................................
 
@@ -375,19 +375,19 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     // Bail if the page is full
     if ( $page->is_full() )
-      return;    
+      return;
 
     // Let the page know that we're reflowing a table so that splits
     // are suppressed (simply setting page-break-inside: avoid won't
     // work because we may have an arbitrary number of block elements
     // inside tds.)
     $page->table_reflow_start();
-    
+
     // Collapse vertical margins, if required
     $this->_collapse_margins();
 
     $this->_frame->position();
-    
+
     // Table layout algorithm:
     // http://www.w3.org/TR/CSS21/tables.html#auto-table-layout
 
@@ -395,7 +395,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
       $this->get_min_max_width();
 
     $cb = $this->_frame->get_containing_block();
-    $style = $this->_frame->get_style();    
+    $style = $this->_frame->get_style();
 
     // This is slightly inexact, but should be okay.  Add half the
     // border-spacing to the table as padding.  The other half is added to
@@ -421,7 +421,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $right = $style->margin_right;
 
     $diff = $cb["w"] - $width;
-    
+
     if ( $left === "auto" && $right === "auto" && $diff > 0 ) {
       $left = $right = $diff / 2;
       $style->margin_left = "$left pt";
@@ -434,7 +434,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
 
     list($x, $y) = $this->_frame->get_position();
-    
+
     // Determine the content edge
     $content_x = $x + $left + $style->length_in_pt(array($style->padding_left,
                                                          $style->border_left_width), $cb["w"]);
@@ -454,7 +454,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     $row =& $cellmap->get_row(0);
     $row["y"] = $content_y;
-    
+
     $cellmap->assign_x_positions();
 
     // Set the containing block of each child & reflow
@@ -463,25 +463,25 @@ class Table_Frame_Reflower extends Frame_Reflower {
       // Bail if the page is full
       if ( $page->is_full() )
         break;
-      
+
       $child->set_containing_block($content_x, $content_y, $width, $h);
       $child->reflow();
 
       // Check if a split has occured
       $page->check_page_break($child);
-      
+
     }
 
-    // Assign heights to our cells: 
+    // Assign heights to our cells:
     $style->height = $this->_calculate_height();
-        
+
     if ( $style->border_collapse === "collapse" ) {
       // Unset our borders because our cells are now using them
       $style->border_style = "none";
     }
 
     $page->table_reflow_end();
-    
+
     // Debugging:
     //echo ($this->_frame->get_cellmap());
   }
@@ -496,7 +496,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     // Add the cells to the cellmap (this will calcluate column widths as
     // frames are added)
     $this->_frame->get_cellmap()->add_frame($this->_frame);
-    
+
     // Find the min/max width of the table and sort the columns into
     // absolute/percent/auto arrays
     $this->_state = array();
@@ -515,7 +515,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     foreach (array_keys($columns) as $i) {
       $this->_state["min_width"] += $columns[$i]["min-width"];
       $this->_state["max_width"] += $columns[$i]["max-width"];
-      
+
       if ( $columns[$i]["absolute"] > 0 ) {
         $this->_state["absolute"][] = $i;
         $this->_state["absolute_used"] += $columns[$i]["absolute"];

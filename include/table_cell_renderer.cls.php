@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: table_cell_renderer.cls.php,v 1.3 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: table_cell_renderer.cls.php,v 1.4 2006-07-06 23:34:02 benjcarson Exp $ */
 
 /**
  * Renders table cells
@@ -46,19 +46,20 @@
  * @package dompdf
  */
 class Table_Cell_Renderer extends Block_Renderer {
-  
+
   //........................................................................
 
   function render(Frame $frame) {
     $style = $frame->get_style();
-    
+    list($x, $y, $w, $h) = $frame->get_padding_box();
+
     // Draw our background, border and content
-    if ( ($bg = $style->background_color) !== "transparent" ) {      
+    if ( ($bg = $style->background_color) !== "transparent" ) {
       list($x, $y, $w, $h) = $frame->get_padding_box();
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color );
     }
 
-    if ( ($url = $style->background_image) && $url !== "none" ) {          
+    if ( ($url = $style->background_image) && $url !== "none" ) {
       $this->_background_image($url, $x, $y, $w, $h, $style);
     }
 
@@ -66,9 +67,9 @@ class Table_Cell_Renderer extends Block_Renderer {
       $this->_render_border($frame, "bevel");
       return;
     }
-      
+
     // The collapsed case is slightly complicated...
-      
+
     $cellmap = Table_Frame_Decorator::find_parent_table($frame)->get_cellmap();
     $cells = $cellmap->get_spanned_cells($frame);
     $num_rows = $cellmap->get_num_rows();
@@ -87,17 +88,17 @@ class Table_Cell_Renderer extends Block_Renderer {
     } else
       $draw_bottom = false;
 
-   
+
     // Draw the horizontal borders
     foreach ( $cells["columns"] as $j ) {
       $bp = $cellmap->get_border_properties($i, $j);
 
       $y = $top_row["y"] - $bp["top"]["width"] / 2;
-        
+
       $col = $cellmap->get_column($j);
       $x = $col["x"] - $bp["left"]["width"] / 2;
       $w = $col["used-width"] + ($bp["left"]["width"] + $bp["right"]["width"] ) / 2;
-        
+
       if ( $bp["top"]["style"] != "none" && $bp["top"]["width"] > 0 ) {
         $widths = array($bp["top"]["width"],
                         $bp["right"]["width"],
@@ -113,64 +114,64 @@ class Table_Cell_Renderer extends Block_Renderer {
           continue;
 
         $y = $bottom_row["y"] + $bottom_row["height"] + $bp["bottom"]["width"] / 2;
-        
+
         $widths = array($bp["top"]["width"],
                         $bp["right"]["width"],
                         $bp["bottom"]["width"],
                         $bp["left"]["width"]);
         $method = "_border_". $bp["bottom"]["style"];
         $this->$method($x, $y, $w, $bp["bottom"]["color"], $widths, "bottom", "square");
-        
+
       }
     }
 
     $j = $cells["columns"][0];
-    
+
     $left_col = $cellmap->get_column($j);
 
     if (in_array($num_cols - 1, $cells["columns"])) {
       $draw_right = true;
-      $right_col = $cellmap->get_column($num_cols - 1);      
+      $right_col = $cellmap->get_column($num_cols - 1);
     } else
       $draw_right = false;
-    
+
     // Draw the vertical borders
     foreach ( $cells["rows"] as $i ) {
       $bp = $cellmap->get_border_properties($i, $j);
 
       $x = $left_col["x"] - $bp["left"]["width"] / 2;
-        
+
       $row = $cellmap->get_row($i);
 
       $y = $row["y"] - $bp["top"]["width"] / 2;
       $h = $row["height"] + ($bp["top"]["width"] + $bp["bottom"]["width"])/ 2;
 
       if ( $bp["left"]["style"] != "none" && $bp["left"]["width"] > 0 ) {
-          
+
         $widths = array($bp["top"]["width"],
                         $bp["right"]["width"],
                         $bp["bottom"]["width"],
                         $bp["left"]["width"]);
-        
+
         $method = "_border_" . $bp["left"]["style"];
         $this->$method($x, $y, $h, $bp["left"]["color"], $widths, "left", "square");
       }
-      
+
       if ( $draw_right ) {
         $bp = $cellmap->get_border_properties($i, $num_cols - 1);
         if ( $bp["right"]["style"] == "none" || $bp["right"]["width"] <= 0 )
           continue;
-        
+
         $x = $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;
-        
+
         $widths = array($bp["top"]["width"],
                         $bp["right"]["width"],
                         $bp["bottom"]["width"],
                         $bp["left"]["width"]);
-        
+
         $method = "_border_" . $bp["right"]["style"];
         $this->$method($x, $y, $h, $bp["right"]["color"], $widths, "right", "square");
-        
+
       }
     }
 
