@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.5
+ * @version 0.5.1
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.15 2006-07-06 23:34:02 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.16 2006-07-07 21:31:03 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");

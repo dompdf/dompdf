@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.17 2006-04-23 18:41:36 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.18 2006-07-07 21:31:03 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer

@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: attribute_translator.cls.php,v 1.7 2006-05-04 17:39:59 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.8 2006-07-07 21:31:02 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules

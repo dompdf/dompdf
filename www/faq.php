@@ -29,12 +29,18 @@ C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
 
 <li><a href="#footers">Is there a way to add headers and footers?</a></li>
 
+<li><a href="#page_break">How do I insert page breaks?</a></li>
+
 <li><a href="#zend_optimizer">I'm getting the following error:<br/>
 Cannot access undefined property for object with
 overloaded property access in
 /var/www/dompdf/include/frame_tree.cls.php on line 160
 </a></li>
-<!-- ' -->
+
+<li><a href="#new_window">How can I make PDFs open in the browser window instead of
+opening the download dialog?</a></li>
+
+<li><a href="#centre">How do I centre a table, paragraph or div?</li>
 </ol>
 
 <div class="divider1">&nbsp;</div>
@@ -229,6 +235,18 @@ href="usage.php#inline">usage.php</a> for more info on inline PHP.</li>
 <a href="#FAQ">[back to top]</a>
 <div class="divider2" style="background-position: 12px 0%">&nbsp;</div>
 
+<a name="page_break"> </a>
+<h3>How do I insert page breaks?</h3>
+
+<p>Page breaks can be inserted by applying the CSS properties 
+<a href="http://www.w3.org/TR/CSS21/page.html#propdef-page-break-before">page-break-before</a>
+and 
+<a href="http://www.w3.org/TR/CSS21/page.html#propdef-page-break-after">page-break-after</a> to
+any block level element.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 44px 0%">&nbsp;</div>
+
 <a name="zend_optimizer"> </a>
 <h3>I'm getting the following error:<br/>
 Cannot access undefined property for object with
@@ -241,5 +259,50 @@ Disable the optimizer when using dompdf.</p>
 <a href="#FAQ">[back to top]</a>
 <div class="divider1" style="background-position: 991px 0%">&nbsp;</div>
 
-</div>
-<?php include "foot.inc" ?>
+<a name="new_window"> </a>
+<h3>How can I make PDFs open in the browser window instead of
+opening the download dialog?</h3>
+
+<p>This is controlled by the "Attachment" header sent by dompdf when
+it streams the PDF to the client.  You can modify the headers sent by
+dompdf by passing additional options to the
+<code>$dompdf->stream()</code> function:</p>
+
+<pre>
+require_once("dompdf_config.inc.php");
+$html = 
+    '&lt;html&gt;&lt;body&gt;'.
+    '&lt;p&gt;Some text&lt;/p&gt;'.
+    '&lt;/body&gt;&lt;/html&gt;';
+
+$dompdf = new DOMPDF();
+$dompdf-&gt;load_html($html);
+
+$dompdf-&gt;render();
+$domper-&gt;stream("my_pdf.pdf", array("Attachment" =&gt; 0));
+
+</pre>
+
+<p>See the <a href="usage.php#methodstream">class reference</a> for full details.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider2" style="background-position: 237px 0%">&nbsp;</div>
+
+<a name="centre"> </a>
+<h3>How do I centre a table, paragraph or div?</h3>
+
+<p>You can centre any block level element (table, p, div, ul, etc.) by
+using margins:</p>
+
+<pre>
+&lt;table style="margin-left: auto; margin-right: auto"&gt;
+&lt;tr&gt;
+&lt;td&gt; ... &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</pre>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 884px 0%">&nbsp;</div>
+
+</div> <?php include "foot.inc" ?>

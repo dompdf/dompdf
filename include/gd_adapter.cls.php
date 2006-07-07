@@ -34,7 +34,7 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.4
+ * @version 0.5.1
  */
 
 /* $Id */

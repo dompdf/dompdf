@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: cached_pdf_decorator.cls.php,v 1.2 2005-03-02 00:51:24 benjcarson Exp $ */
+/* $Id: cached_pdf_decorator.cls.php,v 1.3 2006-07-07 21:31:02 benjcarson Exp $ */
 
 /**
  * Caching canvas implementation

@@ -34,7 +34,7 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.5
+ * @version 0.5.1
  */
 
 /* $Id */
@@ -82,13 +82,6 @@ class Image_Cache {
 
     $ext = mb_strtolower(mb_substr($tmp, $i+1));
 
-    // Is this a relative URL?
-    if ( strpos($url, "://") === false && $url{0} != "/" ) {
-      // Prepend the base path to the url
-      $url = rtrim($base_path,"/") . "/" . $url;
-    }
-
-    // Fix for remote images by Fabrizio Battino <fabryb@fastwebnet.it>
     $parsed_url = explode_url($url);
 
     $remote = ($proto != "" && $proto != "file://");
@@ -130,6 +123,7 @@ class Image_Cache {
     } else {
 
       $resolved_url = build_url($proto, $host, $base_path, $url);
+
       //echo $resolved_url . "\n";
 
     }

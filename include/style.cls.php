@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: style.cls.php,v 1.17 2006-07-07 19:14:50 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.18 2006-07-07 21:31:04 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1180,8 +1180,8 @@ class Style {
 
     // Resolve the url now in the context of the current stylesheet
     $parsed_url = explode_url($val);
-    if ( $parsed_url["protocol"] == "" )
-      $url = $this->_stylesheet->get_base_path() . $parsed_url["file"];
+    if ( $parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "" )
+      $url = realpath($this->_stylesheet->get_base_path() . $parsed_url["file"]);
     else
       $url = build_url($this->_stylesheet->get_protocol(),
                        $this->_stylesheet->get_host(),

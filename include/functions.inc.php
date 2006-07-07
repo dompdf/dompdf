@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.4
+ * @version 0.5.1
  */
 
-/* $Id: functions.inc.php,v 1.10 2006-05-25 19:52:57 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.11 2006-07-07 21:31:03 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -54,7 +54,7 @@ if ( !function_exists("pre_r") ) {
 function pre_r($mixed, $return = false) {
   if ($return)
     return "<pre>" . print_r($mixed, true) . "</pre>";
-  
+
   if ( php_sapi_name() != "cli")
     echo ("<pre>");
   print_r($mixed);
@@ -102,25 +102,29 @@ function build_url($protocol, $host, $base_path, $url) {
   // Is the url already fully qualified?
   if ( mb_strpos($url, "://") !== false )
     return $url;
-    
+
   $ret = $protocol;
 
   if ( !in_array(mb_strtolower($protocol), array("http://", "https://",
-                                              "ftp://", "ftps://")) )
-    // We ignore the host for local file access.
+                                                 "ftp://", "ftps://")) ) {
+    // We ignore the host for local file access, and run the path through
+    // realpath()
     $host = "";
-    
+    $base_path = realpath($base_path);
+  }
+  
   if ( $url{0} === "/" )
     // Absolute path
     $ret .= $host . $url;
   else {
     // Relative path
+
     $base_path = $base_path !== "" ? rtrim($base_path, "/\\") . "/" : "";
     $ret .= $host . $base_path . $url;
   }
-    
+
   return $ret;
-    
+
 }
 
 /**
@@ -170,37 +174,36 @@ function explode_url($url) {
       }
     }
 
-    if ( isset($arr["query"]) ) 
+    if ( isset($arr["query"]) )
       $file .= "?" . $arr["query"];
 
     if ( isset($arr["fragment"]) )
       $file .= "#" . $arr["fragment"];
 
   } else {
-    
+
     $i = mb_strpos($url, "file://");
     if ( $i !== false)
       $url = mb_substr($url, $i + 7);
 
     $protocol = ""; // "file://"; ? why doesn't this work... It's because of
                     // network filenames like //COMPU/SHARENAME
-    
+
     $host = ""; // localhost, really
     $file = basename($url);
-    
-    // Fix submitted by Nick Oostveen for aliased directory support:
-    $path = realpath(dirname($url));
-	
+
+    $path = dirname($url);
+
     // Check that the path exists
     if ( $path !== false ) {
       $path .= '/';
-      
+
     } else {
       // generate a url to access the file if no real path found.
-      $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';    
-      
+      $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+
       $host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : php_uname("n");
-      
+
       if ( substr($arr["path"], 0, 1) == '/' ) {
         $path = dirname($arr["path"]);
       } else {
@@ -208,9 +211,7 @@ function explode_url($url) {
       }
     }
   }
-  
-  $file = basename($url);
-    
+
   $ret = array($protocol, $host, $path, $file,
                "protocol" => $protocol,
                "host" => $host,
@@ -218,15 +219,15 @@ function explode_url($url) {
                "file" => $file);
   return $ret;
 }
-  
+
 /**
  * converts decimal numbers to roman numerals
  *
  * @param int $num
  * @return string
- */ 
+ */
 function dec2roman($num) {
-    
+
   static $ones = array("", "i", "ii", "iii", "iv", "v",
                        "vi", "vii", "viii", "ix");
   static $tens = array("", "x", "xx", "xxx", "xl", "l",
@@ -234,7 +235,7 @@ function dec2roman($num) {
   static $hund = array("", "c", "cc", "ccc", "cd", "d",
                        "dc", "dcc", "dccc", "cm");
   static $thou = array("", "m", "mm", "mmm");
-    
+
   if ( !is_numeric($num) )
     throw new DOMPDF_Exception("dec2roman() requires a numeric argument.");
 
@@ -348,7 +349,7 @@ function record_warnings($errno, $errstr, $errfile, $errline) {
 
   if ( $_dompdf_show_warnings )
     echo $errstr . "\n";
-  
+
   $_dompdf_warnings[] = $errstr;
 }
 
@@ -361,7 +362,7 @@ function print_memusage() {
   $prev = 0;
   $initial = reset($memusage);
   echo (str_pad("Initial:", 40) . $initial . "\n\n");
-          
+
   foreach ($memusage as $key=>$mem) {
     $mem -= $initial;
     echo (str_pad("$key:" , 40));

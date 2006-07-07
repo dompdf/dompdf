@@ -35,7 +35,7 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
 require_once("dompdf_config.inc.php");

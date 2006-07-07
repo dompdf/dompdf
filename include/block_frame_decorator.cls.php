@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.7 2006-07-07 18:56:51 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.8 2006-07-07 21:31:02 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout

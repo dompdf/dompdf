@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.10 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: image_frame_decorator.cls.php,v 1.11 2006-07-07 21:31:03 benjcarson Exp $ */
 
 /**
  * Decorates frames for image layout and rendering

@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: php_evaluator.cls.php,v 1.3 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: php_evaluator.cls.php,v 1.4 2006-07-07 21:31:04 benjcarson Exp $ */
 
 /**
  * Executes inline PHP code during the rendering process

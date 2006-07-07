@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: cellmap.cls.php,v 1.11 2006-05-04 19:37:08 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.12 2006-07-07 21:31:03 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.

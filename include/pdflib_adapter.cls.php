@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.22 2006-07-06 23:34:02 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.23 2006-07-07 21:31:04 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -704,6 +704,7 @@ class PDFLib_Adapter implements Canvas {
    * @param float  $height   The height of the link
    */
   function add_link($url, $x, $y, $width, $height) {
+
     $y = $this->y($y) - $height;
     if ( strpos($url, '#') === 0 ) {
       // Local link
@@ -713,6 +714,7 @@ class PDFLib_Adapter implements Canvas {
     } else {
 
       list($proto, $host, $path, $file) = explode_url($url);
+
       if ( $proto == "" || $proto == "file://" )
         return; // Local links are not allowed
       $url = build_url($proto, $host, $path, $file);

@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: canvas_factory.cls.php,v 1.3 2005-12-11 18:14:07 benjcarson Exp $ */
+/* $Id: canvas_factory.cls.php,v 1.4 2006-07-07 21:31:02 benjcarson Exp $ */
 
 /**
  * Create canvas instances

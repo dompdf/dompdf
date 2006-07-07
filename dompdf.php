@@ -37,10 +37,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.16 2006-07-07 18:19:13 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.17 2006-07-07 21:31:02 benjcarson Exp $ */
 
 /**
  * Display command line usage:

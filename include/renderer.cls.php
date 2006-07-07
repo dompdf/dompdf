@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: renderer.cls.php,v 1.6 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.7 2006-07-07 21:31:04 benjcarson Exp $ */
 
 /**
  * Concrete renderer

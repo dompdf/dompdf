@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: frame_factory.cls.php,v 1.6 2006-07-07 18:18:48 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.7 2006-07-07 21:31:03 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic

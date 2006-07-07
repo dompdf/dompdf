@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: table_cell_frame_decorator.cls.php,v 1.4 2006-04-06 19:30:46 benjcarson Exp $ */
+/* $Id: table_cell_frame_decorator.cls.php,v 1.5 2006-07-07 21:31:04 benjcarson Exp $ */
 
 /**
  * Decorates table cells for layout

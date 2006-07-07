@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: generated_frame_reflower.cls.php,v 1.4 2006-03-16 05:24:47 benjcarson Exp $ */
+/* $Id: generated_frame_reflower.cls.php,v 1.5 2006-07-07 21:31:03 benjcarson Exp $ */
 
 /**
  * Reflows generated content frames (decorates reflower)

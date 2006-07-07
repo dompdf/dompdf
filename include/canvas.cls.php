@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: canvas.cls.php,v 1.6 2006-04-06 00:59:27 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.7 2006-07-07 21:31:02 benjcarson Exp $ */
 
 /**
  * Main rendering interface

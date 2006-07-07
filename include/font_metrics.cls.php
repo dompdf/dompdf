@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: font_metrics.cls.php,v 1.5 2006-05-25 19:52:57 benjcarson Exp $ */
+/* $Id: font_metrics.cls.php,v 1.6 2006-07-07 21:31:03 benjcarson Exp $ */
 
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 

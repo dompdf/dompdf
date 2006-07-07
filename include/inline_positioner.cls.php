@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: inline_positioner.cls.php,v 1.2 2006-07-07 18:18:48 benjcarson Exp $ */
+/* $Id: inline_positioner.cls.php,v 1.3 2006-07-07 21:31:03 benjcarson Exp $ */
 /**
  * Positions inline frames
  *

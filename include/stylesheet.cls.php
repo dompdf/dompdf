@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.3
+ * @version 0.5.1
  */
 
-/* $Id: stylesheet.cls.php,v 1.15 2006-07-06 23:34:02 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.16 2006-07-07 21:31:04 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.

@@ -34,10 +34,10 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.4
+ * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.18 2006-07-06 23:34:02 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.19 2006-07-07 21:31:02 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -110,7 +110,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
  */
-define("DOMPDF_PDF_BACKEND", "cpdf");
+define("DOMPDF_PDF_BACKEND", "auto");
 
 /**
  * PDFlib license key

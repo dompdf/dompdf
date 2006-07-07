@@ -1,3 +1,118 @@
+2006-07-07 13:14  tag dompdf-0-5-1
+
+2006-07-07 13:14  benjcarson
+
+* include/style.cls.php:
+
+  - allow border style declarations in any order (fixed regex, again)
+
+2006-07-07 13:10  benjcarson
+
+* include/style.cls.php:
+
+  - allow border style declarations in any order (fixed regex)
+
+2006-07-07 13:08  benjcarson
+
+* include/style.cls.php:
+
+  - allow border style declarations in any order
+
+2006-07-07 12:56  benjcarson
+
+* include/: block_frame_decorator.cls.php, frame_reflower.cls.php,
+  table_cell_frame_reflower.cls.php, text_frame_reflower.cls.php:
+
+  - fixed vertical-align in table cells
+  - fixed min/max width calculations for text frames in auto tables
+
+2006-07-07 12:19  benjcarson
+
+* dompdf.php:
+
+  - removed profiling statement
+
+2006-07-07 12:18  benjcarson
+
+* dompdf.php, include/block_frame_decorator.cls.php,
+  include/br_frame_reflower.cls.php, include/frame_factory.cls.php,
+  include/inline_frame_reflower.cls.php, include/inline_positioner.cls.php,
+  include/text_frame_reflower.cls.php, test/pages.html:
+
+  - fixed line breaks within nested tags
+
+2006-07-06 17:34  benjcarson
+
+* dompdf_config.inc.php, load_font.php, include/abstract_renderer.cls.php,
+  include/block_frame_reflower.cls.php, include/block_renderer.cls.php,
+  include/cpdf_adapter.cls.php, include/frame_reflower.cls.php,
+  include/image_cache.cls.php,
+  include/list_bullet_image_frame_decorator.cls.php,
+  include/pdflib_adapter.cls.php, include/stylesheet.cls.php,
+  include/table_cell_positioner.cls.php,
+  include/table_cell_renderer.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_group_frame_decorator.cls.php,
+  include/text_renderer.cls.php, lib/class.pdf.php:
+
+  - respect block elements height when specified explicitly
+  - fix for list_bullet_image_frame_decorator constructor
+  - improvement for multiple CSS class handling by Michael Sheakoski (stylesheet.cls.php)
+  - fix for correct Content-Disposition header in class.pdf.php
+
+2006-06-20 13:26  benjcarson
+
+* include/image_cache.cls.php:
+
+  - fixed file type bugs in image cache
+
+2006-05-25 13:52  benjcarson
+
+* include/: font_metrics.cls.php, functions.inc.php, image_cache.cls.php:
+
+  - fixed issue with one image being used twice (bug #1494071)
+  - fixed issue with relative urls
+
+2006-05-04 13:37  benjcarson
+
+* include/: cellmap.cls.php, style.cls.php, stylesheet.cls.php,
+  table_frame_reflower.cls.php:
+
+  - fixed subtle inheritance bug
+  - tables now respect height property correctly
+
+2006-05-04 11:39  benjcarson
+
+* dompdf_config.inc.php, include/attribute_translator.cls.php,
+  include/image_cache.cls.php, test/php_test.php:
+
+  - added missing "align" for tables in attribute_translator
+
+2006-04-23 12:41  benjcarson
+
+* dompdf_config.inc.php, include/abstract_renderer.cls.php,
+  include/block_frame_reflower.cls.php, include/block_renderer.cls.php,
+  include/dompdf.cls.php, include/functions.inc.php,
+  include/image_cache.cls.php, include/inline_renderer.cls.php,
+  include/style.cls.php, include/stylesheet.cls.php,
+  include/table_cell_renderer.cls.php,
+  include/table_frame_decorator.cls.php, test/remote.html:
+
+  - fixed support for remote images & stylesheets
+
+2006-04-10 11:40  benjcarson
+
+* include/: functions.inc.php, pdflib_adapter.cls.php, stylesheet.cls.php:
+
+  - fixed hyperlink support when urls contain "="
+  - added support for elements with multiple css classes: e.g. class="a b"
+
+2006-04-06 15:57  benjcarson
+
+* ChangeLog:
+
+  - added ChangeLog
+
 2006-04-06 15:29  tag dompdf-0-5
 
 2006-04-06 15:29  benjcarson
