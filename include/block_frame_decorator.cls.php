@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.6 2006-07-07 18:18:48 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.7 2006-07-07 18:56:51 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -162,7 +162,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     // End debugging
 
-    if ($this->_lines[$this->_cl]["w"] + $w >= $this->get_containing_block("w"))
+    if ($this->_lines[$this->_cl]["w"] + $w > $this->get_containing_block("w"))
       $this->add_line();
 
     $frame->position();

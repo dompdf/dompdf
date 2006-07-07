@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_reflower.cls.php,v 1.3 2006-07-06 23:34:02 benjcarson Exp $ */
+/* $Id: frame_reflower.cls.php,v 1.4 2006-07-07 18:56:51 benjcarson Exp $ */
 
 /**
  * Base reflower class
@@ -127,9 +127,19 @@ abstract class Frame_Reflower {
   function get_min_max_width() {
     $style = $this->_frame->get_style();
 
+    // Account for margins & padding
+    $dims = array($style->padding_left,
+                  $style->padding_right,
+                  $style->border_left_width,
+                  $style->border_right_width,
+                  $style->margin_left,
+                  $style->margin_right);
+
+    $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
+
     // Handle degenerate case
     if ( !$this->_frame->get_first_child() )
-      return array(0,0,"min" => 0, "max" => 0);
+      return array($delta, $delta,"min" => $delta, "max" => $delta);
 
     $low = array();
     $high = array();
@@ -174,14 +184,6 @@ abstract class Frame_Reflower {
     $min = count($low) ? max($low) : 0;
     $max = count($high) ? max($high) : 0;
 
-    // Account for margins & padding
-    $dims = array($style->padding_left,
-                  $style->padding_right,
-                  $style->border_left_width,
-                  $style->border_right_width,
-                  $style->margin_left,
-                  $style->margin_right);
-
     // Use specified width if it is greater than the minimum defined by the
     // content.  If the width is a percentage ignore it for now.
     $width = $style->width;
@@ -190,8 +192,6 @@ abstract class Frame_Reflower {
       if ( $min < $width )
         $min = $width;
     }
-
-    $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
 
     $min += $delta;
     $max += $delta;

@@ -37,7 +37,7 @@
  * @version 0.4.2
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.6 2006-07-07 18:18:48 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.7 2006-07-07 18:56:51 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -97,6 +97,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
 // Debugging:
 //    pre_r("Text: '" . htmlspecialchars($text). "'");
 //    pre_r("width: " .$frame_width);
+//    pre_r("textwidth + delta: $text_width + $mbp_width");
+//    pre_r("font-size: $size");
 //    pre_r("cb[w]: " .$line_width);
 //    pre_r("available width: " . $available_width);
 //    pre_r("current line width: " . $current_line_width);
@@ -291,6 +293,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     $style = $this->_frame->get_style();
     $this->_block_parent = $this->_frame->find_block_parent();
+    $line_width = $this->_frame->get_containing_block("w");
 
     $str = $text = $this->_frame->get_text();
     $size = $style->font_size;
@@ -302,7 +305,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     default:
     case "normal":
-      $str = $this->_collapse_white_space($str);
+      $str = preg_replace("/[\s\n]+/u"," ", $str);
     case "pre-wrap":
     case "pre-line":
 
@@ -338,7 +341,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     default:
     case "normal":
     case "nowrap":
-      $str = $this->_collapse_white_space($text);
+      $str = preg_replace("/[\s\n]+/u"," ", $text);
       break;
 
     case "pre-line":
@@ -357,15 +360,16 @@ class Text_Frame_Reflower extends Frame_Reflower {
     }
 
     $max = Font_Metrics::get_text_width($str, $font, $size, $spacing);
-
+    
     $delta = $style->length_in_pt(array($style->margin_left,
                                         $style->border_left_width,
                                         $style->padding_left,
                                         $style->padding_right,
                                         $style->border_right_width,
-                                        $style->margin_right), $min);
+                                        $style->margin_right), $line_width);
     $min += $delta;
     $max += $delta;
+
     return array($min, $max, "min" => $min, "max" => $max);
 
   }
