@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.16 2006-07-07 19:10:15 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.17 2006-07-07 19:14:50 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1377,11 +1377,11 @@ class Style {
     $p_color = $p . "_color";
 
     foreach ($arr as $value) {
-
+      $value = trim($value);
       if ( in_array($value, self::$BORDER_STYLES) ) {
         $this->_props[$p_style] = $value;
 
-      } else if ( preg_match("/[.0-9]+{px|pt|pc|em|ex|%|in|mm|cm}|{none|normal|thin|medium|thick}/", $value ) ) {
+      } else if ( preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:none|normal|thin|medium|thick)/", $value ) ) {
         $this->_props[$p_width] = str_replace("none", "0px", $value);
 
       } else {
