@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: style.cls.php,v 1.14 2006-05-04 19:37:08 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.15 2006-07-07 19:08:03 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1375,24 +1375,21 @@ class Style {
     $p_width = $p . "_width";
     $p_style = $p . "_style";
     $p_color = $p . "_color";
-    
-    if ( isset($arr[0]) && isset($arr[1]) ) {
-      // Swap mixed up border specs
-      if ( in_array($arr[0], self::$BORDER_STYLES) ) {
-        $t = $arr[1];
-        $arr[1] = $arr[0];
-        $arr[0] = $t;
+
+    foreach ($arr as $value) {
+
+      if ( in_array($value, self::$BORDER_STYLES) ) {
+        $this->_props[$p_style] = $value;
+
+      } else if ( preg_match("/[0-9]{px|pt|pc|em|ex|%|in|mm|cm}|{none|normal|thin|medium|thick}/", $value ) ) {
+        $this->_props[$p_width] = str_replace("none", "0px", $value);
+
+      } else {
+        // must be colour
+        $this->_props[$p_color] = $value;
       }
     }
-    if ( isset($arr[0]) ) 
-      $this->_props[$p_width] = str_replace("none", "0px", $arr[0]);
 
-    if ( isset($arr[1]) )
-      $this->_props[$p_style] = $arr[1];
-
-    if ( isset($arr[2]) )
-      $this->_props[$p_color] = $arr[2];
-    
     $this->_props[$p] = $border_spec;
   }
 
