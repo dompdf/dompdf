@@ -40,7 +40,7 @@
  * @version 0.3
  */
 
-/* $Id: dompdf.php,v 1.14 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.15 2006-07-07 18:18:48 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -66,6 +66,8 @@
  * 
  *
  */
+
+apd_set_pprof_trace( getcwd() );
 
 function dompdf_usage() {
   echo

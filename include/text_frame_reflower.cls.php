@@ -37,7 +37,7 @@
  * @version 0.4.2
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.5 2006-01-06 07:26:38 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.6 2006-07-07 18:18:48 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -58,13 +58,13 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
   protected function _collapse_white_space($text) {
     //$text = $this->_frame->get_text();
-    if ( $this->_block_parent->get_current_line("w") == 0 ) 
+    if ( $this->_block_parent->get_current_line("w") == 0 )
       $text = ltrim($text, " \n\r\t");
     return preg_replace("/[\s\n]+/u", " ", $text);
   }
 
   //........................................................................
-  
+
   protected function _line_break($text) {
     $style = $this->_frame->get_style();
     $size = $style->font_size;
@@ -73,7 +73,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // Determine the available width
     $line_width = $this->_frame->get_containing_block("w");
     $current_line_width = $this->_block_parent->get_current_line("w");
-    
+
     $available_width = $line_width - $current_line_width;
 
     // split the text into words
@@ -85,7 +85,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     // Determine the frame width including margin, padding & border
     $text_width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
-    $mbp_width = 
+    $mbp_width =
       $style->length_in_pt( array( $style->margin_left,
                                    $style->border_left_width,
                                    $style->padding_left,
@@ -100,23 +100,23 @@ class Text_Frame_Reflower extends Frame_Reflower {
 //    pre_r("cb[w]: " .$line_width);
 //    pre_r("available width: " . $available_width);
 //    pre_r("current line width: " . $current_line_width);
-    
+
 //     pre_r($words);
-    
-    if ( $frame_width <= $available_width ) 
+
+    if ( $frame_width <= $available_width )
       return false;
 
     // Determine the split point
     $width = 0;
     $str = "";
     reset($words);
-    
+
     for ($i = 0; $i < count($words); $i += 2) {
       $word = $words[$i] . (isset($words[$i+1]) ? $words[$i+1] : "");
       $word_width = Font_Metrics::get_text_width($word, $font, $size, $word_spacing);
       if ( $width + $word_width + $mbp_width > $available_width )
         break;
-        
+
       $width += $word_width;
       $str .= $word;
 
@@ -126,8 +126,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
     if ( $current_line_width == 0 && $width == 0 ) {
       $width += $word_width;
       $str .= $word;
-    }      
-    
+    }
+
     $offset = mb_strlen($str);
 
 // More debugging:
@@ -136,35 +136,35 @@ class Text_Frame_Reflower extends Frame_Reflower {
 //     pre_r("Offset: " . $offset);
 
     return $offset;
-    
+
   }
 
   //........................................................................
 
   protected function _newline_break($text) {
 
-    if ( ($i = mb_strpos($text, "\n")) === false) 
+    if ( ($i = mb_strpos($text, "\n")) === false)
       return false;
 
     return $i+1;
-    
+
   }
-  
+
   //........................................................................
- 
+
   protected function _layout_line() {
     $style = $this->_frame->get_style();
     $text = $this->_frame->get_text();
     $size = $style->font_size;
     $font = $style->font_family;
     $word_spacing = $style->length_in_pt($style->word_spacing);
-    
+
     // Determine the text height
     $style->height = Font_Metrics::get_font_height( $font, $size );
 
     $split = false;
     $add_line = false;
-    
+
     // Handle white-space property:
     // http://www.w3.org/TR/CSS21/text.html#propdef-white-space
 
@@ -190,13 +190,13 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     case "pre-wrap":
       $split = $this->_newline_break($text);
-      
+
       if ( ($tmp = $this->_line_break($text)) !== false ) {
         $add_line = $split < $tmp;
         $split = min($tmp, $split);
       } else
         $add_line = true;
-      
+
       break;
 
     case "pre-line":
@@ -205,9 +205,9 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
       if ( $text == "" )
         break;
-      
+
       $split = $this->_newline_break($text);
-      
+
       if ( ($tmp = $this->_line_break($text)) !== false ) {
         $add_line = $split < $tmp;
         $split = min($tmp, $split);
@@ -221,23 +221,23 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // Handle degenerate case
     if ( $text === "" )
       return;
-    
+
     if ( $split !== false) {
-    
+
       // Handle edge cases
       if ( $split == 0 && $text == " " ) {
         $this->_frame->set_text("");
         return;
-      } 
-      
+      }
+
       if ( $split == 0 ) {
-        
+
         // Trim newlines from the beginning of the line
         //$this->_frame->set_text(ltrim($text, "\n\r"));
 
         $this->_block_parent->add_line();
         $this->_frame->position();
-        
+
         // Layout the new line
         $this->_layout_line();
 
@@ -251,36 +251,36 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
         if ( $split > 1 && $t{$split-1} == "\n" )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
-                
+
       }
-      
+
       if ( $add_line ) {
         $this->_block_parent->add_line();
         $this->_frame->position();
       }
-      
+
       // Set our new width
       $width = Font_Metrics::get_text_width($this->_frame->get_text(), $font, $size, $word_spacing);
       $style->width = $width;
-      
+
     } else {
       // Add the current frame to the line
       $width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
       $style->width = $width;
-      
+
     }
   }
-  
+
   //........................................................................
 
   function reflow() {
-    
+
     $this->_block_parent = $this->_frame->find_block_parent();
 
     $this->_frame->position();
 
     $this->_layout_line();
-    
+
   }
 
   //........................................................................
@@ -291,13 +291,13 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     $style = $this->_frame->get_style();
     $this->_block_parent = $this->_frame->find_block_parent();
-    
+
     $str = $text = $this->_frame->get_text();
     $size = $style->font_size;
     $font = $style->font_family;
 
     $spacing = $style->length_in_pt($style->word_spacing);
-                                           
+
     switch($style->white_space) {
 
     default:
@@ -305,9 +305,9 @@ class Text_Frame_Reflower extends Frame_Reflower {
       $str = $this->_collapse_white_space($str);
     case "pre-wrap":
     case "pre-line":
-      
+
       // Find the longest word (i.e. minimum length)
-      
+
       // This technique (using arrays & an anonymous function) is actually
       // faster than doing a single-pass character by character scan.  Heh,
       // yes I took the time to bench it ;)
@@ -343,7 +343,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     case "pre-line":
       $str = preg_replace( "/[ \t]+/u", " ", $text);
-      
+
     case "pre-wrap":
       // Find the longest word (i.e. minimum length)
       $lines = array_flip(preg_split("/\n/", $text));
@@ -357,7 +357,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     }
 
     $max = Font_Metrics::get_text_width($str, $font, $size, $spacing);
-    
+
     $delta = $style->length_in_pt(array($style->margin_left,
                                         $style->border_left_width,
                                         $style->padding_left,
@@ -369,6 +369,6 @@ class Text_Frame_Reflower extends Frame_Reflower {
     return array($min, $max, "min" => $min, "max" => $max);
 
   }
-      
+
 }
 ?>

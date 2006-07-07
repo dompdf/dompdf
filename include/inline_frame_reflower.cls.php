@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: inline_frame_reflower.cls.php,v 1.1.1.1 2005-01-25 22:56:02 benjcarson Exp $ */
+/* $Id: inline_frame_reflower.cls.php,v 1.2 2006-07-07 18:18:48 benjcarson Exp $ */
 
 /**
  * Reflows inline frames
@@ -56,14 +56,6 @@ class Inline_Frame_Reflower extends Frame_Reflower {
     $this->_frame->position();
 
     $cb = $this->_frame->get_containing_block();
-        
-    // Find our nearest block level parent and access its lines property.
-    $p = $this->_frame->find_block_parent();
-    
-    if ( !$p )
-      throw new DOMPDF_Exception("No block-level parent found.  Not good.");
-
-    $line = $p->get_current_line();
 
     // Add our margin, padding & border to the first and last children
     if ( ($f = $this->_frame->get_first_child()) && $f instanceof Text_Frame_Decorator ) {

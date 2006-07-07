@@ -37,7 +37,7 @@
  * @version 0.3
  */
 
-/* $Id: frame_factory.cls.php,v 1.5 2006-04-05 20:09:00 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.6 2006-07-07 18:18:48 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic
@@ -149,7 +149,7 @@ class Frame_Factory {
     case "-dompdf-br":
       $positioner = "Inline";
       $decorator = "Inline";
-      $reflower = "BR";
+      $reflower = "Inline";
       break;
 
     default:
