@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.11 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: table_frame_decorator.cls.php,v 1.12 2006-07-21 21:23:13 benjcarson Exp $ */
 
 /**
  * Decorates Frames for table layout
@@ -45,7 +45,7 @@
  * @access private
  * @package dompdf
  */
-class Table_Frame_Decorator extends Frame_Decorator {  
+class Table_Frame_Decorator extends Frame_Decorator {
   static $VALID_CHILDREN = array("table-row-group",
                                  "table-row",
                                  "table-header-group",
@@ -80,7 +80,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @var float
    */
   protected $_max_width;
-  
+
   /**
    * Table header rows.  Each table header is duplicated when a table
    * spans pages.
@@ -95,8 +95,8 @@ class Table_Frame_Decorator extends Frame_Decorator {
    *
    * @var array
    */
-  protected $_footers;  
-  
+  protected $_footers;
+
   /**
    * Class constructor
    *
@@ -104,24 +104,24 @@ class Table_Frame_Decorator extends Frame_Decorator {
    */
   function __construct(Frame $frame, DOMPDF $dompdf) {
     parent::__construct($frame, $dompdf);
-    $this->_cellmap = new Cellmap($this);    
+    $this->_cellmap = new Cellmap($this);
     $this->_min_width = null;
     $this->_max_width = null;
     $this->_headers = array();
     $this->_footers = array();
   }
 
- 
+
   function reset() {
     parent::reset();
     $this->_cellmap->reset();
     $this->_min_width = null;
     $this->_max_width = null;
     $this->_headers = array();
-    $this->_footers = array();    
+    $this->_footers = array();
     $this->_reflower->reset();
   }
-  
+
   //........................................................................
 
   /**
@@ -132,19 +132,19 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @param Frame $row
    */
   function split($child = null) {
-    
+
     if ( is_null($child) ) {
       parent::split();
       return;
     }
-      
+
     // If $child is a header or if it is the first non-header row, do
-    // not duplicate headers, simply move the table to the next page.    
-    if ( count($this->_headers) && !in_array($child, $this->_headers) && 
+    // not duplicate headers, simply move the table to the next page.
+    if ( count($this->_headers) && !in_array($child, $this->_headers) &&
          !in_array($child->get_prev_sibling(), $this->_headers) ) {
 
       $first_header = null;
-      
+
       // Insert copies of the table headers before $child
       foreach ($this->_headers as $header) {
 
@@ -152,30 +152,30 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
         if ( is_null($first_header) )
           $first_header = $new_header;
-        
+
         $this->insert_child_before($new_header, $child);
       }
 
       parent::split($first_header);
-      
+
     } else if ( in_array($child->get_style()->display, self::$ROW_GROUPS) ) {
 
       // Individual rows should have already been handled
       parent::split($child);
-      
+
     } else {
-      
-        $iter = $child;
+
+      $iter = $child;
 
       while ($iter) {
         $this->_cellmap->remove_row($iter);
         $iter = $iter->get_next_sibling();
       }
-    
+
       parent::split($child);
     }
   }
-  
+
   /**
    * Static function to locate the parent table of a frame
    *
@@ -184,7 +184,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    */
   static function find_parent_table(Frame $frame) {
 
-    while ( $frame = $frame->get_parent() ) 
+    while ( $frame = $frame->get_parent() )
       if ( in_array($frame->get_style()->display, Style::$TABLE_TYPES) )
         break;
 
@@ -197,7 +197,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @return Cellmap
    */
   function get_cellmap() { return $this->_cellmap; }
- 
+
   /**
    * Return the minimum width of this table
    *
@@ -211,12 +211,12 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @return float
    */
   function get_max_width() { return $this->_max_width; }
-  
+
   /**
    * Set the minimum width of the table
    *
    * @param float $width the new minimum width
-   */  
+   */
   function set_min_width($width) { $this->_min_width = $width; }
 
   /**
@@ -225,7 +225,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @param float $width the new maximum width
    */
   function set_max_width($width) { $this->_max_width = $width; }
-  
+
   /**
    * Restructure tree so that the table has the correct structure.
    * Invalid children (i.e. all non-table-rows) are moved below the
@@ -240,7 +240,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
     while ( $iter ) {
       $child = $iter;
       $iter = $iter->get_next_sibling();
-      
+
       $display = $child->get_style()->display;
 
       if ( $anon_row ) {
@@ -248,7 +248,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
         if ( $display == "table-row" ) {
           // Add the previous anonymous row
           $this->insert_child_before($table_row, $child);
-          
+
           $table_row->normalise();
           $child->normalise();
           $anon_row = false;
@@ -258,7 +258,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
         // add the child to the anonymous row
         $table_row->append_child($child);
         continue;
-      
+
       } else {
 
         if ( $display == "table-row" ) {
@@ -273,9 +273,9 @@ class Table_Frame_Decorator extends Frame_Decorator {
           $frame = new Frame($tr);
 
           $css = $this->get_style()->get_stylesheet();
-          $style = $css->create_style();          
+          $style = $css->create_style();
           $style->inherit($this->get_style());
-          
+
           // Lookup styles for tr tags.  If the user wants styles to work
           // better, they should make the tr explicit... I'm not going to
           // try to guess what they intended.
@@ -287,12 +287,12 @@ class Table_Frame_Decorator extends Frame_Decorator {
           $frame->set_style(clone $style);
           $table_row = Frame_Factory::decorate_frame($frame, $this->_dompdf);
           $table_row->set_root($this->_root);
-          
+
           // Add the cell to the row
           $table_row->append_child($child);
 
           $anon_row = true;
-          continue;          
+          continue;
         }
 
         if ( !in_array($display, self::$VALID_CHILDREN) ) {
@@ -302,7 +302,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
         // Normalise other table parts (i.e. row groups)
         foreach ($child->get_children() as $grandchild) {
-          if ( $grandchild->get_style()->display == "table-row" ) 
+          if ( $grandchild->get_style()->display == "table-row" )
             $grandchild->normalise();
         }
 
@@ -321,8 +321,8 @@ class Table_Frame_Decorator extends Frame_Decorator {
       $table_row->normalise();
       $this->_cellmap->add_row();
     }
-    
-    foreach ($erroneous_frames as $frame) 
+
+    foreach ($erroneous_frames as $frame)
       $this->move_after($frame);
 
   }
@@ -336,7 +336,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * @param Frame $frame the frame to move
    */
   function move_after(Frame $frame) {
-    $this->get_parent()->insert_child_after($frame, $this);    
+    $this->get_parent()->insert_child_after($frame, $this);
   }
 
 }

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.10 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.11 2006-07-21 21:23:13 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -103,6 +103,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     $min_table_width = $style->length_in_pt( $style->min_width, $cb["w"] - $delta );
 
+    // min & max widths already include borders & padding
+    $min_width -= $delta;
+    $max_width -= $delta;
+    
     if ( $width !== "auto" ) {
 
       $preferred_width = $style->length_in_pt($width, $cb["w"]) - $delta;
@@ -152,15 +156,15 @@ class Table_Frame_Reflower extends Frame_Reflower {
       // case we distribute extra space across all columns weighted by max-width.
       //
       // 2. Only absolute widths have been specified.  In this case we
-      // distribute any extra space equally among 'width: auto' columns.
+      // distribute any extra space equally among 'width: auto' columns, or all
+      // columns if no auto columns have been specified.
       //
       // 3. Only percentage widths have been specified.  In this case we
       // normalize the percentage values and distribute any remaining % to
       // width: auto columns.  We then proceed to assign widths as fractions
       // of the table width.
       //
-      // 4. Both absolute and percentage widths have been specified.  This
-      // is annoying.
+      // 4. Both absolute and percentage widths have been specified.
 
       // Case 1:
       if ( $absolute_used == 0 && $percent_used == 0 ) {
@@ -177,16 +181,20 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
         if ( count($auto) > 0 )
           $increment = ($width - $auto_min - $absolute_used) / count($auto);
-        else
-          $increment = 0;
 
         // Use the absolutely specified width or the increment
         foreach (array_keys($columns) as $i) {
 
-          if ( $columns[$i]["absolute"] > 0 )
+          if ( $columns[$i]["absolute"] > 0 && count($auto) )
             $cellmap->set_column_width($i, $columns[$i]["min-width"]);
-          else
-            $cellmap->set_column_width($i,$columns[$i]["min-width"] + $increment);
+          else if ( count($auto) ) 
+            $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
+          else {
+            // All absolute columns
+            $increment = ($width - $absolute_used) * $columns[$i]["absolute"] / $absolute_used;
+
+            $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
+          }
 
         }
         return;
@@ -361,7 +369,6 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     }
 
-
     return $height;
 
   }
@@ -489,6 +496,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
   //........................................................................
 
   function get_min_max_width() {
+
+    if ( !is_null($this->_min_max_cache) )
+      return $this->_min_max_cache;
+
     $style = $this->_frame->get_style();
 
     $this->_frame->normalise();
@@ -530,8 +541,24 @@ class Table_Frame_Reflower extends Frame_Reflower {
       }
     }
 
-    return array($this->_state["min_width"], $this->_state["max_width"],
-                 "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
+    // Account for margins & padding
+    $dims = array($style->border_left_width,
+                  $style->border_right_width,
+                  $style->padding_left,
+                  $style->padding_right,
+                  $style->margin_left,
+                  $style->margin_right);
+
+    if ( $style->border_collapse != "collapse" ) 
+      list($dims[]) = $style->border_spacing;
+
+    $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
+
+    $this->_state["min_width"] += $delta;
+    $this->_state["max_width"] += $delta;
+
+    return $this->_min_max_cache = array($this->_state["min_width"], $this->_state["max_width"],
+                                         "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
   }
 }
 

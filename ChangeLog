@@ -1,4 +1,60 @@
-2006-07-07 13:14  tag dompdf-0-5-1
+2006-07-07 15:33  benjcarson
+
+* test/: anchor_link.html, background_image.html, baseline.html,
+  block_height.html, border_css_values.html, br.html, center_table.html,
+  gif_test.html, multiple_class.html, nbsp.html, table_height.html,
+  table_image.html:
+
+  - added missing tests to cvs
+
+2006-07-07 15:31  tag dompdf-0-5-1
+
+2006-07-07 15:31  benjcarson
+
+* ChangeLog, Makefile, dompdf.php, dompdf_config.inc.php, load_font.php,
+  include/abstract_renderer.cls.php, include/attribute_translator.cls.php,
+  include/block_frame_decorator.cls.php,
+  include/block_frame_reflower.cls.php, include/block_positioner.cls.php,
+  include/block_renderer.cls.php, include/cached_pdf_decorator.cls.php,
+  include/canvas.cls.php, include/canvas_factory.cls.php,
+  include/cellmap.cls.php, include/cpdf_adapter.cls.php,
+  include/dompdf.cls.php, include/dompdf_exception.cls.php,
+  include/dompdf_internal_exception.cls.php, include/font_metrics.cls.php,
+  include/frame.cls.php, include/frame_decorator.cls.php,
+  include/frame_factory.cls.php, include/frame_reflower.cls.php,
+  include/frame_tree.cls.php, include/functions.inc.php,
+  include/gd_adapter.cls.php, include/generated_frame_reflower.cls.php,
+  include/image_cache.cls.php, include/image_frame_decorator.cls.php,
+  include/image_frame_reflower.cls.php, include/image_renderer.cls.php,
+  include/inline_frame_decorator.cls.php,
+  include/inline_frame_reflower.cls.php, include/inline_positioner.cls.php,
+  include/inline_renderer.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/list_bullet_frame_reflower.cls.php,
+  include/list_bullet_image_frame_decorator.cls.php,
+  include/list_bullet_positioner.cls.php,
+  include/list_bullet_renderer.cls.php,
+  include/null_frame_decorator.cls.php,
+  include/null_frame_reflower.cls.php, include/null_positioner.cls.php,
+  include/page_cache.cls.php, include/page_frame_decorator.cls.php,
+  include/page_frame_reflower.cls.php, include/pdflib_adapter.cls.php,
+  include/php_evaluator.cls.php, include/positioner.cls.php,
+  include/renderer.cls.php, include/style.cls.php,
+  include/stylesheet.cls.php, include/table_cell_frame_decorator.cls.php,
+  include/table_cell_frame_reflower.cls.php,
+  include/table_cell_positioner.cls.php,
+  include/table_cell_renderer.cls.php,
+  include/table_frame_decorator.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_decorator.cls.php,
+  include/table_row_frame_reflower.cls.php,
+  include/table_row_group_frame_reflower.cls.php,
+  include/table_row_positioner.cls.php,
+  include/text_frame_decorator.cls.php,
+  include/text_frame_reflower.cls.php, include/text_renderer.cls.php,
+  test/entities.html, test/remote.html, www/faq.php:
+
+  - potential fixes for image path/url handling
 
 2006-07-07 13:14  benjcarson
 

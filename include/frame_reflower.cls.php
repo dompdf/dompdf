@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_reflower.cls.php,v 1.5 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: frame_reflower.cls.php,v 1.6 2006-07-21 21:23:13 benjcarson Exp $ */
 
 /**
  * Base reflower class
@@ -49,10 +49,24 @@
  * @package dompdf
  */
 abstract class Frame_Reflower {
+
+  /**
+   * Frame for this reflower
+   *
+   * @var Frame
+   */
   protected $_frame;
 
+  /**
+   * Cached min/max size
+   *
+   * @var array
+   */
+  protected $_min_max_cache;
+  
   function __construct(Frame $frame) {
     $this->_frame = $frame;
+    $this->_min_max_cache = null;
   }
 
   function dispose() {
@@ -125,6 +139,10 @@ abstract class Frame_Reflower {
   // This provides a basic implementation.  Child classes should override
   // this if necessary.
   function get_min_max_width() {
+    if ( !is_null($this->_min_max_cache) ) {
+      return $this->_min_max_cache;
+    }
+    
     $style = $this->_frame->get_style();
 
     // Account for margins & padding
@@ -135,11 +153,12 @@ abstract class Frame_Reflower {
                   $style->margin_left,
                   $style->margin_right);
 
-    $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
+    $cb_w = $this->_frame->get_containing_block("w");
+    $delta = $style->length_in_pt($dims, $cb_w);
 
     // Handle degenerate case
     if ( !$this->_frame->get_first_child() )
-      return array($delta, $delta,"min" => $delta, "max" => $delta);
+      return $this->_min_max_cache = array($delta, $delta,"min" => $delta, "max" => $delta);
 
     $low = array();
     $high = array();
@@ -168,19 +187,18 @@ abstract class Frame_Reflower {
 
       }
 
-      if ( $inline_max == 0 && $iter->valid() ) {
-        list($low[], $high[]) = $iter->current()->get_min_max_width();
-        continue;
-      }
-
       if ( $inline_max > 0 )
         $high[] = $inline_max;
 
       if ( $inline_min > 0 )
         $low[] = $inline_min;
 
-    }
+      if ( $iter->valid() ) {
+        list($low[], $high[]) = $iter->current()->get_min_max_width();
+        continue;
+      }
 
+    }
     $min = count($low) ? max($low) : 0;
     $max = count($high) ? max($high) : 0;
 
@@ -188,15 +206,16 @@ abstract class Frame_Reflower {
     // content.  If the width is a percentage ignore it for now.
     $width = $style->width;
     if ( $width !== "auto" && !is_percent($width) ) {
-      $width = $style->length_in_pt($width, $width);
+      $width = $style->length_in_pt($width, $cb_w);
       if ( $min < $width )
         $min = $width;
+      if ( $max < $width )
+        $max = $width;
     }
 
     $min += $delta;
     $max += $delta;
-
-    return array($min, $max, "min"=>$min, "max"=>$max);
+    return $this->_min_max_cache = array($min, $max, "min"=>$min, "max"=>$max);
   }
 
 }

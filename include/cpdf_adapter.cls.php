@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.16 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.17 2006-07-21 21:23:13 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -654,7 +654,11 @@ class CPDF_Adapter implements Canvas {
 
   function get_text_width($text, $font, $size, $spacing = 0) {
     $this->_pdf->selectFont($font);
-    return $this->_pdf->getTextWidth($size, utf8_decode($text), $spacing);
+    $ascii = utf8_decode($text);
+//     // Hack for &nbsp;
+//     $ascii = str_replace("\xA0", " ", $ascii);
+
+    return $this->_pdf->getTextWidth($size, $ascii, $spacing);
   }
 
   //........................................................................
