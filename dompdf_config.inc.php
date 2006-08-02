@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.19 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.20 2006-08-02 18:44:25 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -229,6 +229,13 @@ $_dompdf_show_warnings = false;
  * @var bool
  */
 $_dompdf_debug = false;
+
+/**
+ * Array of enabled debug message types
+ *
+ * @var array
+ */
+$_DOMPDF_DEBUG_TYPES = array(); //array("page-break" => 1);
 
 require_once(DOMPDF_INC_DIR . "/functions.inc.php");
 

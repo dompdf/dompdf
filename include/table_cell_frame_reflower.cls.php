@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.9 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.10 2006-08-02 18:44:25 benjcarson Exp $ */
 
 
 /**
@@ -110,7 +110,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
 
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
-
+      
       $child->set_containing_block($content_x, $content_y, $cb_w, $h);
       $child->reflow();
 

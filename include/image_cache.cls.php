@@ -69,7 +69,6 @@ class Image_Cache {
   static function resolve_url($url, $proto, $host, $base_path) {
     global $_dompdf_warnings;
 
-    
     $resolved_url = null;
 
     // Remove dynamic part of url to determine the file extension

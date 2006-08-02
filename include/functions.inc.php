@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: functions.inc.php,v 1.12 2006-07-21 21:23:13 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.13 2006-08-02 18:44:25 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -351,6 +351,45 @@ function record_warnings($errno, $errstr, $errfile, $errline) {
     echo $errstr . "\n";
 
   $_dompdf_warnings[] = $errstr;
+}
+
+/**
+ * Print a useful backtrace
+ */
+function bt() {
+  $bt = debug_backtrace();
+
+  array_shift($bt); // remove actual bt() call
+  echo "\n";
+  
+  $i = 0;
+  foreach ($bt as $call) {
+    $file = basename($call["file"]) . " (" . $call["line"] . ")";
+    if ( isset($call["class"]) ) {
+      $func = $call["class"] . "->" . $call["function"] . "()";
+    } else {
+      $func = $call["function"] . "()";
+    }
+    
+    echo "#" . str_pad($i, 2, " ", STR_PAD_RIGHT) . ": " . str_pad($file.":", 42) . " $func\n";
+    $i++;
+  }
+  echo "\n";
+}
+
+/**
+ * Print debug messages
+ *
+ * @param string $type  The type of debug messages to print
+ */
+function debug($type, $msg) {
+  global $_DOMPDF_DEBUG_TYPES;
+  if ( isset($_DOMPDF_DEBUG_TYPES[$type]) ) {
+    $arr = debug_backtrace();
+
+    echo basename($arr[0]["file"]) . " (" . $arr[0]["line"] ."): " . $arr[1]["function"] . ": ";
+    pre_r($msg);
+  }
 }
 
 /**

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_tree.cls.php,v 1.10 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.11 2006-08-02 18:44:25 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -182,7 +182,12 @@ class Frame_Tree {
         $child->parentNode->removeChild($child);
         continue;
       }
-      
+
+      // Skip empty image nodes
+      if ( $child->nodeName == "img" && $child->getAttribute("src") == "" ) {
+        $child->parentNode->removeChild($child);
+        continue;
+      }
       // Add a container frame for images
       if ( $child->nodeName == "img" ) {
         $img_node = $child->ownerDocument->createElement("img_inner");

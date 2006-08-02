@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_row_frame_reflower.cls.php,v 1.4 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: table_row_frame_reflower.cls.php,v 1.5 2006-08-02 18:44:25 benjcarson Exp $ */
 
 /**
  * Reflows table rows
@@ -51,21 +51,21 @@ class Table_Row_Frame_Reflower extends Frame_Reflower {
   function __construct(Table_Row_Frame_Decorator $frame) {
     parent::__construct($frame);
   }
-  
-  //........................................................................ 
+
+  //........................................................................
 
   function reflow() {
     $page = $this->_frame->get_root();
 
     if ( $page->is_full() )
       return;
-    
+
     $this->_frame->position();
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
-    
+
     foreach ($this->_frame->get_children() as $child) {
-      
+
       $child->set_containing_block($cb);
       $child->reflow();
 
@@ -82,11 +82,11 @@ class Table_Row_Frame_Reflower extends Frame_Reflower {
     $this->_frame->set_position($cellmap->get_frame_position($this->_frame));
 
   }
-  
+
   //........................................................................
 
   function get_min_max_width() {
     throw new DOMPDF_Exception("Min/max width is undefined for table rows");
   }
-}  
+}
 ?>

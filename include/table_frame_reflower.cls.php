@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.11 2006-07-21 21:23:13 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.12 2006-08-02 18:44:25 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -383,13 +383,14 @@ class Table_Frame_Reflower extends Frame_Reflower {
     // Bail if the page is full
     if ( $page->is_full() )
       return;
-
+    
     // Let the page know that we're reflowing a table so that splits
     // are suppressed (simply setting page-break-inside: avoid won't
     // work because we may have an arbitrary number of block elements
     // inside tds.)
     $page->table_reflow_start();
 
+    
     // Collapse vertical margins, if required
     $this->_collapse_margins();
 
@@ -468,14 +469,15 @@ class Table_Frame_Reflower extends Frame_Reflower {
     foreach ( $this->_frame->get_children() as $child ) {
 
       // Bail if the page is full
-      if ( $page->is_full() )
+      if ( !$page->in_nested_table() && $page->is_full() )
         break;
 
       $child->set_containing_block($content_x, $content_y, $width, $h);
       $child->reflow();
 
-      // Check if a split has occured
-      $page->check_page_break($child);
+      if ( !$page->in_nested_table() )
+        // Check if a split has occured
+        $page->check_page_break($child);
 
     }
 
@@ -496,9 +498,6 @@ class Table_Frame_Reflower extends Frame_Reflower {
   //........................................................................
 
   function get_min_max_width() {
-
-    if ( !is_null($this->_min_max_cache) )
-      return $this->_min_max_cache;
 
     $style = $this->_frame->get_style();
 
@@ -557,8 +556,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $this->_state["min_width"] += $delta;
     $this->_state["max_width"] += $delta;
 
-    return $this->_min_max_cache = array($this->_state["min_width"], $this->_state["max_width"],
-                                         "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
+    return array($this->_state["min_width"], $this->_state["max_width"],
+                 "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
   }
 }
 
