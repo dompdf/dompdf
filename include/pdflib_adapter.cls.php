@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.23 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.24 2006-08-11 18:04:04 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -238,22 +238,30 @@ class PDFLib_Adapter implements Canvas {
         $face = basename($file);
 
         // Prefer ttfs to afms
-        if ( file_exists($file.".ttf") )
-          $file .= ".ttf";
+        if ( file_exists($file.".ttf") ) {
+          $outline = "$file.ttf";
+          $afm = null;
 
-        else if ( file_exists($file .".TTF") )
-          $file .= ".TTF";
+        } else if ( file_exists($file .".TTF") ) {
+          $outline = "$file.TTF";
+          $afm = null;
 
-        else if ( file_exists($file . ".pfb") )
-          $file .= ".pfb";
+        } else if ( file_exists($file . ".pfb") ) {
+          $outline = "$file.pfb";
 
-        else if ( file_exists($file . ".PFB") )
-          $file .= ".PFB";
+          if ( file_exists($file . ".afm") )
+            $afm = "$file.afm";
 
-        else
+        } else if ( file_exists($file . ".PFB") ) {
+          $outline = "$file.PFB";
+          if ( file_exists($file . ".AFM") )
+            $afm = "$file.AFM";
+        } else
           continue;
 
-        $this->_pdf->set_parameter("FontOutline", "\{$face\}=\{$file\}");
+        $this->_pdf->set_parameter("FontOutline", "\{$face\}=\{$outline\}");
+        if ( !is_null($afm) )
+          $this->_pdf->set_parameter("FontAFM", "\{$face\}=\{$afm\}");
       }
     }
   }

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.12 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.13 2006-08-11 18:04:05 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -64,6 +64,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
    */
   function reset() {
     $this->_state = null;
+    $this->_min_max_cache = null;
   }
 
   //........................................................................
@@ -499,6 +500,9 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
   function get_min_max_width() {
 
+    if ( !is_null($this->_min_max_cache)  )
+      return $this->_min_max_cache;
+    
     $style = $this->_frame->get_style();
 
     $this->_frame->normalise();
@@ -556,7 +560,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $this->_state["min_width"] += $delta;
     $this->_state["max_width"] += $delta;
 
-    return array($this->_state["min_width"], $this->_state["max_width"],
+    return $this->_min_max_cache = array($this->_state["min_width"], $this->_state["max_width"],
                  "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
   }
 }

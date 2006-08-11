@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: style.cls.php,v 1.18 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.19 2006-08-11 18:04:04 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1177,17 +1177,15 @@ class Style {
     } else {
       $val = "none";
     }
-
     // Resolve the url now in the context of the current stylesheet
     $parsed_url = explode_url($val);
     if ( $parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "" )
-      $url = realpath($this->_stylesheet->get_base_path() . $parsed_url["file"]);
+      $url = realpath($this->_stylesheet->get_base_path() . $parsed_url["path"] . $parsed_url["file"]);
     else
       $url = build_url($this->_stylesheet->get_protocol(),
                        $this->_stylesheet->get_host(),
                        $this->_stylesheet->get_base_path(),
                        $val);                     
-                     
     $this->_props["background_image"] = $url;
   }
 

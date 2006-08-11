@@ -537,8 +537,9 @@ class GD_Adapter implements Canvas {
    * @param float $size the font size, in points
    * @param array $color
    * @param float $adjust word spacing adjustment
+   * @param float $angle Text angle
    */
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0) {
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
 
     // Scale by the AA factor
     $x *= $this->_aa_factor;
@@ -553,7 +554,7 @@ class GD_Adapter implements Canvas {
       $font .= ".ttf";
 
     // FIXME: word spacing
-    imagettftext($this->_img, $size, 0, $x, $y + $h, $c, $font, $text);
+    imagettftext($this->_img, $size, $angle, $x, $y + $h, $c, $font, $text);
     
   }
 

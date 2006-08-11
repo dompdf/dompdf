@@ -2428,14 +2428,14 @@ class  Cpdf {
         // references into the font object
         $basefile =  substr($fontName, 0, strlen($fontName) -4);
 
-        if  (file_exists($basefile.'.pfb')) {
-
-          $fbtype =  'pfb';
-        } else  if  (file_exists($basefile.'.ttf')) {
+        if  (file_exists($basefile.'.ttf')) {
 
           $fbtype =  'ttf';
-        } else {
 
+        } else if  (file_exists($basefile.'.pfb')) {
+
+          $fbtype =  'pfb';
+        } else {
           $fbtype =  '';
         }
 

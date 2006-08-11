@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: functions.inc.php,v 1.13 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.14 2006-08-11 18:04:04 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -382,7 +382,7 @@ function bt() {
  *
  * @param string $type  The type of debug messages to print
  */
-function debug($type, $msg) {
+function dompdf_debug($type, $msg) {
   global $_DOMPDF_DEBUG_TYPES;
   if ( isset($_DOMPDF_DEBUG_TYPES[$type]) ) {
     $arr = debug_backtrace();

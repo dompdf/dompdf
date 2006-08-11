@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.8 2006-07-07 21:31:05 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.9 2006-08-11 18:04:05 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -52,6 +52,26 @@ class Text_Frame_Reflower extends Frame_Reflower {
   function __construct(Text_Frame_Decorator $frame) {
     parent::__construct($frame);
     $this->_block_parent = null;
+
+    // Handle text transform
+    $transform = $this->_frame->get_style()->text_transform;
+    switch ( strtolower($transform) ) {
+    case "capitalize":
+      $this->_frame->set_text( ucwords($this->_frame->get_text()) );
+      break;
+
+    case "uppercase":
+      $this->_frame->set_text( strtoupper($this->_frame->get_text()) );
+      break;
+
+    case "lowercase":
+      $this->_frame->set_text( strtolower($this->_frame->get_text()) );
+      break;
+
+    default:
+      // Do nothing
+      break;
+    }
   }
 
   //........................................................................

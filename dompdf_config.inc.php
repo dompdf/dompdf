@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.20 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.21 2006-08-11 18:04:04 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -110,7 +110,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
  */
-define("DOMPDF_PDF_BACKEND", "auto");
+define("DOMPDF_PDF_BACKEND", "cpdf");
 
 /**
  * PDFlib license key
