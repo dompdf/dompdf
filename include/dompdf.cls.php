@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.18 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.19 2006-09-19 18:20:50 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -169,6 +169,7 @@ class DOMPDF {
     $this->_pdf = null;
     $this->_paper_size = "letter";
     $this->_paper_orientation = "portrait";
+    $this->_base_protocol = "";
     $this->_base_host = "";
     $this->_base_path = "";
     $this->_cache_id = null;
@@ -246,12 +247,25 @@ class DOMPDF {
     // Store parsing warnings as messages (this is to prevent output to the
     // browser if the html is ugly and the dom extension complains,
     // preventing the pdf from being streamed.)
-    list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
+    if ( !$this->_protocol && !$this->_base_host && !$this->_base_path ) 
+      list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
     
     if ( !DOMPDF_ENABLE_REMOTE &&
          ($this->_protocol != "" && $this->_protocol != "file://" ) )
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
-         
+
+    if ($this->_protocol != "" && $this->_protocol != "file://") {
+      $realfile = realpath($file);
+
+      if ( !$file )
+        throw new DOMPDF_Exception("File '$file' not found.");
+
+      if ( strpos($realfile, DOMPDF_CHROOT) !== 0 )
+        throw new DOMPDF_Exception("Permission denied.");
+
+      $file = $realfile;
+    }
+    
     if ( !DOMPDF_ENABLE_PHP ) {
       set_error_handler("record_warnings");
       $this->_xml->loadHTMLFile($file);
@@ -426,11 +440,11 @@ class DOMPDF {
    * Streams the PDF to the client
    *
    * The file will open a download dialog by default.  The options
-   * parameter controls the output headers.  Accepted headers are:
+   * parameter controls the output.  Accepted options are:
    *
    * 'Accept-Ranges' => 1 or 0 - if this is not set to 1, then this
    *    header is not included, off by default this header seems to
-   *    have caused some problems despite tha fact that it is supposed
+   *    have caused some problems despite the fact that it is supposed
    *    to solve them, so I am leaving it off by default.
    *
    * 'compress' = > 1 or 0 - apply content stream compression, this is
@@ -450,14 +464,23 @@ class DOMPDF {
   /**
    * Returns the PDF as a string
    *
+   * The file will open a download dialog by default.  The options
+   * parameter controls the output.  Accepted options are:
+   *
+   *
+   * 'compress' = > 1 or 0 - apply content stream compression, this is
+   *    on (1) by default
+   *
+   *
+   * @param array  $options options (see above)
    * @return string
    */
-  function output() {
-    global $_dompdf_debug;
+  function output($options = null) {
+
     if ( is_null($this->_pdf) )
       return null;
-    
-    return $this->_pdf->output( $_dompdf_debug );
+
+    return $this->_pdf->output( $options );
   }
   
   //........................................................................ 

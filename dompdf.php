@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.18 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.19 2006-09-19 18:20:49 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -289,6 +289,10 @@ if ( $save_file ) {
   list($proto, $host, $path, $file) = explode_url($outfile);
   if ( $proto != "" ) // i.e. not file://
     $outfile = $file; // just save it locally, FIXME? could save it like wget: ./host/basepath/file
+
+  $outfile = realpath($outfile);
+  if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
+    throw new DOMPDF_Exception("Permission denied.");
   
   file_put_contents($outfile, $dompdf->output());
   exit(0);

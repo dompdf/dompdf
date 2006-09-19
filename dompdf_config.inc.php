@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.21 2006-08-11 18:04:04 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.22 2006-09-19 18:20:49 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -73,7 +73,17 @@ define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
 define("DOMPDF_TEMP_DIR", "/tmp");
 
 /**
- * The path to the tt2pt1 utility (used to convert ttf to afm)
+ * ==== IMPORTANT ====
+ *
+ * dompdf's "chroot": Prevents dompdf from accessing system files or other
+ * files on the webserver.  All local files opened by dompdf must be in a
+ * subdirectory of this directory.  DO NOT set it to '/' since this could
+ * allow an attacker to use dompdf to read any files on the server.  This
+ * should be an absolute path.
+ */
+define("DOMPDF_CHROOT", DOMPDF_DIR);
+
+/** * The path to the tt2pt1 utility (used to convert ttf to afm)
  *
  * Not strictly necessary, but useful if you would like to install 
  * additional fonts using the {@link load_font.php} utility.
