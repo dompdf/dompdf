@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.19 2006-09-19 18:20:50 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.20 2006-09-19 18:24:08 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -263,6 +263,10 @@ class DOMPDF {
       if ( strpos($realfile, DOMPDF_CHROOT) !== 0 )
         throw new DOMPDF_Exception("Permission denied.");
 
+      // Exclude dot files (e.g. .htaccess)
+      if ( substr(basename($realfile),0,1) == "." )
+        throw new DOMPDF_Exception("Permission denied.");
+      
       $file = $realfile;
     }
     
