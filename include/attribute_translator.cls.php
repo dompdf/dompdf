@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: attribute_translator.cls.php,v 1.8 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.9 2006-09-29 17:37:27 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -313,6 +313,14 @@ class Attribute_Translator {
       $style = ltrim($style, ";");
       $td->setAttribute("style", $style);
     }
+    $th_list = $node->getElementsByTagName("th");
+    foreach ($th_list as $th) {
+      $style = rtrim($th->getAttribute("style"), ";");
+      $style .= "; border-width: $value" . "px; border-style: ridge;";
+      $style = ltrim($style, ";");
+      $th->setAttribute("style", $style);
+    }
+    
     return null;
   }
 
