@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.22 2006-09-19 18:20:49 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.23 2006-10-03 22:04:39 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -81,7 +81,7 @@ define("DOMPDF_TEMP_DIR", "/tmp");
  * allow an attacker to use dompdf to read any files on the server.  This
  * should be an absolute path.
  */
-define("DOMPDF_CHROOT", DOMPDF_DIR);
+define("DOMPDF_CHROOT", "/");//DOMPDF_DIR);
 
 /** * The path to the tt2pt1 utility (used to convert ttf to afm)
  *

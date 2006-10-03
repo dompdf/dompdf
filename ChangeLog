@@ -1,3 +1,53 @@
+2006-09-19 12:24  benjcarson
+
+* include/dompdf.cls.php:
+
+  - fixed security issue identified by Alex Günsche:
+    - prevent opening of dot-files
+
+2006-09-19 12:20  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, include/dompdf.cls.php,
+  include/style.cls.php:
+
+  - fixed security issue identified by Alex Günsche:
+    - added DOMPDF_CHROOT configuration variable to restrict input file location
+
+2006-08-11 12:04  benjcarson
+
+* dompdf_config.inc.php, load_font.php, include/functions.inc.php,
+  include/gd_adapter.cls.php, include/page_frame_decorator.cls.php,
+  include/pdflib_adapter.cls.php, include/style.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/text_frame_reflower.cls.php, lib/class.pdf.php:
+
+  - fix for local image paths (command-line only?)
+  - support for text-transform
+
+2006-08-02 12:44  benjcarson
+
+* dompdf.php, dompdf_config.inc.php, include/cellmap.cls.php,
+  include/frame_tree.cls.php, include/functions.inc.php,
+  include/image_cache.cls.php, include/image_frame_decorator.cls.php,
+  include/page_frame_decorator.cls.php,
+  include/table_cell_frame_reflower.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/table_row_frame_reflower.cls.php:
+
+  - fixed various frame not found in cellmap errors
+  - improved support for nested tables breaking across pages
+
+2006-07-21 15:23  benjcarson
+
+* ChangeLog, include/cellmap.cls.php, include/cpdf_adapter.cls.php,
+  include/frame_reflower.cls.php, include/functions.inc.php,
+  include/table_frame_decorator.cls.php,
+  include/table_frame_reflower.cls.php,
+  include/text_frame_decorator.cls.php, test/nested_table.html:
+
+  - initial official support for nested tables.
+  - fixed table height when last row is moved to new page, fixes table background & border being offset from table
+
 2006-07-07 15:33  benjcarson
 
 * test/: anchor_link.html, background_image.html, baseline.html,

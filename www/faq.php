@@ -7,6 +7,25 @@
 
 <li><a href="#save">How do I save a PDF to disk?</a></li>
 
+<li><a href="#tables">I have a big table and it's broken!</a></li>
+
+<li><a href="#footers">Is there a way to add headers and footers or page numbers?</a></li>
+
+<li><a href="#page_break">How do I insert page breaks?</a></li>
+
+<li><a href="#new_window">How can I make PDFs open in the browser window instead of
+opening the download dialog?</a></li>
+
+<li><a href="#centre">How do I centre a table, paragraph or div?</a></li>
+
+<li><a href="#euro">How can I print the euro symbol?</a></li>
+
+<li><a href="#zend_optimizer">I'm getting the following error:<br/>
+Cannot access undefined property for object with
+overloaded property access in
+/var/www/dompdf/include/frame_tree.cls.php on line 160
+</a></li>
+
 <li><a href="#dom">I'm getting the following error: <br/>
  Fatal error: DOMPDF_autoload() [function.require]: Failed opening required
  '/var/www/dompdf/include/domdocument.cls.php'
@@ -25,22 +44,6 @@ C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
 ...
 </a></li>
 
-<li><a href="#tables">I have a big table and it's broken!</a></li>
-
-<li><a href="#footers">Is there a way to add headers and footers?</a></li>
-
-<li><a href="#page_break">How do I insert page breaks?</a></li>
-
-<li><a href="#zend_optimizer">I'm getting the following error:<br/>
-Cannot access undefined property for object with
-overloaded property access in
-/var/www/dompdf/include/frame_tree.cls.php on line 160
-</a></li>
-
-<li><a href="#new_window">How can I make PDFs open in the browser window instead of
-opening the download dialog?</a></li>
-
-<li><a href="#centre">How do I centre a table, paragraph or div?</li>
 </ol>
 
 <div class="divider1">&nbsp;</div>
@@ -110,54 +113,6 @@ file_put_contents("saved_pdf.pdf", $pdf);
 <a href="#FAQ">[back to top]</a>
 <div class="divider1" style="background-position: 721px 0%">&nbsp;</div>
 
-
-<a name="dom"> </a>
-<h3>I'm getting the following error: <br/>
- Fatal error: DOMPDF_autoload() [function.require]: Failed opening required
- '/var/www/dompdf/include/domdocument.cls.php'
- (include_path='.:') in
- /var/www/dompdf/dompdf_config.inc.php
- on line 146</h3>
-
-<p>This error occurs when the version of PHP that you are using does not have
-the DOM extension enabled.  You can check which extensions are enabled by
-examning the output of <code>phpinfo()</code>.</p>
-
-<p>There are a couple of ways that the DOM extension could have been
-disabled.  DOM uses libxml, so if libxml is not present on your server
-then the DOM extension will not work.  Alternatively, if PHP was compiled
-with the '--disable-dom' switch or the '--disable-xml' switch, DOM support
-will also be removed.  You can check which switches were used to compile
-PHP with <code>phpinfo()</code>.</p>
-
-<a href="#FAQ">[back to top]</a>
-<div class="divider1" style="background-position: 239px 0%">&nbsp;</div>
-
-<a name="exec_time"> </a>
-<h3>I'm getting the following error: <br/> Fatal error:
-  Maximum execution time of 30 seconds exceeded in /var/www/dompdf/dompdf.php
-  on line XXX</h3>
-
-<p>Nested tables are not supported yet (v0.4.3) and can cause dompdf to enter an
-endless loop, thus giving rise to this error.</p>
-
-<a href="#FAQ">[back to top]</a>
-<div class="divider1" style="background-position: 300px 0%">&nbsp;</div>
-
-<a name="no_block_parent"> </a>
-<h3>I'm getting the following error:<br/>
-Fatal error: Uncaught exception 'DOMPDF_Exception' with message 'No
-block-level parent found. Not good.' in
-C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
-...</h3>
-
-<p>This should be fixed in versions 0.4.1 and up.  The error was
-caused by <code>parse_url()</code> thinking that the 'c' in 'c:\' was
-a protocol.  Version 0.4.1 works around this issue.</p>
-
-<a href="#FAQ">[back to top]</a>
-<div class="divider2" style="background-position: 130px 0%">&nbsp;</div>
-
 <a name="tables"> </a>
 <h3>I have a big table and it's broken!</h3>
 
@@ -209,17 +164,18 @@ displayed on every page:
   if ( isset($pdf) ) {
   
     $font = Font_Metrics::get_font("verdana", "bold");
-    $pdf-&gt;page_text(72, 18, "Fancy Header", $font, 6, array(0,0,0));
+    $pdf-&gt;page_text(72, 18, "Header: {PAGE_NUM} of {PAGE_COUNT}", $font, 6, array(0,0,0));
 
   }
   &lt;/script&gt;
 </pre>
 
-In this example, the text will be displayed 72pt (1 in) from the left
-edge of the page and 18pt (1/4 in) from the top of the page, in 6pt
-font.  The last argument to page_text() is the colour which takes an
-array of the form array(r,g,b) where each of r, g, and b are between
-0.0 and 1.0.  </li>
+In this example, the text will be displayed 72pt (1 in) from the left edge of
+the page and 18pt (1/4 in) from the top of the page, in 6pt font.  {PAGE_NUM}
+and {PAGE_COUNT} are automatically replaced by dompdf to the appropriate values
+on each page.  The last argument to page_text() is the colour which takes an
+array of the form array(r,g,b) where each of r, g, and b are between 0.0 and
+1.0.  </li>
 
 <li> There are several other methods available.  See the API
 documentation for the CPDF_Adapter class (<a
@@ -246,18 +202,6 @@ any block level element.</p>
 
 <a href="#FAQ">[back to top]</a>
 <div class="divider1" style="background-position: 44px 0%">&nbsp;</div>
-
-<a name="zend_optimizer"> </a>
-<h3>I'm getting the following error:<br/>
-Cannot access undefined property for object with
-overloaded property access in
-/var/www/dompdf/include/frame_tree.cls.php on line 160</h3>
-
-<p>This error is caused by an incompatibility with the Zend Optimizer.
-Disable the optimizer when using dompdf.</p>
-
-<a href="#FAQ">[back to top]</a>
-<div class="divider1" style="background-position: 991px 0%">&nbsp;</div>
 
 <a name="new_window"> </a>
 <h3>How can I make PDFs open in the browser window instead of
@@ -304,5 +248,72 @@ using margins:</p>
 
 <a href="#FAQ">[back to top]</a>
 <div class="divider1" style="background-position: 884px 0%">&nbsp;</div>
+
+<a name="euro"> </a>
+<h3>How can I print the euro symbol?</h3>
+
+<p>You can print the euro symbol (&#0128;) using the following entity: &amp;#0128.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider2" style="background-position: 672px 0%">&nbsp;</div>
+
+<a name="zend_optimizer"> </a>
+<h3>I'm getting the following error:<br/>
+Cannot access undefined property for object with
+overloaded property access in
+/var/www/dompdf/include/frame_tree.cls.php on line 160</h3>
+
+<p>This error is caused by an incompatibility with the Zend Optimizer.
+Disable the optimizer when using dompdf.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 991px 0%">&nbsp;</div>
+
+<a name="dom"> </a>
+<h3>I'm getting the following error: <br/>
+ Fatal error: DOMPDF_autoload() [function.require]: Failed opening required
+ '/var/www/dompdf/include/domdocument.cls.php'
+ (include_path='.:') in
+ /var/www/dompdf/dompdf_config.inc.php
+ on line 146</h3>
+
+<p>This error occurs when the version of PHP that you are using does not have
+the DOM extension enabled.  You can check which extensions are enabled by
+examning the output of <code>phpinfo()</code>.</p>
+
+<p>There are a couple of ways that the DOM extension could have been
+disabled.  DOM uses libxml, so if libxml is not present on your server
+then the DOM extension will not work.  Alternatively, if PHP was compiled
+with the '--disable-dom' switch or the '--disable-xml' switch, DOM support
+will also be removed.  You can check which switches were used to compile
+PHP with <code>phpinfo()</code>.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 239px 0%">&nbsp;</div>
+
+<a name="exec_time"> </a>
+<h3>I'm getting the following error: <br/> Fatal error:
+  Maximum execution time of 30 seconds exceeded in /var/www/dompdf/dompdf.php
+  on line XXX</h3>
+
+<p>Nested tables are not supported yet (v0.4.3) and can cause dompdf to enter an
+endless loop, thus giving rise to this error.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 300px 0%">&nbsp;</div>
+
+<a name="no_block_parent"> </a>
+<h3>I'm getting the following error:<br/>
+Fatal error: Uncaught exception 'DOMPDF_Exception' with message 'No
+block-level parent found. Not good.' in
+C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
+...</h3>
+
+<p>This should be fixed in versions 0.4.1 and up.  The error was
+caused by <code>parse_url()</code> thinking that the 'c' in 'c:\' was
+a protocol.  Version 0.4.1 works around this issue.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider2" style="background-position: 130px 0%">&nbsp;</div>
 
 </div> <?php include "foot.inc" ?>

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: attribute_translator.cls.php,v 1.9 2006-09-29 17:37:27 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.10 2006-10-03 22:04:39 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -61,8 +61,8 @@ class Attribute_Translator {
                                    'right' => 'float: right;'),
                   'border' => 'border-width: %0.2f px;',
                   'height' => 'height: %s;',
-                  'hspace' => 'padding-left: %0.2f px; padding-right: %0.2f px;',
-                  'vspace' => 'padding-top: %0.2f px; padding-bottom: %0.2f px;',
+                  'hspace' => 'padding-left: %1$0.2f px; padding-right: %1$0.2f px;',
+                  'vspace' => 'padding-top: %1$0.2f px; padding-top: %1$0.2f px',
                   'width' => 'width: %s;',
                   ),
            'table' => 
@@ -287,12 +287,12 @@ class Attribute_Translator {
       $func = "_" . mb_substr($target, 1);
       return self::$func($node, $value);
     }
-
+    
     return $value ? sprintf($target, $value) : "";
   }
 
   //.....................................................................
-  
+
   static protected function _set_table_cellpadding($node, $value) {
 
     $td_list = $node->getElementsByTagName("td");
