@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: list_bullet_renderer.cls.php,v 1.5 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: list_bullet_renderer.cls.php,v 1.6 2006-10-11 19:52:59 benjcarson Exp $ */
 
 /**
  * Renders list bullets
@@ -46,7 +46,7 @@
  * @package dompdf
  */
 class List_Bullet_Renderer extends Abstract_Renderer {
-  
+
   //........................................................................
 
   function render(Frame $frame) {
@@ -64,27 +64,27 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       $y += $line_height / 2 - $h / 2;
 
       $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h);
-      
+
     } else {
 
       $bullet_style = $style->list_style_type;
       $bullet_size = List_Bullet_Frame_Decorator::BULLET_SIZE;
 
       $fill = false;
-      
+
       switch ($bullet_style) {
-      
+
       default:
       case "disc":
         $fill = true;
-        
+
       case "circle":
         if ( !$fill )
           $fill = false;
-      
+
         list($x,$y) = $frame->get_position();
-        $x += $bullet_size / 2 + List_Bullet_Frame_Decorator::BULLET_PADDING;
-        $y += $line_height - $bullet_size;
+        //$x += $bullet_size / 2 + List_Bullet_Frame_Decorator::BULLET_PADDING;
+        $y += $line_height - $bullet_size / 2;
         $r = $bullet_size / 2;
         $this->_canvas->circle($x, $y, $r, $style->color, 0.2, null, $fill);
         break;
@@ -92,8 +92,8 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "square":
         list($x, $y) = $frame->get_position();
         $w = $bullet_size;
-        $x += List_Bullet_Frame_Decorator::BULLET_PADDING;
-        $y += $line_height - $w - List_Bullet_Frame_Decorator::BULLET_PADDING;
+        $x -= $w/2;
+        $y += $line_height - $w;
         $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
         break;
 

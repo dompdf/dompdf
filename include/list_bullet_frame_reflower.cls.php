@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: list_bullet_frame_reflower.cls.php,v 1.4 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: list_bullet_frame_reflower.cls.php,v 1.5 2006-10-11 19:52:59 benjcarson Exp $ */
 
 /**
  * Reflows list bullets
@@ -53,7 +53,7 @@ class List_Bullet_Frame_Reflower extends Frame_Reflower {
 
   function reflow() {
     $style = $this->_frame->get_style();
-    
+
     $style->width = $this->_frame->get_width();
     $this->_frame->position();
 
@@ -61,7 +61,7 @@ class List_Bullet_Frame_Reflower extends Frame_Reflower {
       $p = $this->_frame->find_block_parent();
       $p->add_frame_to_line($this->_frame);
     }
-    
+
   }
 }
 ?>

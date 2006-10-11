@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.17 2006-07-21 21:23:13 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.18 2006-10-11 19:52:59 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -562,8 +562,7 @@ class CPDF_Adapter implements Canvas {
     if ( !$fill && isset($width) )
       $this->_set_line_style($width, "round", "round", $style);
 
-    $this->_pdf->filledEllipse($x, $this->y($y), $r1, 0, 0, 8, 0, 360, 1, $fill);
-
+    $this->_pdf->ellipse($x, $this->y($y), $r1, 0, 0, 8, 0, 360, 1, $fill);
   }
   
   //........................................................................

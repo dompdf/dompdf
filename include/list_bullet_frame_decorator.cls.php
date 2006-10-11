@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: list_bullet_frame_decorator.cls.php,v 1.5 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: list_bullet_frame_decorator.cls.php,v 1.6 2006-10-11 19:52:59 benjcarson Exp $ */
 
 /**
  * Decorates frames for list bullet rendering
@@ -47,8 +47,8 @@
  */
 class List_Bullet_Frame_Decorator extends Frame_Decorator {
 
-  const BULLET_SIZE = 5;   // Size of graphical bullets
-  const BULLET_PADDING = 2.5; // Distance from bullet to text
+  const BULLET_SIZE = 4.5;   // Size of graphical bullets
+  const BULLET_PADDING = 1; // Distance from bullet to text
   
   static $BULLET_TYPES = array("disc", "circle", "square");
   
@@ -59,11 +59,14 @@ class List_Bullet_Frame_Decorator extends Frame_Decorator {
   }
   
   function get_margin_width() {
-    return self::BULLET_SIZE + self::BULLET_PADDING;
+    // Small hack to prevent indenting of list text
+    if ( $this->_frame->get_style()->list_style_position == "outside" )
+      return 0;
+    return self::BULLET_SIZE + 2 * self::BULLET_PADDING;
   }
 
   function get_margin_height() {
-    return self::BULLET_SIZE + self::BULLET_PADDING;
+    return self::BULLET_SIZE + 2 * self::BULLET_PADDING;
   }
 
   function get_width() {
