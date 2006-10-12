@@ -223,7 +223,7 @@ $dompdf = new DOMPDF();
 $dompdf-&gt;load_html($html);
 
 $dompdf-&gt;render();
-$domper-&gt;stream("my_pdf.pdf", array("Attachment" =&gt; 0));
+$dompdf-&gt;stream("my_pdf.pdf", array("Attachment" =&gt; 0));
 
 </pre>
 

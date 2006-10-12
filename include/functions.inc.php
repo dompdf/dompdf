@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: functions.inc.php,v 1.14 2006-08-11 18:04:04 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.15 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -110,9 +110,9 @@ function build_url($protocol, $host, $base_path, $url) {
     // We ignore the host for local file access, and run the path through
     // realpath()
     $host = "";
-    $base_path = realpath($base_path);
+    $base_path = dompdf_realpath($base_path);
   }
-  
+
   if ( $url{0} === "/" )
     // Absolute path
     $ret .= $host . $url;
@@ -275,6 +275,46 @@ function dec2roman($num) {
 function is_percent($value) { return false !== mb_strpos($value, "%"); }
 
 /**
+ * Canonicalize a path without checking if the file exists
+ *
+ * @param  string $path The path to canonicalize
+ * @return string The canonical path, or null if the path is invalid (e.g. /../../foo)
+ */
+function dompdf_realpath($path) {
+
+  // If the path is relative, prepend the current directory
+  if ( $path{0} != "/" )
+    $path = getcwd() . "/" . $path;
+
+  $parts = explode("/", $path);
+  $path = array();
+
+  $i = 0;
+  foreach ($parts as $dir) {
+
+    if ( $dir == "." )
+      continue;
+
+    if ( $dir == ".." ) {
+      $i--;
+      if ( $i < 0 )
+        $i = 0;
+
+      unset($path[$i]);
+      continue;
+    }
+
+    if ( $dir == "" )
+      continue;
+
+    $path[$i] = $dir;
+    $i++;
+  }
+
+  return "/" . join("/", $path);
+}
+
+/**
  * mb_string compatibility
  */
 
@@ -361,7 +401,7 @@ function bt() {
 
   array_shift($bt); // remove actual bt() call
   echo "\n";
-  
+
   $i = 0;
   foreach ($bt as $call) {
     $file = basename($call["file"]) . " (" . $call["line"] . ")";
@@ -370,7 +410,7 @@ function bt() {
     } else {
       $func = $call["function"] . "()";
     }
-    
+
     echo "#" . str_pad($i, 2, " ", STR_PAD_RIGHT) . ": " . str_pad($file.":", 42) . " $func\n";
     $i++;
   }

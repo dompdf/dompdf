@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_renderer.cls.php,v 1.5 2006-07-07 21:31:05 benjcarson Exp $ */
+/* $Id: text_renderer.cls.php,v 1.6 2006-10-12 22:02:15 benjcarson Exp $ */
 /**
  * Renders text frames
  *
@@ -76,8 +76,8 @@ class Text_Renderer extends Abstract_Renderer {
     $height = $style->height;    
     $spacing = $frame->get_text_spacing() + $style->word_spacing;
 
-    if ( preg_replace("/[\s]+/", "", $text) == "" )
-      return;
+//     if ( preg_replace("/[\s]+/", "", $text) == "" )
+//       return;
     
     $this->_canvas->text($x, $y, $text,
                          $font, $size,

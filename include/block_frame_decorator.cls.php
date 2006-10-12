@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.8 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.9 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -145,6 +145,12 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     if ( $w == 0 )
       return;
+
+    // Omit leading whitespace text frames
+    if ( $frame->get_node()->nodeName == "#text" &&
+         $this->_lines[$this->_cl]["w"] == 0 &&
+         preg_replace("/[\s\n]+/u", "", $frame->get_text()) == "" )
+      return;
     
     // Debugging code:
 
@@ -166,8 +172,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
       $this->add_line();
 
     $frame->position();
-    
-    
+
+
     $this->_lines[$this->_cl]["frames"][] = $frame;
 
     if ( $frame->get_node()->nodeName == "#text")

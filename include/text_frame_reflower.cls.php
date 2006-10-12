@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.9 2006-08-11 18:04:05 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.10 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -78,8 +78,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
   protected function _collapse_white_space($text) {
     //$text = $this->_frame->get_text();
-    if ( $this->_block_parent->get_current_line("w") == 0 )
-      $text = ltrim($text, " \n\r\t");
+//     if ( $this->_block_parent->get_current_line("w") == 0 )
+//       $text = ltrim($text, " \n\r\t");
     return preg_replace("/[\s\n]+/u", " ", $text);
   }
 

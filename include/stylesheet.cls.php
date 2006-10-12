@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: stylesheet.cls.php,v 1.16 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.17 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -57,12 +57,12 @@ define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . DIRECTORY_SEPARATOR . "res" . DI
  * @package dompdf
  */
 class Stylesheet {
-  
-  
+
+
 
   /**
    * the location of the default built-in CSS file.
-   * 
+   *
    */
   const DEFAULT_STYLESHEET = __DEFAULT_STYLESHEET; // Hack: can't
                                                    // concatenate stuff in
@@ -81,7 +81,7 @@ class Stylesheet {
    *
    * Used to handle relative urls.
    *
-   * @var string 
+   * @var string
    */
   private $_protocol;
 
@@ -101,9 +101,9 @@ class Stylesheet {
    */
   private $_base_path;
 
-  
+
   /**
-   * the style defined by @page rules 
+   * the style defined by @page rules
    *
    * @var Style
    */
@@ -116,13 +116,13 @@ class Stylesheet {
    * @var array
    */
   private $_loaded_files;
-  
+
   /**
-   * accepted CSS media types 
+   * accepted CSS media types
    */
   static $ACCEPTED_MEDIA_TYPES = array("all", "static", "visual",
                                        "bitmap", "paged", "print");
-  
+
   /**
    * The class constructor.
    *
@@ -178,7 +178,7 @@ class Stylesheet {
    * @return string
    */
   function get_base_path() { return $this->_base_path; }
-  
+
   /**
    * add a new Style object to the stylesheet
    *
@@ -211,7 +211,7 @@ class Stylesheet {
   function lookup($key) {
     if ( !isset($this->_styles[$key]) )
       return null;
-    
+
     return $this->_styles[$key];
   }
 
@@ -224,7 +224,7 @@ class Stylesheet {
   function create_style($parent = null) {
     return new Style($this, $parent);
   }
-  
+
 
   /**
    * load and parse a CSS string
@@ -241,7 +241,7 @@ class Stylesheet {
    */
   function load_css_file($file) {
     global $_dompdf_warnings;
-    
+
     // Prevent circular references
     if ( isset($this->_loaded_files[$file]) )
       return;
@@ -250,19 +250,19 @@ class Stylesheet {
     $parsed_url = explode_url($file);
 
     list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
-    
+
     if ( !DOMPDF_ENABLE_REMOTE &&
          ($this->_protocol != "" && $this->_protocol != "file://") ) {
       record_warnings(E_USER_WARNING, "Remote CSS file '$file' requested, but DOMPDF_ENABLE_REMOTE is false.", __FILE__, __LINE__);
-      return; 
+      return;
     }
-    
+
     // Fix submitted by Nick Oostveen for aliased directory support:
     if ( $this->_protocol == "" )
       $file = $this->_base_path . $filename;
     else
       $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
-    
+
     set_error_handler("record_warnings");
     $css = file_get_contents($file);
     restore_error_handler();
@@ -271,7 +271,7 @@ class Stylesheet {
       record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);;
       return;
     }
-    
+
     $this->_parse_css($css);
 
   }
@@ -286,13 +286,13 @@ class Stylesheet {
     // http://www.w3.org/TR/CSS21/cascade.html#specificity
 
     $a = ($selector === "!style attribute") ? 1 : 0;
-    
+
     $b = min(mb_substr_count($selector, "#"), 255);
 
     $c = min(mb_substr_count($selector, ".") +
              mb_substr_count($selector, ">") +
              mb_substr_count($selector, "+"), 255);
-    
+
     $d = min(mb_substr_count($selector, " "), 255);
 
     return ($a << 24) | ($b << 16) | ($c << 8) | ($d);
@@ -311,11 +311,11 @@ class Stylesheet {
 //     $search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
 //     $replace = array(" ", "\\1");
 //     $selector = preg_replace($search, $replace, trim($selector));
-    
+
     // Initial query (non-absolute)
     $query = "//";
-    
-    // Parse the selector     
+
+    // Parse the selector
     //$s = preg_split("/([ :>.#+])/", $selector, -1, PREG_SPLIT_DELIM_CAPTURE);
 
     $delimiters = array(" ", ">", ".", "#", "+", ":", "[");
@@ -328,7 +328,7 @@ class Stylesheet {
     $tok = "";
     $len = mb_strlen($selector);
     $i = 0;
-                   
+
     while ( $i < $len ) {
 
       $s = $selector{$i};
@@ -344,7 +344,7 @@ class Stylesheet {
       }
 
       switch ($s) {
-        
+
       case " ":
       case ">":
         // All elements matching the next token that are direct children of
@@ -356,7 +356,7 @@ class Stylesheet {
 
         if ( !$tok )
           $tok = "*";
-        
+
         $query .= "$expr::$tok";
         $tok = "";
         break;
@@ -375,10 +375,10 @@ class Stylesheet {
         // Match multiple classes: $tok contains the current selected
         // class.  Search for class attributes with class="$tok",
         // class=".* $tok .*" and class=".* $tok"
-        
+
         // This doesn't work because libxml only supports XPath 1.0...
         //$query .= "[matches(@$attr,\"^${tok}\$|^${tok}[ ]+|[ ]+${tok}\$|[ ]+${tok}[ ]+\")]";
-        
+
         // Query improvement by Michael Sheakoski <michael@mjsdigital.com>:
         $query .= "[contains(concat(' ', @$attr, ' '), concat(' ', '$tok', ' '))]";
         $tok = "";
@@ -416,27 +416,27 @@ class Stylesheet {
 
         case "after":
           break;
-        
+
         }
-        
+
         break;
-        
+
       case "[":
         // Attribute selectors.  All with an attribute matching the following token(s)
         $attr_delimiters = array("=", "]", "~", "|");
         $tok_len = mb_strlen($tok);
         $j = 0;
-        
+
         $attr = "";
         $op = "";
         $value = "";
-        
+
         while ( $j < $tok_len ) {
           if ( in_array($tok{$j}, $attr_delimiters) )
             break;
           $attr .= $tok{$j++};
         }
-        
+
         switch ( $tok{$j} ) {
 
         case "~":
@@ -454,7 +454,7 @@ class Stylesheet {
           break;
 
         }
-       
+
         // Read the attribute value, if required
         if ( $op != "" ) {
           $j++;
@@ -462,9 +462,9 @@ class Stylesheet {
             if ( $tok{$j} == "]" )
               break;
             $value .= $tok{$j++};
-          }            
+          }
         }
-       
+
         if ( $attr == "" )
           throw new DOMPDF_Exception("Invalid CSS selector syntax: missing attribute name");
 
@@ -473,7 +473,7 @@ class Stylesheet {
         case "":
           $query .=  "[@$attr]";
           break;
-         
+
         case "=":
           $query .= "[@$attr$op\"$value\"]";
           break;
@@ -484,9 +484,9 @@ class Stylesheet {
           $values = explode(" ", $value);
           $query .=  "[";
 
-          foreach ( $values as $val ) 
+          foreach ( $values as $val )
             $query .= "@$attr=\"$val\" or ";
-         
+
           $query = rtrim($query, " or ") . "]";
           break;
 
@@ -499,14 +499,14 @@ class Stylesheet {
 
           $query = rtrim($query, " or ") . "]";
           break;
-         
+
         }
-     
+
         break;
       }
     }
     $i++;
-      
+
 //       case ":":
 //         // Pseudo selectors: ignore for now.  Partially handled directly
 //         // below.
@@ -518,7 +518,7 @@ class Stylesheet {
 //           $i++;
 //         }
 //         break;
-        
+
 //       default:
 //         // Add the character to the token
 //         $tok .= $selector{$i++};
@@ -526,12 +526,12 @@ class Stylesheet {
 //       }
 
 //    }
-    
-    
+
+
     // Trim the trailing '/' from the query
     if ( mb_strlen($query) > 2 )
       $query = rtrim($query, "/");
-    
+
     return $query;
   }
 
@@ -548,7 +548,7 @@ class Stylesheet {
 
     // Use XPath to select nodes.  This would be easier if we could attach
     // Frame objects directly to DOMNodes using the setUserData() method, but
-    // we can't do that just yet.  Instead, we set a _node attribute_ in 
+    // we can't do that just yet.  Instead, we set a _node attribute_ in
     // Frame->set_id() and use that as a handle on the Frame object via
     // Frame_Tree::$_registry.
 
@@ -556,7 +556,7 @@ class Stylesheet {
     // styles have been assigned, we order the cached styles by specificity
     // and create a final style object to assign to the frame.
 
-    // FIXME: this is not particularly robust...    
+    // FIXME: this is not particularly robust...
 
     $styles = array();
     $xp = new DOMXPath($tree->get_dom());
@@ -568,8 +568,8 @@ class Stylesheet {
 //       pre_var_dump($selector);
 //       pre_var_dump($query);
 //        echo ($style);
-      
-      // Retrieve the nodes      
+
+      // Retrieve the nodes
       $nodes = $xp->query($query);
 
       foreach ($nodes as $node) {
@@ -577,7 +577,7 @@ class Stylesheet {
         // Retrieve the node id
         if ( $node->nodeType != 1 ) // Only DOMElements get styles
           continue;
-        
+
         $id = $node->getAttribute("frame_id");
 
         // Assign the current style to the scratch array
@@ -591,20 +591,20 @@ class Stylesheet {
     $root_flg = false;
     foreach ($tree->get_frames() as $frame) {
       // pre_r($frame->get_node()->nodeName . ":");
-            
+
       if ( !$root_flg && $this->_page_style ) {
         $style = $this->_page_style;
         $root_flg = true;
 
-      } else 
+      } else
         $style = $this->create_style();
 
       // Find nearest DOMElement parent
-      $p = $frame;      
+      $p = $frame;
       while ( $p = $p->get_parent() )
         if ($p->get_node()->nodeType == 1 )
           break;
-      
+
       // Styles can only be applied directly to DOMElements; anonymous
       // frames inherit from their parent
       if ( $frame->get_node()->nodeType != 1 ) {
@@ -618,16 +618,16 @@ class Stylesheet {
 
       // Handle HTML 4.0 attributes
       Attribute_Translator::translate_attributes($frame);
-    
-      // Locate any additional style attributes      
+
+      // Locate any additional style attributes
       if ( ($str = $frame->get_node()->getAttribute("style")) !== "" ) {
         $spec = $this->_specificity("!style attribute");
         $styles[$id][$spec][] = $this->_parse_properties($str);
       }
-      
+
       // Grab the applicable styles
       if ( isset($styles[$id]) ) {
-        
+
         $applied_styles = $styles[ $frame->get_id() ];
 
         // Sort by specificity
@@ -635,7 +635,7 @@ class Stylesheet {
 
         // Merge the new styles with the inherited styles
         foreach ($applied_styles as $arr) {
-          foreach ($arr as $s) 
+          foreach ($arr as $s)
             $style->merge($s);
         }
       }
@@ -650,24 +650,24 @@ class Stylesheet {
 //      echo $style;
 //      echo "</pre>";
       $frame->set_style($style);
-      
+
     }
-    
+
     // We're done!  Clean out the registry of all styles since we
     // won't be needing this later.
     foreach ( array_keys($this->_styles) as $key ) {
       unset($this->_styles[$key]);
     }
-    
+
   }
-  
+
 
   /**
    * parse a CSS string using a regex parser
    *
-   * Called by {@link Stylesheet::parse_css()} 
+   * Called by {@link Stylesheet::parse_css()}
    *
-   * @param string $str 
+   * @param string $str
    */
   private function _parse_css($str) {
 
@@ -689,7 +689,7 @@ class Stylesheet {
       "|                                      # Branch to match regular rules (not preceeded by '@')\n".
       "([^{]*{[^}]*}))                        # Parse normal rulesets\n".
       "/xs";
-     
+
     if ( preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false )
       // An error occured
       throw new DOMPDF_Exception("Error parsing css file: preg_match_all() failed.");
@@ -713,7 +713,7 @@ class Stylesheet {
         // Handle @rules
         switch ($match[2]) {
 
-        case "import":          
+        case "import":
           $this->_parse_import($match[3]);
           break;
 
@@ -730,7 +730,7 @@ class Stylesheet {
           else
             $this->_page_style->merge($this->_parse_properties($match[5]));
           break;
-          
+
         default:
           // ignore everything else
           break;
@@ -739,13 +739,13 @@ class Stylesheet {
         continue;
       }
 
-      if ( $match[7] !== "" ) 
+      if ( $match[7] !== "" )
         $this->_parse_sections($match[7]);
-      
+
     }
   }
 
-  
+
   /**
    * parse @import{} sections
    *
@@ -755,9 +755,9 @@ class Stylesheet {
     $arr = preg_split("/[\s\n]/", $url);
     $url = array_pop($arr);
     $accept = false;
-    
+
     if ( count($arr) > 0 ) {
-      
+
       // @import url media_type [media_type...]
       foreach ( $arr as $type ) {
         if ( in_array($type, self::$ACCEPTED_MEDIA_TYPES) ) {
@@ -765,11 +765,11 @@ class Stylesheet {
           break;
         }
       }
-      
+
     } else
       // unconditional import
       $accept = true;
-    
+
     if ( $accept ) {
       $url = str_replace(array('"',"url", "(", ")"), "", $url);
       // Store our current base url properties in case the new url is elsewhere
@@ -779,15 +779,15 @@ class Stylesheet {
 
       // If the protocol is php, assume that we will import using file://
       $url = build_url($protocol == "php://" ? "file://" : $protocol, $host, $path, $url);
-      
+
       $this->load_css_file($url);
-      
+
       // Restore the current base url
       $this->_protocol = $protocol;
       $this->_base_host = $host;
       $this->_base_path = $path;
     }
-    
+
   }
 
   /**
@@ -832,7 +832,7 @@ class Stylesheet {
   private function _parse_sections($str) {
     // Pre-process: collapse all whitespace and strip whitespace around '>',
     // '.', ':', '+', '#'
-    
+
     $patterns = array("/[\\s\n]+/", "/\\s+([>.:+#])\\s+/");
     $replacements = array(" ", "\\1");
     $str = preg_replace($patterns, $replacements, $str);
@@ -847,14 +847,14 @@ class Stylesheet {
       // Assign it to the selected elements
       foreach ($selectors as $selector) {
         $selector = trim($selector);
-        
+
         if ($selector == "")
           continue;
-        
+
         $this->add_style($selector, $style);
       }
     }
-  }  
+  }
 
   /**
    * dumps the entire stylesheet as a string
@@ -866,7 +866,7 @@ class Stylesheet {
    */
   function __toString() {
     $str = "";
-    foreach ($this->_styles as $selector => $style) 
+    foreach ($this->_styles as $selector => $style)
       $str .= "$selector => " . $style->__toString() . "\n";
 
     return $str;

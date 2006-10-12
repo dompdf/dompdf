@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame.cls.php,v 1.11 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.12 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -569,9 +569,9 @@ class Frame {
   function __toString() {
 
     // Skip empty text frames
-    if ( $this->_node->nodeName == "#text" &&
-         preg_replace("/\s/", "", $this->_node->data) === "" )
-      return "";
+//     if ( $this->_node->nodeName == "#text" &&
+//          preg_replace("/\s/", "", $this->_node->data) === "" )
+//       return "";
     
     
     $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
@@ -618,7 +618,7 @@ class Frame {
         foreach ($line["frames"] as $frame) {
           if ($frame instanceof Text_Frame_Decorator) {
             $str .= "\ntext: ";          
-            $str .= htmlspecialchars($frame->get_text());
+            $str .= "'". htmlspecialchars($frame->get_text()) ."'";
           } else {
             $str .= "\nBlock: " . $frame->get_node()->nodeName . " (" . (string)$frame->get_node() . ")";
           }

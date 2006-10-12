@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: style.cls.php,v 1.20 2006-09-19 18:20:50 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.21 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -1180,7 +1180,7 @@ class Style {
     // Resolve the url now in the context of the current stylesheet
     $parsed_url = explode_url($val);
     if ( $parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "" )
-      $url = realpath(rtrim($this->_stylesheet->get_base_path(),"/") ."/" . $parsed_url["path"] . $parsed_url["file"]);
+      $url = dompdf_realpath(rtrim($this->_stylesheet->get_base_path(),"/") ."/" . $parsed_url["path"] . $parsed_url["file"]);
     else
       $url = build_url($this->_stylesheet->get_protocol(),
                        $this->_stylesheet->get_host(),

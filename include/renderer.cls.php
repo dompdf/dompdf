@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: renderer.cls.php,v 1.7 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.8 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -75,7 +75,7 @@ class Renderer extends Abstract_Renderer {
     if ( $_dompdf_debug ) {
       echo $frame;
       flush();
-    }                      
+    }
 
     $display = $frame->get_style()->display;
     

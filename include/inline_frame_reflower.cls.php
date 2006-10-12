@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: inline_frame_reflower.cls.php,v 1.3 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: inline_frame_reflower.cls.php,v 1.4 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * Reflows inline frames
@@ -63,7 +63,7 @@ class Inline_Frame_Reflower extends Frame_Reflower {
       $f->get_style()->padding_left = $style->padding_left;
       $f->get_style()->border_left = $style->border_left;
     }
-    
+
     if ( ($l = $this->_frame->get_last_child()) && $l instanceof Text_Frame_Decorator ) {
       $f->get_style()->margin_right = $style->margin_right;
       $f->get_style()->padding_right = $style->padding_right;
@@ -73,6 +73,7 @@ class Inline_Frame_Reflower extends Frame_Reflower {
     // Set the containing blocks and reflow each child.  The containing
     // block is not changed by line boxes.
     foreach ( $this->_frame->get_children() as $child ) {
+      
       $child->set_containing_block($cb);
       $child->reflow();
     }

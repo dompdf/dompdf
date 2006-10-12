@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.20 2006-09-19 18:24:08 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.21 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -74,7 +74,7 @@
  * {@link Frame} in the document tree is traversed once (except for tables
  * which use a two-pass layout algorithm).  If you are interested in the
  * details, see the reflow() method of the Reflower classes.
- * 
+ *
  * Rendering is relatively straightforward once layout is complete. {@link
  * Frame}s are rendered using an adapted {@link Cpdf} class, originally
  * written by Wayne Munro, http://www.ros.co.nz/pdf/.  (Some performance
@@ -87,8 +87,8 @@
  * @package dompdf
  */
 class DOMPDF {
-  
-  
+
+
   /**
    * DomDocument representing the HTML document
    *
@@ -155,7 +155,7 @@ class DOMPDF {
    * @var string
    */
   protected $_protocol;
-  
+
 
   /**
    * Class constructor
@@ -182,7 +182,7 @@ class DOMPDF {
    */
   function get_tree() { return $this->_tree; }
 
-  //........................................................................ 
+  //........................................................................
 
   /**
    * Sets the protocol to use
@@ -226,15 +226,15 @@ class DOMPDF {
    * @return string
    */
   function get_base_path() { return $this->_base_path; }
-  
+
   /**
    * Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)
    *
    * @return Canvas
    */
   function get_canvas() { return $this->_pdf; }
-  
-  //........................................................................ 
+
+  //........................................................................
 
   /**
    * Loads an HTML file
@@ -247,16 +247,16 @@ class DOMPDF {
     // Store parsing warnings as messages (this is to prevent output to the
     // browser if the html is ugly and the dom extension complains,
     // preventing the pdf from being streamed.)
-    if ( !$this->_protocol && !$this->_base_host && !$this->_base_path ) 
+    if ( !$this->_protocol && !$this->_base_host && !$this->_base_path )
       list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
-    
+
     if ( !DOMPDF_ENABLE_REMOTE &&
          ($this->_protocol != "" && $this->_protocol != "file://" ) )
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
 
-    if ($this->_protocol != "" && $this->_protocol != "file://") {
-      $realfile = realpath($file);
+    if ($this->_protocol == "" || $this->_protocol == "file://") {
 
+      $realfile = dompdf_realpath($file);
       if ( !$file )
         throw new DOMPDF_Exception("File '$file' not found.");
 
@@ -266,10 +266,10 @@ class DOMPDF {
       // Exclude dot files (e.g. .htaccess)
       if ( substr(basename($realfile),0,1) == "." )
         throw new DOMPDF_Exception("Permission denied.");
-      
+
       $file = $realfile;
     }
-    
+
     if ( !DOMPDF_ENABLE_PHP ) {
       set_error_handler("record_warnings");
       $this->_xml->loadHTMLFile($file);
@@ -293,7 +293,7 @@ class DOMPDF {
     if ( DOMPDF_ENABLE_PHP ) {
       ob_start();
       eval("?" . ">$str");
-      $str = ob_get_contents();      
+      $str = ob_get_contents();
       ob_end_clean();
     }
 
@@ -309,17 +309,17 @@ class DOMPDF {
    */
   protected function _process_html() {
     $this->_tree->build_tree();
-    
-    $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET);    
+
+    $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET);
 
     // load <link rel="STYLESHEET" ... /> tags
-    $links = $this->_xml->getElementsByTagName("link");    
+    $links = $this->_xml->getElementsByTagName("link");
     foreach ($links as $link) {
       if ( mb_strtolower($link->getAttribute("rel")) == "stylesheet" ||
            mb_strtolower($link->getAttribute("type")) == "text/css" ) {
         $url = $link->getAttribute("href");
         $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
-        
+
         $this->_css->load_css_file($url);
       }
 
@@ -337,16 +337,16 @@ class DOMPDF {
            ($media = $style->getAttribute("media")) &&
            !in_array($media, Stylesheet::$ACCEPTED_MEDIA_TYPES) )
         continue;
-      
+
       $css = "";
       if ( $style->hasChildNodes() ) {
-        
+
         $child = $style->firstChild;
         while ( $child ) {
           $css .= $child->nodeValue; // Handle <style><!-- blah --></style>
           $child = $child->nextSibling;
         }
-        
+
       } else
         $css = $style->nodeValue;
 
@@ -357,10 +357,10 @@ class DOMPDF {
 
       $this->_css->load_css($css);
     }
-    
+
   }
 
-  //........................................................................ 
+  //........................................................................
 
   /**
    * Sets the paper size & orientation
@@ -372,8 +372,8 @@ class DOMPDF {
     $this->_paper_size = $size;
     $this->_paper_orientation = $orientation;
   }
-  
-  //........................................................................ 
+
+  //........................................................................
 
   /**
    * Enable experimental caching capability
@@ -382,8 +382,8 @@ class DOMPDF {
   function enable_caching($cache_id) {
     $this->_cache_id = $cache_id;
   }
-  
-  //........................................................................ 
+
+  //........................................................................
 
   /**
    * Renders the HTML to PDF
@@ -391,16 +391,16 @@ class DOMPDF {
   function render() {
 
     //enable_mem_profile();
-    
+
     $this->_process_html();
 
     $this->_css->apply_styles($this->_tree);
 
     $root = null;
-    
-    foreach ($this->_tree->get_frames() as $frame) {
 
+    foreach ($this->_tree->get_frames() as $frame) {
       // Set up the root frame
+
       if ( is_null($root) ) {
         $root = Frame_Factory::decorate_root( $this->_tree->get_root(), $this );
         continue;
@@ -412,7 +412,7 @@ class DOMPDF {
 
       // FIXME: handle generated content
       if ( $frame->get_style()->display == "list-item" ) {
-        
+
         // Insert a list-bullet frame
         $node = $this->_xml->createElement("bullet"); // arbitrary choice
         $b_f = new Frame($node);
@@ -421,24 +421,25 @@ class DOMPDF {
         $style->display = "-dompdf-list-bullet";
         $style->inherit($frame->get_style());
         $b_f->set_style($style);
-        
+
         $deco->prepend_child( Frame_Factory::decorate_frame($b_f, $this) );
       }
+
     }
-    
+
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
 
     $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
     $root->set_renderer(new Renderer($this));
-    
+
     // This is where the magic happens:
     $root->reflow();
-    
+
     // Clean up cached images
     Image_Cache::clear();
   }
-    
-  //........................................................................ 
+
+  //........................................................................
 
   /**
    * Streams the PDF to the client
@@ -486,8 +487,8 @@ class DOMPDF {
 
     return $this->_pdf->output( $options );
   }
-  
-  //........................................................................ 
-  
+
+  //........................................................................
+
 }
 ?>

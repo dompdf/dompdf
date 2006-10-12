@@ -32,7 +32,7 @@
  *
  * dompdf.php is a simple script to drive DOMPDF.  It can be executed from
  * a browser or from the command line.
- * 
+ *
  * @link http://www.digitaljunkies.ca/dompdf
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
@@ -40,16 +40,16 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.20 2006-10-03 22:04:39 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.21 2006-10-12 22:02:15 benjcarson Exp $ */
 
 /**
  * Display command line usage:
  *
  * Usage: ./dompdf.php [options] html_file
- * 
+ *
  * html_file can be a filename, a url if fopen_wrappers are enabled, or the '-'
  * character to read from standard input.
- * 
+ *
  * Options:
  *  -h             Show this message
  *  -l             list available paper sizes
@@ -63,7 +63,7 @@
  *  -v             verbose: display html parsing warnings and file not found errors.
  *  -d             very verbose: display oodles of debugging output: every frame in the
  *                 tree is printed to stdout.
- * 
+ *
  *
  */
 
@@ -85,7 +85,7 @@ function dompdf_usage() {
     " -v     \tverbose: display html parsing warnings and file not found errors.\n".
     " -d     \tvery verbose:  display oodles of debugging output: every frame\n".
     "        \tin the tree printed to stdout.\n\n";
-  
+
 }
 
 function getoptions() {
@@ -94,7 +94,7 @@ function getoptions() {
 
   if ( $_SERVER["argc"] == 1 )
     return $opts;
-  
+
   $i = 1;
   while ($i < $_SERVER["argc"]) {
 
@@ -110,7 +110,7 @@ function getoptions() {
       $opts["l"] = true;
       $i++;
       break;
-      
+
     case "-p":
       if ( !isset($_SERVER["argv"][$i+1]) )
         die("-p switch requires a size parameter\n");
@@ -138,7 +138,7 @@ function getoptions() {
       $opts["f"] = $_SERVER["argv"][$i+1];
       $i += 2;
       break;
-      
+
     case "-v":
       $opts["v"] = true;
       $i++;
@@ -154,9 +154,9 @@ function getoptions() {
       $i++;
       break;
     }
-    
+
   }
-  return $opts;  
+  return $opts;
 }
 
 require_once("dompdf_config.inc.php");
@@ -170,9 +170,9 @@ $sapi = php_sapi_name();
 switch ( $sapi ) {
 
  case "cli":
-   
+
   $opts = getoptions();
- 
+
   if ( isset($opts["h"]) || (!isset($opts["filename"]) && !isset($opts["l"])) ) {
     dompdf_usage();
     exit;
@@ -180,13 +180,13 @@ switch ( $sapi ) {
 
   if ( isset($opts["l"]) ) {
     echo "\nUnderstood paper sizes:\n";
-    
+
     foreach (array_keys(CPDF_Adapter::$PAPER_SIZES) as $size)
       echo "  " . mb_strtoupper($size) . "\n";
     exit;
   }
   $file = $opts["filename"];
-  
+
   if ( isset($opts["p"]) )
     $paper = $opts["p"];
   else
@@ -209,16 +209,16 @@ switch ( $sapi ) {
       $outfile = str_ireplace(array(".html", ".htm", ".php"), "", $file) . ".pdf";
   }
 
-  if ( isset($opts["v"]) ) 
+  if ( isset($opts["v"]) )
     $_dompdf_show_warnings = true;
 
   if ( isset($opts["d"]) ) {
     $_dompdf_show_warnings = true;
     $_dompdf_debug = true;
   }
-  
+
   $save_file = true;
-  
+
   break;
 
  default:
@@ -227,7 +227,7 @@ switch ( $sapi ) {
      $file = rawurldecode($_GET["input_file"]);
    else
      throw new DOMPDF_Exception("An input file is required (i.e. input_file _GET variable).");
-   
+
    if ( isset($_GET["paper"]) )
      $paper = rawurldecode($_GET["paper"]);
    else
@@ -263,7 +263,7 @@ if ( $file == "-" ) {
 
   $dompdf->load_html($str);
 
-} else 
+} else
   $dompdf->load_html_file($file);
 
 if ( isset($base_path) ) {
@@ -279,22 +279,22 @@ if ( $_dompdf_show_warnings ) {
     echo $msg . "\n";
   flush();
 }
-     
+
 if ( $save_file ) {
-//   if ( !is_writable($outfile) ) 
+//   if ( !is_writable($outfile) )
 //     throw new DOMPDF_Exception("'$outfile' is not writable.");
-  if ( strtolower(DOMPDF_PDF_BACKEND) == "gd" ) 
+  if ( strtolower(DOMPDF_PDF_BACKEND) == "gd" )
     $outfile = str_replace(".pdf", ".png", $outfile);
 
   list($proto, $host, $path, $file) = explode_url($outfile);
   if ( $proto != "" ) // i.e. not file://
     $outfile = $file; // just save it locally, FIXME? could save it like wget: ./host/basepath/file
 
-//  $outfile = realpath($outfile);
+  $outfile = dompdf_realpath($outfile);
 
-//   if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
-//     throw new DOMPDF_Exception("Permission denied.");
-  
+  if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
+    throw new DOMPDF_Exception("Permission denied.");
+
   file_put_contents($outfile, $dompdf->output());
   exit(0);
 }
