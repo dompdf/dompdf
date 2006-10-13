@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.10 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.11 2006-10-13 23:14:29 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -282,13 +282,11 @@ class Text_Frame_Reflower extends Frame_Reflower {
       }
 
       // Set our new width
-      $width = Font_Metrics::get_text_width($this->_frame->get_text(), $font, $size, $word_spacing);
-      $style->width = $width;
+      $this->_frame->recalculate_width();
 
     } else {
-      // Add the current frame to the line
-      $width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
-      $style->width = $width;
+
+      $this->_frame->recalculate_width();
 
     }
   }
@@ -299,6 +297,14 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     $this->_block_parent = $this->_frame->find_block_parent();
 
+    // Left trim the text if this is the first text on the line and we're
+    // collapsing white space
+//     if ( $this->_block_parent->get_current_line("w") == 0 &&
+//          ($this->_frame->get_style()->white_space != "pre" ||
+//           $this->_frame->get_style()->white_space != "pre-wrap") ) {
+//       $this->_frame->set_text( ltrim( $this->_frame->get_text() ) );
+//     }
+    
     $this->_frame->position();
 
     $this->_layout_line();

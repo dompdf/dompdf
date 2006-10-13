@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.9 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.10 2006-10-13 23:14:29 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -141,15 +141,21 @@ class Block_Frame_Decorator extends Frame_Decorator {
       return;
     }
 
+    // Trim leading text if this is an empty line.  Kinda a hack to put it here,
+    // but what can you do...
+    if ( $this->_lines[$this->_cl]["w"] == 0 &&
+         $frame->get_node()->nodeName == "#text" &&
+         ($frame->get_style()->white_space != "pre" ||
+          $frame->get_style()->white_space != "pre-wrap") ) {
+
+      $frame->set_text( ltrim($frame->get_text()) );
+      $frame->recalculate_width();
+
+    }
+
     $w = $frame->get_margin_width();
 
     if ( $w == 0 )
-      return;
-
-    // Omit leading whitespace text frames
-    if ( $frame->get_node()->nodeName == "#text" &&
-         $this->_lines[$this->_cl]["w"] == 0 &&
-         preg_replace("/[\s\n]+/u", "", $frame->get_text()) == "" )
       return;
     
     // Debugging code:

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_decorator.cls.php,v 1.5 2006-07-21 21:23:13 benjcarson Exp $ */
+/* $Id: text_frame_decorator.cls.php,v 1.6 2006-10-13 23:14:29 benjcarson Exp $ */
 
 /**
  * Decorates Frame objects for text layout
@@ -128,6 +128,19 @@ class Text_Frame_Decorator extends Frame_Decorator {
 
   //........................................................................
 
+  // Recalculate the text width
+  function recalculate_width() {
+    $style = $this->get_style();
+    $text = $this->get_text();
+    $size = $style->font_size;
+    $font = $style->font_family;
+    $word_spacing = $style->length_in_pt($style->word_spacing);
+
+    $style->width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
+  }
+  
+  //........................................................................
+
   // Text manipulation methods
   
   // split the text in this frame at the offset specified.  The remaining
@@ -135,7 +148,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
   function split_text($offset) {
     if ( $offset == 0 )
       return;
-    
+
     $split = $this->_frame->get_node()->splitText($offset);
     $deco = $this->copy($split);
 
