@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: stylesheet.cls.php,v 1.17 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.18 2006-10-18 21:49:11 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -398,6 +398,8 @@ class Stylesheet {
         switch ($tok) {
 
         case "first-child":
+          $query .= "[1]";
+          $tok = "";
           break;
 
         case "link":
