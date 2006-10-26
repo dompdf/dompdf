@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: attribute_translator.cls.php,v 1.10 2006-10-03 22:04:39 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.11 2006-10-26 17:07:23 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -308,14 +308,20 @@ class Attribute_Translator {
   static protected function _set_table_border($node, $value) {
     $td_list = $node->getElementsByTagName("td");
     foreach ($td_list as $td) {
-      $style = rtrim($td->getAttribute("style"), ";");
+      $style = $td->getAttribute("style");
+      if ( strpos($style, "border") !== false )
+        continue;
+      $style = rtrim($style, ";");
       $style .= "; border-width: $value" . "px; border-style: ridge;";
       $style = ltrim($style, ";");
       $td->setAttribute("style", $style);
     }
     $th_list = $node->getElementsByTagName("th");
     foreach ($th_list as $th) {
-      $style = rtrim($th->getAttribute("style"), ";");
+      $style = $th->getAttribute("style");
+      if ( strpos($style, "border") !== false )
+        continue;
+      $style = rtrim($style, ";");
       $style .= "; border-width: $value" . "px; border-style: ridge;";
       $style = ltrim($style, ";");
       $th->setAttribute("style", $style);

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: list_bullet_renderer.cls.php,v 1.6 2006-10-11 19:52:59 benjcarson Exp $ */
+/* $Id: list_bullet_renderer.cls.php,v 1.7 2006-10-26 17:07:23 benjcarson Exp $ */
 
 /**
  * Renders list bullets
@@ -84,7 +84,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
 
         list($x,$y) = $frame->get_position();
         //$x += $bullet_size / 2 + List_Bullet_Frame_Decorator::BULLET_PADDING;
-        $y += $line_height - $bullet_size / 2;
+        $y += $line_height - $bullet_size;
         $r = $bullet_size / 2;
         $this->_canvas->circle($x, $y, $r, $style->color, 0.2, null, $fill);
         break;

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.18 2006-10-11 19:52:59 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.19 2006-10-26 17:07:23 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -685,7 +685,7 @@ class CPDF_Adapter implements Canvas {
    * @param float $angle angle to write the text at, measured CW starting from the x-axis
    */
   function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
-                     $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
+                     $adjust = 0, $angle = 0) {
     
     $this->_page_text[] = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
   }

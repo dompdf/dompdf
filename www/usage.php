@@ -6,9 +6,13 @@
 <ul><?php echo li_arrow() ?><a href="#web">Invoking via the web</a></li>
     <?php echo li_arrow() ?><a href="#cli">Invoking via the command line</a></li>
     <?php echo li_arrow() ?><a href="#class">Using the dompdf class directly</a></li>
-    <?php echo li_arrow() ?><a href="#method_summary">dompdf class reference</a></li> 
+    <?php echo li_arrow() ?><a href="#dompdf_reference">dompdf class reference</a></li>
 </ul>
 <?php echo li_arrow() ?><a href="#inline">Inline PHP support</a></li>
+<ul><?php echo li_arrow() ?><a href="#canvas_reference">canvas class reference</a></li>
+    <!-- <?php echo li_arrow() ?><a href="#font_metrics_summary">font_metrics class reference</a></li>-->
+</ul>
+
 </ul>
 </div>
 
@@ -92,7 +96,7 @@ $tmpfile = tempnam("/tmp", "dompdf_");
 file_put_contents($tmpfile, $smarty->fetch()); // Replace $smarty->fetch()
                                                 // with your HTML string
 
-$url = "dompdf.php?input_file=" . rawurlencode($tmpfile) . 
+$url = "dompdf.php?input_file=" . rawurlencode($tmpfile) .
        "&amp;paper=letter&amp;output_file=" . rawurlencode("My Fancy PDF.pdf");
 
 header("Location: http://" . $_SERVER["HTTP_HOST"] . "/$url");
@@ -210,8 +214,8 @@ $dompdf-&gt;stream("sample.pdf");
 see the <a href="http://www.digitaljunkies.ca/dompdf/doc/">API
 documentation</a> for the class interface definition.</p>
 
-<a name="method_summary"> </a>
-<h3>Method Summary</h3>
+<a name="dompdf_reference"> </a>
+<h3>DOMPDF Class Reference</h3>
 <ul class="method-summary">
 <?php echo li_arrow() ?><span class="method-result">DOMPDF</span> <a href="#method__construct">__construct</a>()</li>
 <?php echo li_arrow() ?><span class="method-result">string</span> <a href="#methodget_base_path">get_base_path</a>()</li>
@@ -233,8 +237,8 @@ documentation</a> for the class interface definition.</p>
 <a name="method__construct" id="__construct"><!-- --></a>
 <div class="method-header">
   <span class="method-title">Constructor __construct</span> (line <span class="line-number">163</span>)
-</div> 
-<p class="short-description">Class constructor</p> 
+</div>
+<p class="short-description">Class constructor</p>
   <div class="method-signature">
     <span class="method-result">DOMPDF</span>
     <span class="method-name">__construct</span>()
@@ -245,7 +249,7 @@ documentation</a> for the class interface definition.</p>
 <a name="methodget_base_path" id="get_base_path"><!-- --></a>
 <div class="method-header">
   <span class="method-title">get_base_path</span> (line <span class="line-number">227</span>)
-</div> 
+</div>
 <p class="short-description">Returns the base path</p>
   <div class="method-signature">
     <span class="method-result">string</span>
@@ -257,8 +261,8 @@ documentation</a> for the class interface definition.</p>
 <a name="methodget_canvas" id="get_canvas"><!-- --></a>
 <div class="method-header">
     <span class="method-title">get_canvas</span> (line <span class="line-number">234</span>)
-</div> 
-<p class="short-description">Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)</p> 
+</div>
+<p class="short-description">Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)</p>
   <div class="method-signature">
     <span class="method-result">Canvas</span>
     <span class="method-name">get_canvas</span>()
@@ -267,11 +271,11 @@ documentation</a> for the class interface definition.</p>
 </div>
 
 <div class="method-definition"  style="background-position: 252px bottom;">
-<a name="methodget_host" id="get_host"><!-- --></a> 
+<a name="methodget_host" id="get_host"><!-- --></a>
   <div class="method-header">
     <span class="method-title">get_host</span> (line <span class="line-number">220</span>)
-  </div> 
-<p class="short-description">Returns the base hostname</p>  
+  </div>
+<p class="short-description">Returns the base hostname</p>
   <div class="method-signature">
     <span class="method-result">string</span>
     <span class="method-name">get_host</span>()
@@ -283,7 +287,7 @@ documentation</a> for the class interface definition.</p>
 <a name="methodget_protocol" id="get_protocol"><!-- --></a>
 <div class="method-header">
   <span class="method-title">get_protocol</span> (line <span class="line-number">213</span>)
-</div> 
+</div>
 <p class="short-description">Returns the protocol in use</p>
   <div class="method-signature">
     <span class="method-result">string</span>
@@ -296,7 +300,7 @@ documentation</a> for the class interface definition.</p>
 <a name="methodget_tree" id="get_tree"><!-- --></a>
 <div class="method-header">
   <span class="method-title">get_tree</span> (line <span class="line-number">182</span>)
-</div> 
+</div>
 <p class="short-description">Returns the underlying Frame_Tree object</p>
   <div class="method-signature">
     <span class="method-result">Frame_Tree</span>
@@ -309,14 +313,14 @@ documentation</a> for the class interface definition.</p>
 <a name="methodload_html" id="load_html"><!-- --></a>
 <div class="method-header">
   <span class="method-title">load_html</span> (line <span class="line-number">272</span>)
-</div> 
+</div>
 <p class="short-description">Loads an HTML string</p>
 <p class="description"><p>Parse errors are stored in the global array _dompdf_warnings.</p></p>
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">load_html</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$str</span>)
   </div>
-  
+
    <ul class="parameters">
    <li>
      <span class="var-type">string</span>
@@ -329,14 +333,14 @@ documentation</a> for the class interface definition.</p>
 <a name="methodload_html_file" id="load_html_file"><!-- --></a>
 <div class="method-header">
   <span class="method-title">load_html_file</span> (line <span class="line-number">245</span>)
-</div> 
+</div>
 <p class="short-description">Loads an HTML file</p>
 <p class="description"><p>Parse errors are stored in the global array _dompdf_warnings.</p></p>
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">load_html_file</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$file</span>)
   </div>
-  
+
   <ul class="parameters">
       <li>
     <span class="var-type">string</span>
@@ -349,7 +353,7 @@ documentation</a> for the class interface definition.</p>
 <a name="methodoutput" id="output"><!-- --></a>
 <div class="method-header">
   <span class="method-title">output</span> (line <span class="line-number">451</span>)
-</div> 
+</div>
 <p class="short-description">Returns the PDF as a string</p>
   <div class="method-signature">
     <span class="method-result">string</span>
@@ -363,9 +367,9 @@ documentation</a> for the class interface definition.</p>
 <a name="methodrender" id="render"><!-- --></a>
 <div class="method-header">
   <span class="method-title">render</span> (line <span class="line-number">373</span>)
-</div> 
+</div>
 <p class="short-description">Renders the HTML to PDF</p>
-  
+
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">render</span>()
@@ -376,13 +380,13 @@ documentation</a> for the class interface definition.</p>
 <a name="methodset_base_path" id="set_base_path"><!-- --></a>
 <div class="method-header">
   <span class="method-title">set_base_path</span> (line <span class="line-number">206</span>)
-</div> 
+</div>
 <p class="short-description">Sets the base path</p>
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">set_base_path</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$path</span>)
   </div>
-  
+
   <ul class="parameters">
   <li>
     <span class="var-type">string</span>
@@ -396,14 +400,14 @@ documentation</a> for the class interface definition.</p>
 <a name="methodset_host" id="set_host"><!-- --></a>
 <div class="method-header">
   <span class="method-title">set_host</span> (line <span class="line-number">199</span>)
-</div> 
+</div>
  <p class="short-description">Sets the base hostname</p>
-  
+
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">set_host</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$host</span>)
   </div>
-  
+
   <ul class="parameters">
   <li>
      <span class="var-type">string</span>
@@ -415,14 +419,14 @@ documentation</a> for the class interface definition.</p>
 <a name="methodset_paper" id="set_paper"><!-- --></a>
 <div class="method-header">
   <span class="method-title">set_paper</span> (line <span class="line-number">353</span>)
-</div> 
+</div>
 <p class="short-description">Sets the paper size &amp; orientation</p>
-  
+
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">set_paper</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$size</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$orientation</span> = <span class="var-default">"portrait"</span>])
   </div>
-  
+
   <ul class="parameters">
   <li>
     <span class="var-type">string</span>
@@ -437,14 +441,14 @@ documentation</a> for the class interface definition.</p>
 <a name="methodset_protocol" id="set_protocol"><!-- --></a>
 <div class="method-header">
   <span class="method-title">set_protocol</span> (line <span class="line-number">192</span>)
-</div> 
+</div>
 <p class="short-description">Sets the protocol to use (http://, file://, ftp:// etc.)</p>
-  
+
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">set_protocol</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$proto</span>)
   </div>
-  
+
   <ul class="parameters">
   <li>
     <span class="var-type">string</span>
@@ -456,7 +460,7 @@ documentation</a> for the class interface definition.</p>
 <a name="methodstream" id="stream"><!-- --></a>
 <div class="method-header">
   <span class="method-title">stream</span> (line <span class="line-number">441</span>)
-</div> 
+</div>
 <p class="short-description">Streams the PDF to the client</p>
 
 <p class="description">
@@ -477,12 +481,12 @@ on (1) by default<br/><br/>
 dialog, on (1) by default</p>
 
 </p>
-  
+
   <div class="method-signature">
     <span class="method-result">void</span>
     <span class="method-name">stream</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$filename</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$options</span> = <span class="var-default">null</span>])
   </div>
-  
+
    <ul class="parameters">
        <li>
      <span class="var-type">string</span>
@@ -526,7 +530,706 @@ execution:</p>
   $PAGE_COUNT  the total number of pages in the document
 </pre>
 
-<p>For more complete documentation of the Canvas API, see the <a
-href="http://www.digitaljunkies.ca/dompdf/doc/">API documentation</a>.</p>
+<p>See below for the full Canvas API.</p>
+
+<a name="canvas_reference"> </a>
+<h3>Canvas class reference</h3>
+
+<ul class="method-summary">
+
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#add_object" title="details" class="method-name">add_object</a> (<span class="var-type">int</span>&nbsp;<span class="var-name">$object</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$where</span> = <span class="var-default">'all'</span>])</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#circle" title="details" class="method-name">circle</a>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$r</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, [<span class="var-type">float</span>&nbsp;<span class="var-name">$width</span> = <span class="var-default">null</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>], [<span class="var-type">bool</span>&nbsp;<span class="var-name">$fill</span> = <span class="var-default">false</span>])</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#close_object" title="details" class="method-name">close_object</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#filled_rectangle" title="details" class="method-name">filled_rectangle</a>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$w</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$h</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>)</li>
+<?php echo li_arrow(); ?><span class="method-result">float</span> <a href="#get_font_height" title="details" class="method-name">get_font_height</a>(<span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>)</li>
+<?php echo li_arrow(); ?><span class="method-result">float</span> <a href="#get_height" title="details" class="method-name">get_height</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">int</span> <a href="#get_page_count" title="details" class="method-name">get_page_count</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">int</span> <a href="#get_page_number" title="details" class="method-name">get_page_number</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">float</span> <a href="#get_text_width" title="details" class="method-name">get_text_width</a>(<span class="var-type">string</span>&nbsp;<span class="var-name">$text</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$spacing</span>)</li>
+<?php echo li_arrow(); ?><span class="method-result">float</span> <a href="#get_width" title="details" class="method-name">get_width</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#image" title="details" class="method-name">image</a>(<span class="var-type">string</span>&nbsp;<span class="var-name">$img_url</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$img_type</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$w</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$h</span>)</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#line" title="details" class="method-name">line</a>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$x2</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y2</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$width</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>])</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#new_page" title="details" class="method-name">new_page</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">int</span> <a href="#open_object" title="details" class="method-name">open_object</a>()</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#page_text" title="details" class="method-name">page_text</a>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$text</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$color</span> = <span class="var-default">array(0,0,0)</span>], [<span class="var-type">float</span>&nbsp;<span class="var-name">$adjust</span>], [<span class="var-type">float</span>&nbsp;<span class="var-name">$angle</span>])</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#polygon" title="details" class="method-name">polygon</a>(<span class="var-type">array</span>&nbsp;<span class="var-name">$points</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, [<span class="var-type">float</span>&nbsp;<span class="var-name">$width</span> = <span class="var-default">null</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>], [<span class="var-type">bool</span>&nbsp;<span class="var-name">$fill</span> = <span class="var-default">false</span>])</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#rectangle" title="details" class="method-name">rectangle</a>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$w</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$h</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$width</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>])</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#set_page_count" title="details" class="method-name">set_page_count</a>(<span class="var-type">int</span>&nbsp;<span class="var-name">$count</span>)</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#stop_object" title="details" class="method-name">stop_object</a>(<span class="var-type">int</span>&nbsp;<span class="var-name">$object</span>)</li>
+<?php echo li_arrow(); ?><span class="method-result">void</span> <a href="#text" title="details" class="method-name">text</a>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$text</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$color</span> = <span class="var-default">array(0,0,0)</span>], [<span class="var-type">float</span>&nbsp;<span class="var-name">$adjust</span>])</li>
+
+</ul>
+
+<div class="method-definition" style="background-position: 518px bottom;">
+<a name="methodadd_object" id="add_object"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">add_object</span>
+	</div> 
+
+<p class="short-description">Adds a specified 'object' to the document.</p>
+
+<p class="description">$object int specifying an object created with <a
+href="#open_object">Canvas::open_object()</a>.  $where can be one of:</p>
+
+<ul>
+  <li>'add' add to current page only</li>
+  <li>'all' add to every page from the current one onwards</li>
+  <li>'odd' add to all odd numbered pages from now on</li>
+  <li>'even' add to all even numbered pages from now on</li>
+  <li>'next' add the object to the next page only</li>
+  <li>'nextodd' add to all odd numbered pages from the next one</li>
+  <li>'nexteven' add to all even numbered pages from the next one</li>
+</ul>
+
+
+<ul class="tags">
+  <li><span class="field">see:</span> <a href="doc/Cpdf/Cpdf.html#methodaddObject">Cpdf::addObject()</a></li>
+</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			add_object
+		</span>
+					(<span class="var-type">int</span>&nbsp;<span class="var-name">$object</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$where</span> = <span class="var-default">'all'</span>])
+	</div>
+
+    <ul class="parameters">
+      <li>
+      <span class="var-type">int</span>
+      <span class="var-name">$object</span></li>
+      <li>
+      <span class="var-type">string</span>
+      <span class="var-name">$where</span></li>
+    </ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 10px bottom;">
+<a name="methodcircle" id="circle"><!-- --></a>
+<div class="method-header">
+  <span class="method-title">circle</span> (line <span class="line-number">166</span>)
+</div>
+
+<p class="short-description">Draws a circle at $x,$y with radius $r</p>
+
+<p class="description"><p>See 
+<a href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for
+the format of the colour array.  See 
+<a href="doc/Cpdf/Cpdf.html#methodsetLineStyle">Cpdf::setLineStyle()</a> for a
+description of the $style parameter (aka dash)</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			circle
+		</span>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$r</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, [<span class="var-type">float</span>&nbsp;<span class="var-name">$width</span> = <span class="var-default">null</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>], [<span class="var-type">bool</span>&nbsp;<span class="var-name">$fill</span> = <span class="var-default">false</span>])
+	</div>
+
+	<ul class="parameters">
+			<li>
+		<span class="var-type">float</span>
+		<span class="var-name">$x</span></li>
+			<li>
+		<span class="var-type">float</span>
+		<span class="var-name">$y</span></li>
+			<li>
+		<span class="var-type">float</span>
+		<span class="var-name">$r</span></li>
+			<li>
+		<span class="var-type">array</span>
+		<span class="var-name">$color</span></li>
+			<li>
+		<span class="var-type">float</span>
+		<span class="var-name">$width</span></li>
+			<li>
+		<span class="var-type">array</span>
+		<span class="var-name">$style</span></li>
+			<li>
+		<span class="var-type">bool</span>
+		<span class="var-name">$fill</span><span class="var-description">: Fills the circle if true</span></li>
+	</ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 639px bottom;">
+<a name="methodclose_object" id="close_object"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">close_object</span>
+	</div> 
+
+<p class="short-description">Closes the current 'object'.  All subsequent
+drawing operations affect the page.  The closed object can now be added to
+multiple pages using <a href="#add_object">add_object()</a>.</p>
+
+	<ul class="tags">
+      <li><span class="field">see:</span> <a href="doc/dompdf/CPDF_Adapter.html#methodopen_object">CPDF_Adapter::open_object()</a></li>
+	</ul>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">close_object</span>()
+	</div>
+
+</div>
+
+<div class="method-definition" style="background-position: 1013px bottom;">
+<a name="methodfilled_rectangle" id="filled_rectangle"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">filled_rectangle</span> (line <span class="line-number">123</span>)
+	</div>
+
+<p class="short-description">Draws a filled rectangle at x1,y1 with width w and height h</p>
+
+<p class="description"><p>See <a
+href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for the
+format of the colour array.</p></p>
+
+  <div class="method-signature">
+    <span class="method-result">void</span>
+    <span class="method-name">
+		filled_rectangle
+		</span>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$w</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$h</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>)
+  </div>
+
+  <ul class="parameters">
+    <li>
+    <span class="var-type">float</span>
+    <span class="var-name">$x1</span></li>
+    <li>
+    <span class="var-type">float</span>
+    <span class="var-name">$y1</span></li>
+    <li>
+    <span class="var-type">float</span>
+    <span class="var-name">$w</span></li>
+    <li>
+    <span class="var-type">float</span>
+    <span class="var-name">$h</span></li>
+    <li>
+    <span class="var-type">array</span>
+    <span class="var-name">$color</span></li>
+  </ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 338px bottom;">
+
+<a name="methodget_font_height" id="get_font_height"><!-- --></a>
+
+  <div class="method-header">
+    <span class="method-title">get_font_height</span> (line <span class="line-number">216</span>)
+   </div>
+
+<p class="short-description">Calculates font height, in points.</p>
+
+  <div class="method-signature">
+    <span class="method-result">float</span>
+    <span class="method-name">
+      get_font_height
+    </span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>)
+  </div>
+
+  <ul class="parameters">
+    <li>
+    <span class="var-type">string</span>
+    <span class="var-name">$font</span></li>
+    <li>
+    <span class="var-type">float</span>
+    <span class="var-name">$size</span></li>
+  </ul>
+</div>
+
+<div class="method-definition" style="background-position: 751px bottom;">
+
+<a name="methodget_height" id="get_height"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">get_height</span>
+	</div> 
+
+<p class="short-description">Returns the PDF's height in points.</p>
+
+	<div class="method-signature">
+		<span class="method-result">float</span>
+		<span class="method-name">get_height</span>()
+    </div>
+</div>
+
+
+<div class="method-definition" style="background-position: 647px bottom;">
+
+<a name="methodget_page_count" id="get_page_count"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">get_page_count</span> (line <span class="line-number">69</span>)
+	</div>
+
+<p class="short-description">Returns the total number of pages.  Note this may
+be inaccurate during rendering.  Use <a href="#methodpage_text">page_text()</a>
+for headers and footers that use page numbers.</p>
+
+	<div class="method-signature">
+		<span class="method-result">int</span>
+		<span class="method-name">
+			get_page_count
+		</span>()
+	</div>
+
+</div>
+
+<div class="method-definition" style="background-position: 991px bottom;">
+
+<a name="methodget_page_number" id="get_page_number"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">get_page_number</span> (line <span class="line-number">62</span>)
+	</div>
+
+<p class="short-description">Returns the current page number.</p>
+
+	<div class="method-signature">
+		<span class="method-result">int</span>
+		<span class="method-name">
+			get_page_number
+		</span>()
+	</div>
+
+</div>
+
+
+<div class="method-definition" style="background-position: 33px bottom;">
+<a name="methodget_text_width" id="get_text_width"><!-- --></a>
+	<div class="method-header">
+		<span class="method-title">get_text_width</span> (line <span class="line-number">207</span>)
+	</div>
+
+<p class="short-description">Calculates text size, in points.</p>
+
+	<div class="method-signature">
+		<span class="method-result">float</span>
+		<span class="method-name">
+			get_text_width
+		</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$text</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$spacing</span>)
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$text</span><span class="var-description">: the text to be sized</span></li>
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$font</span><span class="var-description">: the desired font</span>, retrieved with <a href="doc/dompdf/Font_Metrics.html#get_font">Font_Metrics::get_font()</a></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$size</span><span class="var-description">: the desired font size</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$spacing</span><span class="var-description">: word spacing, if any</span></li>
+    </ul>
+
+
+</div>
+
+<div class="method-definition" style="background-position: 978px bottom;">
+
+<a name="methodget_width" id="get_width"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">get_width</span>
+	</div> 
+
+<p class="short-description">Returns the PDF's width in points</p>
+
+	<div class="method-signature">
+		<span class="method-result">float</span>
+		<span class="method-name">get_width</span>()
+	</div>
+
+</div>
+
+<div class="method-definition" style="background-position: 447px bottom;">
+
+<a name="methodimage" id="image"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">image</span> (line <span class="line-number">181</span>)
+	</div>
+
+<p class="short-description">Add an image to the pdf.</p>
+
+<p class="description">The image is placed at the specified x and y coordinates
+with the given width and height.  The CPDF backend supports JPG, GIF and PNG.
+The PDFLib backend supports JPG, GIF, PNG, TIFF and BMP images.  For both
+backends, PNGs with binary transparency are supported but PNGs with an alpha
+channel are not.</p>
+
+<p class="description">Use an absolute path or url if possible when specifying
+the image file.  Relative paths are relative to the current working directory of
+the webserver.</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			image
+		</span>(<span class="var-type">string</span>&nbsp;<span class="var-name">$img_url</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$img_type</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$w</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$h</span>)
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$img_url</span><span class="var-description">: the path to the image</span></li>
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$img_type</span><span class="var-description">: the type (e.g. extension) of the image</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$x</span><span class="var-description">: x position</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$y</span><span class="var-description">: y position</span></li>
+    		<li>
+    	<span class="var-type">int</span>
+    	<span class="var-name">$w</span><span class="var-description">: width (in pixels)</span></li>
+    		<li>
+    	<span class="var-type">int</span>
+    	<span class="var-name">$h</span><span class="var-description">: height (in pixels)</span></li>
+    </ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 220px bottom;">
+
+<a name="methodline" id="line"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">line</span> (line <span class="line-number">93</span>)
+	</div>
+
+<p class="short-description">Draws a line from x1,y1 to x2,y2</p>
+<p class="description"><p>See <a href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for the format of the colour array.  See <a href="doc/Cpdf/Cpdf.html#methodsetLineStyle">Cpdf::setLineStyle()</a> for a description of the format of the  $style parameter (aka dash).</p></p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			line
+		</span>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$x2</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y2</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$width</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>])
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$x1</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$y1</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$x2</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$y2</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$color</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$width</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$style</span></li>
+   	</ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 1333px bottom;">
+
+<a name="methodnew_page" id="new_page"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">new_page</span> (line <span class="line-number">224</span>)
+	</div>
+
+<p class="short-description">Starts a new page</p>
+<p class="description"><p>Subsequent drawing operations will appear on the new page.</p></p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			new_page
+		</span>()
+	</div>
+
+</div>
+
+<div class="method-definition" style="background-position: 1672px bottom;">
+
+<a name="methodopen_object" id="open_object"><!-- --></a>
+	<div class="method-header">
+		<span class="method-title">open_object</span>
+	</div>
+
+<p class="short-description">Opens a new 'object'.</p>
+
+<p class="description">While an object is open, all drawing actions are recored
+in the object, as opposed to being drawn on the current page.  Objects can be
+added later to a specific page or to several pages using <a
+href="#add_object">add_object()</a>.</p>
+
+<p class="description">The return value is an integer ID for the new object.</p>
+
+	<ul class="tags">
+				<li><span class="field">see:</span> <a href="doc/dompdf/CPDF_Adapter.html#methodadd_object">CPDF_Adapter::add_object()</a></li>
+				<li><span class="field">see:</span> <a href="doc/dompdf/CPDF_Adapter.html#methodclose_object">CPDF_Adapter::close_object()</a></li>
+	</ul>
+
+	<div class="method-signature">
+		<span class="method-result">int</span>
+		<span class="method-name">open_object</span>()
+    </div>
+</div>
+
+<div class="method-definition" style="background-position: 876px bottom;">
+
+<a name="methodtext" id="page_text"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">page_text</span>
+	</div>
+
+<p class="short-description">Writes text at the specified x and y coordinates on every page</p>
+<p class="description">The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are
+automatically replaced with their current values within $text.</p>
+
+<p>$font can be retrieved with <a href="doc/dompdf/Font_Metrics.html#get_font">Font_Metrics::get_font()</a>.</p>
+
+<p class="description">
+See <a href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for the format of the colour array.</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			page_text
+		</span>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$text</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$color</span> = <span class="var-default">array(0,0,0)</span>], [<span class="var-type">float</span>&nbsp;<span class="var-name">$adjust</span>])
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$x</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$y</span></li>
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$text</span><span class="var-description">: the text to write</span></li>
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$font</span><span class="var-description">: the font file to use</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$size</span><span class="var-description">: the font size, in points</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$color</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$adjust</span><span class="var-description">: word spacing adjustment</span></li>
+    </ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 149px bottom;">
+
+<a name="methodpolygon" id="polygon"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">polygon</span> (line <span class="line-number">149</span>)
+	</div>
+
+<p class="short-description">Draws a polygon</p>
+<p class="description"><p>The polygon is formed by joining all the points stored in the $points  array.  $points has the following structure:</p>
+<pre>
+array(0 =&gt; x1,
+      1 =&gt; y1,
+      2 =&gt; x2,
+      3 =&gt; y2,
+      ...
+     );
+</pre>
+
+<p>See <a href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for the format of the colour array.  See <a href="doc/Cpdf/Cpdf.html#methodsetLineStyle">Cpdf::setLineStyle()</a> for a description of the $style  parameter (aka dash)</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			polygon
+		</span>(<span class="var-type">array</span>&nbsp;<span class="var-name">$points</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, [<span class="var-type">float</span>&nbsp;<span class="var-name">$width</span> = <span class="var-default">null</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>], [<span class="var-type">bool</span>&nbsp;<span class="var-name">$fill</span> = <span class="var-default">false</span>])
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$points</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$color</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$width</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$style</span></li>
+    		<li>
+    	<span class="var-type">bool</span>
+    	<span class="var-name">$fill</span><span class="var-description">: Fills the polygon if true</span></li>
+   	</ul>
+</div>
+
+<div class="method-definition" style="background-position: 5792px bottom;">
+
+<a name="methodrectangle" id="rectangle"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">rectangle</span> (line <span class="line-number">110</span>)
+	</div>
+
+<p class="short-description">Draws a rectangle at x1,y1 with width w and height h</p>
+<p class="description"><p>See <a href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for the format of the colour array.  See <a href="doc/Cpdf/Cpdf.html#methodsetLineStyle">Cpdf::setLineStyle()</a> for a description of the $style  parameter (aka dash)</p></p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			rectangle
+		</span>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y1</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$w</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$h</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$color</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$width</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">null</span>])
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$x1</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$y1</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$w</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$h</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$color</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$width</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$style</span></li>
+  	</ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 713px bottom;">
+
+<a name="methodset_page_count" id="set_page_count"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">set_page_count</span> (line <span class="line-number">76</span>)
+	</div>
+
+<p class="short-description">Sets the total number of pages</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			set_page_count
+		</span>(<span class="var-type">int</span>&nbsp;<span class="var-name">$count</span>)
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">int</span>
+    	<span class="var-name">$count</span></li>
+    </ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 495px bottom;">
+<a name="methodstop_object" id="stop_object"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">stop_object</span>
+	</div> 
+
+<p class="short-description">Stops the specified 'object' from appearing in the document.</p>
+
+<p class="description">The object will stop being displayed on the page
+following the current one.</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			stop_object
+		</span>
+					(<span class="var-type">int</span>&nbsp;<span class="var-name">$object</span>)
+    </div>
+
+    <ul class="parameters">
+    <li>
+    <span class="var-type">int</span>
+    <span class="var-name">$object</span></li>
+    </ul>
+
+</div>
+
+<div class="method-definition" style="background-position: 1250px bottom;">
+
+<a name="methodtext" id="text"><!-- --></a>
+
+	<div class="method-header">
+		<span class="method-title">text</span> (line <span class="line-number">196</span>)
+	</div>
+
+<p class="short-description">Writes text at the specified x and y coordinates</p>
+
+<p class="description">$font can retrieved with <a href="doc/dompdf/Font_Metrics.html#get_font">Font_Metrics::get_font()</a>.</p>
+
+<p class="description">See <a href="doc/dompdf/Style.html#methodmunge_colour">Style::munge_colour()</a> for the format of the colour array.</p>
+
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			text
+		</span>(<span class="var-type">float</span>&nbsp;<span class="var-name">$x</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$y</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$text</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$font</span>, <span class="var-type">float</span>&nbsp;<span class="var-name">$size</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$color</span> = <span class="var-default">array(0,0,0)</span>], [<span class="var-type">float</span>&nbsp;<span class="var-name">$adjust</span>])
+	</div>
+
+    <ul class="parameters">
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$x</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$y</span></li>
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$text</span><span class="var-description">: the text to write</span></li>
+    		<li>
+    	<span class="var-type">string</span>
+    	<span class="var-name">$font</span><span class="var-description">: the font file to use</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$size</span><span class="var-description">: the font size, in points</span></li>
+    		<li>
+    	<span class="var-type">array</span>
+    	<span class="var-name">$color</span></li>
+    		<li>
+    	<span class="var-type">float</span>
+    	<span class="var-name">$adjust</span><span class="var-description">: word spacing adjustment</span></li>
+    </ul>
+
+</div>
 
 <?php include("foot.inc"); ?>

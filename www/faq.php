@@ -3,6 +3,7 @@
 <h2>Frequently Asked Questions</h2>
 
 <ol>
+
 <li><a href="#hello_world">Is there a 'hello world' script for dompdf?</a></li>
 
 <li><a href="#save">How do I save a PDF to disk?</a></li>
@@ -10,6 +11,8 @@
 <li><a href="#tables">I have a big table and it's broken!</a></li>
 
 <li><a href="#footers">Is there a way to add headers and footers or page numbers?</a></li>
+
+<li><a href="#image_footers">How can I add an image to a header or footer on every page?</a></li>
 
 <li><a href="#page_break">How do I insert page breaks?</a></li>
 
@@ -87,7 +90,7 @@ by calling <code>$dompdf-&gt;output()</code>:</p>
 
 <pre>
 require_once("dompdf_config.inc.php");
-$html = 
+$html =
     '&lt;html&gt;&lt;body&gt;'.
     '&lt;p&gt;Foo&lt;/p&gt;'.
     '&lt;/body&gt;&lt;/html&gt;';
@@ -99,7 +102,7 @@ $dompdf-&gt;render();
 
 // The next call will store the entire PDF as a string in $pdf
 
-$pdf = $dompdf-&gt;output();  
+$pdf = $dompdf-&gt;output();
 
 // You can now write $pdf to disk, store it in a database or stream it
 // to the client.
@@ -140,7 +143,7 @@ directly on the PDF.  Here are step by step instructions:</p>
 <li> Check if the $pdf variable is set.  dompdf sets this variable when evaluating embedded PHP.
 <pre>
   &lt;script type="text/php"&gt;
- 
+
   if ( isset($pdf) ) {
 </pre>
 </li>
@@ -148,9 +151,9 @@ directly on the PDF.  Here are step by step instructions:</p>
 <li> Pick a font:
 <pre>
   &lt;script type="text/php"&gt;
- 
+
   if ( isset($pdf) ) {
-  
+
     $font = Font_Metrics::get_font("verdana", "bold");
 </pre>
 </li>
@@ -160,9 +163,9 @@ displayed on every page:
 
 <pre>
   &lt;script type="text/php"&gt;
- 
+
   if ( isset($pdf) ) {
-  
+
     $font = Font_Metrics::get_font("verdana", "bold");
     $pdf-&gt;page_text(72, 18, "Header: {PAGE_NUM} of {PAGE_COUNT}", $font, 6, array(0,0,0));
 
@@ -191,12 +194,66 @@ href="usage.php#inline">usage.php</a> for more info on inline PHP.</li>
 <a href="#FAQ">[back to top]</a>
 <div class="divider2" style="background-position: 12px 0%">&nbsp;</div>
 
+<a name="image_footers"> </a>
+<h3>How can I add an image to a header or footer on every page?</h3>
+
+<p>You can add images and shapes (line, rectangles, etc.) to every page using
+PDF 'objects'. A PDF object captures all rendering commands as a sort of
+template that can then be added to multiple pages:</p>
+
+<pre>
+&lt;script type="text/php"&gt;
+
+if ( isset($pdf) ) {
+
+  $font = Font_Metrics::get_font("verdana", "bold");
+  $size = 8;
+  $text_height = Font_Metrics::get_font_height($font,$size);
+
+  // Open the object: all drawing commands will
+  // go to the object instead of the current page
+  $footer = $pdf-&gt;open_object();
+
+  $w = $pdf-&gt;get_width();
+  $h = $pdf-&gt;get_height();
+
+  // Draw a line along the bottom
+  $y = $h - 2 * $text_height - 24;
+  $pdf-&gt;line(16, $y, $w - 16, $y, $color, 1);
+
+  // Add an initals box
+  $text = "Initials:";
+  $width = Font_Metrics::get_text_width($text, $font, $size);
+  $pdf-&gt;text($w - 16 - $width - 38, $y, $text, $font, $size, $color);
+  $pdf-&gt;rectangle($w - 16 - 36, $y - 2, 36, $text_height + 4, array(0.5,0.5,0.5), 0.5);
+
+  // Add a logo
+  $img_w = 2 * 72; // 2 inches, in points
+  $img_h = 1 * 72; // 1 inch, in points -- change these as required
+  $pdf-&gt;image("/var/www/images/print_logo.png", ($w - $img_w) / 2.0, $y - $img_h, $img_w, $img_h);
+
+  // Close the object (stop capture)
+  $pdf-&gt;close_object();
+
+  // Add the object to every page. You can
+  // also specify "odd" or "even"
+  $pdf-&gt;add_object($footer, "all");
+
+&lt;/script&gt;
+</pre>
+
+<p>See the <a href="usage.php#canvas_summary">Canvas API</a> for details on the
+methods available in the $pdf object in inline PHP.</p>
+
+<a href="#FAQ">[back to top]</a>
+<div class="divider1" style="background-position: 334px 0%">&nbsp;</div>
+
 <a name="page_break"> </a>
 <h3>How do I insert page breaks?</h3>
 
-<p>Page breaks can be inserted by applying the CSS properties 
+<p>Page breaks can be inserted by applying the CSS properties
 <a href="http://www.w3.org/TR/CSS21/page.html#propdef-page-break-before">page-break-before</a>
-and 
+and
 <a href="http://www.w3.org/TR/CSS21/page.html#propdef-page-break-after">page-break-after</a> to
 any block level element.</p>
 
@@ -214,7 +271,7 @@ dompdf by passing additional options to the
 
 <pre>
 require_once("dompdf_config.inc.php");
-$html = 
+$html =
     '&lt;html&gt;&lt;body&gt;'.
     '&lt;p&gt;Some text&lt;/p&gt;'.
     '&lt;/body&gt;&lt;/html&gt;';

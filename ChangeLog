@@ -1,3 +1,50 @@
+2006-10-18 15:49  benjcarson
+
+* include/stylesheet.cls.php:
+
+  - added support for :first-child pseudo-selector
+
+2006-10-13 17:14  benjcarson
+
+* include/: block_frame_decorator.cls.php, text_frame_decorator.cls.php,
+  text_frame_reflower.cls.php:
+
+  - improved fix for collapsing white space bug
+
+2006-10-12 16:02  benjcarson
+
+* dompdf.php, include/block_frame_decorator.cls.php,
+  include/dompdf.cls.php, include/frame.cls.php, include/functions.inc.php,
+  include/generated_frame_reflower.cls.php,
+  include/inline_frame_reflower.cls.php, include/renderer.cls.php,
+  include/style.cls.php, include/stylesheet.cls.php,
+  include/text_frame_reflower.cls.php, include/text_renderer.cls.php,
+  www/faq.php:
+
+  - fixed problem with missing whitespace in inline elements
+
+2006-10-11 13:52  benjcarson
+
+* dompdf_config.inc.php, include/cpdf_adapter.cls.php,
+  include/list_bullet_frame_decorator.cls.php,
+  include/list_bullet_frame_reflower.cls.php,
+  include/list_bullet_renderer.cls.php, test/ul.html:
+
+  - fixes and adjustments to ul handling
+
+2006-10-03 16:04  benjcarson
+
+* ChangeLog, Makefile, dompdf.php, dompdf_config.inc.php,
+  include/attribute_translator.cls.php, www/faq.php:
+
+  - fixed issue with vspace and hspace img attributes
+
+2006-09-29 11:37  benjcarson
+
+* include/attribute_translator.cls.php:
+
+  - fix for bug #1534006: Borders set via attributes not applied to TH elements
+
 2006-09-19 12:24  benjcarson
 
 * include/dompdf.cls.php:
