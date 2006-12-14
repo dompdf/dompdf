@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.24 2006-10-11 19:52:58 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.25 2006-12-14 14:36:23 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -200,8 +200,10 @@ define("DOMPDF_ENABLE_REMOTE", true);
  * @param string $class
  */
 function DOMPDF_autoload($class) {
-  $filename = mb_strtolower($class) . ".cls.php";
-  require_once(DOMPDF_INC_DIR . "/$filename");
+  $filename = DOMPDF_INC_DIR . "/" . mb_strtolower($class) . ".cls.php";
+  
+  if ( is_file($filename) )
+    require_once($filename);
 }
 
 if ( !function_exists("__autoload") ) {
