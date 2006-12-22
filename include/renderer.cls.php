@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: renderer.cls.php,v 1.8 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.9 2006-12-22 18:37:45 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -82,6 +82,7 @@ class Renderer extends Abstract_Renderer {
     switch ($display) {
       
     case "block":
+    case "list-item":
     case "inline-block":
     case "table":
     case "table-row-group":

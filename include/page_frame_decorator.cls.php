@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.15 2006-08-11 18:04:04 benjcarson Exp $ */
+/* $Id: page_frame_decorator.cls.php,v 1.16 2006-12-22 18:37:45 benjcarson Exp $ */
 
 /**
  * Decorates frames for page layout
@@ -347,9 +347,13 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // remaining line boxes.  Just ignore it for now...
 
       // Rule D
-      if ( $block_parent->get_style()->page_break_inside == "avoid" ) {
+      $p = $block_parent;
+      while ($p) {
+        if ( $p->get_style()->page_break_inside == "avoid" ) {
           dompdf_debug("page-break", "parent->inside: avoid");
-        return false;
+          return false;
+        }
+        $p = $p->find_block_parent();
       }
 
       // To prevent cascading page breaks when a top-level element has
@@ -380,21 +384,16 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // not 'avoid'
       $p = Table_Frame_Decorator::find_parent_table($frame);
 
-      if ( $p->get_style()->page_break_inside == "avoid" ) {
-          dompdf_debug("page-break", "table: page-break-inside: avoid");
-        return false;
-      }
-
-      // Check the table's parent element
-      $table_parent = $p->get_parent();
-
-      if ( $table_parent->get_style()->page_break_inside == "avoid" ) {
-          dompdf_debug("page-break", "table->parent: page-break-inside: avoid");
-        return false;
+      while ($p) {
+        if ( $p->get_style()->page_break_inside == "avoid" ) {
+          dompdf_debug("page-break", "parent->inside: avoid");
+          return false;
+        }
+        $p = $p->find_block_parent();
       }
 
       // Avoid breaking after the first row of a table
-      if ( $p->get_first_child() === $frame) {
+      if ( $p && $p->get_first_child() === $frame) {
          dompdf_debug("page-break", "table: first-row");
         return false;
       }
