@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame.cls.php,v 1.12 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.13 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -68,6 +68,11 @@ class Frame {
    */
   protected $_id;
 
+  /**
+   * Unique id counter
+   */
+  static protected $ID_COUNTER = 0;
+  
   /**
    * This frame's calculated style
    *
@@ -166,7 +171,7 @@ class Frame {
 
     $this->_decorator = null;
 
-    $this->set_id( uniqid(rand()) );
+    $this->set_id( self::$ID_COUNTER++ );
   }
 
   /**

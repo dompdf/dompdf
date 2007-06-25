@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cellmap.cls.php,v 1.14 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.15 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -228,6 +228,11 @@ class Cellmap {
 
   }
 
+  function frame_exists_in_cellmap($frame) {
+    $key = $frame->get_id();
+    return isset($this->_frames[$key]);
+  }
+  
   function get_frame_position($frame) {
     global $_dompdf_warnings;
 
@@ -558,9 +563,11 @@ class Cellmap {
     // Remove all frames from this row
     foreach ( $rows as $r ) {
       foreach ( $columns as $c ) {
-        $frame = $this->_cells[$r][$c];
-        unset($this->_frames[ $frame->get_id() ]);
-        unset($this->_cells[$r][$c]);
+        if ( isset($this->_cells[$r][$c]) ) {
+          $frame = $this->_cells[$r][$c];
+          unset($this->_frames[ $frame->get_id() ]);
+          unset($this->_cells[$r][$c]);
+        }
       }
       unset($this->_rows[$r]);
     }

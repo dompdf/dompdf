@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_row_group_frame_reflower.cls.php,v 1.3 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: table_row_group_frame_reflower.cls.php,v 1.4 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * Reflows table row groups (e.g. tbody tags)
@@ -64,15 +64,18 @@ class Table_Row_Group_Frame_Reflower extends Frame_Reflower {
     foreach ( $this->_frame->get_children() as $child) {
       // Bail if the page is full
       if ( $page->is_full() )
-        break;
+        return;
 
       $child->set_containing_block($cb["x"], $cb["y"], $cb["w"], $cb["h"]);
       $child->reflow();
 
       // Check if a split has occured
       $page->check_page_break($child);
-      
+
     }
+
+    if ( $page->is_full() )
+      return;
 
     $cellmap = $table->get_cellmap();
     $style->width = $cellmap->get_frame_width($this->_frame);

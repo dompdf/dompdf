@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_factory.cls.php,v 1.7 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: frame_factory.cls.php,v 1.8 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * Contains frame decorating logic
@@ -162,6 +162,10 @@ class Frame_Factory {
 
     }
 
+    if ( $frame->get_style()->position == "absolute" ||
+         $frame->get_style()->position == "fixed" )
+      $positioner = "Absolute";
+    
     $positioner .= "_Positioner";
     $decorator .= "_Frame_Decorator";
     $reflower .= "_Frame_Reflower";

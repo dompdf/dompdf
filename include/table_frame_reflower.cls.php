@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.13 2006-08-11 18:04:05 benjcarson Exp $ */
+/* $Id: table_frame_reflower.cls.php,v 1.14 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * Reflows tables
@@ -502,7 +502,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     if ( !is_null($this->_min_max_cache)  )
       return $this->_min_max_cache;
-    
+
     $style = $this->_frame->get_style();
 
     $this->_frame->normalise();

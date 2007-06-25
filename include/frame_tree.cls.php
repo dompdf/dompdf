@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_tree.cls.php,v 1.11 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: frame_tree.cls.php,v 1.12 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * Represents an entire document as a tree of frames
@@ -74,6 +74,13 @@ class Frame_Tree {
    * @var Frame
    */
   protected $_root;
+
+  /**
+   * Subtrees of absolutely positioned elements
+   *
+   * @var array of Frames
+   */
+  protected $_absolute_frames;
 
   /**
    * A mapping of {@link Frame} objects to DomNode objects
@@ -188,6 +195,7 @@ class Frame_Tree {
         $child->parentNode->removeChild($child);
         continue;
       }
+
       // Add a container frame for images
       if ( $child->nodeName == "img" ) {
         $img_node = $child->ownerDocument->createElement("img_inner");
@@ -209,7 +217,7 @@ class Frame_Tree {
 
         $child->appendChild($img_node);
       }
-   
+      
       $frame->append_child($this->_build_tree_r($child), false);
 
     }

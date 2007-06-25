@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_cell_frame_reflower.cls.php,v 1.10 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id: table_cell_frame_reflower.cls.php,v 1.11 2007-06-25 02:45:12 benjcarson Exp $ */
 
 
 /**
@@ -106,11 +106,15 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     $this->_frame->increase_line_width($indent);
 
     // Set the y position of the first line in the cell
+    $page = $this->_frame->get_root();
     $this->_frame->set_current_line($line_y);
-
+    
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
       
+      if ( $page->is_full() )
+        break;
+    
       $child->set_containing_block($content_x, $content_y, $cb_w, $h);
       $child->reflow();
 

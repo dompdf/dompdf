@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.21 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.22 2007-06-25 02:45:11 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -63,6 +63,8 @@
  *  -v             verbose: display html parsing warnings and file not found errors.
  *  -d             very verbose: display oodles of debugging output: every frame in the
  *                 tree is printed to stdout.
+ *  -t             comma separated list of debugging types (page-break,reflow,split)
+ *  -r             write the render time to the log file
  *
  *
  */
@@ -84,7 +86,9 @@ function dompdf_usage() {
     " -f file\tthe output filename.  Default is the input [html_file].pdf.\n".
     " -v     \tverbose: display html parsing warnings and file not found errors.\n".
     " -d     \tvery verbose:  display oodles of debugging output: every frame\n".
-    "        \tin the tree printed to stdout.\n\n";
+    "        \tin the tree printed to stdout.\n".
+    " -t             comma separated list of debugging types (page-break,reflow,split)\n\n";
+    
 
 }
 
@@ -127,14 +131,14 @@ function getoptions() {
 
     case "-b":
       if ( !isset($_SERVER["argv"][$i+1]) )
-        die("-b switch requires an path parameter\n");
+        die("-b switch requires a path parameter\n");
       $opts["b"] = $_SERVER["argv"][$i+1];
       $i += 2;
       break;
 
     case "-f":
       if ( !isset($_SERVER["argv"][$i+1]) )
-        die("-f switch requires an filename parameter\n");
+        die("-f switch requires a filename parameter\n");
       $opts["f"] = $_SERVER["argv"][$i+1];
       $i += 2;
       break;
@@ -149,7 +153,14 @@ function getoptions() {
       $i++;
       break;
 
-    default:
+    case "-t":
+      if ( !isset($_SERVER['argv'][$i + 1]) )
+        die("-t switch requires a comma separated list of types\n");
+      $opts["t"] = $_SERVER['argv'][$i+1];
+      $i += 2;
+      break;
+
+   default:
       $opts["filename"] = $_SERVER["argv"][$i];
       $i++;
       break;
@@ -162,6 +173,7 @@ function getoptions() {
 require_once("dompdf_config.inc.php");
 global $_dompdf_show_warnings;
 global $_dompdf_debug;
+global $_DOMPDF_DEBUG_TYPES;
 
 $old_limit = ini_set("memory_limit", "80M");
 
@@ -217,6 +229,14 @@ switch ( $sapi ) {
     $_dompdf_debug = true;
   }
 
+  if ( isset($opts['t']) ) {
+    $arr = split(',',$opts['t']);
+    $types = array();
+    foreach ($arr as $type)
+      $types[ trim($type) ] = 1;
+    $_DOMPDF_DEBUG_TYPES = $types;
+  }
+  
   $save_file = true;
 
   break;
@@ -277,6 +297,7 @@ $dompdf->render();
 if ( $_dompdf_show_warnings ) {
   foreach ($_dompdf_warnings as $msg)
     echo $msg . "\n";
+  echo $dompdf->get_canvas()->messages;
   flush();
 }
 

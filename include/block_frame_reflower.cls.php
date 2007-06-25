@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.16 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.17 2007-06-25 02:45:12 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -60,17 +60,29 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
 
-    $r = $style->length_in_pt($style->margin_right, $w);
-    $l = $style->length_in_pt($style->margin_left, $w);
+    $rm = $style->length_in_pt($style->margin_right, $w);
+    $lm = $style->length_in_pt($style->margin_left, $w);
 
+    $left = $style->length_in_pt($style->left, $w);
+    $right = $style->length_in_pt($style->right, $w);
+    
     // Handle 'auto' values
     $dims = array($style->border_left_width,
                   $style->border_right_width,
                   $style->padding_left,
                   $style->padding_right,
                   $width !== "auto" ? $width : 0,
-                  $r !== "auto" ? $r : 0,
-                  $l !== "auto" ? $l : 0);
+                  $rm !== "auto" ? $rm : 0,
+                  $lm !== "auto" ? $lm : 0);
+
+    // absolutely positioned boxes take the 'left' and 'right' properties into account
+    if ( $style->position == "absolute" || $style->position == "fixed" ) {
+      $absolute = true;
+      $dims[] = $left !== "auto" ? $left : 0;
+      $dims[] = $right !== "auto" ? $right : 0;
+    } else {
+      $absolute = false;
+    }
 
     $sum = $style->length_in_pt($dims, $w);
 
@@ -79,27 +91,84 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     if ( $diff > 0 ) {
 
-      // Find auto properties and get them to take up the slack
-      if ( $width === "auto" )
-        $width = $diff;
+      if ( $absolute ) {
 
-      else if ( $l === "auto" && $r === "auto" )
-        $l = $r = round($diff / 2);
+        // resolve auto properties: see
+        // http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-width
 
-      else if ( $l === "auto" )
-        $l = $diff;
+        if ( $width === "auto" && $left === "auto" && $right === "auto" ) {
 
-      else if ( $r === "auto" )
-        $r = $diff;
+          if ( $lm === "auto" )
+            $lm = 0;
+          if ( $rm === "auto" )
+            $rm = 0;
+
+          // Technically, the width should be "shrink-to-fit" i.e. based on the
+          // preferred width of the content...  a little too costly here as a
+          // special case.  Just get the width to take up the slack:
+          $left = 0;
+          $right = 0;
+          $width = $diff;
+
+        } else if ( $width === "auto" ) {
+
+          if ( $lm === "auto" )
+            $lm = 0;
+          if ( $rm === "auto" )
+            $rm = 0;
+          if ( $left === "auto" )
+            $left = 0;
+          if ( $right === "auto" )
+            $right = 0;
+
+          $width = $diff;
+
+        } else if ( $left === "auto" ) {
+          if ( $lm === "auto" )
+            $lm = 0;
+          if ( $rm === "auto" )
+            $rm = 0;
+          if ( $right === "auto" )
+            $right = 0;
+
+          $left = $diff;
+
+        } else if ( $right === "auto" ) {
+
+          if ( $lm === "auto" )
+            $lm = 0;
+          if ( $rm === "auto" )
+            $rm = 0;
+
+          $right = $diff;
+        }
+
+      } else {
+
+        // Find auto properties and get them to take up the slack
+        if ( $width === "auto" )
+          $width = $diff;
+
+        else if ( $lm === "auto" && $rm === "auto" )
+          $lm = $rm = round($diff / 2);
+
+        else if ( $lm === "auto" )
+          $lm = $diff;
+
+        else if ( $rm === "auto" )
+          $rm = $diff;
+      }
 
     } else if ($diff < 0) {
 
       // We are over constrained--set margin-right to the difference
-      $r = $diff;
+      $rm = $diff;
 
     }
 
-    return array("width"=> $width, "margin_left" => $l, "margin_right" => $r);
+    $ret = array("width"=> $width, "margin_left" => $lm, "margin_right" => $rm, "left" => $left, "right" => $right);
+
+    return $ret;
   }
 
   // Call the above function, but resolve max/min widths
@@ -132,7 +201,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( $width < $min_width )
       extract($this->_calculate_width($min_width));
 
-    return array($width, $margin_left, $margin_right);
+    return array($width, $margin_left, $margin_right, $left, $right);
 
   }
 
@@ -157,67 +226,169 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $content_height = $this->_calculate_content_height();
     $cb = $this->_frame->get_containing_block();
 
-    $height = $style->height;
+    $height = $style->length_in_pt($style->height, $cb["h"]);
 
-    // Handle percentage heights
-    if ( isset($cb["h"]) ) {
-      $height = $style->length_in_pt($height, $cb["h"]);
+    $top = $style->length_in_pt($style->top, $cb["h"]);
+    $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
 
-    } else if ( mb_strpos($height, "%") !== false )
-      $height = "auto";
+    $margin_top = $style->length_in_pt($style->margin_top, $cb["h"]);
+    $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["h"]);
 
-    else
-      $height = $style->length_in_pt($height, $cb["w"]);
+    if ( $style->position == "absolute" || $style->position == "fixed" ) {
 
-    // Remove margin, padding & borders
-    $height -= $style->length_in_pt( array($style->margin_top,
-                                           $style->padding_top,
-                                           $style->border_top_width,
-                                           $style->border_bottom_width,
-                                           $style->padding_bottom,
-                                           $style->margin_bottom),
-                                     $cb["h"]);
+      // see http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-height
 
-    // Expand the height if overflow is visible
-    if ( $content_height > $height && $style->overflow === "visible" )
-      $height = $content_height;
+      $dims = array($top !== "auto" ? $top : 0,
+                    $style->margin_top !== "auto" ? $style->margin_top : 0,
+                    $style->padding_top,
+                    $style->border_top_width,
+                    $height !== "height" ? $height : 0,
+                    $style->border_bottom_width,
+                    $style->padding_bottom,
+                    $style->margin_bottom !== "auto" ? $style->margin_bottom : 0,
+                    $bottom !== "auto" ? $bottom : 0);
 
-    // Only handle min/max height if the height is independent of the frame's content
-    if ( !($style->overflow === "visible" ||
-           ($style->overflow === "hidden" && $height === "auto")) ) {
+      $sum = $style->length_in_pt($dims, $cb["h"]);
 
-      $min_height = $style->min_height;
-      $max_height = $style->max_height;
+      $diff = $cb["h"] - $sum; 
 
-      if ( isset($cb["h"]) ) {
-        $min_height = $style->length_in_pt($min_height, $cb["h"]);
-        $max_height = $style->length_in_pt($max_height, $cb["h"]);
+      if ( $diff > 0 ) {
 
-      } else if ( isset($cb["w"]) ) {
+        if ( $height === "auto" && $top === "auto" && $bottom === "auto" ) {
 
-        if ( mb_strpos($min_height, "%") !== false )
-          $min_height = 0;
-        else
-          $min_height = $style->length_in_pt($min_height, $cb["w"]);
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
 
-        if ( mb_strpos($max_height, "%") !== false )
-          $max_height = "none";
-        else
-          $max_height = $style->length_in_pt($max_height, $cb["w"]);
+          $height = $diff;
+
+        } else if ( $height === "auto" && $top === "auto" ) {
+
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
+
+          $height = $content_height;
+          $top = $diff - $content_height;
+
+        } else if ( $height === "auto" && $bottom === "auto" ) {
+
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
+
+          $height = $content_height;
+          $bottom = $diff - $content_height;
+
+        } else if ( $top === "auto" && $bottom === "auto" ) {
+
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
+
+          $bottom = $diff;
+
+        } else if ( $top === "auto" ) {
+
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
+
+          $top = $diff;
+
+        } else if ( $height === "auto" ) {
+
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
+
+          $height = $diff;
+
+        } else if ( $bottom === "auto" ) {
+
+          if ( $margin_top === "auto" ) 
+            $margin_top = 0;
+          if ( $margin_bottom === "auto" )
+            $margin_bottom = 0;
+
+          $bottom = $diff;
+
+        } else {
+
+          if ( $style->overflow === "visible" ) {
+
+            // set all autos to zero
+            if ( $margin_top === "auto" ) 
+              $margin_top = 0;
+            if ( $margin_bottom === "auto" )
+              $margin_bottom = 0;
+            if ( $top === "auto" )
+              $top = 0;
+            if ( $bottom === "auto" )
+              $bottom = 0;
+            if ( $height === "auto" )
+              $height = $content_height;
+
+          }
+
+          // FIXME: overflow hidden
+        }
+
       }
 
-      if ( $max_height !== "none" && $min_height > $max_height )
-        // Swap 'em
-        list($max_height, $min_height) = array($min_height, $max_height);
+    } else {
 
-      if ( $max_height !== "none" && $height > $max_height )
-        $height = $max_height;
+      // Expand the height if overflow is visible
+      if ( $height == "auto" && $content_height > $height && $style->overflow === "visible" )
+        $height = $content_height;
 
-      if ( $height < $min_height )
-        $height = $min_height;
+      // FIXME: this should probably be moved to a seperate function as per
+      // _calculate_restricted_width
+      
+      // Only handle min/max height if the height is independent of the frame's content
+      if ( !($style->overflow === "visible" ||
+             ($style->overflow === "hidden" && $height === "auto")) ) {
+
+        $min_height = $style->min_height;
+        $max_height = $style->max_height;
+
+        if ( isset($cb["h"]) ) {
+          $min_height = $style->length_in_pt($min_height, $cb["h"]);
+          $max_height = $style->length_in_pt($max_height, $cb["h"]);
+
+        } else if ( isset($cb["w"]) ) {
+
+          if ( mb_strpos($min_height, "%") !== false )
+            $min_height = 0;
+          else
+            $min_height = $style->length_in_pt($min_height, $cb["w"]);
+
+          if ( mb_strpos($max_height, "%") !== false )
+            $max_height = "none";
+          else
+            $max_height = $style->length_in_pt($max_height, $cb["w"]);
+        }
+
+        if ( $max_height !== "none" && $min_height > $max_height )
+          // Swap 'em
+          list($max_height, $min_height) = array($min_height, $max_height);
+
+        if ( $max_height !== "none" && $height > $max_height )
+          $height = $max_height;
+
+        if ( $height < $min_height )
+          $height = $min_height;
+      }
+
     }
 
-    return $height;
+    return array($height, $margin_top, $margin_bottom, $top, $bottom);
 
   }
 
@@ -357,21 +528,23 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Collapse margins if required
     $this->_collapse_margins();
 
-    $this->_frame->position();
-
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
-    list($x, $y) = $this->_frame->get_position();
 
     // Determine the constraints imposed by this frame: calculate the width
     // of the content area:
-    list($w, $left, $right) = $this->_calculate_restricted_width();
+    list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
 
     // Store the calculated properties
     $style->width = $w;
-    $style->margin_left = $left."pt";
-    $style->margin_right = $right."pt";
-
+    $style->margin_left = $left_margin."pt";
+    $style->margin_right = $right_margin."pt";
+    $style->left = $left ."pt";
+    $style->right = $right . "pt";
+    
+    // Update the position
+    $this->_frame->position();
+    list($x, $y) = $this->_frame->get_position();
 
     // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $cb["w"]);
@@ -386,7 +559,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
                                          $style->margin_bottom,
                                          $style->padding_bottom), $cb["h"]);
 
-    $cb_x = $x + $left +
+    $cb_x = $x + $left_margin +
       $style->length_in_pt($style->border_left_width, $cb["w"]) +
       $style->length_in_pt($style->padding_left, $cb["w"]);
 
@@ -403,7 +576,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       // Bail out if the page is full
       if ( $page->is_full() )
         break;
-
+      
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
       $child->reflow();
 
@@ -411,12 +584,21 @@ class Block_Frame_Reflower extends Frame_Reflower {
       if ( $page->check_page_break($child) )
         break;
 
-      // It's okay to add the frame to the line
-      $this->_frame->add_frame_to_line( $child );
+      // If the frame is not absolutely positioned, It's okay to add the frame
+      // to the line
+      if ( $child->get_style()->position != "absolute" &&
+           $child->get_style()->position != "fixed" ) {
+        $this->_frame->add_frame_to_line( $child );
+      }
     }
 
     // Determine our height
-    $style->height = $this->_calculate_restricted_height();
+    list($height, $margin_top, $margin_bottom, $top, $bottom) = $this->_calculate_restricted_height();
+    $style->height = $height;
+    $style->margin_top = $margin_top;
+    $style->margin_bottom = $margin_bottom;
+    $style->top = $top;
+    $style->bottom = $bottom;
 
     $this->_text_align();
 

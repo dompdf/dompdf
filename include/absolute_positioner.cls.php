@@ -2,8 +2,8 @@
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
  *
- * File: $RCSfile: table_row_frame_reflower.cls.php,v $
- * Created on: 2004-06-17
+ * File: $RCSfile: absolute_positioner.cls.php,v $
+ * Created on: 2004-06-08
  *
  * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
  *
@@ -37,59 +37,51 @@
  * @version 0.5.1
  */
 
-/* $Id: table_row_frame_reflower.cls.php,v 1.6 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id */
 
 /**
- * Reflows table rows
- *
- * @access private
- * @package dompdf
+ * Positions absolutly positioned frames
  */
-class Table_Row_Frame_Reflower extends Frame_Reflower {
+class Absolute_Positioner extends Positioner {
 
+  function __construct(Frame_Decorator $frame) { parent::__construct($frame); }
 
-  function __construct(Table_Row_Frame_Decorator $frame) {
-    parent::__construct($frame);
-  }
+  function position() {
 
-  //........................................................................
-
-  function reflow() {
-    $page = $this->_frame->get_root();
-
-    if ( $page->is_full() )
-      return;
-
-    $this->_frame->position();
-    $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
 
-    foreach ($this->_frame->get_children() as $child) {
+    $style = $this->_frame->get_style();
 
-      if ( $page->is_full() )
-        return;
+    $top = $style->length_in_pt($style->top, $cb["w"]);
+    $left =   $style->length_in_pt($style->left, $cb["w"]);
+    $right =  $style->length_in_pt($style->right, $cb["w"]);
+    $bottom = $style->length_in_pt($style->bottom, $cb["w"]);
+    
+    $p = $this->_frame->find_block_parent();
 
-      $child->set_containing_block($cb);
-      $child->reflow();
+    if ( $p ) {
+
+      // Get the parent's padding box (see http://www.w3.org/TR/CSS21/visuren.html#propdef-top)
+
+      list($x, $y, $w, $h) = $p->get_padding_box();
+
+    } else {
+
+      $x = $cb["x"];
+      $y = $cb["y"];
 
     }
 
-    if ( $page->is_full() )
-      return;
+    if ( isset($top) ) {
+      $y += $top;
+    } else if ( isset($bottom) ) {
+      // FIXME: need to know this frame's height before we can do this correctly
+    }
 
-    $table = Table_Frame_Decorator::find_parent_table($this->_frame);
-    $cellmap = $table->get_cellmap();
-    $style->width = $cellmap->get_frame_width($this->_frame);
-    $style->height = $cellmap->get_frame_height($this->_frame);
+    $x += $left;
 
-    $this->_frame->set_position($cellmap->get_frame_position($this->_frame));
+    $this->_frame->set_position($x, $y);
 
   }
 
-  //........................................................................
-
-  function get_min_max_width() {
-    throw new DOMPDF_Exception("Min/max width is undefined for table rows");
-  }
 }
-?>
