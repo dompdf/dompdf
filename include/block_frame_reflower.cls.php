@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.17 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id: block_frame_reflower.cls.php,v 1.18 2007-08-22 23:02:07 benjcarson Exp $ */
 
 /**
  * Reflows block frames
@@ -218,6 +218,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $height += $line["h"];
 
     return $height;
+
   }
 
   // Determine the frame's restricted height

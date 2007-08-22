@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: inline_renderer.cls.php,v 1.6 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: inline_renderer.cls.php,v 1.7 2007-08-22 23:02:07 benjcarson Exp $ */
 
 /**
  * Renders inline frames
@@ -69,7 +69,7 @@ class Inline_Renderer extends Abstract_Renderer {
     $h = 0;
 //     $x += $widths[3];
 //     $y += $widths[0];
-    
+
     $first_row = true;
 
     foreach ($frame->get_children() as $child) {
@@ -88,7 +88,7 @@ class Inline_Renderer extends Abstract_Renderer {
         if ( ($url = $style->background_image) && $url !== "none" ) {
           $this->_background_image($url, $x, $y, $w, $h, $style);
         }
-        
+
         // If this is the first row, draw the left border
         if ( $first_row ) {
 
@@ -146,6 +146,10 @@ class Inline_Renderer extends Abstract_Renderer {
     $w += $widths[1] + $widths[3];
     $h += $widths[0] + $widths[2];
 
+    // make sure the border and background start inside the left margin
+    $left_margin = $style->length_in_pt($style->margin_left);
+    $x += $left_margin;
+
     // If this is the first row, draw the left border too
     if ( $first_row && $bp["left"]["style"] != "none" && $widths[3] > 0 ) {
       $method = "_border_" . $bp["left"]["style"];
@@ -162,8 +166,10 @@ class Inline_Renderer extends Abstract_Renderer {
       $method = "_border_" . $bp["bottom"]["style"];
       $this->$method($x, $y + $h, $w, $bp["bottom"]["color"], $widths, "bottom");
     }
-    
-    // Draw the right border
+
+    //    pre_var_dump(get_class($frame->get_next_sibling()));
+    //    $last_row = get_class($frame->get_next_sibling()) != 'Inline_Frame_Decorator';
+    // Draw the right border if this is the last row
     if ( $bp["right"]["style"] != "none" && $widths[1] > 0 ) {
       $method = "_border_" . $bp["right"]["style"];
       $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");

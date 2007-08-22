@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: functions.inc.php,v 1.16 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id: functions.inc.php,v 1.17 2007-08-22 23:02:07 benjcarson Exp $ */
 
 /**
  * print_r wrapper for html/cli output
@@ -424,6 +424,8 @@ function bt() {
  */
 function dompdf_debug($type, $msg) {
   global $_DOMPDF_DEBUG_TYPES;
+  global $_dompdf_show_warnings;
+  global $_dompdf_debug;
   if ( isset($_DOMPDF_DEBUG_TYPES[$type]) && ($_dompdf_show_warnings || $_dompdf_debug) ) {
     $arr = debug_backtrace();
 

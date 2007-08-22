@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_decorator.cls.php,v 1.6 2006-10-13 23:14:29 benjcarson Exp $ */
+/* $Id: text_frame_decorator.cls.php,v 1.7 2007-08-22 23:02:07 benjcarson Exp $ */
 
 /**
  * Decorates Frame objects for text layout
@@ -105,6 +105,14 @@ class Text_Frame_Decorator extends Frame_Decorator {
     $style = $this->get_style();
     $font = $style->font_family;
     $size = $style->font_size;
+
+    /*
+    pre_r('-----');
+    pre_r($style->line_height);
+    pre_r($style->font_size);
+    pre_r(Font_Metrics::get_font_height($font, $size));
+    pre_r(($style->line_height / $size) * Font_Metrics::get_font_height($font, $size));
+    */
 
     return ($style->line_height / $size) * Font_Metrics::get_font_height($font, $size);
     

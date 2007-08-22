@@ -3227,7 +3227,8 @@ class  Cpdf {
     }
 
     // for the current font, and the given size, what is the height of the font in user units
-    $h =  $this->fonts[$this->currentFont]['FontBBox'][3]-$this->fonts[$this->currentFont]['FontBBox'][1];
+    //$h = $this->fonts[$this->currentFont]['FontBBox'][3]-$this->fonts[$this->currentFont]['FontBBox'][1];
+    $h = $this->fonts[$this->currentFont]['Ascender']; // - $this->fonts[$this->currentFont]['Descender'];
 
     return  $size*$h/1000;
   }
@@ -3246,7 +3247,8 @@ class  Cpdf {
       $this->selectFont('./fonts/Helvetica');
     }
 
-    $h =  $this->fonts[$this->currentFont]['FontBBox'][1];
+    //$h = $this->fonts[$this->currentFont]['FontBBox'][1];
+    $h = $this->fonts[$this->currentFont]['Decender'];
 
     return  $size*$h/1000;
   }

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: inline_frame_decorator.cls.php,v 1.4 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id: inline_frame_decorator.cls.php,v 1.5 2007-08-22 23:02:07 benjcarson Exp $ */
 
 /**
  * Decorates frames for inline layout
@@ -61,6 +61,12 @@ class Inline_Frame_Decorator extends Frame_Decorator {
         
     $split = $this->copy( $this->_frame->get_node()->cloneNode() ); 
     $this->get_parent()->insert_child_after($split, $this);
+
+    // Unset the current node's right style properties
+    $style = $this->_frame->get_style();
+    $style->margin_right = "0";
+    $style->padding_right = "0";
+    $style->border_right_width = "0";
 
     // Unset the split node's left style properties since we don't want them
     // to propagate

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.10 2006-10-13 23:14:29 benjcarson Exp $ */
+/* $Id: block_frame_decorator.cls.php,v 1.11 2007-08-22 23:02:06 benjcarson Exp $ */
 
 /**
  * Decorates frames for block layout
@@ -119,6 +119,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     if (is_numeric($h))
       $this->_lines[$lineno]["h"] = $h;
+
   }
 
 
@@ -157,21 +158,22 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     if ( $w == 0 )
       return;
-    
+
     // Debugging code:
+    /*
+    pre_r("\nAdding frame to line:");
 
-//     pre_r("\nAdding frame to line:");
+    //    pre_r("Me: " . $this->get_node()->nodeName . " (" . (string)$this->get_node() . ")");
+    //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . (string)$frame->get_node() . ")");
+    if ( $frame->get_node()->nodeName == "#text" )
+      pre_r($frame->get_node()->nodeValue);
 
-//     pre_r("Me: " . $this->get_node()->nodeName . " (" . (string)$this->get_node() . ")");
-//     pre_r("Node: " . $frame->get_node()->nodeName . " (" . (string)$frame->get_node() . ")");
-//     if ( $frame->get_node()->nodeName == "#text" )
-//       pre_r($frame->get_node()->nodeValue);
-
-//     pre_r("Line width: " . $this->_lines[$this->_cl]["w"]);
-//     pre_r("Frame width: "  . $w);
-//     pre_r("Frame height: " . $frame->get_margin_height());
-//     pre_r("Containing block width: " . $this->get_containing_block("w"));
-
+    pre_r("Line width: " . $this->_lines[$this->_cl]["w"]);
+    pre_r("Frame: " . get_class($frame));
+    pre_r("Frame width: "  . $w);
+    pre_r("Frame height: " . $frame->get_margin_height());
+    pre_r("Containing block width: " . $this->get_containing_block("w"));
+    */
     // End debugging
 
     if ($this->_lines[$this->_cl]["w"] + $w > $this->get_containing_block("w"))

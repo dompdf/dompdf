@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame.cls.php,v 1.13 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.14 2007-08-22 23:02:07 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -292,8 +292,8 @@ class Frame {
   function get_padding_box() {
     $x = $this->_position["x"] +
       $this->_style->length_in_pt(array($this->_style->margin_left,
-                                $this->_style->border_left_width),
-                          $this->_containing_block["w"]);
+                                        $this->_style->border_left_width),
+                                  $this->_containing_block["w"]);
     $y = $this->_position["y"] +
       $this->_style->length_in_pt(array($this->_style->margin_top,
                                 $this->_style->border_top_width),
