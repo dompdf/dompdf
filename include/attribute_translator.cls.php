@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: attribute_translator.cls.php,v 1.11 2006-10-26 17:07:23 benjcarson Exp $ */
+/* $Id: attribute_translator.cls.php,v 1.12 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -62,7 +62,7 @@ class Attribute_Translator {
                   'border' => 'border-width: %0.2f px;',
                   'height' => 'height: %s;',
                   'hspace' => 'padding-left: %1$0.2f px; padding-right: %1$0.2f px;',
-                  'vspace' => 'padding-top: %1$0.2f px; padding-top: %1$0.2f px',
+                  'vspace' => 'padding-top: %1$0.2f px; padding-bottom: %1$0.2f px',
                   'width' => 'width: %s;',
                   ),
            'table' => 

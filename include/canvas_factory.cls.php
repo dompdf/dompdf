@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: canvas_factory.cls.php,v 1.4 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: canvas_factory.cls.php,v 1.5 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Create canvas instances
@@ -68,6 +68,9 @@ class Canvas_Factory {
     else if ( (DOMPDF_PDF_BACKEND == "auto" || $backend == "cpdf") )
       $class = "CPDF_Adapter";
 
+    else if ( ( $backend == "tcpdf") )
+      $class = "TCPDF_Adapter";
+      
     else if ( $backend == "gd" )
       $class = "GD_Adapter";
     

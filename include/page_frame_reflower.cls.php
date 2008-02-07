@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: page_frame_reflower.cls.php,v 1.5 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id: page_frame_reflower.cls.php,v 1.6 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Reflows pages
@@ -47,6 +47,19 @@
  */
 class Page_Frame_Reflower extends Frame_Reflower {
 
+  /**
+   * Cache of the callbacks array
+   * 
+   * @var array
+   */
+  private $_callbacks;
+  
+  /**
+   * Cache of the canvas
+   *
+   * @var Canvas
+   */
+  private $_canvas;
 
   function __construct(Page_Frame_Decorator $frame) { parent::__construct($frame); }
   
@@ -70,23 +83,79 @@ class Page_Frame_Reflower extends Frame_Reflower {
     $content_width = $cb["w"] - $left - $right;
     $content_height = $cb["h"] - $top - $bottom;
 
+    $prev_child = null;
     $child = $this->_frame->get_first_child();
 
     while ($child) {
 
       $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
+      
+      // Check for begin reflow callback
+      $this->_check_callbacks("begin_page_reflow", $child);
+      
       $child->reflow();
       $next_child = $child->get_next_sibling();
       
+      // Check for begin render callback
+      $this->_check_callbacks("begin_page_render", $child);
+      
       // Render the page
       $this->_frame->get_renderer()->render($child);
-      if ( $next_child )
-        $this->_frame->next_page();
-
-      // Dispose of all frames on the old page
-      $child->dispose(true);
       
+      // Check for end render callback
+      $this->_check_callbacks("end_page_render", $child);
+      
+      if ( $next_child )
+      {
+        $this->_frame->next_page();
+      }
+
+      // Wait to dispose of all frames on the previous page
+      // so callback will have access to them
+      if ( $prev_child )
+      {
+        $prev_child->dispose(true);
+      }
+      $prev_child = $child;
       $child = $next_child;
+    }
+
+    // Dispose of previous page if it still exists
+    if ( $prev_child )
+    {
+      $prev_child->dispose(true);
+    }
+  }  
+  
+  //........................................................................
+  
+  /**
+   * Check for callbacks that need to be performed when a given event
+   * gets triggered on a page
+   *
+   * @param string $event the type of event
+   * @param Frame $frame the frame that event is triggered on
+   */
+  protected function _check_callbacks($event, $frame) {
+    if (!isset($this->_callbacks)) {
+      $dompdf = $this->_frame->get_dompdf();
+      $this->_callbacks = $dompdf->get_callbacks();
+      $this->_canvas = $dompdf->get_canvas();
+    }
+    
+    if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {
+      $info = array(0 => $this->_canvas, "canvas" => $this->_canvas,
+                    1 => $frame, "frame" => $frame);
+      $fs = $this->_callbacks[$event];
+      foreach ($fs as $f) {
+        if (is_callable($f)) {
+          if (is_array($f)) {
+            $f[0]->$f[1]($info);
+          } else {
+            $f($info);
+          }
+        }
+      }
     }
   }  
 }

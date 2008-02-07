@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: renderer.cls.php,v 1.9 2006-12-22 18:37:45 benjcarson Exp $ */
+/* $Id: renderer.cls.php,v 1.10 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Concrete renderer
@@ -56,6 +56,13 @@ class Renderer extends Abstract_Renderer {
    * @var array
    */
   protected $_renderers;
+    
+  /**
+   * Cache of the callbacks array
+   * 
+   * @var array
+   */
+  private $_callbacks;
     
   /**
    * Advance the canvas to the next page
@@ -129,9 +136,43 @@ class Renderer extends Abstract_Renderer {
 
     }
 
+    // Check for begin frame callback
+    $this->_check_callbacks("begin_frame", $frame);
+    
     foreach ($frame->get_children() as $child)
       $this->render($child);
 
+    // Check for end frame callback
+    $this->_check_callbacks("end_frame", $frame);
+    
+  }
+  
+  /**
+   * Check for callbacks that need to be performed when a given event
+   * gets triggered on a frame
+   *
+   * @param string $event the type of event
+   * @param Frame $frame the frame that event is triggered on
+   */
+  protected function _check_callbacks($event, $frame) {
+    if (!isset($this->_callbacks)) {
+      $this->_callbacks = $this->_dompdf->get_callbacks();
+    }
+    
+    if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {
+      $info = array(0 => $this->_canvas, "canvas" => $this->_canvas,
+                    1 => $frame, "frame" => $frame);
+      $fs = $this->_callbacks[$event];
+      foreach ($fs as $f) {
+        if (is_callable($f)) {
+          if (is_array($f)) {
+            $f[0]->$f[1]($info);
+          } else {
+            $f($info);
+          }
+        }
+      }
+    }
   }
 
   /**

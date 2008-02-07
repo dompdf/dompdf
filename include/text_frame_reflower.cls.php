@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.11 2006-10-13 23:14:29 benjcarson Exp $ */
+/* $Id: text_frame_reflower.cls.php,v 1.12 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Reflows text frames.
@@ -187,6 +187,28 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $split = false;
     $add_line = false;
 
+    // Handle text transform:
+    // http://www.w3.org/TR/CSS21/text.html#propdef-text-transform
+
+    switch ($style->text_transform) {
+
+    default:
+      break;
+
+    case "capitalize":
+      $text = mb_convert_case($text, MB_CASE_TITLE, 'UTF-8');
+      break;
+
+    case "uppercase":
+      $text = mb_convert_case($text, MB_CASE_UPPER, 'UTF-8');
+      break;
+
+    case "lowercase":
+      $text = mb_convert_case($text, MB_CASE_LOWER, 'UTF-8');
+      break;
+
+    }
+    
     // Handle white-space property:
     // http://www.w3.org/TR/CSS21/text.html#propdef-white-space
 

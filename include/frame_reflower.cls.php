@@ -37,13 +37,13 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_reflower.cls.php,v 1.6 2006-07-21 21:23:13 benjcarson Exp $ */
+/* $Id: frame_reflower.cls.php,v 1.7 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Base reflower class
  *
  * Reflower objects are responsible for determining the width and height of
- * individual frames.  The also create line and page breaks as necessary.
+ * individual frames.  They also create line and page breaks as necessary.
  *
  * @access private
  * @package dompdf

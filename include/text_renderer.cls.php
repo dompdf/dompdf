@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_renderer.cls.php,v 1.6 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: text_renderer.cls.php,v 1.7 2008-02-07 07:31:05 benjcarson Exp $ */
 /**
  * Renders text frames
  *
@@ -46,10 +46,10 @@
  */
 class Text_Renderer extends Abstract_Renderer {
 
-  const UNDERLINE_OFFSET = 0.1;  // Relative to bottom of text, as fraction of height
-  const OVERLINE_OFFSET = 0.25;    // Relative to top of text,         "
-  const LINETHROUGH_OFFSET = 0.0;  // Relative to centre of text,      "
-  const DECO_EXTENSION = 0.75;        // How far to extend lines past either end, in pt
+  const UNDERLINE_OFFSET = 0.1;    // Relative to bottom of text, as fraction of height.
+  const OVERLINE_OFFSET = 0.25;    // Relative to top of text
+  const LINETHROUGH_OFFSET = 0.05; // Relative to centre of text.  OAR - Changed from 0.0 to 0.05
+  const DECO_EXTENSION = 0.75;     // How far to extend lines past either end, in pt
     
   //........................................................................
 
@@ -116,7 +116,7 @@ class Text_Renderer extends Abstract_Renderer {
         break;
 
       case "line-through":
-        $deco_y -= $height * ( 0.25 + self::LINETHROUGH_OFFSET);
+        $deco_y += $height * (0.75 + self::LINETHROUGH_OFFSET);
         break;
 
       }

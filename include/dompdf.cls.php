@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.21 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.22 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -131,6 +131,18 @@ class DOMPDF {
    */
   protected $_paper_orientation;
 
+  /**
+   * Callbacks on new page and new element
+   * 
+   * @var array
+   */
+  protected $_callbacks;
+
+  /**
+   * Experimental caching capability
+   *
+   * @var string
+   */
   private $_cache_id;
 
   /**
@@ -172,6 +184,7 @@ class DOMPDF {
     $this->_base_protocol = "";
     $this->_base_host = "";
     $this->_base_path = "";
+    $this->_callbacks = array();
     $this->_cache_id = null;
   }
 
@@ -234,6 +247,13 @@ class DOMPDF {
    */
   function get_canvas() { return $this->_pdf; }
 
+  /**
+   * Returns the callbacks array
+   *
+   * @return array
+   */
+  function get_callbacks() { return $this->_callbacks; }
+  
   //........................................................................
 
   /**
@@ -386,6 +406,34 @@ class DOMPDF {
   //........................................................................
 
   /**
+   * Sets callbacks for events like rendering of pages and elements.
+   * The callbacks array contains arrays with 'event' set to 'begin_page',
+   * 'end_page', 'begin_frame', or 'end_frame' and 'f' set to a function or 
+   * object plus method to be called.
+   * 
+   * The function 'f' must take an array as argument, which contains info 
+   * about the event.
+   *
+   * @param array $callbacks the set of callbacks to set
+   */
+  function set_callbacks($callbacks) {
+    if (is_array($callbacks)) {
+      $this->_callbacks = array();
+      foreach ($callbacks as $c) {
+        if (is_array($c) && isset($c['event']) && isset($c['f'])) {
+          $event = $c['event'];
+          $f = $c['f'];
+          if (is_callable($f) && is_string($event)) {
+            $this->_callbacks[$event][] = $f;
+          }
+        }
+      }
+    }
+  }
+  
+  //........................................................................ 
+
+  /**
    * Renders the HTML to PDF
    */
   function render() {
@@ -440,6 +488,16 @@ class DOMPDF {
   }
 
   //........................................................................
+
+  /**
+   * Add meta information to the PDF after rendering
+   */
+  function add_info($label, $value) {
+    if (!is_null($this->_pdf))
+      $this->_pdf->add_info($label, $value);
+  }
+  
+  //........................................................................ 
 
   /**
    * Streams the PDF to the client

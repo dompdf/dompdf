@@ -43,7 +43,7 @@ require_once("dompdf_config.inc.php");
 /**
  * @access private
  */
-define("_TTF2AFM", TTF2AFM . " -a -GAef -OW ");
+define("_TTF2AFM", escapeshellarg(TTF2AFM) . " -a -GAef -OW ");
 
 if ( !file_exists(TTF2AFM) ) {
   die("Unable to locate the ttf2afm / ttf2pt1 executable (checked " . TTF2AFM . ").\n");
@@ -220,15 +220,16 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
 
 
   // If the extension is a ttf, try and convert the fonts to afm too
-  if ( strtolower($ext) === ".ttf" || strtolower($ext) == ".otf" ) {
+  if ( mb_strtolower($ext) === ".ttf" || strtolower($ext) == ".otf" ) {
     foreach ($fonts as $var => $font) {
       if ( is_null($font) ) {
-        $entry[$var] = DOMPDF_FONT_DIR . substr(basename($normal), 0, -4);
+        $entry[$var] = DOMPDF_FONT_DIR . mb_substr(basename($normal), 0, -4);
         continue;
       }
-      $dest = DOMPDF_FONT_DIR . substr(basename($font),0, -4);
+      $dest = DOMPDF_FONT_DIR . mb_substr(basename($font),0, -4);
       echo "Generating .afm for $font...\n";
-      exec( _TTF2AFM . " " . escapeshellarg($font) . " " . $dest . " &> /dev/null", $output, $ret );
+      echo "Command: " . _TTF2AFM . " " . escapeshellarg($font) . " " . escapeshellarg($dest) . "\n";
+      exec( _TTF2AFM . " " . escapeshellarg($font) . " " . escapeshellarg($dest) . " &> /dev/null", $output, $ret );
 
       $entry[$var] = $dest;
     }

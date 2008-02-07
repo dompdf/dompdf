@@ -37,14 +37,14 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.27 2007-06-25 02:45:11 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.28 2008-02-07 07:31:05 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
 /**
  * The root of your DOMPDF installation
  */
-define("DOMPDF_DIR", realpath(dirname(__FILE__)));
+define("DOMPDF_DIR", str_replace(DIRECTORY_SEPARATOR, '/', realpath(dirname(__FILE__))));
 
 /**
  * The location of the DOMPDF include directory
@@ -91,13 +91,17 @@ define("DOMPDF_CHROOT", realpath(DOMPDF_DIR . "/../"));
  * @link http://ttf2pt1.sourceforge.net/
  */
 define("TTF2AFM", "/usr/bin/ttf2pt1");
+// Windows users should use something like this:
+//define("TTF2AFM", "C:\\Program Files\\Ttf2Pt1\\bin\\ttf2pt1.exe");
 
 /**
  * The PDF rendering backend to use
  *
  * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class),
- * 'GD' and 'auto'.  'auto' will look for PDFLib and use it if found,
- * or if not it will fall back on CPDF.  'GD' renders PDFs to graphic
+ * 'TCPDF' (the bundled TCPDF class), 'GD' and 'auto'. 
+ * 'auto' will look for PDFLib and use it if found,
+ * or if not it will fall back on CPDF.  'TCPDF' will use the TCPDF
+ * library, which supports Unicode.  'GD' renders PDFs to graphic
  * files.  {@link Canvas_Factory} ultimately determines which
  * rendering class to instantiate based on this setting.
  *
@@ -119,6 +123,7 @@ define("TTF2AFM", "/usr/bin/ttf2pt1");
  * @link http://www.pdflib.com
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
+ * @link http://tcpdf.sf.net/
  */
 define("DOMPDF_PDF_BACKEND", "cpdf");
 
@@ -189,13 +194,15 @@ define("DOMPDF_ENABLE_PHP", true);
  *
  * @var bool 
  */
-define("DOMPDF_ENABLE_REMOTE", true);
+define("DOMPDF_ENABLE_REMOTE", false);
  
 /**
  * DOMPDF autoload function
  *
  * If you have an existing autoload function, add a call to this function
  * from your existing __autoload() implementation.
+ *
+ * TODO: use spl_autoload(), if available
  *
  * @param string $class
  */

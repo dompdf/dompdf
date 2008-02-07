@@ -37,12 +37,12 @@
  * @version 0.5.1
  */
 
-/* $Id: canvas.cls.php,v 1.7 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: canvas.cls.php,v 1.8 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * Main rendering interface
  *
- * Currently only {@link CPDF_Adapter} and {@link PDFLib_Adapter}
+ * Currently {@link CPDF_Adapter}, {@link PDFLib_Adapter}, {@link TCPDF_Adapter}, and {@link GD_Adapter}
  * implement this interface.
  *
  * Implementations should measure x and y increasing to the left and down,

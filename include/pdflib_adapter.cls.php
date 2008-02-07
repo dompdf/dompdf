@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.24 2006-08-11 18:04:04 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.25 2008-02-07 07:31:05 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -290,6 +290,16 @@ class PDFLib_Adapter implements Canvas {
    */
   function get_pdflib() { return $this->_pdf; }
 
+  /**
+   * Add meta information to the PDF
+   *
+   * @param string $label  label of the value (Creator, Producter, etc.)
+   * @param string $value  the text to set
+   */
+  function add_info($label, $value) {
+    $this->_pdf->set_info($label, $value);
+  }
+  
   /**
    * Opens a new 'object' (template in PDFLib-speak)
    *
@@ -761,10 +771,45 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
+  /**
+   * Writes text at the specified x and y coordinates on every page
+   *
+   * The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are automatically replaced
+   * with their current values.
+   *
+   * See {@link Style::munge_colour()} for the format of the colour array.
+   *
+   * @param float $x
+   * @param float $y
+   * @param string $text the text to write
+   * @param string $font the font file to use
+   * @param float $size the font size, in points
+   * @param array $color
+   * @param float $adjust word spacing adjustment
+   * @param float $angle angle to write the text at, measured CW starting from the x-axis
+   */
   function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
                      $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
-    $this->_page_text[] = compact("x", "y", "text", "font", "size", "color", "adjust", "angle");
+    $_t = "text";
+    $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "adjust", "angle");
+  }
 
+  //........................................................................
+
+  /**
+   * Processes a script on every page
+   * 
+   * The variables $pdf, $PAGE_NUM, and $PAGE_COUNT are available.
+   * 
+   * This function can be used to add page numbers to all pages
+   * after the first one, for example.
+   *
+   * @param string $code the script code
+   * @param string $type the language type for script
+   */
+  function page_script($code, $type = "text/php") {
+    $_t = "script";
+    $this->_page_text[] = compact("_t", "code", "type");
   }
 
   //........................................................................
@@ -793,21 +838,29 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->suspend_page("");
 
     for ($p = 1; $p <= $this->_page_count; $p++) {
-
       $this->_pdf->resume_page("pagenumber=$p");
 
       foreach ($this->_page_text as $pt) {
         extract($pt);
 
-        $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                            array($p, $this->_page_count), $text);
+        switch ($_t) {
 
+        case "text":
+          $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
+                              array($page_number, $this->_page_count), $text);
         $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+          break;
 
+        case "script":
+          if (!$eval) {
+            $eval = new PHP_Evaluator($this);  
+          }
+          $eval->evaluate($code, array('PAGE_NUM' => $page_number, 'PAGE_COUNT' => $this->_page_count));
+          break;
+        }
       }
 
       $this->_pdf->suspend_page("");
-
     }
 
     $this->_pdf->resume_page("pagenumber=".$this->_page_number);
