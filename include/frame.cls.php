@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame.cls.php,v 1.14 2007-08-22 23:02:07 benjcarson Exp $ */
+/* $Id: frame.cls.php,v 1.15 2008-02-15 02:09:10 benjcarson Exp $ */
 
 /**
  * The main Frame class
@@ -580,7 +580,7 @@ class Frame {
     
     
     $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
-    $str .= (string)$this->_node . "<br/>";
+    //$str .= (string)$this->_node . "<br/>";
     $str .= "Id: " .$this->get_id() . "<br/>";
     $str .= "Class: " .get_class($this) . "<br/>";
     
