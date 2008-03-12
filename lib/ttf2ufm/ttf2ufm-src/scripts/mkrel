@@ -1,0 +1,104 @@
+#!/bin/sh
+#
+# See COPYRIGHT
+#
+# Script to create a release or shapshot archive.
+# Also checks for very basic inconsistences.
+# Expects that it would be run from the current directory of ttf2pt1,
+# and that the parent directory is the place to create archives.
+# Expects that the CVS environment variables are set properly.
+
+VER=`grep TTF2PT1_VERSION version.h | cut -d\" -f2`
+
+case "$1" in
+snapshot)
+	echo "$VER" | egrep '^[0-9][0-9]*\.[0-9].*-CURRENT$' || {
+		echo "mkrel: version.h must contain *-CURRENT to create a snapshot" >&2
+		exit 1
+	}
+	grep "^current$" CHANGES.html >/dev/null || {
+		echo "mkrel: CHANGES.html must list 'current' to create a snapshot" >&2
+		exit 1
+	}
+	snapdate=`date "+ %y  %m  %d " | sed 's/ \([0-9]\) / 0& /g;s/ //g'`
+	NEWVER=`echo "$VER" | sed "s/-CURRENT/-SNAP-$snapdate/"`
+	TAG="-D tomorrow"
+	;;
+release)
+	echo "$VER" | egrep '^[0-9][0-9]*\.[0-9][.0-9]*$' || {
+		echo "mkrel: version.h must not be -CURRENT to create a release" >&2
+		exit 1
+	}
+	grep "^$VER -- " CHANGES.html >/dev/null || {
+		echo "mkrel: CHANGES.html must list the same version as version.h" >&2
+		exit 1
+	}
+	NEWVER="$VER"
+	TAG=`echo "-r ttf2pt1-$VER" | sed \
+		's/\(-[0-9][0-9]*\.[0-9]\)$/&.0/;s/\./-/g'`
+	;;
+*)
+	echo "use: mkrel [snapshot|release]" >&2
+	exit 1
+	;;
+esac
+
+cd .. || {
+	echo "mkrel: can't cd to .." >&2
+	exit 1
+}
+
+rm -f ttf2pt1-$NEWVER.tgz ttf2pt1-$NEWVER.zip 
+rm -rf ttf2pt1-$NEWVER
+
+echo "cvs -z9 export $TAG -d ttf2pt1-$NEWVER ttf2pt1"
+cvs -z9 export $TAG -d ttf2pt1-$NEWVER ttf2pt1 || {
+	echo "mkrel: unable to export from CVS" >&2
+	echo "mkrel: check that the CVS tree is properly tagged" >&2
+	exit 1
+}
+
+
+# a little bit more for snapshot: correct the version
+(
+case "$1" in
+snapshot)
+	cd ttf2pt1-$NEWVER || {
+		echo "mkrel: can't cd to ../ttf2pt1-$NEWVER" >&2
+		exit 1
+	}
+
+	sed "s/^current\$/$NEWVER/" <CHANGES.html >CHANGES.html.new \
+	&& mv CHANGES.html.new CHANGES.html || {
+		echo "mkrel: can't update CHANGES.html" >&2
+		exit 1
+	}
+
+	sed "s/\".*-CURRENT\"/\"$NEWVER\"/" <version.h >version.h.new \
+	&& mv version.h.new version.h || {
+		echo "mkrel: can't update version.h" >&2
+		exit 1
+	}
+	;;
+esac
+)
+
+# generate the man pages - in case if the users would have no pod2man
+(
+	cd ttf2pt1-$NEWVER || {
+		echo "mkrel: can't cd to ../ttf2pt1-$NEWVER" >&2
+		exit 1
+	}
+
+	make mans
+)
+
+tar czvf ttf2pt1-$NEWVER.tgz ttf2pt1-$NEWVER || {
+	echo "mkrel: can't create .tgz archive" >&2
+	exit 1
+}
+
+zip -u -r ttf2pt1-$NEWVER.zip ttf2pt1-$NEWVER || {
+	echo "mkrel: can't create .zip archive" >&2
+	exit 1
+}

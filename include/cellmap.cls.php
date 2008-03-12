@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cellmap.cls.php,v 1.15 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id: cellmap.cls.php,v 1.16 2008-03-12 06:35:43 benjcarson Exp $ */
 
 /**
  * Maps table cells to the table grid.
@@ -415,6 +415,12 @@ class Cellmap {
 
     // Add the frame to the cellmap
     $max_left = $max_right = 0;
+
+    // Find the next available column (fix by Ciro Mondueri)
+    $ac = $this->__col;
+    while ( isset($this->_cells[$this->__row][$ac]) )
+       $ac++;
+    $this->__col = $ac;
 
     // Rows:
     for ( $i = 0; $i < $rowspan; $i++ ) {

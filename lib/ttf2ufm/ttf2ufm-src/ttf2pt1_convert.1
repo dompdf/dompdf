@@ -1,0 +1,506 @@
+.rn '' }`
+''' $RCSfile: ttf2pt1_convert.1,v $$Revision: 1.1 $$Date: 2008-03-12 06:35:44 $
+'''
+''' $Log: not supported by cvs2svn $
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH TTF2PT1_CONVERT 1 "version 3.4.4" "December 31, 2003" "TTF2PT1 Font Converter"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+\fBttf2pt1_convert\fR \- convenience font conversion script
+.SH "SYNOPSIS"
+ttf2pt1_convert \fB[config-file]\fR
+.SH "DESCRIPTION"
+`\fBConvert\fR\*(R' is the master conversion script provided with ttf2pt1. 
+When installed into a public directory it's named `\fBttf2pt1_convert\fR\*(R' 
+to avoid name collisions with the other programs.
+.PP
+If the configuration file is not specified as an argument then the file
+`\f(CWconvert.cfg\fR\*(R' in the current directory is used. This file contains
+a set of configuration variables. The distribution contains a sample file
+file `\f(CWconvert.cfg.sample\fR\*(R'. Please copy it to `\f(CWconvert.cfg\fR\*(R',
+look inside it and change the configuration variables. The more stable
+configuration variables, such as the path names of the scripts and
+encoding files are located in `\f(CWconvert\fR\*(R' itself, they are
+automatically updated when installing \fBttf2pt1\fR.
+.PP
+Put all the TTF fonts you want to convert into some directory (this
+may be just the directory that already contains all the Windows
+fonts on a mounted FAT filesystem). If you have fonts in different
+source encoding then put the fonts in each of the encodings
+into a separate directory. Up to 10 source directories are
+supported. If you (in a rather unlikely case) have more source
+directories then you can make two separate runs of the converter,
+converting up to 10 directories at a time.
+.PP
+The variables in the configuration file are:
+.Ip "\(bu" 2
+\fB\f(CWSRCDIRS\fR\fR \- the list of directories (with absolute paths) with 
+\s-1TTF\s0 fonts. Each line contains at least 3 fields: the name of the directory,
+the language of the fonts in it (if you have fonts for different 
+languages you have to put them into the separate directories) and the
+encoding of the fonts. Again, if you have some of the \s-1TTF\s0 typefaces in 
+one encoding, and some in another (say, \s-1CP\s0\-1251 and \s-1KOI\s0\-8), you have 
+to put them into the separate source directories. Some lines may contain
+4 fields. Then the fourth field is the name of the external map to
+convert the Unicode fonts into the desirable encoding. This map is
+used instead of the built-in map for the specified language.
+.Sp
+*8*
+An interesting thing is that some languages have more than one
+widely used character encodings. For example, the widely used
+encodings for Russian are \s-1IBM\s0 \s-1CP\s0\-866 (\s-1MS\s0\-\s-1DOS\s0 and Unix), \s-1KOI\s0\-8
+(Unix and \s-1VAX\s0, also the standard Internet encoding), \s-1IBM\s0 \s-1CP\s0\-1251 (\s-1MS\s0 Windows).
+That's why I have provided the means to generate the converted fonts
+in more than one encoding. See the file encodings/\s-1README\s0 for 
+details about the encoding tables. Actually, if you plan to use
+these fonts with Netscape Navigator better use the aliases
+cp-866 instead of ibm-866 and windows-1251 instead of ibm-1251
+because that's what Netscape wants.
+.Ip "\(bu" 2
+\fB\f(CWDSTDIR\fR\fR \- directory for the resulting Type1 fonts. Be careful!
+This directory gets completely wiped out before conversion,
+so don't use any already existing directory for this purpose.
+.Ip "\(bu" 2
+\fB\f(CWDSTENC\fI{language}\fR\fR\fR \- the list of encodings in which the destination 
+fonts will be generated for each language. Each font of that 
+language will be generated in each of the specified
+encodings. If you don't want any translation, just specify both
+\f(CWSRCENC\fR and \f(CWDSTENC\fR as iso8859-1 (or if you want any other encoding
+specified in the fonts.dir, copy the description of 8859-1 with
+new name and use this new name for \f(CWSRCENC\fR and \f(CWDSTENC\fR).
+.Ip "\(bu" 2
+\fB\f(CWFOUNDRY\fR\fR \- the foundry name to be used in the fonts.dir file. I have
+set it to `fromttf\*(R' to avoid name conflicts with any existing font for
+sure. But this foundry name is not registered in X11 standards and
+if you want to get the full standard compliance or have a font server
+that enforces such a compliance, use `misc\*(R'.
+.PP
+The next few parameters control the general behavior of the converter.
+They default values are set to something reasonable.
+.Ip "\(bu" 2
+\fB\f(CWCORRECTWIDTH\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then use the 
+converter option \f(CW\fB-w\fR\fR, otherwise don't use it. See the description of 
+this option in the \s-1README\s0 file.
+.Ip "\(bu" 2
+\fB\f(CWREMOVET1A\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then after
+conversion remove the un-encoded \f(CW.t1a\fR font files and the 
+intermediate \f(CW.xpfa\fR font metric files.
+.Ip "\(bu" 2
+\fB\f(CWINSTALLFONTMAP\fR\fR \- a Ghostscript parameter, if the value is set to 
+\fB\f(CWYES\fR\fR then install the entries for the new fonts
+right into the main \f(CWFontmap\fR file. Otherwise just leave
+the file \f(CWFontmap.ttf\fR in the Ghostscript configuration
+directory.
+.Ip "\(bu" 2
+\fB\f(CWHINTSUBST\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR use the option
+\f(CW\fB-H\fR\fR, otherwise don't use it. This option enables the
+hint substitution technique. If you have not installed the X11 patch
+described above, use this option with great caution. See further 
+description of this option in the \s-1README\s0 file.
+.Ip "\(bu" 2
+\fB\f(CWENFORCEISO\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then
+disguise the resulting fonts as the fonts in ISOLatin1 encoding. Historically
+this was neccessary due to the way the installer scripts created the
+X11 font configuration files. It is not neccessary any more for this
+purpose. But if you plan to use these fonts with some other application
+that expects ISOLatin1 encoding then better enable this option.
+.Ip "\(bu" 2
+\fB\f(CWALLGLYPHS\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then
+include all the glyphs from the source fonts into the resulting fonts, even
+if these glyphs are inaccessible. If it's set to \fB\f(CWNO\fR\fR then
+include only the glyphs which have codes assigned to them. The glyphs
+without codes can not be used directly. But some clever programs,
+such as the Type 1 library from XFree86 3.9 and higher can change
+the encoding on the fly and use another set of glyphs. If you have not 
+installed the X11 patch described above, use this option with great 
+caution. See further description of the option option \f(CW\fB-a\fR\fR in the 
+\s-1README\s0 file.
+.Ip "\(bu" 2
+\fB\f(CWGENUID\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then use
+the option \f(CW\fB-uA\fR\fR of the converter to generate UniqueIDs for
+the converted fonts. The standard X11 Type 1 library does not use
+this \s-1ID\s0, so it may only be neccessary for the other applications.
+The script is clever enough to generate different UniqueID for the
+same font converted to multiple encodings. Also after conversion it
+checks all the fonts generacted during the session for duplicated
+UniqueID and shows those. Still, this does not quarantee that these
+UniqueIDs won't overlap with some other fonts. The UniqueIDs are
+generated as hash values from the font names, so it's guaranteed
+that if the `\f(CWconvert\fR\*(R' script runs multiple times it will
+generate the same UniqueIDs during each run. See further description 
+of this option in the \s-1README\s0 file.
+.Ip "\(bu" 2
+\fB\f(CWGENUID\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then create
+the \f(CW.pfb\fR files, otherwise the \f(CW.pfa\fR files. The \f(CW.pfb\fR
+files are more compact but contain binary data, so you may experience some
+troubles when transferring them through the network.
+.PP
+The following parameters are used to locate the other scripts and
+configuration files. By default the scripts do a bit of guessing for them:
+they search in the \fBttf2pt1\fR installation directory if \fBttf2pt1\fR
+was installed or otherwise suppose that you are running `\f(CWconvert\fR\*(R' with
+`\f(CWscripts\fR\*(R' subdirectory being the current directory.
+.Ip "\(bu" 2
+\fB\f(CWENCDIR\fR\fR \- directory containing the descriptions of encodings
+.Ip "\(bu" 2
+\fB\f(CWMAPDIR\fR\fR \- directory containing the external map files
+.PP
+Besides that a few parameters are built into the `\f(CWconvert\fR\*(R' script itself.
+You probably won't need to change them:
+.Ip "\(bu" 2
+\f(CW\fBT1ASM\fR\fR, \f(CW\fBTTF2PT1\fR\fR, \f(CW\fBTRANS\fR\fR, \f(CW\fBT1FDIR\fR\fR, \f(CW\fBFORCEISO\fR\fR \- paths to the other script
+.PP
+Also there are a few parameters controlling the installation of
+fonts for Ghostscript. Please look at their description in the 
+Ghostscript section of documentation or in the \fBttf2pt1_x2gs(1)\fR
+manual page before running `\f(CWconvert\fR\*(R'. If these parameters are
+set, `\f(CWconvert\fR\*(R' will call the `\f(CWx2gs\fR\*(R' script automatically
+to install the newly converted fonts in Ghostscript.
+.PP
+After creating the configuration file run the `\f(CWconvert\fR\*(R' script. Look at
+the result and the log file in \f(CWDSTDIR\fR.
+.PP
+Add the directory with newly converted fonts to the configuration
+of X server or font server. For most of the systems this step is
+very straightforward. For \s-1HP\s0\-\s-1UX\s0 it's rather tricky and poorly
+documented, so the file \s-1FONTS\s0.hpux gives a short description.
+.PP
+If you don't have the privileges of the root user, you still can
+configure your private font server. Just use some non-standard
+port number (see \s-1FONTS\s0.hpux for an example, exept that you won't
+need all the \s-1HP\s0\-related stuff on any other system).
+.SH "FILES"
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/\s0scripts/convert.cfg.sample
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/\s0scripts/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/README\s0
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/FONTS\s0
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR\s0/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_BINDIR/\s0ttf2pt1
+.SH "SEE ALSO"
+.Ip "\(bu" 4
+the \fIttf2pt1(1)\fR manpage
+.Ip "\(bu" 4
+the \fIttf2pt1_x2gs(1)\fR manpage
+.Ip "\(bu" 4
+the \fIt1asm(1)\fR manpage
+.SH "BUGS"
+.Sh "Known problems"
+.Ip "\(bu" 4
+One catch is that the X11 Type 1 font library has a rather low limit
+on the font size. Because of this the fonts with  more complicated
+outlines and the enabled hint substitution may not fit into
+this limit. The same applies to the fonts with very complicated
+outlines or with very many glyphs (especially the fonts with
+over 256 glyphs). So you will need to excercise caution with
+these options if you plan using these fonts with X11. Some vendors 
+such as \s-1HP\s0 provide the Type 1 implementation licensed from Adobe 
+which should have no such problem.
+.Sp
+But there is a solution even for the generic X11. A patch located
+in the subdirectory `\f(CWapp/X11\fR\*(R' fixes this problem as well
+as some other minor problems. Its description is provided in
+app/X11/\s-1README\s0.
+.Sp
+To fix the X11 font library, you have to get the X11 sources. I
+can recommend the ftp sites of the XFree86 project ftp://ftp.xfree86.org
+or of the Open Group ftp://ftp.x.org. This patch was made on the sources
+of XFree86 so you may have better success with applying it to the
+XFree86 distribution. After you have got the sources, make sure
+that you can compile them. Then apply the patch as described.
+Make sure that it was applied properly. Compile the sources again
+(actually, you need only the fonts library, the fonts server, and
+possibly the X server). It would be prudent now to save your old
+font library, font server and, possibly, X server. Then install
+the new recently compiled versions of these files. Of course,
+if you know someone who already has compiled these files for the
+same \s-1OS\s0 as yours, you can just copy the binary fles from him.
+.Sp
+Alas, building the X11 system from the source code is not the
+easiest thing in the world and if you have no experience it
+can be quite difficult. In this case just avoid the aforementioned
+features or check each converted font to make sure that it
+works properly.
+.Ip "\(bu" 4
+The Type1 font library from the standard X11 distribution
+does not work on \s-1HP\s0\-\s-1UX\s0 (at least, up to 10.01). The font server
+supplied with \s-1HP\s0\-\s-1UX\s0 up to 10.01 is also broken. Starting from 
+\s-1HP\s0\-\s-1UX\s0 10.20 (I don't know about 10.10) they supply a proprietary font 
+library and the converted fonts work fine with it, provided that
+they are configured properly (see the file \s-1FONTS\s0.hpux).
+.Ip "\(bu" 4
+The \f(CWfonts.scale\fR files created by the older versions of the
+\f(CWttf2pt1\fR installation program (up to release 3.1) have conflicted 
+with the language definitions of the \f(CWXfsft\fR font server and
+parts of it included into XFree86. To overcome this incompatibility
+the never versions creats the \f(CWfonts.scale\fR file describing all the
+fonts as belonging to the \f(CWadobe-fontspecific\fR encoding and
+the \f(CWfonts.alias\fR file with the proper names. The drawback of
+this solution is that \f(CWxlsfonts\fR gives the list of twice more
+fonts. But as a side effect the option \f(CW\fBENFORCEISO\fR\fR in
+`\f(CWconvert.cfg\fR\*(R' is not required for X11 any more.
+.Ip "\(bu" 4
+The conversion script has no support for Eastern multi-plane fonts.
+Contribution of such a support would be welcome.
+
+.rn }` ''
+.IX Title "TTF2PT1_CONVERT 1"
+.IX Name "B<ttf2pt1_convert> - convenience font conversion script"
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "DESCRIPTION"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "FILES"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "SEE ALSO"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "BUGS"
+
+.IX Subsection "Known problems"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+

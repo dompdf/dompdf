@@ -823,29 +823,31 @@ class  Cpdf {
         $toUnicodeId = ++$this->numObj;
         $this->o_contents($toUnicodeId, 'new', 'raw');
         $this->objects[$id]['info']['toUnicode'] = $toUnicodeId;
-        $res=   "<</Length 383>>\n";
-        $res.=  "stream\n";
-        $res.=  "/CIDInit /ProcSet findresource begin\n";
-        $res.=  "12 dict begin\n";
-        $res.=  "begincmap\n";
-        $res.=  "/CIDSystemInfo\n";
-        $res.=  "<</Registry (Adobe)\n";
-        $res.=  "/Ordering (UCS)\n";
-        $res.=  "/Supplement 0\n";
-        $res.=  ">> def\n";
-        $res.=  "/CMapName /Adobe-Identity-UCS def\n";
-        $res.=  "/CMapType 2 def\n";
-        $res.=  "1 begincodespacerange\n";
-        $res.=  "<0000> <FFFF>\n";
-        $res.=  "endcodespacerange\n";
-        $res.=  "1 beginbfrange\n";
-        $res.=  "<0000> <FFFF> <0000>\n";
-        $res.=  "endbfrange\n";
-        $res.=  "endcmap\n";
-        $res.=  "CMapName currentdict /CMap defineresource pop\n";
-        $res.=  "end\n";
-        $res.=  "end\n";
-        $res.=  "endstream";
+        
+        $stream =  "/CIDInit /ProcSet findresource begin\n";
+        $stream.=  "12 dict begin\n";
+        $stream.=  "begincmap\n";
+        $stream.=  "/CIDSystemInfo\n";
+        $stream.=  "<</Registry (Adobe)\n";
+        $stream.=  "/Ordering (UCS)\n";
+        $stream.=  "/Supplement 0\n";
+        $stream.=  ">> def\n";
+        $stream.=  "/CMapName /Adobe-Identity-UCS def\n";
+        $stream.=  "/CMapType 2 def\n";
+        $stream.=  "1 begincodespacerange\n";
+        $stream.=  "<0000> <FFFF>\n";
+        $stream.=  "endcodespacerange\n";
+        $stream.=  "1 beginbfrange\n";
+        $stream.=  "<0000> <FFFF> <0000>\n";
+        $stream.=  "endbfrange\n";
+        $stream.=  "endcmap\n";
+        $stream.=  "CMapName currentdict /CMap defineresource pop\n";
+        $stream.=  "end\n";
+        $stream.=  "end\n";
+
+        $res =   "<</Length " . strlen($stream) . " >>\n";
+        $res .=  "stream\n" . $stream . "endstream";
+
         $this->objects[$toUnicodeId]['c'] = $res;
 
         $cidFontId = ++$this->numObj;
@@ -1243,9 +1245,9 @@ class  Cpdf {
       break;
 
     case  'out':
-
+       
       $res = "\n".$id." 0 obj\n";
-      $this->fonts[$o['info']['fontFileName']]['CIDtoGID'] = base64_decode($this->fonts[$o['info']['fontFileName']]['CIDtoGID']);
+      $tmp = $this->fonts[$o['info']['fontFileName']]['CIDtoGID'] = base64_decode($this->fonts[$o['info']['fontFileName']]['CIDtoGID']);
       $compressed = isset($this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed']) && 
                     $this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed'];
 
@@ -1737,7 +1739,6 @@ class  Cpdf {
       }
 
     case  'out':
-
       $tmp = $o['c'];
 
       $res =  "\n".$id." 0 obj\n";
@@ -2679,9 +2680,9 @@ class  Cpdf {
     }
     
     if  (!isset($this->fonts[$font])) {
-
-      $this->addMessage('openFont: no font file found');
-
+      
+      $this->addMessage("openFont: no font file found for $font.  Do you need to run load_font.php?");
+      
       //    echo 'Font not Found '.$font;
 
     }
@@ -3586,8 +3587,8 @@ class  Cpdf {
     if  (!$this->numFonts) {
       $this->selectFont('./fonts/Helvetica');
     }
-    
-    // for the current font, and the given size, what is the height of the font in user units
+        
+    // for the current font, and the given size, what is the height of the font in user units    
     $h =  $this->fonts[$this->currentFont]['FontBBox'][3]-$this->fonts[$this->currentFont]['FontBBox'][1];
 
     // have to adjust by a font offset for Windows fonts.  unfortunately it looks like

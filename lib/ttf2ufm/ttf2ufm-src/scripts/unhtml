@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# This script removes the HTML formatting from a file. If the file was designed
+# with such use in mind and was properly formatted besides HTML (such as the README
+# file for ttf2pt1) it will look good as a plain text file.
+#
+# This script supports a very limited set of HTML formatting. Everything that
+# goes before <BODY> is removed.  Any lines that
+# contain only the HTML formatting or start with "<!" or contain only ">"
+# are completely removed. Then all the in-line formatting is removed.
+# Then "&nbsp;", "&lt;", "&gt;" are changed to " ", "<", ">".
+
+sed '1,/<[bB][oO][dD][yY]>/d;
+/^<!/d;
+s/<[lL][iI]>/-/g;
+s/^</< </;
+s/> *$/>>/;
+s/<[^<>]*>//g;
+/^< *>$/d;
+/^>>$/d;s/^< //;
+s/>$//;
+s/&[nN][bB][sS][pP];/ /g;s/&[lL][tT];/</g;s/&[gG][tT];/>/g;s/&[aA][mM][pP];/\&/g;'

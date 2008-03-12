@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.22 2007-06-25 02:45:11 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.23 2008-03-12 06:35:42 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -295,9 +295,10 @@ $dompdf->set_paper($paper, $orientation);
 $dompdf->render();
 
 if ( $_dompdf_show_warnings ) {
+  global $_dompdf_warnings;
   foreach ($_dompdf_warnings as $msg)
     echo $msg . "\n";
-  echo $dompdf->get_canvas()->messages;
+  echo $dompdf->get_canvas()->get_cpdf()->messages;
   flush();
 }
 
@@ -316,7 +317,7 @@ if ( $save_file ) {
   if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
     throw new DOMPDF_Exception("Permission denied.");
 
-  file_put_contents($outfile, $dompdf->output());
+  file_put_contents($outfile, $dompdf->output( array("compress" => 0) ));
   exit(0);
 }
 

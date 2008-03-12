@@ -1,0 +1,822 @@
+.rn '' }`
+''' $RCSfile: ttf2pt1.1,v $$Revision: 1.1 $$Date: 2008-03-12 06:35:44 $
+'''
+''' $Log: not supported by cvs2svn $
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH TTF2PT1 1 "version 3.4.4" "December 31, 2003" "TTF2PT1 Font Converter"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+TTF2PT1 \- A True Type to PostScript Type 1 Font Converter 
+.SH "SYNOPSIS"
+\f(CWttf2pt1 \fI[-options] ttffont.ttf [Fontname]\fR\fR
+.PP
+or
+.PP
+\f(CWttf2pt1 \fI[-options] ttffont.ttf -\fR\fR
+.SH "DESCRIPTION"
+Ttf2pt1 is a font converter from the True Type format (and some other formats
+supported by the FreeType library as well) to the Adobe Type1 format.
+.PP
+The versions 3.0 and later got rather extensive post-processing algorithm that 
+brings the converted fonts to the requirements of the Type1 standard, tries to
+correct the rounding errors introduced during conversions and some simple
+kinds of bugs that are typical for the public domain TTF fonts. It
+also generates the hints that enable much better rendering of fonts in
+small sizes that are typical for the computer displays. But everything
+has its price, and some of the optimizations may not work well for certain
+fonts. That's why the options were added to the converter, to control
+the performed optimizations.
+.SH "OPTIONS"
+The first variant creates the file \f(CWFontname.pfa\fR (or \f(CWFontname.pfb\fR if the 
+option \*(L'\fB\-b\fR\*(R' was used) with the converted font and \f(CWFontname.afm\fR with the 
+font metrics, the second one prints the font or another file (if the option
+\&\*(R'\fB\-G\fR\*(R' was used) on the standard output from where it can be immediately
+piped through some filter. If no \f(CWFontname\fR is specified for the first
+variant, the name is generated from \f(CWttffont\fR by replacing the \f(CW.ttf\fR
+filename suffix.
+.PP
+Most of the time no options are neccessary (with a possible exception
+of \*(L'\fB\-e\fR'). But if there are some troubles with the resulting font, they 
+may be used to control the conversion.
+The \fBoptions\fR are:
+.Ip "\(bu" 2
+\f(CW\fB-a\fR\fR \- Include all the glyphs from the source file into the converted
+file. If this option is not specified then only the glyphs that have
+been assigned some encoding are included, because the rest of glyphs
+would be inaccessible anyway and would only consume the disk space. 
+But some applications are clever enough to change the encoding on
+the fly and thus use the other glyphs, in this case they could
+benefit from using this option. But there is a catch: the X11 library
+has rather low limit for the font size. Including more glyphs increases
+the file size and thus increases the chance of hitting this limit.
+See \f(CWapp/X11/README\fR for the description of a 
+patch to X11 which fixes this problem.
+.Ip "\(bu" 2
+\f(CW\fB-b\fR\fR \- Encode the resulting font to produce a ready \f(CW.pfb\fR file.
+.Ip "\(bu" 2
+\f(CW\fB-d \fIsuboptions\fR\fR\fR \- Debugging options. The suboptions are:
+.Sp
+\f(CW\fBa\fR\fR \- Print out the absolute coordinates of dots in outlines. Such
+a font can not be used by any program (that's why this option is
+incompatible with \*(L'\fB\-e\fR') but it has proven to be a valuable debuging 
+information.
+.Sp
+\f(CW\fBr\fR\fR \- Do not reverse the direction of outlines. The \s-1TTF\s0 fonts have
+the standard direction of outlines opposite to the Type1 fonts. So
+they should be reversed during proper conversion. This option
+may be used for debugging or to handle a \s-1TTF\s0 font with wrong
+direction of outlines (possibly, converted in a broken way from
+a Type1 font). The first signs of the wrong direction are the
+letters like \*(L"P\*(R" or \*(L"B\*(R" without the unpainted \*(L"holes\*(R" inside.
+.Ip "\(bu" 2
+\f(CW\fB-e\fR\fR \- Assemble the resulting font to produce a ready \f(CW.pfa\fR file.
+.Sp
+[ S.B.: Personally I don't think that this option is particularly useful.
+The same result may be achieved by piping the unassembled data
+through t1asm, the Type 1 assembler. And, anyways, it's good to
+have the t1utils package handy. But Mark and many users think that 
+this functionality is good and it took not much time to add this option. ]
+.Ip "\(bu" 2
+\f(CW\fB-F\fR\fR \- Force the Unicode encoding: any type of \s-1MS\s0 encoding specified
+in the font is ignored and the font is treated like it has Unicode
+encoding. \fB\s-1WARNING\s0:\fR this option is intended for buggy fonts
+which actually are in Unicode but are marked as something else. The
+effect on the other fonts is unpredictable.
+.Ip "\(bu" 2
+\f(CW\fB-G \fIsuboptions\fR\fR\fR \- File generation options. The suboptions may be lowercase 
+or uppercase, the lowercase ones disable the generation of particular 
+files, the corresponding uppercase suboptions enable the generation of the 
+same kind of files. If the result of ttf2pt1 is requested to be printed on
+the standard output, the last enabling suboption of \fB\-G\fR determines
+which file will be written to the standard output and the rest of files
+will be discarded. For example, \fB\-G A\fR will request the \s-1AFM\s0 file.
+The suboptions to disable/enable the generation of the files are:
+.Sp
+\f(CW\fBf/F\fR\fR \- The font file. Depending on the other options this file
+will have one of the suffixes \f(CW.t1a\fR, \f(CW.pfa\fR or \f(CW.pfb\fR. If the conversion result
+is requested on the standard output ('\f(CW-\fR\*(R' is used as the output file name)
+then the font file will also be written there by default, if not overwritten
+by another suboption of \fB\-G\fR.
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBa/A\fR\fR \- The Adobe font metrics file (\f(CW.afm\fR).
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBe/E\fR\fR \- The dvips encoding file (\f(CW.enc\fR).
+\fBDefault: disabled\fR
+.Ip "\(bu" 2
+\f(CW\fB-l \fIlanguage\fR[+\fIargument\fR]\fR\fR \- Extract the fonts for the specified language from a
+multi-language Unicode font. If this option is not used the converter
+tries to guess the language by the values of the shell variable \s-1LANG\s0.
+If it is not able to guess the language by \s-1LANG\s0 it tries all the
+languages in the order they are listed. 
+.Sp
+After the plus sign an optional argument for the language extractor
+may be specified. The format of the argument is absolutely up to
+the particular language converter. The primary purpose of the
+argument is to support selection of planes for the multi-plane
+Eastern encodings but it can also be used in any other way. The 
+language extractor may decide to add the plane name in some form
+to the name of the resulting font. None of the currently supported 
+languages make any use of the argument yet.
+.Sp
+As of now the following languages are supported:
+.Sp
+\ \ \f(CWlatin1\fR \- for all the languages using the Latin-1 encoding
+.Sp
+\ \ \f(CWlatin2\fR \- for the Central European languages
+.Sp
+\ \ \f(CWlatin4\fR \- for the Baltic languages
+.Sp
+\ \ \f(CWlatin5\fR \- for the Turkish language
+.Sp
+\ \ \f(CWcyrillic\fR \- for the languages with Cyrillic alphabet
+.Sp
+\ \ \f(CWrussian\fR \- historic synonym for cyrillic
+.Sp
+\ \ \f(CWbulgarian\fR \- historic synonym for cyrillic
+.Sp
+\ \ \f(CWadobestd\fR \- for the AdobeStandard encoding used by TeX
+.Sp
+\ \ \f(CWplane+\fIargument\fR\fR \- to select one plane from a multi-byte encoding
+.Sp
+The argument of the \*(L"\f(CWplane\fR\*(R" language may be in one of three forms:
+.Sp
+\ \ \f(CWplane+\fBpid=\fR\fI<pid>\fR\fB,eid=\fR\fI<eid>\fR\fR
+.Sp
+\ \ \f(CWplane+\fBpid=\fR\fI<pid>\fR\fB,eid=\fR\fI<eid>\fR\fB,\fR\fI<plane_number>\fR\fR
+.Sp
+\ \ \f(CWplane+\fI<plane_number>\fR\fR
+.Sp
+Pid (\s-1TTF\s0 platform id) and eid (\s-1TTF\s0 encoding id) select a particular 
+\s-1TTF\s0 encoding table in the original font. They are specified as decimal
+numbers. If this particular encoding table is not present in the font
+file then the conversion fails. The native ("ttf") front-end parser supports
+only pid=3 (Windows platform), the FreeType-based ("ft") front-end supports 
+any platform. If pid/eid is not specified then the \s-1TTF\s0 encoding table is 
+determined as usual: Unicode encoding if it's first or an 8-bit encoding
+if not (and for an 8-bit encoding the plane number is silently ignored). 
+To prevent the converter from falling back to an 8-bit encoding, specify
+the Unicode pid/eid value explicitly.
+.Sp
+Plane_number is a hexadecimal (if starts with \*(L"\fB0x\fR") or decimal number.
+It gives the values of upper bytes for which 256 characters will be 
+selected. If not specified, defaults to 0. It is also used as a font
+name suffix (the leading \*(L"0x\*(R" is not included into the suffix).
+.Sp
+\fB\s-1NOTE\s0:\fR
+You may notice that the language names are not uniform: some are the
+names of particular languages and some are names of encodings. This
+is because of the different approaches. The original idea was to
+implement a conversion from Unicode to the appropriate Windows
+encoding for a given language. And then use the translation tables
+to generate the fonts in whatever final encodings are needed. This
+would allow to pile together the Unicode fonts and the non-Unicode
+Windows fonts for that language and let the program to sort them out
+automatically. And then generate fonts in all the possible encodings
+for that language. An example of this approach is the Russian language
+support. But if there is no multiplicity of encodings used for some 
+languages and if the non-Unicode fonts are not considered important 
+by the users, another way would be simpler to implement: just provide
+only one table for extraction of the target encoding from Unicode
+and don't bother with the translation tables. The latin* \*(L"languages\*(R"
+are examples of this approach. If somebody feels that he needs the
+Type1 fonts both in Latin-* and Windows encodings he or she is absolutely
+welcome to submit the code to implement it.
+.Sp
+\fB\s-1WARNING\s0:\fR
+Some of the glyphs included into the AdobeStandard encoding are not
+included into the Unicode standard. The most typical examples of such
+glyphs are ligatures like \*(L'fi\*(R', \*(L'fl\*(R' etc. Because of this the font 
+designers may place them at various places. The converter tries to
+do its best, if the glyphs have honest Adobe names and/or are
+placed at the same codes as in the Microsoft fonts they will be
+picked up. Otherwise a possible solution is to use the option \*(L'\fB\-L\fR\*(R'
+with an external map. 
+.Ip "\(bu" 2
+\f(CW\fB-L \fIfile\fR[+[pid=\fI<pid>\fR,eid=\fI<eid>\fR,][\fIplane\fR]]\fR\fR \- Extract the fonts for the specified 
+language from a multi-language font using the map from this file. This is
+rather like the option \*(L'\fB\-l\fR\*(R' but the encoding map is not 
+compiled into the program, it's taken from that file, so it's
+easy to edit. Examples of such files are provided in 
+\f(CWmaps/adobe-standard-encoding.map\fR, \f(CWCP1250.map\fR. (\fB\s-1NOTE\s0:\fR
+the \*(L'standard encoding\*(R' map does not include all the glyphs of the 
+AdobeStandard encoding, it's provided only as an example.) The 
+description of the supported map formats is in the file 
+\f(CWmaps/unicode-sample.map\fR.
+.Sp
+Likewise to \*(L'\fB\-l\fR\*(R', an argument may be specified after the map file
+name. But in this case the argument has fixed meaning: it selects the 
+original \s-1TTF\s0 encoding table (the syntax is the same as in \*(L'\fB\-l plane\fR')
+and/or a plane of the map file. The plane name also gets added after dash 
+to the font name. The plane is a concept used in the Eastern fonts with big 
+number of glyphs: one \s-1TTF\s0 font gets divided into multiple Type1 fonts, 
+each containing one plane of up to 256 glyphs. But with a little 
+creativity this concept may be used for other purposes of combining 
+multiple translation maps into one file.  To extract multiple planes 
+from a \s-1TTF\s0 font \f(CWttf2pt1\fR must be run multiple times, each time with 
+a different plane name specified.
+.Sp
+The default original \s-1TTF\s0 encoding table used for the option \*(L'\fB\-L\fR\*(R' is
+Unicode. The map files may include directives to specify different original 
+\s-1TTF\s0 encodings. However if the pid/eid pair is specified with
+it overrides any original encoding specified in the map file.
+.Ip "\(bu" 2
+\f(CW\fB-m \fItype\fR=\fIvalue\fR\fR\fR \- Set maximal or minimal limits of resources.
+These limits control the the font generation by limiting the resources
+that the font is permitted to require from the PostScript interpreter.
+The currently supported types of limits are:
+.Sp
+\f(CW\fBh\fR\fR \- the maximal hint stack depth for the substituted hints. 
+The default value is 128, according to the limitation in X11. This seems to
+be the lowest (and thus the safest) widespread value. To display the
+hint stack depth required by each glyph in a \f(CW.t1a\fR file use the script
+\f(CWscripts/cntstems.pl\fR.
+.Ip "\(bu" 2
+\f(CW\fB-O \fIsuboptions\fR\fR\fR \- Outline processing options. The suboptions
+may be lowercase or uppercase, the lowercase ones disable the features,
+the corresponding uppercase suboptions enable the same features.
+The suboptions to disable/enable features are:
+.Sp
+\f(CW\fBb/B\fR\fR \- Guessing of the ForceBold parameter. This parameter helps
+the Type1 engine to rasterize the bold fonts properly at small sizes.
+But the algorithm used to guess the proper value of this flag makes
+that guess based solely on the font name. In rare cases that may cause
+errors, in these cases you may want to disable this guessing. 
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBh/H\fR\fR \- Autogeneration of hints. The really complex outlines
+may confuse the algorithm, so theoretically it may be useful
+sometimes to disable them. Although up to now it seems that
+even bad hints are better than no hints at all.
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBu/U\fR\fR \- Hint substitution. Hint substitution is a technique 
+permitting generation of more detailed hints for the rasterizer. It allows 
+to use different sets of hints for different parts of a glyph and change 
+these sets as neccessary during rasterization (that's why \*(L"substituted").  
+So it should improve the quality of the fonts rendered at small sizes.  
+But there are two catches: First, the X11 library has rather low limit for 
+the font size. More detailed hints increase the file size and thus increase 
+the chance of hitting this limit (that does not mean that you shall hit it
+but you may if your fonts are particularly big). This is especially 
+probable for Unicode fonts converted with option \*(L'\fB\-a\fR\*(R', so you may want to 
+use \*(L'\fB\-a\fR\*(R' together with \*(L'\fB\-Ou\fR\*(R'. See \f(CWapp/X11/README\fR for the description of 
+a patch to X11 which fixes this problem. Second, some rasterizers (again,
+X11 is the typical example) have a limitation for total number of hints
+used when drawing a glyph (also known as the hint stack depth). If that
+stack overflows the glyph is ignored. Starting from version 3.22 \f(CWttf2pt1\fR
+uses algorithms to minimizing this depth, with the trade-off of slightly
+bigger font files. The glyphs which still exceed the limit set by option
+\&\*(R'\fB\-mh\fR\*(R' have all the substituted hints removed and only base hints left.
+The algorithms seem to have been refined far enough to make the fonts with
+substituted hints look better than the fonts without them or at least the 
+same. Still if the original fonts are not well-designed the detailed 
+hinting may emphasize the defects of the design, such as non-even thickness 
+of lines. So provided that you are not afraid of the X11 bug the best idea 
+would be to generate a font with this feature and without it, then compare 
+the results using the program \f(CWother/cmpf\fR (see the description 
+in \f(CWother/README\fR) and decide which one looks better.
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBo/O\fR\fR \- Space optimization of the outlines\*(R' code. This kind of optimization
+never hurts, and the only reason to disable this feature is for comparison 
+of the generated fonts with the fonts generated by the previous versions of 
+converter. Well, it _almost_ never hurts. As it turned out there exist
+some brain-damaged printers which don't understand it. Actually this
+feature does not change the outlines at all. The Type 1 font manual 
+provides a set of redundant operators that make font description shorter,
+such as \*(L'10 hlineto\*(R' instead of \*(L'0 10 rlineto\*(R' to describe a horizontal
+line. This feature enables use of these operators.
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBs/S\fR\fR \- Smoothing of outlines. If the font is broken in some
+way (even the ones that are not easily noticeable), such smoothing 
+may break it further. So disabling this feature is the first thing to be 
+tried if some font looks odd. But with smoothing off the hint generation
+algorithms may not work properly too.
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBt/T\fR\fR \- Auto-scaling to the 1000x1000 Type1 standard matrix. The
+\s-1TTF\s0 fonts are described in terms of an arbitrary matrix up to
+4000x4000. The converted fonts must be scaled to conform to
+the Type1 standard. But the scaling introduces additional rounding
+errors, so it may be curious sometimes to look at the font in its
+original scale.
+\fBDefault: enabled\fR
+.Sp
+\f(CW\fBv/V\fR\fR \- Do vectorization on the bitmap fonts. Functionally
+\*(L"vectorization\*(R" is the same thing as \*(L"autotracing\*(R", a different word is
+used purely to differentiate it from the Autotrace library. It tries to
+produce nice smooth outlines from bitmaps. This feature is still a work
+in progress though the results are already mostly decent.
+\fBDefault: disabled\fR
+.Sp
+\f(CW\fBw/W\fR\fR \- Glyphs\*(R' width corection. This option is designed to be
+used on broken fonts which specify too narrow widths for the 
+letters. You can tell that a font can benefit from this option
+if you see that the characters are smashed together without
+any whitespace between them. This option causes the converter
+to set the character widths to the actual width of this character
+plus the width of a typical vertical stem. But on the other hand
+the well-designed fonts may have characters that look better if
+their widths are set slightly narrower. Such well-designed fonts
+will benefit from disabling this feature. You may want to convert
+a font with and without this feature, compare the results and
+select the better one. This feature may be used only on proportional
+fonts, it has no effect on the fixed-width fonts.
+\fBDefault: disabled\fR
+.Sp
+\f(CW\fBz/Z\fR\fR \- Use the Autotrace library on the bitmap fonts. The results 
+are horrible and \fBthe use of this option is not recommended\fR. This option is 
+present for experimental purposes. It may change or be removed in the
+future. The working tracing can be achieved with option \f(CW\fB-OV\fR\fR.
+\fBDefault: disabled\fR
+.Ip "\(bu" 2
+\f(CW\fB-p \fIparser_name\fR\fR\fR \- Use the specified front-end parser to read the font file.
+If this option is not used, ttf2pt1 selects the parser automatically based
+on the suffix of the font file name, it uses the first parser in its
+list that supports this font type. Now two parsers are supported:
+.Sp
+\ \ \f(CWttf\fR \- built-in parser for the ttf files (suffix \f(CW.ttf\fR)
+.Sp
+\ \ \f(CWbdf\fR \- built-in parser for the \s-1BDF\s0 files (suffix \f(CW.bdf\fR)
+.Sp
+\ \ \f(CWft\fR \- parser based on the FreeType-2 library (suffixes \f(CW.ttf\fR,
+\&\f(CW.otf\fR, \f(CW.pfa\fR, \f(CW.pfb\fR)
+.Sp
+The parser \f(CWft\fR is \fB\s-1NOT\s0\fR linked in by default. See \f(CWMakefile\fR
+for instructions how to enable it. We do no support this parser on
+Windows: probably it will work but nobody tried and nobody knows how
+to build it. 
+.Sp
+The conversion of the bitmap fonts (such as \s-1BDF\s0) is simplistic yet,
+producing jagged outlines.  When converting such fonts, it might be 
+a good idea to turn off the hint substitution (using option \fB\-Ou\fR) 
+because the hints produced will be huge but not adding much to the
+quality of the fonts.
+.Ip "\(bu" 2
+\f(CW\fB-u \fInumber\fR\fR\fR \- Mark the font with this value as its
+UniqueID. The UniqueID is used by the printers with the hard disks
+to cache the rasterized characters and thus significantly
+speed-up the printing. Some of those printers just can't
+store the fonts without UniqueID on their disk.The problem
+is that the \s-1ID\s0 is supposed to be unique, as it name says. And
+there is no easy way to create a guaranteed unique \s-1ID\s0. Adobe specifies
+the range 4000000-4999999 for private IDs but still it's difficult
+to guarantee the uniqueness within it. So if you don't really need the 
+UniqueID don't use it, it's optional. Luckily there are a few millions of 
+possible IDs, so the chances of collision are rather low. 
+If instead of the number a special value \*(L'\f(CW\fBA\fR\fR\*(R' is given
+then the converter generates the value of UniqueID automatically,
+as a hash of the font name. (\fB\s-1NOTE\s0:\fR  in the version 3.22 the
+algorithm for autogeneration of UniqueID was changed to fit the values
+into the Adobe-spacified range. This means that if UniqueIDs were used 
+then the printer's cache may need to be flushed before replacing the 
+fonts converted by an old version with fonts converted by a newer version).
+A simple way to find if any of the fonts in a given directory have
+duplicated UniqueIDs is to use the command:
+.Sp
+\f(CW\ \ cat *.pf[ab] | grep UniqueID | sort | uniq -c | grep -v ' 1 '\fR
+.Sp
+Or if you use \f(CWscripts/convert\fR it will do that for you automatically 
+plus it will also give the exact list of files with duplicate UIDs.
+.Ip "\(bu" 2
+\f(CW\fB-v \fIsize\fR\fR\fR \- Re-scale the font to get the size of a typical uppercase
+letter somewhere around the specified size. Actually, it re-scales
+the whole font to get the size of one language-dependent letter to be
+at least of the specified size. Now this letter is \*(L"A\*(R" in all the
+supported languages. The size is specified in the points of the
+Type 1 coordinate grids, the maximal value is 1000. This is an
+experimental option and should be used with caution. It tries to
+increase the visible font size for a given point size and thus make
+the font more readable. But if overused it may cause the fonts to
+look out of scale. As of now the interesting values of size for
+this option seem to be located mostly between 600 and 850. This
+re-scaling may be quite useful but needs more experience to
+understand the balance of its effects.
+.Ip "\(bu" 2
+\f(CW\fB-W \fIlevel\fR\fR\fR \- Select the verbosity level of the warnings.
+Currently the levels from 0 to 4 are supported. Level 0 means no warnings
+at all, level 4 means all the possible warnings. The default level is 3.
+Other levels may be added in the future, so using the level number 99 is
+recommended to get all the possible warnings. Going below level 2 is
+not generally recommended because you may miss valuable information about
+the problems with the fonts being converted.
+.Ip "\(bu" 2
+\fBObsolete option:\fR
+\f(CW\fB-A\fR\fR \- Print the font metrics (.afm file) instead of the font on \s-1STDOUT\s0.
+Use \fB\-\s-1GA\s0\fR instead.
+.Ip "\(bu" 2
+\fBVery obsolete option:\fR
+.Sp
+The algorithm that implemented the forced fixed width had major
+flaws, so it was disabled. The code is still in the program and
+some day it will be refined and returned back. Meanwhile the 
+option name \*(L'\fB\-f\fR\*(R' was reused for another option. The old version was:
+.Sp
+\f(CW\fB-f\fR\fR \- Don't try to force the fixed width of font. Normally the converter
+considers the fonts in which the glyph width deviates by not more
+than 5% as buggy fixed width fonts and forces them to have really
+fixed width. If this is undesirable, it can be disabled by this option.
+.PP
+The \f(CW.pfa\fR font format supposes that the description of the characters
+is binary encoded and encrypted. This converter does not encode or
+encrypt the data by default, you have to specify the option \*(L'\fB\-e\fR\*(R'
+or use the \f(CWt1asm\fR program to assemble (that means, encode and
+encrypt) the font program. The \f(CWt1asm\fR program that is included with
+the converter is actually a part of the \f(CWt1utils\fR package, rather old
+version of which may be obtained from
+.PP
+http://ttf2pt1.sourceforge.net/t1utils.tar.gz
+.PP
+Note that \f(CWt1asm\fR from the old version of that package won't work properly
+with the files generated by \f(CWttf2pt1\fR version 3.20 and later. Please use
+\f(CWt1asm\fR packaged with \f(CWttf2pt1\fR or from the new version \f(CWt1utils\fR
+instead. For a newer version of \f(CWt1utils\fR please look at
+.PP
+http://www.lcdf.org/~eddietwo/type/
+.SH "EXAMPLES"
+So, the following command lines:
+.PP
+\f(CWttf2pt1 -e ttffont.ttf t1font\fR
+.PP
+\f(CWttf2pt1 ttffont.ttf - | t1asm >t1font.pfa\fR
+.PP
+represent two ways to get a working font. The benefit of the second form 
+is that other filters may be applied to the font between the converter
+and assembler.
+.SH "FILES"
+.Ip "\(bu" 2
+\s-1TTF2PT1_LIBXDIR/\s0t1asm
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR\s0/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/\s0scripts/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/\s0other/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/README\s0
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/FONTS\s0
+.SH "SEE ALSO"
+.Ip "\(bu" 4
+the \fIttf2pt1_convert(1)\fR manpage
+.Ip "\(bu" 4
+the \fIttf2pt1_x2gs(1)\fR manpage
+.Ip "\(bu" 4
+the \fIt1asm(1)\fR manpage
+.Ip "\(bu" 4
+ttf2pt1-announce@lists.sourceforge.net
+.Sp
+The mailing list with announcements about ttf2pt1. It is a moderated mailing
+with extremely low traffic. Everyone is encouraged to subscribe to keep in 
+touch with the current status of project. To subscribe use the Web interface
+at http://lists.sourceforge.net/mailman/listinfo/ttf2pt1-announce.
+If you have only e-mail access to the Net then send a subscribe request to 
+the development mailing list ttf2pt1-devel@lists.sourceforge.net and somebody
+will help you with subscription.
+.Ip "\(bu" 4
+ttf2pt1-devel@lists.sourceforge.net
+.Sp
+ttf2pt1-users@lists.sourceforge.net
+.Sp
+The ttf2pt1 mailing lists for development and users issues. They have not
+that much traffic either. To subscribe use the Web interface at
+http://lists.sourceforge.net/mailman/listinfo/ttf2pt1-devel
+and http://lists.sourceforge.net/mailman/listinfo/ttf2pt1-users.
+If you have only e-mail access to the Net then send a subscribe request to 
+the development mailing list ttf2pt1-devel@lists.sourceforge.net and somebody
+will help you with subscription.
+.Ip "\(bu" 4
+http://ttf2pt1.sourceforge.net
+.Sp
+The main page of the project.
+.Sp
+http://www.netspace.net.au/~mheath/ttf2pt1/
+.Sp
+The old main page of the project.
+.SH "BUGS"
+It seems that many Eastern fonts use features of the TTF format that are 
+not supported by the ttf2pt1's built-in front-end parser. Because of
+this for now we recommend using the FreeType-based parser (option
+\&\*(R'\fB\-p ft\fR') with the \*(L"\f(CWplane\fR\*(R" language.
+.Sh "Troubleshooting and bug reports"
+Have problems with conversion of some font ? The converter dumps core ? Or your
+printer refuses to understand the converted fonts ? Or some characters are 
+missing ? Or some characters look strange ?
+.PP
+Send the bug reports to the ttf2pt1 development mailing list at
+ttf2pt1-devel@lists.sourceforge.net.
+.PP
+Try to collect more information about the problem and include it into
+the bug report. (Of course, even better if you would provide a ready
+fix, but just a detailed bug report is also good). Provide detailed
+information about your problem, this will speed up the response greatly.
+Don't just write \*(L"this font looks strange after conversion\*(R" but describe
+what's exactly wrong with it: for example, what characters look wrong
+and what exactly is wrong about their look. Providing a link to the
+original font file would be also a good idea. Try to do a little
+troublehooting and report its result. This not only would help with
+the fix but may also give you a temporary work-around for the bug.
+.PP
+First, enable full warnings with option \*(L'\fB\-W99\fR\*(R', save them to
+a file and read carefully. Sometimes the prolem is with a not implemented
+feature which is reported in the warnings. Still, reporting about such
+problems may be a good idea: some features were missed to cut corners,
+in hope that no real font is using them. So a report about a font using
+such a feature may motivate someone to implement it. Of course, you
+may be the most motivated person: after all, you are the one wishing
+to convert that font. ;\-) Seriously, the philosophy \*(L"scrath your own itch\*(R"
+seems to be the strongest moving force behind the Open Source software.
+.PP
+The next step is playing with the options. This serves a dual purpose:
+on one hand, it helps to localize the bug, on the other hand you may be
+able to get a working version of the font for the meantime while the
+bug is being fixed. The typical options to try out are: first \*(L'\fB\-Ou\fR\*(R', if
+it does not help then \*(L'\fB\-Os\fR\*(R', then \*(L'\fB\-Oh\fR\*(R', then \*(L'\fB\-Oo\fR\*(R'.
+They are described in a bit more detail above. Try them one by one
+and in combinations. See if with them the resulting fonts look better.
+.PP
+On some fonts ttf2pt1 just crashes. Commonly that happens because the
+font being converted is highly defective (although sometimes the bug
+is in ttf2pt1 itself). In any case it should not crash, so the reports
+about such cases will help to handle these defects properly in future.
+.PP
+We try to respond to the bug reports in a timely fashion but alas, this 
+may not always be possible, especially if the problem is complex.
+This is a volunteer project and its resources are limited. Because
+of this we would appreciate bug reports as detailed as possible,
+and we would appreciate the ready fixes and contributions even more.
+.SH "HISTORY"
+Based on ttf2pfa by Andrew Weeks, and help from Frank Siegert.
+.PP
+Modification by Mark Heath.
+.PP
+Further modification by Sergey Babkin.
+.PP
+The Type1 assembler by I. Lee Hetherington with modifications by 
+Kai-Uwe Herbing.
+
+.rn }` ''
+.IX Title "TTF2PT1 1"
+.IX Name "TTF2PT1 - A True Type to PostScript Type 1 Font Converter"
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "DESCRIPTION"
+
+.IX Header "OPTIONS"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "EXAMPLES"
+
+.IX Header "FILES"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "SEE ALSO"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "BUGS"
+
+.IX Subsection "Troubleshooting and bug reports"
+
+.IX Header "HISTORY"
+

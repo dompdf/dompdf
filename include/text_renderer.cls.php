@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_renderer.cls.php,v 1.7 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id: text_renderer.cls.php,v 1.8 2008-03-12 06:35:43 benjcarson Exp $ */
 /**
  * Renders text frames
  *
@@ -71,6 +71,7 @@ class Text_Renderer extends Abstract_Renderer {
     $x += $style->length_in_pt( array($ml, $pl, $bl), $cb["w"] );
 
     $text = $frame->get_text();
+    
     $font = $style->font_family;
     $size = $style->font_size;
     $height = $style->height;    

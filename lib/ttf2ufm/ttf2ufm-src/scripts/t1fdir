@@ -1,0 +1,227 @@
+#!/usr/bin/perl
+#
+#  Copyright (c) 1998
+#   Sergey A. Babkin.  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  Sergey A. Babkin (sab123@hotmail.com, babkin@bellatlantic.net)
+#
+
+#
+# Script that reads the Type1 font files and prints out the fonts.scale
+# lines for them
+#
+
+# other substrings (regexps) that are considered irrelevant
+# and sould be removed from the font names:
+@wrongstr= (
+	"koi8r",
+	"koi8",
+	"cp1251",
+	"ibm1251",
+	"win1251",
+	"cp866",
+	"ibm866",
+	"iso8859[1-9]",
+	"iso8859",
+	"isolatin[0-9]",
+	"isolatin",
+	"latin[0-9]",
+	"^ER ",
+	"^K8 ",
+);
+
+sub usage
+{
+	print STDERR "Use: \n";
+	print STDERR "   t1fdir [-g] <foundry> <encoding>... [ -f <file>...]\n";
+	print STDERR "or\n";
+	print STDERR "   t1fdir -d fonts.scale fonts.alias <foundry> <encoding>... [ -f <file>...]\n";
+}
+
+$ghost=0;
+if( $ARGV[0] eq "-g" ) {
+	shift @ARGV;
+	$ghost=1;
+} elsif( $ARGV[0] eq "-d" ) {
+	shift @ARGV;
+	$files=1;
+	$scalef=shift @ARGV;
+	$aliasf=shift @ARGV;
+}
+
+if($#ARGV<2) {
+	&usage();
+	exit 1;
+}
+
+$foundry=$ARGV[0];
+shift @ARGV;
+
+while($#ARGV>=0) {
+	if($ARGV[0] eq "-f") {
+		shift @ARGV;
+		last;
+	}
+	push(@encodings,$ARGV[0]);
+	shift @ARGV;
+}
+
+if($files) {
+	open(SCALEF, ">>$scalef") || die "Can't write to $scalef";
+	open(ALIASF, ">>$aliasf") || die "Can't write to $aliasf";
+}
+for $name (@ARGV) {
+
+	$familyname="";
+	$fullname="";
+	$fontname="";
+	$weight="";
+	$angle=0;
+
+	open(FILE,"<$name") || die "Unable to open file $name\n";
+
+	$type="p"; # by default
+
+	while(<FILE>) {
+		if(/eexec/) { last; }
+		if(/^\/FamilyName.*\((.+)\)/ ) { $familyname= $1; }
+		if(/^\/FullName.*\((.+)\)/ ) { $fullname= $1; }
+		if(/^\/FontName.*\((.+)\)/ ) { $fontname= $1; }
+		if(/^\/Weight.*\((.+)\)/ ) { $weight= $1; }
+		if(/^\/ItalicAngle.*(\d+)/ ) { $angle= $1+0; }
+		if(/^\/isFixedPitch/) {
+			if(/true/) {
+				$type="m";
+			} else {
+				$type="p";
+			}
+		}
+	}
+
+	# now try to interpret this information 
+
+	$allinfo= $familyname ." ". $fullname ." ". $fontname ." ". $weight;
+	$lcallinfo=$allinfo;
+	$lcallinfo=~tr[A-Z][a-z];
+
+	$familyname.="_"; # just a delimiter for substitutions
+	$familyname=~s/Bold([^a-z])/$1/g;
+	$familyname=~s/Italic([^a-z])/$1/g;
+	$familyname=~s/Oblique([^a-z])/$1/g;
+	$familyname=~s/Roman([^a-z])/$1/g;
+
+	for $i (@wrongstr) { # for uppercase- and space- sensitive strings
+		$familyname =~ s/$i//g;
+	}
+
+	$familyname=~tr[A-Z][a-z];
+	$familyname=~tr[A-Za-z0-9][]cd;
+
+	for $i (@wrongstr) { # for case-insensitive strings
+		$familyname =~ s/$i//g;
+	}
+
+	if( $familyname eq "") {
+		$familyname="unknown";
+	}
+
+	$fn=$name;
+	$fn=~ s/.*\///g;
+
+	$n=0;
+	for $encoding (@encodings) {
+		$n++;
+		if($ghost) {
+			printf("/%s-", uc(substr($familyname,0,1)).substr($familyname,1));
+
+			$r=1;
+
+			if( $allinfo =~ /Bold[^a-z]/
+			|| $lcallinfo =~ /\bbold\b/ ) {
+				printf("Bold");
+				$r=0;
+			}
+			if( $allinfo =~ /Italic[^a-z]/
+			|| $lcallinfo =~ /\bitalic\b/ 
+			|| $angle>0 ) {
+				printf("Italic");
+				$r=0;
+			} elsif( $allinfo =~ /Oblique[^a-z]/
+			|| $lcallinfo =~ /\boblique\b/ 
+			|| $angle<0 ) {
+				printf("Oblique");
+				$r=0;
+			}
+
+			if($r) {
+				printf("Roman");
+			}
+
+			printf("-%s\t (%s)	;\n",$encoding,$fn);
+		} else {
+			$xenc=$encoding;
+			$xenc =~ s/\-/_/g;
+
+			$srec = sprintf("-%s-%s_%s-",$foundry,$familyname,$xenc);
+			$arec = sprintf("-%s-%s-",$foundry,$familyname);
+
+			if( $allinfo =~ /Bold[^a-z]/
+			|| $lcallinfo =~ /\bbold\b/ ) {
+				$srec .= "bold-";
+				$arec .= "bold-";
+			} else {
+				$srec .= "medium-";
+				$arec .= "medium-";
+			}
+
+			if( $allinfo =~ /Italic[^a-z]/
+			|| $lcallinfo =~ /\bitalic\b/ 
+			|| $angle>0 ) {
+				$srec .= "i-";
+				$arec .= "i-";
+			} elsif( $allinfo =~ /Oblique[^a-z]/
+			|| $lcallinfo =~ /\boblique\b/ 
+			|| $angle<0 ) {
+				$srec .= "o-";
+				$arec .= "o-";
+			} else {
+				$srec .= "r-";
+				$arec .= "r-";
+			}
+
+			$srec .= sprintf("normal--0-0-0-0-%s-0-adobe-fontspecific",$type,$encoding);
+			$arec .= sprintf("normal--0-0-0-0-%s-0-%s",$type,$encoding);
+
+			if($files) {
+				if($n==1) {
+					printf(SCALEF "%s %s\n",$fn,$srec);
+					printf(ALIASF "%s %s\n",$arec,$srec);
+					$srec1=$srec;
+				} else {
+					printf(ALIASF "%s %s\n",$arec,$srec1);
+				}
+			} else {
+				printf("%s %s\n",$fn,$arec);
+			}
+		}
+	}
+
+	close(FILE);
+}
+if($files) {
+	close(SCALEF);
+	close(ALIASF);
+}

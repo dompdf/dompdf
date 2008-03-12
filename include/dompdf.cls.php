@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.22 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id: dompdf.cls.php,v 1.23 2008-03-12 06:35:43 benjcarson Exp $ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer
@@ -369,7 +369,7 @@ class DOMPDF {
 
       } else
         $css = $style->nodeValue;
-
+      
       // Set the base path of the Stylesheet to that of the file being processed
       $this->_css->set_protocol($this->_protocol);
       $this->_css->set_host($this->_base_host);

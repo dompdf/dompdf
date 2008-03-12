@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.20 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.21 2008-03-12 06:35:43 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -206,7 +206,7 @@ class CPDF_Adapter implements Canvas {
     // Some people may not want to do this.  Should we have
     // a DOMPDF config variable somewhere that lets people
     // choose?
-    $this->_pdf = new Cpdf($size, false);
+    $this->_pdf = new Cpdf($size, true);
     $this->_pdf->addInfo("Creator", "dompdf");
 
     // Silence pedantic warnings about missing TZ settings

@@ -1,0 +1,313 @@
+.rn '' }`
+''' $RCSfile: ttf2pt1_x2gs.1,v $$Revision: 1.1 $$Date: 2008-03-12 06:35:44 $
+'''
+''' $Log: not supported by cvs2svn $
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH TTF2PT1_X2GS 1 "version 3.4.4" "December 31, 2003" "TTF2PT1 Font Converter"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+\fBttf2pt1_x2gs\fR \- font installer for Ghostscript
+.SH "SYNOPSIS"
+ttf2pt1_x2gs \fB[config-file]\fR
+.SH "DESCRIPTION"
+The fonts generated with \fBttf2pt1\fR work fine with Ghostscript by
+themselves. The script `\fBx2gs\fR\*(R' (or `\fBttf2pt1_x2gs\fR\*(R' when installed
+into a public directory, to avoid name conflicts with other
+programs) links the font files from the X11 direcotry into the Ghostscript 
+directory and automatically creates the description file (\f(CWFontmap\fR) 
+in Ghostscript format.
+.PP
+If the configuration file is not specified as an argument then the file
+`\f(CWconvert.cfg\fR\*(R' in the current directory is used, just like the
+`\f(CWconvert\fR\*(R' script does. Indeed, this configuration file is used for 
+both scripts.
+.PP
+The Ghostscript-related parameters in the configuration file are:
+.PP
+\fB\f(CWDSTDIR\fR\fR \- the X11 font directory used by `\f(CWx2gs\fR\*(R' as the
+source of the fonts. This parameter is common with the X11 
+configuration.
+.PP
+\fB\f(CWGSDIR\fR\fR \- the base directory of Ghostsript. If this
+parameter is set to an empty string then `\f(CWconvert\fR\*(R' won't
+call `\f(CWx2gs\fR\*(R'. So if you want to get only the X11 fonts
+installed then set this parameter to an empty string. This 
+directory may vary on various system, so please check your 
+system and set this value accordingly before running the script.
+.PP
+\fB\f(CWGSFONTDIR\fR\fR \- the font directory of Ghostscript. In the standard
+Ghostscript installation it's a subdirectory of \f(CWGSDIR\fR 
+but some systems may use completely different directories.
+.PP
+\fB\f(CWGSCONFDIR\fR\fR \- the configuration subdirectory of Ghostscript
+that contains the \f(CWFontmap\fR file.
+.PP
+\fB\f(CWINSTALLFONTMAP\fR\fR \- if the value is set to \fB\f(CWYES\fR\fR then 
+install the entries for the new fonts right into the main 
+\f(CWFontmap\fR file. Otherwise just leave the file \f(CWFontmap.ttf\fR 
+in the Ghostscript configuration directory.
+.PP
+After preparing the configuration file run the script. It symbolicaly links 
+all the font files and creates the description file \f(CWFontmap.ttf\fR in 
+\f(CWGSCONDFIR\fR. After that there are two choices. 
+.PP
+If the option \f(CWINSTALLFONTMAP\fR was set to \f(CWYES\fR then 
+the font descriptions are also automatically installed into the
+master \f(CWFontmap\fR file. The script is clever enough to
+detect if it was run multiple times with the same directories
+and if so it replaces the old \f(CWFontmap\fR entries with
+the new ones instead of just accumulating all of them. You
+may also run it multiple times for multiple X11 directories
+and all the results will be properly collected in the \f(CWFontmap\fR.
+But it's your responsibility to watch that the names of the
+font files don't overlap. If the X11 font directory gets
+renamed then you have to remove its font entries from the
+\f(CWFontmap\fR and only after that re-run `\f(CWx2gs\fR\*(R'
+for the new directory. 
+.PP
+On the other hand if the option \f(CWINSTALLFONTMAP\fR was set to 
+\f(CWNO\fR then go to the \f(CWGSCONFDIR\fR directory and insert the 
+contents of \f(CWFontmap.ttf\fR into the \f(CWFontmap\fR file
+manually. This step may be left manual to make the installation
+a little bit more safe. 
+.PP
+After that you may also want to redefine some of the aliases in 
+\f(CWFontmap\fR to refer to the newly installed fonts.
+But the redefinition of the aliases may be dangerous if the width of
+characters in the new font will be different from the old font.
+Alas, there is no visible solution of this problem yet.
+.SH "FILES"
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/\s0scripts/convert.cfg.sample
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/\s0scripts/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/README\s0
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR/FONTS\s0
+.Ip "\(bu" 2
+\s-1TTF2PT1_SHAREDIR\s0/*
+.Ip "\(bu" 2
+\s-1TTF2PT1_BINDIR/\s0ttf2pt1
+.SH "SEE ALSO"
+.Ip "\(bu" 4
+the \fIttf2pt1(1)\fR manpage
+.Ip "\(bu" 4
+the \fIttf2pt1_convert(1)\fR manpage
+.Ip "\(bu" 4
+the \fIt1asm(1)\fR manpage
+
+.rn }` ''
+.IX Title "TTF2PT1_X2GS 1"
+.IX Name "B<ttf2pt1_x2gs> - font installer for Ghostscript"
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "DESCRIPTION"
+
+.IX Header "FILES"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Header "SEE ALSO"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+
+.IX Item "\(bu"
+

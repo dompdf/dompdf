@@ -37,9 +37,9 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.28 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.29 2008-03-12 06:35:43 benjcarson Exp $ */
 
-error_reporting(E_STRICT | E_ALL);
+//error_reporting(E_STRICT | E_ALL);
 
 /**
  * The root of your DOMPDF installation
@@ -81,16 +81,19 @@ define("DOMPDF_TEMP_DIR", "/tmp");
  * allow an attacker to use dompdf to read any files on the server.  This
  * should be an absolute path.
  */
-define("DOMPDF_CHROOT", realpath(DOMPDF_DIR . "/../"));
+define("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
 
-/** * The path to the tt2pt1 utility (used to convert ttf to afm)
+/**
+ * The path to the tt2pt1 utility (used to convert ttf to afm)
  *
  * Not strictly necessary, but useful if you would like to install 
  * additional fonts using the {@link load_font.php} utility.
  *
  * @link http://ttf2pt1.sourceforge.net/
  */
-define("TTF2AFM", "/usr/bin/ttf2pt1");
+define("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
+//define("TTF2AFM", "/usr/bin/ttf2pt1");
+
 // Windows users should use something like this:
 //define("TTF2AFM", "C:\\Program Files\\Ttf2Pt1\\bin\\ttf2pt1.exe");
 
@@ -213,7 +216,11 @@ function DOMPDF_autoload($class) {
     require_once($filename);
 }
 
-if ( !function_exists("__autoload") ) {
+if ( function_exists("spl_autoload_register") ) {
+
+   spl_autoload_register("DOMPDF_autoload");
+
+} else if ( !function_exists("__autoload") ) {
   /**
    * Default __autoload() function
    *
@@ -222,7 +229,7 @@ if ( !function_exists("__autoload") ) {
   function __autoload($class) {
     DOMPDF_autoload($class);
   }
-}
+} 
 
 // ### End of user-configurable options ###
 

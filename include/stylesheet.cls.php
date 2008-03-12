@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: stylesheet.cls.php,v 1.18 2006-10-18 21:49:11 benjcarson Exp $ */
+/* $Id: stylesheet.cls.php,v 1.19 2008-03-12 06:35:43 benjcarson Exp $ */
 
 /**
  * The location of the default built-in CSS file.
@@ -845,7 +845,7 @@ class Stylesheet {
 
       $selectors = explode(",", mb_substr($sect, 0, $i));
       $style = $this->_parse_properties(trim(mb_substr($sect, $i+1)));
-
+      
       // Assign it to the selected elements
       foreach ($selectors as $selector) {
         $selector = trim($selector);

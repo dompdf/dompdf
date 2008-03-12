@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: style.cls.php,v 1.21 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id: style.cls.php,v 1.22 2008-03-12 06:35:43 benjcarson Exp $ */
 
 /**
  * Represents CSS properties.
@@ -782,6 +782,7 @@ class Style {
     // Resolve the font family
     $families = explode(",", $this->_props["font_family"]);
     reset($families);
+
     $font = null;
     while ( current($families) ) {
       list(,$family) = each($families);

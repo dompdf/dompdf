@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_decorator.cls.php,v 1.7 2007-08-22 23:02:07 benjcarson Exp $ */
+/* $Id: text_frame_decorator.cls.php,v 1.8 2008-03-12 06:35:43 benjcarson Exp $ */
 
 /**
  * Decorates Frame objects for text layout
@@ -77,13 +77,13 @@ class Text_Frame_Decorator extends Frame_Decorator {
       $this->_frame->get_style()->content = "normal";
     }
 
-//     pre_r("---");
-//     $style = $this->_frame->get_style();
-//     var_dump($text = $this->_frame->get_node()->data);
-//     var_dump($asc = utf8_decode($text));
-//     for ($i = 0; $i < strlen($asc); $i++)
-//       pre_r("$i: " . $asc{$i} . " - " . ord($asc{$i}));
-//     pre_r("width: " . Font_Metrics::get_text_width($text, $style->font_family, $style->font_size));
+//      pre_r("---");
+//      $style = $this->_frame->get_style();
+//      var_dump($text = $this->_frame->get_node()->data);
+//      var_dump($asc = utf8_decode($text));
+//      for ($i = 0; $i < strlen($asc); $i++)
+//        pre_r("$i: " . $asc{$i} . " - " . ord($asc{$i}));
+//      pre_r("width: " . Font_Metrics::get_text_width($text, $style->font_family, $style->font_size));
 
     return $this->_frame->get_node()->data;
   }
