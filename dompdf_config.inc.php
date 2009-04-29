@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.29 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.30 2009-04-29 04:11:35 benjcarson Exp $ */
 
 //error_reporting(E_STRICT | E_ALL);
 
@@ -84,29 +84,43 @@ define("DOMPDF_TEMP_DIR", "/tmp");
 define("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
 
 /**
+ * Whether to use Unicode fonts or not.
+ *
+ * When set to true the PDF backend must be set to "CPDF" and fonts must be
+ * loaded via the modified ttf2ufm tool included with dompdf (see below).
+ * Unicode font metric files (with .ufm extensions) must be created with
+ * ttf2ufm.  load_font.php should do this for you if the TTF2AFM define below
+ * points to the modified ttf2ufm tool included with dompdf.
+ *
+ * When enabled, dompdf can support all Unicode glyphs.  Any glyphs used in a
+ * document must be present in your fonts, however.
+ *
+ */
+define("DOMPDF_UNICODE_ENABLED", false);
+
+/**
  * The path to the tt2pt1 utility (used to convert ttf to afm)
  *
  * Not strictly necessary, but useful if you would like to install 
  * additional fonts using the {@link load_font.php} utility.
+ *
+ * Windows users should use something like this:
+ * define("TTF2AFM", "C:\\Program Files\\Ttf2Pt1\\bin\\ttf2pt1.exe");
  *
  * @link http://ttf2pt1.sourceforge.net/
  */
 define("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
 //define("TTF2AFM", "/usr/bin/ttf2pt1");
 
-// Windows users should use something like this:
-//define("TTF2AFM", "C:\\Program Files\\Ttf2Pt1\\bin\\ttf2pt1.exe");
 
 /**
  * The PDF rendering backend to use
  *
- * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class),
- * 'TCPDF' (the bundled TCPDF class), 'GD' and 'auto'. 
- * 'auto' will look for PDFLib and use it if found,
- * or if not it will fall back on CPDF.  'TCPDF' will use the TCPDF
- * library, which supports Unicode.  'GD' renders PDFs to graphic
- * files.  {@link Canvas_Factory} ultimately determines which
- * rendering class to instantiate based on this setting.
+ * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class), 'GD' and
+ * 'auto'.  'auto' will look for PDFLib and use it if found, or if not it will
+ * fall back on CPDF.  'GD' renders PDFs to graphic files.  {@link
+ * Canvas_Factory} ultimately determines which rendering class to instantiate
+ * based on this setting.
  *
  * Both PDFLib & CPDF rendering backends provide sufficient rendering
  * capabilities for dompdf, however additional features (e.g. object,
@@ -126,9 +140,8 @@ define("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
  * @link http://www.pdflib.com
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
- * @link http://tcpdf.sf.net/
  */
-define("DOMPDF_PDF_BACKEND", "cpdf");
+define("DOMPDF_PDF_BACKEND", "pdflib");
 
 /**
  * PDFlib license key

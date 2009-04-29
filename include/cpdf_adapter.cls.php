@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.21 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id: cpdf_adapter.cls.php,v 1.22 2009-04-29 04:11:35 benjcarson Exp $ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
@@ -202,11 +202,7 @@ class CPDF_Adapter implements Canvas {
       $size[2] = $a;
     }
     
-    // OAR - Setting isUnicode to true by default!
-    // Some people may not want to do this.  Should we have
-    // a DOMPDF config variable somewhere that lets people
-    // choose?
-    $this->_pdf = new Cpdf($size, true);
+    $this->_pdf = new Cpdf($size, DOMPDF_UNICODE_ENABLED);
     $this->_pdf->addInfo("Creator", "dompdf");
 
     // Silence pedantic warnings about missing TZ settings
@@ -493,11 +489,9 @@ class CPDF_Adapter implements Canvas {
    * @return string The url of the newly converted image 
    */
   protected function _convert_gif_to_png($image_url) {
-    global $_dompdf_warnings;
     
     if ( !function_exists("imagecreatefromgif") ) {
-      $_dompdf_warnings[] = "Function imagecreatefromgif() not found.  Cannot convert gif image: $image_url.";      
-      return DOMPDF_LIB_DIR . "/res/broken_image.png";
+      throw new DOMPDF_Exception("Function imagecreatefromgif() not found.  Cannot convert gif image: $image_url.  Please install the image PHP extension.");
     }
 
     $old_err = set_error_handler("record_warnings");

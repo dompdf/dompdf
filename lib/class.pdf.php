@@ -2576,8 +2576,6 @@ class  Cpdf {
             }
 
             $cc = (int)$dtmp['C'];
-            $glyph = $dtmp['G'];
-            $width = $dtmp['WX'];
             if  ($cc >= 0) {
 
               $data['C'][$dtmp['C']] = $dtmp;
@@ -2797,22 +2795,22 @@ class  Cpdf {
 
               if (!$this->isUnicode) {
                 // With Unicode, widths array isn't used
-              if  ($lastChar>0 &&  $num>$lastChar+1) {
+                if  ($lastChar>0 &&  $num>$lastChar+1) {
 
-                for ($i =  $lastChar+1;$i<$num;$i++) {
+                  for ($i =  $lastChar+1;$i<$num;$i++) {
 
-                  $widths[] =  0;
+                    $widths[] =  0;
+                  }
                 }
-              }
               }
 
               $widths[] =  $d['WX'];
+
               if ($this->isUnicode) {
                 $cid_widths[$num] =  $d['WX'];
               }
 
               if  ($firstChar ==  -1) {
-
                 $firstChar =  $num;
               }
 
@@ -2829,10 +2827,10 @@ class  Cpdf {
 
                 if (!$this->isUnicode) {
                   // With Unicode, widths array isn't used
-                for ($i =  $lastChar + 1; $i <=  $charNum; $i++) {
+                  for ($i =  $lastChar + 1; $i <=  $charNum; $i++) {
 
-                  $widths[] =  0;
-                }
+                    $widths[] =  0;
+                  }
                 }
 
                 $lastChar =  $charNum;
@@ -2843,9 +2841,9 @@ class  Cpdf {
                 $widths[$charNum-$firstChar] =  $this->fonts[$fontName]['C'][$charName]['WX'];
                 if ($this->isUnicode) {
                   $cid_widths[$charName] =  $this->fonts[$fontName]['C'][$charName]['WX'];
+                }
               }
             }
-          }
           }
 
           if ($this->isUnicode) {
@@ -2861,20 +2859,19 @@ class  Cpdf {
           if (!$this->isUnicode) {
             // With Unicode, widths array isn't used
 
-          $this->numObj++;
+            $this->numObj++;
 
-          $this->o_contents($this->numObj, 'new', 'raw');
+            $this->o_contents($this->numObj, 'new', 'raw');
 
-          $this->objects[$this->numObj]['c'].=  '[';
+            $this->objects[$this->numObj]['c'].=  '[';
 
-          foreach($widths as  $width) {
+            foreach($widths as  $width) {
+              $this->objects[$this->numObj]['c'].=  ' '.$width;
+            }
 
-            $this->objects[$this->numObj]['c'].=  ' '.$width;
-          }
+            $this->objects[$this->numObj]['c'].=  ' ]';
 
-          $this->objects[$this->numObj]['c'].=  ' ]';
-
-          $widthid =  $this->numObj;
+            $widthid =  $this->numObj;
           }
 
           $missing_width = 500;

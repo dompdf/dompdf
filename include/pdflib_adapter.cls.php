@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.25 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id: pdflib_adapter.cls.php,v 1.26 2009-04-29 04:11:35 benjcarson Exp $ */
 
 /**
  * PDF rendering interface
@@ -183,7 +183,7 @@ class PDFLib_Adapter implements Canvas {
     if ( is_array($paper) )
       $size = $paper;
     else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) )
-      $size = self::$PAPER_SIZES[$paper];
+      $size = self::$PAPER_SIZES[mb_strtolower($paper)];
     else
       $size = self::$PAPER_SIZES["letter"];
 
@@ -736,8 +736,8 @@ class PDFLib_Adapter implements Canvas {
       if ( $proto == "" || $proto == "file://" )
         return; // Local links are not allowed
       $url = build_url($proto, $host, $path, $file);
-      $url = str_replace("=", "%3D", rawurldecode($url));
-
+      $url = '{' . rawurldecode($url) . '}';
+      
       $action = $this->_pdf->create_action("URI", "url=" . $url);
       $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} action={activate=$action} linewidth=0");
     }
@@ -847,15 +847,15 @@ class PDFLib_Adapter implements Canvas {
 
         case "text":
           $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
-                              array($page_number, $this->_page_count), $text);
-        $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+                              array($p, $this->_page_count), $text);
+          $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
           break;
 
         case "script":
           if (!$eval) {
             $eval = new PHP_Evaluator($this);  
           }
-          $eval->evaluate($code, array('PAGE_NUM' => $page_number, 'PAGE_COUNT' => $this->_page_count));
+          $eval->evaluate($code, array('PAGE_NUM' => $p, 'PAGE_COUNT' => $this->_page_count));
           break;
         }
       }

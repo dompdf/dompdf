@@ -47,6 +47,9 @@ C:\Program Files\Apache\htdocs\dompdf\include\inline_positioner.cls.php:68
 ...
 </a></li>
 
+<li><a href="#headers_sent">I'm getting the following error:<br/>
+Unable to stream pdf: headers already sent</a></li>
+
 </ol>
 
 <div class="divider1">&nbsp;</div>
@@ -372,5 +375,25 @@ a protocol.  Version 0.4.1 works around this issue.</p>
 
 <a href="#FAQ">[back to top]</a>
 <div class="divider2" style="background-position: 130px 0%">&nbsp;</div>
+
+<a name="headers_sent"> </a>
+<h3>I'm getting the following error:<br/>Unable to stream pdf: headers already
+sent</h3>
+
+<p>This error occurs when PHP has already sent data to the browser.  Check
+whether your script <code>echo</code>s or <code>print</code>s any output before streaming your PDF, or if
+it has text outside of &lt;?php ?&gt; tags (including whitespace at the
+beginning or end of a file).</p>
+
+<p>Try deleting or removing the echo/print statements or the offending text.
+Alternatively, you can use the <a
+href="http://www.php.net/manual/en/function.ob-start.php">ob_start()</a> and <a
+href="http://www.php.net/manual/en/function.ob-get-contents.php">ob_get_contents()</a>
+functions.</p>
+
+
+<a href="#FAQ">[back to top]</a> <div class="divider1"
+style="background-position: 666px 0%">&nbsp;</div>
+
 
 </div> <?php include "foot.inc" ?>

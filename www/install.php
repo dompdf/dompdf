@@ -12,6 +12,7 @@
 <ul><?php echo li_arrow() ?><a href="#load_font"><pre>load_font.php</pre></a></li></ul>
 <?php echo li_arrow() ?><a href="#windows">Windows</a></li>
 </ul>
+<ul><<?php echo li_arrow() ?><a href="#unicode">Unicode</a></li>
 <?php echo li_arrow() ?><a href="#hacking">Hacking</a></li>
 </ul>
 </div>
@@ -26,18 +27,19 @@
 extension enabled.</li>
 
 <li style="list-style-image: url('images/star_05.gif');">Some fonts.  PDFs
-internally support Helvetica, Times-Roman, Courier &amp; Zapf-Dingbats, but
-if you wish to use other fonts you will need to install some fonts.  dompdf
-supports the same fonts as the underlying PDF backends: Type 1 (.pfb
-with the corresponding .afm) and TrueType (.ttf).  At the minimum, you
-should probably have the Microsoft core fonts (now available at: <a
+internally support Helvetica, Times-Roman, Courier &amp; Zapf-Dingbats, but if
+you wish to use other fonts or if you need Unicode support you will need to
+install some fonts.  dompdf supports the same fonts as the underlying PDF
+backends: Type 1 (.pfb with the corresponding .afm) and TrueType (.ttf).  At the
+minimum, you should probably have the Microsoft core fonts (now available at: <a
 href="http://corefonts.sourceforge.net/">http://corefonts.sourceforge.net/</a>).
 See <a href="#fonts">below</a> for font installation instructions.</li>
 
-<li style="list-style-image: url('images/star_04.gif');">ttf2pt1 (available
-at <a
-href="http://ttf2pt1.sourceforge.net">http://ttf2pt1.sourceforge.net</a>) is
-required to install new ttf fonts when using the CPDF backend.</li>
+<li style="list-style-image: url('images/star_04.gif');">ttf2pt1 (available at
+<a href="http://ttf2pt1.sourceforge.net">http://ttf2pt1.sourceforge.net</a>) is
+required to install new ttf fonts when using the CPDF backend.  (If you require
+Unicode support, you need a modified version of ttf2pt1.  <a href="#unicode">See
+below</a>.)</li>
 
 </ul>
 
@@ -62,7 +64,7 @@ runs as the www-data user:</p>
 </pre>
 <p>If your user is not a member of the www-data group or you do not have
 root priviledges, you can make the directory world writable and set the
-sticky bit:</p>
+sticky bit(beware of the security implications of this however):</p>
 <pre>   
    $ chmod 1777 lib/fonts
 </pre>

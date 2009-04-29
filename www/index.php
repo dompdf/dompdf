@@ -66,6 +66,10 @@ external PDF libraries, thanks to the R&amp;OS PDF class</li>
 
 <li style="list-style-image: url('images/star_02.gif');">inline PHP
 support.  See the section on <a href="usage.php#inline">inline PHP</a> for details.</li>
+
+<li style="list-style-image: url('images/star_04.gif');">version 0.5.2 includes
+full unicode support when using the R&amp;OS backend</li>
+
 </ul>
 
 
@@ -73,9 +77,6 @@ support.  See the section on <a href="usage.php#inline">inline PHP</a> for detai
 <h2>Limitations (Known Issues)</h2>
 
 <ul>
-
-<li style="list-style-image: url('images/star_04.gif');">tables can not be
-nested</li>
 
 <li style="list-style-image: url('images/star_02.gif');">ordered lists are
 currently unsupported.</li>
