@@ -370,8 +370,11 @@ class Frame {
   }
   
   function set_containing_block($x = null, $y = null, $w = null, $h = null) {
-    if ( is_array($x) ) 
-      extract($x);
+    if ( is_array($x) ){
+  		foreach($x AS $key => $val){
+			$$key = $val;
+		}
+    }
     
     if (is_numeric($x)) {
       $this->_containing_block[0] = $x;
