@@ -1,5 +1,0 @@
-#!/bin/sh
-
-dir=`readlink -f $0`
-dir=`dirname $dir`
-php -f $dir/dompdf.php -- $@
