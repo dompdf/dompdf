@@ -1,15 +1,5 @@
 <?php include("head.inc"); ?>
 
-<div id="toc">
-<h2>On this page:</h2>
-<ul>
-<?php echo li_arrow() ?><a href="#overview">Overview</a></li>
-<?php echo li_arrow() ?><a href="#features">Features</a></li>
-<?php echo li_arrow() ?><a href="#limitations">Limitations</a></li>
-<?php echo li_arrow() ?><a href="#hacking">Hacking</a></li>
-</ul>
-</div>
-
 <a name="overview"> </a>
 <h2>Overview</h2>
 
@@ -38,70 +28,5 @@ Contest</a> and placed 20th overall.</p>
 a PHP 4 port.  If your web host does not offer PHP 4, I suggest either pestering
 them, or setting up your own PHP 5 box and using it to run dompdf.  Your scripts
 on your web host can redirect PDF requests to your PHP 5 box.</p>
-
-<a name="features"> </a>
-<h2>Features</h2>
-
-<ul>
-
-<li style="list-style-image: url('images/star_01.gif');">handles most
-CSS2.1 properties, including @import, @media &amp; @page rules</li>
-
-<li style="list-style-image: url('images/star_02.gif');">supports most
-presentational HTML 4.0 attributes</li>
-
-<li style="list-style-image: url('images/star_03.gif');">supports external
-stylesheets, either on the local machine or through http/ftp (via
-fopen-wrappers)</li>
-
-<li style="list-style-image: url('images/star_04.gif');">supports complex
-tables, including row &amp; column spans, separate &amp; collapsed border
-models, individual cell styling, multi-page tables (no nested tables yet however)</li>
-
-<li style="list-style-image: url('images/star_05.gif');">image
-support (png, gif &amp; jpeg)</li>
-
-<li style="list-style-image: url('images/star_01.gif');">no dependencies on
-external PDF libraries, thanks to the R&amp;OS PDF class</li>
-
-<li style="list-style-image: url('images/star_02.gif');">inline PHP
-support.  See the section on <a href="usage.php#inline">inline PHP</a> for details.</li>
-
-<li style="list-style-image: url('images/star_04.gif');">version 0.5.2 includes
-full unicode support when using the R&amp;OS backend</li>
-
-</ul>
-
-
-<a name="limitations"> </a>
-<h2>Limitations (Known Issues)</h2>
-
-<ul>
-
-<li style="list-style-image: url('images/star_02.gif');">ordered lists are
-currently unsupported.</li>
-
-<li style="list-style-image: url('images/star_03.gif');'">absolute &amp; relative
-positioning and floats do not work, yet.</li>
-
-<li style="list-style-image: url('images/star_04.gif');">not particularly
-tolerant to poorly-formed HTML or CSS input (using Tidy first may help)</li>
-
-<li style="list-style-image: url('images/star_03.gif');">large files can
-take a while to render</li>
-
-
-</ul>
-
-<a name="hacking"> </a>
-<h2>Hacking</h2>
-
-<p>If you are interested in extending or modifying dompdf, please feel free
-to contact me (Benj Carson) by email at <a style="white-space: nowrap"
-href="mailto:dompdf%40digitaljunkies%2eca">dompdf at digitaljunkies.ca</a>.
-Let me know what you'd like to try and I can perhaps point you to the
-relevant sections of the source.  If you add some features, or fix
-some bugs, please send me a patch and I'll include your changes in the main
-distribution.</p>
 
 <?php include("foot.inc"); ?>

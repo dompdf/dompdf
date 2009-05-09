@@ -24,35 +24,16 @@ function li_star() {
 <div id="left_col">
 <h2>dompdf Homepage</h2>
   <ul>
-    <li style="list-style-image: url('images/star_02.gif');"><a style="font-size: 0.8em;" href="http://digitaljunkies.ca/dompdf/">digitaljunkies.ca/dompdf</a></li>
+    <li style="list-style-image: url('images/star_02.gif');"><a style="font-size: 0.8em;" href="http://code.google.com/p/dompdf/">dompdf @ google code</a></li>
   </ul>
   
-<h2>About dompdf</h2>
-  <ul>
-    <li style="list-style-image: url('images/arrow_02.gif');"><a href="index.php">overview</a></li>
-    <li style="list-style-image: url('images/arrow_03.gif');"><a href="index.php#features">features</a></li>
-    <li style="list-style-image: url('images/arrow_04.gif');"><a href="index.php#limitations">limitations</a></li>
-  </ul>
-<h2>Documentation</h2>
-  <ul>
-    <li style="list-style-image: url('images/arrow_05.gif');"><a href="install.php">installation</a></li>
-    <li style="list-style-image: url('images/arrow_06.gif');"><a href="usage.php">usage</a></li>
-    <li style="list-style-image: url('images/arrow_01.gif');"><a href="http://www.digitaljunkies.ca/dompdf/doc/">api documentation</a></li>
-  </ul>
 <h2>Examples</h2>
   <ul>
     <li style="list-style-image: url('images/arrow_02.gif');"><a href="examples.php">samples</a></li>
     <li style="list-style-image: url('images/arrow_03.gif');"><a href="examples.php#demo">demo</a></li>
   </ul>
-<h2>Support</h2>
-  <ul>
-    <li style="list-style-image: url('images/arrow_04.gif');"><a href="faq.php">FAQ</a></li>
-  </ul>
 
-  <p>Send bug reports &amp; support questions to
-  <a href="http://sourceforge.net/projects/dompdf/">SourceForge</a>
-  or send an email to <a style="white-space: nowrap"
-  href="mailto:dompdf%40digitaljunkies%2eca">dompdf at
-  digitaljunkies.ca</a>.</p>
+  <p>Send bug reports &amp; support questions to <a href="http://groups.google.com/group/dompdf">Google Groups</a>.
+  </p>
 </div>  
 <div id="content">

@@ -243,7 +243,32 @@ switch ( $sapi ) {
 
  default:
 
-   throw new DOMPDF_Exception("Access to dompdf.php via non-cli SAPI has been deprecated due to security concerns.  Please use the dompdf class directly.");
+ 	if ( isset($_GET["input_file"]) )
+ 		$file = basename(rawurldecode($_GET["input_file"]));
+ 	else
+ 		throw new DOMPDF_Exception("An input file is required (i.e. input_file _GET variable).");
+ 		
+ 	if ( isset($_GET["paper"]) )
+ 		$paper = rawurldecode($_GET["paper"]);
+ 	else
+ 		$paper = DOMPDF_DEFAULT_PAPER_SIZE;
+ 		
+ 	if ( isset($_GET["orientation"]) )
+ 		$orientation = rawurldecode($_GET["orientation"]);
+ 	else
+ 		$orientation = "portrait";
+ 		
+ 	if ( isset($_GET["base_path"]) )
+ 		$base_path = rawurldecode($_GET["base_path"]);
+ 		
+ 		
+ 		$outfile = "dompdf_out.pdf"; # Don't allow them to set the output file
+ 		$save_file = false; # Don't save the file
+ 		$file = $base_path . $file; # Set the input file
+
+ 		/* Check to see if the input file and base path = www/test */
+ 		if(!$base_path=="www/test/") 		
+ 			throw new DOMPDF_Exception("Access to dompdf.php via non-cli SAPI has been deprecated due to security concerns.  Please use the dompdf class directly.");
 
    break;
 }
