@@ -21,8 +21,26 @@
    *
    * @author       Wayne Munro <pdf@ros.co.nz>
    * @contributor  Orion Richardson <orionr@yahoo.com>
+   * @contributor  Helmut Tischer <htischer@weihenstephan.org>
    * @version  009
    * @package  Cpdf
+   *
+   * Changes
+   * @contributor Helmut Tischer <htischer@weihenstephan.org>
+   * @version 0.5.1.htischer.20090507
+   * - On multiple identical png and jpg images, put only one copy into the pdf file and refer to it.
+   *   This reduces file size and rendering time.
+   * - Allow font metrics cache to be a different folder as the font metrics. This allows a read only installation.
+   * - Allow adding images directly from a gd object. This increases performance by avoiding temporary files.
+   * - On png image files remove alpa channel to allow display of typical png files in pdf.
+   * - On addImage avoid temporary file. Todo: Duplicate Image (currently not used)
+   * - Add a check function, whether image is already cached, This avoids double creation by caller which saves
+   *   CPU time and memory.
+   * @contributor Helmut Tischer <htischer@weihenstephan.org>
+   * @version dompdf_trunk_with_helmut_mods.20090524
+   * - Allow temp and fontcache folders to be passed in by class creator
+   * @version dompdf_trunk_with_helmut_mods.20090528
+   * - typo 'decent' instead of 'descent' at various locations made getFontDescender worthless
    */
 class  Cpdf {
 
@@ -190,6 +208,23 @@ class  Cpdf {
    * the value of this array is initialised in the constuctor function.
    */
   public  $fontFamilies =  array();
+ 
+  /**
+   * folder for php serialized formats of font metrics files.
+   * If empty string, use same folder as original metrics files.
+   * This can be passed in from class creator.
+   * If this folder does not exist or is not writable, Cpdf will be **much** slower.
+   * Because of potential trouble with php safe mode, folder cannot be created at runtime.
+   */ 
+  public  $fontcache = '';
+  
+  /**
+   * temporary folder.
+   * If empty string, will attempty system tmp folder.
+   * This can be passed in from class creator.
+   * Only used for conversion of gd images to jpeg images.
+   */
+  public  $tmp = '';
 
   /**
    * track if the current font is bolded or italicised
@@ -249,6 +284,11 @@ class  Cpdf {
    */
   public  $checkpoint =  '';
 
+  /* Table of Image origin filenames and image labels which were already added with o_image().
+   * Allows to merge identical images
+   */
+  public  $imagelist = array();
+
   /**
    * whether the text passed in should be treated as Unicode or just local character set.
    */
@@ -260,10 +300,13 @@ class  Cpdf {
    * @var array array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
    * @var boolean whether text will be treated as Unicode or not.
    */
-  function  Cpdf ($pageSize = array(0, 0, 612, 792), $isUnicode = false) {
+  function  Cpdf ($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
 
     $this->isUnicode = $isUnicode;
 
+    $this->fontcache = $fontcache;
+
+    $this->tmp = $tmp;
 
     $this->newDocument($pageSize);
 
@@ -684,7 +727,7 @@ class  Cpdf {
 
             $tmp = $o['info']['mediaBox'];
 
-            $res.= "\n/MediaBox [".sprintf('%.3f', $tmp[0]) .' '.sprintf('%.3f', $tmp[1]) .' '.sprintf('%.3f', $tmp[2]) .' '.sprintf('%.3f', $tmp[3]) .']';
+            $res.= "\n/MediaBox [".sprintf('%.3F', $tmp[0]) .' '.sprintf('%.3F', $tmp[1]) .' '.sprintf('%.3F', $tmp[2]) .' '.sprintf('%.3F', $tmp[3]) .']';
           }
         }
 
@@ -1568,7 +1611,7 @@ class  Cpdf {
 
       foreach($o['info']['rect'] as  $v) {
 
-        $res.=  sprintf("%.4f ", $v);
+        $res.=  sprintf("%.4F ", $v);
       }
 
       $res.= "]";
@@ -2450,17 +2493,28 @@ class  Cpdf {
 
       $name = substr($font, $pos+1);
     }
-
+    
+    $fontcache = $this->fontcache;
+    if ($fontcache == '') {
+    	$fontcache = $dir;
+    }
+    
+    //$name       filename without folder and extension of font metrics
+    //$dir		  folder of font metrics
+    //$fontcache  folder of runtime created php serialized version of font metrics.
+    //            If this is not given, the same folder as the font metrics will be used. 
+    //            Storing and reusing serialized versions improves speed much
+                
     $this->addMessage('openFont: '.$font.' - '.$name);
 
     $metrics_name = $name . (($this->isUnicode) ? '.ufm' : '.afm');
     $cache_name = 'php_' . $metrics_name;
     $this->addMessage('metrics: '.$metrics_name.', cache: '.$cache_name);
-    if  (file_exists($dir . $cache_name)) {
+    if  (file_exists($fontcache . $cache_name)) {
 
-      $this->addMessage('openFont: php file exists ' . $dir . $cache_name);
+      $this->addMessage('openFont: php file exists ' . $fontcache . $cache_name);
 
-      $tmp =  file_get_contents($dir . $cache_name);
+      $tmp =  file_get_contents($fontcache . $cache_name);
 
       eval($tmp);
 
@@ -2674,7 +2728,11 @@ class  Cpdf {
 
       $this->fonts[$font] = $data;
 
-      file_put_contents($dir . $cache_name,  '$this->fonts[$font]=' . var_export($data,  true)  . ';');
+      //Because of potential trouble with php safe mode, expect that the folder already exists.
+      //If not existing, this will hit performance because of missing cached results.
+      if ( is_dir(substr($fontcache,0,-1)) ) {
+        file_put_contents($fontcache . $cache_name,  '$this->fonts[$font]=' . var_export($data,  true)  . ';');
+      }
     }
     
     if  (!isset($this->fonts[$font])) {
@@ -3094,7 +3152,7 @@ class  Cpdf {
 
     if  ($r >=  0 &&  ($force ||  $r !=  $this->currentColour['r'] ||  $g !=  $this->currentColour['g'] ||  $b !=  $this->currentColour['b'])) {
 
-      $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3f', $r) .' '.sprintf('%.3f', $g) .' '.sprintf('%.3f', $b) .' rg';
+      $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3F', $r) .' '.sprintf('%.3F', $g) .' '.sprintf('%.3F', $b) .' rg';
 
       $this->currentColour =  array('r' => $r, 'g' => $g, 'b' => $b);
     }
@@ -3108,7 +3166,7 @@ class  Cpdf {
 
     if  ($r >=  0 &&  ($force ||  $r !=  $this->currentStrokeColour['r'] ||  $g !=  $this->currentStrokeColour['g'] ||  $b !=  $this->currentStrokeColour['b'])) {
 
-      $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3f', $r) .' '.sprintf('%.3f', $g) .' '.sprintf('%.3f', $b) .' RG';
+      $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3F', $r) .' '.sprintf('%.3F', $g) .' '.sprintf('%.3F', $b) .' RG';
 
       $this->currentStrokeColour =  array('r' => $r, 'g' => $g, 'b' => $b);
     }
@@ -3199,7 +3257,7 @@ class  Cpdf {
   function  line($x1, $y1, $x2, $y2) {
 
     $this->objects[$this->currentContents]['c'] .=
-      "\n".sprintf('%.3f', $x1) .' '.sprintf('%.3f', $y1) .' m '.sprintf('%.3f', $x2) .' '.sprintf('%.3f', $y2) .' l S';
+      "\n".sprintf('%.3F', $x1) .' '.sprintf('%.3F', $y1) .' m '.sprintf('%.3F', $x2) .' '.sprintf('%.3F', $y2) .' l S';
   }
 
 
@@ -3211,10 +3269,10 @@ class  Cpdf {
     // in the current line style, draw a bezier curve from (x0,y0) to (x3,y3) using the other two points
     // as the control points for the curve.
     $this->objects[$this->currentContents]['c'] .=
-      "\n".sprintf('%.3f', $x0) .' '.sprintf('%.3f', $y0) .' m '.sprintf('%.3f', $x1) .' '.sprintf('%.3f', $y1);
+      "\n".sprintf('%.3F', $x0) .' '.sprintf('%.3F', $y0) .' m '.sprintf('%.3F', $x1) .' '.sprintf('%.3F', $y1);
 
     $this->objects[$this->currentContents]['c'] .=
-      ' '.sprintf('%.3f', $x2) .' '.sprintf('%.3f', $y2) .' '.sprintf('%.3f', $x3) .' '.sprintf('%.3f', $y3) .' c S';
+      ' '.sprintf('%.3F', $x2) .' '.sprintf('%.3F', $y2) .' '.sprintf('%.3F', $x3) .' '.sprintf('%.3F', $y3) .' c S';
   }
 
 
@@ -3278,8 +3336,8 @@ class  Cpdf {
       $a =  -1*deg2rad((float)$angle);
 
       $tmp  =  "\n q ";
-      $tmp .=  sprintf('%.3f', cos($a)) .' '.sprintf('%.3f', (-1.0*sin($a))) .' '.sprintf('%.3f', sin($a)) .' '.sprintf('%.3f', cos($a)) .' ';
-      $tmp .=  sprintf('%.3f', $x0) .' '.sprintf('%.3f', $y0) .' cm';
+      $tmp .=  sprintf('%.3F', cos($a)) .' '.sprintf('%.3F', (-1.0*sin($a))) .' '.sprintf('%.3F', sin($a)) .' '.sprintf('%.3F', cos($a)) .' ';
+      $tmp .=  sprintf('%.3F', $x0) .' '.sprintf('%.3F', $y0) .' cm';
 
       $this->objects[$this->currentContents]['c'].=  $tmp;
 
@@ -3295,7 +3353,7 @@ class  Cpdf {
     $d0 =  $r2 * cos($t1);
 
 
-    $this->objects[$this->currentContents]['c'] .=  "\n".sprintf('%.3f', $a0) .' '.sprintf('%.3f', $b0) .' m ';
+    $this->objects[$this->currentContents]['c'] .=  "\n".sprintf('%.3F', $a0) .' '.sprintf('%.3F', $b0) .' m ';
 
     for  ($i = 1; $i <=  $nSeg; $i++) {
 
@@ -3311,10 +3369,10 @@ class  Cpdf {
       $d1 =  $r2 * cos($t1);
 
       $this->objects[$this->currentContents]['c']
-        .=  "\n".sprintf('%.3f', ($a0+$c0*$dtm)) .' '.sprintf('%.3f', ($b0 + $d0 * $dtm));
+        .=  "\n".sprintf('%.3F', ($a0+$c0*$dtm)) .' '.sprintf('%.3F', ($b0 + $d0 * $dtm));
 
       $this->objects[$this->currentContents]['c'] .=
-        ' '.sprintf('%.3f', ($a1-$c1*$dtm)) .' '.sprintf('%.3f', ($b1-$d1*$dtm)) .' '.sprintf('%.3f', $a1) .' '.sprintf('%.3f', $b1) .' c';
+        ' '.sprintf('%.3F', ($a1-$c1*$dtm)) .' '.sprintf('%.3F', ($b1-$d1*$dtm)) .' '.sprintf('%.3F', $a1) .' '.sprintf('%.3F', $b1) .' c';
 
       $a0 =  $a1;
 
@@ -3410,11 +3468,11 @@ class  Cpdf {
 
     $this->objects[$this->currentContents]['c'].=  "\n";
 
-    $this->objects[$this->currentContents]['c'].=  sprintf('%.3f', $p[0]) .' '.sprintf('%.3f', $p[1]) .' m ';
+    $this->objects[$this->currentContents]['c'].=  sprintf('%.3F', $p[0]) .' '.sprintf('%.3F', $p[1]) .' m ';
 
     for  ($i =  2; $i < $np * 2; $i =  $i + 2) {
 
-      $this->objects[$this->currentContents]['c'].=  sprintf('%.3f', $p[$i]) .' '.sprintf('%.3f', $p[$i+1]) .' l ';
+      $this->objects[$this->currentContents]['c'].=  sprintf('%.3F', $p[$i]) .' '.sprintf('%.3F', $p[$i+1]) .' l ';
     }
 
     if  ($f ==  1) {
@@ -3433,7 +3491,7 @@ class  Cpdf {
    */
   function  filledRectangle($x1, $y1, $width, $height) {
 
-    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3f', $x1) .' '.sprintf('%.3f', $y1) .' '.sprintf('%.3f', $width) .' '.sprintf('%.3f', $height) .' re f';
+    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3F', $x1) .' '.sprintf('%.3F', $y1) .' '.sprintf('%.3F', $width) .' '.sprintf('%.3F', $height) .' re f';
   }
 
 
@@ -3443,7 +3501,7 @@ class  Cpdf {
    */
   function  rectangle($x1, $y1, $width, $height) {
 
-    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3f', $x1) .' '.sprintf('%.3f', $y1) .' '.sprintf('%.3f', $width) .' '.sprintf('%.3f', $height) .' re S';
+    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3F', $x1) .' '.sprintf('%.3F', $y1) .' '.sprintf('%.3F', $width) .' '.sprintf('%.3F', $height) .' re S';
   }
 
 
@@ -3607,11 +3665,11 @@ class  Cpdf {
 
 
   /**
-   * return the font decender, this will normally return a negative number
+   * return the font descender, this will normally return a negative number
    * if you add this number to the baseline, you get the level of the bottom of the font
    * it is in the pdf user units
    */
-  function  getFontDecender($size) {
+  function  getFontDescender($size) {
 
     // note that this will most likely return a negative value
     if  (!$this->numFonts) {
@@ -3620,7 +3678,7 @@ class  Cpdf {
     }
 
     //$h = $this->fonts[$this->currentFont]['FontBBox'][1];
-    $h = $this->fonts[$this->currentFont]['Decender'];
+    $h = $this->fonts[$this->currentFont]['Descender'];
 
     return  $size*$h/1000;
   }
@@ -4000,10 +4058,10 @@ class  Cpdf {
 
               // need to assess the text position, calculate the text width to this point
               // can use getTextWidth to find the text width I think
-              // also add the text height and decender
+              // also add the text height and descender
               $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, substr($text, 0, $i));
 
-              $info =  array('x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'start', 'p' => $parm, 'f' => $func, 'height' => $this->getFontHeight($size), 'decender' => $this->getFontDecender($size));
+              $info =  array('x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'start', 'p' => $parm, 'f' => $func, 'height' => $this->getFontHeight($size), 'descender' => $this->getFontDescender($size));
 
               $x =  $tmp[0];
 
@@ -4073,7 +4131,7 @@ class  Cpdf {
                        'p' => $this->callback[$i]['p'],
                        'nCallback' => $this->callback[$i]['nCallback'],
                        'height' => $this->callback[$i]['height'],
-                       'decender' => $this->callback[$i]['decender']);
+                       'descender' => $this->callback[$i]['descender']);
 
         $func =  $this->callback[$i]['f'];
 
@@ -4083,7 +4141,7 @@ class  Cpdf {
 
     if  ($angle ==  0) {
 
-      $this->objects[$this->currentContents]['c'].=  "\n".'BT '.sprintf('%.3f', $x) .' '.sprintf('%.3f', $y) .' Td';
+      $this->objects[$this->currentContents]['c'].=  "\n".'BT '.sprintf('%.3F', $x) .' '.sprintf('%.3F', $y) .' Td';
 
     } else {
 
@@ -4091,9 +4149,9 @@ class  Cpdf {
 
       $tmp =  "\n".'BT ';
 
-      $tmp.=  sprintf('%.3f', cos($a)) .' '.sprintf('%.3f', (-1.0*sin($a))) .' '.sprintf('%.3f', sin($a)) .' '.sprintf('%.3f', cos($a)) .' ';
+      $tmp.=  sprintf('%.3F', cos($a)) .' '.sprintf('%.3F', (-1.0*sin($a))) .' '.sprintf('%.3F', sin($a)) .' '.sprintf('%.3F', cos($a)) .' ';
 
-      $tmp.=  sprintf('%.3f', $x) .' '.sprintf('%.3f', $y) .' Tm';
+      $tmp.=  sprintf('%.3F', $x) .' '.sprintf('%.3F', $y) .' Tm';
 
       $this->objects[$this->currentContents]['c'].=  $tmp;
     }
@@ -4102,7 +4160,7 @@ class  Cpdf {
 
       $this->wordSpaceAdjust =  $wordSpaceAdjust;
 
-      $this->objects[$this->currentContents]['c'].=  ' '.sprintf('%.3f', $wordSpaceAdjust) .' Tw';
+      $this->objects[$this->currentContents]['c'].=  ' '.sprintf('%.3F', $wordSpaceAdjust) .' Tw';
     }
 
     $len =  strlen($text);
@@ -4117,7 +4175,7 @@ class  Cpdf {
      // then we should write what we need to
      if ($i>$start){
      $part = substr($text,$start,$i-$start);
-     $this->objects[$this->currentContents]['c'] .= ' /F'.$this->currentFontNum.' '.sprintf('%.1f',$size).' Tf ';
+     $this->objects[$this->currentContents]['c'] .= ' /F'.$this->currentFontNum.' '.sprintf('%.1F',$size).' Tf ';
      $this->objects[$this->currentContents]['c'] .= ' ('.$this->filterText($part, false).') Tj';
      }
      if ($f){
@@ -4132,17 +4190,17 @@ class  Cpdf {
 
      // restart the text object
      if ($angle == 0){
-     $this->objects[$this->currentContents]['c'] .= "\n".'BT '.sprintf('%.3f',$xp).' '.sprintf('%.3f',$yp).' Td';
+     $this->objects[$this->currentContents]['c'] .= "\n".'BT '.sprintf('%.3F',$xp).' '.sprintf('%.3F',$yp).' Td';
      } else {
      $a = deg2rad((float)$angle);
      $tmp = "\n".'BT ';
-     $tmp .= sprintf('%.3f',cos($a)).' '.sprintf('%.3f',(-1.0*sin($a))).' '.sprintf('%.3f',sin($a)).' '.sprintf('%.3f',cos($a)).' ';
-     $tmp .= sprintf('%.3f',$xp).' '.sprintf('%.3f',$yp).' Tm';
+     $tmp .= sprintf('%.3F',cos($a)).' '.sprintf('%.3F',(-1.0*sin($a))).' '.sprintf('%.3F',sin($a)).' '.sprintf('%.3F',cos($a)).' ';
+     $tmp .= sprintf('%.3F',$xp).' '.sprintf('%.3F',$yp).' Tm';
      $this->objects[$this->currentContents]['c'] .= $tmp;
      }
      if ($wordSpaceAdjust != 0 || $wordSpaceAdjust != $this->wordSpaceAdjust){
      $this->wordSpaceAdjust = $wordSpaceAdjust;
-     $this->objects[$this->currentContents]['c'] .= ' '.sprintf('%.3f',$wordSpaceAdjust).' Tw';
+     $this->objects[$this->currentContents]['c'] .= ' '.sprintf('%.3F',$wordSpaceAdjust).' Tw';
      }
      }
      // and move the writing point to the next piece of text
@@ -4156,7 +4214,7 @@ class  Cpdf {
 
       $part =  $text; // OAR - Don't need this anymore, given that $start always equals zero.  substr($text, $start);
 
-      $this->objects[$this->currentContents]['c'].=  ' /F'.$this->currentFontNum.' '.sprintf('%.1f', $size) .' Tf ';
+      $this->objects[$this->currentContents]['c'].=  ' /F'.$this->currentFontNum.' '.sprintf('%.1F', $size) .' Tf ';
 
       $this->objects[$this->currentContents]['c'].=  ' ('.$this->filterText($part, false) .') Tj';
     }
@@ -4172,7 +4230,7 @@ class  Cpdf {
         // call each function
         $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, $text);
 
-        $info =  array('x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'eol', 'p' => $this->callback[$i]['p'], 'nCallback' => $this->callback[$i]['nCallback'], 'height' => $this->callback[$i]['height'], 'decender' => $this->callback[$i]['decender']);
+        $info =  array('x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'eol', 'p' => $this->callback[$i]['p'], 'nCallback' => $this->callback[$i]['nCallback'], 'height' => $this->callback[$i]['height'], 'descender' => $this->callback[$i]['descender']);
 
         $func =  $this->callback[$i]['f'];
 
@@ -4816,34 +4874,120 @@ class  Cpdf {
 
 
   /**
+   * add a PNG image into the document, from a GD object
+   * this should work with remote files
+   */
+  function addImagePng($file, $x, $y, $w =  0, $h =  0, &$img) {
+    //if already cached, need not to read again
+	if ( isset($this->imagelist[$file]) ) {
+	  $data = null;
+	} else {
+  	  // Example for transparency handling on new image. Retain for current image
+      // $tIndex = imagecolortransparent($img);
+      // if ($tIndex > 0) {
+      //   $tColor    = imagecolorsforindex($img, $tIndex);
+      //   $new_tIndex    = imagecolorallocate($new_img, $tColor['red'], $tColor['green'], $tColor['blue']);
+      //   imagefill($new_img, 0, 0, $new_tIndex);
+      //   imagecolortransparent($new_img, $new_tIndex);
+      // }
+	  // blending mode (literal/blending) on drawing into current image. not relevant when not saved or not drawn
+	  //imagealphablending($img, true);
+	  //default, but explicitely set to ensure pdf compatibility
+      imagesavealpha($img, false);
+      
+      $error =  0;
+      //DEBUG_IMG_TEMP
+      //debugpng
+      if (DEBUGPNG) print '[addImagePng '.$file.']';
+
+      ob_start();
+      @imagepng($img);
+      //$data = ob_get_contents(); ob_end_clean();
+      $data = ob_get_clean();
+
+      if ($data == '') {
+        $error = 1;
+        $errormsg = 'trouble writing file from GD';
+        //DEBUG_IMG_TEMP
+        //debugpng
+        if (DEBUGPNG) print 'trouble writing file from GD';
+	  }
+
+      if  ($error) {
+        $this->addMessage('PNG error - ('.$file.') '.$errormsg);
+        return;
+      }
+    }  //End isset($this->imagelist[$file]) (png Duplicate removal)
+
+    $this->addPngFromBuf($file, $x, $y, $w, $h, $data);
+  }
+
+
+  /**
    * add a PNG image into the document, from a file
    * this should work with remote files
    */
   function  addPngFromFile($file, $x, $y, $w =  0, $h =  0) {
-
-    // read in a png file, interpret it, then add to the system
-    $error =  0;
-
-    $tmp =  get_magic_quotes_runtime();
-
-    set_magic_quotes_runtime(0);
-
-    if  ( ($data =  file_get_contents($file)) ===  false) {
-
-      //   $fp = @fopen($file,'rb');
-      //   if ($fp){
-      //     $data = '';
-      //     while(!feof($fp)){
-      //       $data .= fread($fp,1024);
-      //     }
-      //     fclose($fp);
-      $error =  1;
-
-      $errormsg =  'trouble opening file: '.$file;
+    //if already cached, need not to read again
+	if ( isset($this->imagelist[$file]) ) {
+	  $img = null;
+	} else {
+      //png files typically contain an alpha channel.
+      //pdf file format or class.pdf does not support alpha blending.
+      //on alpha blended images, more transparent areas have a color near black.
+      //This appears in the result on not storing the alpha channel.
+      //Correct would be the box background image or its parent when transparent.
+      //But this would make the image dependent on the background.
+      //Therefore create an image with white background and copy in
+      //A more natural background than black is white.
+      //Therefore create an empty image with white background and merge the
+      //image in with alpha blending.
+      $imgtmp = @imagecreatefrompng($file);
+      if (!$imgtmp) {
+        return;
+      }
+      $sx = imagesx($imgtmp);
+      $sy = imagesy($imgtmp);
+      $img = imagecreatetruecolor($sx,$sy);
+      imagealphablending($img, true);
+  	  $ti = imagecolortransparent($imgtmp);
+	  if ($ti >= 0) {
+	    $tc = imagecolorsforindex($imgtmp,$ti);
+        $ti = imagecolorallocate($img,$tc['red'],$tc['green'],$tc['blue']);
+        imagefill($img,0,0,$ti);
+        imagecolortransparent($img, $ti);
+      } else {
+        imagefill($img,1,1,imagecolorallocate($img,255,255,255));
+      }
+      imagecopy($img,$imgtmp,0,0,0,0,$sx,$sy);
+      imagedestroy($imgtmp);
     }
+    $this->addImagePng($file, $x, $y, $w, $h, $img);
+  }
 
-    set_magic_quotes_runtime($tmp);
 
+  /**
+   * add a PNG image into the document, from a memory buffer of the file
+   */
+  function  addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data) {
+
+	if ( isset($this->imagelist[$file]) ) {
+      //debugpng
+      //if (DEBUGPNG) print '[addPngFromBuf Duplicate '.$file.']';
+	  $data = null;
+      $info['width'] = $this->imagelist[$file]['w'];
+      $info['height'] = $this->imagelist[$file]['h'];
+      $label = $this->imagelist[$file]['label'];
+
+	} else {
+
+      if ($data == null) {
+      	$this->addMessage('addPngFromBuf error - ('.$imgname.') data not present!');
+        return;
+      }
+      //debugpng
+      //if (DEBUGPNG) print '[addPngFromBuf file='.$file.']';
+    $error =  0;
 
     if  (!$error) {
 
@@ -4852,6 +4996,9 @@ class  Cpdf {
       if  (substr($data, 0, 8) !=  $header) {
 
         $error =  1;
+
+        //debugpng
+        if (DEBUGPNG) print '[addPngFromFile this file does not have a valid header '.$file.']';
 
         $errormsg =  'this file does not have a valid header';
       }
@@ -4908,12 +5055,18 @@ class  Cpdf {
 
             $error =  1;
 
+            //debugpng
+            if (DEBUGPNG) print '[addPngFromFile unsupported compression method '.$file.']';
+
             $errormsg =  'unsupported compression method';
           }
 
           if  ($info['filterMethod'] !=  0) {
 
             $error =  1;
+
+            //debugpng
+            if (DEBUGPNG) print '[addPngFromFile unsupported filter method '.$file.']';
 
             $errormsg =  'unsupported filter method';
           }
@@ -4991,6 +5144,8 @@ class  Cpdf {
 
             //unsupported transparency type
 
+            //debugpng
+            if (DEBUGPNG) print '[addPngFromFile unsupported transparency type '.$file.']';
           }
 
           // KS End new code
@@ -5010,12 +5165,18 @@ class  Cpdf {
 
         $error =  1;
 
+        //debugpng
+        if (DEBUGPNG) print '[addPngFromFile information header is missing '.$file.']';
+
         $errormsg =  'information header is missing';
       }
 
       if  (isset($info['interlaceMethod']) &&  $info['interlaceMethod']) {
 
         $error =  1;
+
+        //debugpng
+        if (DEBUGPNG) print '[addPngFromFile no support for interlaced images in pdf '.$file.']';
 
         $errormsg =  'There appears to be no support for interlaced images in pdf.';
       }
@@ -5026,6 +5187,9 @@ class  Cpdf {
 
       $error =  1;
 
+      //debugpng
+      if (DEBUGPNG) print '[addPngFromFile bit depth of 8 or less is supported '.$file.']';
+
       $errormsg =  'only bit depth of 8 or less is supported';
     }
 
@@ -5035,6 +5199,9 @@ class  Cpdf {
       if  ($info['colorType'] !=  2 &&  $info['colorType'] !=  0 &&  $info['colorType'] !=  3) {
 
         $error =  1;
+
+        //debugpng
+        if (DEBUGPNG) print '[addPngFromFile alpha channel not supported: '.$info['colorType'].' '.$file.']';
 
         $errormsg =  'transparancey alpha channel not supported, transparency only supported for palette images.';
       } else {
@@ -5075,40 +5242,47 @@ class  Cpdf {
       return;
     }
 
-    if  ($w ==  0) {
+      //print_r($info);
+      // so this image is ok... add it in.
+      $this->numImages++;
+
+      $im =  $this->numImages;
+
+      $label =  'I'.$im;
+
+      $this->numObj++;
+
+      //  $this->o_image($this->numObj,'new',array('label' => $label,'data' => $idata,'iw' => $w,'ih' => $h,'type' => 'png','ic' => $info['width']));
+      $options =  array('label' => $label, 'data' => $idata, 'bitsPerComponent' => $info['bitDepth'], 'pdata' => $pdata, 'iw' => $info['width'], 'ih' => $info['height'], 'type' => 'png', 'color' => $color, 'ncolor' => $ncolor);
+
+      if  (isset($transparency)) {
+
+        $options['transparency'] =  $transparency;
+      }
+
+      $this->o_image($this->numObj, 'new', $options);
+
+      $this->imagelist[$file] = array('label' =>$label, 'w' => $info['width'], 'h' => $info['height']);
+    }
+
+    if  ($w <=  0 && $h <=  0) {
+      $w =  $info['width'];
+      $h =  $info['height'];
+    }
+
+    if  ($w <=  0) {
 
       $w =  $h/$info['height']*$info['width'];
     }
 
-    if  ($h ==  0) {
+    if  ($h <=  0) {
 
       $h =  $w*$info['height']/$info['width'];
     }
 
-    //print_r($info);
-    // so this image is ok... add it in.
-    $this->numImages++;
-
-    $im =  $this->numImages;
-
-    $label =  'I'.$im;
-
-    $this->numObj++;
-
-    //  $this->o_image($this->numObj,'new',array('label' => $label,'data' => $idata,'iw' => $w,'ih' => $h,'type' => 'png','ic' => $info['width']));
-    $options =  array('label' => $label, 'data' => $idata, 'bitsPerComponent' => $info['bitDepth'], 'pdata' => $pdata, 'iw' => $info['width'], 'ih' => $info['height'], 'type' => 'png', 'color' => $color, 'ncolor' => $ncolor);
-
-    if  (isset($transparency)) {
-
-      $options['transparency'] =  $transparency;
-    }
-
-    $this->o_image($this->numObj, 'new', $options);
-
-
     $this->objects[$this->currentContents]['c'].=  "\nq";
 
-    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3f', $w) ." 0 0 ".sprintf('%.3f', $h) ." ".sprintf('%.3f', $x) ." ".sprintf('%.3f', $y) ." cm";
+    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3F', $w) ." 0 0 ".sprintf('%.3F', $h) ." ".sprintf('%.3F', $x) ." ".sprintf('%.3F', $y) ." cm";
 
     $this->objects[$this->currentContents]['c'].=  "\n/".$label.' Do';
 
@@ -5129,22 +5303,42 @@ class  Cpdf {
       return;
     }
 
+	if ( isset($this->imagelist[$img]) ) {
+	  $data = null;
+      $imageWidth = $this->imagelist[$img]['w'];
+      $imageHeight = $this->imagelist[$img]['h'];
+      $channels =  $this->imagelist[$img]['c'];
+	} else {
 
-    $tmp =  getimagesize($img);
+      $tmp =  getimagesize($img);
 
-    $imageWidth =  $tmp[0];
+      $imageWidth =  $tmp[0];
 
-    $imageHeight =  $tmp[1];
+      $imageHeight =  $tmp[1];
 
 
-    if  (isset($tmp['channels'])) {
+      if  (isset($tmp['channels'])) {
 
-      $channels =  $tmp['channels'];
-    } else {
+        $channels =  $tmp['channels'];
+      } else {
 
-      $channels =  3;
+        $channels =  3;
+      }
+
+
+      //$fp = fopen($img,'rb');
+
+      $tmp =  get_magic_quotes_runtime();
+
+      set_magic_quotes_runtime(0);
+
+      $data =  file_get_contents($img);
+
+      //fread($fp,filesize($img));
+      set_magic_quotes_runtime($tmp);
+
+      //fclose($fp);
     }
-
 
     if  ($w <=  0 &&  $h <=  0) {
 
@@ -5161,22 +5355,7 @@ class  Cpdf {
       $h =  $w*$imageHeight/$imageWidth;
     }
 
-
-    //$fp = fopen($img,'rb');
-
-    $tmp =  get_magic_quotes_runtime();
-
-    set_magic_quotes_runtime(0);
-
-    $data =  file_get_contents($img);
-
-    //fread($fp,filesize($img));
-    set_magic_quotes_runtime($tmp);
-
-
-    //fclose($fp);
-
-    $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $channels);
+    $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $channels, $img);
   }
 
 
@@ -5186,6 +5365,16 @@ class  Cpdf {
    * the file based functions
    */
   function  addImage(&$img, $x, $y, $w =  0, $h =  0, $quality =  75) {
+
+    /* Todo:
+     * Pass in original filename as $imgname
+     * If already cached like image_iscached(), allow empty $img
+     * How to get w  and h in this case?
+     * Then caller can check with image_iscached() whether generation of image is needed.
+     *
+     * But anyway, this function is not used!
+     */
+    $imgname = tempnam($this->tmp, "cpdf_img_").'.jpeg';
 
     // add a new image into the current location, as an external object
     // add the image at $x,$y, and with width and height as defined by $w & $h
@@ -5223,43 +5412,21 @@ class  Cpdf {
       $h =  $w*$imageHeight/$imageWidth;
     }
 
-
     // gotta get the data out of the img..
+    ob_start();
+    imagejpeg($img, '', $quality);
+    //$data = ob_get_contents(); ob_end_clean();
+    $data = ob_get_clean();
 
-    // so I write to a temp file, and then read it back.. soo ugly, my apologies.
-    $tmpDir =  '/tmp';
+    $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $imgname);
+  }
 
-    $tmpName =  tempnam($tmpDir, 'img');
 
-    imagejpeg($img, $tmpName, $quality);
-
-    //$fp = fopen($tmpName,'rb');
-
-    $tmp =  get_magic_quotes_runtime();
-
-    set_magic_quotes_runtime(0);
-
-    if  ( ($data =  file_get_contents($tmpName)) ===  false) {
-
-      //   $fp = @fopen($tmpName,'rb');
-      //   if ($fp){
-      //     $data = '';
-      //     while(!feof($fp)){
-      //       $data .= fread($fp,1024);
-      //     }
-      //     fclose($fp);
-      $error =  1;
-
-      $errormsg =  'trouble opening file';
-    }
-
-    //  $data = fread($fp,filesize($tmpName));
-    set_magic_quotes_runtime($tmp);
-
-    //  fclose($fp);
-    unlink($tmpName);
-
-    $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight);
+  /* Check if image already added to pdf image directory.
+   * If yes, need not to create again (pass empty data)
+   */
+  function  image_iscached($imgname) {
+    return isset($this->imagelist[$imgname]);
   }
 
 
@@ -5268,24 +5435,39 @@ class  Cpdf {
    *
    * @access private
    */
-  function  addJpegImage_common(&$data, $x, $y, $w =  0, $h =  0, $imageWidth, $imageHeight, $channels =  3) {
+  function  addJpegImage_common(&$data, $x, $y, $w =  0, $h =  0, $imageWidth, $imageHeight, $channels =  3, $imgname) {
 
-    // note that this function is not to be called externally
-    // it is just the common code between the GD and the file options
-    $this->numImages++;
+    if ( isset($this->imagelist[$imgname]) ) {
+      $label = $this->imagelist[$imgname]['label'];
+      //debugpng
+      //if (DEBUGPNG) print '[addJpegImage_common Duplicate '.$imgname.']';
 
-    $im =  $this->numImages;
+    } else {
 
-    $label =  'I'.$im;
+      if ($data == null) {
+      	$this->addMessage('addJpegImage_common error - ('.$imgname.') data not present!');
+        return;
+      }
 
-    $this->numObj++;
+      // note that this function is not to be called externally
+      // it is just the common code between the GD and the file options
+      $this->numImages++;
 
-    $this->o_image($this->numObj, 'new', array('label' => $label, 'data' => &$data, 'iw' => $imageWidth, 'ih' => $imageHeight, 'channels' => $channels));
+      $im =  $this->numImages;
+
+      $label =  'I'.$im;
+
+      $this->numObj++;
+
+      $this->o_image($this->numObj, 'new', array('label' => $label, 'data' => &$data, 'iw' => $imageWidth, 'ih' => $imageHeight, 'channels' => $channels));
+
+      $this->imagelist[$imgname] = array('label' =>$label, 'w' => $imageWidth, 'h' => $imageHeight, 'c'=> $channels );
+    }
 
 
     $this->objects[$this->currentContents]['c'].=  "\nq";
 
-    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3f', $w) ." 0 0 ".sprintf('%.3f', $h) ." ".sprintf('%.3f', $x) ." ".sprintf('%.3f', $y) ." cm";
+    $this->objects[$this->currentContents]['c'].=  "\n".sprintf('%.3F', $w) ." 0 0 ".sprintf('%.3F', $h) ." ".sprintf('%.3F', $x) ." ".sprintf('%.3F', $y) ." cm";
 
     $this->objects[$this->currentContents]['c'].=  "\n/".$label.' Do';
 

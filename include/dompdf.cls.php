@@ -281,11 +281,11 @@ class DOMPDF {
         throw new DOMPDF_Exception("File '$file' not found.");
 
       if ( strpos($realfile, DOMPDF_CHROOT) !== 0 )
-        throw new DOMPDF_Exception("Permission denied.");
+        throw new DOMPDF_Exception("Permission denied on $file.");
 
       // Exclude dot files (e.g. .htaccess)
       if ( substr(basename($realfile),0,1) == "." )
-        throw new DOMPDF_Exception("Permission denied.");
+        throw new DOMPDF_Exception("Permission denied on $file.");
 
       $file = $realfile;
     }
@@ -332,11 +332,36 @@ class DOMPDF {
 
     $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET);
 
+    $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
+    if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
+      $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
+    } else {
+      $acceptedmedia[] = Stylesheet::$ACCEPTED_DEFAULT_MEDIA_TYPE; 
+    }
+          
     // load <link rel="STYLESHEET" ... /> tags
     $links = $this->_xml->getElementsByTagName("link");
     foreach ($links as $link) {
       if ( mb_strtolower($link->getAttribute("rel")) == "stylesheet" ||
            mb_strtolower($link->getAttribute("type")) == "text/css" ) {
+        //Check if the css file is for an accepted media type
+        //media not given then always valid
+        $formedialist = preg_split("/[\s\n,]/", $link->getAttribute("media"),-1, PREG_SPLIT_NO_EMPTY);
+        if ( count($formedialist) > 0 ) {
+          $accept = false;
+          foreach ( $formedialist as $type ) {
+            if ( in_array(mb_strtolower(trim($type)), $acceptedmedia) ) {
+              $accept = true;
+              break;
+            }
+          }
+          if (!$accept) {
+            //found at least one mediatype, but none of the accepted ones
+            //Skip this css file.
+            continue;
+          }
+        }
+           
         $url = $link->getAttribute("href");
         $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
 
@@ -355,7 +380,7 @@ class DOMPDF {
       // which states that the default media type is 'screen'
       if ( $style->hasAttributes() &&
            ($media = $style->getAttribute("media")) &&
-           !in_array($media, Stylesheet::$ACCEPTED_MEDIA_TYPES) )
+           !in_array($media, $acceptedmedia) )
         continue;
 
       $css = "";

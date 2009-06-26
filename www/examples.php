@@ -38,7 +38,17 @@ package.)</p>
 <ul class="samples">
 <?php
 $test_files = glob("test/*.{html,php}", GLOB_BRACE);
-$dompdf = dirname(dirname($_SERVER["PHP_SELF"])) . "/dompdf.php?base_path=" . rawurlencode("www/test/");
+//if dompdf.php runs in virtual server root, dirname does not return empty folder but '/' or '\' (windows).
+//This leads to a duplicate separator in unix etc. and an error in Windows. Therefore strip off.
+//echo '<li>['.$_SERVER["PHP_SELF"].']</li>';
+$dompdf = dirname(dirname($_SERVER["PHP_SELF"]));
+//echo '<li>['.$dompdf.']</li>';
+if ( $dompdf == '/' || $dompdf == '\\') {
+  $dompdf = '';
+}
+//echo '<li>['.$dompdf.']</li>';
+$dompdf .= "/dompdf.php?base_path=" . rawurlencode("www/test/");
+//echo '<li>['.$dompdf.']</li>';
 foreach ( $test_files as $file ) {
   $file = basename($file);
   $arrow = "images/arrow_0" . rand(1, 6) . ".gif";  

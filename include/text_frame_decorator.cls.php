@@ -120,7 +120,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
 
   function get_padding_box() {
     $pb = $this->_frame->get_padding_box();
-    $pb["h"] = $this->_frame->get_style()->height;
+    $pb[3] = $pb["h"] = $this->_frame->get_style()->height;
     return $pb;
   }
   //........................................................................

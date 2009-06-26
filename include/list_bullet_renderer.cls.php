@@ -33,8 +33,14 @@
  * @link http://www.digitaljunkies.ca/dompdf
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
  * @version 0.5.1
+ *
+ * Changes
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
+ * @version 20090622
+ * - bullet size proportional to font size, center position
  */
 
 /* $Id: list_bullet_renderer.cls.php,v 1.7 2006-10-26 17:07:23 benjcarson Exp $ */
@@ -52,23 +58,34 @@ class List_Bullet_Renderer extends Abstract_Renderer {
   function render(Frame $frame) {
 
     $style = $frame->get_style();
+    $font_size = $style->get_font_size();
     $line_height = $style->length_in_pt($style->line_height, $frame->get_containing_block("w"));
 
     // Handle list-style-image
-    if ( $style->list_style_image != "none" ) {
+    // If list style image is requested but missing, fall back to predefined types
+    if ( $style->list_style_image != "none" &&
+         strcmp($img = $frame->get_image_url(), DOMPDF_LIB_DIR . "/res/broken_image.png") != 0) {
 
       list($x,$y) = $frame->get_position();
-      $w = $frame->get_width();
-      $h = $frame->get_height();
-      $x += $w / 2;
-      $y += $line_height / 2 - $h / 2;
+      
+      //For expected size and aspect, instead of box size, use image natural size scaled to DPI.
+      // Resample the bullet image to be consistent with 'auto' sized images
+      // See also Image_Frame_Reflower::get_min_max_width
+      // Tested php ver: value measured in px, suffix "px" not in value: rtrim unnecessary.
+      //$w = $frame->get_width();
+      //$h = $frame->get_height();
+      list($width, $height) = getimagesize($img);
+      $w = (((float)rtrim($width, "px")) * 72) / DOMPDF_DPI;
+      $h = (((float)rtrim($height, "px")) * 72) / DOMPDF_DPI;
+      
+      $x -= $w;
+      $y -= ($line_height - $font_size)/2; //Reverse hinting of list_bullet_positioner
 
-      $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h);
+      $this->_canvas->image( $img, $frame->get_image_ext(), $x, $y, $w, $h);
 
     } else {
 
       $bullet_style = $style->list_style_type;
-      $bullet_size = List_Bullet_Frame_Decorator::BULLET_SIZE;
 
       $fill = false;
 
@@ -79,22 +96,23 @@ class List_Bullet_Renderer extends Abstract_Renderer {
         $fill = true;
 
       case "circle":
-        if ( !$fill )
-          $fill = false;
-
         list($x,$y) = $frame->get_position();
-        //$x += $bullet_size / 2 + List_Bullet_Frame_Decorator::BULLET_PADDING;
-        $y += $line_height - $bullet_size;
-        $r = $bullet_size / 2;
-        $this->_canvas->circle($x, $y, $r, $style->color, 0.2, null, $fill);
+        $r = ($font_size*(List_Bullet_Frame_Decorator::BULLET_SIZE /*-List_Bullet_Frame_Decorator::BULLET_THICKNESS*/ ))/2;
+        $x -= $font_size*(List_Bullet_Frame_Decorator::BULLET_SIZE/2);
+        $y += ($font_size*(1-List_Bullet_Frame_Decorator::BULLET_DESCENT))/2;
+        $o = $font_size*List_Bullet_Frame_Decorator::BULLET_THICKNESS;
+        $this->_canvas->circle($x, $y, $r, $style->color, $o, null, $fill);
         break;
 
       case "square":
         list($x, $y) = $frame->get_position();
-        $w = $bullet_size;
-        $x -= $w/2;
-        $y += $line_height - $w;
+        $w = $font_size*List_Bullet_Frame_Decorator::BULLET_SIZE;
+        $x -= $w;
+        $y += ($font_size*(1-List_Bullet_Frame_Decorator::BULLET_DESCENT-List_Bullet_Frame_Decorator::BULLET_SIZE))/2;
         $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
+        break;
+      
+      case "none":
         break;
 
       }

@@ -77,6 +77,11 @@ class Inline_Renderer extends Abstract_Renderer {
       $child_h += $widths[2];
       
       if ( !is_null($w) && $child_x < $x + $w ) {
+        //This branch seems to be supposed to being called on the first part
+        //of an inline html element, and the part after the if clause for the
+        //parts after a line break.
+        //But because $w initially mostly is 0, and gets updated only on the next
+        //round, this seem to be never executed and the common close always.
 
         // The next child is on another line.  Draw the background &
         // borders on this line.
@@ -138,9 +143,16 @@ class Inline_Renderer extends Abstract_Renderer {
     if ( ($bg = $style->background_color) !== "transparent" ) 
       $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $style->background_color);
 
+    //On continuation lines (after line break) of inline elements, the style got copied.
+    //But a non repeatable background image should not be repeated on the next line.
+    //But removing the background image above has never an effect, and removing it below
+    //removes it always, even on the initial line.
+    //Need to handle it elsewhere, e.g. on certain ...clone()... usages.    
+    // Repeat not given: default is Style::__construct
+    // ... && (!($repeat = $style->background_repeat) || $repeat === "repeat" ...
+    //different position? $this->_background_image($url, $x, $y, $w, $h, $style);
     if ( ($url = $style->background_image) && $url !== "none" )           
       $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $style);
-
         
     // Add the border widths
     $w += $widths[1] + $widths[3];

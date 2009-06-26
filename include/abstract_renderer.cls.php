@@ -33,8 +33,22 @@
  * @link http://www.digitaljunkies.ca/dompdf
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
  * @version 0.5.1
+ *
+ * Changes
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
+ * @version 0.5.1.htischer.20090507
+ * - On background image
+ *   - Clip invisible areas from background images, then merge identical
+ *     image/size/offset to a single image.
+ *   - Fix rounding of background image size.
+ *   - Fix background image position given as percent
+ *   - Check if identical image is already cached by cpdf. Then do not create
+ *     duplicates to save memory and CPU time
+ *   - Fix skipping of image repetition if area is too small
+ *   - Do not create temporary files, but pass gd object directly
  */
 
 /* $Id: abstract_renderer.cls.php,v 1.6 2006-07-07 21:31:02 benjcarson Exp $ */
@@ -98,75 +112,41 @@ abstract class Abstract_Renderer {
     // Skip degenerate cases
     if ( $width == 0 || $height == 0 )
       return;
-    
+
+    //debugpng
+    if (DEBUGPNG) print '[_background_image '.$url.']';
+
     list($img, $ext) = Image_Cache::resolve_url($url,
                                                 $sheet->get_protocol(),
                                                 $sheet->get_host(),
                                                 $sheet->get_base_path());
 
-    
-    list($bg_x, $bg_y) = $style->background_position;
-    $repeat = $style->background_repeat;
-
-    if ( !is_percent($bg_x) )
-      $bg_x = $style->length_in_pt($bg_x);
-    if ( !is_percent($bg_y) )
-      $bg_y = $style->length_in_pt($bg_y);
-
-    $repeat = $style->background_repeat;
-    $position = $style->background_position;
-    $bg_color = $style->background_color;
-    
     // Bail if the image is no good
     if ( $img == DOMPDF_LIB_DIR . "/res/broken_image.png" )
       return;
-    
-    $ext = strtolower($ext);
-    
+
+	//Try to optimize away reading and composing of same background multiple times
+	//Postponing read with imagecreatefrom   ...()
+	//final composition paramters and name not known yet
+	//Therefore read dimension directly from file, instead of creating gd object first.
+    //$img_w = imagesx($src); $img_h = imagesy($src);
+
     list($img_w, $img_h) = getimagesize($img);
-
-    $bg_width = round($width * DOMPDF_DPI / 72);
-    $bg_height = round($height * DOMPDF_DPI / 72);
-
-    // Create a new image to fit over the background rectangle
-    $bg = imagecreatetruecolor($bg_width, $bg_height);
-    if ( $bg_color == "transparent" )
-      $bg_color = array(1,1,1);
-    
-    list($r,$g,$b) = $bg_color;
-    $r *= 255; $g *= 255; $b *= 255;
-
-    // Clip values
-    $r = $r > 255 ? 255 : $r;
-    $g = $g > 255 ? 255 : $g;
-    $b = $b > 255 ? 255 : $b;
-      
-    $r = $r < 0 ? 0 : $r;
-    $g = $g < 0 ? 0 : $g;
-    $b = $b < 0 ? 0 : $b;
-
-    $clear = imagecolorallocate($bg,round($r),round($g),round($b));
-    imagecolortransparent($bg, $clear);
-    imagefill($bg,1,1,$clear);
-    
-    switch ($ext) {
-
-    case "png":
-      $src = imagecreatefrompng($img);
-      break;
-      
-    case "jpg":
-    case "jpeg":
-      $src = imagecreatefromjpeg($img);
-      break;
-      
-    case "gif":
-      $src = imagecreatefromgif($img);
-      break;
-
-    default:
-      return; // Unsupported image type
+    if (!isset($img_w) || $img_w == 0 || !isset($img_h) || $img_h == 0) {
+      return;
     }
+
+    $repeat = $style->background_repeat;
+    $bg_color = $style->background_color;
+
+	//Increase background resolution and dependent box size according to image resolution to be placed in
+	//Then image can be copied in without resize
+    $bg_width = round((float)($width * DOMPDF_DPI) / 72);
+    $bg_height = round((float)($height * DOMPDF_DPI) / 72);
+
+    //Need %bg_x, $bg_y as background pos, where img starts, converted to pixel
+
+    list($bg_x, $bg_y) = $style->background_position;
 
     if ( is_percent($bg_x) ) {
       // The point $bg_x % from the left edge of the image is placed
@@ -175,9 +155,11 @@ abstract class Abstract_Renderer {
       $x1 = $p * $img_w;
       $x2 = $p * $bg_width;
 
-      $bg_x = $x2 - $x1;
+      $bg_x = round($x2 - $x1);
+    } else {
+      $bg_x = round((float)($style->length_in_pt($bg_x)*DOMPDF_DPI) / 72);
     }
-      
+
     if ( is_percent($bg_y) ) {
       // The point $bg_y % from the left edge of the image is placed
       // $bg_y % from the left edge of the background rectangle
@@ -185,106 +167,236 @@ abstract class Abstract_Renderer {
       $y1 = $p * $img_h;
       $y2 = $p * $bg_height;
 
-      $bg_y = $y2 - $y1;
+      $bg_y = round($y2 - $y1);
+    } else {
+      $bg_y = round((float)($style->length_in_pt($bg_y)*DOMPDF_DPI) / 72);
     }
 
-    // Copy regions from the source image to the background
-    if ( $repeat == "no-repeat" ||
-         ($repeat == "repeat-x" && $img_w >= $bg_width) ||
-         ($repeat == "repeat-y" && $img_h >= $bg_height) ||
-         ($repeat == "repeat" && $img_w >= $bg_width && $img_h >= $bg_height) ) {
-      
-      // Simply place the image on the background
+    //clip background to the image area on partial repeat. Nothing to do if img off area
+    //On repeat, normalize start position to the tile at immediate left/top or 0/0 of area
+    //On no repeat with positive offset: move size/start to have offset==0
+    //Handle x/y Dimensions separately
+
+    if ( $repeat != "repeat" && $repeat != "repeat-x" ) {
+      //No repeat x
+      if ($bg_x < 0) {
+        $bg_width = $img_w + $bg_x;
+      } else {
+        $x += ($bg_x * 72)/DOMPDF_DPI;
+        $bg_width = $bg_width - $bg_x;
+        if ($bg_width > $img_w) {
+          $bg_width = $img_w;
+        }
+        $bg_x = 0;
+      }
+      if ($bg_width <= 0) {
+      	return;
+      }
+      $width = (float)($bg_width * 72)/DOMPDF_DPI;
+    } else {
+      //repeat x
+      if ($bg_x < 0) {
+        $bg_x = - ((-$bg_x) % $img_w);
+      } else {
+        $bg_x = $bg_x % $img_w;
+        if ($bg_x > 0) {
+          $bg_x -= $img_w;
+        }
+      }
+    }
+
+    if ( $repeat != "repeat" && $repeat != "repeat-y" ) {
+      //no repeat y
+      if ($bg_y < 0) {
+        $bg_height = $img_h + $bg_y;
+      } else {
+        $y += ($bg_y * 72)/DOMPDF_DPI;
+        $bg_height = $bg_height - $bg_y;
+        if ($bg_height > $img_h) {
+          $bg_height = $img_h;
+        }
+        $bg_y = 0;
+      }
+      if ($bg_height <= 0) {
+      	return;
+      }
+      $height = (float)($bg_height * 72)/DOMPDF_DPI;
+    } else {
+      //repeat y
+      if ($bg_y < 0) {
+        $bg_y = - ((-$bg_y) % $img_h);
+      } else {
+        $bg_y = $bg_y % $img_h;
+        if ($bg_y > 0) {
+          $bg_y -= $img_h;
+        }
+      }
+    }
+
+    //Optimization, if repeat has no effect
+    if ( $repeat == "repeat" && $bg_y <= 0 && $img_h+$bg_y >= $bg_height ) {
+      $repeat = "repeat-x";
+    }
+    if ( $repeat == "repeat" && $bg_x <= 0 && $img_w+$bg_x >= $bg_width ) {
+      $repeat = "repeat-y";
+    }
+    if ( ($repeat == "repeat-x" && $bg_x <= 0 && $img_w+$bg_x >= $bg_width) ||
+         ($repeat == "repeat-y" && $bg_y <= 0 && $img_h+$bg_y >= $bg_height) ) {
+      $repeat = "no-repeat";
+    }
+
+	//Use filename as indicator only
+	//different names for different variants to have different copies in the pdf
+	//This is not dependent of background color of box! .'_'.(is_array($bg_color) ? $bg_color["hex"] : $bg_color)
+	//Note: Here, bg_* are the start values, not end values after going through the tile loops!
+
+	$filedummy = $img;
+
+    /* 
+    //Make shorter strings with limited characters for cache associative array index - needed?	
+	//Strip common base path - server root, explicite temp, default temp; remove unwanted characters;
+	$filedummy = strtr($filedummy,"\\:","//");
+	$p = strtr($_SERVER["DOCUMENT_ROOT"],"\\:","//");
+	$l = strlen($p);
+	if ( substr($filedummy,0,$l) == $p) {
+	  $filedummy = substr($filedummy,$l);
+	} else {
+      $p = strtr(DOMPDF_TEMP_DIR,"\\:","//");
+	  $l = strlen($p);
+	  if ( substr($filedummy,0,$l) == $p) {
+	    $filedummy = substr($filedummy,$l);
+	  } else {
+        $p = strtr(sys_get_temp_dir(),"\\:","//");
+	    $l = strlen($p);
+	    if ( substr($filedummy,0,$l) == $p) {
+	      $filedummy = substr($filedummy,$l);
+	    }
+	  }
+	}
+	*/
+	
+	$filedummy .= '_'.$bg_width.'_'.$bg_height.'_'.$bg_x.'_'.$bg_y.'_'.$repeat;
+    //debugpng
+    //if (DEBUGPNG) print '<pre>[_background_image name '.$filedummy.']</pre>';
+
+    //Optimization to avoid multiple times rendering the same image.
+    //If check functions are existing and identical image already cached,
+    //then skip creation of duplicate, because it is not needed by addImagePng
+	if ( method_exists( $this->_canvas, "get_cpdf" ) &&
+	     method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) &&
+	     method_exists( $this->_canvas->get_cpdf(), "image_iscached" ) &&
+	     $this->_canvas->get_cpdf()->image_iscached($filedummy) ) {
+	  $bg = null;
+
+      //debugpng
+      //if (DEBUGPNG) print '[_background_image skip]';
+
+	} else {
+
+    // Create a new image to fit over the background rectangle
+    $bg = imagecreatetruecolor($bg_width, $bg_height);
+    //anyway default
+	//imagealphablending($img, true);
+
+    switch (strtolower($ext)) {
+
+    case "png":
+      $src = imagecreatefrompng($img);
+      break;
+
+    case "jpg":
+    case "jpeg":
+      $src = imagecreatefromjpeg($img);
+      break;
+
+    case "gif":
+      $src = imagecreatefromgif($img);
+      break;
+
+    default:
+      return; // Unsupported image type
+    }
+
+    if ($src == null) {
+      return;
+    }
+
+    //Background color if box is not relevant here
+    //Non transparent image: box clipped to real size. Background non relevant.
+    //Transparent image: The image controls the transparency and lets shine through whatever background.
+    //However on transparent imaage preset the composed image with the transparency color,
+    //to keep the transparency when copying over the non transparent parts of the tiles.
+	$ti = imagecolortransparent($src);
+	if ($ti >= 0) {
+	  $tc = imagecolorsforindex($src,$ti);
+      $ti = imagecolorallocate($bg,$tc['red'],$tc['green'],$tc['blue']);
+      imagefill($bg,0,0,$ti);
+      imagecolortransparent($bg, $ti);
+    }
+
+    //This has only an effect for the non repeatable dimension.
+    //compute start of src and dest coordinates of the single copy
+    if ( $bg_x < 0 ) {
+      $dst_x = 0;
+      $src_x = -$bg_x;
+    } else {
       $src_x = 0;
-      $src_y = 0;
       $dst_x = $bg_x;
+    }
+
+    if ( $bg_y < 0 ) {
+      $dst_y = 0;
+      $src_y = -$bg_y;
+    } else {
+      $src_y = 0;
       $dst_y = $bg_y;
-      
-      if ( $bg_x < 0 ) {
-        $dst_x = 0;
-        $src_x = -$bg_x;
-      }
+    }
 
-      if ( $bg_y < 0 ) {
-        $dst_y = 0;
-        $src_y = -$bg_y;
-      }
+	//For historical reasons exchange meanings of variables:
+	//start_* will be the start values, while bg_* will be the temporary start values in the loops
+    $start_x = $bg_x;
+    $start_y = $bg_y;
 
-      $bg_x = round($bg_x * DOMPDF_DPI / 72);
-      $bg_y = round($bg_y * DOMPDF_DPI / 72);
+    // Copy regions from the source image to the background
 
-      imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);      
+    if ( $repeat == "no-repeat" ) {
+
+      // Simply place the image on the background
+      imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);
 
     } else if ( $repeat == "repeat-x" ) {
-      $src_x = 0;
-      $src_y = 0;
-
-      $dst_y = $bg_y;
-
-      if ( $bg_y < 0 ) {
-        $dst_y = 0;
-        $src_y = -$bg_y;
-      }
-
-      if ( $bg_x < 0 ) 
-        $start_x = $bg_x;
-      else
-        $start_x = $bg_x % $img_w - $img_w;
 
       for ( $bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w ) {
         if ( $bg_x < 0 ) {
           $dst_x = 0;
           $src_x = -$bg_x;
           $w = $img_w + $bg_x;
-        } else {          
+        } else {
           $dst_x = $bg_x;
           $src_x = 0;
           $w = $img_w;
         }
-        imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);      
+        imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);
       }
-      
+
     } else if ( $repeat == "repeat-y" ) {
-      $src_x = 0;
-      $src_y = 0;
-
-      $dst_x = $bg_x;
-
-      if ( $bg_x < 0 ) {
-        $dst_x = 0;
-        $src_x = -$bg_x;
-      }
-
-      if ( $bg_y < 0 ) 
-        $start_y = $bg_y;
-      else
-        $start_y = $bg_y % $img_h - $img_h;
 
       for ( $bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h ) {
         if ( $bg_y < 0 ) {
           $dst_y = 0;
           $src_y = -$bg_y;
           $h = $img_h + $bg_y;
-        } else {          
+        } else {
           $dst_y = $bg_y;
           $src_y = 0;
           $h = $img_h;
         }
         imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $h);
+
       }
-      
-    } else {
 
-      if ( $bg_x < 0 ) 
-        $start_x = $bg_x;
-      else
-        $start_x = $bg_x % $img_w - $img_w;
+    } else if ( $repeat == "repeat" ) {
 
-      if ( $bg_y < 0 ) 
-        $start_y = $bg_y;
-      else
-        $start_y = $bg_y % $img_h - $img_h;
-      
       for ( $bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h ) {
         for ( $bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w ) {
 
@@ -292,17 +404,17 @@ abstract class Abstract_Renderer {
             $dst_x = 0;
             $src_x = -$bg_x;
             $w = $img_w + $bg_x;
-          } else {          
+          } else {
             $dst_x = $bg_x;
             $src_x = 0;
             $w = $img_w;
           }
-          
+
           if ( $bg_y < 0 ) {
             $dst_y = 0;
             $src_y = -$bg_y;
             $h = $img_h + $bg_y;
-          } else {          
+          } else {
             $dst_y = $bg_y;
             $src_y = 0;
             $h = $img_h;
@@ -310,16 +422,44 @@ abstract class Abstract_Renderer {
           imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $h);
         }
       }
+    } else {
+ print 'Unknown repeat!';
+    }   
+
+    } /* End optimize away creation of duplicates */
+
+    //img: image url string
+	//img_w, img_h: original image size in px
+	//width, height: box size in pt
+	//bg_width, bg_height: box size in px
+	//x, y: left/top edge of box on page in pt
+	//start_x, start_y: placement of image relativ to pattern
+	//$repeat: repeat mode
+	//$bg: GD object of result image
+	//$src: GD object of original image
+    //When using cpdf and optimization to direct png creation from gd object is available,
+    //don't create temp file, but place gd object directly into the pdf
+	if ( method_exists( $this->_canvas, "get_cpdf" ) && method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) ) {
+      //Note: CPDF_Adapter image converts y position
+	  $this->_canvas->get_cpdf()->addImagePng(
+	  		$filedummy,
+			$x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
+	} else {
+      $tmp_file = tempnam(DOMPDF_TEMP_DIR, "bg_dompdf_img_").'.png';
+      //debugpng
+      if (DEBUGPNG) print '[_background_image '.$tmp_file.']';
+
+      imagepng($bg, $tmp_file);
+      $this->_canvas->image($tmp_file, "png", $x, $y, $width, $height);
+
+      //debugpng
+      if (DEBUGPNG) print '[_background_image unlink '.$tmp_file.']';
+
+      if (!DEBUGKEEPTEMP)
+        unlink($tmp_file);
     }
-
-
-    
-    $tmp_file = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
-    imagepng($bg, $tmp_file);
-    $this->_canvas->image($tmp_file, "png", $x, $y, $width, $height);
-    unlink($tmp_file);
   }
-  
+
   protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     return;
   }
@@ -328,7 +468,7 @@ abstract class Abstract_Renderer {
   protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     list($top, $right, $bottom, $left) = $widths;
 
-    if ( $$side < 2 ) 
+    if ( $$side < 2 )
       $dash = array($$side, 2);
     else
       $dash = array($$side);
@@ -397,7 +537,7 @@ abstract class Abstract_Renderer {
                         $x + $length - $right, $y + $top,
                         $x + $left, $y + $top);
         $this->_canvas->polygon($points, $color, null, null, true);
-      } else 
+      } else
         $this->_canvas->filled_rectangle($x, $y, $length, $top, $color);
       
       break;
@@ -421,7 +561,7 @@ abstract class Abstract_Renderer {
                         $x + $left, $y + $length - $bottom,
                         $x + $left, $y + $top);
         $this->_canvas->polygon($points, $color, null, null, true);
-      } else 
+      } else
         $this->_canvas->filled_rectangle($x, $y, $left, $length, $color);
       
       break;
@@ -526,7 +666,7 @@ abstract class Abstract_Renderer {
         $this->_canvas->filled_rectangle($x + $left - $line_width, $y, $line_width, $length, $color);
       }
       
-      break;      
+      break;
                       
     case "right":
       if ( $corner_style == "bevel" ) {
@@ -671,13 +811,13 @@ abstract class Abstract_Renderer {
 
     case "bottom":
     case "right":
-      $tint = array_map(array($this, "_tint"), $color);      
+      $tint = array_map(array($this, "_tint"), $color);
       $this->_border_solid($x, $y, $length, $tint, $widths, $side);
       break;
 
     default:
       return;
-    }    
+    }
   }
   
   protected function _border_outset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
@@ -699,7 +839,7 @@ abstract class Abstract_Renderer {
     default:
       return;
 
-    }    
+    }
   }
 
   //........................................................................

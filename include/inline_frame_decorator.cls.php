@@ -33,8 +33,14 @@
  * @link http://www.digitaljunkies.ca/dompdf
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
  * @version 0.5.1
+ *
+ * Changes
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
+ * @version 20090610
+ * - don't repeat non repeatable background images after a line break
  */
 
 /* $Id: inline_frame_decorator.cls.php,v 1.5 2007-08-22 23:02:07 benjcarson Exp $ */
@@ -74,7 +80,16 @@ class Inline_Frame_Decorator extends Frame_Decorator {
     $style->margin_left = "0";
     $style->padding_left = "0";
     $style->border_left_width = "0";
-    
+
+    //On continuation of inline element on next line,
+    //don't repeat non-vertically repeatble background images
+    //See e.g. in testcase image_variants, long desriptions
+    if ( ($url = $style->background_image) && $url !== "none"
+         && ($repeat = $style->background_repeat) && $repeat != "repeat" &&  $repeat != "repeat-y"
+       ) {
+      $style->background_image = "none";
+    }           
+
     // Add $frame and all following siblings to the new split node
     $iter = $frame;
     while ($iter) {

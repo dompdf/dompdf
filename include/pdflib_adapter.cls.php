@@ -33,8 +33,14 @@
  * @link http://www.digitaljunkies.ca/dompdf
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
  * @version 0.5.1
+ *
+ * Changes
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
+ * @version 0.5.1.htischer.20090507
+ * - Clarify temp file name, optional debug output for temp file tracking
  */
 
 /* $Id: pdflib_adapter.cls.php,v 1.26 2009-04-29 04:11:35 benjcarson Exp $ */
@@ -218,7 +224,7 @@ class PDFLib_Adapter implements Canvas {
     if ( self::$IN_MEMORY )
       $this->_pdf->begin_document("","");
     else {
-      $this->_file = tempnam(DOMPDF_TEMP_DIR, "dompdf_tmp_");
+      $this->_file = tempnam(DOMPDF_TEMP_DIR, "libdompdf_pdf_").'.pdf';
       $this->_pdf->begin_document($this->_file,"");
     }
 
@@ -911,6 +917,11 @@ class PDFLib_Adapter implements Canvas {
       while ( !feof($fh) )
         echo fread($fh,$chunk);
       fclose($fh);
+
+      //debugpng
+      if (DEBUGPNG) print '[pdflib stream unlink '.$this->_file.']';
+      if (!DEBUGKEEPTEMP)
+
       unlink($this->_file);
       $this->_file = null;
     }
@@ -939,6 +950,11 @@ class PDFLib_Adapter implements Canvas {
 
     else {
       $data = file_get_contents($this->_file);
+
+      //debugpng
+      if (DEBUGPNG) print '[pdflib output unlink '.$this->_file.']';
+      if (!DEBUGKEEPTEMP)
+
       unlink($this->_file);
       $this->_file = null;
     }

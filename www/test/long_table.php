@@ -15,6 +15,11 @@ td {
 <td colspan="20">Header</td>
 </tr>
 </thead>
+<tfoot>
+<tr>
+<td colspan="20">Footer</td>
+</tr>
+</tfoot>
 <?php
 $i_max = 40;
 $j_max = 20;

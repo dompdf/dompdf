@@ -6,6 +6,19 @@
 .disc li { list-style-type: disc; }
 .circle li { list-style-type: circle; }
 .square li { list-style-type: square; }
+.image li { list-style-type: square; list-style-image:url(images/png.png)} 
+.missing li { list-style-type: square; list-style-image:url(dummy.png)}
+.nobullet li { list-style-type: none;}  
+.noimage li { list-style-type: none; list-style-image:url(dummy.png)}
+.bigimage li { list-style-type: square; list-style-image:url(images/dokuwiki-128.png)} 
+.mindentimage li { list-style-type: square; list-style-image:url(images/png.png); margin-left:50px;} 
+.mindentimage2 li { list-style-type: square; list-style-image:url(images/png.png); margin-left:100px;} 
+.pindentimage li { list-style-type: square; list-style-image:url(images/png.png); padding-left:50px;} 
+.pindentimage2 li { list-style-type: square; list-style-image:url(images/png.png); padding-left:100px;} 
+.mindentsquare li { list-style-type: square; margin-left:50px;} 
+.mindentsquare2 li { list-style-type: square; margin-left:100px;} 
+.pindentsquare li { list-style-type: square; padding-left:50px;} 
+.pindentsquare2 li { list-style-type: square; padding-left:100px;} 
 </style>
 </head>
 
@@ -18,12 +31,6 @@
     <li>Sub 2</li>
     <li>Sub 3</li>
 </ul>
-</ul>
-
-<ul class="disc">
-<li>Item 1</li>
-<li>Item 2</li>
-<li>Item 3</li>
 </ul>
 
 <ul class="circle">
@@ -49,7 +56,7 @@ ante vestibulum odio feugiat facilisis. Proin lorem nisl, viverra at,
 rhoncus quis, semper nec, mi. Donec euismod enim vitae velit. Nulla
 sed lectus. Vivamus placerat, lacus sed vehicula sagittis, arcu massa
 adipiscing lorem, bibendum luctus nisl tortor vitae leo.</li>
-<li  style="list-style-position: inside">Aliquam enim. Duis et diam. Praesent porta, mauris quis pellentesque
+<li  style="list-style-position: inside">Inside. Aliquam enim. Duis et diam. Praesent porta, mauris quis pellentesque
 volutpat, erat elit vulputate eros, vitae pulvinar augue velit sit
 amet sem. Fusce eu urna eu nisi condimentum posuere. Vivamus sed
 felis. Duis eget urna vitae eros interdum dignissim. Proin justo eros,
@@ -62,10 +69,244 @@ interdum, urna justo euismod erat, id tristique urna leo quis
 nibh. Morbi non erat.</li>
 </ul>
 
-<ul class="square">
-<li>Item 1</li>
-<li>Item 2</li>
-<li>Item 3</li>
+<ul class="disc">
+<li>Item 1 disc</li>
+<li>Item 2 disc</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 disc</li>
 </ul>
+
+<ul class="circle">
+<li>Item 1 circle</li>
+<li>Item 2 circle</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 circle</li>
+</ul>
+
+<ul class="square">
+<li>Item 1 square</li>
+<li>Item 2 square</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 square </li>
+</ul>
+
+<ul class="image">
+<li>Item 1 image</li>
+<li>Item 2 image</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 image</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: outside">Outside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-image:none">Item 7 noimage</li>
+
+<ul>
+<li>sub Item 1 image</li>
+<li>sub Item 2 image</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: outside">Outside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-image:none">sub Item 5 noimage</li>
+</ul>
+
+</ul>
+
+<ul class="missing">
+<li>Item 1 missing image - fallback square</li>
+<li>Item 2 missing image - fallback square</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 missing image - fallback square</li>
+</ul>
+
+<ul class="nobullet">
+<li>Item 1 nobullet</li>
+<li>Item 2 nobullet</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 nobullet</li>
+</ul>
+
+<ul class="noimage">
+<li>Item 1 missing image - fallback none</li>
+<li>Item 2 missing image - fallback none</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 missing image - fallback none</li>
+</ul>
+
+<ul class="bigimage">
+<li>Item 1 bigimage</li>
+<li>Item 2 bigimage</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>Item 4 bigimage</li>
+</ul>
+
+<ul class="mindentimage">
+<li>margin Item 1 image</li>
+<li>margin Item 2 image</li>
+<li>Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li>margin Item 4 image</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: outside">Outside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-image:none">margin Item 7 noimage</li>
+
+<ul class="mindentimage2">
+<li>margin sub Item 1 image</li>
+<li>margin sub Item 2 image</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-position: outside">Outside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<li style="list-style-image:none">margin sub Item 5 noimage</li>
+</ul>
+
+</ul>
+
+<ul class="pindentimage">
+<li>padding Item 1 image</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<ul class="pindentimage2">
+<li>padding sub Item 1 image</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+</ul>
+</ul>
+
+<ul class="mindentsquare">
+<li>margin Item 1 square</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<ul class="mindentsquare2">
+<li>margin sub Item 1 square</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+</ul>
+</ul>
+
+<ul class="pindentsquare">
+<li>padding Item 1 square</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+<ul class="pindentsquare2">
+<li>padding sub Item 1 square</li>
+<li style="list-style-position: inside">Inside. Lorem ipsum dolor sit amet, consectetuer sadipscing elitr, 
+sed diam nonumy eirmod tempor invidunt ut labore et dolore magna 
+aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
+duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata 
+sanctus est Lorem ipsum dolor sit amet.</li>
+</ul>
+</ul>
+
+<h1>combined list attributes list-style</h1>
+
+<ul style="list-style:square inside url(dummy.png);">
+ <li>list-style:square inside url(dummy.png);</li>
+ <li style="list-style-position:outside;">list-style:outside;[overwrites only position]</li>
+</ul>
+<ul style="list-style:square inside url(images/png.png);">
+ <li>list-style:square inside url(images/png.png);</li>
+ <li style="list-style-position:outside;">list-style-position:outside;[overwrites only position]</li>
+ <li style="list-style:outside;">list-style-position:outside;[overwrite attributes - firefox3: all; dompdf, internet explorer 8: only position]</li>
+ <li style="list-style:none;">list-style:none; [resets both, bullet and image]</li>
+</ul>
+
 
 </body> </html>

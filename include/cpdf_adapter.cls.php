@@ -36,8 +36,21 @@
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @contributor Orion Richardson <orionr@yahoo.com>
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
  * @version 0.5.1
+ *
+ * Changes
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
+ * @version 0.5.1.htischer.20090507
+ * - On gif to png conversion tmp file creation, clarify tmp name and add to tmp deletion list only on success
+ * - On gif to png conversion, when available add direct from gd without tmp file, skip image load if already cached.
+ *   to safe CPU time and memory
+ * @contributor Helmut Tischer <htischer@weihenstephan.org>
+ * @version dompdf_trunk_with_helmut_mods.20090524
+ * - Pass temp and fontcache folders to Cpdf, to making Cpdf independent from dompdf
+ * @version dompdf_trunk_with_helmut_mods.20090528
+ * - fix text position according to glyph baseline to match background rectangle
  */
 
 /* $Id: cpdf_adapter.cls.php,v 1.22 2009-04-29 04:11:35 benjcarson Exp $ */
@@ -192,7 +205,7 @@ class CPDF_Adapter implements Canvas {
     if ( is_array($paper) )
       $size = $paper;
     else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) )
-      $size = self::$PAPER_SIZES[$paper];
+      $size = self::$PAPER_SIZES[mb_strtolower($paper)];
     else
       $size = self::$PAPER_SIZES["letter"];
 
@@ -202,7 +215,7 @@ class CPDF_Adapter implements Canvas {
       $size[2] = $a;
     }
     
-    $this->_pdf = new Cpdf($size, DOMPDF_UNICODE_ENABLED);
+    $this->_pdf = new Cpdf($size, DOMPDF_UNICODE_ENABLED, DOMPDF_FONT_CACHE, DOMPDF_TEMP_DIR);
     $this->_pdf->addInfo("Creator", "dompdf");
 
     // Silence pedantic warnings about missing TZ settings
@@ -235,7 +248,10 @@ class CPDF_Adapter implements Canvas {
    */
   function __destruct() {
     foreach ($this->_image_cache as $img) {
-      unlink($img);
+      //debugpng
+      if (DEBUGPNG) print '[__destruct unlink '.$img.']';
+      if (!DEBUGKEEPTEMP)
+        unlink($img);
     }
   }
   
@@ -499,8 +515,10 @@ class CPDF_Adapter implements Canvas {
 
     if ( $im ) {
       imageinterlace($im, 0);
-    
-      $filename = tempnam(DOMPDF_TEMP_DIR, "dompdf_img_");
+
+      $filename = tempnam(DOMPDF_TEMP_DIR, "gifdompdf_img_").'.png';
+      $this->_image_cache[] = $filename;
+
       imagepng($im, $filename);
 
     } else {
@@ -510,8 +528,6 @@ class CPDF_Adapter implements Canvas {
 
     restore_error_handler();
 
-    $this->_image_cache[] = $filename;
-    
     return $filename;
     
   }
@@ -579,26 +595,61 @@ class CPDF_Adapter implements Canvas {
   //........................................................................
 
   function image($img_url, $img_type, $x, $y, $w, $h) {
+    //debugpng
+    if (DEBUGPNG) print '[image:'.$img_url.'|'.$img_type.']';
 
     $img_type = mb_strtolower($img_type);
-    
+
     switch ($img_type) {
     case "jpeg":
     case "jpg":
+      //debugpng
+      if (DEBUGPNG)  print '!!!jpg!!!';
+
       $this->_pdf->addJpegFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
       break;
 
     case "png":
+      //debugpng
+      if (DEBUGPNG)  print '!!!png!!!';
+
       $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
       break;
 
     case "gif":
       // Convert gifs to pngs
-      $img_url = $this->_convert_gif_to_png($img_url);
-      $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
+      //DEBUG_IMG_TEMP
+      //if (0) {
+      if ( method_exists( $this->_pdf, "addImagePng" ) ) {
+        //debugpng
+        if (DEBUGPNG)  print '!!!gif addImagePng!!!';
+
+      	//If optimization to direct png creation from gd object is available,
+        //don't create temp file, but place gd object directly into the pdf
+	    if ( method_exists( $this->_pdf, "image_iscached" ) &&
+	         $this->_pdf->image_iscached($img_url) ) {
+	      //If same image has occured already before, no need to load because
+	      //duplicate will anyway be eliminated.
+	      $img = null;
+	    } else {
+    	  $img = @imagecreatefromgif($img_url);
+    	  if (!$img) {
+      	    return;
+    	  }
+    	  imageinterlace($img, 0);
+    	}
+    	$this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
+      } else {
+        //debugpng
+        if (DEBUGPNG)  print '!!!gif addPngFromFile!!!';
+        $img_url = $this->_convert_gif_to_png($img_url);
+        $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
+      }
       break;
-      
-    default:      
+
+    default:
+      //debugpng
+      if (DEBUGPNG) print '!!!unknown!!!';
       break;
     }
     
@@ -618,7 +669,39 @@ class CPDF_Adapter implements Canvas {
     $font .= ".afm";
     
     $this->_pdf->selectFont($font);
-    $this->_pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $adjust);
+    
+    //Font_Metrics::get_font_height($font, $size) ==
+    //$this->get_font_height($font, $size) ==
+    //$this->_pdf->selectFont($font),$this->_pdf->getFontHeight($size)
+    //- FontBBoxheight+FontHeightOffset, scaled to $size, in pt
+    //$this->_pdf->getFontDescender($size)
+    //- Descender scaled to size
+    //
+    //$this->_pdf->fonts[$this->_pdf->currentFont] sizes:
+    //['FontBBox'][0] left, ['FontBBox'][1] bottom, ['FontBBox'][2] right, ['FontBBox'][3] top
+    //Maximum extent of all glyphs of the font from the baseline point
+    //['Ascender'] maximum height above baseline except accents
+    //['Descender'] maximum depth below baseline, negative number means below baseline
+    //['FontHeightOffset'] manual enhancement of .afm files to trim windows fonts. currently not used.
+    //Values are in 1/1000 pt for a font size of 1 pt
+    //
+    //['FontBBox'][1] should be close to ['Descender'] 
+    //['FontBBox'][3] should be close to ['Ascender']+Accents
+    //in practice, FontBBox values are a little bigger
+    //
+    //The text position is referenced to the baseline, not to the lower corner of the FontBBox,
+    //for what the left,top corner is given.
+    //FontBBox spans also the background box for the text.
+    //If the lower corner would be used as reference point, the Descents of the glyphs would
+    //hang over the background box border.
+    //Therefore compensate only the extent above the Baseline.
+    //
+    //print '<pre>['.$font.','.$size.','.$this->_pdf->getFontHeight($size).','.$this->_pdf->getFontDescender($size).','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3].','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][1].','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontHeightOffset'].','.$this->_pdf->fonts[$this->_pdf->currentFont]['Ascender'].','.$this->_pdf->fonts[$this->_pdf->currentFont]['Descender'].']</pre>';
+    //
+    //$this->_pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $adjust);
+	//$this->_pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $adjust);    
+	//$this->_pdf->addText($x, $this->y($y) - $this->_pdf->getFontHeight($size)-$this->_pdf->getFontDescender($size), $size, $text, $angle, $adjust);
+	$this->_pdf->addText($x, $this->y($y) - ($this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $adjust);        
   }
 
   //........................................................................
