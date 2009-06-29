@@ -3673,7 +3673,6 @@ class  Cpdf {
 
     // note that this will most likely return a negative value
     if  (!$this->numFonts) {
-
       $this->selectFont('./fonts/Helvetica');
     }
 
@@ -4253,7 +4252,6 @@ class  Cpdf {
 
 
     if  (!$this->numFonts) {
-
       $this->selectFont('./fonts/Helvetica');
     }
 

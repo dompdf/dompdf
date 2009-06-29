@@ -850,7 +850,7 @@ class Style {
    */
   function get_font_family() {
   
-  $DEBUGCSS=DEBUGCSS; //=DEBUGCSS; Allow override of global setting for ad hoc debug
+    $DEBUGCSS=DEBUGCSS; //=DEBUGCSS; Allow override of global setting for ad hoc debug
 	
     // Select the appropriate font.  First determine the subtype, then check
     // the specified font-families for a candidate.
