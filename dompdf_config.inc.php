@@ -117,14 +117,12 @@ if (!defined("DOMPDF_FONT_CACHE")) {
 /**
  * The location of a temporary directory.
  *
- * If it does not exist, the system tmp folder will be used.
- * The used temporary directory must be writeable by the webserver process.
- * It is required to download remote images and on use of backend pdfLib.
- * Since e.g. on Windows there is no mandatory tmp location, we should 
- * consider using sys_get_temp_dir().
+ * The directory specified must be writeable by the webserver process.
+ * The temporary directory is required to download remote images and when 
+ * using the PFDLib back end.
  */
 if (!defined('DOMPDF_TEMP_DIR')) {
-  define("DOMPDF_TEMP_DIR", "/tmp");
+  define("DOMPDF_TEMP_DIR", sys_get_temp_dir());
 }
 
 /**
@@ -205,7 +203,7 @@ if (!defined("TTF2AFM")) {
  * @link http://www.php.net/image
  */
 if (!defined("DOMPDF_PDF_BACKEND")) {
-  define("DOMPDF_PDF_BACKEND", "auto");
+  define("DOMPDF_PDF_BACKEND", "CPDF");
 }
 
 /**
@@ -246,7 +244,7 @@ if (!defined("DOMPDF_DEFAULT_MEDIA_TYPE")) {
  * @see CPDF_Adapter::PAPER_SIZES for valid sizes
  */
 if (!defined("DOMPDF_DEFAULT_PAPER_SIZE")) {
-  define("DOMPDF_DEFAULT_PAPER_SIZE", "a4");
+  define("DOMPDF_DEFAULT_PAPER_SIZE", "letter");
 }
 
 
