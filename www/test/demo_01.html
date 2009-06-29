@@ -16,8 +16,8 @@
 <div class="page" style="font-size: 7pt">
 <table style="width: 100%;" class="header">
 <tr>
-<td><h1 style="text-align: left">SCHEDULE A</td>
-<td><h1 style="text-align: right">Job: 132-003</td>
+<td><h1 style="text-align: left">SCHEDULE A</h1></td>
+<td><h1 style="text-align: right">Job: 132-003</h1></td>
 </tr>
 </table>
 
@@ -160,7 +160,9 @@ PER:
 
 if ( isset($pdf) ) {
 
-  $font = Font_Metrics::get_font("verdana");;
+  $font = Font_Metrics::get_font("verdana");
+  // If verdana isn't available, we'll use sans-serif.
+  if (!isset($font)) { Font_Metrics::get_font("sans-serif"); }
   $size = 6;
   $color = array(0,0,0);
   $text_height = Font_Metrics::get_font_height($font, $size);
