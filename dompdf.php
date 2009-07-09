@@ -175,8 +175,6 @@ global $_dompdf_show_warnings;
 global $_dompdf_debug;
 global $_DOMPDF_DEBUG_TYPES;
 
-$old_limit = ini_set("memory_limit", "80M");
-
 $sapi = php_sapi_name();
 
 switch ( $sapi ) {
