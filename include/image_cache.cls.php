@@ -155,7 +155,7 @@ class Image_Cache {
 
         } else {
           //target image is not valid.
-          $unlink($resolved_url);
+          unlink($resolved_url);
           
           $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
           $ext = "png";
