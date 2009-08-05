@@ -6,8 +6,6 @@ if ( isset( $_POST["html"] ) ) {
   if ( get_magic_quotes_gpc() )
     $_POST["html"] = stripslashes($_POST["html"]);
   
-  $old_limit = ini_set("memory_limit", "16M");
-  
   $dompdf = new DOMPDF();
   $dompdf->load_html($_POST["html"]);
   $dompdf->set_paper($_POST["paper"], $_POST["orientation"]);
