@@ -583,7 +583,7 @@ class Frame {
     
     
     $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
-    //$str .= (string)$this->_node . "<br/>";
+    //$str .= spl_object_hash($this->_node) . "<br/>";
     $str .= "Id: " .$this->get_id() . "<br/>";
     $str .= "Class: " .get_class($this) . "<br/>";
     
@@ -594,17 +594,17 @@ class Frame {
     }
     if ( $this->_parent )
       $str .= "\nParent:" . $this->_parent->_node->nodeName .
-        " (" . (string)$this->_parent->_node . ") " .
+        " (" . spl_object_hash($this->_parent->_node) . ") " .
         "<br/>";
 
     if ( $this->_prev_sibling )
       $str .= "Prev: " . $this->_prev_sibling->_node->nodeName .
-        " (" . (string)$this->_prev_sibling->_node . ") " .
+        " (" . spl_object_hash($this->_prev_sibling->_node) . ") " .
         "<br/>";
 
     if ( $this->_next_sibling )
       $str .= "Next: " . $this->_next_sibling->_node->nodeName .
-        " (" . (string)$this->_next_sibling->_node . ") " .
+        " (" . spl_object_hash($this->_next_sibling->_node) . ") " .
         "<br/>";
 
     $d = $this->get_decorator();
@@ -628,7 +628,7 @@ class Frame {
             $str .= "\ntext: ";          
             $str .= "'". htmlspecialchars($frame->get_text()) ."'";
           } else {
-            $str .= "\nBlock: " . $frame->get_node()->nodeName . " (" . (string)$frame->get_node() . ")";
+            $str .= "\nBlock: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")";
           }
         }
         

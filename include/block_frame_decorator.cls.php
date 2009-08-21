@@ -163,8 +163,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
     /*
     pre_r("\nAdding frame to line:");
 
-    //    pre_r("Me: " . $this->get_node()->nodeName . " (" . (string)$this->get_node() . ")");
-    //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . (string)$frame->get_node() . ")");
+    //    pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
+    //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
     if ( $frame->get_node()->nodeName == "#text" )
       pre_r($frame->get_node()->nodeValue);
 

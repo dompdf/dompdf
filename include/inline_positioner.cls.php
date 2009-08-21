@@ -59,8 +59,8 @@ class Inline_Positioner extends Positioner {
     // Debugging code:
 
 //     pre_r("\nPositioning:");
-//     pre_r("Me: " . $this->_frame->get_node()->nodeName . " (" . (string)$this->_frame->get_node() . ")");
-//     pre_r("Parent: " . $p->get_node()->nodeName . " (" . (string)$p->get_node() . ")");
+//     pre_r("Me: " . $this->_frame->get_node()->nodeName . " (" . spl_object_hash($this->_frame->get_node()) . ")");
+//     pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
 
     // End debugging
 

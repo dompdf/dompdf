@@ -465,7 +465,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
     dompdf_debug("page-break","Starting search");
     while ( $iter ) {
-//       echo "\nbacktrack: " .$iter->get_node()->nodeName ." ".(string)$iter->get_node(). "";
+//       echo "\nbacktrack: " .$iter->get_node()->nodeName ." ".spl_object_hash($iter->get_node()). "";
       if ( $iter === $this ) {
          dompdf_debug("page-break", "reached root.");
         // We've reached the root in our search.  Just split at $frame.
