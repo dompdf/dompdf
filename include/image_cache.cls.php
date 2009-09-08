@@ -150,7 +150,7 @@ class Image_Cache {
         }
  
  		//Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
- 		//Only execute on successfull caching of remote image.       
+ 		//Only execute on successfull caching of remote image.
         self::$_cache[$full_url] = array($resolved_url,$ext);
 
         } else {
@@ -204,11 +204,12 @@ class Image_Cache {
    */
   static function clear() {
     if ( count(self::$_cache) ) {
-      foreach (self::$_cache as $entry) {
+      foreach ($entry = array_shift(self::$_cache)) {
         list($file, $ext) = $entry;
         //debugpng
         if (DEBUGPNG) print '[clear unlink '.$file.']';
         if (!DEBUGKEEPTEMP)
+          //XXX: Should we have some kind of fallback or warning if unlink() fails?
           unlink($file);
       }
     }
