@@ -44,7 +44,7 @@
  *   required. This allows paths not ending in a slash, e.g. on dynamically
  *   created sites with page id in the url parameters.
  * @version 20090601
- * - fix windows paths 
+ * - fix windows paths
  * @version 20090610
  * - relax windows path syntax, use uniform path delimiter. Used for background images.
  */
@@ -130,13 +130,13 @@ function build_url($protocol, $host, $base_path, $url) {
   if (!in_array(mb_strtolower($protocol), array("http://", "https://", "ftp://", "ftps://"))) {
     //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
     //drive: followed by a relative path would be a drive specific default folder.
-    //not known in php app code, treat as abs path 
+    //not known in php app code, treat as abs path
     //($url{1} !== ':' || ($url{2}!=='\\' && $url{2}!=='/'))
     if ($url{0} !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url{0} != '\\' && $url{1} !== ':'))) {
       // For rel path and local acess we ignore the host, and run the path through realpath()
       $ret .= dompdf_realpath($base_path).'/';
     }
-    $ret .= $url; 
+    $ret .= $url;
     return $ret;
   }
 
@@ -319,7 +319,7 @@ function dompdf_realpath($path) {
     $path = getcwd() . DIRECTORY_SEPARATOR . $path;
   }
   $path = strtr( $path, DIRECTORY_SEPARATOR == "\\" ? "/" : DIRECTORY_SEPARATOR , DIRECTORY_SEPARATOR);
- 
+
   $parts = explode(DIRECTORY_SEPARATOR, $path);
   $path = array();
 
@@ -352,6 +352,22 @@ function dompdf_realpath($path) {
  * mb_string compatibility
  */
 
+if ( !function_exists("mb_convert_encoding") ) {
+  function mb_convert_encoding($data, $to_encoding, $from_encoding='UTF-8') {
+    if (str_replace('-', '', strtolower($to_encoding)) == 'utf8') {
+      return utf8_encode($data);
+    } else {
+      return utf8_decode($data);
+    }
+  }
+}
+
+if ( !function_exists("mb_detect_encoding") ) {
+  function mb_detect_encoding($data, $encoding_list=array('iso-8859-1'), $strict=false) {
+    return 'iso-8859-1';
+  }
+}
+
 if ( !function_exists("mb_strlen") ) {
   function mb_strlen($str) {
     return strlen($str);
@@ -370,15 +386,6 @@ if ( !function_exists("mb_strrpos") ) {
   }
 }
 
-if ( !function_exists("mb_substr") ) {
-  function mb_substr($str, $start, $length = null) {
-    if ( is_null($length) )
-      return substr($str, $start);
-    else
-      return substr($str, $start, $length);
-  }
-}
-
 if ( !function_exists("mb_strtolower") ) {
   function mb_strtolower($str) {
     return strtolower($str);
@@ -391,12 +398,20 @@ if ( !function_exists("mb_strtoupper") ) {
   }
 }
 
+if ( !function_exists("mb_substr") ) {
+  function mb_substr($str, $start, $length = null) {
+    if ( is_null($length) )
+      return substr($str, $start);
+    else
+      return substr($str, $start, $length);
+  }
+}
+
 if ( !function_exists("mb_substr_count") ) {
   function mb_substr_count($haystack, $needle) {
     return substr_count($haystack, $needle);
   }
 }
-
 
 /**
  * Stores warnings in an array for display later

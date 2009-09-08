@@ -133,7 +133,7 @@ class DOMPDF {
 
   /**
    * Callbacks on new page and new element
-   * 
+   *
    * @var array
    */
   protected $_callbacks;
@@ -290,14 +290,7 @@ class DOMPDF {
       $file = $realfile;
     }
 
-    if ( !DOMPDF_ENABLE_PHP ) {
-      set_error_handler("record_warnings");
-      $this->_xml->loadHTMLFile($file);
-      restore_error_handler();
-
-    } else
-      $this->load_html(file_get_contents($file));
-
+    $this->load_html(file_get_contents($file));
   }
 
   /**
@@ -308,6 +301,32 @@ class DOMPDF {
    * @param string $str HTML text to load
    */
   function load_html($str) {
+    // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
+    mb_detect_order('auto');
+    //error_log('mb_detect_encoding (original): ' . print_r(mb_detect_encoding($str),TRUE));
+    if (mb_detect_encoding($str) != 'UTF-8') {
+      if (mb_detect_encoding($str) == '') {
+        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
+          $encoding = strtoupper($matches[3]);
+        } else {
+          $encoding = 'UTF-8';
+        }
+      } else {
+        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
+          $encoding = strtoupper($matches[3]);
+        } else {
+          $encoding = 'auto';
+        }
+      }
+      //error_log('mb_convert_encoding: ' . $encoding);
+      if ($encoding != 'UTF-8') { $str = mb_convert_encoding($str, 'UTF-8', $encoding); }
+      //error_log('mb_detect_encoding (new):' . print_r(mb_detect_encoding($str),TRUE));
+      if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
+        $str = preg_replace('/charset=([^\s"]+)/i','charset=UTF-8',$str);
+      } else {
+        $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
+      }
+    }
 
     // Parse embedded php, first-pass
     if ( DOMPDF_ENABLE_PHP ) {
@@ -336,7 +355,7 @@ class DOMPDF {
     if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
       $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
     } else {
-      $acceptedmedia[] = Stylesheet::$ACCEPTED_DEFAULT_MEDIA_TYPE; 
+      $acceptedmedia[] = Stylesheet::$ACCEPTED_DEFAULT_MEDIA_TYPE;
     }
           
     // load <link rel="STYLESHEET" ... /> tags
@@ -433,10 +452,10 @@ class DOMPDF {
   /**
    * Sets callbacks for events like rendering of pages and elements.
    * The callbacks array contains arrays with 'event' set to 'begin_page',
-   * 'end_page', 'begin_frame', or 'end_frame' and 'f' set to a function or 
+   * 'end_page', 'begin_frame', or 'end_frame' and 'f' set to a function or
    * object plus method to be called.
-   * 
-   * The function 'f' must take an array as argument, which contains info 
+   *
+   * The function 'f' must take an array as argument, which contains info
    * about the event.
    *
    * @param array $callbacks the set of callbacks to set
@@ -456,7 +475,7 @@ class DOMPDF {
     }
   }
   
-  //........................................................................ 
+  //........................................................................
 
   /**
    * Renders the HTML to PDF
@@ -510,6 +529,16 @@ class DOMPDF {
 
     // Clean up cached images
     Image_Cache::clear();
+    
+    if ( $GLOBALS['_dompdf_show_warnings'] ) {
+      global $_dompdf_warnings;
+        echo '<b>DOMPDF Warnings</b><br><pre>';
+      foreach ($_dompdf_warnings as $msg)
+        echo $msg . "\n";
+      echo $this->get_canvas()->get_cpdf()->messages;
+        echo '</pre>';
+      flush();
+    }
   }
 
   //........................................................................
@@ -522,7 +551,7 @@ class DOMPDF {
       $this->_pdf->add_info($label, $value);
   }
   
-  //........................................................................ 
+  //........................................................................
 
   /**
    * Streams the PDF to the client
@@ -571,6 +600,15 @@ class DOMPDF {
     return $this->_pdf->output( $options );
   }
 
+
+  /**
+   * Returns the underlying HTML document as a string
+   *
+   * @return string
+   */
+  function output_html() {
+    return $this->_xml->saveHTML();
+  }
   //........................................................................
 
 }

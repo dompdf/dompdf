@@ -10,7 +10,7 @@
    * Note that they companion class CezPdf can be used to extend this class and dramatically
    * simplify the creation of documents.
    *
-   * Extended by Orion Richardson to support Unicode / UTF-8 characters using 
+   * Extended by Orion Richardson to support Unicode / UTF-8 characters using
    * TCPDF and others as a guide.
    *
    * IMPORTANT NOTE
@@ -215,7 +215,7 @@ class  Cpdf {
    * This can be passed in from class creator.
    * If this folder does not exist or is not writable, Cpdf will be **much** slower.
    * Because of potential trouble with php safe mode, folder cannot be created at runtime.
-   */ 
+   */
   public  $fontcache = '';
   
   /**
@@ -958,7 +958,7 @@ class  Cpdf {
         $res =  "\n".$id." 0 obj\n<</Type /Font\n/Subtype /Type0\n";
         $res.=  "/BaseFont /".$o['info']['name']."\n";
 
-        // The horizontal identity mapping for 2-byte CIDs; may be used 
+        // The horizontal identity mapping for 2-byte CIDs; may be used
         // with CIDFonts using any Registry, Ordering, and Supplement values.
         $res.=  "/Encoding /Identity-H\n";
         $res.=  "/DescendantFonts [".$o['info']['cidFont']." 0 R]\n";
@@ -1230,7 +1230,7 @@ class  Cpdf {
       $res.=  "<</Type /Font\n";
       $res.=  "/Subtype /CIDFontType2\n";
       $res.=  "/BaseFont /".$o['info']['name']."\n";
-      $res.=  "/CIDSystemInfo ".$o['info']['cidSystemInfo']." 0 R\n"; 
+      $res.=  "/CIDSystemInfo ".$o['info']['cidSystemInfo']." 0 R\n";
 //      if  (isset($o['info']['FirstChar'])) {
 //
 //        $res.=  "/FirstChar ".$o['info']['FirstChar']."\n";
@@ -1291,7 +1291,7 @@ class  Cpdf {
        
       $res = "\n".$id." 0 obj\n";
       $tmp = $this->fonts[$o['info']['fontFileName']]['CIDtoGID'] = base64_decode($this->fonts[$o['info']['fontFileName']]['CIDtoGID']);
-      $compressed = isset($this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed']) && 
+      $compressed = isset($this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed']) &&
                     $this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed'];
 
       if  (!$compressed && isset($o['raw'])) {
@@ -1917,7 +1917,7 @@ class  Cpdf {
               $this->objects[$id]['info']['Mask'] = $tmp;
               pre_r($tmp);
               break;
-                
+              
             }
           }
         } else {
@@ -1942,7 +1942,7 @@ class  Cpdf {
                 ' ] ';
               $this->objects[$id]['info']['Mask'] = $tmp;
               break;
-                
+              
             }
           }
           $this->objects[$id]['info']['ColorSpace'] = '/'.$options['color'];
@@ -2352,7 +2352,6 @@ class  Cpdf {
 
 
     if  ($debug) {
-
       // turn compression off
       $this->options['compression'] = 0;
     }
@@ -2370,7 +2369,7 @@ class  Cpdf {
     $xref = array();
 
     // OAR - why did they add the additional garbage?
-    //$content = "%PDF-1.3\n%âãÏÓ\n";
+    //$content = "%PDF-1.3\n%ï¿½ï¿½ï¿½ï¿½\n";
     $content = '%PDF-1.3';
     $pos = strlen($content);
 
@@ -2502,9 +2501,9 @@ class  Cpdf {
     //$name       filename without folder and extension of font metrics
     //$dir		  folder of font metrics
     //$fontcache  folder of runtime created php serialized version of font metrics.
-    //            If this is not given, the same folder as the font metrics will be used. 
+    //            If this is not given, the same folder as the font metrics will be used.
     //            Storing and reusing serialized versions improves speed much
-                
+    
     $this->addMessage('openFont: '.$font.' - '.$name);
 
     $metrics_name = $name . (($this->isUnicode) ? '.ufm' : '.afm');
@@ -2736,11 +2735,8 @@ class  Cpdf {
     }
     
     if  (!isset($this->fonts[$font])) {
-      
       $this->addMessage("openFont: no font file found for $font.  Do you need to run load_font.php?");
-      
-      //    echo 'Font not Found '.$font;
-
+      //echo 'Font not Found '.$font;
     }
 
     //pre_r($this->messages);
@@ -3230,7 +3226,7 @@ class  Cpdf {
    * Exclusion
    *
    * @param string $mode the blend mode to use
-   * @param float $opacity 0.0 fully transparent, 1.0 fully opaque   
+   * @param float $opacity 0.0 fully transparent, 1.0 fully opaque
    */
   function setFillTransparency($mode, $opacity) {
     static $blend_modes = array("Normal", "Multiply", "Screen",
@@ -3610,7 +3606,8 @@ class  Cpdf {
 
     header("Content-type: application/pdf");
 
-    //header("Content-Length: " . strlen($tmp));
+    //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
+    //header("Content-Length: " . mb_strlen($tmp));
     $fileName =  (isset($options['Content-Disposition']) ?  $options['Content-Disposition'] :  'file.pdf');
 
     if  ( !isset($options["Attachment"]))
@@ -3624,8 +3621,8 @@ class  Cpdf {
 
 
     if  (isset($options['Accept-Ranges']) &&  $options['Accept-Ranges'] ==  1) {
-
-      header("Accept-Ranges: " . strlen($tmp));
+      //FIXME: Is this the correct value ... spec says 1#range-unit
+      header("Accept-Ranges: " . mb_strlen($tmp));
     }
 
     echo  $tmp;
@@ -3642,8 +3639,8 @@ class  Cpdf {
     if  (!$this->numFonts) {
       $this->selectFont('./fonts/Helvetica');
     }
-        
-    // for the current font, and the given size, what is the height of the font in user units    
+    
+    // for the current font, and the given size, what is the height of the font in user units
     $h =  $this->fonts[$this->currentFont]['FontBBox'][3]-$this->fonts[$this->currentFont]['FontBBox'][1];
 
     // have to adjust by a font offset for Windows fonts.  unfortunately it looks like
@@ -3683,6 +3680,8 @@ class  Cpdf {
   }
 
 
+  // FIXME: These next three functions aren't working as desired. Converting from UTF8 results in ? for some characters. Converting to UTF16 is broken.
+  // Can we use the information from the PDF spec 5.3.2, 5.5.5, 5.6?
   /**
    * filter the text, this is applied to all text just before being inserted into the pdf document
    * it escapes the various things that need to be escaped, and so on
@@ -3694,13 +3693,16 @@ class  Cpdf {
       $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
       $text =  $this->utf8toUtf16BE($text, $bom);
     } else {
-      $text = utf8_decode($text);
+      if (in_array('Windows-1252', mb_list_encodings())) {
+        $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+      } else {
+        $text = mb_convert_encoding($text, 'iso-8859-1', 'UTF-8');
+      }
       $text = html_entity_decode($text, ENT_QUOTES);
     }
 
     // the chr(13) substitution fixes a bug seen in TCPDF (bug #1421290)
     $text = strtr($text, array(')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r'));
-
     return  $text;
   }
 
@@ -3730,13 +3732,13 @@ class  Cpdf {
           $unicode[] = $c; // use the character "as is" because is ASCII
           $numbytes = 1;
         } elseif (($c >> 0x05) == 0x06) { // 2 bytes character (0x06 = 110 BIN)
-          $bytes[] = ($c - 0xC0) << 0x06; 
+          $bytes[] = ($c - 0xC0) << 0x06;
           $numbytes = 2;
         } elseif (($c >> 0x04) == 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
-          $bytes[] = ($c - 0xE0) << 0x0C; 
+          $bytes[] = ($c - 0xE0) << 0x0C;
           $numbytes = 3;
         } elseif (($c >> 0x03) == 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
-          $bytes[] = ($c - 0xF0) << 0x12; 
+          $bytes[] = ($c - 0xF0) << 0x12;
           $numbytes = 4;
         } else {
           // use replacement character for other invalid sequences
@@ -3762,7 +3764,7 @@ class  Cpdf {
             $unicode[] = $c; // add char to array
           }
           // reset data for next char
-          $bytes = array(); 
+          $bytes = array();
           $numbytes = 1;
         }
       } else {
@@ -3776,7 +3778,7 @@ class  Cpdf {
   }
 
   /**
-   * convert UTF-8 to UTF-16 with an additional byte order marker 
+   * convert UTF-8 to UTF-16 with an additional byte order marker
    * at the front if required.
    *
    * based on the excellent TCPDF code by Nicola Asuni and the
@@ -3803,7 +3805,7 @@ class  Cpdf {
        } else {
         $c -= 0x10000;
         $w1 = 0xD800 | ($c >> 0x10);
-        $w2 = 0xDC00 | ($c & 0x3FF); 
+        $w2 = 0xDC00 | ($c & 0x3FF);
         $out .= chr($w1 >> 0x08);
         $out .= chr($w1 & 0xFF);
         $out .= chr($w2 >> 0x08);
@@ -3882,7 +3884,7 @@ class  Cpdf {
 
         $j++;
 
-        if  (strlen($text) <=  $j) {
+        if  (mb_strlen($text) <=  $j) {
 
           return  $directive;
         }
@@ -3897,12 +3899,12 @@ class  Cpdf {
 
           if  ($text[$j] ==  '>') {
 
-            $p =  strrpos($this->currentTextState, $text[$j-1]);
+            $p =  mb_strrpos($this->currentTextState, $text[$j-1]);
 
             if  ($p !==  false) {
 
               // then there is one to remove
-              $this->currentTextState =  substr($this->currentTextState, 0, $p) .substr($this->currentTextState, $p+1);
+              $this->currentTextState =  mb_substr($this->currentTextState, 0, $p) .substr($this->currentTextState, $p+1);
             }
 
             $directive =  $j-$i+1;
@@ -3915,7 +3917,7 @@ class  Cpdf {
           // this this might be a callback function
           $j++;
 
-          $k =  strpos($text, '>', $j);
+          $k =  mb_strpos($text, '>', $j);
 
           if  ($k !==  false &&  $text[$j] ==  ':') {
 
@@ -3925,15 +3927,15 @@ class  Cpdf {
             $f =  0;
 
             // split the remainder on colons to get the function name and the paramater
-            $tmp =  substr($text, $j+1, $k-$j-1);
+            $tmp =  mb_substr($text, $j+1, $k-$j-1);
 
-            $b1 =  strpos($tmp, ':');
+            $b1 =  mb_strpos($tmp, ':');
 
             if  ($b1 !==  false) {
 
-              $func =  substr($tmp, 0, $b1);
+              $func =  mb_substr($tmp, 0, $b1);
 
-              $parm =  substr($tmp, $b1+1);
+              $parm =  mb_substr($tmp, $b1+1);
             } else {
 
               $func =  $tmp;
@@ -3941,7 +3943,7 @@ class  Cpdf {
               $parm =  '';
             }
 
-            if  (!isset($func) ||  !strlen(trim($func))) {
+            if  (!isset($func) ||  !mb_strlen(trim($func))) {
 
               $directive =  0;
             } else {
@@ -3951,7 +3953,7 @@ class  Cpdf {
 
                 // need to assess the text position, calculate the text width to this point
                 // can use getTextWidth to find the text width I think
-                $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, substr($text, 0, $i));
+                $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, mb_substr($text, 0, $i));
 
                 $info =  array('x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'end', 'p' => $parm, 'nCallback' => $this->nCallback);
 
@@ -4020,7 +4022,7 @@ class  Cpdf {
         // this this might be a callback function
         $j++;
 
-        $k =  strpos($text, '>', $j);
+        $k =  mb_strpos($text, '>', $j);
 
         if  ($k !==  false &&  $text[$j] ==  ':') {
 
@@ -4031,15 +4033,15 @@ class  Cpdf {
 
           // split the remainder on colons to get the function name and the paramater
           //          $bits = explode(':',substr($text,$j+1,$k-$j-1));
-          $tmp =  substr($text, $j+1, $k-$j-1);
+          $tmp =  mb_substr($text, $j+1, $k-$j-1);
 
-          $b1 =  strpos($tmp, ':');
+          $b1 =  mb_strpos($tmp, ':');
 
           if  ($b1 !==  false) {
 
-            $func =  substr($tmp, 0, $b1);
+            $func =  mb_substr($tmp, 0, $b1);
 
-            $parm =  substr($tmp, $b1+1);
+            $parm =  mb_substr($tmp, $b1+1);
           } else {
 
             $func =  $tmp;
@@ -4047,7 +4049,7 @@ class  Cpdf {
             $parm =  '';
           }
 
-          if  (!isset($func) ||  !strlen(trim($func))) {
+          if  (!isset($func) ||  !mb_strlen(trim($func))) {
 
             $directive =  0;
           } else {
@@ -4058,7 +4060,7 @@ class  Cpdf {
               // need to assess the text position, calculate the text width to this point
               // can use getTextWidth to find the text width I think
               // also add the text height and descender
-              $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, substr($text, 0, $i));
+              $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, mb_substr($text, 0, $i));
 
               $info =  array('x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'start', 'p' => $parm, 'f' => $func, 'height' => $this->getFontHeight($size), 'descender' => $this->getFontDescender($size));
 
@@ -4162,7 +4164,7 @@ class  Cpdf {
       $this->objects[$this->currentContents]['c'].=  ' '.sprintf('%.3F', $wordSpaceAdjust) .' Tw';
     }
 
-    $len =  strlen($text);
+    $len =  mb_strlen($text);
 
     $start =  0;
 
@@ -4173,7 +4175,7 @@ class  Cpdf {
      if ($directive){
      // then we should write what we need to
      if ($i>$start){
-     $part = substr($text,$start,$i-$start);
+     $part = mb_substr($text,$start,$i-$start);
      $this->objects[$this->currentContents]['c'] .= ' /F'.$this->currentFontNum.' '.sprintf('%.1F',$size).' Tf ';
      $this->objects[$this->currentContents]['c'] .= ' ('.$this->filterText($part, false).') Tj';
      }
@@ -4289,7 +4291,7 @@ class  Cpdf {
 
     } else {
 
-      $len =  strlen($text);
+      $len =  mb_strlen($text);
 
       for  ($i =  0; $i < $len; $i++) {
         $char =  ord($text{$i});
@@ -4405,7 +4407,7 @@ class  Cpdf {
 
     $breakWidth =  0;
 
-    $len =  strlen($text);
+    $len =  mb_strlen($text);
 
     $cf =  $this->currentFont;
 
@@ -4454,10 +4456,10 @@ class  Cpdf {
             // then we have somewhere that we can split :)
             if  ($text[$break] ==  ' ') {
 
-              $tmp =  substr($text, 0, $break);
+              $tmp =  mb_substr($text, 0, $break);
             } else {
 
-              $tmp =  substr($text, 0, $break+1);
+              $tmp =  mb_substr($text, 0, $break+1);
             }
 
             $adjust =  0;
@@ -4475,11 +4477,11 @@ class  Cpdf {
               $this->addText($x, $y, $size, $tmp, $angle, $adjust);
             }
 
-            return  substr($text, $break+1);
+            return  mb_substr($text, $break+1);
           } else {
 
             // just split before the current character
-            $tmp =  substr($text, 0, $i);
+            $tmp =  mb_substr($text, 0, $i);
 
             $adjust =  0;
 
@@ -4504,7 +4506,7 @@ class  Cpdf {
               $this->addText($x, $y, $size, $tmp, $angle, $adjust);
             }
 
-            return  substr($text, $i);
+            return  mb_substr($text, $i);
           }
         }
 
@@ -5553,7 +5555,7 @@ class  Cpdf {
 
       // the user is trying to set a font family
       // note that this can also be used to set the base ones to something else
-      if  (strlen($family)) {
+      if  (mb_strlen($family)) {
 
         $this->fontFamilies[$family] =  $options;
       }
