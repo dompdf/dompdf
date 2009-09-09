@@ -204,7 +204,7 @@ class Image_Cache {
    */
   static function clear() {
     if ( count(self::$_cache) ) {
-      foreach ($entry = array_shift(self::$_cache)) {
+      while ($entry = array_shift(self::$_cache)) {
         list($file, $ext) = $entry;
         //debugpng
         if (DEBUGPNG) print '[clear unlink '.$file.']';
