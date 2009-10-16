@@ -303,7 +303,6 @@ class DOMPDF {
   function load_html($str) {
     // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
     mb_detect_order('auto');
-    //error_log('mb_detect_encoding (original): ' . print_r(mb_detect_encoding($str),TRUE));
     if (mb_detect_encoding($str) != 'UTF-8') {
       if (mb_detect_encoding($str) == '') {
         if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
@@ -318,9 +317,7 @@ class DOMPDF {
           $encoding = 'auto';
         }
       }
-      //error_log('mb_convert_encoding: ' . $encoding);
       if ($encoding != 'UTF-8') { $str = mb_convert_encoding($str, 'UTF-8', $encoding); }
-      //error_log('mb_detect_encoding (new):' . print_r(mb_detect_encoding($str),TRUE));
       if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
         $str = preg_replace('/charset=([^\s"]+)/i','charset=UTF-8',$str);
       } else {

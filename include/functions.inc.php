@@ -368,8 +368,18 @@ if ( !function_exists("mb_detect_encoding") ) {
   }
 }
 
+if ( !function_exists("mb_internal_encoding") ) {
+  function mb_internal_encoding($encoding=NULL) {
+    if (isset($encoding)) {
+      return true;
+    } else {
+      return 'iso-8859-1';
+    }
+  }
+}
+
 if ( !function_exists("mb_strlen") ) {
-  function mb_strlen($str) {
+  function mb_strlen($str, $encoding='iso-8859-1') {
     return strlen($str);
   }
 }

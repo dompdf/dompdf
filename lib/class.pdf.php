@@ -888,7 +888,7 @@ class  Cpdf {
         $stream.=  "end\n";
         $stream.=  "end\n";
 
-        $res =   "<</Length " . strlen($stream) . " >>\n";
+        $res =   "<</Length " . mb_strlen($stream) . " >>\n";
         $res .=  "stream\n" . $stream . "endstream";
 
         $this->objects[$toUnicodeId]['c'] = $res;
@@ -1067,7 +1067,7 @@ class  Cpdf {
 
         case  'CharSet':
 
-          if  (strlen($value)) {
+          if  (mb_strlen($value)) {
 
             $res.= '/'.$label.' '.$value."\n";
           }
@@ -1313,7 +1313,7 @@ class  Cpdf {
           $res.= "\n/Filter /FlateDecode";
         }
 
-        $res.= "\n/Length ".strlen($tmp) .">>\nstream\n".$tmp."\nendstream";
+        $res.= "\n/Length ".mb_strlen($tmp) .">>\nstream\n".$tmp."\nendstream";
       }
 
       $res.= "\nendobj";
@@ -1761,7 +1761,7 @@ class  Cpdf {
 
       $this->objects[$id] = array('t'=>'contents', 'c'=>'', 'info'=>array());
 
-      if  (strlen($options) &&  intval($options)) {
+      if  (mb_strlen($options) &&  intval($options)) {
 
         // then this contents is the primary for a page
         $this->objects[$id]['onPage'] = $options;
@@ -1813,7 +1813,7 @@ class  Cpdf {
           $res.=  "\n/".$k.' '.$v;
         }
 
-        $res.= "\n/Length ".strlen($tmp) ." >>\nstream\n".$tmp."\nendstream";
+        $res.= "\n/Length ".mb_strlen($tmp) ." >>\nstream\n".$tmp."\nendstream";
       }
 
       $res.= "\nendobj";
@@ -1880,9 +1880,9 @@ class  Cpdf {
         $this->objects[$id]['info']['Filter'] = '/FlateDecode';
 
         $this->objects[$id]['info']['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
-        if  (strlen($options['pdata'])) {
+        if  (mb_strlen($options['pdata'])) {
 
-          $tmp =  ' [ /Indexed /DeviceRGB '.(strlen($options['pdata']) /3-1) .' ';
+          $tmp =  ' [ /Indexed /DeviceRGB '.(mb_strlen($options['pdata']) /3-1) .' ';
 
           $this->numObj++;
 
@@ -1978,7 +1978,7 @@ class  Cpdf {
         $tmp =  $this->ARC4($tmp);
       }
 
-      $res.= "\n/Length ".strlen($tmp) .">>\nstream\n".$tmp."\nendstream\nendobj";
+      $res.= "\n/Length ".mb_strlen($tmp) .">>\nstream\n".$tmp."\nendstream\nendobj";
 
       return  $res;
 
@@ -2056,7 +2056,7 @@ class  Cpdf {
       // figure out the additional paramaters required
       $pad =  chr(0x28) .chr(0xBF) .chr(0x4E) .chr(0x5E) .chr(0x4E) .chr(0x75) .chr(0x8A) .chr(0x41) .chr(0x64) .chr(0x00) .chr(0x4E) .chr(0x56) .chr(0xFF) .chr(0xFA) .chr(0x01) .chr(0x08) .chr(0x2E) .chr(0x2E) .chr(0x00) .chr(0xB6) .chr(0xD0) .chr(0x68) .chr(0x3E) .chr(0x80) .chr(0x2F) .chr(0x0C) .chr(0xA9) .chr(0xFE) .chr(0x64) .chr(0x53) .chr(0x69) .chr(0x7A);
 
-      $len =  strlen($options['owner']);
+      $len =  mb_strlen($options['owner']);
 
       if  ($len>32) {
 
@@ -2069,7 +2069,7 @@ class  Cpdf {
         $owner =  $options['owner'];
       }
 
-      $len =  strlen($options['user']);
+      $len =  mb_strlen($options['user']);
 
       if  ($len>32) {
 
@@ -2176,9 +2176,9 @@ class  Cpdf {
 
     $hex =  dechex($id);
 
-    if  (strlen($hex) <6) {
+    if  (mb_strlen($hex) <6) {
 
-      $hex =  substr('000000', 0, 6-strlen($hex)) .$hex;
+      $hex =  substr('000000', 0, 6-mb_strlen($hex)) .$hex;
     }
 
     $tmp.=  chr(hexdec(substr($hex, 4, 2))) .chr(hexdec(substr($hex, 2, 2))) .chr(hexdec(substr($hex, 0, 2))) .chr(0) .chr(0);
@@ -2197,14 +2197,14 @@ class  Cpdf {
     $this->arc4 =  '';
 
     // setup the control array
-    if  (strlen($key) == 0) {
+    if  (mb_strlen($key) == 0) {
 
       return;
     }
 
     $k =  '';
 
-    while (strlen($k) <256) {
+    while (mb_strlen($k) <256) {
 
       $k.= $key;
     }
@@ -2236,7 +2236,7 @@ class  Cpdf {
    */
   function  ARC4($text) {
 
-    $len = strlen($text);
+    $len = mb_strlen($text);
 
     $a = 0;
 
@@ -2328,7 +2328,7 @@ class  Cpdf {
       // then the block does not exist already, add it.
       $this->numObj++;
 
-      if  (strlen($ownerPass) == 0) {
+      if  (mb_strlen($ownerPass) == 0) {
 
         $ownerPass = $userPass;
       }
@@ -2371,7 +2371,7 @@ class  Cpdf {
     // OAR - why did they add the additional garbage?
     //$content = "%PDF-1.3\n%����\n";
     $content = '%PDF-1.3';
-    $pos = strlen($content);
+    $pos = mb_strlen($content);
 
     foreach($this->objects as  $k=>$v) {
 
@@ -2383,7 +2383,7 @@ class  Cpdf {
 
       $xref[] = $pos;
 
-      $pos+= strlen($cont);
+      $pos+= mb_strlen($cont);
     }
 
     $content.= "\nxref\n0 ".(count($xref) +1) ."\n0000000000 65535 f \n";
@@ -2401,7 +2401,7 @@ class  Cpdf {
       $content.=  "/Encrypt ".$this->arc4_objnum." 0 R\n";
     }
 
-    if  (strlen($this->fileIdentifier)) {
+    if  (mb_strlen($this->fileIdentifier)) {
 
       $content.=  "/ID[<".$this->fileIdentifier."><".$this->fileIdentifier.">]\n";
     }
@@ -2611,7 +2611,7 @@ class  Cpdf {
 
               $bits2 =  explode(' ', trim($bit));
 
-              if  (strlen($bits2[0])) {
+              if  (mb_strlen($bits2[0])) {
 
                 if  (count($bits2) >2) {
 
@@ -2657,7 +2657,7 @@ class  Cpdf {
 
                 $bits2 =  explode(' ', trim($bit));
 
-                if  (strlen($bits2[0])) {
+                if  (mb_strlen($bits2[0])) {
 
                   if  (count($bits2) >2) {
 
@@ -2755,7 +2755,7 @@ class  Cpdf {
 
     $ext = substr($fontName, -4);
     if  ($ext == '.afm' || $ext == '.ufm') {
-      $fontName = substr($fontName, 0, strlen($fontName)-4);
+      $fontName = substr($fontName, 0, mb_strlen($fontName)-4);
     }
 
     if  (!isset($this->fonts[$fontName])) {
@@ -2790,7 +2790,7 @@ class  Cpdf {
 
             $options['differences'] =  $encoding['differences'];
           }
-        } else  if  (strlen($encoding)) {
+        } else  if  (mb_strlen($encoding)) {
 
           // then perhaps only the encoding has been set
           $options['encoding'] =  $encoding;
@@ -2829,7 +2829,7 @@ class  Cpdf {
 
         // OAR - I don't understand this old check
         // if  (substr($fontName, -4) ==  '.afm' &&  strlen($fbtype)) {
-        if  (strlen($fbtype)) {
+        if  (mb_strlen($fbtype)) {
           $adobeFontName =  $this->fonts[$fontName]['FontName'];
 
           //        $fontObj = $this->numObj;
@@ -3013,12 +3013,12 @@ class  Cpdf {
 
             $l2 =  strpos($data, '00000000') -$l1;
 
-            $l3 =  strlen($data) -$l2-$l1;
+            $l3 =  mb_strlen($data) -$l2-$l1;
 
             $this->o_contents($this->numObj, 'add', array('Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3));
           } else  if  ($fbtype ==  'ttf') {
 
-            $l1 =  strlen($data);
+            $l1 =  mb_strlen($data);
 
             $this->o_contents($this->numObj, 'add', array('Length1' => $l1));
           }
@@ -3558,7 +3558,7 @@ class  Cpdf {
 
 
     // if there is a line style set, then put this in too
-    if  (strlen($this->currentLineStyle)) {
+    if  (mb_strlen($this->currentLineStyle)) {
 
       $this->objects[$this->currentContents]['c'].=  "\n".$this->currentLineStyle;
     }
@@ -3720,11 +3720,11 @@ class  Cpdf {
    * @return array UTF-8 codepoints array for the string
    */
   function  utf8toCodePointsArray(&$text) {
-    $length = strlen($text);
+    $length = mb_strlen($text,'8bit'); // http://www.php.net/manual/en/function.mb-strlen.php#77040
     $unicode = array(); // array containing unicode values
-    $bytes  = array(); // array containing single character byte sequences
-    $numbytes  = 1; // number of octetc needed to represent the UTF-8 character
-
+    $bytes = array(); // array containing single character byte sequences
+    $numbytes = 1; // number of octetc needed to represent the UTF-8 character
+    
     for ($i = 0; $i < $length; $i++) {
       $c = ord($text{$i}); // get one string character at time
       if (count($bytes) == 0) { // get starting octect
@@ -4113,7 +4113,6 @@ class  Cpdf {
    * add text to the document, at a specified location, size and angle on the page
    */
   function  addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0) {
-
     if  (!$this->numFonts) {
       $this->selectFont('./fonts/Helvetica');
     }
@@ -4376,7 +4375,7 @@ class  Cpdf {
    * justification and angle can also be specified for the text
    */
   function  addTextWrap($x, $y, $width, $size, $text, $justification =  'left', $angle =  0, $test =  0) {
-    // TODO - need to support Unicode
+  	// TODO - need to support Unicode
     if ($this->isUnicode) {
         die("addTextWrap does not support Unicode yet!");
     }
@@ -4785,7 +4784,6 @@ class  Cpdf {
    * return a storable representation of a specific object
    */
   function  serializeObject($id) {
-
     if  ( array_key_exists($id,  $this->objects))
       return  var_export($this->objects[$id],  true);
 
@@ -5010,7 +5008,7 @@ class  Cpdf {
       // set pointer
       $p =  8;
 
-      $len =  strlen($data);
+      $len =  mb_strlen($data);
 
       // cycle through the file, identifying chunks
       $haveHeader =  0;
@@ -5102,7 +5100,7 @@ class  Cpdf {
             // set up an array, stretching over all palette entries which will be o (opaque) or 1 (transparent)
             $transparency['type'] =  'indexed';
 
-            $numPalette =  strlen($pdata) /3;
+            $numPalette =  mb_strlen($pdata) /3;
 
             $trans =  0;
 

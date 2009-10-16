@@ -200,7 +200,7 @@ class CPDF_Adapter implements Canvas {
    * @param mixed  $paper  The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
    * @param string $orientation The orienation of the document (either 'landscape' or 'portrait')
    */
-  function __construct($paper = "letter", $orientation = "portrait") {    
+  function __construct($paper = "letter", $orientation = "portrait") {
 
     if ( is_array($paper) )
       $size = $paper;
@@ -300,7 +300,7 @@ class CPDF_Adapter implements Canvas {
    */
   function reopen_object($object) {
     $this->_pdf->reopenObject($object);
-    $this->_pdf->saveState();    
+    $this->_pdf->saveState();
   }
 
   /**
@@ -420,7 +420,7 @@ class CPDF_Adapter implements Canvas {
    * @param array $color
    */
   protected function _set_fill_color($color) {
-    list($r, $g, $b) = $color;      
+    list($r, $g, $b) = $color;
     $this->_pdf->setColor($r, $g, $b);
   }
 
@@ -502,7 +502,7 @@ class CPDF_Adapter implements Canvas {
   /**
    * Convert a GIF image to a PNG image
    *
-   * @return string The url of the newly converted image 
+   * @return string The url of the newly converted image
    */
   protected function _convert_gif_to_png($image_url) {
     
@@ -685,7 +685,7 @@ class CPDF_Adapter implements Canvas {
     //['FontHeightOffset'] manual enhancement of .afm files to trim windows fonts. currently not used.
     //Values are in 1/1000 pt for a font size of 1 pt
     //
-    //['FontBBox'][1] should be close to ['Descender'] 
+    //['FontBBox'][1] should be close to ['Descender']
     //['FontBBox'][3] should be close to ['Ascender']+Accents
     //in practice, FontBBox values are a little bigger
     //
@@ -699,9 +699,9 @@ class CPDF_Adapter implements Canvas {
     //print '<pre>['.$font.','.$size.','.$this->_pdf->getFontHeight($size).','.$this->_pdf->getFontDescender($size).','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3].','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][1].','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontHeightOffset'].','.$this->_pdf->fonts[$this->_pdf->currentFont]['Ascender'].','.$this->_pdf->fonts[$this->_pdf->currentFont]['Descender'].']</pre>';
     //
     //$this->_pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $adjust);
-	//$this->_pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $adjust);    
+	//$this->_pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $adjust);
 	//$this->_pdf->addText($x, $this->y($y) - $this->_pdf->getFontHeight($size)-$this->_pdf->getFontDescender($size), $size, $text, $angle, $adjust);
-	$this->_pdf->addText($x, $this->y($y) - ($this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $adjust);        
+	$this->_pdf->addText($x, $this->y($y) - ($this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $adjust);
   }
 
   //........................................................................
@@ -789,9 +789,9 @@ class CPDF_Adapter implements Canvas {
     
   /**
    * Processes a script on every page
-   * 
+   *
    * The variables $pdf, $PAGE_NUM, and $PAGE_COUNT are available.
-   * 
+   *
    * This function can be used to add page numbers to all pages
    * after the first one, for example.
    *
@@ -842,7 +842,7 @@ class CPDF_Adapter implements Canvas {
           
         case "script":
           if (!$eval) {
-            $eval = new PHP_Evaluator($this);  
+            $eval = new PHP_Evaluator($this);
           }
           $eval->evaluate($code, array('PAGE_NUM' => $page_number, 'PAGE_COUNT' => $this->_page_count));
           break;

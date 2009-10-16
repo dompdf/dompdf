@@ -244,17 +244,17 @@ install: all
 	chmod -R go-w $(SHAREDIR)
 	scripts/inst_file ttf2pt1 $(BINDIR)/ttf2pt1 $(OWNER) $(GROUP) 0755
 	[ -f $(BINDIR)/t1asm ] || scripts/inst_file t1asm $(LIBXDIR)/t1asm $(OWNER) $(GROUP) 0755
-	sed 's|^TTF2PT1_BINDIR=$$|TTF2PT1_BINDIR=$(BINDIR)|;\
-		s|^TTF2PT1_LIBXDIR=$$|TTF2PT1_LIBXDIR=$(LIBXDIR)|;\
-		s|^TTF2PT1_SHAREDIR=$$|TTF2PT1_SHAREDIR=$(SHAREDIR)|;' <scripts/convert >cvt.tmp
+	sed -e 's|^TTF2PT1_BINDIR=$$|TTF2PT1_BINDIR=$(BINDIR)|;' \
+		-e 's|^TTF2PT1_LIBXDIR=$$|TTF2PT1_LIBXDIR=$(LIBXDIR)|;' \
+		-e 's|^TTF2PT1_SHAREDIR=$$|TTF2PT1_SHAREDIR=$(SHAREDIR)|;' <scripts/convert >cvt.tmp
 	scripts/inst_file cvt.tmp $(BINDIR)/ttf2pt1_convert $(OWNER) $(GROUP) 0755
 	scripts/inst_file cvt.tmp $(SHAREDIR)/scripts/convert $(OWNER) $(GROUP) 0755
 	rm cvt.tmp
 	scripts/inst_file scripts/x2gs $(BINDIR)/ttf2pt1_x2gs $(OWNER) $(GROUP) 0755
 	for i in $(MANS1); do { \
-		sed 's|TTF2PT1_BINDIR|$(BINDIR)|;\
-			s|TTF2PT1_LIBXDIR|$(LIBXDIR)|;\
-			s|TTF2PT1_SHAREDIR|$(SHAREDIR)|;' <$$i >$(MANDIR)/man1/$$i \
+		sed -e 's|TTF2PT1_BINDIR|$(BINDIR)|;' \
+			-e 's|TTF2PT1_LIBXDIR|$(LIBXDIR)|;' \
+			-e 's|TTF2PT1_SHAREDIR|$(SHAREDIR)|;' <$$i >$(MANDIR)/man1/$$i \
 		&& chown $(OWNER) $(MANDIR)/man1/$$i \
 		&& chgrp $(GROUP) $(MANDIR)/man1/$$i \
 		&& chmod 0644 $(MANDIR)/man1/$$i \

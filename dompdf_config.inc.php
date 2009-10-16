@@ -69,6 +69,9 @@ define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
  */
 define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
 
+//FIXME: Some function definitions rely on the constants defined by DOMPDF. However, might this location prove problematic?
+require_once(DOMPDF_INC_DIR . "/functions.inc.php");
+
 /**
  * The location of the DOMPDF font directory
  *
@@ -368,7 +371,6 @@ if ( function_exists("spl_autoload_register") ) {
 
 /**
  * Ensure that PHP is working with text internally using UTF8 character encoding.
- * This should help avoid some character encoding translation problems.
  */
 mb_internal_encoding('UTF-8');
 
@@ -419,7 +421,4 @@ if (!defined('DEBUGKEEPTEMP')) {
 if (!defined('DEBUGCSS')) {
   define('DEBUGCSS',0);
 }
-
-require_once(DOMPDF_INC_DIR . "/functions.inc.php");
-
 ?>
