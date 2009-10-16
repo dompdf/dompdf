@@ -1,0 +1,352 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2002 SuSE Linux AG, Nuernberg, Germany.  All rights reserved.
+#
+# Author: Mike Fabian <mfabian@suse.de>, 2002
+#
+
+use English;
+use Getopt::Long;
+
+# check if we are started as root
+# only one of UID and USER must be set correctly
+
+if ($UID != 0 && $ENV{USER} !~ /root/) {
+    print "You must be root to start $0\n";
+    exit 1;
+}
+
+if (system ("rpm -q freetype-tools >/dev/null 2>&1") != 0) {
+  print "freetype-tools package missing, exiting.\n";
+  exit 1;
+}
+
+
+sub usage {
+  print "Usage: cjk-latex-config [--verbose|v] [--force|f] [--type1|t]\n";
+  exit 1;
+}
+
+# Process command line options
+my %opt;
+unless (GetOptions(\%opt,
+		   'verbose|v', \$OPT_VERBOSE,
+		   'force|f',   \$OPT_FORCE,
+		   'type1|t',   \$OPT_TYPE1,
+		  )) {
+  &usage();
+  exit 1;
+}
+
+# to make sure ttf2tfm finds the .sdf files:
+system("texhash");
+
+$tfm_created = 0;
+$type1_created = 0;
+
+system("mkdir -p /usr/share/texmf/fonts/truetype/");
+
+open (TTFONTS_MAP, "/etc/ttf2pk/ttfonts.map");
+
+while (<TTFONTS_MAP>) {
+  
+  chomp($ARG);
+  
+  if ($ARG =~ /\@[a-zA-Z0-9\/]+\@/) {
+
+    if($OPT_VERBOSE) {
+      print "----------------------------------------------------------------------\n";
+      print "$ARG\n";
+    }
+    
+    @fields = split(/\s+/, $ARG);
+    
+    $tt_dir = "/usr/X11R6/lib/X11/fonts/truetype/";
+    $tt_basename = $fields[1];
+    
+    if ($fields[0] =~ /([^\s]+)\@[a-zA-Z0-9\/]+\@/) {
+      $latex_font_name = $1;
+    } else {
+      print "can't find latex font name.\n";
+      exit 1
+    }
+    
+    if ($fields[0] =~ /\@([a-zA-Z0-9\/]+)\@/) {
+      $sfd_name = $1;
+      $sfd_name =~ /.*\/([a-zA-Z0-9]+)/;
+      $sfd_basename = $1;
+    } else {
+      print "can't find sfd_name.\n";
+      exit 1
+    }
+
+    if ($ARG =~ /Pid=([0-9]+)/) {
+      $pid = "$1";
+    } else {
+      $pid = "3";
+    }
+
+    if ($ARG =~ /Eid=([0-9]+)/) {
+      $eid = "$1";
+    } else {
+      $eid = "1";
+    }
+
+    if ($ARG =~ /Slant=([0-9.]+)/) {
+      $slant = $1;
+      $slant_opt = "-s $1";
+    } else {
+      $slant = 0;
+      $slant_opt = "-s 0";
+    }
+
+    if ($ARG =~ /Rotate=(Yes)/) {
+      $rotate = 1;
+      $rotate_opt = "-x";
+    } else {
+      $rotate = 0;
+      $rotate_opt = "";
+    }
+
+    if (-e "$tt_dir/$tt_basename") {
+      symlink("$tt_dir/$tt_basename",
+	      "/usr/share/texmf/fonts/truetype/$tt_basename");
+      $tfm_dir = "/usr/share/texmf/fonts/tfm/cjk-latex/";
+      $type1_dir = "/usr/share/texmf/fonts/type1/cjk-latex/";
+
+      if (0 != create_or_update_tfm ()) {
+	print "creating .tfm failed.\n";
+      }
+      if ($OPT_TYPE1 && $slant == 0 && $rotate == 0) {
+	if (0 != create_or_update_type1 ()) {
+	  print "creating type1 font failed.\n";
+	}
+      }
+    }
+  }
+}
+
+if ($type1_created) {
+  $command = "cjk-latex-t1mapgen $type1_dir";
+  if (0 != system ($command)) {
+    print "$command failed.\n";
+    exit 1;
+  }
+}
+
+if ($tfm_created || $type1_created) {
+  system("texhash");
+}
+
+
+exit 0;
+
+
+######################################################################
+
+sub create_or_update_tfm {
+  
+  if ($OPT_FORCE ||
+      mtime_differs_or_missing ("$tt_dir/$tt_basename",
+				"$tfm_dir/$sfd_basename/$latex_font_name/")) {
+      
+    if (0 != system ("mkdir -p $tfm_dir/$sfd_basename/$latex_font_name/")) {
+      print "mkdir -p $tfm_dir/$sfd_basename/$latex_font_name/ failed.\n";
+      exit 1;
+    }
+    if (! chdir ("$tfm_dir/$sfd_basename/$latex_font_name/")) {
+      print "can't chdir to $tfm_dir/$sfd_basename/$latex_font_name/\n";
+      exit 1;
+    }
+    
+    $command = "ttf2tfm $tt_dir/$tt_basename ";
+    unless ($OPT_VERBOSE) {
+      $command .= " -q"; 
+    }
+    $command .= " -P $pid -E $eid $rotate_opt $slant_opt $latex_font_name\@$sfd_name\@";
+    if ($OPT_VERBOSE) {
+      print "$command\n";
+    } else {
+      $command .= " > /dev/null 2>&1";
+      print "$latex_font_name\@$sfd_name\@: calling ttf2tfm ...\n";
+    }
+    if (0 != system($command)) {
+      print "$command failed.\n";
+      return 1;
+    }
+
+    # success, mark this by giving the created directory the same time stamp
+    # as the TT-font:
+    system("touch -r $tt_dir/$tt_basename $tfm_dir/$sfd_basename/$latex_font_name/");
+    $tfm_created = 1;
+    return 0; 
+  }
+  
+}
+
+######################################################################
+
+sub create_or_update_type1 {
+
+  if ($OPT_FORCE ||
+      mtime_differs_or_missing ("$tt_dir/$tt_basename",
+				"$type1_dir/$sfd_basename/$latex_font_name/")) {
+      
+    if (0 != system ("mkdir -p $type1_dir/$sfd_basename/$latex_font_name/")) {
+      print "mkdir -p $type1_dir/$sfd_basename/$latex_font_name/ failed.\n";
+      exit 1;
+    }
+    if (! chdir ("$type1_dir/$sfd_basename/$latex_font_name/")) {
+      print "can't chdir to $type1_dir/$sfd_basename/$latex_font_name/\n";
+      exit 1;
+    }
+
+    if (grep(/$tt_basename/,("wadalab-gothic.ttf","watanabe-mincho.ttf"))) {
+      print "$tt_basename does not work with ttf2pt1, skipping ...\n";
+      return 0;
+    }
+    
+    # disable smoothing of outlines for broken fonts
+    # (for details see 'man ttf2pt1'):
+    my $smoothing_opt = " ";
+    if (grep(/$tt_basename/,("kochi-gothic.ttf"))) {
+      print "$tt_basename broken, disabling smoothing of outlines.\n";
+      $smoothing_opt = " -O s ";
+    } 
+    
+    $sfd_file = "/usr/share/texmf/ttf2tfm/$sfd_basename.sfd";
+    $map_file = `mktemp /tmp/cjk-latex-config-map.XXXXXX`;
+    chomp $map_file;
+    if ($map_file eq "") {
+      print "mktemp /tmp/cjk-latex-config-map.XXXXXX failed.\n";
+    }
+    
+    @planes = sfd2map($sfd_file,$map_file);
+    if ($#planes == -1) {
+      print "sfd2map($sfd_file,$map_file) failed.\n";
+      return 1;
+    }
+    
+    for my $plane (@planes) {
+      if ($OPT_VERBOSE) {
+	$command = "ttf2pt1 -W 99 ";
+      } else {
+	$command = "ttf2pt1 -W 0 ";
+      }
+      $command .= $smoothing_opt;
+      $command .= " -p ft -b -G a -m h=5000 ";
+      $command .= " -L $map_file+pid=$pid,eid=$eid,$plane ";
+      $command .= " $tt_dir/$tt_basename $latex_font_name$plane";
+      if ($OPT_VERBOSE) {
+	print "$command\n";
+      } else {
+	$command .= " > /dev/null 2>&1";
+	print "$latex_font_name\@$sfd_name\@, plane=$plane: calling ttf2pt1 ...\n";
+      }
+      if (0 != system($command)) {
+	print "$command failed.\n";
+	return 1;
+      }      
+    }
+
+    unlink $map_file;
+    
+    # success, mark this by giving the created directory the same time stamp
+    # as the TT-font:
+    system("touch -r $tt_dir/$tt_basename $type1_dir/$sfd_basename/$latex_font_name/");
+    $type1_created = 1;
+    return 0;
+  }
+}
+
+######################################################################
+
+sub sfd2map {
+  my($sfd_file,$map_file) = @_;
+  if (! open (SFD, "<$sfd_file")) {
+    print "cannot open $sfd_file\n";
+    return ();
+  }
+  if (! open (MAP, ">$map_file")) {
+    print "cannot open $map_file\n";
+    close (SFD);
+    return ();
+  }
+
+  my(@planes) = ();
+
+  while (<SFD>) {
+  
+    if ( ! ($ARG =~ /^[[:space:]]*\#/)) {  # skip comment lines
+
+      # handle plane numbers:
+      if ( $ARG =~ /^([[:xdigit:]]{2})[[:space:]]*/ ) {
+	$ARG =~ s/^([[:xdigit:]]{2})[[:space:]]*/   /;
+	print MAP "plane $1\n";
+	print MAP "at 0x00\n";
+	$planes[$#planes + 1] = $1;
+      }
+    
+      # remove continuation chars '\':
+      $ARG =~ s/\\$//;
+    
+      $ARG =~ s/(0x[[:xdigit:]]{1,4})/$1,/g;
+      # handle ranges like 0xF800_0xF8FF
+      $ARG =~ s/(0x[[:xdigit:]]{1,4}),_/$1-/g;
+    }
+
+    print MAP $ARG;
+
+  }
+
+  close (MAP);
+  close (SFD);
+  return @planes;
+}
+
+
+# Returns true if the modification time of $f1 differs from
+# the modification time of $f2 
+sub mtime_differs {
+  my($f1,$f2) = @_;
+  if( -e $f1 && -e $f2) {
+    local (@f1s) = stat ($f1);
+    local (@f2s) = stat ($f2);
+    return ($f1s[9] != $f2s[9]);
+  } else {
+    return 0;
+  }
+}
+
+# Returns true if the modification time of $f1 differs from
+# the modification time of $f2 or if one of the files is missing
+sub mtime_differs_or_missing {
+    my($f1,$f2) = @_;
+    if (! -e $f1 || ! -e $f2 || mtime_differs($f1,$f2)) {
+      return 1;
+    } else {
+      return 0;
+    }
+}  
+
+# Returns true if $f1 is newer than $f2
+sub newer {
+  my($f1,$f2) = @_;
+  if( -e $f1 && -e $f2) {
+    local (@f1s) = stat ($f1);
+    local (@f2s) = stat ($f2);
+    return ($f1s[9] > $f2s[9]);
+  } else {
+    return 0;
+  }
+}
+
+# Returns true if $f1 is newer than $f2 or if one of the files is missing
+sub newer_or_missing {
+    my($f1,$f2) = @_;
+    if (! -e $f1 || ! -e $f2 || newer($f1,$f2)) {
+      return 1;
+    } else {
+      return 0;
+    }
+}

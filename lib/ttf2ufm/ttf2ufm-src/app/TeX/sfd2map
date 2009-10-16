@@ -1,0 +1,68 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2002 Mike Fabian <mike.fabian@gmx.de>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+use English;
+use Getopt::Long;
+
+sub usage {
+  print "Usage: sfd2map [-debug|d]\n\n";
+  print "Converts a .sfd files in the format used by ttf2pk and ttf2tfm\n"; 
+  print "into .map files in the format expected by ttf2pt1. For example:\n\n";
+  print "    sfd2map < UJIS.sfd > UJIS.map \n\n";
+  exit 1;
+}
+
+# Process command line options
+my %opt;
+unless (GetOptions(\%opt,
+	'-debug|d' , \$OPT_DEBUG
+       )) {
+    &usage();
+    exit 1;
+}
+
+if($OPT_DEBUG) {
+}
+
+open (MAP, ">&STDOUT");
+open (SFD, "<&STDIN");
+
+print MAP "# generated from a .sfd file by sfd2map to make it usable with ttf2pt1\n";
+print MAP "#\n";
+
+while (<SFD>) {
+  
+  if ( ! ($ARG =~ /^[[:space:]]*\#/)) { # skip comment lines
+
+    # handle plane numbers:
+    if ( $ARG =~ /^([[:xdigit:]]{2})[[:space:]]*/ ) {
+      $ARG =~ s/^([[:xdigit:]]{2})[[:space:]]*/   /;
+      print MAP "plane $1\n";
+      print MAP "at 0x00\n";
+    }
+    
+    # remove continuation chars '\':
+    $ARG =~ s/\\$//;
+
+    $ARG =~ s/(0x[[:xdigit:]]{1,4})/$1,/g;
+    # handle ranges like 0xF800_0xF8FF
+    $ARG =~ s/(0x[[:xdigit:]]{1,4}),_/$1-/g;
+    
+  }
+
+  print MAP $ARG;
+
+}
+
+

@@ -1,0 +1,26 @@
+#!/bin/sh
+if [ $# != 2 ]
+then
+    echo "Usage: 'nspr # file.ps' where # is 2, 5, or 1251"
+    exit
+else
+    enc=$1
+    shift
+fi
+case ${enc} in
+    1250|1251)
+        charset=windows
+        ;;
+    *)
+        charset=iso8859
+        ;;
+esac
+sed "s/Times-Roman/Timesnew-Roman-${charset}-${enc}/g;\
+     s/Times-Italic/Timesnew-Italic-${charset}-${enc}/g;\
+     s/Times-BoldItalic/Timesnew-BoldItalic-${charset}-${enc}/g;\
+     s/Times-Bold/Timesnew-Bold-${charset}-${enc}/g;\
+     s/Courier/Couriernew-Roman-${charset}-${enc}/g;\
+     s/Couriernew-Roman-${charset}-${enc}-BoldOblique/Couriernew-BoldItalic-${charset}-${enc}/g;\
+     s/Couriernew-Roman-${charset}-${enc}-Bold/Couriernew-Bold-${charset}-${enc}/g;\
+     s/Couriernew-Roman-${charset}-${enc}-Oblique/Couriernew-Italic-${charset}-${enc}/g;" $* | \
+grep -v "^	/Encoding isolatin1encoding def$"

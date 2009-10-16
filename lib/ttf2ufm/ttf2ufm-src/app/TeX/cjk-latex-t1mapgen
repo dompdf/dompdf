@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Copyright (c) 2002 SuSE Linux AG, Nuernberg, Germany.  All rights reserved.
+#
+# Author: Mike Fabian <mfabian@suse.de>, 2002
+#
+
+TYPE1_DIR=$1
+if [ -z $TYPE1_DIR ] ; then
+    TYPE1_DIR=/usr/share/texmf/fonts/type1/cjk-latex/
+fi
+
+CJK_LATEX_TYPE1_MAP_FILE=/var/lib/texmf/dvips/config/cjk-latex.map
+
+echo "creating $CJK_LATEX_TYPE1_MAP_FILE ..."
+
+TMPFILE=`mktemp /tmp/cjk-latex-t1mapgen.XXXXXX`
+
+if [ -d $TYPE1_DIR ] ; then
+    for FILE in $( find $TYPE1_DIR -name "*.pfb" )
+    do
+        BASENAME_WITHOUT_EXT=$( basename $FILE )
+        BASENAME_WITHOUT_EXT=${BASENAME_WITHOUT_EXT%.pfb}
+        FONT_NAME=$( grep -a "/FontName.*def" ${FILE} | perl -pe "s%/FontName /([^ ]+) def%\1%" )
+        echo "${BASENAME_WITHOUT_EXT} ${FONT_NAME} <${BASENAME_WITHOUT_EXT}.pfb" >> $TMPFILE
+    done
+fi
+
+mv $TMPFILE $CJK_LATEX_TYPE1_MAP_FILE
+chmod 644 $CJK_LATEX_TYPE1_MAP_FILE
+
+# add entries for PostScript font map files used by CJK-LaTeX
+# to 'pdftex.cfg' and 'config.ps':
+
+PDFTEX_CFG=/var/lib/texmf/pdftex/config/pdftex.cfg
+CONFIG_PS=/var/lib/texmf/dvips/config/config.ps
+
+for MAP in cjk-latex.map
+do
+    if [ -f /var/lib/texmf/dvips/config/$MAP ] ; then
+        egrep "^p \+$MAP" $CONFIG_PS > /dev/null 
+        if [ $? = 1 ] ; then
+            echo "p +$MAP" >>  $CONFIG_PS
+        fi
+        egrep "^map \+$MAP" $PDFTEX_CFG > /dev/null 
+        if [ $? = 1 ] ; then
+            echo "map +$MAP" >>  $PDFTEX_CFG
+        fi
+    fi
+done
+
+# pdflatex seems to prefer pk fonts if they exist. That seems strange
+# but I couldn't find out how to change this.
+# Deleting all the pk fonts from /var/cache/fonts/pk/* is probably a bit overkill
+# but it helps. 'dvips' will regenerate the pk fonts as needed but will not
+# regenerate pk fonts for the pfb fonts listed in the map file generated above.
+# Therefore, deleting /var/cache/fonts/pk/* makes sure that all available pfb
+# fonts are used:
+
+rm -rf /var/cache/fonts/pk/*

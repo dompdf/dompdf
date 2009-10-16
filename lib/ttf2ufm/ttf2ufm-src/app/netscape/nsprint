@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if uname -s | grep -i bsd >/dev/null
+then
+	LPR=lpr
+else
+	LPR=lp
+fi
+
+nsfilter | $LPR "$@"

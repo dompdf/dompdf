@@ -1,0 +1,51 @@
+Scripts to support CJK-LaTeX
+
+by Mike Fabian
+<mfabian@suse.de>
+
+The tiny Perl-script 'sfd2map' converts .sfd files (as used by
+CJK-LaTeX) to .map files (as used by ttf2pt1).
+
+Actually I currently don't use that script stand-alone for performance
+reasons.
+
+Currently I use such a conversion in another small script 'cjk-latex-config'
+(attached as well) which creates .tfm files usable with CJK-LaTeX
+from TrueType fonts as listed in /etc/ttf2pk/ttfonts.map. When called like
+  cjk-latex-config --type1
+this script will use ttf2pt1 to generate .pfb files as well from these TrueType
+fonts to be used with CJK-LaTeX.
+
+The .sfd files cannot be directly used as input to ttf2pt1 because the
+format of the .map files which ttf2pt1 expects is slightly different,
+therefore I made the 'sfd2map' converter script.
+
+But then I noticed that I would have to parse the generated map file
+*again* to get a list of the plane numbers to use. That seemed to be a
+bit wastful because I had just parsed the .sfd file to convert it to
+.map, therefore I included sfd2map as a function in 'cjk-latex-config'
+as well and collected the plane numbers during the conversion.
+
+But 'cjk-latex-config' is maybe a little bit SuSE specific, therefore
+I kept 'sfd2map' also as a standalong script. Use it if you like.
+
+'cjk-latex-config' calls another small script 'cjk-latex-t1mapgen'
+to generate a cjk-latex.map file containing something like
+  cyberb00 BitstreamCyberbit-Roman-00 <cyberb00.pfb
+  cyberb01 BitstreamCyberbit-Roman-01 <cyberb01.pfb
+  cyberb02 BitstreamCyberbit-Roman-02 <cyberb02.pfb
+  [...]
+after all .pfb files have been generated.
+
+Maybe this is also SuSE specific, I'm not sure about in what
+directories the relevant files are stored on other Linux-like systems.
+
+I'm not yet sure whether they work on other systems beside SuSE Linux.
+They have hard coded path names where to find the TrueType fonts,
+ttfonts.map, the TeX fonts etc and cjk-latex-config checks
+whether freetype-tools.rpm is installed. freetype-tools.rpm might
+have another name for other distributions and for distributions
+which don't use rpm this check can't work anyway. 
+
+These are small details and it should not be difficult to adapt the
+scripts for other Linux-like systems though.

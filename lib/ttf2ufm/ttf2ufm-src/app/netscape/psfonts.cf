@@ -1,0 +1,11 @@
+# PS_font_name font_base_file suffix_afm suffix_font
+
+Courier /usr/lib/X11/fonts/ttf/cokoi8n.koi8-r .afm .pfa
+Courier-Bold /usr/lib/X11/fonts/ttf/cokoi8b.koi8-r .afm .pfa
+Courier-Oblique /usr/lib/X11/fonts/ttf/cokoi8i.koi8-r .afm .pfa
+Courier-BoldOblique /usr/lib/X11/fonts/ttf/cokoi8bi.koi8-r .afm .pfa
+
+Times-Roman /usr/lib/X11/fonts/ttf/kudriash.koi8-r .afm .pfa
+Times-Bold /usr/lib/X11/fonts/ttf/kudrias1.koi8-r .afm .pfa
+Times-Italic /usr/lib/X11/fonts/ttf/kudrias3.koi8-r .afm .pfa
+Times-BoldItalic /usr/lib/X11/fonts/ttf/kudrias2.koi8-r .afm .pfa
