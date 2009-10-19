@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cellmap.cls.php,v 1.16 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Maps table cells to the table grid.
@@ -358,6 +358,7 @@ class Cellmap {
     // Recursively add the frames within tables, table-row-groups and table-rows
     if ( $display == "table-row" ||
          $display == "table" ||
+         $display == "inline-table" ||
          in_array($display, Table_Frame_Decorator::$ROW_GROUPS) ) {
 
       $start_row = $this->__row;
