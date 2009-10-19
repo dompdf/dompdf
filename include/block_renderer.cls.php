@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_renderer.cls.php,v 1.5 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Renders block frames

@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.24 2009-04-29 04:11:35 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Display command line usage:

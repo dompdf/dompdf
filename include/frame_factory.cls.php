@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_factory.cls.php,v 1.8 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Contains frame decorating logic

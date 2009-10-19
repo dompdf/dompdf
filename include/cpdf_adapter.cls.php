@@ -53,7 +53,7 @@
  * - fix text position according to glyph baseline to match background rectangle
  */
 
-/* $Id: cpdf_adapter.cls.php,v 1.22 2009-04-29 04:11:35 benjcarson Exp $ */
+/* $Id$ */
 
 // FIXME: Need to sanity check inputs to this class
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");

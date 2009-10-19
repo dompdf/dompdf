@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_positioner.cls.php,v 1.2 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Positions block frames

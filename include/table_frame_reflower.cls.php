@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_reflower.cls.php,v 1.14 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows tables

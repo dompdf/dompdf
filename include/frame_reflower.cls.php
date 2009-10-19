@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_reflower.cls.php,v 1.7 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Base reflower class

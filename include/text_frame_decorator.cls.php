@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_decorator.cls.php,v 1.8 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates Frame objects for text layout

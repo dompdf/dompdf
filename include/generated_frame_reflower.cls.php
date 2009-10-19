@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: generated_frame_reflower.cls.php,v 1.6 2006-10-12 22:02:15 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows generated content frames (decorates reflower)

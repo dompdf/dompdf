@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: list_bullet_frame_reflower.cls.php,v 1.5 2006-10-11 19:52:59 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows list bullets

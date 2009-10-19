@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame.cls.php,v 1.15 2008-02-15 02:09:10 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * The main Frame class

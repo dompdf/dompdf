@@ -43,7 +43,7 @@
  * - try to adjust top position of bullet to top corner of subsequent font
  */
 
-/* $Id: list_bullet_positioner.cls.php,v 1.3 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Positions list bullets

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_frame_decorator.cls.php,v 1.13 2006-12-22 18:37:45 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates Frames for table layout

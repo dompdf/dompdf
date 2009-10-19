@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: positioner.cls.php,v 1.2 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Base Positioner class

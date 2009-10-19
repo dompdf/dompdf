@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_tree.cls.php,v 1.12 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Represents an entire document as a tree of frames

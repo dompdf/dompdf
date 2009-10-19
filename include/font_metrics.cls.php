@@ -45,7 +45,7 @@
  * - Add comments
  */
 
-/* $Id: font_metrics.cls.php,v 1.7 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 

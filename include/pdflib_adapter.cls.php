@@ -43,7 +43,7 @@
  * - Clarify temp file name, optional debug output for temp file tracking
  */
 
-/* $Id: pdflib_adapter.cls.php,v 1.26 2009-04-29 04:11:35 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * PDF rendering interface

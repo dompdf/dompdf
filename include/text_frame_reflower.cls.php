@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: text_frame_reflower.cls.php,v 1.12 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows text frames.

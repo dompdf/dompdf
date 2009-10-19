@@ -43,7 +43,7 @@
  * - added comment
  */
 
-/* $Id: list_bullet_image_frame_decorator.cls.php,v 1.4 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates frames for list bullets with custom images

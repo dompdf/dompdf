@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: frame_decorator.cls.php,v 1.14 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Base Frame_Decorator class

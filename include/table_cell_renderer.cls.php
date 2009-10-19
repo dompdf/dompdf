@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_cell_renderer.cls.php,v 1.5 2006-07-07 21:31:04 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Renders table cells

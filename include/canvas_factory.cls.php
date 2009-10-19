@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: canvas_factory.cls.php,v 1.5 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Create canvas instances

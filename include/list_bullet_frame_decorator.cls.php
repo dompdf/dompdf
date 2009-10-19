@@ -43,7 +43,7 @@
  * - bullet size proportional to font size, center position
  */
 
-/* $Id: list_bullet_frame_decorator.cls.php,v 1.7 2006-10-26 17:07:23 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates frames for list bullet rendering

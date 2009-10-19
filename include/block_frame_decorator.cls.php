@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_decorator.cls.php,v 1.11 2007-08-22 23:02:06 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates frames for block layout

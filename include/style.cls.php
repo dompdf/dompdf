@@ -71,7 +71,7 @@
  * - More accurate handling of css property cache consistency
  */
 
-/* $Id: style.cls.php,v 1.22 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Represents CSS properties.

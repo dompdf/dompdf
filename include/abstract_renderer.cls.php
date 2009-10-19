@@ -51,7 +51,7 @@
  *   - Do not create temporary files, but pass gd object directly
  */
 
-/* $Id: abstract_renderer.cls.php,v 1.6 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Base renderer class

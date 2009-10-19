@@ -86,6 +86,7 @@ class Image_Cache {
     $parsed_url = explode_url($url);
 
     $DEBUGPNG=DEBUGPNG; //=DEBUGPNG; Allow override of global setting for ad hoc debug
+    $full_url_dbg = '';
     
     //debugpng
     if ($DEBUGPNG) print 'resolve_url('.$url.','.$proto.','.$host.','.$base_path.')('.$parsed_url['protocol'].')';

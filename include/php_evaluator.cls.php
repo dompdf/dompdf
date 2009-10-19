@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: php_evaluator.cls.php,v 1.5 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Executes inline PHP code during the rendering process

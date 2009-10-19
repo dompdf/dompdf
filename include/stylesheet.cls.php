@@ -49,7 +49,7 @@
  *   space for consistent parsing, in particular combined values like background
  */
 
-/* $Id: stylesheet.cls.php,v 1.19 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * The location of the default built-in CSS file.

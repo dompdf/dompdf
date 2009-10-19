@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_exception.cls.php,v 1.2 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Standard exception thrown by DOMPDF classes

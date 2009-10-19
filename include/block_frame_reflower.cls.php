@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: block_frame_reflower.cls.php,v 1.18 2007-08-22 23:02:07 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows block frames

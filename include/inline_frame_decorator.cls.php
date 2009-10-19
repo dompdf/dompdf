@@ -43,7 +43,7 @@
  * - don't repeat non repeatable background images after a line break
  */
 
-/* $Id: inline_frame_decorator.cls.php,v 1.5 2007-08-22 23:02:07 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates frames for inline layout

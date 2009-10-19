@@ -45,7 +45,7 @@
  * - Time consuming additional image file scan only when really needed
  */
 
-/* $Id: image_frame_reflower.cls.php,v 1.9 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Image reflower class

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: canvas.cls.php,v 1.8 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Main rendering interface

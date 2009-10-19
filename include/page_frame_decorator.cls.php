@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: page_frame_decorator.cls.php,v 1.16 2006-12-22 18:37:45 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates frames for page layout

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: inline_renderer.cls.php,v 1.7 2007-08-22 23:02:07 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Renders inline frames

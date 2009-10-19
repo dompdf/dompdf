@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.cls.php,v 1.23 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * DOMPDF - PHP5 HTML to PDF renderer

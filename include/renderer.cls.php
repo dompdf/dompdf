@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: renderer.cls.php,v 1.10 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Concrete renderer

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: image_renderer.cls.php,v 1.5 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Image renderer

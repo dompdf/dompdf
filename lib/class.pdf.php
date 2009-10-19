@@ -1831,7 +1831,6 @@ class  Cpdf {
   function  o_image($id, $action, $options = '') {
 
     if  ($action != 'new') {
-
       $o = & $this->objects[$id];
     }
 
@@ -3680,8 +3679,6 @@ class  Cpdf {
   }
 
 
-  // FIXME: These next three functions aren't working as desired. Converting from UTF8 results in ? for some characters. Converting to UTF16 is broken.
-  // Can we use the information from the PDF spec 5.3.2, 5.5.5, 5.6?
   /**
    * filter the text, this is applied to all text just before being inserted into the pdf document
    * it escapes the various things that need to be escaped, and so on
@@ -4978,7 +4975,7 @@ class  Cpdf {
       $label = $this->imagelist[$file]['label'];
 
 	} else {
-
+      
       if ($data == null) {
       	$this->addMessage('addPngFromBuf error - ('.$imgname.') data not present!');
         return;

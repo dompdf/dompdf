@@ -49,7 +49,7 @@
  * - relax windows path syntax, use uniform path delimiter. Used for background images.
  */
 
-/* $Id: functions.inc.php,v 1.17 2007-08-22 23:02:07 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * print_r wrapper for html/cli output

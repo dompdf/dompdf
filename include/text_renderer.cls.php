@@ -45,7 +45,7 @@
  * - better accuracy on using different renderer as cpdf, added comments
  */
 
-/* $Id: text_renderer.cls.php,v 1.8 2008-03-12 06:35:43 benjcarson Exp $ */
+/* $Id$ */
 /**
  * Renders text frames
  *

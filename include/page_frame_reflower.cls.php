@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: page_frame_reflower.cls.php,v 1.6 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows pages

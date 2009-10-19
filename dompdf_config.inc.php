@@ -50,7 +50,7 @@
  * - Add comments about configuration parameter implications
  */
 
-/* $Id: dompdf_config.inc.php,v 1.30 2009-04-29 04:11:35 benjcarson Exp $ */
+/* $Id$ */
 
 //error_reporting(E_STRICT | E_ALL);
 

@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: cached_pdf_decorator.cls.php,v 1.4 2008-02-07 07:31:05 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Caching canvas implementation

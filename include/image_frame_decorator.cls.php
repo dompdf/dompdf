@@ -43,7 +43,7 @@
  * - add optional debug output
  */
 
-/* $Id: image_frame_decorator.cls.php,v 1.12 2006-08-02 18:44:25 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Decorates frames for image layout and rendering

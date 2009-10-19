@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: inline_positioner.cls.php,v 1.3 2006-07-07 21:31:03 benjcarson Exp $ */
+/* $Id$ */
 /**
  * Positions inline frames
  *

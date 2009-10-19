@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: table_row_group_frame_reflower.cls.php,v 1.4 2007-06-25 02:45:12 benjcarson Exp $ */
+/* $Id$ */
 
 /**
  * Reflows table row groups (e.g. tbody tags)
