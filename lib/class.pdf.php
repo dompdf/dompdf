@@ -1977,7 +1977,7 @@ class  Cpdf {
         $tmp =  $this->ARC4($tmp);
       }
 
-      $res.= "\n/Length ".mb_strlen($tmp) .">>\nstream\n".$tmp."\nendstream\nendobj";
+      $res.= "\n/Length ".mb_strlen($tmp, '8bit') .">>\nstream\n".$tmp."\nendstream\nendobj";
 
       return  $res;
 
@@ -2367,8 +2367,6 @@ class  Cpdf {
 
     $xref = array();
 
-    // OAR - why did they add the additional garbage?
-    //$content = "%PDF-1.3\n%����\n";
     $content = '%PDF-1.3';
     $pos = mb_strlen($content);
 
@@ -4988,7 +4986,7 @@ class  Cpdf {
 
       $header =  chr(137) .chr(80) .chr(78) .chr(71) .chr(13) .chr(10) .chr(26) .chr(10);
 
-      if  (substr($data, 0, 8) !=  $header) {
+      if  (mb_substr($data, 0, 8, '8bit') !=  $header) {
 
         $error =  1;
 
@@ -5005,7 +5003,7 @@ class  Cpdf {
       // set pointer
       $p =  8;
 
-      $len =  mb_strlen($data);
+      $len =  mb_strlen($data, '8bit');
 
       // cycle through the file, identifying chunks
       $haveHeader =  0;
@@ -5020,7 +5018,7 @@ class  Cpdf {
 
         $chunkLen =  $this->PRVT_getBytes($data, $p, 4);
 
-        $chunkType =  substr($data, $p+4, 4);
+        $chunkType =  mb_substr($data, $p+4, 4, '8bit');
 
         //      echo $chunkType.' - '.$chunkLen.'<br>';
 
@@ -5070,13 +5068,13 @@ class  Cpdf {
 
         case  'PLTE':
 
-          $pdata.=  substr($data, $p+8, $chunkLen);
+          $pdata.=  mb_substr($data, $p+8, $chunkLen, '8bit');
 
           break;
 
         case  'IDAT':
 
-          $idata.=  substr($data, $p+8, $chunkLen);
+          $idata.=  mb_substr($data, $p+8, $chunkLen, '8bit');
 
           break;
 
@@ -5097,7 +5095,7 @@ class  Cpdf {
             // set up an array, stretching over all palette entries which will be o (opaque) or 1 (transparent)
             $transparency['type'] =  'indexed';
 
-            $numPalette =  mb_strlen($pdata) /3;
+            $numPalette =  mb_strlen($pdata, '8bit') /3;
 
             $trans =  0;
 

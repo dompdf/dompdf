@@ -409,7 +409,7 @@ if ( !function_exists("mb_strtoupper") ) {
 }
 
 if ( !function_exists("mb_substr") ) {
-  function mb_substr($str, $start, $length = null) {
+  function mb_substr($str, $start, $length=null, $encoding='iso-8859-1') {
     if ( is_null($length) )
       return substr($str, $start);
     else
