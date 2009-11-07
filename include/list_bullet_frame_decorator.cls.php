@@ -69,10 +69,10 @@ class List_Bullet_Frame_Decorator extends Frame_Decorator {
   
   function get_margin_width() {
     $style = $this->_frame->get_style();
-    // Small hack to prevent extra indenting of list text on list_style_position == "inside"
+    // Small hack to prevent extra indenting of list text on list_style_position === "inside"
     // and on suppressed bullet
-    if ( $style->list_style_position == "outside" ||
-         $style->list_style_type == "none" )
+    if ( $style->list_style_position === "outside" ||
+         $style->list_style_type === "none" )
       return 0;
     return $style->get_font_size()*self::BULLET_SIZE + 2 * self::BULLET_PADDING;
   }

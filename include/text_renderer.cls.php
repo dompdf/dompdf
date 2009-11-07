@@ -74,13 +74,13 @@ class Text_Renderer extends Abstract_Renderer {
     list($x, $y) = $frame->get_position();
     $cb = $frame->get_containing_block();
 
-    if ( ($ml = $style->margin_left) == "auto" || $ml == "none" )
+    if ( ($ml = $style->margin_left) === "auto" || $ml === "none" )
       $ml = 0;
 
-    if ( ($pl = $style->padding_left) == "auto" || $pl == "none" )
+    if ( ($pl = $style->padding_left) === "auto" || $pl === "none" )
       $pl = 0;
 
-    if ( ($bl = $style->border_left_width) == "auto" || $bl == "none" )
+    if ( ($bl = $style->border_left_width) === "auto" || $bl === "none" )
       $bl = 0;
 
     $x += $style->length_in_pt( array($ml, $pl, $bl), $cb["w"] );

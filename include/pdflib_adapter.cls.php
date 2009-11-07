@@ -193,7 +193,7 @@ class PDFLib_Adapter implements Canvas {
     else
       $size = self::$PAPER_SIZES["letter"];
 
-    if ( mb_strtolower($orientation) == "landscape" ) {
+    if ( mb_strtolower($orientation) === "landscape" ) {
       $a = $size[3];
       $size[3] = $size[2];
       $size[2] = $a;
@@ -395,9 +395,9 @@ class PDFLib_Adapter implements Canvas {
 
     // Place the object on this page if required
     if ( $this->_page_number >= $start &&
-         (($this->_page_number % 2 == 0 && $where == "even") ||
-          ($this->_page_number % 2 == 1 && $where == "odd") ||
-          ($where == "all")) )
+         (($this->_page_number % 2 == 0 && $where === "even") ||
+          ($this->_page_number % 2 == 1 && $where === "odd") ||
+          ($where === "all")) )
       $this->_pdf->fit_image($object,0,0,"");
 
     unset($this->_objs[$object]);
@@ -414,9 +414,9 @@ class PDFLib_Adapter implements Canvas {
 
       // Place the object on this page if required
       if ( $this->_page_number >= $start &&
-           (($this->_page_number % 2 == 0 && $where == "even") ||
-            ($this->_page_number % 2 == 1 && $where == "odd") ||
-            ($where == "all")) ) {
+           (($this->_page_number % 2 == 0 && $where === "even") ||
+            ($this->_page_number % 2 == 1 && $where === "odd") ||
+            ($where === "all")) ) {
         $this->_pdf->fit_image($obj,0,0,"");
       }
     }
@@ -671,7 +671,7 @@ class PDFLib_Adapter implements Canvas {
 
     $img_type = strtolower($img_type);
 
-    if ( $img_type == "jpg" )
+    if ( $img_type === "jpg" )
       $img_type = "jpeg";
 
     if ( isset($this->_imgs[$img_url]) )
@@ -739,7 +739,7 @@ class PDFLib_Adapter implements Canvas {
 
       list($proto, $host, $path, $file) = explode_url($url);
 
-      if ( $proto == "" || $proto == "file://" )
+      if ( $proto == "" || $proto === "file://" )
         return; // Local links are not allowed
       $url = build_url($proto, $host, $path, $file);
       $url = '{' . rawurldecode($url) . '}';

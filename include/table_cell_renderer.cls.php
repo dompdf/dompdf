@@ -63,7 +63,7 @@ class Table_Cell_Renderer extends Block_Renderer {
       $this->_background_image($url, $x, $y, $w, $h, $style);
     }
 
-    if ( $style->border_collapse != "collapse" ) {
+    if ( $style->border_collapse !== "collapse" ) {
       $this->_render_border($frame, "bevel");
       return;
     }
@@ -99,7 +99,7 @@ class Table_Cell_Renderer extends Block_Renderer {
       $x = $col["x"] - $bp["left"]["width"] / 2;
       $w = $col["used-width"] + ($bp["left"]["width"] + $bp["right"]["width"] ) / 2;
 
-      if ( $bp["top"]["style"] != "none" && $bp["top"]["width"] > 0 ) {
+      if ( $bp["top"]["style"] !== "none" && $bp["top"]["width"] > 0 ) {
         $widths = array($bp["top"]["width"],
                         $bp["right"]["width"],
                         $bp["bottom"]["width"],
@@ -110,7 +110,7 @@ class Table_Cell_Renderer extends Block_Renderer {
 
       if ( $draw_bottom ) {
         $bp = $cellmap->get_border_properties($num_rows - 1, $j);
-        if ( $bp["bottom"]["style"] == "none" || $bp["bottom"]["width"] <= 0 )
+        if ( $bp["bottom"]["style"] === "none" || $bp["bottom"]["width"] <= 0 )
           continue;
 
         $y = $bottom_row["y"] + $bottom_row["height"] + $bp["bottom"]["width"] / 2;
@@ -146,7 +146,7 @@ class Table_Cell_Renderer extends Block_Renderer {
       $y = $row["y"] - $bp["top"]["width"] / 2;
       $h = $row["height"] + ($bp["top"]["width"] + $bp["bottom"]["width"])/ 2;
 
-      if ( $bp["left"]["style"] != "none" && $bp["left"]["width"] > 0 ) {
+      if ( $bp["left"]["style"] !== "none" && $bp["left"]["width"] > 0 ) {
 
         $widths = array($bp["top"]["width"],
                         $bp["right"]["width"],
@@ -159,7 +159,7 @@ class Table_Cell_Renderer extends Block_Renderer {
 
       if ( $draw_right ) {
         $bp = $cellmap->get_border_properties($i, $num_cols - 1);
-        if ( $bp["right"]["style"] == "none" || $bp["right"]["width"] <= 0 )
+        if ( $bp["right"]["style"] === "none" || $bp["right"]["width"] <= 0 )
           continue;
 
         $x = $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;

@@ -122,7 +122,7 @@ abstract class Abstract_Renderer {
                                                 $sheet->get_base_path());
 
     // Bail if the image is no good
-    if ( $img == DOMPDF_LIB_DIR . "/res/broken_image.png" )
+    if ( $img === DOMPDF_LIB_DIR . "/res/broken_image.png" )
       return;
 
 	//Try to optimize away reading and composing of same background multiple times
@@ -177,7 +177,7 @@ abstract class Abstract_Renderer {
     //On no repeat with positive offset: move size/start to have offset==0
     //Handle x/y Dimensions separately
 
-    if ( $repeat != "repeat" && $repeat != "repeat-x" ) {
+    if ( $repeat !== "repeat" && $repeat !== "repeat-x" ) {
       //No repeat x
       if ($bg_x < 0) {
         $bg_width = $img_w + $bg_x;
@@ -205,7 +205,7 @@ abstract class Abstract_Renderer {
       }
     }
 
-    if ( $repeat != "repeat" && $repeat != "repeat-y" ) {
+    if ( $repeat !== "repeat" && $repeat !== "repeat-y" ) {
       //no repeat y
       if ($bg_y < 0) {
         $bg_height = $img_h + $bg_y;
@@ -234,14 +234,14 @@ abstract class Abstract_Renderer {
     }
 
     //Optimization, if repeat has no effect
-    if ( $repeat == "repeat" && $bg_y <= 0 && $img_h+$bg_y >= $bg_height ) {
+    if ( $repeat === "repeat" && $bg_y <= 0 && $img_h+$bg_y >= $bg_height ) {
       $repeat = "repeat-x";
     }
-    if ( $repeat == "repeat" && $bg_x <= 0 && $img_w+$bg_x >= $bg_width ) {
+    if ( $repeat === "repeat" && $bg_x <= 0 && $img_w+$bg_x >= $bg_width ) {
       $repeat = "repeat-y";
     }
-    if ( ($repeat == "repeat-x" && $bg_x <= 0 && $img_w+$bg_x >= $bg_width) ||
-         ($repeat == "repeat-y" && $bg_y <= 0 && $img_h+$bg_y >= $bg_height) ) {
+    if ( ($repeat === "repeat-x" && $bg_x <= 0 && $img_w+$bg_x >= $bg_width) ||
+         ($repeat === "repeat-y" && $bg_y <= 0 && $img_h+$bg_y >= $bg_height) ) {
       $repeat = "no-repeat";
     }
 
@@ -359,12 +359,12 @@ abstract class Abstract_Renderer {
 
     // Copy regions from the source image to the background
 
-    if ( $repeat == "no-repeat" ) {
+    if ( $repeat === "no-repeat" ) {
 
       // Simply place the image on the background
       imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);
 
-    } else if ( $repeat == "repeat-x" ) {
+    } else if ( $repeat === "repeat-x" ) {
 
       for ( $bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w ) {
         if ( $bg_x < 0 ) {
@@ -379,7 +379,7 @@ abstract class Abstract_Renderer {
         imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);
       }
 
-    } else if ( $repeat == "repeat-y" ) {
+    } else if ( $repeat === "repeat-y" ) {
 
       for ( $bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h ) {
         if ( $bg_y < 0 ) {
@@ -395,7 +395,7 @@ abstract class Abstract_Renderer {
 
       }
 
-    } else if ( $repeat == "repeat" ) {
+    } else if ( $repeat === "repeat" ) {
 
       for ( $bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h ) {
         for ( $bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w ) {
@@ -530,7 +530,7 @@ abstract class Abstract_Renderer {
     switch ($side) {
 
     case "top":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         
         $points = array($x, $y,
                         $x + $length, $y,
@@ -543,7 +543,7 @@ abstract class Abstract_Renderer {
       break;
       
     case "bottom":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $points = array($x, $y,
                         $x + $length, $y,
                         $x + $length - $right, $y - $bottom,
@@ -555,7 +555,7 @@ abstract class Abstract_Renderer {
       break;
       
     case "left":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $points = array($x, $y,
                         $x, $y + $length,
                         $x + $left, $y + $length - $bottom,
@@ -567,7 +567,7 @@ abstract class Abstract_Renderer {
       break;
       
     case "right":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $points = array($x, $y,
                         $x, $y + $length,
                         $x - $right, $y + $length - $bottom,
@@ -597,7 +597,7 @@ abstract class Abstract_Renderer {
     switch ($side) {
 
     case "top":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $left_line_width = $left / 4;
         $right_line_width = $right / 4;
         
@@ -621,7 +621,7 @@ abstract class Abstract_Renderer {
       break;
       
     case "bottom":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $left_line_width = $left / 4;
         $right_line_width = $right / 4;
         
@@ -645,7 +645,7 @@ abstract class Abstract_Renderer {
       break;
 
     case "left":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $top_line_width = $top / 4;
         $bottom_line_width = $bottom / 4;
         
@@ -669,7 +669,7 @@ abstract class Abstract_Renderer {
       break;
                       
     case "right":
-      if ( $corner_style == "bevel" ) {
+      if ( $corner_style === "bevel" ) {
         $top_line_width = $top / 4;
         $bottom_line_width = $bottom / 4;
         

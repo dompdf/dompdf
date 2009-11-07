@@ -67,11 +67,11 @@ function pre_r($mixed, $return = false) {
   if ($return)
     return "<pre>" . print_r($mixed, true) . "</pre>";
 
-  if ( php_sapi_name() != "cli")
+  if ( php_sapi_name() !== "cli")
     echo ("<pre>");
   print_r($mixed);
 
-  if ( php_sapi_name() != "cli")
+  if ( php_sapi_name() !== "cli")
     echo("</pre>");
   else
     echo ("\n");
@@ -90,10 +90,10 @@ function pre_r($mixed, $return = false) {
  */
 if ( !function_exists("pre_var_dump") ) {
 function pre_var_dump($mixed) {
-  if ( php_sapi_name() != "cli")
+  if ( php_sapi_name() !== "cli")
     echo("<pre>");
   var_dump($mixed);
-  if ( php_sapi_name() != "cli")
+  if ( php_sapi_name() !== "cli")
     echo("</pre>");
 }
 }
@@ -132,7 +132,7 @@ function build_url($protocol, $host, $base_path, $url) {
     //drive: followed by a relative path would be a drive specific default folder.
     //not known in php app code, treat as abs path
     //($url{1} !== ':' || ($url{2}!=='\\' && $url{2}!=='/'))
-    if ($url{0} !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url{0} != '\\' && $url{1} !== ':'))) {
+    if ($url{0} !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url{0} !== '\\' && $url{1} !== ':'))) {
       // For rel path and local acess we ignore the host, and run the path through realpath()
       $ret .= dompdf_realpath($base_path).'/';
     }
@@ -170,7 +170,7 @@ function explode_url($url) {
   $arr = parse_url($url);
 
   if ( isset($arr["scheme"]) &&
-       $arr["scheme"] != "file" &&
+       $arr["scheme"] !== "file" &&
        mb_strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
     {
     $protocol = $arr["scheme"] . "://";
@@ -192,7 +192,7 @@ function explode_url($url) {
 
     if ( isset($arr["path"]) && $arr["path"] !== "" ) {
       // Do we have a trailing slash?
-      if ( $arr["path"]{ mb_strlen($arr["path"]) - 1 } == "/" ) {
+      if ( $arr["path"]{ mb_strlen($arr["path"]) - 1 } === "/" ) {
         $path = $arr["path"];
         $file = "";
       } else {
@@ -227,11 +227,11 @@ function explode_url($url) {
 
     } else {
       // generate a url to access the file if no real path found.
-      $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+      $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 
       $host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : php_uname("n");
 
-      if ( substr($arr["path"], 0, 1) == '/' ) {
+      if ( substr($arr["path"], 0, 1) === '/' ) {
         $path = dirname($arr["path"]);
       } else {
         $path = '/' . rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/') . '/' . $arr["path"];
@@ -310,15 +310,15 @@ function is_percent($value) { return false !== mb_strpos($value, "%"); }
 function dompdf_realpath($path) {
   // If the path is relative, prepend the current directory
   if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ) {
-    if ( $path{0} == '/' || $path{0} == '\\' ) {
+    if ( $path{0} === '/' || $path{0} === '\\' ) {
       $path = substr(getcwd(),0,2) . $path;
-    } else if ($path{1} != ':' ) {
+    } else if ($path{1} !== ':' ) {
       $path = getcwd() . DIRECTORY_SEPARATOR . $path;
     }
-  } else if ($path{0} != '/') {
+  } else if ($path{0} !== '/') {
     $path = getcwd() . DIRECTORY_SEPARATOR . $path;
   }
-  $path = strtr( $path, DIRECTORY_SEPARATOR == "\\" ? "/" : DIRECTORY_SEPARATOR , DIRECTORY_SEPARATOR);
+  $path = strtr( $path, DIRECTORY_SEPARATOR === "\\" ? "/" : DIRECTORY_SEPARATOR , DIRECTORY_SEPARATOR);
 
   $parts = explode(DIRECTORY_SEPARATOR, $path);
   $path = array();
@@ -326,10 +326,10 @@ function dompdf_realpath($path) {
   $i = 0;
   foreach ($parts as $dir) {
 
-    if ( $dir == "." )
+    if ( $dir === "." )
       continue;
 
-    if ( $dir == ".." ) {
+    if ( $dir === ".." ) {
       $i--;
       if ( $i < 0 )
         $i = 0;

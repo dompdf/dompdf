@@ -129,7 +129,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     if ( $frame instanceof Inline_Frame_Decorator ) {
 
       // Handle line breaks
-      if ( $frame->get_node()->nodeName == "br" ) {
+      if ( $frame->get_node()->nodeName === "br" ) {
         $this->maximize_line_height( $frame->get_style()->length_in_pt($frame->get_style()->line_height) );
         $this->add_line();
         return;
@@ -145,9 +145,9 @@ class Block_Frame_Decorator extends Frame_Decorator {
     // Trim leading text if this is an empty line.  Kinda a hack to put it here,
     // but what can you do...
     if ( $this->_lines[$this->_cl]["w"] == 0 &&
-         $frame->get_node()->nodeName == "#text" &&
-         ($frame->get_style()->white_space != "pre" ||
-          $frame->get_style()->white_space != "pre-wrap") ) {
+         $frame->get_node()->nodeName === "#text" &&
+         ($frame->get_style()->white_space !== "pre" ||
+          $frame->get_style()->white_space !== "pre-wrap") ) {
 
       $frame->set_text( ltrim($frame->get_text()) );
       $frame->recalculate_width();
@@ -165,7 +165,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     //    pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
     //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
-    if ( $frame->get_node()->nodeName == "#text" )
+    if ( $frame->get_node()->nodeName === "#text" )
       pre_r($frame->get_node()->nodeValue);
 
     pre_r("Line width: " . $this->_lines[$this->_cl]["w"]);
@@ -184,7 +184,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     $this->_lines[$this->_cl]["frames"][] = $frame;
 
-    if ( $frame->get_node()->nodeName == "#text")
+    if ( $frame->get_node()->nodeName === "#text")
       $this->_lines[$this->_cl]["wc"] += count(preg_split("/\s+/", $frame->get_text()));
 
     $this->_lines[$this->_cl]["w"] += $w;

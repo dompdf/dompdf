@@ -81,7 +81,7 @@ class Block_Renderer extends Abstract_Renderer {
     foreach ($bp as $side => $props) {
       list($x, $y, $w, $h) = $bbox;
 
-      if ( !$props["style"] || $props["style"] == "none" || $props["width"] <= 0 )
+      if ( !$props["style"] || $props["style"] === "none" || $props["width"] <= 0 )
         continue;
 
 

@@ -245,7 +245,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
       if ( $anon_row ) {
 
-        if ( $display == "table-row" ) {
+        if ( $display === "table-row" ) {
           // Add the previous anonymous row
           $this->insert_child_before($table_row, $child);
 
@@ -261,12 +261,12 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
       } else {
 
-        if ( $display == "table-row" ) {
+        if ( $display === "table-row" ) {
           $child->normalise();
           continue;
         }
 
-        if ( $display == "table-cell") {
+        if ( $display === "table-cell") {
           // Create an anonymous table row
           $tr = $this->get_node()->ownerDocument->createElement("tr");
 
@@ -302,15 +302,15 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
         // Normalise other table parts (i.e. row groups)
         foreach ($child->get_children() as $grandchild) {
-          if ( $grandchild->get_style()->display == "table-row" )
+          if ( $grandchild->get_style()->display === "table-row" )
             $grandchild->normalise();
         }
 
         // Add headers and footers
-        if ( $display == "table-header-group" )
+        if ( $display === "table-header-group" )
           $this->_headers[] = $child;
 
-        else if ( $display == "table-footer-group" )
+        else if ( $display === "table-footer-group" )
           $this->_footers[] = $child;
       }
     }

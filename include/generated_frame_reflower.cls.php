@@ -117,7 +117,7 @@ class Generated_Frame_Reflower extends Frame_Reflower {
         $args = explode(",", mb_substr($match[1], 7, $i - 7));
         $counter_id = $args[0];
 
-        if ( $match[1]{7} == "(" ) {
+        if ( $match[1]{7} === "(" ) {
           // counter(name [,style])
 
           if ( isset($args[1]) )
@@ -130,7 +130,7 @@ class Generated_Frame_Reflower extends Frame_Reflower {
 
           $text .= $p->counter_value($counter_id, $type);
 
-        } else if ( $match[1]{7} == "s" ) {
+        } else if ( $match[1]{7} === "s" ) {
           // counters(name, string [,style])
           if ( isset($args[1]) )
             $string = $this->_parse_string(trim($args[1]));

@@ -57,7 +57,7 @@ class List_Bullet_Frame_Reflower extends Frame_Reflower {
     $style->width = $this->_frame->get_width();
     $this->_frame->position();
 
-    if ( $style->list_style_position == "inside" ) {
+    if ( $style->list_style_position === "inside" ) {
       $p = $this->_frame->find_block_parent();
       $p->add_frame_to_line($this->_frame);
     }

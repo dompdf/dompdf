@@ -63,7 +63,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
 
     // Handle list-style-image
     // If list style image is requested but missing, fall back to predefined types
-    if ( $style->list_style_image != "none" &&
+    if ( $style->list_style_image !== "none" &&
          strcmp($img = $frame->get_image_url(), DOMPDF_LIB_DIR . "/res/broken_image.png") != 0) {
 
       list($x,$y) = $frame->get_position();

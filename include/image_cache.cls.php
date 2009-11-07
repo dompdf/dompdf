@@ -91,7 +91,7 @@ class Image_Cache {
     //debugpng
     if ($DEBUGPNG) print 'resolve_url('.$url.','.$proto.','.$host.','.$base_path.')('.$parsed_url['protocol'].')';
 
-    $remote = ($proto != "" && $proto != "file://");
+    $remote = ($proto != "" && $proto !== "file://");
     $remote = $remote || ($parsed_url['protocol'] != "");
 
     if ( !DOMPDF_ENABLE_REMOTE && $remote ) {

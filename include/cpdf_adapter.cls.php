@@ -209,7 +209,7 @@ class CPDF_Adapter implements Canvas {
     else
       $size = self::$PAPER_SIZES["letter"];
 
-    if ( mb_strtolower($orientation) == "landscape" ) {
+    if ( mb_strtolower($orientation) === "landscape" ) {
       $a = $size[3];
       $size[3] = $size[2];
       $size[2] = $a;

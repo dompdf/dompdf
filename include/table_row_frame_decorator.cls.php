@@ -68,7 +68,7 @@ class Table_Row_Frame_Decorator extends Frame_Decorator {
     foreach ($this->get_children() as $child) {      
       $display = $child->get_style()->display;
 
-      if ( $display != "table-cell" )
+      if ( $display !== "table-cell" )
         $erroneous_frames[] = $child;
     }
     

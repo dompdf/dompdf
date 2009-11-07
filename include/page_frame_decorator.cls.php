@@ -284,7 +284,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
       // Rules A & B
 
-      if ( $frame->get_style()->page_break_before == "avoid" ) {
+      if ( $frame->get_style()->page_break_before === "avoid" ) {
         dompdf_debug("page-break", "before: avoid");
         return false;
       }
@@ -295,7 +295,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
         $prev = $prev->get_prev_sibling();
 
       // Does the previous element allow a page break after?
-      if ( $prev && $prev->get_style()->page_break_after == "avoid" ) {
+      if ( $prev && $prev->get_style()->page_break_after === "avoid" ) {
         dompdf_debug("page-break", "after: avoid");
         return false;
       }
@@ -303,7 +303,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // If both $prev & $frame have the same parent, check the parent's
       // page_break_inside property.
       $parent = $frame->get_parent();
-      if ( $prev && $parent && $parent->get_style()->page_break_inside == "avoid" ) {
+      if ( $prev && $parent && $parent->get_style()->page_break_inside === "avoid" ) {
           dompdf_debug("page-break", "parent inside: avoid");
         return false;
       }
@@ -311,7 +311,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // To prevent cascading page breaks when a top-level element has
       // page-break-inside: avoid, ensure that at least one frame is
       // on the page before splitting.
-      if ( $parent->get_node()->nodeName == "body" && !$prev ) {
+      if ( $parent->get_node()->nodeName === "body" && !$prev ) {
         // We are the body's first child
           dompdf_debug("page-break", "Body's first child.");
         return false;
@@ -349,7 +349,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // Rule D
       $p = $block_parent;
       while ($p) {
-        if ( $p->get_style()->page_break_inside == "avoid" ) {
+        if ( $p->get_style()->page_break_inside === "avoid" ) {
           dompdf_debug("page-break", "parent->inside: avoid");
           return false;
         }
@@ -360,17 +360,17 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // page-break-inside: avoid, ensure that at least one frame with
       // some content is on the page before splitting.
       $prev = $frame->get_prev_sibling();
-      while ( $prev && ($prev->get_node()->nodeName == "#text" && trim($prev->get_node()->nodeValue) == "") )
+      while ( $prev && ($prev->get_node()->nodeName === "#text" && trim($prev->get_node()->nodeValue) == "") )
         $prev = $prev->get_prev_sibling();
 
-      if ( $block_parent->get_node()->nodeName == "body" && !$prev ) {
+      if ( $block_parent->get_node()->nodeName === "body" && !$prev ) {
         // We are the body's first child
           dompdf_debug("page-break", "Body's first child.");
         return false;
       }
 
       // Skip breaks on empty text nodes
-      if ( $frame->get_node()->nodeName == "#text" &&
+      if ( $frame->get_node()->nodeName === "#text" &&
            $frame->get_node()->nodeValue == "" )
         return false;
 
@@ -378,14 +378,14 @@ class Page_Frame_Decorator extends Frame_Decorator {
       return true;
 
     // Table-rows
-    } else if ( $display == "table-row" ) {
+    } else if ( $display === "table-row" ) {
 
       // Simply check if the parent table's page_break_inside property is
       // not 'avoid'
       $p = Table_Frame_Decorator::find_parent_table($frame);
 
       while ($p) {
-        if ( $p->get_style()->page_break_inside == "avoid" ) {
+        if ( $p->get_style()->page_break_inside === "avoid" ) {
           dompdf_debug("page-break", "parent->inside: avoid");
           return false;
         }
@@ -531,13 +531,13 @@ class Page_Frame_Decorator extends Frame_Decorator {
       $num_tables = $this->_in_table - 1;
 
       $iter = $frame;
-      while ( $iter && $num_tables && $iter->get_style->display != "table" ) {
+      while ( $iter && $num_tables && $iter->get_style->display !== "table" ) {
         $iter = $iter->get_parent();
         $num_tables--;
       }
 
       $iter = $frame;
-      while ($iter && $iter->get_style()->display != "table-row" )
+      while ($iter && $iter->get_style()->display !== "table-row" )
         $iter = $iter->get_parent();
 
       $iter->split();

@@ -110,7 +110,7 @@ class GD_Adapter implements Canvas {
     
     }
 
-    if ( strtolower($orientation) == "landscape" ) {
+    if ( strtolower($orientation) === "landscape" ) {
       list($size[2],$size[3]) = array($size[3],$size[2]);
     }
 

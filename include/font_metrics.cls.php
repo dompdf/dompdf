@@ -180,9 +180,9 @@ class Font_Metrics {
       }
     }
 
-    if ($subtype != "normal") {
+    if ($subtype !== "normal") {
       foreach ( self::$_font_lookup[$family] as $sub => $font ) {
-        if ($sub != "normal") {
+        if ($sub !== "normal") {
           return $font;
         }
       }

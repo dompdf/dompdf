@@ -577,7 +577,7 @@ class Frame {
   function __toString() {
 
     // Skip empty text frames
-//     if ( $this->_node->nodeName == "#text" &&
+//     if ( $this->_node->nodeName === "#text" &&
 //          preg_replace("/\s/", "", $this->_node->data) === "" )
 //       return "";
     
@@ -587,7 +587,7 @@ class Frame {
     $str .= "Id: " .$this->get_id() . "<br/>";
     $str .= "Class: " .get_class($this) . "<br/>";
     
-    if ( $this->_node->nodeName == "#text" ) {
+    if ( $this->_node->nodeName === "#text" ) {
       $tmp = htmlspecialchars($this->_node->nodeValue);
       $str .= "<pre>'" .  mb_substr($tmp,0,70) .
         (mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";
@@ -641,7 +641,7 @@ class Frame {
       $str .= "</pre>";
     }
     $str .= "\n";
-    if ( php_sapi_name() == "cli" )
+    if ( php_sapi_name() === "cli" )
       $str = strip_tags(str_replace(array("<br/>","<b>","</b>"),
                                     array("\n","",""),
                                     $str));

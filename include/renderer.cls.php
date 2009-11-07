@@ -100,7 +100,7 @@ class Renderer extends Abstract_Renderer {
       break;
 
     case "inline":
-      if ( $frame->get_node()->nodeName == "#text" )
+      if ( $frame->get_node()->nodeName === "#text" )
         $this->_render_frame("text", $frame);
       else
         $this->_render_frame("inline", $frame);
@@ -121,9 +121,9 @@ class Renderer extends Abstract_Renderer {
     case "none":
       $node = $frame->get_node();
           
-      if ( $node->nodeName == "script" &&
-           ( $node->getAttribute("type") == "text/php" ||
-             $node->getAttribute("language") == "php" ) ) {
+      if ( $node->nodeName === "script" &&
+           ( $node->getAttribute("type") === "text/php" ||
+             $node->getAttribute("language") === "php" ) ) {
         // Evaluate embedded php scripts
         $this->_render_frame("php", $frame);
       }

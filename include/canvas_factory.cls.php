@@ -61,17 +61,17 @@ class Canvas_Factory {
     if ( isset($class) && class_exists($class, false) )
       $class .= "_Adapter";
     
-    else if ( (DOMPDF_PDF_BACKEND == "auto" || $backend == "pdflib" ) &&
+    else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "pdflib" ) &&
               class_exists("PDFLib", false) )
       $class = "PDFLib_Adapter";
 
-    else if ( (DOMPDF_PDF_BACKEND == "auto" || $backend == "cpdf") )
+    else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
       $class = "CPDF_Adapter";
 
-    else if ( ( $backend == "tcpdf") )
+    else if ( ( $backend === "tcpdf") )
       $class = "TCPDF_Adapter";
       
-    else if ( $backend == "gd" )
+    else if ( $backend === "gd" )
       $class = "GD_Adapter";
     
     else

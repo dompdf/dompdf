@@ -94,8 +94,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $left = $style->margin_left;
     $right = $style->margin_right;
 
-    $left = $left == "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
-    $right = $right == "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
+    $left = $left === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
+    $right = $right === "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
 
     $delta = $left + $right + $style->length_in_pt(array($style->padding_left,
                                                          $style->border_left_width,
@@ -552,7 +552,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
                   $style->margin_left,
                   $style->margin_right);
 
-    if ( $style->border_collapse != "collapse" ) 
+    if ( $style->border_collapse !== "collapse" ) 
       list($dims[]) = $style->border_spacing;
 
     $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));

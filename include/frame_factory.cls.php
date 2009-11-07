@@ -79,7 +79,7 @@ class Frame_Factory {
 
     case "inline":
       $positioner = "Inline";
-      if ( $frame->get_node()->nodeName == "#text" ) {
+      if ( $frame->get_node()->nodeName === "#text" ) {
         $decorator = "Text";
         $reflower = "Text";
       } else {
@@ -127,12 +127,12 @@ class Frame_Factory {
       break;
 
     case "-dompdf-list-bullet":
-      if ( $frame->get_style()->list_style_position == "inside" )
+      if ( $frame->get_style()->list_style_position === "inside" )
         $positioner = "Inline";
       else        
         $positioner = "List_Bullet";
 
-      if ( $frame->get_style()->list_style_image != "none" )
+      if ( $frame->get_style()->list_style_image !== "none" )
         $decorator = "List_Bullet_Image";
       else
         $decorator = "List_Bullet";
@@ -162,8 +162,8 @@ class Frame_Factory {
 
     }
 
-    if ( $frame->get_style()->position == "absolute" ||
-         $frame->get_style()->position == "fixed" )
+    if ( $frame->get_style()->position === "absolute" ||
+         $frame->get_style()->position === "fixed" )
       $positioner = "Absolute";
     
     $positioner .= "_Positioner";
@@ -175,7 +175,7 @@ class Frame_Factory {
     $reflow = new $reflower($deco);
     
     // Generated content is a special case
-    if ( $frame->get_node()->nodeName == "_dompdf_generated" ) {
+    if ( $frame->get_node()->nodeName === "_dompdf_generated" ) {
       // Decorate the reflower
       $gen = new Generated_Frame_Reflower( $deco );
       $gen->set_reflower( $reflow );
@@ -185,7 +185,7 @@ class Frame_Factory {
     $deco->set_reflower( $reflow );
 
     // Images are a special case
-//    if ( $frame->get_node()->nodeName == "img" ) {
+//    if ( $frame->get_node()->nodeName === "img" ) {
 
 //       // FIXME: This is a hack
 //       $node =$frame->get_node()->ownerDocument->createElement("img_sub");

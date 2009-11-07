@@ -76,7 +76,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
                   $lm !== "auto" ? $lm : 0);
 
     // absolutely positioned boxes take the 'left' and 'right' properties into account
-    if ( $style->position == "absolute" || $style->position == "fixed" ) {
+    if ( $style->position === "absolute" || $style->position === "fixed" ) {
       $absolute = true;
       $dims[] = $left !== "auto" ? $left : 0;
       $dims[] = $right !== "auto" ? $right : 0;
@@ -235,7 +235,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $margin_top = $style->length_in_pt($style->margin_top, $cb["h"]);
     $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["h"]);
 
-    if ( $style->position == "absolute" || $style->position == "fixed" ) {
+    if ( $style->position === "absolute" || $style->position === "fixed" ) {
 
       // see http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-height
 
@@ -471,7 +471,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       foreach ( $line["frames"] as $frame ) {
         $style = $frame->get_style();
 
-        if ( $style->display != "inline" && $style->display != "text" )
+        if ( $style->display !== "inline" && $style->display !== "text" )
           continue;
 
         $align = $style->vertical_align;
@@ -587,8 +587,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
       // If the frame is not absolutely positioned, It's okay to add the frame
       // to the line
-      if ( $child->get_style()->position != "absolute" &&
-           $child->get_style()->position != "fixed" ) {
+      if ( $child->get_style()->position !== "absolute" &&
+           $child->get_style()->position !== "fixed" ) {
         $this->_frame->add_frame_to_line( $child );
       }
     }

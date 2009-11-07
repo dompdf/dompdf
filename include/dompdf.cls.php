@@ -271,10 +271,10 @@ class DOMPDF {
       list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
 
     if ( !DOMPDF_ENABLE_REMOTE &&
-         ($this->_protocol != "" && $this->_protocol != "file://" ) )
+         ($this->_protocol != "" && $this->_protocol !== "file://" ) )
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
 
-    if ($this->_protocol == "" || $this->_protocol == "file://") {
+    if ($this->_protocol == "" || $this->_protocol === "file://") {
 
       $realfile = dompdf_realpath($file);
       if ( !$file )
@@ -284,7 +284,7 @@ class DOMPDF {
         throw new DOMPDF_Exception("Permission denied on $file.");
 
       // Exclude dot files (e.g. .htaccess)
-      if ( substr(basename($realfile),0,1) == "." )
+      if ( substr(basename($realfile),0,1) === "." )
         throw new DOMPDF_Exception("Permission denied on $file.");
 
       $file = $realfile;
@@ -358,8 +358,8 @@ class DOMPDF {
     // load <link rel="STYLESHEET" ... /> tags
     $links = $this->_xml->getElementsByTagName("link");
     foreach ($links as $link) {
-      if ( mb_strtolower($link->getAttribute("rel")) == "stylesheet" ||
-           mb_strtolower($link->getAttribute("type")) == "text/css" ) {
+      if ( mb_strtolower($link->getAttribute("rel")) === "stylesheet" ||
+           mb_strtolower($link->getAttribute("type")) === "text/css" ) {
         //Check if the css file is for an accepted media type
         //media not given then always valid
         $formedialist = preg_split("/[\s\n,]/", $link->getAttribute("media"),-1, PREG_SPLIT_NO_EMPTY);
@@ -500,7 +500,7 @@ class DOMPDF {
       $deco->set_root($root);
 
       // FIXME: handle generated content
-      if ( $frame->get_style()->display == "list-item" ) {
+      if ( $frame->get_style()->display === "list-item" ) {
 
         // Insert a list-bullet frame
         $node = $this->_xml->createElement("bullet"); // arbitrary choice

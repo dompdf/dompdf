@@ -274,7 +274,7 @@ class Stylesheet {
     list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
     if ( !DOMPDF_ENABLE_REMOTE &&
-         ($this->_protocol != "" && $this->_protocol != "file://") ) {
+         ($this->_protocol != "" && $this->_protocol !== "file://") ) {
       record_warnings(E_USER_WARNING, "Remote CSS file '$file' requested, but DOMPDF_ENABLE_REMOTE is false.", __FILE__, __LINE__);
       return;
     }
@@ -389,9 +389,9 @@ class Stylesheet {
       case ">":
         // All elements matching the next token that are direct children of
         // the current token
-        $expr = $s == " " ? "descendant" : "child";
+        $expr = $s === " " ? "descendant" : "child";
 
-        if ( mb_substr($query, -1, 1) != "/" )
+        if ( mb_substr($query, -1, 1) !== "/" )
           $query .= "/";
 
         if ( !$tok )
@@ -406,10 +406,10 @@ class Stylesheet {
         // All elements matching the current token with a class/id equal to
         // the _next_ token.
 
-        $attr = $s == "." ? "class" : "id";
+        $attr = $s === "." ? "class" : "id";
 
         // empty class/id == *
-        if ( mb_substr($query, -1, 1) == "/" )
+        if ( mb_substr($query, -1, 1) === "/" )
           $query .= "*";
 
         // Match multiple classes: $tok contains the current selected
@@ -426,7 +426,7 @@ class Stylesheet {
 
       case "+":
         // All sibling elements that folow the current token
-        if ( mb_substr($query, -1, 1) != "/" )
+        if ( mb_substr($query, -1, 1) !== "/" )
           $query .= "/";
 
         $query .= "following-sibling::$tok";
@@ -485,7 +485,7 @@ class Stylesheet {
         case "|":
           $op .= $tok{$j++};
 
-          if ( $tok{$j} != "=" )
+          if ( $tok{$j} !== "=" )
             throw new DOMPDF_Exception("Invalid CSS selector syntax: invalid attribute selector: $selector");
 
           $op .= $tok{$j};
@@ -501,7 +501,7 @@ class Stylesheet {
         if ( $op != "" ) {
           $j++;
           while ( $j < $tok_len ) {
-            if ( $tok{$j} == "]" )
+            if ( $tok{$j} === "]" )
               break;
             $value .= $tok{$j++};
           }
@@ -853,7 +853,7 @@ class Stylesheet {
       // Resolve the url now in the context of the current stylesheet
       $parsed_url = explode_url($val);
       if ( $parsed_url["protocol"] == "" && $this->get_protocol() == "" ) {
-        if ($parsed_url["path"]{0} == '/' || $parsed_url["path"]{0} == '\\' ) {
+        if ($parsed_url["path"]{0} === '/' || $parsed_url["path"]{0} === '\\' ) {
           $path = $_SERVER["DOCUMENT_ROOT"].'/';
         } else {
           $path = $this->get_base_path();
@@ -968,9 +968,9 @@ class Stylesheet {
       if (DEBUGCSS) print '(';
  	  $important = false;
       $prop = trim($prop);
-      if (substr($prop,-9) == 'important') {
+      if (substr($prop,-9) === 'important') {
       	$prop_tmp = rtrim(substr($prop,0,-9));
-      	if (substr($prop_tmp,-1) == '!') {
+      	if (substr($prop_tmp,-1) === '!') {
       		$prop = rtrim(substr($prop_tmp,0,-1));
       		$important = true;
       	}

@@ -523,7 +523,7 @@ class Style {
     }
       
     foreach (array_keys($this->_props) as $prop) {
-      if ( $this->_props[$prop] == "inherit" ) {
+      if ( $this->_props[$prop] === "inherit" ) {
         if ( isset($parent->_important_props[$prop]) ) {
           $this->_important_props[$prop] = true;
         }
@@ -672,13 +672,13 @@ class Style {
       return "transparent";
       
     default:
-      if ( mb_strlen($colour) == 4 && $colour{0} == "#" ) {
+      if ( mb_strlen($colour) == 4 && $colour{0} === "#" ) {
         // #rgb format
         $r = hexdec($colour{1} . $colour{1});
         $g = hexdec($colour{2} . $colour{2});
         $b = hexdec($colour{3} . $colour{3});
 
-      } else if ( mb_strlen($colour) == 7 && $colour{0} == "#" ) {
+      } else if ( mb_strlen($colour) == 7 && $colour{0} === "#" ) {
         // #rrggbb format
         $r = hexdec(mb_substr($colour, 1, 2));
         $g = hexdec(mb_substr($colour, 3, 2));
@@ -701,7 +701,7 @@ class Style {
         foreach (array_keys($triplet) as $c) {
           $triplet[$c] = trim($triplet[$c]);
           
-          if ( $triplet[$c]{mb_strlen($triplet[$c]) - 1} == "%" ) 
+          if ( $triplet[$c]{mb_strlen($triplet[$c]) - 1} === "%" ) 
             $triplet[$c] = round($triplet[$c] * 0.255);
         }
 
@@ -865,7 +865,7 @@ class Style {
       else
         $weight = "bold";
 
-    } else if ( $weight == "bold" || $weight == "bolder" ) {
+    } else if ( $weight === "bold" || $weight === "bolder" ) {
       $weight = "bold";
 
     } else {
@@ -876,11 +876,11 @@ class Style {
     // Resolve font-style
     $font_style = $this->__get("font_style");
 
-    if ( $weight == "bold" && ($font_style == "italic" || $font_style == "oblique") )
+    if ( $weight === "bold" && ($font_style === "italic" || $font_style === "oblique") )
       $subtype = "bold_italic";
-    else if ( $weight == "bold" && $font_style != "italic" && $font_style != "oblique" )
+    else if ( $weight === "bold" && $font_style !== "italic" && $font_style !== "oblique" )
       $subtype = "bold";
-    else if ( $weight != "bold" && ($font_style == "italic" || $font_style == "oblique") )
+    else if ( $weight !== "bold" && ($font_style === "italic" || $font_style === "oblique") )
       $subtype = "italic";
     else
       $subtype = "normal";
@@ -1105,7 +1105,7 @@ class Style {
         break;
         
       case "center":
-        if ( $tmp[0] == "left" || $tmp[0] == "right" || $tmp[0] == "center" )
+        if ( $tmp[0] === "left" || $tmp[0] === "right" || $tmp[0] === "center" )
           $y = "50%";
         else
           $x = "50%";
@@ -1441,7 +1441,7 @@ class Style {
       // Resolve the url now in the context of the current stylesheet
       $parsed_url = explode_url($val);
       if ( $parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "" ) {
-        if ($parsed_url["path"]{0} == '/' || $parsed_url["path"]{0} == '\\' ) {
+        if ($parsed_url["path"]{0} === '/' || $parsed_url["path"]{0} === '\\' ) {
           $path = $_SERVER["DOCUMENT_ROOT"].'/';
         } else {
           $path = $this->_stylesheet->get_base_path();
@@ -1569,11 +1569,11 @@ class Style {
     $tmp = explode(" ", $val);
     $important = isset($this->_important_props["background"]);
     foreach($tmp as $attr) {
-	  if (mb_substr($attr, 0, 3) == "url" || $attr == "none") {
+	  if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
    	    $this->_set_style("background_image", $this->_image($attr), $important);
-  	  } else if ($attr == "fixed" || $attr == "scroll") {
+  	  } else if ($attr === "fixed" || $attr === "scroll") {
    	    $this->_set_style("background_attachment", $attr, $important);
-  	  } else if ($attr == "repeat" || $attr == "repeat-x" || $attr == "repeat-y" || $attr == "no-repeat") {
+  	  } else if ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
    	    $this->_set_style("background_repeat", $attr, $important);
       } else if (($col = $this->munge_color($attr)) != null ) {
    	    $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
@@ -1891,7 +1891,7 @@ class Style {
       /* http://www.w3.org/TR/CSS21/generate.html#list-style
        * A value of 'none' for the 'list-style' property sets both 'list-style-type' and 'list-style-image' to 'none'
        */
-      if ($value == "none") {
+      if ($value === "none") {
    	    $this->_set_style("list_style_type", $value, $important);
    	    $this->_set_style("list_style_image", $value, $important);
         continue;
@@ -1902,7 +1902,7 @@ class Style {
       //Firefox is wrong here (list_style_image gets overwritten on explicite list_style_type)
       //Internet Explorer 7/8 and dompdf is right.
        
-	  if (mb_substr($value, 0, 3) == "url") {
+	  if (mb_substr($value, 0, 3) === "url") {
    	    $this->_set_style("list_style_image", $this->_image($value), $important);
         continue;
       }

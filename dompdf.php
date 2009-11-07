@@ -213,7 +213,7 @@ switch ( $sapi ) {
   if ( isset($opts["f"]) )
     $outfile = $opts["f"];
   else {
-    if ( $file == "-" )
+    if ( $file === "-" )
       $outfile = "dompdf_out.pdf";
     else
       $outfile = str_ireplace(array(".html", ".htm", ".php"), "", $file) . ".pdf";
@@ -265,7 +265,7 @@ switch ( $sapi ) {
  		$file = $base_path . $file; # Set the input file
 
  		/* Check to see if the input file and base path = www/test */
- 		if(!$base_path=="www/test/") 		
+ 		if($base_path !== "www/test/") 		
  			throw new DOMPDF_Exception("Access to dompdf.php via non-cli SAPI has been deprecated due to security concerns.  Please use the dompdf class directly.");
 
    break;
@@ -273,7 +273,7 @@ switch ( $sapi ) {
 
 $dompdf = new DOMPDF();
 
-if ( $file == "-" ) {
+if ( $file === "-" ) {
   $str = "";
   while ( !feof(STDIN) )
     $str .= fread(STDIN, 4096);
@@ -302,7 +302,7 @@ if ( $_dompdf_show_warnings ) {
 if ( $save_file ) {
 //   if ( !is_writable($outfile) )
 //     throw new DOMPDF_Exception("'$outfile' is not writable.");
-  if ( strtolower(DOMPDF_PDF_BACKEND) == "gd" )
+  if ( strtolower(DOMPDF_PDF_BACKEND) === "gd" )
     $outfile = str_replace(".pdf", ".png", $outfile);
 
   list($proto, $host, $path, $file) = explode_url($outfile);

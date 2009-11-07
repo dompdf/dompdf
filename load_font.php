@@ -220,7 +220,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
 
 
   // If the extension is a ttf, try and convert the fonts to afm too
-  if ( mb_strtolower($ext) === ".ttf" || strtolower($ext) == ".otf" ) {
+  if ( mb_strtolower($ext) === ".ttf" || strtolower($ext) === ".otf" ) {
     foreach ($fonts as $var => $font) {
       if ( is_null($font) ) {
         $entry[$var] = DOMPDF_FONT_DIR . mb_substr(basename($normal), 0, -4);

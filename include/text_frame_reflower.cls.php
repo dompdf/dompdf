@@ -269,7 +269,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     if ( $split !== false) {
 
       // Handle edge cases
-      if ( $split == 0 && $text == " " ) {
+      if ( $split == 0 && $text === " " ) {
         $this->_frame->set_text("");
         return;
       }
@@ -293,7 +293,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
         // Remove any trailing newlines
         $t = $this->_frame->get_text();
 
-        if ( $split > 1 && $t{$split-1} == "\n" )
+        if ( $split > 1 && $t{$split-1} === "\n" )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
 
       }
@@ -322,8 +322,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // Left trim the text if this is the first text on the line and we're
     // collapsing white space
 //     if ( $this->_block_parent->get_current_line("w") == 0 &&
-//          ($this->_frame->get_style()->white_space != "pre" ||
-//           $this->_frame->get_style()->white_space != "pre-wrap") ) {
+//          ($this->_frame->get_style()->white_space !== "pre" ||
+//           $this->_frame->get_style()->white_space !== "pre-wrap") ) {
 //       $this->_frame->set_text( ltrim( $this->_frame->get_text() ) );
 //     }
     
