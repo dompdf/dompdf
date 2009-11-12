@@ -746,11 +746,10 @@ class CPDF_Adapter implements Canvas {
 
   function get_text_width($text, $font, $size, $spacing = 0) {
     $this->_pdf->selectFont($font);
-    $ascii = utf8_decode($text);
-//     // Hack for &nbsp;
-//     $ascii = str_replace("\xA0", " ", $ascii);
-
-    return $this->_pdf->getTextWidth($size, $ascii, $spacing);
+    if (!DOMPDF_UNICODE_ENABLED) {
+    	$text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+    }
+    return $this->_pdf->getTextWidth($size, $text, $spacing);
   }
 
   //........................................................................

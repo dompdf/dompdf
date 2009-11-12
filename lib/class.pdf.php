@@ -1645,7 +1645,7 @@ class  Cpdf {
 
       if  (is_array($options)) {
 
-        // then this must be a page insertion, array shoudl contain 'rid','pos'=[before|after]
+        // then this must be a page insertion, array should contain 'rid','pos'=[before|after]
         $options['id'] = $id;
 
         $this->o_pages($this->currentNode, 'page', $options);
@@ -3515,7 +3515,7 @@ class  Cpdf {
 
     if  ($insert) {
 
-      // the id from the ezPdf class is the od of the contents of the page, not the page object itself
+      // the id from the ezPdf class is the id of the contents of the page, not the page object itself
       // query that object to find the parent
       $rid =  $this->objects[$id]['onPage'];
 
@@ -4279,7 +4279,7 @@ class  Cpdf {
 
     } else {
 
-      $len =  mb_strlen($text);
+      $len =  mb_strlen($text, 'Windows-1252');
 
       for  ($i =  0; $i < $len; $i++) {
         $char =  ord($text{$i});
