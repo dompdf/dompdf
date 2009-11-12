@@ -700,7 +700,6 @@ class PDFLib_Adapter implements Canvas {
     $adjust = (float)$adjust;
     $angle = -(float)$angle;
 
-    //$this->_pdf->fit_textline(utf8_decode($text), $x, $y, "rotate=$angle wordspacing=$adjust");
     $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$adjust");
 
   }
@@ -804,9 +803,9 @@ class PDFLib_Adapter implements Canvas {
 
   /**
    * Processes a script on every page
-   * 
+   *
    * The variables $pdf, $PAGE_NUM, and $PAGE_COUNT are available.
-   * 
+   *
    * This function can be used to add page numbers to all pages
    * after the first one, for example.
    *
@@ -859,7 +858,7 @@ class PDFLib_Adapter implements Canvas {
 
         case "script":
           if (!$eval) {
-            $eval = new PHP_Evaluator($this);  
+            $eval = new PHP_Evaluator($this);
           }
           $eval->evaluate($code, array('PAGE_NUM' => $p, 'PAGE_COUNT' => $this->_page_count));
           break;
