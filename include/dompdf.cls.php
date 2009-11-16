@@ -305,13 +305,13 @@ class DOMPDF {
     mb_detect_order('auto');
     if (mb_detect_encoding($str) != 'UTF-8') {
       if (mb_detect_encoding($str) == '') {
-        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
+        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s*?charset=([^\s"]+))?@i',$str,$matches)) {
           $encoding = strtoupper($matches[3]);
         } else {
           $encoding = 'UTF-8';
         }
       } else {
-        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
+        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s*?charset=([^\s"]+))?@i',$str,$matches)) {
           $encoding = strtoupper($matches[3]);
         } else {
           $encoding = 'auto';
