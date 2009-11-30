@@ -798,7 +798,6 @@ class  Cpdf {
    * an object to hold the font description
    */
   function  o_font($id, $action, $options = '') {
-
     if  ($action != 'new') {
 
       $o = & $this->objects[$id];
@@ -853,7 +852,7 @@ class  Cpdf {
         $this->objects[$id]['info']['encoding'] =  'WinAnsiEncoding';
       }
 
-      if ($this->isUnicode) {
+      if ($this->fonts[$options['fontFileName']]['isUnicode']) {
 
         // For Unicode fonts, we need to incorporate font data into
         // sub-sections that are linked from the primary font section.
@@ -945,7 +944,7 @@ class  Cpdf {
 
     case  'out':
 
-      if ($this->isUnicode) {
+      if ($this->fonts[$this->objects[$id]['info']['fontFileName']]['isUnicode']) {
 
         // For Unicode fonts, we need to incorporate font data into
         // sub-sections that are linked from the primary font section.
@@ -2504,6 +2503,12 @@ class  Cpdf {
     $this->addMessage('openFont: '.$font.' - '.$name);
 
     $metrics_name = $name . (($this->isUnicode) ? '.ufm' : '.afm');
+    
+    // Core fonts don't currently work with composite fonts (for Unicode support).
+    // The .ufm files have been removed so we need to check whether or not to use the
+    // .ufm or .afm.
+    if ($this->isUnicode && !file_exists($dir . '/' . $metrics_name)) { $metrics_name = $name . '.afm'; }
+    
     $cache_name = 'php_' . $metrics_name;
     $this->addMessage('metrics: '.$metrics_name.', cache: '.$cache_name);
     if  (file_exists($fontcache . $cache_name)) {
@@ -2529,8 +2534,13 @@ class  Cpdf {
       $this->addMessage('openFont: build php file from ' . $dir . $metrics_name);
 
       $data =  array();
+      
+      // Since we're not going to enable Unicode for the core fonts we need to use a font-based
+      // setting for Unicode support rather than a global setting.
+      $data['isUnicode'] = (strtolower(substr($metrics_name, -3)) == 'afm' ? false : true);
+      
       $cidtogid = '';
-      if ($this->isUnicode) {
+      if ($data['isUnicode']) {
         $cidtogid = str_pad('', 256*256*2, "\x00");
       }
 
@@ -2644,7 +2654,7 @@ class  Cpdf {
             break;
 
           case  'U': // Found in UFM files
-            if ($this->isUnicode) {
+            if ($data['isUnicode']) {
               // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
               $bits = explode(';', trim($row));
               
@@ -2844,7 +2854,7 @@ class  Cpdf {
 
             if  (intval($num) >0 ||  $num ==  '0') {
 
-              if (!$this->isUnicode) {
+              if (!$this->fonts[$fontName]['isUnicode']) {
                 // With Unicode, widths array isn't used
                 if  ($lastChar>0 &&  $num>$lastChar+1) {
 
@@ -2857,7 +2867,7 @@ class  Cpdf {
 
               $widths[] =  $d['WX'];
 
-              if ($this->isUnicode) {
+              if ($this->fonts[$fontName]['isUnicode']) {
                 $cid_widths[$num] =  $d['WX'];
               }
 
@@ -2876,7 +2886,7 @@ class  Cpdf {
 
               if  ($charNum > $lastChar) {
 
-                if (!$this->isUnicode) {
+                if (!$this->fonts[$fontName]['isUnicode']) {
                   // With Unicode, widths array isn't used
                   for ($i =  $lastChar + 1; $i <=  $charNum; $i++) {
 
@@ -2890,14 +2900,14 @@ class  Cpdf {
               if  (isset($this->fonts[$fontName]['C'][$charName])) {
 
                 $widths[$charNum-$firstChar] =  $this->fonts[$fontName]['C'][$charName]['WX'];
-                if ($this->isUnicode) {
+                if ($this->fonts[$fontName]['isUnicode']) {
                   $cid_widths[$charName] =  $this->fonts[$fontName]['C'][$charName]['WX'];
                 }
               }
             }
           }
 
-          if ($this->isUnicode) {
+          if ($this->fonts[$fontName]['isUnicode']) {
             $this->fonts[$fontName]['CIDWidths'] = $cid_widths;
           }
 
@@ -2907,7 +2917,7 @@ class  Cpdf {
 
           $widthid = -1;
 
-          if (!$this->isUnicode) {
+          if (!$this->fonts[$fontName]['isUnicode']) {
             // With Unicode, widths array isn't used
 
             $this->numObj++;
@@ -3678,7 +3688,8 @@ class  Cpdf {
    * @access private
    */
   function  filterText($text, $bom = true) {
-    if ($this->isUnicode) {
+	$cf =  $this->currentFont;
+    if ($this->fonts[$cf]['isUnicode']) {
       $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
       $text =  $this->utf8toUtf16BE($text, $bom);
     } else {
@@ -3781,7 +3792,8 @@ class  Cpdf {
    * @return string UTF-16 result string
    */
   function  utf8toUtf16BE(&$text, $bom = true) {
-    if (!$this->isUnicode) return $text;
+    $cf =  $this->currentFont;
+    if (!$this->fonts[$cf]['isUnicode']) return $text;
     $out = $bom ? "\xFE\xFF" : '';
     
     $unicode = $this->utf8toCodePointsArray($text);
@@ -4256,8 +4268,7 @@ class  Cpdf {
     $cf =  $this->currentFont;
 
     $space_scale =  1000 / $size;
-
-    if ( $this->isUnicode) {
+    if ( $this->fonts[$cf]['isUnicode']) {
       // for Unicode, use the code points array to calculate width rather
       // than just the string itself
       $unicode =  $this->utf8toCodePointsArray($text);
@@ -4365,7 +4376,8 @@ class  Cpdf {
    */
   function  addTextWrap($x, $y, $width, $size, $text, $justification =  'left', $angle =  0, $test =  0) {
   	// TODO - need to support Unicode
-    if ($this->isUnicode) {
+    $cf =  $this->currentFont;
+    if ($this->fonts[$cf]['isUnicode']) {
         die("addTextWrap does not support Unicode yet!");
     }
 
