@@ -112,5 +112,3 @@ class Block_Renderer extends Abstract_Renderer {
     }
   }
 }
-
-?>

@@ -394,5 +394,3 @@ abstract class Frame_Decorator extends Frame {
 
 
 }
-
-?>

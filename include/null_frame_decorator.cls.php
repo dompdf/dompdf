@@ -57,4 +57,3 @@ class Null_Frame_Decorator extends Frame_Decorator {
   }
 
 }
-?>

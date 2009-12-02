@@ -241,5 +241,3 @@ class Font_Metrics {
 }
 
 Font_Metrics::init();
-
-?>

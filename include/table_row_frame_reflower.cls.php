@@ -92,4 +92,3 @@ class Table_Row_Frame_Reflower extends Frame_Reflower {
     throw new DOMPDF_Exception("Min/max width is undefined for table rows");
   }
 }
-?>

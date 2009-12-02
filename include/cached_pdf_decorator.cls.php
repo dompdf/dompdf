@@ -184,5 +184,3 @@ class Cached_PDF_Decorator extends CPDF_Adapter implements Canvas {
   function get_messages() { return $this->_pdf->get_messages(); }
   
 }
-
-?>

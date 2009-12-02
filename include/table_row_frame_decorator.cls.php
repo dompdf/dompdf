@@ -79,4 +79,3 @@ class Table_Row_Frame_Decorator extends Frame_Decorator {
   
   
 }
-?>
