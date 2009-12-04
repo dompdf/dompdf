@@ -174,279 +174,6 @@ class DOMPDF {
    */
   function __construct() {
     $this->_messages = array();
-    $this->_xml = new DomDocument();
-    $this->_xml->preserveWhiteSpace = true;
-    $this->_tree = new Frame_Tree($this->_xml);
-    $this->_css = new Stylesheet();
-    $this->_pdf = null;
-    $this->_paper_size = "letter";
-    $this->_paper_orientation = "portrait";
-    $this->_base_protocol = "";
-    $this->_base_host = "";
-    $this->_base_path = "";
-    $this->_callbacks = array();
-    $this->_cache_id = null;
-  }
-
-  /**
-   * Returns the underlying {@link Frame_Tree} object
-   *
-   * @return Frame_Tree
-   */
-  function get_tree() { return $this->_tree; }
-
-  //........................................................................
-
-  /**
-   * Sets the protocol to use
-   *
-   * @param string $proto
-   */
-  // FIXME: validate these
-  function set_protocol($proto) { $this->_protocol = $proto; }
-
-  /**
-   * Sets the base hostname
-   *
-   * @param string $host
-   */
-  function set_host($host) { $this->_base_host = $host; }
-
-  /**
-   * Sets the base path
-   *
-   * @param string $path
-   */
-  function set_base_path($path) { $this->_base_path = $path; }
-
-  /**
-   * Returns the protocol in use
-   *
-   * @return string
-   */
-  function get_protocol() { return $this->_protocol; }
-
-  /**
-   * Returns the base hostname
-   *
-   * @return string
-   */
-  function get_host() { return $this->_base_host; }
-
-  /**
-   * Returns the base path
-   *
-   * @return string
-   */
-  function get_base_path() { return $this->_base_path; }
-
-  /**
-   * Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)
-   *
-   * @return Canvas
-   */
-  function get_canvas() { return $this->_pdf; }
-
-  /**
-   * Returns the callbacks array
-   *
-   * @return array
-   */
-  function get_callbacks() { return $this->_callbacks; }
-  
-  //........................................................................
-
-  /**
-   * Loads an HTML file
-   *
-   * Parse errors are stored in the global array _dompdf_warnings.
-   *
-   * @param string $file a filename or url to load
-   */
-  function load_html_file($file) {
-    // Store parsing warnings as messages (this is to prevent output to the
-    // browser if the html is ugly and the dom extension complains,
-    // preventing the pdf from being streamed.)
-    if ( !$this->_protocol && !$this->_base_host && !$this->_base_path )
-      list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
-
-    if ( !DOMPDF_ENABLE_REMOTE &&
-<?php
-/**
- * DOMPDF - PHP5 HTML to PDF renderer
- *
- * File: $RCSfile: dompdf.cls.php,v $
- * Created on: 2004-06-09
- *
- * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library in the file LICENSE.LGPL; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- * 02111-1307 USA
- *
- * Alternatively, you may distribute this software under the terms of the
- * PHP License, version 3.0 or later.  A copy of this license should have
- * been distributed with this file in the file LICENSE.PHP .  If this is not
- * the case, you can obtain a copy at http://www.php.net/license/3_0.txt.
- *
- * The latest version of DOMPDF might be available at:
- * http://www.digitaljunkies.ca/dompdf
- *
- * @link http://www.digitaljunkies.ca/dompdf
- * @copyright 2004 Benj Carson
- * @author Benj Carson <benjcarson@digitaljunkies.ca>
- * @package dompdf
- * @version 0.5.1
- */
-
-/* $Id$ */
-
-/**
- * DOMPDF - PHP5 HTML to PDF renderer
- *
- * DOMPDF loads HTML and does its best to render it as a PDF.  It gets its
- * name from the new DomDocument PHP5 extension.  Source HTML is first
- * parsed by a DomDocument object.  DOMPDF takes the resulting DOM tree and
- * attaches a {@link Frame} object to each node.  {@link Frame} objects store
- * positioning and layout information and each has a reference to a {@link
- * Style} object.
- *
- * Style information is loaded and parsed (see {@link Stylesheet}) and is
- * applied to the frames in the tree by using XPath.  CSS selectors are
- * converted into XPath queries, and the computed {@link Style} objects are
- * applied to the {@link Frame}s.
- *
- * {@link Frame}s are then decorated (in the design pattern sense of the
- * word) based on their CSS display property ({@link
- * http://www.w3.org/TR/CSS21/visuren.html#propdef-display}).
- * Frame_Decorators augment the basic {@link Frame} class by adding
- * additional properties and methods specific to the particular type of
- * {@link Frame}.  For example, in the CSS layout model, block frames
- * (display: block;) contain line boxes that are usually filled with text or
- * other inline frames.  The Block_Frame_Decorator therefore adds a $lines
- * property as well as methods to add {@link Frame}s to lines and to add
- * additional lines.  {@link Frame}s also are attached to specific
- * Positioner and {@link Frame_Reflower} objects that contain the
- * positioining and layout algorithm for a specific type of frame,
- * respectively.  This is an application of the Strategy pattern.
- *
- * Layout, or reflow, proceeds recursively (post-order) starting at the root
- * of the document.  Space constraints (containing block width & height) are
- * pushed down, and resolved positions and sizes bubble up.  Thus, every
- * {@link Frame} in the document tree is traversed once (except for tables
- * which use a two-pass layout algorithm).  If you are interested in the
- * details, see the reflow() method of the Reflower classes.
- *
- * Rendering is relatively straightforward once layout is complete. {@link
- * Frame}s are rendered using an adapted {@link Cpdf} class, originally
- * written by Wayne Munro, http://www.ros.co.nz/pdf/.  (Some performance
- * related changes have been made to the original {@link Cpdf} class, and
- * the {@link CPDF_Adapter} class provides a simple, stateless interface to
- * PDF generation.)  PDFLib support has now also been added, via the {@link
- * PDFLib_Adapter}.
- *
- *
- * @package dompdf
- */
-class DOMPDF {
-
-
-  /**
-   * DomDocument representing the HTML document
-   *
-   * @var DomDocument
-   */
-  protected $_xml;
-
-  /**
-   * Frame_Tree derived from the DOM tree
-   *
-   * @var Frame_Tree
-   */
-  protected $_tree;
-
-  /**
-   * Stylesheet for the document
-   *
-   * @var Stylesheet
-   */
-  protected $_css;
-
-  /**
-   * Actual PDF renderer
-   *
-   * @var Canvas
-   */
-  protected $_pdf;
-
-  /**
-   * Desired paper size ('letter', 'legal', 'A4', etc.)
-   *
-   * @var string
-   */
-  protected $_paper_size;
-
-  /**
-   * Paper orientation ('portrait' or 'landscape')
-   *
-   * @var string
-   */
-  protected $_paper_orientation;
-
-  /**
-   * Callbacks on new page and new element
-   *
-   * @var array
-   */
-  protected $_callbacks;
-
-  /**
-   * Experimental caching capability
-   *
-   * @var string
-   */
-  private $_cache_id;
-
-  /**
-   * Base hostname
-   *
-   * Used for relative paths/urls
-   * @var string
-   */
-  protected $_base_host;
-
-  /**
-   * Absolute base path
-   *
-   * Used for relative paths/urls
-   * @var string
-   */
-  protected $_base_path;
-
-  /**
-   * Protcol used to request file (file://, http://, etc)
-   *
-   * @var string
-   */
-  protected $_protocol;
-
-
-  /**
-   * Class constructor
-   */
-  function __construct() {
-    $this->_messages = array();
     $this->_xml = new DOMDocument();
     $this->_xml->preserveWhiteSpace = true;
     $this->_tree = new Frame_Tree($this->_xml);
@@ -544,9 +271,10 @@ class DOMPDF {
       list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
 
     if ( !DOMPDF_ENABLE_REMOTE &&
-
+         ($this->_protocol != "" && $this->_protocol !== "file://" ) )
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
 
+    if ($this->_protocol == "" || $this->_protocol === "file://") {
 
       $realfile = dompdf_realpath($file);
       if ( !$file )
@@ -556,6 +284,7 @@ class DOMPDF {
         throw new DOMPDF_Exception("Permission denied on $file.");
 
       // Exclude dot files (e.g. .htaccess)
+      if ( substr(basename($realfile),0,1) === "." )
         throw new DOMPDF_Exception("Permission denied on $file.");
 
       $file = $realfile;
@@ -629,7 +358,8 @@ class DOMPDF {
     // load <link rel="STYLESHEET" ... /> tags
     $links = $this->_xml->getElementsByTagName("link");
     foreach ($links as $link) {
-    // load <link rel="STYLESHEET" ... /> tags
+      if ( mb_strtolower($link->getAttribute("rel")) === "stylesheet" ||
+           mb_strtolower($link->getAttribute("type")) === "text/css" ) {
         //Check if the css file is for an accepted media type
         //media not given then always valid
         $formedialist = preg_split("/[\s\n,]/", $link->getAttribute("media"),-1, PREG_SPLIT_NO_EMPTY);
@@ -770,10 +500,6 @@ class DOMPDF {
       $deco->set_root($root);
 
       // FIXME: handle generated content
-      $deco = Frame_Factory::decorate_frame($frame, $this);
-      $deco->set_root($root);
-
-      // FIXME: handle generated content
       if ( $frame->get_style()->display === "list-item" ) {
 
         // Insert a list-bullet frame
@@ -801,8 +527,7 @@ class DOMPDF {
     // Clean up cached images
     Image_Cache::clear();
     
-    global $_dompdf_show_warnings;
-    if ( $_dompdf_show_warnings ) {
+    if ( $GLOBALS['_dompdf_show_warnings'] ) {
       global $_dompdf_warnings;
         echo '<b>DOMPDF Warnings</b><br><pre>';
       foreach ($_dompdf_warnings as $msg)

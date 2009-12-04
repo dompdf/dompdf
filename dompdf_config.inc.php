@@ -380,7 +380,6 @@ mb_internal_encoding('UTF-8');
  *
  * @var array
  */
-global $_dompdf_warnings;
 $_dompdf_warnings = array();
 
 /**
@@ -391,7 +390,6 @@ $_dompdf_warnings = array();
  *
  * @var bool
  */
-global $_dompdf_show_warnings;
 $_dompdf_show_warnings = false;
 
 /**
@@ -400,7 +398,6 @@ $_dompdf_show_warnings = false;
  *
  * @var bool
  */
-global $_dompdf_debug;
 $_dompdf_debug = false;
 
 /**
@@ -408,7 +405,6 @@ $_dompdf_debug = false;
  *
  * @var array
  */
-global $_DOMPDF_DEBUG_TYPES;
 $_DOMPDF_DEBUG_TYPES = array(); //array("page-break" => 1);
 
 /* Optionally enable different classes of debug output before the pdf content.
