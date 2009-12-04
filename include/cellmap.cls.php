@@ -711,4 +711,3 @@ class Cellmap {
     return $str;
   }
 }
-?>

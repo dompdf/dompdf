@@ -223,5 +223,3 @@ class Renderer extends Abstract_Renderer {
 
   }
 }
-
-?>

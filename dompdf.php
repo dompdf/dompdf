@@ -321,4 +321,3 @@ if ( $save_file ) {
 if ( !headers_sent() ) {
   $dompdf->stream($outfile);
 }
-?>

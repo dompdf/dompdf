@@ -67,4 +67,3 @@ class Image_Renderer extends Abstract_Renderer {
 
   }
 }
-?>

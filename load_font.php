@@ -252,5 +252,3 @@ $italic = isset($_SERVER["argv"][4]) ? $_SERVER["argv"][4] : null;
 $bold_italic = isset($_SERVER["argv"][5]) ? $_SERVER["argv"][5] : null;
 
 install_font_family($_SERVER["argv"][1], $normal, $bold, $italic, $bold_italic);
-
-?>

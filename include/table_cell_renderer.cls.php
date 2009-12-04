@@ -177,4 +177,3 @@ class Table_Cell_Renderer extends Block_Renderer {
 
   }
 }
-?>

@@ -59,4 +59,3 @@ class Table_Cell_Positioner extends Positioner {
 
   }
 }
-?>

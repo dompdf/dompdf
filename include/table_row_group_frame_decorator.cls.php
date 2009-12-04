@@ -94,4 +94,3 @@ class Table_Row_Group_Frame_Decorator extends Frame_Decorator {
   }
 }
  
-?>

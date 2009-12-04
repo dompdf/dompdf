@@ -109,4 +109,3 @@ class List_Bullet_Positioner extends Positioner {
     
   }
 }
-?>

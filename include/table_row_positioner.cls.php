@@ -66,5 +66,3 @@ class Table_Row_Positioner extends Positioner {
 
   }
 }
-
-?>

@@ -63,4 +63,3 @@ abstract class Positioner {
   abstract function position();
   
 }
-?>

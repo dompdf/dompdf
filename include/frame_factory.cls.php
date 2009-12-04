@@ -207,4 +207,3 @@ class Frame_Factory {
   }
   
 }
-?>

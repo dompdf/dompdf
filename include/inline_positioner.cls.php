@@ -73,4 +73,3 @@ class Inline_Positioner extends Positioner {
 
   }
 }
-?>

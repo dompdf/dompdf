@@ -58,4 +58,3 @@ class DOMPDF_Exception extends Exception {
   }
 
 }
-?>

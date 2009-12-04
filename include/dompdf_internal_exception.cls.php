@@ -57,4 +57,3 @@ class DOMPDF_Internal_Exception extends Exception {
   }
 
 }
-?>
