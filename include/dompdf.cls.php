@@ -527,8 +527,8 @@ class DOMPDF {
     // Clean up cached images
     Image_Cache::clear();
     
-    if ( $GLOBALS['_dompdf_show_warnings'] ) {
-      global $_dompdf_warnings;
+    global $_dompdf_warnings;
+    if ( $_dompdf_warnings ) {
         echo '<b>DOMPDF Warnings</b><br><pre>';
       foreach ($_dompdf_warnings as $msg)
         echo $msg . "\n";
