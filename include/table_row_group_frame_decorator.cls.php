@@ -36,7 +36,7 @@
  * @package dompdf
  */
 
-/* $Id */
+/* $Id$ */
 
 /**
  * Table row group decorator

@@ -42,6 +42,9 @@
    * @version dompdf_trunk_with_helmut_mods.20090528
    * - typo 'decent' instead of 'descent' at various locations made getFontDescender worthless
    */
+
+/* $Id$ */
+
 class  Cpdf {
 
 

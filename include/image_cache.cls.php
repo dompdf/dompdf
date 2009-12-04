@@ -51,7 +51,7 @@
  * - don't cache broken image, but refer to original broken image replacement
  */
 
-/* $Id */
+/* $Id$ */
 
 /**
  * Static class that resolves image urls and downloads and caches
