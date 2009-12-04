@@ -295,3 +295,5 @@ class Block_Frame_Decorator extends Frame_Decorator {
     }
   }
 }
+
+?>

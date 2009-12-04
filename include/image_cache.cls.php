@@ -217,3 +217,4 @@ class Image_Cache {
   }
 
 }
+?>

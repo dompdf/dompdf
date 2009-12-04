@@ -181,3 +181,4 @@ class Text_Frame_Decorator extends Frame_Decorator {
   }
 
 }
+?>

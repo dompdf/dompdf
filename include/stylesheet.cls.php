@@ -1064,3 +1064,4 @@ class Stylesheet {
     return $str;
   }
 }
+?>

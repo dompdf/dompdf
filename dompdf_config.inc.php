@@ -421,3 +421,4 @@ if (!defined('DEBUGKEEPTEMP')) {
 if (!defined('DEBUGCSS')) {
   define('DEBUGCSS',0);
 }
+?>

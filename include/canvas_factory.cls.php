@@ -81,3 +81,4 @@ class Canvas_Factory {
         
   }
 }
+?>

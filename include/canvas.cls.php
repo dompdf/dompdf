@@ -258,3 +258,4 @@ interface Canvas {
   function output($options = null);
   
 }
+?>

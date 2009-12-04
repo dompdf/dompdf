@@ -489,3 +489,4 @@ class Attribute_Translator {
 
 }
 
+?>

@@ -133,3 +133,4 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
 
   function get_resolved_borders() { return $this->_resolved_borders; }
 }
+?>

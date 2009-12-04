@@ -564,3 +564,5 @@ class Table_Frame_Reflower extends Frame_Reflower {
                  "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
   }
 }
+
+?>
