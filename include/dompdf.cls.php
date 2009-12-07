@@ -527,13 +527,13 @@ class DOMPDF {
     // Clean up cached images
     Image_Cache::clear();
     
-    global $_dompdf_warnings;
-    if ( $_dompdf_warnings ) {
-        echo '<b>DOMPDF Warnings</b><br><pre>';
+    global $_dompdf_warnings, $_dompdf_show_warnings;
+    if ( $_dompdf_show_warnings ) {
+      echo '<b>DOMPDF Warnings</b><br><pre>';
       foreach ($_dompdf_warnings as $msg)
         echo $msg . "\n";
       echo $this->get_canvas()->get_cpdf()->messages;
-        echo '</pre>';
+      echo '</pre>';
       flush();
     }
   }
