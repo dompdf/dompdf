@@ -68,7 +68,13 @@ class  Cpdf {
    * used to ensure that a font is not loaded twice, among other things
    */
   public  $fonts = array();
-
+  
+  /**
+   * the default font metrics file to use if no other font has been loaded
+   * the path to the directory containing the font metrics should be included
+   */
+  public  $defaultFont = './fonts/Helvetica.afm';
+  
   /**
    * a record of the current font
    */
@@ -3099,7 +3105,7 @@ class  Cpdf {
 
     //   if (strlen($this->currentBaseFont) == 0){
     //     // then assume an initial font
-    //     $this->selectFont('./fonts/Helvetica.afm');
+    //     $this->selectFont($this->defaultFont);
     //   }
     //   $cf = substr($this->currentBaseFont,strrpos($this->currentBaseFont,'/')+1);
     //   if (strlen($this->currentTextState)
@@ -3641,7 +3647,7 @@ class  Cpdf {
   function  getFontHeight($size) {
 
     if  (!$this->numFonts) {
-      $this->selectFont('./fonts/Helvetica');
+      $this->selectFont($this->defaultFont);
     }
     
     // for the current font, and the given size, what is the height of the font in user units
@@ -3674,7 +3680,7 @@ class  Cpdf {
 
     // note that this will most likely return a negative value
     if  (!$this->numFonts) {
-      $this->selectFont('./fonts/Helvetica');
+      $this->selectFont($this->defaultFont);
     }
 
     //$h = $this->fonts[$this->currentFont]['FontBBox'][1];
@@ -3691,7 +3697,11 @@ class  Cpdf {
    * @access private
    */
   function  filterText($text, $bom = true) {
-	$cf =  $this->currentFont;
+    if (!$this->numFonts) {
+      $this->selectFont($this->defaultFont);
+    }
+    
+  	$cf = $this->currentFont;
     if ($this->fonts[$cf]['isUnicode']) {
       $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
       $text =  $this->utf8toUtf16BE($text, $bom);
@@ -4118,7 +4128,7 @@ class  Cpdf {
    */
   function  addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0) {
     if  (!$this->numFonts) {
-      $this->selectFont('./fonts/Helvetica');
+      $this->selectFont($this->defaultFont);
     }
 
 
@@ -4257,7 +4267,7 @@ class  Cpdf {
 
 
     if  (!$this->numFonts) {
-      $this->selectFont('./fonts/Helvetica');
+      $this->selectFont($this->defaultFont);
     }
 
 
@@ -4395,7 +4405,7 @@ class  Cpdf {
 
 
     if  (!$this->numFonts) {
-      $this->selectFont('./fonts/Helvetica');
+      $this->selectFont($this->defaultFont);
     }
 
     if  ($width <=  0) {
