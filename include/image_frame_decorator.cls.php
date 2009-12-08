@@ -54,14 +54,6 @@
 class Image_Frame_Decorator extends Frame_Decorator {
 
   /**
-   * Array of downloaded images.  Cached so that identical images are
-   * not needlessly downloaded.
-   *
-   * @var array
-   */
-  static protected $_cache = array();
- 
-  /**
    * The path to the image file (note that remote images are
    * downloaded locally to DOMPDF_TEMP_DIR).
    *
@@ -116,17 +108,4 @@ class Image_Frame_Decorator extends Frame_Decorator {
     return $this->_image_ext;
   }
   
-  /**
-   * Unlink all cached images (i.e. temporary images either downloaded
-   * or converted)
-   */
-  static function clear_image_cache() {
-    if ( count(self::$_cache) ) {
-      foreach (self::$_cache as $file)
-        //debugpng
-        if (DEBUGPNG) print '[clear_image_cache unlink '.$file.']';
-        if (!DEBUGKEEPTEMP)
-          unlink($file);
-    }
-  }
 }
