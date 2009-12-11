@@ -82,8 +82,9 @@ class Image_Frame_Reflower extends Frame_Reflower {
         $img_height.'|' ;
     }
 
-    // We need to grab our *parent's* style because images are wrapped...
-    $style = $this->_frame->get_parent()->get_style();
+    // We need to check both the *parent's* style as well as the current node's because images are wrapped...
+    $style = $this->_frame->get_style();
+    $stylep = $this->_frame->get_parent()->get_style();
 
     //own style auto or invalid value: use natural size in px
     //own style value: ignore suffix text including unit, use given number as px
@@ -91,7 +92,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
     //
     //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
 
-    $width = $this->_frame->get_style()->width;
+    $width = ($style->width > 0 ? $style->width : ($stylep->width > 0 ? $stylep->width : 0));
     if ( is_percent($width) ) {
       $t = 0.0;
       for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
@@ -109,7 +110,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
       $width = (float)($width * 72) / DOMPDF_DPI;
     }
 
-    $height = $this->_frame->get_style()->height;
+    $height = ($style->height > 0 ? $style->height : ($stylep->height > 0 ? $stylep->height : 0));
     if ( is_percent($height) ) {
       $t = 0.0;
       for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
@@ -127,27 +128,21 @@ class Image_Frame_Reflower extends Frame_Reflower {
       $height = (float)($height * 72) / DOMPDF_DPI;
     }
 
-    if ($width == 0 && $height == 0) {
+    if ($width == 0 || $height == 0) {
       // Determine the image's size. Time consuming. Only when really needed!
       list($img_width, $img_height) = getimagesize($this->_frame->get_image_url());
       // don't treat 0 as error. Can be downscaled or can be catched elsewhere if image not readable.
       // Resample according to px per inch
       // See also List_Bullet_Image_Frame_Decorator::__construct
-      $width = (float)($img_width * 72) / DOMPDF_DPI;
-      $height = (float)($img_height * 72) / DOMPDF_DPI;
-    } else if ($height == 0) {
-      list($img_width, $img_height) = getimagesize($this->_frame->get_image_url());
-      //On error don't divide by 0
-      if ($img_width == 0) {
-        throw new DOMPDF_Exception('Image width not detected: '.$this->_frame->get_image_url());
+      
+      if ($width == 0 && $height == 0) {
+        $width = (float)($img_width * 72) / DOMPDF_DPI;
+        $height = (float)($img_height * 72) / DOMPDF_DPI;
+      } elseif ($height == 0 && $width != 0) {
+        $height = ($width / $img_width) * $img_height; //keep aspect ratio
+      } elseif ($width == 0 && $height != 0) {
+        $width = ($height / $img_height) * $img_width; //keep aspect ratio
       }
-      $height = ($width / $img_width) * $img_height; //keep aspect ratio
-    } else if ($width == 0) {
-      list($img_width, $img_height) = getimagesize($this->_frame->get_image_url());
-      if ($img_height == 0) {
-        throw new DOMPDF_Exception('Image height not detected: '.$this->_frame->get_image_url());
-      }
-      $width = ($height / $img_height) * $img_width; //keep aspect ratio
     }
 
     if (DEBUGPNG) print $width.' '.$height.';';
