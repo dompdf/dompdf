@@ -228,6 +228,12 @@ class  Cpdf {
   public  $fontcache = '';
   
   /**
+   * The version of the font metrics cache file.
+   * This value must be manually incremented whenever the internal font data structure is modified.
+   */
+  public  $fontcacheVersion = 2;
+
+  /**
    * temporary folder.
    * If empty string, will attempty system tmp folder.
    * This can be passed in from class creator.
@@ -2528,7 +2534,7 @@ class  Cpdf {
 
       eval($tmp);
 
-      if  (!isset($this->fonts[$font]['_version_']) ||  $this->fonts[$font]['_version_']<1) {
+      if  (!isset($this->fonts[$font]['_version_']) ||  $this->fonts[$font]['_version_']!=$this->fontcacheVersion) {
 
         // if the font file is old, then clear it out and prepare for re-creation
         $this->addMessage('openFont: clear out, make way for new version.');
@@ -2739,7 +2745,7 @@ class  Cpdf {
       }
       $data['CIDtoGID'] = base64_encode($cidtogid);
       
-      $data['_version_'] = 1;
+      $data['_version_'] = $this->fontcacheVersion;
 
       $this->fonts[$font] = $data;
 
