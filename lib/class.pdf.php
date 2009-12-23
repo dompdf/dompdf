@@ -902,7 +902,7 @@ class  Cpdf {
         $stream.=  "end\n";
         $stream.=  "end\n";
 
-        $res =   "<</Length " . mb_strlen($stream) . " >>\n";
+        $res =   "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
         $res .=  "stream\n" . $stream . "endstream";
 
         $this->objects[$toUnicodeId]['c'] = $res;
@@ -1081,7 +1081,7 @@ class  Cpdf {
 
         case  'CharSet':
 
-          if  (mb_strlen($value)) {
+          if  (mb_strlen($value, '8bit')) {
 
             $res.= '/'.$label.' '.$value."\n";
           }
@@ -1327,7 +1327,7 @@ class  Cpdf {
           $res.= "\n/Filter /FlateDecode";
         }
 
-        $res.= "\n/Length ".mb_strlen($tmp) .">>\nstream\n".$tmp."\nendstream";
+        $res.= "\n/Length ".mb_strlen($tmp, '8bit') .">>\nstream\n".$tmp."\nendstream";
       }
 
       $res.= "\nendobj";
@@ -1775,7 +1775,7 @@ class  Cpdf {
 
       $this->objects[$id] = array('t'=>'contents', 'c'=>'', 'info'=>array());
 
-      if  (mb_strlen($options) &&  intval($options)) {
+      if  (mb_strlen($options, '8bit') &&  intval($options)) {
 
         // then this contents is the primary for a page
         $this->objects[$id]['onPage'] = $options;
@@ -1827,7 +1827,7 @@ class  Cpdf {
           $res.=  "\n/".$k.' '.$v;
         }
 
-        $res.= "\n/Length ".mb_strlen($tmp) ." >>\nstream\n".$tmp."\nendstream";
+        $res.= "\n/Length ".mb_strlen($tmp, '8bit') ." >>\nstream\n".$tmp."\nendstream";
       }
 
       $res.= "\nendobj";
@@ -1893,9 +1893,9 @@ class  Cpdf {
         $this->objects[$id]['info']['Filter'] = '/FlateDecode';
 
         $this->objects[$id]['info']['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
-        if  (mb_strlen($options['pdata'])) {
+        if  (mb_strlen($options['pdata'], '8bit')) {
 
-          $tmp =  ' [ /Indexed /DeviceRGB '.(mb_strlen($options['pdata']) /3-1) .' ';
+          $tmp =  ' [ /Indexed /DeviceRGB '.(mb_strlen($options['pdata'], '8bit') /3-1) .' ';
 
           $this->numObj++;
 
@@ -2069,7 +2069,7 @@ class  Cpdf {
       // figure out the additional paramaters required
       $pad =  chr(0x28) .chr(0xBF) .chr(0x4E) .chr(0x5E) .chr(0x4E) .chr(0x75) .chr(0x8A) .chr(0x41) .chr(0x64) .chr(0x00) .chr(0x4E) .chr(0x56) .chr(0xFF) .chr(0xFA) .chr(0x01) .chr(0x08) .chr(0x2E) .chr(0x2E) .chr(0x00) .chr(0xB6) .chr(0xD0) .chr(0x68) .chr(0x3E) .chr(0x80) .chr(0x2F) .chr(0x0C) .chr(0xA9) .chr(0xFE) .chr(0x64) .chr(0x53) .chr(0x69) .chr(0x7A);
 
-      $len =  mb_strlen($options['owner']);
+      $len =  mb_strlen($options['owner'], '8bit');
 
       if  ($len>32) {
 
@@ -2082,7 +2082,7 @@ class  Cpdf {
         $owner =  $options['owner'];
       }
 
-      $len =  mb_strlen($options['user']);
+      $len =  mb_strlen($options['user'], '8bit');
 
       if  ($len>32) {
 
@@ -2189,9 +2189,9 @@ class  Cpdf {
 
     $hex =  dechex($id);
 
-    if  (mb_strlen($hex) <6) {
+    if  (mb_strlen($hex, '8bit') <6) {
 
-      $hex =  substr('000000', 0, 6-mb_strlen($hex)) .$hex;
+      $hex =  substr('000000', 0, 6-mb_strlen($hex, '8bit')) .$hex;
     }
 
     $tmp.=  chr(hexdec(substr($hex, 4, 2))) .chr(hexdec(substr($hex, 2, 2))) .chr(hexdec(substr($hex, 0, 2))) .chr(0) .chr(0);
@@ -2210,14 +2210,14 @@ class  Cpdf {
     $this->arc4 =  '';
 
     // setup the control array
-    if  (mb_strlen($key) == 0) {
+    if  (mb_strlen($key, '8bit') == 0) {
 
       return;
     }
 
     $k =  '';
 
-    while (mb_strlen($k) <256) {
+    while (mb_strlen($k, '8bit') <256) {
 
       $k.= $key;
     }
@@ -2249,7 +2249,7 @@ class  Cpdf {
    */
   function  ARC4($text) {
 
-    $len = mb_strlen($text);
+    $len = mb_strlen($text, '8bit');
 
     $a = 0;
 
@@ -2382,7 +2382,7 @@ class  Cpdf {
     $xref = array();
 
     $content = '%PDF-1.3';
-    $pos = mb_strlen($content);
+    $pos = mb_strlen($content, '8bit');
 
     foreach($this->objects as  $k=>$v) {
 
@@ -2394,7 +2394,7 @@ class  Cpdf {
 
       $xref[] = $pos;
 
-      $pos+= mb_strlen($cont);
+      $pos+= mb_strlen($cont, '8bit');
     }
 
     $content.= "\nxref\n0 ".(count($xref) +1) ."\n0000000000 65535 f \n";
@@ -2412,7 +2412,7 @@ class  Cpdf {
       $content.=  "/Encrypt ".$this->arc4_objnum." 0 R\n";
     }
 
-    if  (mb_strlen($this->fileIdentifier)) {
+    if  (mb_strlen($this->fileIdentifier, '8bit')) {
 
       $content.=  "/ID[<".$this->fileIdentifier."><".$this->fileIdentifier.">]\n";
     }
@@ -2633,7 +2633,7 @@ class  Cpdf {
 
               $bits2 =  explode(' ', trim($bit));
 
-              if  (mb_strlen($bits2[0])) {
+              if  (mb_strlen($bits2[0], '8bit')) {
 
                 if  (count($bits2) >2) {
 
@@ -2679,7 +2679,7 @@ class  Cpdf {
 
                 $bits2 =  explode(' ', trim($bit));
 
-                if  (mb_strlen($bits2[0])) {
+                if  (mb_strlen($bits2[0], '8bit')) {
 
                   if  (count($bits2) >2) {
 
@@ -2812,7 +2812,7 @@ class  Cpdf {
 
             $options['differences'] =  $encoding['differences'];
           }
-        } else  if  (mb_strlen($encoding)) {
+        } else  if  (mb_strlen($encoding, '8bit')) {
 
           // then perhaps only the encoding has been set
           $options['encoding'] =  $encoding;
@@ -2851,7 +2851,7 @@ class  Cpdf {
 
         // OAR - I don't understand this old check
         // if  (substr($fontName, -4) ==  '.afm' &&  strlen($fbtype)) {
-        if  (mb_strlen($fbtype)) {
+        if  (mb_strlen($fbtype, '8bit')) {
           $adobeFontName =  $this->fonts[$fontName]['FontName'];
 
           //        $fontObj = $this->numObj;
@@ -3029,12 +3029,12 @@ class  Cpdf {
 
             $l2 =  strpos($data, '00000000') -$l1;
 
-            $l3 =  mb_strlen($data) -$l2-$l1;
+            $l3 =  mb_strlen($data, '8bit') -$l2-$l1;
 
             $this->o_contents($this->numObj, 'add', array('Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3));
           } else  if  ($fbtype ==  'ttf') {
 
-            $l1 =  mb_strlen($data);
+            $l1 =  mb_strlen($data, '8bit');
 
             $this->o_contents($this->numObj, 'add', array('Length1' => $l1));
           }
@@ -3574,7 +3574,7 @@ class  Cpdf {
 
 
     // if there is a line style set, then put this in too
-    if  (mb_strlen($this->currentLineStyle)) {
+    if  (mb_strlen($this->currentLineStyle, '8bit')) {
 
       $this->objects[$this->currentContents]['c'].=  "\n".$this->currentLineStyle;
     }
@@ -3623,7 +3623,7 @@ class  Cpdf {
     header("Content-type: application/pdf");
 
     //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
-    //header("Content-Length: " . mb_strlen($tmp));
+    header("Content-Length: " . mb_strlen($tmp, '8bit'));
     $fileName =  (isset($options['Content-Disposition']) ?  $options['Content-Disposition'] :  'file.pdf');
 
     if  ( !isset($options["Attachment"]))
@@ -3638,7 +3638,7 @@ class  Cpdf {
 
     if  (isset($options['Accept-Ranges']) &&  $options['Accept-Ranges'] ==  1) {
       //FIXME: Is this the correct value ... spec says 1#range-unit
-      header("Accept-Ranges: " . mb_strlen($tmp));
+      header("Accept-Ranges: " . mb_strlen($tmp, '8bit'));
     }
 
     echo  $tmp;
@@ -3739,7 +3739,7 @@ class  Cpdf {
    * @return array UTF-8 codepoints array for the string
    */
   function  utf8toCodePointsArray(&$text) {
-    $length = mb_strlen($text,'8bit'); // http://www.php.net/manual/en/function.mb-strlen.php#77040
+    $length = mb_strlen($text, '8bit'); // http://www.php.net/manual/en/function.mb-strlen.php#77040
     $unicode = array(); // array containing unicode values
     $bytes = array(); // array containing single character byte sequences
     $numbytes = 1; // number of octetc needed to represent the UTF-8 character
@@ -3880,7 +3880,7 @@ class  Cpdf {
   /**
    * checks if the text stream contains a control directive
    * if so then makes some changes and returns the number of characters involved in the directive
-   * this has been re-worked to include everything neccesary to fins the current writing point, so that
+   * this has been re-worked to include everything neccesary to find the current writing point, so that
    * the location can be sent to the callback function if required
    * if the directive does not require a font change, then $f should be set to 0
    *
@@ -3963,7 +3963,7 @@ class  Cpdf {
               $parm =  '';
             }
 
-            if  (!isset($func) ||  !mb_strlen(trim($func))) {
+            if  (!isset($func) ||  !mb_strlen(trim($func), '8bit')) {
 
               $directive =  0;
             } else {
@@ -4069,7 +4069,7 @@ class  Cpdf {
             $parm =  '';
           }
 
-          if  (!isset($func) ||  !mb_strlen(trim($func))) {
+          if  (!isset($func) ||  !mb_strlen(trim($func), '8bit')) {
 
             $directive =  0;
           } else {
@@ -5120,7 +5120,7 @@ class  Cpdf {
             // set up an array, stretching over all palette entries which will be o (opaque) or 1 (transparent)
             $transparency['type'] =  'indexed';
 
-            $numPalette =  mb_strlen($pdata, '8bit') /3;
+            $numPalette =  mb_strlen($pdata, '8bit')/3;
 
             $trans =  0;
 
