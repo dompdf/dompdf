@@ -1137,8 +1137,8 @@ handle_ms_encoding(
 				if (strcmp(glyph_list[n].name, ".notdef") != 0) {
 					WARNING_2 fprintf(stderr,
 						"Glyph %s has >= %d encodings (A), %4.4x & %4.4x\n",
-                                      GLYPH_MAX_ENCODINGS,
                                       glyph_list[n].name,
+                                      GLYPH_MAX_ENCODINGS,
                                       glyph_list[n].orig_code[0],
                                       k);
 				}
