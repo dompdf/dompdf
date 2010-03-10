@@ -792,7 +792,7 @@ class Stylesheet {
           if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
             $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
           } else {
-            $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE; 
+            $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE;
           }
           if ( in_array(mb_strtolower(trim($match[3])), $acceptedmedia ) ) {
             $this->_parse_sections($match[5]);
@@ -859,7 +859,9 @@ class Stylesheet {
           $path = $this->get_base_path();
         }
         $path .= $parsed_url["path"] . $parsed_url["file"];
-        $path = dompdf_realpath($path);
+        $path = realpath($path);
+        // If realpath returns FALSE then specifically state that there is no background image
+        if (!$path) { $path = 'none'; }
       } else {
         $path = build_url($this->get_protocol(),
                           $this->get_host(),
@@ -892,7 +894,7 @@ class Stylesheet {
       if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
         $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
       } else {
-        $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE; 
+        $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE;
       }
               
       // @import url media_type [media_type...]
@@ -920,7 +922,7 @@ class Stylesheet {
       // Above does not work for subfolders and absolute urls.
       // Todo: As above, do we need to replace php or file to an empty protocol for local files?
       
-      $url = $this->_image($url);      
+      $url = $this->_image($url);
       
       $this->load_css_file($url);
 

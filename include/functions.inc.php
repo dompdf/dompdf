@@ -134,7 +134,7 @@ function build_url($protocol, $host, $base_path, $url) {
     //($url{1} !== ':' || ($url{2}!=='\\' && $url{2}!=='/'))
     if ($url{0} !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url{0} !== '\\' && $url{1} !== ':'))) {
       // For rel path and local acess we ignore the host, and run the path through realpath()
-      $ret .= dompdf_realpath($base_path).'/';
+      $ret .= realpath($base_path).'/';
     }
     $ret .= $url;
     return $ret;
@@ -302,53 +302,6 @@ function dec2roman($num) {
 function is_percent($value) { return false !== mb_strpos($value, "%"); }
 
 /**
- * Canonicalize a path without checking if the file exists
- *
- * @param  string $path The path to canonicalize
- * @return string The canonical path, or null if the path is invalid (e.g. /../../foo)
- */
-function dompdf_realpath($path) {
-  // If the path is relative, prepend the current directory
-  if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ) {
-    if ( $path{0} === '/' || $path{0} === '\\' ) {
-      $path = substr(getcwd(),0,2) . $path;
-    } else if ($path{1} !== ':' ) {
-      $path = getcwd() . DIRECTORY_SEPARATOR . $path;
-    }
-  } else if ($path{0} !== '/') {
-    $path = getcwd() . DIRECTORY_SEPARATOR . $path;
-  }
-  $path = strtr( $path, DIRECTORY_SEPARATOR === "\\" ? "/" : DIRECTORY_SEPARATOR , DIRECTORY_SEPARATOR);
-
-  $parts = explode(DIRECTORY_SEPARATOR, $path);
-  $path = array();
-
-  $i = 0;
-  foreach ($parts as $dir) {
-
-    if ( $dir === "." )
-      continue;
-
-    if ( $dir === ".." ) {
-      $i--;
-      if ( $i < 0 )
-        $i = 0;
-
-      unset($path[$i]);
-      continue;
-    }
-
-    if ( $dir == "" )
-      continue;
-
-    $path[$i] = $dir;
-    $i++;
-  }
-
-  return (DIRECTORY_SEPARATOR === '/' ? DIRECTORY_SEPARATOR : NULL) . join(DIRECTORY_SEPARATOR, $path);
-}
-
-/**
  * mb_string compatibility
  */
 
@@ -364,6 +317,12 @@ if ( !function_exists("mb_convert_encoding") ) {
 
 if ( !function_exists("mb_detect_encoding") ) {
   function mb_detect_encoding($data, $encoding_list=array('iso-8859-1'), $strict=false) {
+    return 'iso-8859-1';
+  }
+}
+
+if ( !function_exists("mb_detect_order") ) {
+  function mb_detect_order($encoding_list=array('iso-8859-1')) {
     return 'iso-8859-1';
   }
 }

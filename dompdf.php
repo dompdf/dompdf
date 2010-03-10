@@ -265,7 +265,7 @@ switch ( $sapi ) {
  		$file = $base_path . $file; # Set the input file
 
  		/* Check to see if the input file and base path = www/test */
- 		if($base_path !== "www/test/") 		
+ 		if($base_path !== "www/test/")
  			throw new DOMPDF_Exception("Access to dompdf.php via non-cli SAPI has been deprecated due to security concerns.  Please use the dompdf class directly.");
 
    break;
@@ -309,7 +309,7 @@ if ( $save_file ) {
   if ( $proto != "" ) // i.e. not file://
     $outfile = $file; // just save it locally, FIXME? could save it like wget: ./host/basepath/file
 
-  $outfile = dompdf_realpath($outfile);
+  $outfile = realpath(dirname($outfile)) . DIRECTORY_SEPARATOR . basename($outfile);
 
   if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
     throw new DOMPDF_Exception("Permission denied.");

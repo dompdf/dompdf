@@ -7,7 +7,7 @@
    * A PHP class to provide the basic functionality to create a pdf document without
    * any requirement for additional modules.
    *
-   * Note that they companion class CezPdf can be used to extend this class and dramatically
+   * Note that the companion class CezPdf can be used to extend this class and dramatically
    * simplify the creation of documents.
    *
    * Extended by Orion Richardson to support Unicode / UTF-8 characters using

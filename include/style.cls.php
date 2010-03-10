@@ -408,7 +408,7 @@ class Style {
     $ret = 0;
     foreach ($length as $l) {
 
-      if ( $l === "auto" ) 
+      if ( $l === "auto" )
         return "auto";
       
       if ( $l === "none" )
@@ -569,7 +569,7 @@ class Style {
  	}
 
     if ( isset($style->_props["font_size"]) )
-      $this->__font_size_calculated = false;    
+      $this->__font_size_calculated = false;
   }
 
   
@@ -701,7 +701,7 @@ class Style {
         foreach (array_keys($triplet) as $c) {
           $triplet[$c] = trim($triplet[$c]);
           
-          if ( $triplet[$c]{mb_strlen($triplet[$c]) - 1} === "%" ) 
+          if ( $triplet[$c]{mb_strlen($triplet[$c]) - 1} === "%" )
             $triplet[$c] = round($triplet[$c] * 0.255);
         }
 
@@ -777,7 +777,7 @@ class Style {
    *
    * @param string $prop  the property to set
    * @param mixed  $val   the value of the property
-   * 
+   *
    */
   function __set($prop, $val) {
     global $_dompdf_warnings;
@@ -799,7 +799,7 @@ class Style {
 
     if ( method_exists($this, $method) )
       $this->$method($val);
-    else 
+    else
       $this->_props[$prop] = $val;
     
   }
@@ -819,7 +819,7 @@ class Style {
    */
   function __get($prop) {
     
-    if ( !isset(self::$_defaults[$prop]) ) 
+    if ( !isset(self::$_defaults[$prop]) )
       throw new DOMPDF_Exception("'$prop' is not a valid CSS2 property.");
 
     if ( isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null)
@@ -924,7 +924,7 @@ class Style {
   /**
    * Returns the resolved font size, in points
    *
-   * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size   
+   * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
    * @return float
    */
   function get_font_size() {
@@ -934,7 +934,7 @@ class Style {
     
     if ( !isset($this->_props["font_size"]) )
       $fs = self::$_defaults["font_size"];
-    else 
+    else
       $fs = $this->_props["font_size"];
     
     if ( !isset($this->_parent_font_size) )
@@ -977,10 +977,10 @@ class Style {
     }
 
     // Ensure relative sizes resolve to something
-    if ( ($i = mb_strpos($fs, "em")) !== false ) 
+    if ( ($i = mb_strpos($fs, "em")) !== false )
       $fs = mb_substr($fs, 0, $i) * $this->_parent_font_size;
 
-    else if ( ($i = mb_strpos($fs, "ex")) !== false ) 
+    else if ( ($i = mb_strpos($fs, "ex")) !== false )
       $fs = mb_substr($fs, 0, $i) * $this->_parent_font_size;
 
     else
@@ -1013,7 +1013,7 @@ class Style {
     if ( $this->_props["line_height"] === "normal" )
       return self::$default_line_height * $this->get_font_size();
 
-    if ( is_numeric($this->_props["line_height"]) ) 
+    if ( is_numeric($this->_props["line_height"]) )
       return $this->length_in_pt( $this->_props["line_height"] . "%", $this->get_font_size());
     
     return $this->length_in_pt( $this->_props["line_height"], $this->get_font_size() );
@@ -1223,7 +1223,7 @@ class Style {
    * Returns the border width, as it is currently stored
    *
    * @link http://www.w3.org/TR/CSS21/box.html#border-width-properties
-   * @return float|string   
+   * @return float|string
    */
   function get_border_top_width() {
     $style = $this->__get("border_top_style");
@@ -1231,7 +1231,7 @@ class Style {
   }
   
   function get_border_right_width() {
-    $style = $this->__get("border_right_style");    
+    $style = $this->__get("border_right_style");
     return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props["border_right_width"]) : 0;
   }
 
@@ -1434,8 +1434,7 @@ class Style {
     
     if ( mb_strpos($val, "url") === false ) {
       $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
-    }
-    else {
+    } else {
       $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/","\\1", trim($val));
 
       // Resolve the url now in the context of the current stylesheet
@@ -1447,7 +1446,9 @@ class Style {
           $path = $this->_stylesheet->get_base_path();
         }
         $path .= $parsed_url["path"] . $parsed_url["file"];
-        $path = dompdf_realpath($path);
+        $path = realpath($path);
+        // If realpath returns FALSE then specifically state that there is no background image
+        if (!$path) { $path = 'none'; }
       } else {
         $path = build_url($this->_stylesheet->get_protocol(),
                           $this->_stylesheet->get_host(),
@@ -1470,7 +1471,7 @@ class Style {
    * Sets colour
    *
    * The colour parameter can be any valid CSS colour value
-   *   
+   *
    * @link http://www.w3.org/TR/CSS21/colors.html#propdef-color
    * @param string $colour
    */
@@ -1777,7 +1778,7 @@ class Style {
     // FIXME: handle partial values
  
     //For consistency of individal and combined properties, and with ie8 and firefox3
-    //reset all attributes, even if only partially given   
+    //reset all attributes, even if only partially given
     $this->_set_style_side_type('border',$side,'_style',self::$_defaults['border_'.$side.'_style'],$important);
     $this->_set_style_side_type('border',$side,'_width',self::$_defaults['border_'.$side.'_width'],$important);
     $this->_set_style_side_type('border',$side,'_color',self::$_defaults['border_'.$side.'_color'],$important);
