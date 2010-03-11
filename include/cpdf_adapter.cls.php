@@ -700,6 +700,12 @@ class CPDF_Adapter implements Canvas {
 
   //........................................................................
 
+  function javascript($code) {
+    $this->_pdf->addJavascript($code);
+  }
+
+  //........................................................................
+
   /**
    * Add a named destination (similar to <a name="foo">...</a> in html)
    *

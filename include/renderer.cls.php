@@ -121,11 +121,18 @@ class Renderer extends Abstract_Renderer {
     case "none":
       $node = $frame->get_node();
           
-      if ( $node->nodeName === "script" &&
-           ( $node->getAttribute("type") === "text/php" ||
-             $node->getAttribute("language") === "php" ) ) {
-        // Evaluate embedded php scripts
-        $this->_render_frame("php", $frame);
+      if ( $node->nodeName === "script" ) {
+        if ( $node->getAttribute("type") === "text/php" ||
+             $node->getAttribute("language") === "php" ) {
+          // Evaluate embedded php scripts
+          $this->_render_frame("php", $frame);
+        }
+        
+        elseif ( $node->getAttribute("type") === "text/javascript" ||
+             $node->getAttribute("language") === "javascript" ) {
+          // Insert JavaScript
+          $this->_render_frame("javascript", $frame);
+        }
       }
 
       // Don't render children, so skip to next iter
@@ -216,6 +223,10 @@ class Renderer extends Abstract_Renderer {
         $this->_renderers["php"] = new PHP_Evaluator($this->_canvas);
         break;
 
+      case "javascript":
+        $this->_renderers["javascript"] = new Javascript_Embedder($this->_dompdf);
+        break;
+        
       }
     }
     

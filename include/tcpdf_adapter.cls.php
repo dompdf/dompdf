@@ -395,6 +395,8 @@ class TCPDF_Adapter implements Canvas {
    */
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0);
 
+  function javascript($code);
+  
   /**
    * Add a named destination (similar to <a name="foo">...</a> in html)
    *

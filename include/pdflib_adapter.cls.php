@@ -704,6 +704,12 @@ class PDFLib_Adapter implements Canvas {
   }
 
   //........................................................................
+  
+  function javascript($code) {
+    // Not implemented
+  }
+
+  //........................................................................
 
   /**
    * Add a named destination (similar to <a name="foo">...</a> in html)

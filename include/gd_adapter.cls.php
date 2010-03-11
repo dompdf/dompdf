@@ -557,6 +557,10 @@ class GD_Adapter implements Canvas {
     imagettftext($this->_img, $size, $angle, $x, $y + $h, $c, $font, $text);
     
   }
+  
+  function javascript($code) {
+    // Not implemented
+  }
 
   /**
    * Add a named destination (similar to <a name="foo">...</a> in html)

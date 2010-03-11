@@ -734,7 +734,7 @@ class Style {
    * @param string $color
    * @return array
    */
-  function munge_color($color) { return $this->munge_colour($color); }
+  function munge_color($color) { return CSS_Color::parse($color); }
 
   /* direct access to _important_props array from outside would work only when declared as
    * 'var $_important_props;' instead of 'protected $_important_props;'
