@@ -113,10 +113,17 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
     throw new DOMPDF_Exception("Unable to read '$normal'.");
 
   $dir = dirname($normal);
-  list($file, $ext) = explode(".", basename($normal), 2);  // subtract extension
+  $basename = basename($normal);
+  $last_dot = strrpos($basename, '.');
+  if ($last_dot !== false) {
+    $file = substr($basename, 0, $last_dot);
+    $ext = substr($basename, $last_dot);
+  } else {
+    $file = $basename;
+    $ext = '';
+  }
 
   // Try $file_Bold.$ext etc.
-  $ext = ".$ext";
 
   if ( !isset($bold) || !is_readable($bold) ) {
     $bold   = $dir . "/" . $file . "_Bold" . $ext;
