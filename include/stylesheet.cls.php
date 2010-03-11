@@ -325,7 +325,7 @@ class Stylesheet {
     //this can lead to a too small specificity
     //see _css_selector_to_xpath
 
-    if ( !in_array($selector{0}, array(" ", ">", ".", "#", "+", ":", "[")) ) {
+    if ( !in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) ) {
     	$d++;
     }
 
@@ -362,7 +362,7 @@ class Stylesheet {
 
     // Add an implicit space at the beginning of the selector if there is no
     // delimiter there already.
-    if ( !in_array($selector{0}, $delimiters) )
+    if ( !in_array($selector[0], $delimiters) )
       $selector = " $selector";
 
     $tok = "";
@@ -371,16 +371,16 @@ class Stylesheet {
 
     while ( $i < $len ) {
 
-      $s = $selector{$i};
+      $s = $selector[$i];
       $i++;
 
       // Eat characters up to the next delimiter
       $tok = "";
 
       while ($i < $len) {
-        if ( in_array($selector{$i}, $delimiters) )
+        if ( in_array($selector[$i], $delimiters) )
           break;
-        $tok .= $selector{$i++};
+        $tok .= $selector[$i++];
       }
 
       switch ($s) {
@@ -474,21 +474,21 @@ class Stylesheet {
         $value = "";
 
         while ( $j < $tok_len ) {
-          if ( in_array($tok{$j}, $attr_delimiters) )
+          if ( in_array($tok[$j], $attr_delimiters) )
             break;
-          $attr .= $tok{$j++};
+          $attr .= $tok[$j++];
         }
 
-        switch ( $tok{$j} ) {
+        switch ( $tok[$j] ) {
 
         case "~":
         case "|":
-          $op .= $tok{$j++};
+          $op .= $tok[$j++];
 
-          if ( $tok{$j} !== "=" )
+          if ( $tok[$j] !== "=" )
             throw new DOMPDF_Exception("Invalid CSS selector syntax: invalid attribute selector: $selector");
 
-          $op .= $tok{$j};
+          $op .= $tok[$j];
           break;
 
         case "=":
@@ -501,9 +501,9 @@ class Stylesheet {
         if ( $op != "" ) {
           $j++;
           while ( $j < $tok_len ) {
-            if ( $tok{$j} === "]" )
+            if ( $tok[$j] === "]" )
               break;
-            $value .= $tok{$j++};
+            $value .= $tok[$j++];
           }
         }
 
@@ -555,7 +555,7 @@ class Stylesheet {
 
 //         // Skip until the next special character, leaving the token as-is
 //         while ( $i < $len ) {
-//           if ( in_array($selector{$i}, $delimiters) )
+//           if ( in_array($selector[$i], $delimiters) )
 //             break;
 //           $i++;
 //         }
@@ -563,7 +563,7 @@ class Stylesheet {
 
 //       default:
 //         // Add the character to the token
-//         $tok .= $selector{$i++};
+//         $tok .= $selector[$i++];
 //         break;
 //       }
 

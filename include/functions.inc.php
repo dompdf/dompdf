@@ -131,8 +131,8 @@ function build_url($protocol, $host, $base_path, $url) {
     //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
     //drive: followed by a relative path would be a drive specific default folder.
     //not known in php app code, treat as abs path
-    //($url{1} !== ':' || ($url{2}!=='\\' && $url{2}!=='/'))
-    if ($url{0} !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url{0} !== '\\' && $url{1} !== ':'))) {
+    //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
+    if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':'))) {
       // For rel path and local acess we ignore the host, and run the path through realpath()
       $ret .= realpath($base_path).'/';
     }
@@ -141,7 +141,7 @@ function build_url($protocol, $host, $base_path, $url) {
   }
 
   //remote urls with backslash in html/css are not really correct, but lets be genereous
-  if ( $url{0} === '/' || $url{0} === '\\' ) {
+  if ( $url[0] === '/' || $url[0] === '\\' ) {
     // Absolute path
     $ret .= $host . $url;
   } else {
@@ -275,16 +275,16 @@ function dec2roman($num) {
   switch (mb_strlen($num)) {
 
   case 4:
-    $ret .= $thou[$num{3}];
+    $ret .= $thou[$num[3]];
 
   case 3:
-    $ret .= $hund[$num{2}];
+    $ret .= $hund[$num[2]];
 
   case 2:
-    $ret .= $tens[$num{1}];
+    $ret .= $tens[$num[1]];
 
   case 1:
-    $ret .= $ones[$num{0}];
+    $ret .= $ones[$num[0]];
 
   default:
     break;

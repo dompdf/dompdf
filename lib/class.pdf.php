@@ -2702,8 +2702,8 @@ class  Cpdf {
               if  ($cc >= 0) {
                 // Set values in CID to GID map
                 if ($cc >= 0 && $cc < 0xFFFF && $glyph) {
-                  $cidtogid{$cc*2} = chr($glyph >> 8);
-                  $cidtogid{$cc*2 + 1} = chr($glyph & 0xFF);
+                  $cidtogid[$cc*2] = chr($glyph >> 8);
+                  $cidtogid[$cc*2 + 1] = chr($glyph & 0xFF);
                 }
 
                 $data['C'][$dtmp['U']] = $dtmp;
@@ -3745,7 +3745,7 @@ class  Cpdf {
     $numbytes = 1; // number of octetc needed to represent the UTF-8 character
     
     for ($i = 0; $i < $length; $i++) {
-      $c = ord($text{$i}); // get one string character at time
+      $c = ord($text[$i]); // get one string character at time
       if (count($bytes) == 0) { // get starting octect
         if ($c <= 0x7F) {
           $unicode[] = $c; // use the character "as is" because is ASCII
@@ -4312,7 +4312,7 @@ class  Cpdf {
       $len =  mb_strlen($text, 'Windows-1252');
 
       for  ($i =  0; $i < $len; $i++) {
-        $char =  ord($text{$i});
+        $char =  ord($text[$i]);
         // check if we have to replace character
         if  ( isset($this->fonts[$cf]['differences'][$char])) {
           $char =  $this->fonts[$cf]['differences'][$char];

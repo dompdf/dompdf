@@ -82,7 +82,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
 //      var_dump($text = $this->_frame->get_node()->data);
 //      var_dump($asc = utf8_decode($text));
 //      for ($i = 0; $i < strlen($asc); $i++)
-//        pre_r("$i: " . $asc{$i} . " - " . ord($asc{$i}));
+//        pre_r("$i: " . $asc[$i] . " - " . ord($asc[$i]));
 //      pre_r("width: " . Font_Metrics::get_text_width($text, $style->font_family, $style->font_size));
 
     return $this->_frame->get_node()->data;

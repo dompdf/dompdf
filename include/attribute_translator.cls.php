@@ -282,7 +282,7 @@ class Attribute_Translator {
   }
 
   static protected function _resolve_target($node, $target, $value) {
-    if ( $target{0} === "!" ) {
+    if ( $target[0] === "!" ) {
       // Function call
       $func = "_" . mb_substr($target, 1);
       return self::$func($node, $value);
@@ -475,7 +475,7 @@ class Attribute_Translator {
   static protected function _set_font_size($node, $value) {
     $style = $node->getAttribute("style");
 
-    if ( $value{0} === "-" || $value{0} === "+" )
+    if ( $value[0] === "-" || $value[0] === "+" )
       $value = self::$_last_basefont_size + (int)$value;
 
     if ( isset(self::$_font_size_lookup[$value]) )

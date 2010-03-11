@@ -293,7 +293,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
         // Remove any trailing newlines
         $t = $this->_frame->get_text();
 
-        if ( $split > 1 && $t{$split-1} === "\n" )
+        if ( $split > 1 && $t[$split-1] === "\n" )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
 
       }
