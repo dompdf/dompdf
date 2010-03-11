@@ -22,6 +22,7 @@
    * @author       Wayne Munro <pdf@ros.co.nz>
    * @contributor  Orion Richardson <orionr@yahoo.com>
    * @contributor  Helmut Tischer <htischer@weihenstephan.org>
+   * @contributor  Ryan H. Masten <ryan.masten@gmail.com>
    * @version  009
    * @package  Cpdf
    *
