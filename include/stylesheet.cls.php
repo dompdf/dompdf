@@ -741,8 +741,14 @@ class Stylesheet {
    */
   private function _parse_css($str) {
 
-    // Destroy comments
-    $css = preg_replace("'/\*.*?\*/'si", "", $str);
+    $str = trim($str);
+    
+    // Destroy comments and remove HTML comments
+    $css = preg_replace(array(
+      "'/\*.*?\*/'si", 
+      "/^<!--/",
+      "/-->$/"
+    ), "", $str);
 
     // FIXME: handle '{' within strings, e.g. [attr="string {}"]
 
