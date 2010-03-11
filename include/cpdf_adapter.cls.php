@@ -219,15 +219,10 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->addInfo("Creator", "dompdf");
 
     // Silence pedantic warnings about missing TZ settings
-    if ( function_exists("date_default_timezone_get") ) {
-      $tz = @date_default_timezone_get();
-      date_default_timezone_set("UTC");
-      $this->_pdf->addInfo("CreationDate", date("Y-m-d"));
-      date_default_timezone_set($tz);
-
-    } else {
-      $this->_pdf->addInfo("CreationDate", date("Y-m-d"));
-    }
+    $time = substr_replace(date('YmdHisO'), '\'', (0 - 2), 0).'\'';
+	$this->_pdf->addInfo("CreationDate", "D:".$time);
+	$this->_pdf->addInfo("ModDate", "D:".$time);
+    
 
     $this->_width = $size[2] - $size[0];
     $this->_height= $size[3] - $size[1];
