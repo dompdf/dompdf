@@ -437,8 +437,12 @@ class Table_Frame_Reflower extends Frame_Reflower {
       $style->margin_right = "$right pt";
 
     } else {
-      $left = $style->length_in_pt($left, $cb["w"]);
-      $right = $style->length_in_pt($right, $cb["w"]);
+        if($left === "auto") {
+          $left = $style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
+        }
+        if($right === "auto") {
+          $left = $style->length_in_pt($left, $cb["w"]);
+        }
     }
 
 

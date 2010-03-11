@@ -62,13 +62,13 @@ class Attribute_Translator {
                   'border' => 'border-width: %0.2f px;',
                   'height' => 'height: %s px;',
                   'hspace' => 'padding-left: %1$0.2f px; padding-right: %1$0.2f px;',
-                  'vspace' => 'padding-top: %1$0.2f px; padding-bottom: %1$0.2f px',
+                  'vspace' => 'padding-top: %1$0.2f px; padding-bottom: %1$0.2f px;',
                   'width' => 'width: %s px;',
                   ),
            'table' =>
-           array ("align" => array(//'left' => '',
+           array ("align" => array('left' => 'margin-left: 0; margin-right: auto;',
                         'center' => 'margin-left: auto; margin-right: auto;',
-                        //'right' => ''
+                        'right' => 'margin-left: auto; margin-right: 0;'
                         ),
                   'bgcolor' => 'background-color: %s;',
                   'border' => '!set_table_border',
