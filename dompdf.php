@@ -239,7 +239,7 @@ switch ( $sapi ) {
  default:
 
   if ( isset($_GET["input_file"]) )
-    $file = basename(rawurldecode($_GET["input_file"]));
+    $file = rawurldecode($_GET["input_file"]);
   else
     throw new DOMPDF_Exception("An input file is required (i.e. input_file _GET variable).");
   
@@ -256,16 +256,20 @@ switch ( $sapi ) {
   if ( isset($_GET["base_path"]) ) {
     $base_path = rawurldecode($_GET["base_path"]);
     $file = $base_path . $file; # Set the input file
-    $file_parts = explode_url($file);
-    
-    /* Check to see if the input file is local and, if so, that the base path falls within that specified by DOMDPF_CHROOT */
-    if(($file_parts['protocol'] == ''|| $file_parts['protocol'] === 'file://') && strpos($base_path, DOMPDF_CHROOT) !== 0)
-      throw new DOMPDF_Exception("Permission denied on $file.");
   }
-    
+  
+  $file_parts = explode_url($file);
+  /* Check to see if the input file is local and, if so, that the base path falls within that specified by DOMDPF_CHROOT */
+  if(($file_parts['protocol'] == '' || $file_parts['protocol'] === 'file://')) {
+    $file = realpath($file);
+    if (strpos($file, DOMPDF_CHROOT) !== 0) {
+      throw new DOMPDF_Exception("Permission denied on $file.");
+    }
+  }
+  
   $outfile = "dompdf_out.pdf"; # Don't allow them to set the output file
   $save_file = false; # Don't save the file
-    
+  
   break;
 }
 
