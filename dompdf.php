@@ -256,10 +256,11 @@ switch ( $sapi ) {
   if ( isset($_GET["base_path"]) ) {
     $base_path = rawurldecode($_GET["base_path"]);
     $file = $base_path . $file; # Set the input file
+    $file_parts = explode_url($file);
     
-    /* Check to see if the input file and base path = www/test */
-    if($base_path !== "www/test/")
-      throw new DOMPDF_Exception("Access to dompdf.php via non-cli SAPI has been deprecated due to security concerns.  Please use the dompdf class directly.");
+    /* Check to see if the input file is local and, if so, that the base path falls within that specified by DOMDPF_CHROOT */
+    if(($file_parts['protocol'] == ''|| $file_parts['protocol'] === 'file://') && strpos($base_path, DOMPDF_CHROOT) !== 0)
+      throw new DOMPDF_Exception("Permission denied on $file.");
   }
     
   $outfile = "dompdf_out.pdf"; # Don't allow them to set the output file
