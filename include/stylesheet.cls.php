@@ -949,7 +949,7 @@ class Stylesheet {
    * @return Style
    */
   private function _parse_properties($str) {
-    $properties = explode(";", $str);
+    $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
 
     if (DEBUGCSS) print '[_parse_properties';
 

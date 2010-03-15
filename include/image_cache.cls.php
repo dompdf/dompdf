@@ -92,15 +92,18 @@ class Image_Cache {
 
     $remote = ($proto != "" && $proto !== "file://");
     $remote = $remote || ($parsed_url['protocol'] != "");
+    
+    $datauri = strpos($parsed_url['protocol'], "data:") === 0;
 
-    if ( !DOMPDF_ENABLE_REMOTE && $remote ) {
+    if ( !DOMPDF_ENABLE_REMOTE && $remote && !$datauri ) {
       $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
       $ext = "png";
 
       //debugpng
       if ($DEBUGPNG) $full_url_dbg = '(blockedremote)';
 
-    } else if ( DOMPDF_ENABLE_REMOTE && $remote ) {
+    } 
+    else if ( DOMPDF_ENABLE_REMOTE && $remote || $datauri ) {
       // Download remote files to a temporary directory
       $full_url = build_url($proto, $host, $base_path, $url);
 
@@ -116,9 +119,17 @@ class Image_Cache {
         //debugpng
         if ($DEBUGPNG) echo $resolved_url . "\n";
 
-        $old_err = set_error_handler("record_warnings");
-        $image = file_get_contents($full_url);
-        restore_error_handler();
+        if ($datauri) {
+          if ($parsed_data_uri = parse_data_uri($url)) {
+            $image = $parsed_data_uri['data'];
+            list(, $ext) = explode('/', $parsed_data_uri['mime'], 2); 
+          }
+        }
+        else {
+          $old_err = set_error_handler("record_warnings");
+          $image = file_get_contents($full_url);
+          restore_error_handler();
+        }
 
         if ( strlen($image) == 0 ) {
           //target image not found

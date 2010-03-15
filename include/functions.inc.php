@@ -120,8 +120,8 @@ function build_url($protocol, $host, $base_path, $url) {
     return $protocol . $host . $base_path;
   }
 
-  // Is the url already fully qualified?
-  if ( mb_strpos($url, "://") !== false )
+  // Is the url already fully qualified or a Data URI?
+  if ( mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0 )
     return $url;
 
   $ret = $protocol;
@@ -136,6 +136,7 @@ function build_url($protocol, $host, $base_path, $url) {
       $ret .= realpath($base_path).'/';
     }
     $ret .= $url;
+    $ret = preg_replace("/\?(.*)$/", "", $ret);
     return $ret;
   }
 
@@ -299,6 +300,21 @@ function dec2roman($num) {
  * @return bool
  */
 function is_percent($value) { return false !== mb_strpos($value, "%"); }
+
+function parse_data_uri($data_uri) {
+  if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/i', $data_uri, $match)) {
+    return false;
+  }
+  
+  $match['data'] = urldecode($match['data']);
+  $result = array(
+    'charset' => $match['charset'] ? $match['charset'] : 'US-ASCII',
+    'mime'    => $match['mime'] ? $match['mime'] : 'text/plain',
+    'data'    => $match['base64'] ? base64_decode($match['data']) : $match['data'],
+  );
+  
+  return $result;
+}
 
 /**
  * mb_string compatibility
