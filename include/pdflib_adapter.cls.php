@@ -706,7 +706,9 @@ class PDFLib_Adapter implements Canvas {
   //........................................................................
   
   function javascript($code) {
-    // Not implemented
+    if ( defined("DOMPDF_PDFLIB_LICENSE") ) {
+      $this->_pdf->create_action("JavaScript", $code);
+    }
   }
 
   //........................................................................

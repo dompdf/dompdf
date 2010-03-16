@@ -676,8 +676,11 @@ class Cellmap {
 
         $h += $this->_rows[$row]["height"];
       }
-
-      $new_height = ($h / $content_height) * $table_height;
+      
+      if ( $content_height > 0 )
+        $new_height = ($h / $content_height) * $table_height;
+      else
+        $new_height = 0;
 
       if ( $frame instanceof Table_Cell_Frame_Decorator )
         $frame->set_cell_height($new_height);
