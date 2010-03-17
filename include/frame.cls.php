@@ -272,7 +272,7 @@ class Frame {
                                              $this->_style->border_bottom_width,
                                              $this->_style->padding_top,
                                              $this->_style->padding_bottom),
-                                       $this->_containing_block["w"]);
+                                       $this->_containing_block["h"]);
   }
 
   // Return the width of the margin box of the frame, in pt.  Meaningless
@@ -297,7 +297,7 @@ class Frame {
     $y = $this->_position["y"] +
       $this->_style->length_in_pt(array($this->_style->margin_top,
                                 $this->_style->border_top_width),
-                          $this->_containing_block["w"]);
+                          $this->_containing_block["h"]);
     
     $w = $this->_style->length_in_pt(array($this->_style->padding_left,
                                    $this->_style->width,
@@ -307,7 +307,7 @@ class Frame {
     $h = $this->_style->length_in_pt(array($this->_style->padding_top,
                                    $this->_style->height,
                                    $this->_style->padding_bottom),
-                             $this->_containing_block["w"]);
+                             $this->_containing_block["h"]);
 
     return array(0 => $x, "x" => $x,
                  1 => $y, "y" => $y,
@@ -322,7 +322,7 @@ class Frame {
                           $this->_containing_block["w"]);
     $y = $this->_position["y"] +
       $this->_style->length_in_pt($this->_style->margin_top,
-                          $this->_containing_block["w"]);
+                          $this->_containing_block["h"]);
 
     $w = $this->_style->length_in_pt(array($this->_style->border_left_width,
                                    $this->_style->padding_left,
@@ -336,7 +336,7 @@ class Frame {
                                    $this->_style->height,
                                    $this->_style->padding_bottom,
                                    $this->_style->border_bottom_width),
-                             $this->_containing_block["w"]);
+                             $this->_containing_block["h"]);
 
     return array(0 => $x, "x" => $x,
                  1 => $y, "y" => $y,
