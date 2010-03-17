@@ -80,7 +80,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     //$text = $this->_frame->get_text();
 //     if ( $this->_block_parent->get_current_line("w") == 0 )
 //       $text = ltrim($text, " \n\r\t");
-    return preg_replace("/[\s\n]+/u", " ", $text);
+    return preg_replace("/[ \t\r\n\v\f]+/u", " ", $text);
   }
 
   //........................................................................
@@ -353,7 +353,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     default:
     case "normal":
-      $str = preg_replace("/[\s\n]+/u"," ", $str);
+      $str = preg_replace("/[ \t\r\n\v\f]+/u"," ", $str);
     case "pre-wrap":
     case "pre-line":
 
@@ -389,10 +389,11 @@ class Text_Frame_Reflower extends Frame_Reflower {
     default:
     case "normal":
     case "nowrap":
-      $str = preg_replace("/[\s\n]+/u"," ", $text);
+      $str = preg_replace("/[ \t\r\n\v\f]+/u"," ", $text);
       break;
 
     case "pre-line":
+      //XXX: Is this correct?
       $str = preg_replace( "/[ \t]+/u", " ", $text);
 
     case "pre-wrap":
