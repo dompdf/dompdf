@@ -177,21 +177,21 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $cb = $this->_frame->get_containing_block();
 
     if($style->position === "fixed")
-		  $cb = $this->_frame->get_root()->get_containing_block();
+      $cb = $this->_frame->get_root()->get_containing_block();
 
     if ( !isset($cb["w"]) )
       throw new DOMPDF_Exception("Box property calculation requires containing block width");
 
     // Treat width 100% as auto
     if ( $style->width === "100%" ) {
-	    $width = "auto";
+      $width = "auto";
       if ( $style->position === "fixed") {
         $width = $cb["w"];
-			}
-	  }
+      }
+    }
     else {
-	    $width = $style->length_in_pt($style->width, $cb["w"]);
-	  }
+      $width = $style->length_in_pt($style->width, $cb["w"]);
+    }
     extract($this->_calculate_width($width));
 
     // Handle min/max width
@@ -235,8 +235,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $cb = $this->_frame->get_containing_block();
     
     if($style->position === "fixed")
-		  $cb = $this->_frame->get_root()->get_containing_block();
-	
+      $cb = $this->_frame->get_root()->get_containing_block();
+  
     $height = $style->length_in_pt($style->height, $cb["h"]);
 
     $top = $style->length_in_pt($style->top, $cb["h"]);
@@ -543,7 +543,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $cb = $this->_frame->get_containing_block();
     
     if ( $style->position === "fixed")
-		  $cb = $this->_frame->get_root()->get_containing_block();
+      $cb = $this->_frame->get_root()->get_containing_block();
     
     // Determine the constraints imposed by this frame: calculate the width
     // of the content area:

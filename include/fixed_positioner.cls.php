@@ -28,13 +28,12 @@
  * the case, you can obtain a copy at http://www.php.net/license/3_0.txt.
  *
  * The latest version of DOMPDF might be available at:
- * http://www.digitaljunkies.ca/dompdf
+ * http://www.dompdf.com/
  *
- * @link http://www.digitaljunkies.ca/dompdf
+ * @link http://www.dompdf.com/
  * @copyright 2004 Benj Carson
  * @author Benj Carson <benjcarson@digitaljunkies.ca>
  * @package dompdf
- * @version 0.5.1
  */
 
 /* $Id */
@@ -50,60 +49,60 @@ class Fixed_Positioner extends Positioner {
 
     $style = $this->_frame->get_original_style();
     $initialcb = $this->_frame->get_root()->get_containing_block();
-		$initialcb_style = $this->_frame->get_root()->get_style();
+    $initialcb_style = $this->_frame->get_root()->get_style();
 
     $p = $this->_frame->find_block_parent();
-		if ( $p ) {
+    if ( $p ) {
       $p->add_line();
-		}
+    }
 
     // Compute the margins of the @page style
     $margin_top    = $initialcb_style->length_in_pt($initialcb_style->margin_top, $initialcb["h"]);
-		$margin_bottom = $initialcb_style->length_in_pt($initialcb_style->margin_bottom, $initialcb["h"]);
-		$margin_left   = $initialcb_style->length_in_pt($initialcb_style->margin_left, $initialcb["w"]);
-		$margin_right  = $initialcb_style->length_in_pt($initialcb_style->margin_right, $initialcb["w"]);
-		
-		// The needed computed style of the element
+    $margin_bottom = $initialcb_style->length_in_pt($initialcb_style->margin_bottom, $initialcb["h"]);
+    $margin_left   = $initialcb_style->length_in_pt($initialcb_style->margin_left, $initialcb["w"]);
+    $margin_right  = $initialcb_style->length_in_pt($initialcb_style->margin_right, $initialcb["w"]);
+    
+    // The needed computed style of the element
     $height = $style->length_in_pt($style->height, $initialcb["h"]);
     $top    = $style->length_in_pt($style->top, $initialcb["h"]);
     $bottom = $style->length_in_pt($style->bottom, $initialcb["h"]);
-		$left   = $style->length_in_pt($style->left, $initialcb["w"]);
+    $left   = $style->length_in_pt($style->left, $initialcb["w"]);
     $right  = $style->length_in_pt($style->right, $initialcb["w"]);
     $width  = $style->length_in_pt($style->width, $initialcb["w"]);
 
     $y = $margin_top;
     if ( isset($top) ) {
-    	$y = $top + $margin_top;
+      $y = $top + $margin_top;
       if ( $top === "auto" ) {
         $y = $margin_top;
         if ( isset($bottom) && $bottom !== "auto" ) {
           $y = $initialcb["h"] - $bottom - $margin_bottom;
-					$margin_height = $this->_frame->get_margin_height();
-					if($margin_height !== "auto") {
-						$y -= $margin_height;
-					} else {
-						$y -= $height;
-					}
+          $margin_height = $this->_frame->get_margin_height();
+          if ( $margin_height !== "auto" ) {
+            $y -= $margin_height;
+          } else {
+            $y -= $height;
+          }
         }
       }
-		}
+    }
 
-		$x = $margin_left;
-		if( isset($left) ) {
-			$x = $left + $margin_left;
-			if ( $left === "auto" ) {
-				$x = $margin_left;
-				if( isset($right) && $right !== "auto" ) {
-					$x = $initialcb["w"] - $right - $margin_right;
-					$margin_width = $this->_frame->get_margin_width();
-					if($margin_width !== "auto") {
-						$x -= $margin_width;
-					} else {
-						$x -= $width;
-					}
-				}
-			}
-		}
+    $x = $margin_left;
+    if ( isset($left) ) {
+      $x = $left + $margin_left;
+      if ( $left === "auto" ) {
+        $x = $margin_left;
+        if ( isset($right) && $right !== "auto" ) {
+          $x = $initialcb["w"] - $right - $margin_right;
+          $margin_width = $this->_frame->get_margin_width();
+          if ( $margin_width !== "auto" ) {
+            $x -= $margin_width;
+          } else {
+            $x -= $width;
+          }
+        }
+      }
+    }
     $this->_frame->set_position($x, $y);
 
     $children = $this->_frame->get_children();

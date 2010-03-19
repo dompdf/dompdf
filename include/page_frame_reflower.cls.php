@@ -85,10 +85,11 @@ class Page_Frame_Reflower extends Frame_Reflower {
     $fixed_children = array();
     $prev_child = null;
     $child = $this->_frame->get_first_child();
-    $refpage = 0;
+    $current_page = 0;
+		
     while ($child) {
       // Only if it's the first page, we save the nodes with a fixed position
-      if ($refpage == 0) {
+      if ($current_page == 0) {
         $children = $child->get_children();
         foreach ($children as $onechild) {
           if ($onechild->get_style()->position === "fixed") {
@@ -96,18 +97,18 @@ class Page_Frame_Reflower extends Frame_Reflower {
           }
         }
       }
-	  $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
+      $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
       
       // Check for begin reflow callback
       $this->_check_callbacks("begin_page_reflow", $child);
     
       //Insert a copy of each node which have a fixed position
-      if ($refpage >= 1) {
+      if ($current_page >= 1) {
         foreach ($fixed_children as $onechildfixed) {
           $child->insert_child_before($onechildfixed->deep_copy(), $child->get_first_child());
         }
       }
-			
+      
       $child->reflow();
       $next_child = $child->get_next_sibling();
       
@@ -120,25 +121,22 @@ class Page_Frame_Reflower extends Frame_Reflower {
       // Check for end render callback
       $this->_check_callbacks("end_page_render", $child);
       
-      if ( $next_child )
-      {
+      if ( $next_child ) {
         $this->_frame->next_page();
       }
 
       // Wait to dispose of all frames on the previous page
       // so callback will have access to them
-      if ( $prev_child )
-      {
+      if ( $prev_child ) {
         $prev_child->dispose(true);
       }
       $prev_child = $child;
       $child = $next_child;
-      $refpage++;
+      $current_page++;
     }
 
     // Dispose of previous page if it still exists
-    if ( $prev_child )
-    {
+    if ( $prev_child ) {
       $prev_child->dispose(true);
     }
   }  
