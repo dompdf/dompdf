@@ -82,17 +82,32 @@ class Page_Frame_Reflower extends Frame_Reflower {
     $content_y = $cb["y"] + $top;
     $content_width = $cb["w"] - $left - $right;
     $content_height = $cb["h"] - $top - $bottom;
-
+    $fixed_children = array();
     $prev_child = null;
     $child = $this->_frame->get_first_child();
-
+    $refpage = 0;
     while ($child) {
-
-      $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
+      // Only if it's the first page, we save the nodes with a fixed position
+      if ($refpage == 0) {
+        $children = $child->get_children();
+        foreach ($children as $onechild) {
+          if ($onechild->get_style()->position === "fixed") {
+            $fixed_children[] = $onechild->deep_copy();
+          }
+        }
+      }
+	  $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
       
       // Check for begin reflow callback
       $this->_check_callbacks("begin_page_reflow", $child);
-      
+    
+      //Insert a copy of each node which have a fixed position
+      if ($refpage >= 1) {
+        foreach ($fixed_children as $onechildfixed) {
+          $child->insert_child_before($onechildfixed->deep_copy(), $child->get_first_child());
+        }
+      }
+			
       $child->reflow();
       $next_child = $child->get_next_sibling();
       
@@ -118,6 +133,7 @@ class Page_Frame_Reflower extends Frame_Reflower {
       }
       $prev_child = $child;
       $child = $next_child;
+      $refpage++;
     }
 
     // Dispose of previous page if it still exists

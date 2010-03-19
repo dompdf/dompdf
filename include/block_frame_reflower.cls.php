@@ -176,15 +176,22 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
 
+    if($style->position === "fixed")
+		  $cb = $this->_frame->get_root()->get_containing_block();
+
     if ( !isset($cb["w"]) )
       throw new DOMPDF_Exception("Box property calculation requires containing block width");
 
     // Treat width 100% as auto
-    if ( $style->width === "100%" )
-      $width = "auto";
-    else
-      $width = $style->length_in_pt($style->width, $cb["w"]);
-
+    if ( $style->width === "100%" ) {
+	    $width = "auto";
+      if ( $style->position === "fixed") {
+        $width = $cb["w"];
+			}
+	  }
+    else {
+	    $width = $style->length_in_pt($style->width, $cb["w"]);
+	  }
     extract($this->_calculate_width($width));
 
     // Handle min/max width
@@ -226,7 +233,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $content_height = $this->_calculate_content_height();
     $cb = $this->_frame->get_containing_block();
-
+    
+    if($style->position === "fixed")
+		  $cb = $this->_frame->get_root()->get_containing_block();
+	
     $height = $style->length_in_pt($style->height, $cb["h"]);
 
     $top = $style->length_in_pt($style->top, $cb["h"]);
@@ -243,7 +253,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
                     $style->margin_top !== "auto" ? $style->margin_top : 0,
                     $style->padding_top,
                     $style->border_top_width,
-                    $height !== "height" ? $height : 0,
+                    $height !== "auto" ? $height : 0,
                     $style->border_bottom_width,
                     $style->padding_bottom,
                     $style->margin_bottom !== "auto" ? $style->margin_bottom : 0,
@@ -531,7 +541,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
-
+    
+    if ( $style->position === "fixed")
+		  $cb = $this->_frame->get_root()->get_containing_block();
+    
     // Determine the constraints imposed by this frame: calculate the width
     // of the content area:
     list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
