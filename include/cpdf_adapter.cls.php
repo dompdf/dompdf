@@ -805,6 +805,7 @@ class CPDF_Adapter implements Canvas {
   //........................................................................
 
   function new_page() {
+    $this->_page_number++;
     $this->_page_count++;
 
     $ret = $this->_pdf->newPage();

@@ -118,16 +118,6 @@ abstract class Frame_Reflower {
 
   }
 
-  // Returns true if a new page is required
-  protected function _check_new_page() {
-    $y = $this->_frame->get_position("y");
-    $h = $style->length_in_pt($style->height);
-    // Check if we need to move to a new page
-    if ( $y + $h >= $this->_frame->get_root()->get_page_height() )
-      return true;
-
-  }
-
   //........................................................................
 
   abstract function reflow();

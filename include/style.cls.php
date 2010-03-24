@@ -1292,7 +1292,7 @@ class Style {
       // Resolve the url now in the context of the current stylesheet
       $parsed_url = explode_url($val);
       if ( $parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "" ) {
-        if ($parsed_url["path"]{0} === '/' || $parsed_url["path"]{0} === '\\' ) {
+        if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\' ) {
           $path = $_SERVER["DOCUMENT_ROOT"].'/';
         } else {
           $path = $this->_stylesheet->get_base_path();

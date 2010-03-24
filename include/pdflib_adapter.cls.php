@@ -202,23 +202,19 @@ class PDFLib_Adapter implements Canvas {
 
     $this->_pdf = new PDFLib();
 
-	if ( defined("DOMPDF_PDFLIB_LICENSE") )
+    if ( defined("DOMPDF_PDFLIB_LICENSE") )
       $this->_pdf->set_parameter( "license", DOMPDF_PDFLIB_LICENSE);
 
-	$this->_pdf->set_parameter("textformat", "utf8");
+    $this->_pdf->set_parameter("textformat", "utf8");
     $this->_pdf->set_parameter("fontwarning", "false");
 
     $this->_pdf->set_info("Creator", "DOMPDF Converter");
 
     // Silence pedantic warnings about missing TZ settings
-    if ( function_exists("date_default_timezone_get") ) {
-      $tz = @date_default_timezone_get();
-      date_default_timezone_set("UTC");
-      $this->_pdf->set_info("Date", date("Y-m-d"));
-      date_default_timezone_set($tz);
-    } else {
-      $this->_pdf->set_info("Date", date("Y-m-d"));
-    }
+    $tz = @date_default_timezone_get();
+    date_default_timezone_set("UTC");
+    $this->_pdf->set_info("Date", date("Y-m-d"));
+    date_default_timezone_set($tz);
 
     if ( self::$IN_MEMORY )
       $this->_pdf->begin_document("","");

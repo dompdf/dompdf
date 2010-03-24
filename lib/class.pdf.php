@@ -116,7 +116,6 @@ class  Cpdf {
    */
   private  $numStates =  0;
 
-
   /**
    * current colour for fill operations, defaults to inactive value, all three components should be between 0 and 1 inclusive when active
    */
@@ -309,9 +308,17 @@ class  Cpdf {
    * whether the text passed in should be treated as Unicode or just local character set.
    */
   public  $isUnicode = false;
-  
+
+  /**
+   * @var string the JavaScript code of the document
+   */
   public  $javascript = '';
 
+  /**
+   * @var boolean whether the compression is possible
+   */
+  protected $compressionReady = false;
+  
   /**
    * class constructor
    * this will start a new document
@@ -323,6 +330,8 @@ class  Cpdf {
     $this->fontcache = $fontcache;
     $this->tmp = $tmp;
     $this->newDocument($pageSize);
+    
+    $this->compressionReady = function_exists('gzcompress');
 
     // also initialize the font families that are known about already
     $this->setFontFamily('init');
@@ -1041,7 +1050,7 @@ class  Cpdf {
       } else {
         $res.=  "<<";
 
-        if  (!$compressed && function_exists('gzcompress') &&  $this->options['compression']) {
+        if  (!$compressed && $this->compressionReady && $this->options['compression']) {
           // then implement ZLIB based compression on this content stream
           $compressed = true;
           $tmp =  gzcompress($tmp,  6);
@@ -1374,7 +1383,7 @@ class  Cpdf {
         $res.= $tmp;
       } else {
         $res.=  "<<";
-        if  (function_exists('gzcompress') &&  $this->options['compression']) {
+        if  ($this->compressionReady && $this->options['compression']) {
           // then implement ZLIB based compression on this content stream
           $res.= " /Filter /FlateDecode";
           $tmp =  gzcompress($tmp,  6);
@@ -2110,7 +2119,7 @@ class  Cpdf {
       }
 
       //    echo $cidtogid; die("CIDtoGID Displayed!");
-      if  (function_exists('gzcompress') &&  $this->options['compression']) {
+      if  ($this->compressionReady && $this->options['compression']) {
         // then implement ZLIB based compression on CIDtoGID string
         $data['CIDtoGID_Compressed'] = true;
         $cidtogid =  gzcompress($cidtogid,  6);

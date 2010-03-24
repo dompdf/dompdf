@@ -858,7 +858,7 @@ class Stylesheet {
       // Resolve the url now in the context of the current stylesheet
       $parsed_url = explode_url($val);
       if ( $parsed_url["protocol"] == "" && $this->get_protocol() == "" ) {
-        if ($parsed_url["path"]{0} === '/' || $parsed_url["path"]{0} === '\\' ) {
+        if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\' ) {
           $path = $_SERVER["DOCUMENT_ROOT"].'/';
         } else {
           $path = $this->get_base_path();
@@ -956,6 +956,12 @@ class Stylesheet {
     // Create the style
     $style = new Style($this);
     foreach ($properties as $prop) {
+      // If the $prop contains an url, the regex may be wrong
+      // @todo: fix the regex so that it works everytime
+      /*if (strpos($prop, "url(") === false) {
+        if (preg_match("/([a-z-]+)\s*:\s*[^:]+$/i", $prop, $m))
+          $prop = $m[0];
+      }*/
       //A css property can have " ! important" appended (whitespace optional)
       //strip this off to decode core of the property correctly.
       //Pass on in the style to allow proper handling:

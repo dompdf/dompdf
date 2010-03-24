@@ -432,6 +432,10 @@ class Page_Frame_Decorator extends Frame_Decorator {
     // Do not split if we have already
     if ( $this->_page_full )
       return false;
+      
+    // If the frame is absolute of fixed it shouldn't break
+    if ( in_array($frame->get_style()->position, array("fixed", "absolute")) )
+      return false;
 
     // Determine the frame's maximum y value
     $max_y = $frame->get_position("y") + $frame->get_margin_height();
@@ -518,7 +522,6 @@ class Page_Frame_Decorator extends Frame_Decorator {
       }
 
       break;
-
     }
 
     $this->_in_table = $in_table;

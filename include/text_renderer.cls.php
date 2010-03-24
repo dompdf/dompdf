@@ -94,14 +94,21 @@ class Text_Renderer extends Abstract_Renderer {
 
 //     if ( preg_replace("/[\s]+/", "", $text) == "" )
 //       return;
-    
+
+    /*$text = str_replace(
+      array("{PAGE_NUM}"),
+      array($this->_canvas->get_page_number()), 
+      $text
+    );*/
+                            
     $this->_canvas->text($x, $y, $text,
                          $font, $size,
                          $style->color, $spacing);
 
     if ( method_exists( $this->_canvas, "get_cpdf" ) ) {
-      $base = ($this->_canvas->get_cpdf()->fonts[$this->_canvas->get_cpdf()->currentFont]['FontBBox'][3]*$size)/1000;
-      $descent = ($this->_canvas->get_cpdf()->fonts[$this->_canvas->get_cpdf()->currentFont]['FontBBox'][1]*$size)/1000;
+      $fontBBox = $this->_canvas->get_cpdf()->fonts[$this->_canvas->get_cpdf()->currentFont]['FontBBox'];
+      $base = ($fontBBox[3]*$size)/1000;
+      $descent = ($fontBBox[1]*$size)/1000;
       //print '<pre>Text_Renderer cpdf:'.$base.' '.$descent.' '.$size.'</pre>';
     } else {
       //Descent is font part below baseline, typically negative. $height is about full height of font box.

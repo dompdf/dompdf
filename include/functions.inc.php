@@ -401,6 +401,18 @@ if ( !function_exists("mb_substr_count") ) {
   }
 }
 
+if ( !function_exists("date_default_timezone_get") ) {
+  function date_default_timezone_get() {
+    return "";
+  }
+}
+
+if ( !function_exists("date_default_timezone_set") ) {
+  function date_default_timezone_set($timezone_identifier) {
+    return true;
+  }
+}
+
 /**
  * Stores warnings in an array for display later
  *
