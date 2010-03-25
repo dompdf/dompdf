@@ -506,6 +506,29 @@ class DOMPDF {
         $node = $this->_xml->createElement("bullet"); // arbitrary choice
         $b_f = new Frame($node);
 
+        $parent_node = $frame->get_parent()->get_node();
+
+        if ( !$parent_node->hasAttribute("dompdf-children-count") ) {
+          $count = 0;
+          foreach ($parent_node->childNodes as $_node) {
+            if ( $_node instanceof DOMElement )
+              $count++;
+          }
+          $parent_node->setAttribute("dompdf-children-count", $count);
+        }
+
+        $index = 0;
+        if ( !$parent_node->hasAttribute("dompdf-counter") ) {
+          $index = 1;
+          $parent_node->setAttribute("dompdf-counter", 1);
+        }
+        else {
+          $index = $parent_node->getAttribute("dompdf-counter");
+          $index++;
+          $parent_node->setAttribute("dompdf-counter", $index);
+        }
+        
+        $node->setAttribute("dompdf-counter", $index);
         $style = $this->_css->create_style();
         $style->display = "-dompdf-list-bullet";
         $style->inherit($frame->get_style());

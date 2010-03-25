@@ -54,7 +54,58 @@
 class List_Bullet_Renderer extends Abstract_Renderer {
 
   //........................................................................
-
+  private function make_counter($n, $type, $pad = null){
+    $n = intval($n);
+    $text = "";
+    $uppercase = true;
+    
+    switch ($type) {
+      case "decimal-leading-zero":
+      case "decimal":
+      case "1":
+        if ($pad) {
+          $text = sprintf("%0{$pad}d", $n);
+        }
+        else {
+          $text = sprintf('%d', $n);
+        }
+        
+        break;
+      
+      case "lower-alpha":
+      case "lower-latin":
+      case "a":
+        $uppercase = false;
+      case "upper-alpha":
+      case "upper-latin":
+      case "A":
+        if ( $n >= 676 ) {
+          $text = "n/a";
+        } else {
+          $text = "";
+          if ( $n > 26 ) {
+            $text .= chr(96 + floor($n / 26));
+          }
+          $text .= chr(96 + ($n % 26));
+        }
+        break;
+        
+      case "lower-roman":
+      case "i":
+        $uppercase = false;
+      case "upper-roman":
+      case "I":
+        $text = dec2roman($n);
+        break;
+    }
+    
+    if ($uppercase) 
+      $text = strtoupper($text);
+      
+    $text .= ".";
+    return $text;
+  }
+  
   function render(Frame $frame) {
 
     $style = $frame->get_style();
@@ -111,10 +162,43 @@ class List_Bullet_Renderer extends Abstract_Renderer {
         $y += ($font_size*(1-List_Bullet_Frame_Decorator::BULLET_DESCENT-List_Bullet_Frame_Decorator::BULLET_SIZE))/2;
         $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
         break;
+		
+      case "decimal-leading-zero":
+      case "decimal":
+      case "lower-alpha":
+      case "lower-latin":
+      case "lower-roman":
+      case "upper-alpha":
+      case "upper-latin":
+      case "upper-roman":
+      case "1": // HTML 4.0 compatibility
+      case "a":
+      case "i":
+      case "A":
+      case "I":
+        list($x,$y) = $frame->get_position();
+        
+        $pad = null;
+        if ( $bullet_style === "decimal-leading-zero" ) {
+          $pad = strlen($frame->get_parent()->get_parent()->get_node()->getAttribute("dompdf-children-count"));
+        }
+        
+        $index = $frame->get_node()->getAttribute("dompdf-counter");
+        $text = $this->make_counter($index, $bullet_style, $pad);
+        $font_family = $style->font_family;
+        $spacing = 0; //$frame->get_text_spacing() + $style->word_spacing;
+        
+        if ( trim($text) == "" )
+          return;
+
+        $x -= Font_Metrics::get_text_width($text, $font_family, $font_size, $spacing);
+        
+        $this->_canvas->text($x, $y, $text,
+                             $font_family, $font_size,
+                             $style->color, $spacing);
       
       case "none":
         break;
-
       }
     }
   }
