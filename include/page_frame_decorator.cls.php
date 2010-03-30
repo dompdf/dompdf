@@ -436,6 +436,13 @@ class Page_Frame_Decorator extends Frame_Decorator {
     // If the frame is absolute of fixed it shouldn't break
     if ( in_array($frame->get_style()->position, array("fixed", "absolute")) )
       return false;
+    
+    $p = $frame->get_parent();
+    while ($p) {
+      if ( in_array($p->get_style()->position, array("fixed")) )
+        return false;
+      $p = $p->get_parent();
+    }
 
     // Determine the frame's maximum y value
     $max_y = $frame->get_position("y") + $frame->get_margin_height();
