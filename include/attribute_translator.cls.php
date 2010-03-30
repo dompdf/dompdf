@@ -53,13 +53,13 @@ class Attribute_Translator {
   // thank you var_export() :D
   static private $__ATTRIBUTE_LOOKUP =
     array (//'caption' => array ( 'align' => '', ),
-           'img_inner' =>  // img tags actually end up wrapping img_inner elements
+           'img' =>  // img tags actually end up wrapping img_inner elements
            array ('align' => array('bottom' => 'vertical-align: baseline;',
                                    'middle' => 'vertical-align: middle;',
                                    'top' => 'vertical-align: top;',
                                    'left' => 'float: left;',
                                    'right' => 'float: right;'),
-                  'border' => 'border-width: %0.2f px;',
+                  'border' => 'border: %0.0f px solid #000;',
                   'height' => 'height: %s px;',
                   'hspace' => 'padding-left: %1$0.2f px; padding-right: %1$0.2f px;',
                   'vspace' => 'padding-top: %1$0.2f px; padding-bottom: %1$0.2f px;',

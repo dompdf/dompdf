@@ -202,15 +202,15 @@ class Frame_Tree {
      
         // Move attributes to inner node        
         foreach ( $child->attributes as $attr => $attr_node ) {
-          // Skip style, but move all other attributes
-          if ( $attr === "style" )
+          // Skip style and other older img attributes, but move all other attributes
+          if ( $attr === "style" || $attr === "border" || $attr === "width" || $attr === "height")
             continue;
        
           $img_node->setAttribute($attr, $attr_node->value);
         }
 
         foreach ( $child->attributes as $attr => $node ) {
-          if ( $attr === "style" )
+          if ( $attr === "style" || $attr === "border" || $attr = "width" || $attr === "height")
             continue;
           $child->removeAttribute($attr);
         }
