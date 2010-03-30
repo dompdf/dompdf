@@ -437,11 +437,10 @@ class Page_Frame_Decorator extends Frame_Decorator {
     if ( in_array($frame->get_style()->position, array("fixed", "absolute")) )
       return false;
     
-    $p = $frame->get_parent();
-    while ($p) {
-      if ( in_array($p->get_style()->position, array("fixed")) )
+    $p = $frame;
+    while ( $p = $p->get_parent() ) {
+      if ( $p->get_style()->position === "fixed" )
         return false;
-      $p = $p->get_parent();
     }
 
     // Determine the frame's maximum y value
