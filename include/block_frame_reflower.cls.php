@@ -175,6 +175,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
   protected function _calculate_restricted_width() {
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
+    
+    if($style->position === "fixed")
+      $cb = $this->_frame->get_root()->get_containing_block();
 
     if ( !isset($cb["w"]) )
       throw new DOMPDF_Exception("Box property calculation requires containing block width");
@@ -231,6 +234,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $content_height = $this->_calculate_content_height();
     $cb = $this->_frame->get_containing_block();
     
+    if($style->position === "fixed")
+      $cb = $this->_frame->get_root()->get_containing_block();
+
     $height = $style->length_in_pt($style->height, $cb["h"]);
 
     $top = $style->length_in_pt($style->top, $cb["h"]);
