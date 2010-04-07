@@ -57,53 +57,48 @@ class List_Bullet_Renderer extends Abstract_Renderer {
   private function make_counter($n, $type, $pad = null){
     $n = intval($n);
     $text = "";
-    $uppercase = true;
+    $uppercase = false;
     
     switch ($type) {
       case "decimal-leading-zero":
       case "decimal":
       case "1":
-        if ($pad) {
-          $text = sprintf("%0{$pad}d", $n);
-        }
-        else {
-          $text = sprintf('%d', $n);
-        }
-        
+        if ($pad) 
+          $text = str_pad($n, $pad, "0", STR_PAD_LEFT);
+        else 
+          $text = $n;
         break;
       
-      case "lower-alpha":
-      case "lower-latin":
-      case "a":
-        $uppercase = false;
       case "upper-alpha":
       case "upper-latin":
       case "A":
-        if ( $n >= 676 ) {
-          $text = "n/a";
-        } else {
-          $text = "";
-          if ( $n > 26 ) {
-            $text .= chr(96 + floor($n / 26));
-          }
-          $text .= chr(96 + ($n % 26));
-        }
+        $uppercase = true;
+      case "lower-alpha":
+      case "lower-latin":
+      case "a":
+        $text = chr( ($n % 26) + ord('A') - 1);
         break;
         
-      case "lower-roman":
-      case "i":
-        $uppercase = false;
       case "upper-roman":
       case "I":
+        $uppercase = true;
+      case "lower-roman":
+      case "i":
         $text = dec2roman($n);
+        break;
+      
+      case "lower-greek":
+        $text = chr($n + 944);
+        break;
+      case "upper-greek":
+        $text = chr($n + 912);
         break;
     }
     
     if ($uppercase) 
       $text = strtoupper($text);
       
-    $text .= ".";
-    return $text;
+    return $text.".";
   }
   
   function render(Frame $frame) {
@@ -168,9 +163,11 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "lower-alpha":
       case "lower-latin":
       case "lower-roman":
+      case "lower-greek":
       case "upper-alpha":
       case "upper-latin":
       case "upper-roman":
+      case "upper-greek":
       case "1": // HTML 4.0 compatibility
       case "a":
       case "i":

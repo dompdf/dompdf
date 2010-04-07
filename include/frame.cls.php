@@ -225,32 +225,87 @@ class Frame {
 
     unset($this->_style);    
     $this->_style = clone $this->_original_style;
-    
   }
   
   //........................................................................
 
   // Accessor methods
+  /**
+   * @return DOMNode
+   */
   function get_node() { return $this->_node; }
+  
+  /**
+   * @return string
+   */
   function get_id() { return $this->_id; }
+  
+  /**
+   * @return Style
+   */
   function get_style() { return $this->_style; }
+  
+  /**
+   * @return Style
+   */
   function get_original_style() { return $this->_original_style; }
+  
+  /**
+   * @return Frame
+   */
   function get_parent() { return $this->_parent; }
+  
+  /**
+   * @return Frame_Decorator
+   */
   function get_decorator() { return $this->_decorator; }
+  
+  /**
+   * @return Frame
+   */
   function get_first_child() { return $this->_first_child; }
+  
+  /**
+   * @return Frame
+   */
   function get_last_child() { return $this->_last_child; }
+  
+  /**
+   * @return Frame
+   */
   function get_prev_sibling() { return $this->_prev_sibling; }
+  
+  /**
+   * @return Frame
+   */
   function get_next_sibling() { return $this->_next_sibling; }
-
+  
+  /**
+   * @return FrameList
+   */
   function get_children() { return new FrameList($this); }
   
+  
   // Layout property accessors
+  
+  /** 
+   * Containing block dimensions
+   * 
+   * @param $i string The key of the wanted containing block's dimension (x, y, x, h)
+   * @return array|float
+   */
   function get_containing_block($i = null) {
     if ( isset($i) )
       return $this->_containing_block[$i];    
     return $this->_containing_block;
   }
   
+  /**
+   * Block position
+   * 
+   * @param $i string The key of the wanted position value (x, y)
+   * @return array|float
+   */
   function get_position($i = null) {
     if ( isset($i) )
       return $this->_position[$i];
@@ -262,8 +317,12 @@ class Frame {
     
   //........................................................................
 
-  // Return the height of the margin box of the frame, in pt.  Meaningless
-  // unless the height has been calculated properly.
+  /**
+   * Return the height of the margin box of the frame, in pt.  Meaningless
+   * unless the height has been calculated properly.
+   * 
+   * @return float
+   */
   function get_margin_height() {      
     return $this->_style->length_in_pt(array($this->_style->height,
                                              $this->_style->margin_top,
@@ -275,8 +334,12 @@ class Frame {
                                        $this->_containing_block["h"]);
   }
 
-  // Return the width of the margin box of the frame, in pt.  Meaningless
-  // unless the width has been calculted properly.
+  /**
+   * Return the width of the margin box of the frame, in pt.  Meaningless
+   * unless the width has been calculted properly.
+   * 
+   * @return float
+   */ 
   function get_margin_width() {
     return $this->_style->length_in_pt(array($this->_style->width,
                                      $this->_style->margin_left,
@@ -288,7 +351,11 @@ class Frame {
                                $this->_containing_block["w"]);
   }
 
-  // Return the padding box (x,y,w,h) of the frame
+  /**
+   * Return the padding box (x,y,w,h) of the frame
+   * 
+   * @return array
+   */
   function get_padding_box() {
     $x = $this->_position["x"] +
       $this->_style->length_in_pt(array($this->_style->margin_left,
@@ -315,11 +382,16 @@ class Frame {
                  3 => $h, "h" => $h);
   }
 
-  // Return the border box of the frame
+  /** 
+   * Return the border box of the frame
+   * 
+   * @return array
+   */
   function get_border_box() {
     $x = $this->_position["x"] +
       $this->_style->length_in_pt($this->_style->margin_left,
                           $this->_containing_block["w"]);
+                          
     $y = $this->_position["y"] +
       $this->_style->length_in_pt($this->_style->margin_top,
                           $this->_containing_block["h"]);
@@ -342,7 +414,6 @@ class Frame {
                  1 => $y, "y" => $y,
                  2 => $w, "w" => $w,
                  3 => $h, "h" => $h);
-    
   }
   
   //........................................................................
@@ -371,9 +442,9 @@ class Frame {
   
   function set_containing_block($x = null, $y = null, $w = null, $h = null) {
     if ( is_array($x) ){
-  		foreach($x AS $key => $val){
-			$$key = $val;
-		}
+      foreach($x as $key => $val){
+        $$key = $val;
+      }
     }
     
     if (is_numeric($x)) {
@@ -395,7 +466,6 @@ class Frame {
       $this->_containing_block[3] = $h;
       $this->_containing_block["h"] = $h;
     }
-    
   }
 
   function set_position($x = null, $y = null) {
@@ -414,9 +484,14 @@ class Frame {
   }
 
   //........................................................................
-
+    
+  /**
+   * Inserts a new child at the beginning of the Frame
+   * 
+   * @param $child Frame The new Frame to insert
+   * @param $update_node boolean Whether or not to update the DOM
+   */ 
   function prepend_child(Frame $child, $update_node = true) {
-
     if ( $update_node ) 
       $this->_node->insertBefore($child->_node, $this->_first_child ? $this->_first_child->_node : null);
 
@@ -432,18 +507,20 @@ class Frame {
       $this->_first_child = $child;
       $this->_last_child = $child;
       $child->_next_sibling = null;
-      
     } else {
-
       $this->_first_child->_prev_sibling = $child;
       $child->_next_sibling = $this->_first_child;      
       $this->_first_child = $child;
-      
     }
   }
-  
+    
+  /**
+   * Inserts a new child at the end of the Frame
+   * 
+   * @param $child Frame The new Frame to insert
+   * @param $update_node boolean Whether or not to update the DOM
+   */ 
   function append_child(Frame $child, $update_node = true) {
-
     if ( $update_node ) 
       $this->_node->appendChild($child->_node);
 
@@ -459,19 +536,21 @@ class Frame {
       $this->_first_child = $child;
       $this->_last_child = $child;
       $child->_prev_sibling = null;
-      
     } else {
-
       $this->_last_child->_next_sibling = $child;
       $child->_prev_sibling = $this->_last_child;
       $this->_last_child = $child;
-
     }
   }  
-
-  // Inserts a new child immediately before the specified frame
+  
+  /**
+   * Inserts a new child immediately before the specified frame
+   * 
+   * @param $new_child Frame The new Frame to insert
+   * @param $ref Frame The Frame after the new Frame
+   * @param $update_node boolean Whether or not to update the DOM
+   */ 
   function insert_child_before(Frame $new_child, Frame $ref, $update_node = true) {
-
     if ( $ref === $this->_first_child ) {
       $this->prepend_child($new_child, $update_node);
       return;
@@ -503,9 +582,14 @@ class Frame {
     $ref->_prev_sibling = $new_child;
   }
   
-  // Inserts a new child immediately after the specified frame
-  function insert_child_after(Frame $new_child, Frame $ref, $update_node = true) {    
-
+  /**
+   * Inserts a new child immediately after the specified frame
+   * 
+   * @param $new_child Frame The new Frame to insert
+   * @param $ref Frame The Frame before the new Frame
+   * @param $update_node boolean Whether or not to update the DOM
+   */ 
+  function insert_child_after(Frame $new_child, Frame $ref, $update_node = true) {
     if ( $ref === $this->_last_child ) {
       $this->append_child($new_child, $update_node);
       return;
@@ -544,8 +628,14 @@ class Frame {
   }
 
 
+  /** 
+   * Remove a child frame
+   * 
+   * @param $child Frame
+   * @param $update_node boolean Whether or not to remove the DOM node
+   * @return Frame The removed child frame
+   */
   function remove_child(Frame $child, $update_node = true) {
-
     if ( $child->_parent !== $this )
       throw new DOMPDF_Exception("Child not found in this frame");
 
@@ -568,14 +658,12 @@ class Frame {
     $child->_prev_sibling = null;
     $child->_parent = null;
     return $child;
-        
   }
 
   //........................................................................
 
   // Debugging function:
   function __toString() {
-
     // Skip empty text frames
 //     if ( $this->_node->nodeName === "#text" &&
 //          preg_replace("/\s/", "", $this->_node->data) === "" )
@@ -648,7 +736,6 @@ class Frame {
     
     return $str;
   }
-        
 }
 
 //------------------------------------------------------------------------

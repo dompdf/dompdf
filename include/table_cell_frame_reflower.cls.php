@@ -90,11 +90,11 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     $top_space = $style->length_in_pt(array($style->margin_top,
                                             $style->padding_top,
                                             $style->border_top_width),
-                                      $w);
+                                      $h);
     $bottom_space = $style->length_in_pt(array($style->margin_bottom,
                                                $style->padding_bottom,
                                                $style->border_bottom_width),
-                                      $w);
+                                      $h);
 
     $style->width = $cb_w = $w - $left_space - $right_space;
 
@@ -123,7 +123,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     }
 
     // Determine our height
-    $style_height = $style->length_in_pt($style->height, $w);
+    $style_height = $style->length_in_pt($style->height, $h);
 
     $this->_frame->set_content_height($this->_calculate_content_height());
 
@@ -132,7 +132,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     // Let the cellmap know our height
     $cell_height = $height / count($cells["rows"]);
 
-    if ($style_height < $height)
+    if ($style_height <= $height)
       $cell_height += $top_space + $bottom_space;
 
     foreach ($cells["rows"] as $i)

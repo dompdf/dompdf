@@ -180,7 +180,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    * Static function to locate the parent table of a frame
    *
    * @param Frame $frame
-   * @return Frame the table that is an ancestor of $frame
+   * @return Table_Frame_Decorator the table that is an ancestor of $frame
    */
   static function find_parent_table(Frame $frame) {
 

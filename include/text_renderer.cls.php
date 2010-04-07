@@ -61,7 +61,7 @@ class Text_Renderer extends Abstract_Renderer {
   //- For cpdf these can and must stay 0, because font metrics are used directly.
   //- For other renderers, if different values are wanted, separate the parameter sets.
   //  But $size and $size-$height seem to be accurate enough
-  const UNDERLINE_OFFSET = 0.1;    // Relative to bottom of text, as fraction of height.
+  const UNDERLINE_OFFSET = 0.0;    // Relative to bottom of text, as fraction of height.
   const OVERLINE_OFFSET = 0.0;    // Relative to top of text
   const LINETHROUGH_OFFSET = 0.0; // Relative to centre of text.
   const DECO_EXTENSION = 0.0;     // How far to extend lines past either end, in pt

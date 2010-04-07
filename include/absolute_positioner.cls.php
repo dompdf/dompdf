@@ -52,24 +52,19 @@ class Absolute_Positioner extends Positioner {
 
     $style = $this->_frame->get_style();
 
-    $top = $style->length_in_pt($style->top, $cb["w"]);
-    $left =   $style->length_in_pt($style->left, $cb["w"]);
+    $top =    $style->length_in_pt($style->top, $cb["h"]);
+    $left =   $style->length_in_pt($style->left, $cb["h"]);
     $right =  $style->length_in_pt($style->right, $cb["w"]);
     $bottom = $style->length_in_pt($style->bottom, $cb["w"]);
     
     $p = $this->_frame->find_block_parent();
 
     if ( $p ) {
-
       // Get the parent's padding box (see http://www.w3.org/TR/CSS21/visuren.html#propdef-top)
-
       list($x, $y, $w, $h) = $p->get_padding_box();
-
     } else {
-
       $x = $cb["x"];
       $y = $cb["y"];
-
     }
 
     if ( isset($top) ) {
@@ -83,5 +78,4 @@ class Absolute_Positioner extends Positioner {
     $this->_frame->set_position($x, $y);
 
   }
-
 }
