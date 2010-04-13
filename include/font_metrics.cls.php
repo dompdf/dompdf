@@ -84,9 +84,9 @@ class Font_Metrics {
   const CACHE_FILE = __DOMPDF_FONT_CACHE_FILE;
   
   /**
-   * Underlying {@link Cpdf} object to perform text size calculations
+   * Underlying {@link Canvas} object to perform text size calculations
    *
-   * @var Cpdf
+   * @var Canvas
    */
   static protected $_pdf = null;
 

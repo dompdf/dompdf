@@ -466,6 +466,17 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->setLineStyle($width, $cap, $join, $dash);
   }
   
+  /**
+   * Sets the opacity 
+   * 
+   * @param $opacity
+   * @param $mode
+   */
+  function set_opacity($opacity, $mode = "Normal") {
+    $this->_set_line_transparency($mode, $opacity);
+    $this->_set_fill_transparency($mode, $opacity);
+  }
+  
   //........................................................................
 
   

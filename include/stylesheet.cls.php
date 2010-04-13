@@ -112,14 +112,12 @@ class Stylesheet {
    */
   private $_base_path;
 
-
   /**
    * the style defined by @page rules
    *
    * @var Style
    */
   private $_page_style;
-
 
   /**
    * list of loaded files, used to prevent recursion
@@ -178,7 +176,6 @@ class Stylesheet {
    */
   function set_base_path($path) { $this->_base_path = $path; }
 
-
   /**
    * Return the base protocol for this stylesheet
    *
@@ -219,7 +216,6 @@ class Stylesheet {
       $this->_styles[$key] = clone $style;
   }
 
-
   /**
    * lookup a specifc Style object
    *
@@ -245,7 +241,6 @@ class Stylesheet {
   function create_style($parent = null) {
     return new Style($this, $parent);
   }
-
 
   /**
    * load and parse a CSS string
@@ -294,7 +289,6 @@ class Stylesheet {
     }
 
     $this->_parse_css($css);
-
   }
 
   /**
@@ -336,7 +330,6 @@ class Stylesheet {
 
     return ($a << 24) | ($b << 16) | ($c << 8) | ($d);
   }
-
 
   /**
    * converts a CSS selector to an XPath query.

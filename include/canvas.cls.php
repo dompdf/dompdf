@@ -232,7 +232,15 @@ interface Canvas {
    * @return float
    */
   function get_font_height($font, $size);
-
+  
+  /**
+   * Sets the opacity
+   *
+   * @param float $opacity
+   * @param string $mode
+   * @return float
+   */
+  function set_opacity($opacity, $mode = "Normal");
   
   /**
    * Starts a new page

@@ -69,7 +69,11 @@ class Inline_Renderer extends Abstract_Renderer {
     $h = 0;
 //     $x += $widths[3];
 //     $y += $widths[0];
-
+  
+    if ( $style->opacity != 1.0 ) {
+      $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
+    }
+    
     $first_row = true;
 
     foreach ($frame->get_children() as $child) {
@@ -88,7 +92,7 @@ class Inline_Renderer extends Abstract_Renderer {
 
         // Background:
         if ( ($bg = $style->background_color) !== "transparent" )
-          $this->_canvas->filled_rectangle( $x, $y, $w, $h, $style->background_color);
+          $this->_canvas->filled_rectangle( $x, $y, $w, $h, $bg);
 
         if ( ($url = $style->background_image) && $url !== "none" ) {
           $this->_background_image($url, $x, $y, $w, $h, $style);
@@ -141,7 +145,7 @@ class Inline_Renderer extends Abstract_Renderer {
     
     // Handle the last child
     if ( ($bg = $style->background_color) !== "transparent" ) 
-      $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $style->background_color);
+      $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $bg);
 
     //On continuation lines (after line break) of inline elements, the style got copied.
     //But a non repeatable background image should not be repeated on the next line.

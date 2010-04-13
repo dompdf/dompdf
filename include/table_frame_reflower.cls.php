@@ -417,8 +417,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
       $style->padding_left = $style->length_in_pt($style->padding_left, $cb["w"]) + $h;
       $style->padding_right = $style->length_in_pt($style->padding_right, $cb["w"]) + $h;
-      $style->padding_top = $style->length_in_pt($style->padding_top, $cb["w"]) + $v;
-      $style->padding_bottom = $style->length_in_pt($style->padding_bottom, $cb["w"]) + $v;
+      $style->padding_top = $style->length_in_pt($style->padding_top, $cb["h"]) + $v;
+      $style->padding_bottom = $style->length_in_pt($style->padding_bottom, $cb["h"]) + $v;
 
     }
 
@@ -453,7 +453,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
                                                          $style->border_left_width), $cb["w"]);
     $content_y = $y + $style->length_in_pt(array($style->margin_top,
                                                  $style->border_top_width,
-                                                 $style->padding_top), $cb["w"]);
+                                                 $style->padding_top), $cb["h"]);
 
     if ( isset($cb["h"]) )
       $h = $cb["h"];

@@ -233,13 +233,27 @@ class Attribute_Translator {
 
   
   static protected $_last_basefont_size = 3;
-  static protected $_font_size_lookup = array(1=>"xx-small",
-                                              2=>"x-small",
-                                              3=>"medium",
-                                              4=>"large",
-                                              5=>"x-large",
-                                              6=>"xx-large",
-                                              7=>"300%");
+  static protected $_font_size_lookup = array(
+    // For basefont support
+    -3 => "4pt", 
+    -2 => "5pt", 
+    -1 => "6pt", 
+     0 => "7pt", 
+    
+     1 => "8pt",
+     2 => "10pt",
+     3 => "12pt",
+     4 => "14pt",
+     5 => "18pt",
+     6 => "24pt",
+     7 => "34pt",
+     
+    // For basefont support
+     8 => "48pt", 
+     9 => "44pt", 
+    10 => "52pt", 
+    11 => "60pt", 
+  );
   
   
   static function translate_attributes($frame) {

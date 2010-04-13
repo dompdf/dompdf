@@ -88,10 +88,10 @@ class List_Bullet_Renderer extends Abstract_Renderer {
         break;
       
       case "lower-greek":
-        $text = chr($n + 944);
+        $text = unichr($n + 944);
         break;
       case "upper-greek":
-        $text = chr($n + 912);
+        $text = unichr($n + 912);
         break;
     }
     
@@ -106,7 +106,11 @@ class List_Bullet_Renderer extends Abstract_Renderer {
     $style = $frame->get_style();
     $font_size = $style->get_font_size();
     $line_height = $style->length_in_pt($style->line_height, $frame->get_containing_block("w"));
-
+  
+    if ( $style->opacity != 1.0 ) {
+      $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
+    }
+    
     // Handle list-style-image
     // If list style image is requested but missing, fall back to predefined types
     if ( $style->list_style_image !== "none" &&

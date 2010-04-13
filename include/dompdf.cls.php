@@ -168,7 +168,6 @@ class DOMPDF {
    */
   protected $_protocol;
 
-
   /**
    * Class constructor
    */
@@ -290,7 +289,20 @@ class DOMPDF {
       $file = $realfile;
     }
 
-    $this->load_html(file_get_contents($file));
+    $contents = file_get_contents($file);
+    $encoding = null;
+
+    // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
+    if ( isset($http_response_header) ) {
+      foreach($http_response_header as $_header) {
+        if ( preg_match("@Content-Type:\s*([\w/]+)(;\s*?charset=([^\s]+))?@i", $_header, $matches) ) {
+          $encoding = strtoupper($matches[3]);
+          break;
+        }
+      }
+    }
+    
+    $this->load_html($contents, $encoding);
   }
 
   /**
@@ -300,25 +312,33 @@ class DOMPDF {
    *
    * @param string $str HTML text to load
    */
-  function load_html($str) {
+  function load_html($str, $encoding = null) {
+    // TODO: use the $encoding variable
     // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
     mb_detect_order('auto');
-    if (mb_detect_encoding($str) != 'UTF-8') {
+    
+    if (mb_detect_encoding($str) !== 'UTF-8') {
+      $metatag = '@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s*?charset=([^\s"]+))?@i';
+      
       if (mb_detect_encoding($str) == '') {
-        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s*?charset=([^\s"]+))?@i',$str,$matches)) {
+        if (preg_match($metatag,$str,$matches)) {
           $encoding = strtoupper($matches[3]);
         } else {
           $encoding = 'UTF-8';
         }
       } else {
-        if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s*?charset=([^\s"]+))?@i',$str,$matches)) {
+        if (preg_match($metatag,$str,$matches)) {
           $encoding = strtoupper($matches[3]);
         } else {
           $encoding = 'auto';
         }
       }
-      if ($encoding != 'UTF-8') { $str = mb_convert_encoding($str, 'UTF-8', $encoding); }
-      if (preg_match('@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s+charset=([^\s"]+))?@i',$str,$matches)) {
+      
+      if ($encoding !== 'UTF-8') { 
+        $str = mb_convert_encoding($str, 'UTF-8', $encoding); 
+      }
+      
+      if (preg_match($metatag,$str,$matches)) {
         $str = preg_replace('/charset=([^\s"]+)/i','charset=UTF-8',$str);
       } else {
         $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);

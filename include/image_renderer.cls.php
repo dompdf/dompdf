@@ -62,6 +62,10 @@ class Image_Renderer extends Abstract_Renderer {
 
     $w = $style->length_in_pt($style->width, $cb["w"]);
     $h = $style->length_in_pt($style->height, $cb["h"]);
+  
+    if ( $style->opacity != 1.0 ) {
+      $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
+    }
 
     $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h);
 

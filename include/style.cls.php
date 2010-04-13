@@ -274,6 +274,7 @@ class Style {
       $d["max_width"] = "none";
       $d["min_height"] = "0";
       $d["min_width"] = "0";
+      $d["opacity"] = "1.0";
       $d["orphans"] = "2";
       $d["outline_color"] = "invert";
       $d["outline_style"] = "none";

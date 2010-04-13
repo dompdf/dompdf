@@ -2978,17 +2978,17 @@ class  Cpdf {
     
     for ($i = 0; $i < $length; $i++) {
       $c = ord($text[$i]); // get one string character at time
-      if (count($bytes) == 0) { // get starting octect
+      if (count($bytes) === 0) { // get starting octect
         if ($c <= 0x7F) {
           $unicode[] = $c; // use the character "as is" because is ASCII
           $numbytes = 1;
-        } elseif (($c >> 0x05) == 0x06) { // 2 bytes character (0x06 = 110 BIN)
+        } elseif (($c >> 0x05) === 0x06) { // 2 bytes character (0x06 = 110 BIN)
           $bytes[] = ($c - 0xC0) << 0x06;
           $numbytes = 2;
-        } elseif (($c >> 0x04) == 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
+        } elseif (($c >> 0x04) === 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
           $bytes[] = ($c - 0xE0) << 0x0C;
           $numbytes = 3;
-        } elseif (($c >> 0x03) == 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
+        } elseif (($c >> 0x03) === 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
           $bytes[] = ($c - 0xF0) << 0x12;
           $numbytes = 4;
         } else {
@@ -2997,9 +2997,9 @@ class  Cpdf {
           $bytes = array();
           $numbytes = 1;
         }
-      } elseif (($c >> 0x06) == 0x02) { // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
+      } elseif (($c >> 0x06) === 0x02) { // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
         $bytes[] = $c - 0x80;
-        if (count($bytes) == $numbytes) {
+        if (count($bytes) === $numbytes) {
           // compose UTF-8 bytes to a single unicode value
           $c = $bytes[0];
           for ($j = 1; $j < $numbytes; $j++) {
@@ -3049,19 +3049,15 @@ class  Cpdf {
     
     $unicode = $this->utf8toCodePointsArray($text);
     foreach ($unicode as $c) {
-      if ($c == 0xFFFD) {
+      if ($c === 0xFFFD) {
         $out .= "\xFF\xFD"; // replacement character
       } elseif ($c < 0x10000) {
-        $out .= chr($c >> 0x08);
-        $out .= chr($c & 0xFF);
+        $out .= chr($c >> 0x08) . chr($c & 0xFF);
        } else {
         $c -= 0x10000;
         $w1 = 0xD800 | ($c >> 0x10);
         $w2 = 0xDC00 | ($c & 0x3FF);
-        $out .= chr($w1 >> 0x08);
-        $out .= chr($w1 & 0xFF);
-        $out .= chr($w2 >> 0x08);
-        $out .= chr($w2 & 0xFF);
+        $out .= chr($w1 >> 0x08) . chr($w1 & 0xFF) . chr($w2 >> 0x08) . chr($w2 & 0xFF);
       }
     }
     return $out;

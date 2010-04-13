@@ -138,6 +138,8 @@ class Frame {
    * @var array
    */
   protected $_position;
+  
+  protected $_opacity;
 
   /**
    * This frame's decorator
@@ -168,6 +170,7 @@ class Frame {
                                      "h" => null);
     $this->_position = array("x" => null,
                              "y" => null);
+    $this->_opacity = 1.0;
 
     $this->_decorator = null;
 
@@ -416,6 +419,13 @@ class Frame {
                  3 => $h, "h" => $h);
   }
   
+  function get_opacity($opacity = null) {
+    if ( $opacity !== null ) {
+      $this->set_opacity($opacity);
+    }
+    return $this->_opacity;
+  }
+  
   //........................................................................
 
   // Set methods
@@ -481,6 +491,12 @@ class Frame {
       $this->_position[1] = $y;
       $this->_position["y"] = $y;
     }
+  }
+  
+  function set_opacity($opacity) {
+    $parent = $this->get_parent();
+    $base_opacity = (($parent && $parent->_opacity !== null) ? $parent->_opacity : 1.0);
+    $this->_opacity = $base_opacity * $opacity;
   }
 
   //........................................................................
