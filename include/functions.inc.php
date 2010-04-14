@@ -355,9 +355,9 @@ if ( !function_exists("mb_internal_encoding") ) {
 if ( !function_exists("mb_strlen") ) {
   function mb_strlen($str, $encoding='iso-8859-1') {
     if (str_replace('-', '', strtolower($encoding)) == 'utf8') {
-      return strlen(utf8_encode($data));
+      return strlen(utf8_encode($str));
     } else {
-      return strlen(utf8_decode($data));
+      return strlen(utf8_decode($str));
     }
   }
 }
