@@ -215,7 +215,7 @@ class CPDF_Adapter implements Canvas {
     }
     
     $this->_pdf = new Cpdf($size, DOMPDF_UNICODE_ENABLED, DOMPDF_FONT_CACHE, DOMPDF_TEMP_DIR);
-    $this->_pdf->addInfo("Creator", "dompdf");
+    $this->_pdf->addInfo("Creator", "DOMPDF");
 
     // Silence pedantic warnings about missing TZ settings
     $time = substr_replace(date('YmdHisO'), '\'', (0 - 2), 0).'\'';

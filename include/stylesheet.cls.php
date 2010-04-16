@@ -859,6 +859,7 @@ class Stylesheet {
         $path .= $parsed_url["path"] . $parsed_url["file"];
         $path = realpath($path);
         // If realpath returns FALSE then specifically state that there is no background image
+        // FIXME: Is this causing problems for imported CSS files? There are some './none' references when running the test cases.
         if (!$path) { $path = 'none'; }
       } else {
         $path = build_url($this->get_protocol(),

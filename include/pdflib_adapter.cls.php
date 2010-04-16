@@ -208,7 +208,7 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->set_parameter("textformat", "utf8");
     $this->_pdf->set_parameter("fontwarning", "false");
 
-    $this->_pdf->set_info("Creator", "DOMPDF Converter");
+    $this->_pdf->set_info("Creator", "DOMPDF");
 
     // Silence pedantic warnings about missing TZ settings
     $tz = @date_default_timezone_get();
