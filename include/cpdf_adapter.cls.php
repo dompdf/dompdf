@@ -218,10 +218,9 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->addInfo("Creator", "DOMPDF");
 
     // Silence pedantic warnings about missing TZ settings
-    $time = substr_replace(date('YmdHisO'), '\'', (0 - 2), 0).'\'';
-	$this->_pdf->addInfo("CreationDate", "D:".$time);
-	$this->_pdf->addInfo("ModDate", "D:".$time);
-    
+    $time = substr_replace(date('YmdHisO'), '\'', -2, 0).'\'';
+    $this->_pdf->addInfo("CreationDate", "D:$time");
+    $this->_pdf->addInfo("ModDate", "D:$time");
 
     $this->_width = $size[2] - $size[0];
     $this->_height= $size[3] - $size[1];

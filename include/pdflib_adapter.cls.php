@@ -516,6 +516,16 @@ class PDFLib_Adapter implements Canvas {
     list($r,$g,$b) = $color;
     $this->_pdf->setcolor("fill", "rgb", $r, $g, $b, 0);
   }
+  
+  /**
+   * Sets the opacity 
+   * 
+   * @param $opacity
+   * @param $mode
+   */
+  function set_opacity($opacity, $mode = "Normal") {
+    // Not implemented
+  }
 
   /**
    * Loads a specific font and stores the corresponding descriptor.

@@ -69,7 +69,6 @@ class Block_Renderer extends Abstract_Renderer {
   }
 
   protected function _render_border(Frame_Decorator $frame, $corner_style = "bevel") {
-    $cb = $frame->get_containing_block();
     $style = $frame->get_style();
 
     $bbox = $frame->get_border_box();

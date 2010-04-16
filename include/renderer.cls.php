@@ -196,35 +196,35 @@ class Renderer extends Abstract_Renderer {
       
       switch ($type) {
       case "block":
-        $this->_renderers["block"] = new Block_Renderer($this->_dompdf);
+        $this->_renderers[$type] = new Block_Renderer($this->_dompdf);
         break;
 
       case "inline":
-        $this->_renderers["inline"] = new Inline_Renderer($this->_dompdf);
+        $this->_renderers[$type] = new Inline_Renderer($this->_dompdf);
         break;
 
       case "text":
-        $this->_renderers["text"] = new Text_Renderer($this->_dompdf);
+        $this->_renderers[$type] = new Text_Renderer($this->_dompdf);
         break;
 
       case "image":
-        $this->_renderers["image"] = new Image_Renderer($this->_dompdf);
+        $this->_renderers[$type] = new Image_Renderer($this->_dompdf);
         break;
       
       case "table-cell":
-        $this->_renderers["table-cell"] = new Table_Cell_Renderer($this->_dompdf);
+        $this->_renderers[$type] = new Table_Cell_Renderer($this->_dompdf);
         break;
 
       case "list-bullet":
-        $this->_renderers["list-bullet"] = new List_Bullet_Renderer($this->_dompdf);
+        $this->_renderers[$type] = new List_Bullet_Renderer($this->_dompdf);
         break;
 
       case "php":
-        $this->_renderers["php"] = new PHP_Evaluator($this->_canvas);
+        $this->_renderers[$type] = new PHP_Evaluator($this->_canvas);
         break;
 
       case "javascript":
-        $this->_renderers["javascript"] = new Javascript_Embedder($this->_dompdf);
+        $this->_renderers[$type] = new Javascript_Embedder($this->_dompdf);
         break;
         
       }

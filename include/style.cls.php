@@ -440,14 +440,14 @@ class Style {
         $ret += 2.5;
         continue;
       }
-      
-      if ( ($i = mb_strpos($l, "pt"))  !== false ) {
-        $ret += mb_substr($l, 0, $i);
-        continue;
-      }
 
       if ( ($i = mb_strpos($l, "px"))  !== false ) {
         $ret += ( mb_substr($l, 0, $i)  * 72 ) / DOMPDF_DPI;
+        continue;
+      }
+      
+      if ( ($i = mb_strpos($l, "pt"))  !== false ) {
+        $ret += mb_substr($l, 0, $i);
         continue;
       }
 
@@ -456,19 +456,8 @@ class Style {
         continue;
       }
       
-      // FIXME: em:ex ratio?
-      if ( ($i = mb_strpos($l, "ex"))  !== false ) {
-        $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
-        continue;
-      }
-      
       if ( ($i = mb_strpos($l, "%"))  !== false ) {
         $ret += mb_substr($l, 0, $i)/100 * $ref_size;
-        continue;
-      }
-      
-      if ( ($i = mb_strpos($l, "in")) !== false ) {
-        $ret += mb_substr($l, 0, $i) * 72;
         continue;
       }
           
@@ -479,6 +468,17 @@ class Style {
 
       if ( ($i = mb_strpos($l, "mm")) !== false ) {
         $ret += mb_substr($l, 0, $i) * 72 / 25.4;
+        continue;
+      }
+      
+      // FIXME: em:ex ratio?
+      if ( ($i = mb_strpos($l, "ex"))  !== false ) {
+        $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
+        continue;
+      }
+      
+      if ( ($i = mb_strpos($l, "in")) !== false ) {
+        $ret += mb_substr($l, 0, $i) * 72;
         continue;
       }
           
@@ -597,12 +597,12 @@ class Style {
    * Only created, if !important exists -> always set true.
    */
   function important_set($prop) {
-      $prop = str_replace("-", "_", $prop);
-      $this->_important_props[$prop] = true;
+    $prop = str_replace("-", "_", $prop);
+    $this->_important_props[$prop] = true;
   }
 
   function important_get($prop) {
-      isset($this->_important_props[$prop]);
+    isset($this->_important_props[$prop]);
   }
 
   /**
@@ -633,12 +633,11 @@ class Style {
    *
    */
   function __set($prop, $val) {
-    global $_dompdf_warnings;
-
     $prop = str_replace("-", "_", $prop);
     $this->_prop_cache[$prop] = null;
     
     if ( !isset(self::$_defaults[$prop]) ) {
+      global $_dompdf_warnings;
       $_dompdf_warnings[] = "'$prop' is not a valid CSS2 property.";
       return;
     }
@@ -654,7 +653,6 @@ class Style {
       $this->$method($val);
     else
       $this->_props[$prop] = $val;
-    
   }
 
   /**
@@ -671,11 +669,10 @@ class Style {
    * @return mixed
    */
   function __get($prop) {
-    
     if ( !isset(self::$_defaults[$prop]) )
       throw new DOMPDF_Exception("'$prop' is not a valid CSS2 property.");
 
-    if ( isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null)
+    if ( isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null )
       return $this->_prop_cache[$prop];
     
     $method = "get_$prop";
@@ -686,7 +683,6 @@ class Style {
 
     if ( method_exists($this, $method) )
       return $this->_prop_cache[$prop] = $this->$method();
-
 
     return $this->_prop_cache[$prop] = $this->_props[$prop];
   }
@@ -1335,7 +1331,7 @@ class Style {
       $col = self::$_defaults["color"];
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["color"] = null;
+    $this->_prop_cache["color"] = null;
     $this->_props["color"] = $col["hex"];
   }
 
@@ -1351,7 +1347,7 @@ class Style {
       $col = self::$_defaults["background_color"];
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["background_color"] = null;
+    $this->_prop_cache["background_color"] = null;
     $this->_props["background_color"] = is_array($col) ? $col["hex"] : $col;
   }
 
@@ -1363,7 +1359,7 @@ class Style {
    */
   function set_background_image($val) {
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["background_image"] = null;
+    $this->_prop_cache["background_image"] = null;
     $this->_props["background_image"] = $this->_image($val);
   }
 
@@ -1392,7 +1388,7 @@ class Style {
       $val = self::$_defaults["background_attachment"];
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["background_attachment"] = null;
+    $this->_prop_cache["background_attachment"] = null;
     $this->_props["background_attachment"] = $val;
   }
 
@@ -1407,7 +1403,7 @@ class Style {
       $val = self::$_defaults["background_position"];
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["background_position"] = null;
+    $this->_prop_cache["background_position"] = null;
     $this->_props["background_position"] = $val;
   }
 
@@ -1422,8 +1418,9 @@ class Style {
     $pos = array();
     $tmp = explode(" ", $val);
     $important = isset($this->_important_props["background"]);
+    
     foreach($tmp as $attr) {
-	  if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
+      if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
    	    $this->_set_style("background_image", $this->_image($attr), $important);
   	  } else if ($attr === "fixed" || $attr === "scroll") {
    	    $this->_set_style("background_attachment", $attr, $important);
@@ -1432,15 +1429,16 @@ class Style {
       } else if (($col = $this->munge_color($attr)) != null ) {
    	    $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
       } else {
- 		$pos[] = $attr;
- 	  }
- 	}
- 	if (count($pos)) {
- 	  $this->_set_style("background_position",implode(' ',$pos), $important);
- 	}
+        $pos[] = $attr;
+      }
+    }
+    
+    if (count($pos)) {
+      $this->_set_style("background_position",implode(' ',$pos), $important);
+    }
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["background"] = null;
- 	$this->_props["background"] = $val;
+    $this->_prop_cache["background"] = null;
+    $this->_props["background"] = $val;
   }
 
   /**
@@ -1454,7 +1452,7 @@ class Style {
   function set_font_size($size) {
     $this->__font_size_calculated = false;
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["font_size"] = null;
+    $this->_prop_cache["font_size"] = null;
     $this->_props["font_size"] = $size;
   }
 
@@ -1485,17 +1483,17 @@ class Style {
   function set_font($val) {
     $this->__font_size_calculated = false;
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["font"] = null;
- 	$this->_props["font"] = $val;
+    $this->_prop_cache["font"] = null;
+    $this->_props["font"] = $val;
 
     $important = isset($this->_important_props["font"]);
 
-	if ( preg_match("/^(italic|oblique|normal)\s*(.*)$/i",$val,$match) ) {
-		$this->_set_style("font_style", $match[1], $important);
-		$val = $match[2];
-	} else {
-		$this->_set_style("font_style", self::$_defaults["font_style"], $important);
-	}
+    if ( preg_match("/^(italic|oblique|normal)\s*(.*)$/i",$val,$match) ) {
+      $this->_set_style("font_style", $match[1], $important);
+      $val = $match[2];
+    } else {
+      $this->_set_style("font_style", self::$_defaults["font_style"], $important);
+    }
 
 	if ( preg_match("/^(small-caps|normal)\s*(.*)$/i",$val,$match) ) {
 		$this->_set_style("font_variant", $match[1], $important);
@@ -1546,7 +1544,7 @@ class Style {
       $break = "always";
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["page_break_before"] = null;
+    $this->_prop_cache["page_break_before"] = null;
     $this->_props["page_break_before"] = $break;
   }
 
@@ -1555,7 +1553,7 @@ class Style {
       $break = "always";
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["page_break_after"] = null;
+    $this->_prop_cache["page_break_after"] = null;
     $this->_props["page_break_after"] = $break;
   }
   /**#@-*/
@@ -1698,14 +1696,13 @@ class Style {
    * @param float $val
    */
   function set_border_spacing($val) {
-
     $arr = explode(" ", $val);
 
     if ( count($arr) == 1 )
       $arr[1] = $arr[0];
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["border_spacing"] = null;
+    $this->_prop_cache["border_spacing"] = null;
     $this->_props["border_spacing"] = $arr[0] . " " . $arr[1];
   }
 
@@ -1717,7 +1714,7 @@ class Style {
    */
   function set_list_style_image($val) {
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["list_style_image"] = null;
+    $this->_prop_cache["list_style_image"] = null;
     $this->_props["list_style_image"] = $this->_image($val);
   }
 
@@ -1731,13 +1728,17 @@ class Style {
     $important = isset($this->_important_props["list_style"]);
     $arr = explode(" ", str_replace(",", " ", $val));
 
-    static $types = array("disc", "circle", "square", "decimal",
-                   "decimal-leading-zero", "lower-roman",
-                   "upper-roman", "lower-greek", "lower-latin",
-                   "upper-latin", "armenian", "georgian",
-                   "lower-alpha", "upper-alpha", "hebrew",
-                   "cjk-ideographic", "hiragana", "katakana",
-                   "hiragana-iroha", "katakana-iroha", "none");
+    static $types = array(
+      "disc", "circle", "square", 
+      "decimal-leading-zero", "decimal", "1",
+      "lower-roman", "upper-roman", "a", "A",
+      "lower-greek", 
+      "lower-latin", "upper-latin", 
+      "lower-alpha", "upper-alpha", 
+      "armenian", "georgian", "hebrew",
+      "cjk-ideographic", "hiragana", "katakana",
+      "hiragana-iroha", "katakana-iroha", "none"
+    );
 
     static $positions = array("inside", "outside");
 
@@ -1756,7 +1757,7 @@ class Style {
       //Firefox is wrong here (list_style_image gets overwritten on explicite list_style_type)
       //Internet Explorer 7/8 and dompdf is right.
        
-	  if (mb_substr($value, 0, 3) === "url") {
+      if (mb_substr($value, 0, 3) === "url") {
    	    $this->_set_style("list_style_image", $this->_image($value), $important);
         continue;
       }
@@ -1769,8 +1770,8 @@ class Style {
     }
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["list_style"] = null;
- 	$this->_props["list_style"] = $val;
+    $this->_prop_cache["list_style"] = null;
+    $this->_props["list_style"] = $val;
   }
 
   /**

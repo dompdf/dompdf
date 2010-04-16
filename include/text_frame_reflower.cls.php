@@ -133,7 +133,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $str = "";
     reset($words);
 
-    for ($i = 0; $i < count($words); $i += 2) {
+    for ($i = 0; $i < $wc; $i += 2) {
       $word = $words[$i] . (isset($words[$i+1]) ? $words[$i+1] : "");
       $word_width = Font_Metrics::get_text_width($word, $font, $size, $word_spacing);
       if ( $width + $word_width + $mbp_width > $available_width )
