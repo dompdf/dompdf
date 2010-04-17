@@ -205,9 +205,10 @@ class Font_Metrics {
    * @see Font_Metrics::load_font_families()
    */
   static function save_font_families() {
-
-    file_put_contents(self::CACHE_FILE, var_export(self::$_font_lookup, true));
-    
+    // replace the path to the DOMPDF font directory with "DOMPDF_FONT_DIR" (allows for more portability)
+    $cache_data = var_export(self::$_font_lookup, true);
+    $cache_data = str_replace('\''.DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $cache_data);
+    file_put_contents(self::CACHE_FILE, $cache_data);
   }
 
   /**
