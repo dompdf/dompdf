@@ -817,6 +817,10 @@ class Stylesheet {
           //If a border or background color around each paper sheet is desired,
           //assign it to the <body> tag, possibly only for the css of the correct media type.
 
+          // If the page has a name, skip the style.
+          if ($match[3] !== "")
+            return;
+
           // Store the style for later...
           if ( is_null($this->_page_style) )
             $this->_page_style = $this->_parse_properties($match[5]);

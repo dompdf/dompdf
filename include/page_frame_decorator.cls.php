@@ -174,12 +174,12 @@ class Page_Frame_Decorator extends Frame_Decorator {
    * @return bool true if a page break occured
    */
   function check_forced_page_break(Frame $frame) {
-
+    	
     // Skip check if page is already split
     if ( $this->_page_full )
       return;
 
-    $block_types = array("block", "list-item", "table");
+    $block_types = array("block", "list-item", "table", "inline");
     $page_breaks = array("always", "left", "right");
 
     $style = $frame->get_style();
@@ -189,27 +189,41 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
     // Find the previous block-level sibling
     $prev = $frame->get_prev_sibling();
+
     while ( $prev && !in_array($prev->get_style()->display, $block_types) )
       $prev = $prev->get_prev_sibling();
+
 
     if ( in_array($style->page_break_before, $page_breaks) ) {
 
       // Prevent cascading splits
-      $frame->split();
+      $frame->split(null, true);
       // We have to grab the style again here because split() resets
       // $frame->style to the frame's orignal style.
       $frame->get_style()->page_break_before = "auto";
       $this->_page_full = true;
+			
       return true;
     }
 
-    if ( ($prev && in_array($prev->get_style()->page_break_after, $page_breaks)) ) {
+    if ( $prev && in_array($prev->get_style()->page_break_after, $page_breaks) ) {
       // Prevent cascading splits
-      $frame->split();
+      $frame->split(null, true);
       $prev->get_style()->page_break_after = "auto";
       $this->_page_full = true;
       return true;
     }
+		
+    if( $prev && $prev->get_last_child() && $frame->get_node()->nodeName != "body" ) {
+      $prev_last_child = $prev->get_last_child();
+    if ( in_array($prev_last_child->get_style()->page_break_after, $page_breaks) ) {
+      $frame->split(null, true);
+      $prev_last_child->get_style()->page_break_after = "auto";
+      $this->_page_full = true;
+      return true;
+    }
+    }
+
 
     return false;
   }
@@ -484,7 +498,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
       if ( $this->_page_break_allowed($iter) ) {
         dompdf_debug("page-break","break allowed, splitting.");
-        $iter->split();
+        $iter->split(null, true);
         $this->_page_full = true;
         $this->_in_table = $in_table;
         return true;
@@ -549,12 +563,12 @@ class Page_Frame_Decorator extends Frame_Decorator {
       while ($iter && $iter->get_style()->display !== "table-row" )
         $iter = $iter->get_parent();
 
-      $iter->split();
+      $iter->split(null, true);
       $this->_page_full = true;
       return true;
     }
 
-    $frame->split();
+    $frame->split(null, true);
     $this->_page_full = true;
     return true;
 

@@ -60,6 +60,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
 
+    if( $style->position === "fixed" )
+      $w = $this->_frame->get_parent()->get_containing_block("w");
+
     $rm = $style->length_in_pt($style->margin_right, $w);
     $lm = $style->length_in_pt($style->margin_left, $w);
 
@@ -185,9 +188,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Treat width 100% as auto
     if ( $style->width === "100%" ) {
       $width = "auto";
-      if ( $style->position === "fixed") {
-        $width = $cb["w"];
-      }
     }
     else {
       $width = $style->length_in_pt($style->width, $cb["w"]);
@@ -234,9 +234,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $content_height = $this->_calculate_content_height();
     $cb = $this->_frame->get_containing_block();
     
-    if($style->position === "fixed")
-      $cb = $this->_frame->get_root()->get_containing_block();
-
     $height = $style->length_in_pt($style->height, $cb["h"]);
 
     $top = $style->length_in_pt($style->top, $cb["h"]);

@@ -302,20 +302,21 @@ class Text_Frame_Reflower extends Frame_Reflower {
         $this->_block_parent->add_line();
         $this->_frame->position();
       }
-
-      // Set our new width
-      $this->_frame->recalculate_width();
-
-    } else {
-
-      $this->_frame->recalculate_width();
-
     }
+
+    // Set our new width
+    $this->_frame->recalculate_width();
   }
 
   //........................................................................
 
   function reflow() {
+
+    $page = $this->_frame->get_root();
+    $page->check_forced_page_break($this->_frame);
+    
+    if ( $page->is_full() )
+      return;
 
     $this->_block_parent = $this->_frame->find_block_parent();
 

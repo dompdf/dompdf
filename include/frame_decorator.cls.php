@@ -350,14 +350,14 @@ abstract class Frame_Decorator extends Frame {
    * current frame's parent->split() method.
    *
    * @param Frame $child
+   * @param boolean $force_pagebreak
    */
-  function split($child = null) {
-
+  function split($child = null, $force_pagebreak = false) {
     if ( is_null( $child ) ) {
-      $this->get_parent()->split($this);
+      $this->get_parent()->split($this, $force_pagebreak);
       return;
     }
-    
+
     if ( $child->get_parent() !== $this )
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
 
@@ -374,7 +374,7 @@ abstract class Frame_Decorator extends Frame {
       $split->append_child($frame);
     }
 
-    $this->get_parent()->split($split);
+    $this->get_parent()->split($split, $force_pagebreak);
   }
 
   //........................................................................

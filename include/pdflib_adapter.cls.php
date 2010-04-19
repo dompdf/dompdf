@@ -617,7 +617,7 @@ class PDFLib_Adapter implements Canvas {
 
     $y1 = $this->y($y1) - $h;
 
-    $this->_pdf->rect($x1, $y1, $w, $h);
+    $this->_pdf->rect(floatval($x1), floatval($y1), floatval($w), floatval($h));
     $this->_pdf->fill();
   }
 

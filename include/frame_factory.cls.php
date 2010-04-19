@@ -175,10 +175,10 @@ class Frame_Factory {
 
     }
 
-    if ( $frame->get_style()->position === "absolute")
+    if ( $frame->get_style()->position === "absolute" )
       $positioner = "Absolute";
 
-    if ($frame->get_style()->position === "fixed" )
+    if ( $frame->get_style()->position === "fixed" )
       $positioner = "Fixed";
 
     $positioner .= "_Positioner";
