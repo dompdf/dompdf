@@ -1531,7 +1531,7 @@ class  Cpdf {
                 $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
                 ' ] ';
               $this->objects[$id]['info']['Mask'] = $tmp;
-              break;              
+              break;
             }
           }
           $this->objects[$id]['info']['ColorSpace'] = '/'.$options['color'];
@@ -2130,8 +2130,8 @@ class  Cpdf {
 
       //Because of potential trouble with php safe mode, expect that the folder already exists.
       //If not existing, this will hit performance because of missing cached results.
-      if ( is_dir(substr($fontcache,0,-1)) ) {
-        file_put_contents($fontcache . $cache_name,  '$this->fonts[$font]=' . var_export($data,  true)  . ';');
+      if ( is_dir(substr($fontcache,0,-1)) && is_writable(substr($fontcache,0,-1)) ) {
+        file_put_contents($fontcache . $cache_name, '$this->fonts[$font]=' . var_export($data,  true) . ';');
       }
     }
     
@@ -2331,16 +2331,16 @@ class  Cpdf {
 
           $flags+=  pow(2, 5); // assume non-sybolic
           $list =  array(
-            'Ascent' => 'Ascender', 
-            'CapHeight' => 'CapHeight', 
-            'MissingWidth' => 'MissingWidth', 
-            'Descent' => 'Descender', 
-            'FontBBox' => 'FontBBox', 
+            'Ascent' => 'Ascender',
+            'CapHeight' => 'CapHeight',
+            'MissingWidth' => 'MissingWidth',
+            'Descent' => 'Descender',
+            'FontBBox' => 'FontBBox',
             'ItalicAngle' => 'ItalicAngle'
           );
           $fdopt =  array(
-            'Flags' => $flags, 
-            'FontName' => $adobeFontName, 
+            'Flags' => $flags,
+            'FontName' => $adobeFontName,
             'StemV' => $stemV
           );
 
@@ -3236,13 +3236,13 @@ class  Cpdf {
               $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, mb_substr($text, 0, $i));
 
               $info =  array(
-                'x' => $tmp[0], 
-                'y' => $tmp[1], 
-                'angle' => $angle, 
-                'status' => 'start', 
-                'p' => $parm, 
-                'f' => $func, 
-                'height' => $this->getFontHeight($size), 
+                'x' => $tmp[0],
+                'y' => $tmp[1],
+                'angle' => $angle,
+                'status' => 'start',
+                'p' => $parm,
+                'f' => $func,
+                'height' => $this->getFontHeight($size),
                 'descender' => $this->getFontDescender($size)
               );
               $x =  $tmp[0];
@@ -3377,13 +3377,13 @@ class  Cpdf {
         // call each function
         $tmp =  $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, $text);
         $info =  array(
-          'x' => $tmp[0], 
-          'y' => $tmp[1], 
+          'x' => $tmp[0],
+          'y' => $tmp[1],
           'angle' => $angle,
-          'status' => 'eol', 
-          'p' => $this->callback[$i]['p'], 
-          'nCallback' => $this->callback[$i]['nCallback'], 
-          'height' => $this->callback[$i]['height'], 
+          'status' => 'eol',
+          'p' => $this->callback[$i]['p'],
+          'nCallback' => $this->callback[$i]['nCallback'],
+          'height' => $this->callback[$i]['height'],
           'descender' => $this->callback[$i]['descender']
         );
         $func =  $this->callback[$i]['f'];
@@ -3436,6 +3436,9 @@ class  Cpdf {
       }
 
     } else {
+      // If CPDF is in Unicode mode but the current font does not support Unicode we need to convert the character set to Windows-1252
+      if ($this->isUnicode) { $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8'); }
+      
       $len =  mb_strlen($text, 'Windows-1252');
 
       for  ($i =  0; $i < $len; $i++) {
@@ -3666,8 +3669,8 @@ class  Cpdf {
     } else {
       $this->nStateStack++;
       $this->stateStack[$this->nStateStack] =  array(
-        'col' => $this->currentColour, 
-        'str' => $this->currentStrokeColour, 
+        'col' => $this->currentColour,
+        'str' => $this->currentStrokeColour,
         'lin' => $this->currentLineStyle
       );
     }
