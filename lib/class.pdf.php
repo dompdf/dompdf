@@ -1622,9 +1622,9 @@ class  Cpdf {
       $this->arc4_objnum = $id;
 
       // figure out the additional paramaters required
-      $pad =  chr(0x28) .chr(0xBF) .chr(0x4E) .chr(0x5E) .chr(0x4E) .chr(0x75) .chr(0x8A) .chr(0x41) 
-             .chr(0x64) .chr(0x00) .chr(0x4E) .chr(0x56) .chr(0xFF) .chr(0xFA) .chr(0x01) .chr(0x08) 
-             .chr(0x2E) .chr(0x2E) .chr(0x00) .chr(0xB6) .chr(0xD0) .chr(0x68) .chr(0x3E) .chr(0x80) 
+      $pad =  chr(0x28) .chr(0xBF) .chr(0x4E) .chr(0x5E) .chr(0x4E) .chr(0x75) .chr(0x8A) .chr(0x41)
+             .chr(0x64) .chr(0x00) .chr(0x4E) .chr(0x56) .chr(0xFF) .chr(0xFA) .chr(0x01) .chr(0x08)
+             .chr(0x2E) .chr(0x2E) .chr(0x00) .chr(0xB6) .chr(0xD0) .chr(0x68) .chr(0x3E) .chr(0x80)
              .chr(0x2F) .chr(0x0C) .chr(0xA9) .chr(0xFE) .chr(0x64) .chr(0x53) .chr(0x69) .chr(0x7A);
              
       $len =  mb_strlen($options['owner'], '8bit');
@@ -2375,11 +2375,11 @@ class  Cpdf {
 
           // tell the font object about all this new stuff
           $tmp =  array(
-            'BaseFont' => $adobeFontName, 
-            'MissingWidth' => $missing_width, 
-            'Widths' => $widthid, 
-            'FirstChar' => $firstChar, 
-            'LastChar' => $lastChar, 
+            'BaseFont' => $adobeFontName,
+            'MissingWidth' => $missing_width,
+            'Widths' => $widthid,
+            'FirstChar' => $firstChar,
+            'LastChar' => $lastChar,
             'FontDescriptor' => $fontDescriptorId,
           );
 
@@ -2589,7 +2589,7 @@ class  Cpdf {
   function  curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3) {
     // in the current line style, draw a bezier curve from (x0,y0) to (x3,y3) using the other two points
     // as the control points for the curve.
-    $this->objects[$this->currentContents]['c'] .= 
+    $this->objects[$this->currentContents]['c'] .=
       sprintf("\n%.3F %.3F m %.3F %.3F %.3F %.3F %.3F %.3F c S", $x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3);
   }
 
@@ -2643,7 +2643,7 @@ class  Cpdf {
     if  ($angle !=  0) {
       $a =  -1*deg2rad((float)$angle);
 
-      $this->objects[$this->currentContents]['c'] .= 
+      $this->objects[$this->currentContents]['c'] .=
         sprintf("\n q %.3F %.3F %.3F %.3F %.3F %.3F cm", cos($a), (-1.0*sin($a)), sin($a), cos($a), $x0, $y0);
 
       $x0 =  0;
@@ -2666,7 +2666,7 @@ class  Cpdf {
       $c1 = -$r1 * sin($t1);
       $d1 =  $r2 * cos($t1);
 
-      $this->objects[$this->currentContents]['c'] .= 
+      $this->objects[$this->currentContents]['c'] .=
         sprintf("\n%.3F %.3F %.3F %.3F %.3F %.3F c", ($a0+$c0*$dtm), ($b0+$d0*$dtm), ($a1-$c1*$dtm), ($b1-$d1*$dtm), $a1, $b1);
 
       $a0 =  $a1;
@@ -3308,7 +3308,7 @@ class  Cpdf {
       $this->objects[$this->currentContents]['c'].=  sprintf("\nBT %.3F %.3F Td", $x, $y);
     } else {
       $a =  deg2rad((float)$angle);
-      $this->objects[$this->currentContents]['c'].= 
+      $this->objects[$this->currentContents]['c'].=
         sprintf("\nBT %.3F %.3F %.3F %.3F %.3F %.3F Tm", cos($a), (-1.0*sin($a)), sin($a), cos($a), $x, $y);
     }
 
@@ -3365,8 +3365,16 @@ class  Cpdf {
     */
     if  ($start < $len) {
       $part =  $text; // OAR - Don't need this anymore, given that $start always equals zero.  substr($text, $start);
+      $place_text = $this->filterText($part, false);
+      // modify unicode text so that extra word spacing is manually implemented (bug #)
+      $cf = $this->currentFont;
+      if ($this->fonts[$cf]['isUnicode'] && $wordSpaceAdjust != 0) {
+        $space_scale = 1000 / $size;
+        //$place_text = str_replace(' ', ') ( ) '.($this->getTextWidth($size, chr(32), $wordSpaceAdjust)*-75).' (', $place_text);
+        $place_text = str_replace(' ', ' ) '.(-1*round($space_scale*$wordSpaceAdjust)).' (', $place_text);
+      }
       $this->objects[$this->currentContents]['c'].=  ' /F'.$this->currentFontNum.' '.sprintf('%.1F', $size) .' Tf ';
-      $this->objects[$this->currentContents]['c'].=  ' ('.$this->filterText($part, false) .') Tj';
+      $this->objects[$this->currentContents]['c'].=  ' [('.$place_text.')] TJ';
     }
 
     $this->objects[$this->currentContents]['c'].=  ' ET';
@@ -3403,35 +3411,35 @@ class  Cpdf {
     // and put them back at the end.
     $store_currentTextState =  $this->currentTextState;
 
-    if  (!$this->numFonts) {
+    if (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
 
     // converts a number or a float to a string so it can get the width
-    $text =  "$text";
+    $text = "$text";
 
     // hmm, this is where it all starts to get tricky - use the font information to
     // calculate the width of each character, add them up and convert to user units
-    $w =  0;
-    $cf =  $this->currentFont;
-    $space_scale =  1000 / $size;
+    $w = 0;
+    $cf = $this->currentFont;
+    $space_scale = 1000 / $size;
     if ( $this->fonts[$cf]['isUnicode']) {
       // for Unicode, use the code points array to calculate width rather
       // than just the string itself
-      $unicode =  $this->utf8toCodePointsArray($text);
+      $unicode = $this->utf8toCodePointsArray($text);
 
       foreach ($unicode as $char) {
         // check if we have to replace character
-      if  ( isset($this->fonts[$cf]['differences'][$char])) {
-          $char =  $this->fonts[$cf]['differences'][$char];
+        if ( isset($this->fonts[$cf]['differences'][$char]) ) {
+          $char = $this->fonts[$cf]['differences'][$char];
         }
         // add the character width
-        if  ( isset($this->fonts[$cf]['C'][$char]['WX'])) {
-          $w+=  $this->fonts[$cf]['C'][$char]['WX'];
+        if ( isset($this->fonts[$cf]['C'][$char]['WX']) ) {
+          $w+= $this->fonts[$cf]['C'][$char]['WX'];
         }
         // add additional padding for space
-        if  ( $char ==  32) {  // Space
-          $w+=  $spacing * $space_scale;
+        if  ( $this->fonts[$cf]['C'][$char]['N'] == 'space' ) {  // Space
+          $w+= $spacing * $space_scale;
         }
       }
 
@@ -3439,26 +3447,26 @@ class  Cpdf {
       // If CPDF is in Unicode mode but the current font does not support Unicode we need to convert the character set to Windows-1252
       if ($this->isUnicode) { $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8'); }
       
-      $len =  mb_strlen($text, 'Windows-1252');
+      $len = mb_strlen($text, 'Windows-1252');
 
-      for  ($i =  0; $i < $len; $i++) {
-        $char =  ord($text[$i]);
+      for ($i = 0; $i < $len; $i++) {
+        $char = ord($text[$i]);
         // check if we have to replace character
-        if  ( isset($this->fonts[$cf]['differences'][$char])) {
-          $char =  $this->fonts[$cf]['differences'][$char];
+        if ( isset($this->fonts[$cf]['differences'][$char])) {
+          $char = $this->fonts[$cf]['differences'][$char];
         }
         // add the character width
-        if  ( isset($this->fonts[$cf]['C'][$char]['WX'])) {
-        $w+=  $this->fonts[$cf]['C'][$char]['WX'];
+        if ( isset($this->fonts[$cf]['C'][$char]['WX'])) {
+        $w+= $this->fonts[$cf]['C'][$char]['WX'];
         }
         // add additional padding for space
-        if  ( $char ==  32) {  // Space
-          $w+=  $spacing * $space_scale;
+        if ( $this->fonts[$cf]['C'][$char]['N'] == 'space' ) {  // Space
+          $w+= $spacing * $space_scale;
         }
       }
     }
 
-    $this->currentTextState =  $store_currentTextState;
+    $this->currentTextState = $store_currentTextState;
     $this->setCurrentFont();
 
     return  $w*$size/1000;
@@ -4201,14 +4209,14 @@ class  Cpdf {
 
       //  $this->o_image($this->numObj,'new',array('label' => $label,'data' => $idata,'iw' => $w,'ih' => $h,'type' => 'png','ic' => $info['width']));
       $options =  array(
-        'label' => $label, 
-        'data' => $idata, 
-        'bitsPerComponent' => $info['bitDepth'], 
-        'pdata' => $pdata, 
-        'iw' => $info['width'], 
-        'ih' => $info['height'], 
-        'type' => 'png', 
-        'color' => $color, 
+        'label' => $label,
+        'data' => $idata,
+        'bitsPerComponent' => $info['bitDepth'],
+        'pdata' => $pdata,
+        'iw' => $info['width'],
+        'ih' => $info['height'],
+        'type' => 'png',
+        'color' => $color,
         'ncolor' => $ncolor
       );
 

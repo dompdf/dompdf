@@ -286,7 +286,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
         $this->_layout_line();
 
       } else if ( $split < mb_strlen($this->_frame->get_text()) ) {
-
+        
         // split the line if required
         $this->_frame->split_text($split);
 
@@ -296,16 +296,41 @@ class Text_Frame_Reflower extends Frame_Reflower {
         if ( $split > 1 && $t[$split-1] === "\n" )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
 
+        // Do we need to trim spaces on wrapped lines? This might be desired, however, we 
+        // can't trim the lines here or the layout will be affected if trimming the line 
+        // leaves enough space to fit the next word in the text stream (because pdf layout  
+        // is performed elsewhere).
+        /*if (!$this->_frame->get_prev_sibling() && !$this->_frame->get_next_sibling()) {
+          $t = $this->_frame->get_text();
+          $this->_frame->set_text( trim($t) );
+        }*/
       }
 
       if ( $add_line ) {
         $this->_block_parent->add_line();
         $this->_frame->position();
       }
+
+    } else {
+
+      // Remove empty space from start and end of line, but only where there isn't an inline sibling
+      // and the parent node isn't an inline element with siblings
+      // FIXME: Include non-breaking spaces?
+      $t = $this->_frame->get_text();
+      $parent = $this->_frame->get_parent();
+      if ((get_class($parent)!='Inline_Frame_Decorator' && !$this->_frame->get_next_sibling()) || (get_class($parent)=='Inline_Frame_Decorator' && !$parent->get_next_sibling())) {
+        $t = rtrim($t);
+      }
+      if ((get_class($parent)!='Inline_Frame_Decorator' && !$this->_frame->get_prev_sibling()) || (get_class($parent)=='Inline_Frame_Decorator' && !$parent->get_prev_sibling())) {
+      	$t = ltrim($t);
+      }
+      $this->_frame->set_text( $t );
+      
     }
 
     // Set our new width
     $this->_frame->recalculate_width();
+
   }
 
   //........................................................................
