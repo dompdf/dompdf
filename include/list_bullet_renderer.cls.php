@@ -76,7 +76,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "lower-alpha":
       case "lower-latin":
       case "a":
-        $text = chr( ($n % 26) + ord('A') - 1);
+        $text = chr( ($n % 26) + ord('a') - 1);
         break;
         
       case "upper-roman":
