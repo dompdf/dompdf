@@ -11,20 +11,15 @@ if ( isset( $_POST["html"] ) ) {
   $dompdf->set_paper($_POST["paper"], $_POST["orientation"]);
   $dompdf->render();
 
-  $dompdf->stream("dompdf_out.pdf");
+  $dompdf->stream("dompdf_out.pdf", array("Attachment" => false));
 
   exit(0);
 }
 
 ?>
 <?php include("head.inc"); ?>
-<div id="toc">
-<h2>On this page:</h2>
-<ul>
-<?php echo li_arrow() ?><a href="#samples">Samples</a></li>
-<?php echo li_arrow() ?><a href="#demo">Demo</a></li>
-</ul>
-</div>
+
+<iframe id="preview" name="preview" src="about:blank" border="0" frameborder="0" marginheight="0" marginwidth="0"></iframe>
 
 <a name="samples"> </a>
 <h2>Samples</h2>
@@ -36,27 +31,59 @@ package.)</p>
 <ul class="samples">
 <?php
 $test_files = glob("test/*.{html,php}", GLOB_BRACE);
+$sections = array(
+  "css"      => array(), 
+  "dom"      => array(), 
+  "image"    => array(), 
+  "page"     => array(),
+  "encoding" => array(), 
+  "script"   => array(), 
+  "quirks"   => array(), 
+  "other"    => array(), 
+);
+
 //if dompdf.php runs in virtual server root, dirname does not return empty folder but '/' or '\' (windows).
 //This leads to a duplicate separator in unix etc. and an error in Windows. Therefore strip off.
-//echo '<li>['.$_SERVER["PHP_SELF"].']</li>';
+
 $dompdf = dirname(dirname($_SERVER["PHP_SELF"]));
-//echo '<li>['.$dompdf.']</li>';
 if ( $dompdf == '/' || $dompdf == '\\') {
   $dompdf = '';
 }
-//echo '<li>['.$dompdf.']</li>';
+
 $dompdf .= "/dompdf.php?base_path=" . rawurlencode("www/test/");
-//echo '<li>['.$dompdf.']</li>';
+
 foreach ( $test_files as $file ) {
-  $file = basename($file);
-  $arrow = "images/arrow_0" . rand(1, 6) . ".gif";  
-  echo "<li style=\"list-style-image: url('$arrow');\">\n";
-  echo $file;
-  echo " [<a class=\"button\" target=\"blank\" href=\"test/$file\">HTML</a>] [<a class=\"button\" href=\"$dompdf&input_file=" . rawurlencode("$file") .  "\">PDF</a>]\n";
-  echo "</li>\n";
+  preg_match("@[\\/](([^_]+)_?(.*))\.(html|php)$@i", $file, $matches);
+//  $prefix = $matches[2];
+//
+//  if ( array_key_exists($prefix, $sections) ) {
+//    $sections[$prefix][] = array($file, $matches[3]);
+//  }
+//  else {
+    $sections["other"][] = array($file, $matches[1]);
+//    $sections["other"][] = array($file, $matches[1]);
+//  }
+}
+
+foreach ( $sections as $section => $files ) {
+  //echo "<h3>$section</h3>";
+  
+  foreach ( $files as $file ) {
+    $filename = basename($file[0]);
+    $title = $file[1];
+    $arrow = "images/arrow_0" . rand(1, 6) . ".gif";  
+    echo "<li style=\"list-style-image: url('$arrow');\">\n";
+    echo " 
+  [<a class=\"button\" target=\"preview\" href=\"test/$filename\">HTML</a>] 
+  [<a class=\"button\" target=\"preview\" href=\"$dompdf&options[Attachment]=0&input_file=" . rawurlencode($filename) . "#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0\">PDF</a>] ";
+    echo $filename;
+    echo "</li>\n";
+  }
 }
 ?>
 </ul>
+
+<div class="bar" style="height: 10px;"></div>
 
 <a name="demo"> </a>
 <h2>Demo</h2>
@@ -64,7 +91,6 @@ foreach ( $test_files as $file ) {
 PDF: (Note by default, remote stylesheets, images &amp; are disabled.)</p>
 
 <form action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
-<div>
 <p>Paper size and orientaion:
 <select name="paper">
 <?php
@@ -98,7 +124,6 @@ foreach ( array_keys(CPDF_Adapter::$PAPER_SIZES) as $size )
 
 <div style="text-align: center; margin-top: 1em;">
 <input type="submit" name="submit" value="submit"/>
-</div>
 </div>
 </form>
 <p style="font-size: 0.65em; text-align: center;">(Note: if you use a KHTML

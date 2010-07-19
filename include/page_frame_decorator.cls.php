@@ -453,7 +453,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
     
     $p = $frame;
     while ( $p = $p->get_parent() ) {
-      if ( $p->get_style()->position === "fixed" )
+      if ( in_array($p->get_style()->position, array("fixed", "absolute")) )
         return false;
     }
 

@@ -139,6 +139,11 @@ class Frame {
    */
   protected $_position;
   
+  /**
+   * Absolute opacity of this frame
+   *
+   * @var float
+   */
   protected $_opacity;
 
   /**
@@ -147,7 +152,14 @@ class Frame {
    * @var Frame_Decorator
    */
   protected $_decorator;
-    
+  
+  /**
+   * Class destructor
+   */
+  function __destruct() {
+    clear_object($this);
+  }
+
   /**
    * Class constructor
    *
@@ -164,14 +176,27 @@ class Frame {
     $this->_style = null;
     $this->_original_style = null;
     
-    $this->_containing_block = array("x" => null,
-                                     "y" => null,
-                                     "w" => null,
-                                     "h" => null);
-    $this->_position = array("x" => null,
-                             "y" => null);
-    $this->_opacity = 1.0;
+    $this->_containing_block = array(
+      "x" => null,
+      "y" => null,
+      "w" => null,
+      "h" => null,
+    );
+    
+    $this->_containing_block[0] =& $this->_containing_block["x"];
+    $this->_containing_block[1] =& $this->_containing_block["y"];
+    $this->_containing_block[2] =& $this->_containing_block["w"];
+    $this->_containing_block[3] =& $this->_containing_block["h"];
+    
+    $this->_position = array(
+      "x" => null,
+      "y" => null,
+    );
+    
+    $this->_position[0] =& $this->_position["x"];
+    $this->_position[1] =& $this->_position["y"];
 
+    $this->_opacity = 1.0;
     $this->_decorator = null;
 
     $this->set_id( self::$ID_COUNTER++ );
@@ -211,22 +236,27 @@ class Frame {
     }
 
     $this->_style->dispose();
+    $this->_style = null;
     unset($this->_style);
+    
     $this->_original_style->dispose();
+    $this->_original_style = null;
     unset($this->_original_style);
     
   }
 
   // Re-initialize the frame
   function reset() {
-    $this->_position = array("x" => null,
-                             "y" => null);
-    $this->_containing_block = array("x" => null,
-                                     "y" => null,
-                                     "w" => null,
-                                     "h" => null);
+    $this->_position["x"] = null;
+    $this->_position["y"] = null;
+    
+    $this->_containing_block["x"] = null;
+    $this->_containing_block["y"] = null;
+    $this->_containing_block["w"] = null;
+    $this->_containing_block["h"] = null;
 
-    unset($this->_style);    
+    $this->_style = null;
+    unset($this->_style);
     $this->_style = clone $this->_original_style;
   }
   
@@ -310,12 +340,10 @@ class Frame {
    * @return array|float
    */
   function get_position($i = null) {
-    if ( isset($i) )
+    if ( isset($i) ) {
       return $this->_position[$i];
-    return array($this->_position["x"],
-                 $this->_position["y"],
-                 "x"=>$this->_position["x"],
-                 "y"=>$this->_position["y"]);
+    }
+    return $this->_position;
   }
     
   //........................................................................
@@ -458,22 +486,18 @@ class Frame {
     }
     
     if (is_numeric($x)) {
-      $this->_containing_block[0] = $x;
       $this->_containing_block["x"] = $x;
     }
     
     if (is_numeric($y)) {
-      $this->_containing_block[1] = $y;
       $this->_containing_block["y"] = $y;
     }
     
     if (is_numeric($w)) {
-      $this->_containing_block[2] = $w;
       $this->_containing_block["w"] = $w;
     }
     
     if (is_numeric($h)) {
-      $this->_containing_block[3] = $h;
       $this->_containing_block["h"] = $h;
     }
   }
@@ -483,12 +507,10 @@ class Frame {
       extract($x);
     
     if ( is_numeric($x) ) {
-      $this->_position[0] = $x;
       $this->_position["x"] = $x;
     }
 
     if ( is_numeric($y) ) {
-      $this->_position[1] = $y;
       $this->_position["y"] = $y;
     }
   }

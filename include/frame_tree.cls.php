@@ -100,6 +100,10 @@ class Frame_Tree {
     $this->_root = null;
     $this->_registry = array();
   }
+  
+  function __destruct() {
+    clear_object($this);
+  }
 
   /**
    * Returns the DomDocument object representing the curent html document
@@ -195,31 +199,8 @@ class Frame_Tree {
         $child->parentNode->removeChild($child);
         continue;
       }
-
-      // Add a container frame for images
-      if ( $child->nodeName === "img" ) {
-        $img_node = $child->ownerDocument->createElement("img_inner");
-     
-        // Move attributes to inner node        
-        foreach ( $child->attributes as $attr => $attr_node ) {
-          // Skip style, but move all other attributes
-          if ( $attr === "style" )
-            continue;
-       
-          $img_node->setAttribute($attr, $attr_node->value);
-        }
-
-        foreach ( $child->attributes as $attr => $node ) {
-          if ( $attr === "style" )
-            continue;
-          $child->removeAttribute($attr);
-        }
-
-        $child->appendChild($img_node);
-      }
       
       $frame->append_child($this->_build_tree_r($child), false);
-
     }
     
     return $frame;

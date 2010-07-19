@@ -99,7 +99,10 @@ require_once(DOMPDF_INC_DIR . "/functions.inc.php");
  *
  * *Please note the trailing slash.*
  */
-define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
+
+if (!defined("DOMPDF_FONT_DIR")) {
+  define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
+}
 
 /**
  * The location of the DOMPDF font cache directory

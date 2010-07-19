@@ -69,16 +69,13 @@ class Inline_Renderer extends Abstract_Renderer {
     $h = 0;
 //     $x += $widths[3];
 //     $y += $widths[0];
-  
-    if ( $style->opacity != 1.0 ) {
-      $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
-    }
+    
+    $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
     
     $first_row = true;
 
     foreach ($frame->get_children() as $child) {
       list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
-      $child_h += $widths[2];
       
       if ( !is_null($w) && $child_x < $x + $w ) {
         //This branch seems to be supposed to being called on the first part
@@ -121,10 +118,8 @@ class Inline_Renderer extends Abstract_Renderer {
 
         // Handle anchors & links
         if ( $frame->get_node()->nodeName === "a" ) {
-                    
           if ( $href = $frame->get_node()->getAttribute("href") )
             $this->_canvas->add_link($href, $x, $y, $w, $h);
-
         }
 
         $x = $child_x;
@@ -193,7 +188,6 @@ class Inline_Renderer extends Abstract_Renderer {
 
     // Handle anchors & links
     if ( $frame->get_node()->nodeName === "a" ) {
-
       if ( $name = $frame->get_node()->getAttribute("name") )
         $this->_canvas->add_named_dest($name);
 

@@ -186,6 +186,13 @@ class DOMPDF {
     $this->_callbacks = array();
     $this->_cache_id = null;
   }
+  
+  /**
+   * Class destructor
+   */
+  function __destruct() {
+    clear_object($this);
+  }
 
   /**
    * Returns the underlying {@link Frame_Tree} object
@@ -318,17 +325,24 @@ class DOMPDF {
     mb_detect_order('auto');
     
     if (mb_detect_encoding($str) !== 'UTF-8') {
-      $metatag = '@<meta\s+http-equiv="Content-Type"\s+content="([\w/]+)(;\s*?charset=([^\s"]+))?@i';
+      $metatags = array(
+        '@<meta\s+http-equiv="Content-Type"\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))?@i',
+        '@<meta\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))"?\s+http-equiv="Content-Type"@i',
+      );
       
+      foreach($metatags as $metatag) {
+        if (preg_match($metatag, $str, $matches)) break;
+      }
+        
       if (mb_detect_encoding($str) == '') {
-        if (preg_match($metatag,$str,$matches)) {
-          $encoding = strtoupper($matches[3]);
+        if (isset($matches[1])) {
+          $encoding = strtoupper($matches[1]);
         } else {
           $encoding = 'UTF-8';
         }
       } else {
-        if (preg_match($metatag,$str,$matches)) {
-          $encoding = strtoupper($matches[3]);
+        if (isset($matches[1])) {
+          $encoding = strtoupper($matches[1]);
         } else {
           $encoding = 'auto';
         }
@@ -338,8 +352,8 @@ class DOMPDF {
         $str = mb_convert_encoding($str, 'UTF-8', $encoding); 
       }
       
-      if (preg_match($metatag,$str,$matches)) {
-        $str = preg_replace('/charset=([^\s"]+)/i','charset=UTF-8',$str);
+      if (isset($matches[1])) {
+        $str = preg_replace('/charset=([^\s"]+)/i','charset=UTF-8', $str);
       } else {
         $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
       }
@@ -352,7 +366,14 @@ class DOMPDF {
       $str = ob_get_contents();
       ob_end_clean();
     }
-
+    
+    // if the document contains non utf-8 with a utf-8 meta tag chars and was 
+    // detected as utf-8 by mbstring, problems could happen.
+    // http://devzone.zend.com/article/8855
+    if ( $encoding === 'UTF-8' ) {
+      $str = preg_replace("/<meta([^>]+)>/", "", $str);
+    }
+    
     // Store parsing warnings as messages
     set_error_handler("record_warnings");
     $this->_xml->loadHTML($str);

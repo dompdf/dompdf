@@ -63,7 +63,14 @@ class Renderer extends Abstract_Renderer {
    * @var array
    */
   private $_callbacks;
-    
+  
+  /**
+   * Class destructor
+   */
+  function __destruct() {
+  	clear_object($this);
+  }
+  
   /**
    * Advance the canvas to the next page
    */  

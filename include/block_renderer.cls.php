@@ -50,13 +50,11 @@ class Block_Renderer extends Abstract_Renderer {
   //........................................................................
 
   function render(Frame $frame) {
-    $style = $frame->get_style();
+    $style = $frame->get_style(); 
     list($x, $y, $w, $h) = $frame->get_padding_box();
     
-    if ( $style->opacity != 1.0 ) {
-      $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
-    }
-    
+    $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
+
     // Draw our background, border and content
     if ( ($bg = $style->background_color) !== "transparent" ) {
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $bg );

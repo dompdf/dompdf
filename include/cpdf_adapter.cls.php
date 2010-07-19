@@ -246,6 +246,7 @@ class CPDF_Adapter implements Canvas {
       if (!DEBUGKEEPTEMP)
         unlink($img);
     }
+    clear_object($this);
   }
   
   /**
@@ -489,14 +490,11 @@ class CPDF_Adapter implements Canvas {
 
   // Canvas implementation
 
-  function line($x1, $y1, $x2, $y2, $color, $width, $style = array(),
-                $blend = "Normal", $opacity = 1.0) {
+  function line($x1, $y1, $x2, $y2, $color, $width, $style = array()) {
     //pre_r(compact("x1", "y1", "x2", "y2", "color", "width", "style"));
 
     $this->_set_stroke_color($color);
     $this->_set_line_style($width, "butt", "", $style);
-    $this->_set_line_transparency($blend, $opacity);
-    
     $this->_pdf->line($x1, $this->y($y1),
                       $x2, $this->y($y2));
   }
@@ -504,23 +502,24 @@ class CPDF_Adapter implements Canvas {
   //........................................................................
 
   /**
-   * Convert a GIF image to a PNG image
+   * Convert a GIF or BMP image to a PNG image
    *
    * @return string The url of the newly converted image
    */
-  protected function _convert_gif_to_png($image_url) {
+  protected function _convert_gif_bmp_to_png($image_url, $image_type) {
+    $func_name = "imagecreatefrom$image_type";
     
-    if ( !function_exists("imagecreatefromgif") ) {
-      throw new DOMPDF_Exception("Function imagecreatefromgif() not found.  Cannot convert gif image: $image_url.  Please install the image PHP extension.");
+    if ( !function_exists($func_name) ) {
+      throw new DOMPDF_Exception("Function $func_name() not found.  Cannot convert $image_type image: $image_url.  Please install the image PHP extension.");
     }
 
     $old_err = set_error_handler("record_warnings");
-    $im = imagecreatefromgif($image_url);
+    $im = $func_name($image_url);
 
     if ( $im ) {
       imageinterlace($im, 0);
 
-      $filename = tempnam(DOMPDF_TEMP_DIR, "gifdompdf_img_").'.png';
+      $filename = tempnam(DOMPDF_TEMP_DIR, "{$image_type}dompdf_img_").'.png';
       $this->_image_cache[] = $filename;
 
       imagepng($im, $filename);
@@ -533,44 +532,27 @@ class CPDF_Adapter implements Canvas {
     restore_error_handler();
 
     return $filename;
-    
   }
 
-  function rectangle($x1, $y1, $w, $h, $color, $width, $style = array(),
-                     $blend = "Normal", $opacity = 1.0) {
-
+  function rectangle($x1, $y1, $w, $h, $color, $width, $style = array()) {
     $this->_set_stroke_color($color);
     $this->_set_line_style($width, "square", "miter", $style);
-    $this->_set_line_transparency($blend, $opacity);
-    
     $this->_pdf->rectangle($x1, $this->y($y1) - $h, $w, $h);
   }
 
   //........................................................................
   
-  function filled_rectangle($x1, $y1, $w, $h, $color, $blend = "Normal", $opacity = 1.0) {
-
+  function filled_rectangle($x1, $y1, $w, $h, $color) {
     $this->_set_fill_color($color);
     $this->_set_line_style(1, "square", "miter", array());
-    $this->_set_line_transparency($blend, $opacity);
-    $this->_set_fill_transparency($blend, $opacity);
-    
     $this->_pdf->filledRectangle($x1, $this->y($y1) - $h, $w, $h);
   }
 
   //........................................................................
 
-  function polygon($points, $color, $width = null, $style = array(),
-                   $fill = false, $blend = "Normal", $opacity = 1.0) {
-
+  function polygon($points, $color, $width = null, $style = array(), $fill = false) {
     $this->_set_fill_color($color);
     $this->_set_stroke_color($color);
-
-    $this->_set_line_transparency($blend, $opacity);
-    $this->_set_fill_transparency($blend, $opacity);
-    
-    if ( !$fill && isset($width) )
-      $this->_set_line_style($width, "square", "miter", $style);
     
     // Adjust y values
     for ( $i = 1; $i < count($points); $i += 2)
@@ -581,14 +563,9 @@ class CPDF_Adapter implements Canvas {
 
   //........................................................................
 
-  function circle($x, $y, $r1, $color, $width = null, $style = null,
-                  $fill = false, $blend = "Normal", $opacity = 1.0) {
-
+  function circle($x, $y, $r1, $color, $width = null, $style = null, $fill = false) {
     $this->_set_fill_color($color);
     $this->_set_stroke_color($color);
-    
-    $this->_set_line_transparency($blend, $opacity);
-    $this->_set_fill_transparency($blend, $opacity);
 
     if ( !$fill && isset($width) )
       $this->_set_line_style($width, "round", "round", $style);
@@ -621,32 +598,36 @@ class CPDF_Adapter implements Canvas {
       break;
 
     case "gif":
-      // Convert gifs to pngs
+    case "bmp":
+      // Convert gifs or bmps to pngs
       //DEBUG_IMG_TEMP
       //if (0) {
       if ( method_exists( $this->_pdf, "addImagePng" ) ) {
         //debugpng
-        if (DEBUGPNG)  print '!!!gif addImagePng!!!';
+        if (DEBUGPNG)  print "!!!$img_type addImagePng!!!";
 
-      	//If optimization to direct png creation from gd object is available,
+        //If optimization to direct png creation from gd object is available,
         //don't create temp file, but place gd object directly into the pdf
-	    if ( method_exists( $this->_pdf, "image_iscached" ) &&
-	         $this->_pdf->image_iscached($img_url) ) {
-	      //If same image has occured already before, no need to load because
-	      //duplicate will anyway be eliminated.
-	      $img = null;
-	    } else {
-    	  $img = @imagecreatefromgif($img_url);
-    	  if (!$img) {
-      	    return;
-    	  }
-    	  imageinterlace($img, 0);
-    	}
-    	$this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
-      } else {
+  	    if ( method_exists( $this->_pdf, "image_iscached" ) &&
+  	        $this->_pdf->image_iscached($img_url) ) {
+  	      //If same image has occured already before, no need to load because
+  	      //duplicate will anyway be eliminated.
+  	      $img = null;
+  	      unset($img);
+  	    } else {
+  	      $func_name = "imagecreatefrom$img_type";
+      	  $img = @$func_name($img_url);
+      	  if (!$img) {
+        	  return;
+      	  }
+      	  imageinterlace($img, 0);
+      	}
+      	$this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
+      } 
+      else {
         //debugpng
-        if (DEBUGPNG)  print '!!!gif addPngFromFile!!!';
-        $img_url = $this->_convert_gif_to_png($img_url);
+        if (DEBUGPNG)  print "!!!$img_type addPngFromFile!!!";
+        $img_url = $this->_convert_gif_bmp_to_png($img_url, $img_type);
         $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
       }
       break;
@@ -663,13 +644,10 @@ class CPDF_Adapter implements Canvas {
   //........................................................................
 
   function text($x, $y, $text, $font, $size, $color = array(0,0,0),
-                $adjust = 0, $angle = 0, $blend = "Normal", $opacity = 1.0) {
+                $adjust = 0, $angle = 0) {
 
     list($r, $g, $b) = $color;
     $this->_pdf->setColor($r, $g, $b);
-
-    $this->_set_line_transparency($blend, $opacity);
-    $this->_set_fill_transparency($blend, $opacity);
     $font .= ".afm";
     
     $this->_pdf->selectFont($font);

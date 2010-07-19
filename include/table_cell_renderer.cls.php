@@ -52,9 +52,7 @@ class Table_Cell_Renderer extends Block_Renderer {
   function render(Frame $frame) {
     $style = $frame->get_style();
 
-    if ( $style->opacity != 1.0 ) {
-      $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
-    }
+    $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
     
     // Draw our background, border and content
     if ( ($bg = $style->background_color) !== "transparent" ) {

@@ -547,7 +547,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
 
     // Store the calculated properties
-    $style->width = $w;
+    $style->width = $w . "pt";
     $style->margin_left = $left_margin."pt";
     $style->margin_right = $right_margin."pt";
     $style->left = $left ."pt";
@@ -587,14 +587,24 @@ class Block_Frame_Reflower extends Frame_Reflower {
       // Bail out if the page is full
       if ( $page->is_full() )
         break;
-      
-      $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-      $child->reflow();
 
+      $reflowed = false;
+
+      if ( $this->_frame->get_parent()->get_style()->display === "block" ) {
+        $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+        $child->reflow();
+        $reflowed = true;
+      }
+      
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
         break;
 
+      if ( !$reflowed ) {
+        $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+        $child->reflow();
+      }
+        
       // If the frame is not absolutely positioned, It's okay to add the frame
       // to the line
       if ( $child->get_style()->position !== "absolute" &&

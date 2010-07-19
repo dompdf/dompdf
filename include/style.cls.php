@@ -373,7 +373,7 @@ class Style {
    * "Destructor": forcibly free all references held by this object
    */
   function dispose() {
-    unset($this->_stylesheet);
+    clear_object($this);
   }
   
   /**

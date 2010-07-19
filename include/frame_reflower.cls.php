@@ -70,7 +70,7 @@ abstract class Frame_Reflower {
   }
 
   function dispose() {
-    unset($this->_frame);
+    clear_object($this);
   }
 
   protected function _collapse_margins() {
@@ -78,7 +78,7 @@ abstract class Frame_Reflower {
     $style = $this->_frame->get_style();
 
     $t = $style->length_in_pt($style->margin_top, $cb["h"]);
-    $b = $style->length_in_pt($style->margin_bottom, $cb["w"]);
+    $b = $style->length_in_pt($style->margin_bottom, $cb["h"]);
 
     // Handle 'auto' values
     if ( $t === "auto" ) {
@@ -98,10 +98,10 @@ abstract class Frame_Reflower {
 
     if ( $n ) { // && !$n instanceof Page_Frame_Decorator ) {
 
-      $b = max($b, $style->length_in_pt($n->get_style()->margin_top, $cb["w"]));
+      $b = max($b, $style->length_in_pt($n->get_style()->margin_top, $cb["h"]));
 
-      $n->get_style()->margin_top = "$b pt";
-      $style->margin_bottom = "0 pt";
+      $n->get_style()->margin_top = "0pt";
+      $style->margin_bottom = $b."pt";
 
     }
 
@@ -110,10 +110,11 @@ abstract class Frame_Reflower {
     while ( $f && !in_array($f->get_style()->display, Style::$BLOCK_TYPES) )
       $f = $f->get_next_sibling();
 
-    if ( $f ) {
-      $t = max( $t, $style->length_in_pt($f->get_style()->margin_top, $cb["w"]));
-      $style->margin_top = "$t pt";
-      $f->get_style()->margin_top = "0 pt";
+    // Margin are collapsed only between block elements
+    if ( $f && in_array($f->get_style()->display, Style::$BLOCK_TYPES)) {
+      $t = max( $t, $style->length_in_pt($f->get_style()->margin_top, $cb["h"]));
+      $style->margin_top = $t."pt";
+      $f->get_style()->margin_top = "0pt";
     }
 
   }

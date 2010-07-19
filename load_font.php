@@ -137,6 +137,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
         $bold = $dir . "/" . $file . "B" . $ext;
         if ( !is_readable($bold) )
           $bold = null;
+          unset($bold);
       }
     }
   }
@@ -156,6 +157,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
         $italic = $dir . "/" . $file . "I" . $ext;
         if ( !is_readable($italic) )
           $italic = null;
+        unset($italic);
       }
     }
   }
@@ -184,6 +186,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
             $bold_italic = $dir . "/" . $file . "IB" . $ext;
             if ( !is_readable($bold_italic) )
               $bold_italic = null;
+            unset($bold_italic);
           }
         }
       }

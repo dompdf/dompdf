@@ -497,6 +497,10 @@ class GD_Adapter implements Canvas {
       $src = @imagecreatefromgif($img_url);
       break;
       
+    case "bmp":
+      $src = @imagecreatefrombmp($img_url);
+      break;
+      
     case "jpg":
     case "jpeg":
       $src = @imagecreatefromjpeg($img_url);

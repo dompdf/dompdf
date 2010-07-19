@@ -151,10 +151,12 @@ class Image_Cache {
         //Therefore get image type from the content
 
         $imagedim = getimagesize($resolved_url);
-        if( $imagedim[2] >= 1 && $imagedim[2] <=3 && $imagedim[0] && $imagedim[1] ) {
+        
+        if( $imagedim[0] && $imagedim[1] && 
+            in_array($imagedim[2], array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_BMP)) ) {
         //target image is valid
 
-        $imagetypes = array('','gif','jpeg','png','swf');
+        $imagetypes = array('','gif','jpeg','png','swf','psd','bmp');
         $ext = $imagetypes[$imagedim[2]];
         if ( rename($resolved_url,$resolved_url.'.'.$ext) ) {
           $resolved_url .= '.'.$ext;

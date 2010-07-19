@@ -57,7 +57,13 @@ abstract class Positioner {
   function __construct(Frame_Decorator $frame) {
     $this->_frame = $frame;
   }
-
+  
+  /**
+   * Class destructor
+   */
+  function __destruct() {
+  	clear_object($this);
+  }
   //........................................................................
 
   abstract function position();

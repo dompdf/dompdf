@@ -53,7 +53,7 @@ class Attribute_Translator {
   // thank you var_export() :D
   static private $__ATTRIBUTE_LOOKUP =
     array (//'caption' => array ( 'align' => '', ),
-           'img_inner' =>  // img tags actually end up wrapping img_inner elements
+           'img' => 
            array ('align' => array('bottom' => 'vertical-align: baseline;',
                                    'middle' => 'vertical-align: middle;',
                                    'top' => 'vertical-align: top;',

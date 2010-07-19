@@ -358,7 +358,7 @@ br {
   display: -dompdf-br;
 }
 
-img_inner {
+img {
   display: -dompdf-image;
 }
 

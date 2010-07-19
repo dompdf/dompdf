@@ -142,7 +142,10 @@ class Cellmap {
     $this->_table = $table;
     $this->reset();
   }
-
+  
+  function __destruct() {
+  	clear_object($this);
+  }
   //........................................................................
 
   function reset() {
@@ -575,14 +578,20 @@ class Cellmap {
     foreach ( $rows as $r ) {
       foreach ( $columns as $c ) {
         if ( isset($this->_cells[$r][$c]) ) {
-          $frame = $this->_cells[$r][$c];
-          unset($this->_frames[ $frame->get_id() ]);
+          $id = $this->_cells[$r][$c]->get_id();
+          
+          $this->_frames[$id] = null;
+          unset($this->_frames[$id]);
+          
+          $this->_cells[$r][$c] = null;
           unset($this->_cells[$r][$c]);
         }
       }
+      $this->_rows[$r] = null;
       unset($this->_rows[$r]);
     }
 
+    $this->_frames[$key] = null;
     unset($this->_frames[$key]);
 
   }
@@ -604,6 +613,7 @@ class Cellmap {
       $iter = $iter->get_next_sibling();
     }
 
+    $this->_frames[$key] = null;
     unset($this->_frames[$key]);
   }
 

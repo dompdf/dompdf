@@ -340,6 +340,13 @@ class  Cpdf {
 
 
   /**
+   * Class destructor
+   */
+  function __destruct() {
+    clear_object($this);
+  }
+  
+  /**
    * Document object methods (internal use only)
    *
    * There is about one object method for each type of object in the pdf document
@@ -1970,17 +1977,26 @@ class  Cpdf {
     // .ufm or .afm.
     if ($this->isUnicode && !file_exists("$dir/$metrics_name")) { $metrics_name = $name . '.afm'; }
     
-    $cache_name = "php_$metrics_name";
+    $cache_name = "$metrics_name.php";
     $this->addMessage("metrics: $metrics_name, cache: $cache_name");
     if  (file_exists($fontcache . $cache_name)) {
       $this->addMessage("openFont: php file exists $fontcache$cache_name");
-      $tmp =  file_get_contents($fontcache . $cache_name);
-      eval($tmp);
+      $this->fonts[$font] = require($fontcache . $cache_name);
 
       if  (!isset($this->fonts[$font]['_version_']) ||  $this->fonts[$font]['_version_'] != $this->fontcacheVersion) {
         // if the font file is old, then clear it out and prepare for re-creation
         $this->addMessage('openFont: clear out, make way for new version.');
+        $this->fonts[$font] = null;
         unset($this->fonts[$font]);
+      }
+    }
+    else {
+      $old_cache_name = "php_$metrics_name";
+      if (file_exists($fontcache . $old_cache_name)) {
+        $this->addMessage("openFont: php file doesn't exist $fontcache$cache_name, creating it from the old format");
+        $old_cache = file_get_contents($fontcache . $old_cache_name);
+        file_put_contents($fontcache . $cache_name, '<?php return ' . $old_cache . ';');
+        return $this->openFont($font);
       }
     }
 
@@ -2131,8 +2147,9 @@ class  Cpdf {
       //Because of potential trouble with php safe mode, expect that the folder already exists.
       //If not existing, this will hit performance because of missing cached results.
       if ( is_dir(substr($fontcache,0,-1)) && is_writable(substr($fontcache,0,-1)) ) {
-        file_put_contents($fontcache . $cache_name, '$this->fonts[$font]=' . var_export($data,  true) . ';');
+        file_put_contents($fontcache . $cache_name, '<?php return ' . var_export($data,  true) . ';');
       }
+      $data = null;
     }
     
     if  (!isset($this->fonts[$font])) {
@@ -2534,10 +2551,13 @@ class  Cpdf {
       $mode = "Normal";
     
     // Only create a new graphics state if required
-    if ( $mode == $this->currentLineTransparency["mode"]  &&
+    if ( $mode === $this->currentLineTransparency["mode"]  &&
          $opacity == $this->currentLineTransparency["opacity"] )
       return;
 
+    $this->currentLineTransparency["mode"] = $mode;
+    $this->currentLineTransparency["opacity"] = $opacity;
+    
     $options = array("BM" => "/$mode",
                      "CA" => (float)$opacity);
 
@@ -2565,9 +2585,12 @@ class  Cpdf {
     if ( !in_array($mode, $blend_modes) )
       $mode = "Normal";
 
-    if ( $mode == $this->currentFillTransparency["mode"]  &&
+    if ( $mode === $this->currentFillTransparency["mode"]  &&
          $opacity == $this->currentFillTransparency["opacity"] )
       return;
+      
+    $this->currentFillTransparency["mode"] = $mode;
+    $this->currentFillTransparency["opacity"] = $opacity;
 
     $options = array("BM" => "/$mode",
                      "ca" => (float)$opacity);
@@ -3455,13 +3478,18 @@ class  Cpdf {
         if ( isset($this->fonts[$cf]['differences'][$char])) {
           $char = $this->fonts[$cf]['differences'][$char];
         }
-        // add the character width
-        if ( isset($this->fonts[$cf]['C'][$char]['WX'])) {
-        $w+= $this->fonts[$cf]['C'][$char]['WX'];
-        }
-        // add additional padding for space
-        if ( $this->fonts[$cf]['C'][$char]['N'] == 'space' ) {  // Space
-          $w+= $spacing * $space_scale;
+        
+        if ( isset($this->fonts[$cf]['C'][$char]) ) {
+          $char_data = $this->fonts[$cf]['C'][$char];
+          
+          // add the character width
+          if ( isset($char_data['WX'])) {
+            $w += $char_data['WX'];
+          }
+          // add additional padding for space
+          if ( $char_data['N'] === 'space' ) {  // Space
+            $w += $spacing * $space_scale;
+          }
         }
       }
     }
@@ -3697,6 +3725,7 @@ class  Cpdf {
       $this->currentStrokeColour =  $this->stateStack[$n]['str'];
       $this->objects[$this->currentContents]['c'].=  "\n".$this->stateStack[$n]['lin'];
       $this->currentLineStyle =  $this->stateStack[$n]['lin'];
+      $this->stateStack[$n] = null;
       unset($this->stateStack[$n]);
       $this->nStateStack--;
     }

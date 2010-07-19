@@ -140,7 +140,7 @@ class Stylesheet {
    * (Previous version $ACCEPTED_MEDIA_TYPES = $ACCEPTED_GENERIC_MEDIA_TYPES + $ACCEPTED_DEFAULT_MEDIA_TYPE)
    */
   static $ACCEPTED_DEFAULT_MEDIA_TYPE = "print";
-  static $ACCEPTED_GENERIC_MEDIA_TYPES = array("all", "static", "visual", "bitmap", "paged");
+  static $ACCEPTED_GENERIC_MEDIA_TYPES = array("all", "static", "visual", "bitmap", "paged", "dompdf");
 
   /**
    * The class constructor.
@@ -153,6 +153,13 @@ class Stylesheet {
     $this->_loaded_files = array();
     list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($_SERVER["SCRIPT_FILENAME"]);
     $this->_page_style = null;
+  }
+  
+  /**
+   * Class destructor
+   */
+  function __destruct() {
+    clear_object($this);
   }
 
   /**
@@ -718,6 +725,7 @@ class Stylesheet {
     // We're done!  Clean out the registry of all styles since we
     // won't be needing this later.
     foreach ( array_keys($this->_styles) as $key ) {
+      $this->_styles[$key] = null;
       unset($this->_styles[$key]);
     }
 

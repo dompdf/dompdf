@@ -59,12 +59,13 @@ require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
  *
  * Declared here because PHP5 prevents constants from being declared with expressions
  */
-if (file_exists(DOMPDF_FONT_DIR . "dompdf_font_family_cache")) {
-	define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache");
-} else {
-	define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.dist");
+if (!defined("__DOMPDF_FONT_CACHE_FILE")) {
+  if (file_exists(DOMPDF_FONT_DIR . "dompdf_font_family_cache")) {
+  	define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache");
+  } else {
+  	define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.dist.php");
+  }
 }
-
 
 /**
  * The font metrics class
@@ -220,10 +221,7 @@ class Font_Metrics {
     if ( !is_readable(self::CACHE_FILE) )
       return;
 
-    $data = file_get_contents(self::CACHE_FILE);
-
-    if ( $data != "" )
-      eval ('self::$_font_lookup = ' . $data . ";");
+    self::$_font_lookup = require_once(self::CACHE_FILE);
   }
 
   /**

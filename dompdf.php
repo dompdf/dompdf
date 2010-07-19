@@ -173,6 +173,7 @@ global $_dompdf_debug;
 global $_DOMPDF_DEBUG_TYPES;
 
 $sapi = php_sapi_name();
+$options = array();
 
 switch ( $sapi ) {
 
@@ -256,6 +257,10 @@ switch ( $sapi ) {
   if ( isset($_GET["base_path"]) ) {
     $base_path = rawurldecode($_GET["base_path"]);
     $file = $base_path . $file; # Set the input file
+  }  
+  
+  if ( isset($_GET["options"]) ) {
+    $options = $_GET["options"];
   }
   
   $file_parts = explode_url($file);
@@ -321,5 +326,5 @@ if ( $save_file ) {
 }
 
 if ( !headers_sent() ) {
-  $dompdf->stream($outfile);
+  $dompdf->stream($outfile, $options);
 }

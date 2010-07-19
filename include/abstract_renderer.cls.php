@@ -311,6 +311,10 @@ abstract class Abstract_Renderer {
     case "gif":
       $src = imagecreatefromgif($img);
       break;
+      
+    case "bmp":
+      $src = imagecreatefrombmp($img);
+      break;
 
     default:
       return; // Unsupported image type
@@ -842,7 +846,7 @@ abstract class Abstract_Renderer {
   }
   
   protected function _set_opacity($opacity) {
-    if ( is_numeric($opacity) && $opacity < 1.0 && $opacity >= 0.0 ) {
+    if ( is_numeric($opacity) && $opacity <= 1.0 && $opacity >= 0.0 ) {
       $this->_canvas->set_opacity( $opacity );
     }
   }

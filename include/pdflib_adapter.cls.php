@@ -395,6 +395,7 @@ class PDFLib_Adapter implements Canvas {
           ($where === "all")) )
       $this->_pdf->fit_image($object,0,0,"");
 
+    $this->_objs[$object] = null;
     unset($this->_objs[$object]);
   }
 
@@ -807,7 +808,7 @@ class PDFLib_Adapter implements Canvas {
    * @param float $angle angle to write the text at, measured CW starting from the x-axis
    */
   function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
-                     $adjust = 0, $angle = 0,  $blend = "Normal", $opacity = 1.0) {
+                     $adjust = 0, $angle = 0) {
     $_t = "text";
     $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "adjust", "angle");
   }
@@ -936,11 +937,10 @@ class PDFLib_Adapter implements Canvas {
 
       unlink($this->_file);
       $this->_file = null;
+      unset($this->_file);
     }
 
     flush();
-
-
   }
 
   //........................................................................
@@ -969,6 +969,7 @@ class PDFLib_Adapter implements Canvas {
 
       unlink($this->_file);
       $this->_file = null;
+      unset($this->_file);
     }
 
     return $data;
