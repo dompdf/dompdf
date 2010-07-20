@@ -1,5 +1,4 @@
-<?php
-return array (
+<?php return array (
   'sans-serif' => array (
     'normal' => DOMPDF_FONT_DIR . 'Helvetica',
     'bold' => DOMPDF_FONT_DIR . 'Helvetica-Bold',

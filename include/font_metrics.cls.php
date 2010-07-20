@@ -209,6 +209,7 @@ class Font_Metrics {
     // replace the path to the DOMPDF font directory with "DOMPDF_FONT_DIR" (allows for more portability)
     $cache_data = var_export(self::$_font_lookup, true);
     $cache_data = str_replace('\''.DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $cache_data);
+    $cache_data = "<"."?php return $cache_data ?".">";
     file_put_contents(self::CACHE_FILE, $cache_data);
   }
 
@@ -222,6 +223,13 @@ class Font_Metrics {
       return;
 
     self::$_font_lookup = require_once(self::CACHE_FILE);
+    
+    // If the font family cache is still in the old format
+    if ( self::$_font_lookup === 1 ) {
+      $cache_data = file_get_contents(self::CACHE_FILE);
+      file_put_contents(self::CACHE_FILE, "<"."?php return $cache_data ?".">");
+      self::$_font_lookup = require_once(self::CACHE_FILE);
+    }
   }
 
   /**
