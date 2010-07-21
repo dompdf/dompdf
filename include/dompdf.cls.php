@@ -525,7 +525,7 @@ class DOMPDF {
     $this->_process_html();
     
     $this->_css->apply_styles($this->_tree);
-
+    
     $root = null;
 
     foreach ($this->_tree->get_frames() as $frame) {
@@ -582,6 +582,25 @@ class DOMPDF {
 
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
 
+    // Add meta information
+    $title = $this->_xml->getElementsByTagName("title");
+    if ( $title->length ) {
+      $this->_pdf->add_info("Title", trim($title->item(0)->nodeValue));
+    }
+    
+    $metas = $this->_xml->getElementsByTagName("meta");
+    $labels = array(
+      "author" => "Author",
+      "keywords" => "Keywords",
+      "description" => "Subject",
+    );
+    foreach($metas as $meta) {
+      $name = mb_strtolower($meta->getAttribute("name"));
+      if ( isset($labels[$name]) ) {
+        $this->_pdf->add_info($labels[$name], trim($meta->getAttribute("content")));
+      }
+    }
+    
     $root->set_containing_block(0, 0, $this->_pdf->get_width(), $this->_pdf->get_height());
     $root->set_renderer(new Renderer($this));
 

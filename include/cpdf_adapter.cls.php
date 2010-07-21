@@ -216,8 +216,6 @@ class CPDF_Adapter implements Canvas {
     
     $this->_pdf = new Cpdf($size, DOMPDF_UNICODE_ENABLED, DOMPDF_FONT_CACHE, DOMPDF_TEMP_DIR);
     $this->_pdf->addInfo("Creator", "DOMPDF");
-
-    // Silence pedantic warnings about missing TZ settings
     $time = substr_replace(date('YmdHisO'), '\'', -2, 0).'\'';
     $this->_pdf->addInfo("CreationDate", "D:$time");
     $this->_pdf->addInfo("ModDate", "D:$time");
@@ -259,7 +257,7 @@ class CPDF_Adapter implements Canvas {
   /**
    * Add meta information to the PDF
    *
-   * @param string $label  label of the value (Creator, Producter, etc.)
+   * @param string $label  label of the value (Creator, Producer, etc.)
    * @param string $value  the text to set
    */
   function add_info($label, $value) {

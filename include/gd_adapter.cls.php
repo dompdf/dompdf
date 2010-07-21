@@ -589,6 +589,16 @@ class GD_Adapter implements Canvas {
   }
 
   /**
+   * Add meta information to the PDF
+   *
+   * @param string $label  label of the value (Creator, Producer, etc.)
+   * @param string $value  the text to set
+   */
+  function add_info($label, $value) {
+    // N/A
+  }
+  
+  /**
    * Calculates text size, in points
    *
    * @param string $text the text to be sized

@@ -416,6 +416,16 @@ class TCPDF_Adapter implements Canvas {
   function add_link($url, $x, $y, $width, $height);
   
   /**
+   * Add meta information to the PDF
+   *
+   * @param string $label  label of the value (Creator, Producer, etc.)
+   * @param string $value  the text to set
+   */
+  function add_info($label, $value) {
+    // Not implemented
+  }
+  
+  /**
    * Calculates text size, in points
    *
    * @param string $text the text to be sized

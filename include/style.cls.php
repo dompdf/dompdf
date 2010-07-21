@@ -859,13 +859,15 @@ class Style {
    * @return float
    */
   function get_line_height() {
-    if ( $this->_props["line_height"] === "normal" )
+    $line_height = $this->_props["line_height"];
+    
+    if ( $line_height === "normal" )
       return self::$default_line_height * $this->get_font_size();
 
-    if ( is_numeric($this->_props["line_height"]) )
-      return $this->length_in_pt( $this->_props["line_height"] . "%", $this->get_font_size());
+    if ( is_numeric($line_height) )
+      return $this->length_in_pt( $line_height . "em", $this->get_font_size());
     
-    return $this->length_in_pt( $this->_props["line_height"], $this->get_font_size() );
+    return $this->length_in_pt( $line_height, $this->get_font_size() );
   }
 
   /**
@@ -903,7 +905,6 @@ class Style {
    * @return array
    */
   function get_background_position() {
-    
     $tmp = explode(" ", $this->_props["background_position"]);
 
     switch ($tmp[0]) {
@@ -1214,13 +1215,15 @@ class Style {
    * Note: $type has a leading underscore (or is empty), the others not.
    */
   protected function _set_style_side_type($style,$side,$type,$val,$important) {
-    if ( !isset($this->_important_props[$style.'_'.$side.$type]) || $important) {
+    $prop = $style.'_'.$side.$type;
+    
+    if ( !isset($this->_important_props[$prop]) || $important) {
       //see __set and __get, on all assignments clear cache!
-      $this->_prop_cache[$style.'_'.$side.$type] = null;
+      $this->_prop_cache[$prop] = null;
       if ($important) {
-        $this->_important_props[$style.'_'.$side.$type] = true;
+        $this->_important_props[$prop] = true;
       }
-      $this->_props[$style.'_'.$side.$type] = $val;
+      $this->_props[$prop] = $val;
     }
   }
 
@@ -1372,6 +1375,7 @@ class Style {
   function set_background_repeat($val) {
     if ( is_null($val) )
       $val = self::$_defaults["background_repeat"];
+      
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["background_repeat"] = null;
     $this->_props["background_repeat"] = $val;
@@ -1515,12 +1519,12 @@ class Style {
 	if ( preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
 		$this->_set_style("font_size", $match[1], $important);
 		$val = $match[2];
-        if (preg_match("/^\/\s*(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
+    if (preg_match("/^\/\s*(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
 			$this->_set_style("line_height", $match[1], $important);
 			$val = $match[2];
-        } else {
+    } else {
 			$this->_set_style("line_height", self::$_defaults["line_height"], $important);
-        }
+    }
 	} else {
  		$this->_set_style("font_size", self::$_defaults["font_size"], $important);
 		$this->_set_style("line_height", self::$_defaults["line_height"], $important);
