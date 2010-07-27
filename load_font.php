@@ -127,7 +127,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   $path = "$dir/$file";
   
   $patterns = array(
-    "bold"        => array("_Bold", "b", "B"),
+    "bold"        => array("_Bold", "b", "B", "bd", "BD"),
     "italic"      => array("_Italic", "i", "I"),
     "bold_italic" => array("_Bold_Italic", "bi", "BI", "ib", "IB"),
   );

@@ -90,9 +90,6 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "lower-greek":
         $text = unichr($n + 944);
         break;
-      case "upper-greek":
-        $text = unichr($n + 912);
-        break;
     }
     
     if ($uppercase) 
@@ -169,7 +166,6 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "upper-alpha":
       case "upper-latin":
       case "upper-roman":
-      case "upper-greek":
       case "1": // HTML 4.0 compatibility
       case "a":
       case "i":

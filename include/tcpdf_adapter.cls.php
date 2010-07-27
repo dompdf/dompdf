@@ -422,7 +422,10 @@ class TCPDF_Adapter implements Canvas {
    * @param string $value  the text to set
    */
   function add_info($label, $value) {
-    // Not implemented
+    $method = "Set$label";
+    if ( in_array("Title", "Author", "Keywords", "Subject") && method_exists($this->_pdf, $method) ) {
+      $this->_pdf->$method($value);
+    }
   }
   
   /**

@@ -313,11 +313,11 @@ class Stylesheet {
 
     $b = min(mb_substr_count($selector, "#"), 255);
 
-    $c = min(mb_substr_count($selector, ".") +
+    $c = min(mb_substr_count($selector, "."), 255);
+
+    $d = min(mb_substr_count($selector, " ") + 
              mb_substr_count($selector, ">") +
              mb_substr_count($selector, "+"), 255);
-
-    $d = min(mb_substr_count($selector, " "), 255);
 
     //If a normal element name is at the begining of the string,
     //a leading whitespace might have been removed on whitespace collapsing and removal
