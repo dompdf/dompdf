@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+body {
+	color: red;
+}
+
+a {
+	display: block;
+}
+
+a[href$=ends_1] {color: green;}
+a[href$='ends_2'] {color: green;}
+a[href$="ends_3"] {color: green;}
+
+a[href^=starts_1] {color: green;}
+a[href^='starts_2'] {color: green;}
+a[href^="starts_3"] {color: green;}
+
+a[href*=contains_1] {color: green;}
+a[href*='contains_2'] {color: green;}
+a[href*="contains_3"] {color: green;}
+
+a[target=equal_1] {color: green;}
+a[target='equal_2'] {color: green;}
+a[target="equal_3"] {color: green;}
+
+</style>
+</head>
+<body>
+
+<a href="#" target="equal_1">a[target=equal_1]</a>
+<a href="#" target="equal_2">a[target='equal_2']</a>
+<a href="#" target="equal_3">a[target="equal_3"]</a>
+
+<a href="test/ends_1">a[href$=ends_1]</a>
+<a href="test/ends_2">a[href$='ends_2']</a>
+<a href="test/ends_3">a[href$="ends_3"]</a>
+
+<p>
+<a href="test/contains_1/test">a[href*=contains_1]</a>
+<a href="test/contains_2/test">a[href*='contains_2']</a>
+<a href="test/contains_3/test">a[href*="contains_3"]</a>
+</p>
+
+<a href="starts_1/test">a[href^=starts_1]</a>
+<a href="starts_2/test">a[href^='starts_2']</a>
+<a href="starts_3/test">a[href^="starts_3"]</a>
+
+</body>
+</html>

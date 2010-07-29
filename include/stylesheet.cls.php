@@ -313,7 +313,8 @@ class Stylesheet {
 
     $b = min(mb_substr_count($selector, "#"), 255);
 
-    $c = min(mb_substr_count($selector, "."), 255);
+    $c = min(mb_substr_count($selector, ".") +
+             mb_substr_count($selector, "["), 255);
 
     $d = min(mb_substr_count($selector, " ") + 
              mb_substr_count($selector, ">") +
@@ -359,6 +360,11 @@ class Stylesheet {
 
     $delimiters = array(" ", ">", ".", "#", "+", ":", "[");
 
+    // Add an implicit * at the beginning of the selector 
+    // if it begins with an attribute selector
+    if ( $selector[0] === "[" )
+      $selector = "* $selector";
+      
     // Add an implicit space at the beginning of the selector if there is no
     // delimiter there already.
     if ( !in_array($selector[0], $delimiters) )
@@ -375,10 +381,19 @@ class Stylesheet {
 
       // Eat characters up to the next delimiter
       $tok = "";
-
+      $in_attr = false;
+      
       while ($i < $len) {
-        if ( in_array($selector[$i], $delimiters) )
+        $c = $selector[$i];
+        $c_prev = $selector[$i-1];
+        
+        if ( in_array($c, $delimiters) && !$in_attr )
           break;
+          
+        if ( $c_prev === "[" ) {
+          $in_attr = true;
+        }
+        
         $tok .= $selector[$i++];
       }
 
@@ -464,7 +479,7 @@ class Stylesheet {
 
       case "[":
         // Attribute selectors.  All with an attribute matching the following token(s)
-        $attr_delimiters = array("=", "]", "~", "|");
+        $attr_delimiters = array("=", "]", "~", "|", "$", "^", "*");
         $tok_len = mb_strlen($tok);
         $j = 0;
 
@@ -482,6 +497,9 @@ class Stylesheet {
 
         case "~":
         case "|":
+        case "$":
+        case "^":
+        case "*":
           $op .= $tok[$j++];
 
           if ( $tok[$j] !== "=" )
@@ -509,6 +527,8 @@ class Stylesheet {
         if ( $attr == "" )
           throw new DOMPDF_Exception("Invalid CSS selector syntax: missing attribute name");
 
+        $value = trim($value, "\"'");
+        
         switch ( $op ) {
 
         case "":
@@ -516,7 +536,7 @@ class Stylesheet {
           break;
 
         case "=":
-          $query .= "[@$attr$op\"$value\"]";
+          $query .= "[@$attr=\"$value\"]";
           break;
 
         case "~=":
@@ -535,12 +555,23 @@ class Stylesheet {
           $values = explode("-", $value);
           $query .= "[";
 
-          foreach ($values as $val)
+          foreach ( $values as $val )
             $query .= "starts-with(@$attr, \"$val\") or ";
 
           $query = rtrim($query, " or ") . "]";
           break;
 
+        case "$=":
+          $query .= "[substring(@$attr, string-length(@$attr)-".(strlen($value) - 1).")=\"$value\"]";
+          break;
+          
+        case "^=":
+          $query .= "[starts-with(@$attr,\"$value\")]";
+          break;
+          
+        case "*=":
+          $query .= "[contains(@$attr,\"$value\")]";
+          break;
         }
 
         break;
@@ -611,7 +642,11 @@ class Stylesheet {
 //        echo ($style);
 
       // Retrieve the nodes
-      $nodes = $xp->query($query);
+      $nodes = @$xp->query($query);
+      if ($nodes == null) {
+        record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+        continue;
+      }
 
       foreach ($nodes as $node) {
         //echo $node->nodeName . "\n";
