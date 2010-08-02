@@ -2958,7 +2958,7 @@ class  Cpdf {
     }
     
   	$cf = $this->currentFont;
-    if ($this->fonts[$cf]['isUnicode']) {
+    if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
       $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
       $text =  $this->utf8toUtf16BE($text, $bom);
     } else {
