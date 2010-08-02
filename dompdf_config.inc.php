@@ -68,6 +68,21 @@ define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
  */
 define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
 
+/**
+ * Some installations don't have $_SERVER['DOCUMENT_ROOT']
+ * http://fyneworks.blogspot.com/2007/08/php-documentroot-in-iis-windows-servers.html
+ */
+if( !isset($_SERVER['DOCUMENT_ROOT']) ) {
+  $path = "";
+  
+  if ( isset($_SERVER['SCRIPT_FILENAME']) )
+    $path = $_SERVER['SCRIPT_FILENAME'];
+  elseif ( isset($_SERVER['PATH_TRANSLATED']) )
+    $path = str_replace('\\\\', '\\', $_SERVER['PATH_TRANSLATED']);
+    
+  $_SERVER['DOCUMENT_ROOT'] = str_replace( '\\', '/', substr($path, 0, 0-strlen($_SERVER['PHP_SELF'])));
+}
+
 //FIXME: Some function definitions rely on the constants defined by DOMPDF. However, might this location prove problematic?
 require_once(DOMPDF_INC_DIR . "/functions.inc.php");
 
@@ -313,6 +328,18 @@ if (!defined("DOMPDF_DPI")) {
  */
 if (!defined("DOMPDF_ENABLE_PHP")) {
   define("DOMPDF_ENABLE_PHP", true);
+}
+
+/**
+ * Enable inline Javascript
+ *
+ * If this setting is set to true then DOMPDF will automatically insert
+ * JavaScript code contained within <script type="text/javascript"> ... </script> tags.
+ *
+ * @var bool
+ */
+if (!defined("DOMPDF_ENABLE_JAVASCRIPT")) {
+  define("DOMPDF_ENABLE_JAVASCRIPT", true);
 }
 
 /**
