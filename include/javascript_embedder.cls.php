@@ -60,6 +60,9 @@ class Javascript_Embedder {
   }
 
   function render($frame) {
+    if ( !DOMPDF_ENABLE_JAVASCRIPT )
+      return;
+      
     $this->insert($frame->get_node()->nodeValue);
   }
 }

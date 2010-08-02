@@ -463,7 +463,7 @@ class Frame {
     // We can only set attributes of DOMElement objects (nodeType == 1).
     // Since these are the only objects that we can assign CSS rules to,
     // this shortcoming is okay.
-    if ( $this->_node->nodeType == 1)
+    if ( $this->_node->nodeType == XML_ELEMENT_NODE )
       $this->_node->setAttribute("frame_id", $id);
   }
 

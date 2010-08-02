@@ -48,6 +48,8 @@
 class Text_Frame_Reflower extends Frame_Reflower {
 
   protected $_block_parent; // Nearest block-level ancestor
+  
+  public static $_whitespace_pattern;
 
   function __construct(Text_Frame_Decorator $frame) {
     parent::__construct($frame);
@@ -80,7 +82,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     //$text = $this->_frame->get_text();
 //     if ( $this->_block_parent->get_current_line("w") == 0 )
 //       $text = ltrim($text, " \n\r\t");
-    return preg_replace("/[ \t\r\n\v\f]+/u", " ", $text);
+    return preg_replace(self::$_whitespace_pattern, " ", $text);
   }
 
   //........................................................................
@@ -379,7 +381,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     default:
     case "normal":
-      $str = preg_replace("/[ \t\r\n\v\f]+/u"," ", $str);
+      $str = preg_replace(self::$_whitespace_pattern," ", $str);
     case "pre-wrap":
     case "pre-line":
 
@@ -415,7 +417,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     default:
     case "normal":
     case "nowrap":
-      $str = preg_replace("/[ \t\r\n\v\f]+/u"," ", $text);
+      $str = preg_replace(self::$_whitespace_pattern," ", $text);
       break;
 
     case "pre-line":
@@ -450,3 +452,5 @@ class Text_Frame_Reflower extends Frame_Reflower {
   }
 
 }
+
+Text_Frame_Reflower::$_whitespace_pattern = version_compare(PHP_VERSION, '5.2.4', '<') ? "/[ \t\r\n\x0a\x0b\x0c\x0d\x85\x2028\x2029\f]+/u" : "/[ \t\r\n\v\f]+/u";
