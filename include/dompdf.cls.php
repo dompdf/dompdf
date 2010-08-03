@@ -374,16 +374,6 @@ class DOMPDF {
       $str = preg_replace("/<meta([^>]+)>/", "", $str);
     }
     
-    // Some HTML entities get unescaped when loadHTML is called
-    // http://www.w3.org/TR/2006/REC-xml11-20060816/#sec-predefined-ent
-    $str = strtr($str, array( 
-      '&lt;' =>   '&#38;#60;', 
-      '&gt;' =>   '&#62;',
-      '&amp;' =>  '&#38;#38;', 
-      '&apos;' => '&#39;', 
-      '&quot;' => '&#34;',
-    ));
-    
     // Store parsing warnings as messages
     set_error_handler("record_warnings");
     $this->_xml->loadHTML($str);

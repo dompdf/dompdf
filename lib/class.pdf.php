@@ -2959,7 +2959,7 @@ class  Cpdf {
     
   	$cf = $this->currentFont;
     if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
-      $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+      //$text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
       $text =  $this->utf8toUtf16BE($text, $bom);
     } else {
       if (in_array('Windows-1252', mb_list_encodings())) {
@@ -2967,7 +2967,7 @@ class  Cpdf {
       } else {
         $text = mb_convert_encoding($text, 'iso-8859-1', 'UTF-8');
       }
-      $text = html_entity_decode($text, ENT_QUOTES);
+      //$text = html_entity_decode($text, ENT_QUOTES);
     }
 
     // the chr(13) substitution fixes a bug seen in TCPDF (bug #1421290)
