@@ -96,7 +96,9 @@ class Page_Frame_Reflower extends Frame_Reflower {
             $fixed_children[] = $onechild->deep_copy();
           }
         }
+        $fixed_children = array_reverse($fixed_children);
       }
+      
       $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
       
       // Check for begin reflow callback
@@ -104,8 +106,8 @@ class Page_Frame_Reflower extends Frame_Reflower {
     
       //Insert a copy of each node which have a fixed position
       if ($current_page >= 1) {
-        foreach ($fixed_children as $onechildfixed) {
-          $child->insert_child_before($onechildfixed->deep_copy(), $child->get_first_child());
+        foreach ($fixed_children as $fixed_child) {
+          $child->insert_child_before($fixed_child->deep_copy(), $child->get_first_child());
         }
       }
       

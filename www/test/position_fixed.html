@@ -6,38 +6,30 @@
 <style type="text/css">
 
 body {
-  padding-top: 3cm;
-  padding-bottom: 1cm;
-	padding-left: 3cm;
-  margin: 0px;
-	/*border: 1px solid red;*/
+  margin-top: 3.5cm;
+  margin-bottom: 1cm;
+	margin-left: 3.5cm;
+  font-family: sans-serif;
 }
 
 div.header,
 div.footer {
   position: fixed;
   background: #ddd;
-  opacity: 0.9;
   width: 100%;
   border: 0px solid #888;
-  overflow:hidden;
+  overflow: hidden;
+  padding: 0.1cm;
 }
 
 div.leftpane {
 	position: fixed;
 	background: #ddd;
 	width: 3cm;
-	border-right: 1px solid #888;
-	top: 3.19cm;
-	bottom: 12cm;
-	height: 24.47cm;
-	left: 0cm;
-	margin-left: 4px;
-}
-
-p,h2 {
-	padding-left: 1cm;
-	padding-right: 1cm;
+	border-right: 1pt solid #888;
+	top: 0cm;
+  left: 0cm;
+	height: 30cm;
 }
 
 div.header {
@@ -48,7 +40,7 @@ div.header {
 }
 
 div.footer {
-  bottom: 1cm;
+  bottom: 0cm;
 	left: 0cm;
   border-top-width: 1px;
   height: 1cm;
@@ -59,23 +51,9 @@ div.footer table {
   text-align: center;
 }
 
-@media print {
-  div.header,
-  div.footer,
-	div.leftpane {
-    opacity: 1;
-    background: #fff;
-  }
-  hr {
+hr {
   page-break-after: always;
   border: 0;
-}
-}
-
-@media screen {
-  div.body {
-    border-bottom: 1px dotted #888;
-  }
 }
 
 </style>
@@ -83,7 +61,7 @@ div.footer table {
 </head><body>
 
 <div class="header">
-  <div style="margin: 4px; text-align: left;">
+  <div style="text-align: right;">
     Header line 1<br>
     Header line 2<br>
     Header line 3<br>
@@ -92,13 +70,12 @@ div.footer table {
 </div>
 
 <div class="footer">
-  <div style="margin: 4px; text-align: right;">On line footer content aligned to the right.<a href="http://fr.selfhtml.org/css/proprietes/printlayouts.htm">More info on print layouts</a></div>
+  <div style="text-align: right;">On line footer content aligned to the right. <a href="http://fr.selfhtml.org/css/proprietes/printlayouts.htm">More info on print layouts</a></div>
 </div>
 
 <div class="leftpane">
   <div style="text-align: center;">
-  	<p>Dompdf</p>
-		<img src="images/dompdf_simple.png" width="70px" />
+		<img src="images/dompdf_simple.png" width="80" style="margin: 1cm;" />
 	</div>
 </div>
 
