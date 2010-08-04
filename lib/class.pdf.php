@@ -580,7 +580,7 @@ class  Cpdf {
 
     case  'out':
       if  (count($o['info']['pages'])) {
-        $res = "\n".$id." 0 obj\n<< /Type /Pages\n/Kids [";
+        $res = "\n$id 0 obj\n<< /Type /Pages\n/Kids [";
         foreach($o['info']['pages'] as  $v) {
           $res.= "$v 0 R\n";
         }
@@ -629,7 +629,7 @@ class  Cpdf {
 
         $res.= "\n >>\nendobj";
       } else {
-        $res = "\n".$id." 0 obj\n<< /Type /Pages\n/Count 0\n>>\nendobj";
+        $res = "\n$id 0 obj\n<< /Type /Pages\n/Count 0\n>>\nendobj";
       }
 
       return  $res;
@@ -804,7 +804,7 @@ class  Cpdf {
         $res.=  ">>\n";
         $res.=  "endobj";
       } else {
-      $res =  "\n".$id." 0 obj\n<< /Type /Font\n/Subtype /".$o['info']['SubType']."\n";
+      $res =  "\n$id 0 obj\n<< /Type /Font\n/Subtype /".$o['info']['SubType']."\n";
       $res.=  "/Name /F".$o['info']['fontNum']."\n";
       $res.=  "/BaseFont /".$o['info']['name']."\n";
 
@@ -855,7 +855,7 @@ class  Cpdf {
       break;
 
     case  'out':
-      $res = "\n".$id." 0 obj\n<< /Type /FontDescriptor\n";
+      $res = "\n$id 0 obj\n<< /Type /FontDescriptor\n";
       foreach ($o['info'] as  $label => $value) {
         switch  ($label) {
         case  'Ascent':
@@ -914,7 +914,7 @@ class  Cpdf {
       break;
 
     case  'out':
-      $res = "\n".$id." 0 obj\n<< /Type /Encoding\n";
+      $res = "\n$id 0 obj\n<< /Type /Encoding\n";
       if  (!isset($o['info']['encoding'])) {
         $o['info']['encoding'] = 'WinAnsiEncoding';
       }
@@ -1144,7 +1144,7 @@ class  Cpdf {
         $this->encryptInit($id);
       }
 
-      $res = "\n".$id." 0 obj\n<<\n";
+      $res = "\n$id 0 obj\n<<\n";
       foreach ($o['info'] as  $k=>$v) {
         $res.= "/$k (";
         // dates must be outputted as-is, without Unicode transformations
@@ -1384,7 +1384,7 @@ class  Cpdf {
 
     case  'out':
       $tmp = $o['c'];
-      $res =  "\n".$id." 0 obj\n";
+      $res =  "\n$id 0 obj\n";
 
       if  (isset($this->objects[$id]['raw'])) {
         $res.= $tmp;

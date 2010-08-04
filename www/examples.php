@@ -19,6 +19,24 @@ if ( isset( $_POST["html"] ) ) {
 ?>
 <?php include("head.inc"); ?>
 
+<script type="text/javascript">
+function resizePreview(){
+  var preview = $("#preview");
+  preview.height($(window).height() - preview.offset().top - 2);
+}
+
+$(function(){
+  var preview = $("#preview");
+  resizePreview();
+
+  $(window).scroll(function() {
+    var scrollTop = Math.min($(this).scrollTop(), preview.height()+preview.parent().offset().top) - 2;
+    preview.css("margin-top", scrollTop + "px");
+  });
+
+  $(window).resize(resizePreview);
+});
+</script>
 <iframe id="preview" name="preview" src="about:blank" border="0" frameborder="0" marginheight="0" marginwidth="0"></iframe>
 
 <a name="samples"> </a>
@@ -28,7 +46,6 @@ if ( isset( $_POST["html"] ) ) {
 these files is included in the test/ directory of the distribution
 package.)</p>
 
-<ul class="samples">
 <?php
 $test_files = glob("test/*.{html,php}", GLOB_BRACE);
 $sections = array(
@@ -54,20 +71,20 @@ $dompdf .= "/dompdf.php?base_path=" . rawurlencode("www/test/");
 
 foreach ( $test_files as $file ) {
   preg_match("@[\\/](([^_]+)_?(.*))\.(html|php)$@i", $file, $matches);
-//  $prefix = $matches[2];
-//
-//  if ( array_key_exists($prefix, $sections) ) {
-//    $sections[$prefix][] = array($file, $matches[3]);
-//  }
-//  else {
+  $prefix = $matches[2];
+
+  if ( array_key_exists($prefix, $sections) ) {
+    $sections[$prefix][] = array($file, $matches[3]);
+  }
+  else {
     $sections["other"][] = array($file, $matches[1]);
-//    $sections["other"][] = array($file, $matches[1]);
-//  }
+  }
 }
 
 foreach ( $sections as $section => $files ) {
-  //echo "<h3>$section</h3>";
+  echo "<h3>$section</h3>";
   
+  echo "<ul class=\"samples\">";
   foreach ( $files as $file ) {
     $filename = basename($file[0]);
     $title = $file[1];
@@ -76,12 +93,12 @@ foreach ( $sections as $section => $files ) {
     echo " 
   [<a class=\"button\" target=\"preview\" href=\"test/$filename\">HTML</a>] 
   [<a class=\"button\" target=\"preview\" href=\"$dompdf&options[Attachment]=0&input_file=" . rawurlencode($filename) . "#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0\">PDF</a>] ";
-    echo $filename;
+    echo $title;
     echo "</li>\n";
   }
+  echo "</ul>";
 }
 ?>
-</ul>
 
 <div class="bar" style="height: 10px;"></div>
 
@@ -123,8 +140,9 @@ foreach ( array_keys(CPDF_Adapter::$PAPER_SIZES) as $size )
 </textarea>
 
 <div style="text-align: center; margin-top: 1em;">
-<input type="submit" name="submit" value="submit"/>
+  <button type="submit">Download</button>
 </div>
+
 </form>
 <p style="font-size: 0.65em; text-align: center;">(Note: if you use a KHTML
 based browser and are having difficulties loading the sample output, try

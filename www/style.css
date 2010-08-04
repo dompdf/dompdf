@@ -157,11 +157,14 @@ select {
   border: 1px dashed #5F83BA;
 }
 
-#content input { 
+#content button { 
   border: 1px dashed #5F83BA;
-  background-color: #fff;
   color: #7d7a7a;
   font-family: 'trebuchet ms', verdana, sans-serif;
+}
+
+#content button:hover { 
+  background: #ccc;
 }
 
 #preview {
