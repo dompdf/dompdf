@@ -32,7 +32,7 @@
  *
  * @link http://www.dompdf.com/
  * @copyright 2004 Benj Carson
- * @author Fabien Ménager
+ * @author Fabien Mï¿½nager
  * @package dompdf
  */
 
@@ -231,22 +231,57 @@ class CSS_Color {
         $triplet[$c] = trim($triplet[$c]);
         
         if ( $triplet[$c][mb_strlen($triplet[$c]) - 1] === "%" ) 
-          $triplet[$c] = round($triplet[$c] * 0.255);
+          $triplet[$c] = round($triplet[$c] * 2.55);
       }
       
       return self::getArray(vsprintf("%02X%02X%02X", $triplet));
+    
+    // cmyk( c,m,y,k ) format
+    // http://www.w3.org/TR/css3-gcpm/#cmyk-colors
+    } else if ( mb_strpos($colour, "cmyk") !== false ) {
+      $i = mb_strpos($colour, "(");
+      $j = mb_strpos($colour, ")");
+      
+      // Bad colour value
+      if ($i === false || $j === false)
+        return null;
+
+      $values = explode(",", mb_substr($colour, $i+1, $j-$i-1));
+
+      if (count($values) != 4)
+        return null;
+      
+      foreach ($values as &$c) {
+        $c = floatval(trim($c));
+        if ($c > 1.0) $c = 1.0;
+        if ($c < 0.0) $c = 0.0;
+      }
+      
+      return self::getArray($values);
     }
   }
   
-  static function getArray($hex_colour) {
-    $r = hexdec(mb_substr($hex_colour, 0, 2));
-    $g = hexdec(mb_substr($hex_colour, 2, 2));
-    $b = hexdec(mb_substr($hex_colour, 4, 2));
+  static function getArray($colour) {
+    $c = array(null, null, null, null, "hex" => null);
     
-    return array(
-      0 => $r / 0xff, 1 => $g / 0xff, 2 => $b / 0xff,
-      "r"=>$r / 0xff, "g"=>$g / 0xff, "b"=>$b / 0xff,
-      "hex" => "#$hex_colour"
-    );
+    if (is_array($colour)) {
+      $c = $colour;
+      $c["c"] = $c[0];
+      $c["m"] = $c[1];
+      $c["y"] = $c[2];
+      $c["k"] = $c[3];
+      $c["hex"] = "cmyk($c[0],$c[1],$c[2],$c[3])";
+    }
+    else {
+      $c[0] = hexdec(mb_substr($colour, 0, 2)) / 0xff;
+      $c[1] = hexdec(mb_substr($colour, 2, 2)) / 0xff;
+      $c[2] = hexdec(mb_substr($colour, 4, 2)) / 0xff;
+      $c["r"] = $c[0];
+      $c["g"] = $c[1];
+      $c["b"] = $c[2];
+      $c["hex"] = "#$colour";
+    }
+    
+    return $c;
   }
 }

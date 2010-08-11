@@ -119,12 +119,12 @@ class  Cpdf {
   /**
    * current colour for fill operations, defaults to inactive value, all three components should be between 0 and 1 inclusive when active
    */
-  public  $currentColour = array('r'=>-1, 'g'=>-1, 'b'=>-1);
+  public  $currentColour = null;
 
   /**
    * current colour for stroke operations (lines etc.)
    */
-  public  $currentStrokeColour = array('r'=>-1, 'g'=>-1, 'b'=>-1);
+  public  $currentStrokeColour = null;
 
   /**
    * current style that lines are drawn in
@@ -2498,10 +2498,19 @@ class  Cpdf {
   /**
    * sets the colour for fill operations
    */
-  function  setColor($r, $g, $b, $force =  0) {
-    if  ($r >=  0 &&  ($force ||  $r !=  $this->currentColour['r'] ||  $g !=  $this->currentColour['g'] ||  $b !=  $this->currentColour['b'])) {
-      $this->objects[$this->currentContents]['c'].= sprintf("\n%.3F %.3F %.3F rg", $r, $g, $b);
-      $this->currentColour =  array('r' => $r, 'g' => $g, 'b' => $b);
+  function  setColor($color, $force = false) {
+    $new_color = array($color[0], $color[1], $color[2], $color[3]);
+    
+    if (!$force && $this->currentColour == $new_color) return;
+    
+    if (isset($new_color[3])) {
+      $this->currentColour = $new_color;
+      $this->objects[$this->currentContents]['c'] .= vsprintf("\n%.3F %.3F %.3F %.3F k", $this->currentColour);
+    }
+
+    elseif (isset($new_color[2])) {
+      $this->currentColour = $new_color;
+      $this->objects[$this->currentContents]['c'] .= vsprintf("\n%.3F %.3F %.3F rg", $this->currentColour);
     }
   }
 
@@ -2509,10 +2518,19 @@ class  Cpdf {
   /**
    * sets the colour for stroke operations
    */
-  function  setStrokeColor($r, $g, $b, $force =  0) {
-    if  ($r >=  0 &&  ($force ||  $r !=  $this->currentStrokeColour['r'] ||  $g !=  $this->currentStrokeColour['g'] ||  $b !=  $this->currentStrokeColour['b'])) {
-      $this->objects[$this->currentContents]['c'].= sprintf("\n%.3F %.3F %.3F RG", $r, $g, $b);
-      $this->currentStrokeColour =  array('r' => $r, 'g' => $g, 'b' => $b);
+  function  setStrokeColor($color, $force =  false) {
+    $new_color = array($color[0], $color[1], $color[2], $color[3]);
+    
+    if (!$force && $this->currentStrokeColour == $new_color) return;
+    
+    if (isset($new_color[3])) {
+      $this->currentStrokeColour = $new_color;
+      $this->objects[$this->currentContents]['c'] .= vsprintf("\n%.3F %.3F %.3F %.3F K", $this->currentStrokeColour);
+    }
+
+    elseif (isset($new_color[2])) {
+      $this->currentStrokeColour = $new_color;
+      $this->objects[$this->currentContents]['c'] .= vsprintf("\n%.3F %.3F %.3F RG", $this->currentStrokeColour);
     }
   }
 
@@ -2831,12 +2849,12 @@ class  Cpdf {
     }
 
     // and if there has been a stroke or fill colour set, then transfer them
-    if  ($this->currentColour['r'] >=  0) {
-      $this->setColor($this->currentColour['r'], $this->currentColour['g'], $this->currentColour['b'], 1);
+    if  (isset($this->currentColour)) {
+      $this->setColor($this->currentColour, true);
     }
 
-    if  ($this->currentStrokeColour['r'] >=  0) {
-      $this->setStrokeColor($this->currentStrokeColour['r'], $this->currentStrokeColour['g'], $this->currentStrokeColour['b'], 1);
+    if  (isset($this->currentStrokeColour)) {
+      $this->setStrokeColor($this->currentStrokeColour, true);
     }
 
     // if there is a line style set, then put this in too
@@ -3698,8 +3716,8 @@ class  Cpdf {
       // This is to get around not being able to have open 'q' across pages
       $opt =  $this->stateStack[$pageEnd];
       // ok to use this as stack starts numbering at 1
-      $this->setColor($opt['col']['r'], $opt['col']['g'], $opt['col']['b'], 1);
-      $this->setStrokeColor($opt['str']['r'], $opt['str']['g'], $opt['str']['b'], 1);
+      $this->setColor($opt['col'], true);
+      $this->setStrokeColor($opt['str'], true);
       $this->objects[$this->currentContents]['c'].=  "\n".$opt['lin'];
       //    $this->currentLineStyle = $opt['lin'];
     } else {

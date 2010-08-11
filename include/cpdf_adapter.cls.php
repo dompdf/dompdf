@@ -401,8 +401,7 @@ class CPDF_Adapter implements Canvas {
    * @param array $color
    */
   protected function _set_stroke_color($color) {
-    list($r, $g, $b) = $color;
-    $this->_pdf->setStrokeColor($r, $g, $b);
+    $this->_pdf->setStrokeColor($color);
   }
   
   /**
@@ -412,8 +411,7 @@ class CPDF_Adapter implements Canvas {
    * @param array $color
    */
   protected function _set_fill_color($color) {
-    list($r, $g, $b) = $color;
-    $this->_pdf->setColor($r, $g, $b);
+    $this->_pdf->setColor($color);
   }
 
   /**
@@ -644,8 +642,7 @@ class CPDF_Adapter implements Canvas {
   function text($x, $y, $text, $font, $size, $color = array(0,0,0),
                 $adjust = 0, $angle = 0) {
 
-    list($r, $g, $b) = $color;
-    $this->_pdf->setColor($r, $g, $b);
+    $this->_pdf->setColor($color);
     $font .= ".afm";
     
     $this->_pdf->selectFont($font);
