@@ -392,7 +392,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
       // yes I took the time to bench it ;)
       $words = array_flip(preg_split("/[\s-]+/u",$str, -1, PREG_SPLIT_DELIM_CAPTURE));
       array_walk($words, create_function('&$val,$str',
-                                         '$val = Font_Metrics::get_text_width($str, "'.$font.'", '.$size.', '.$spacing.');'));
+                                         '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$spacing.');'));
       arsort($words);
       $min = reset($words);
       break;
@@ -400,7 +400,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     case "pre":
       $lines = array_flip(preg_split("/\n/u", $str));
       array_walk($lines, create_function('&$val,$str',
-                                         '$val = Font_Metrics::get_text_width($str, "'.$font.'", '.$size.', '.$spacing.');'));
+                                         '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$spacing.');'));
 
       arsort($lines);
       $min = reset($lines);

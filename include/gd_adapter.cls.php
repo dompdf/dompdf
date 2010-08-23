@@ -71,6 +71,20 @@ class GD_Adapter implements Canvas {
   private $_height;
 
   /**
+   * Current page number
+   *
+   * @var int
+   */
+  private $_page_number;
+
+  /**
+   * Total number of pages
+   *
+   * @var int
+   */
+  private $_page_count;
+
+  /**
    * Image antialias factor
    *
    * @var float
@@ -102,12 +116,12 @@ class GD_Adapter implements Canvas {
   function __construct($size, $orientation = "portrait", $aa_factor = 1, $bg_color = array(1,1,1,0) ) {
 
     if ( !is_array($size) ) {
-
-      if ( isset(CPDF_Adapter::$PAPER_SIZES[ strtolower($size)]) ) 
+      $size = strtolower($size);
+      
+      if ( isset(CPDF_Adapter::$PAPER_SIZES[$size]) ) 
         $size = CPDF_Adapter::$PAPER_SIZES[$size];
       else
         $size = CPDF_Adapter::$PAPER_SIZES["letter"];
-    
     }
 
     if ( strtolower($orientation) === "landscape" ) {
@@ -133,10 +147,10 @@ class GD_Adapter implements Canvas {
     }
 
     $this->_bg_color = $this->_allocate_color($bg_color);
-    imagealphablending($this->_img, false);
+    imagealphablending($this->_img, true);
     imagesavealpha($this->_img, true);
     imagefill($this->_img, 0, 0, $this->_bg_color);
-        
+    
   }
 
   /**
@@ -159,33 +173,42 @@ class GD_Adapter implements Canvas {
    * @return float
    */
   function get_height() { return $this->_height / $this->_aa_factor; }
-  
-  /**
-   * Returns the current page number
-   *
-   * @return int
-   */
-  function get_page_number() {
-    // FIXME
-  }
-   
-  /**
-   * Returns the total number of pages
-   *
-   * @return int
-   */
-  function get_page_count() {
-    // FIXME
-  }    
 
   /**
-   * Sets the total number of pages
+   * Returns the current page number
+   * @return int
+   */
+  function get_page_number() { return $this->_page_number; }
+
+  /**
+   * Returns the total number of pages in the document
+   * @return int
+   */
+  function get_page_count() { return $this->_page_count; }
+
+  /**
+   * Sets the current page number
+   *
+   * @param int $num
+   */
+  function set_page_number($num) { $this->_page_number = $num; }
+
+  /**
+   * Sets the page count
    *
    * @param int $count
    */
-  function set_page_count($count) {
+  function set_page_count($count) {  $this->_page_count = $count; }
+  
+  /**
+   * Sets the opacity 
+   * 
+   * @param $opacity
+   * @param $mode
+   */
+  function set_opacity($opacity, $mode = "Normal") {
     // FIXME
-  }    
+  }
 
   /**
    * Allocate a new color.  Allocate with GD as needed and store
@@ -195,6 +218,10 @@ class GD_Adapter implements Canvas {
    * @return int           The allocated color
    */
   private function _allocate_color($color) {
+    
+    if ( isset($color["c"]) ) {
+      $color = cmyk_to_rgb($color);
+    }
     
     // Full opacity if no alpha set
     if ( !isset($color[3]) ) 
@@ -551,14 +578,15 @@ class GD_Adapter implements Canvas {
     $size *= $this->_aa_factor;
     
     $h = $this->get_font_height($font, $size);
-    
     $c = $this->_allocate_color($color);
+    
+    $text = mb_encode_numericentity($text, array(0x0080, 0xff, 0, 0xff), 'UTF-8');
 
     if ( strpos($font, '.ttf') === false )
       $font .= ".ttf";
 
     // FIXME: word spacing
-    imagettftext($this->_img, $size, $angle, $x, $y + $h, $c, $font, $text);
+    @imagettftext($this->_img, $size, $angle, $x, $y + $h, $c, $font, $text);
     
   }
   
@@ -611,9 +639,11 @@ class GD_Adapter implements Canvas {
 
     if ( strpos($font, '.ttf') === false )
       $font .= ".ttf";
+      
+    $text = mb_encode_numericentity($text, array(0x0080, 0xffff, 0, 0xffff), 'UTF-8');
 
     // FIXME: word spacing
-    list($x1,,$x2) = imagettfbbox($size, 0, $font, $text);
+    list($x1,,$x2) = @imagettfbbox($size, 0, $font, $text);
     return $x2 - $x1;
   }
 
@@ -640,9 +670,26 @@ class GD_Adapter implements Canvas {
    * Subsequent drawing operations will appear on the new page.
    */
   function new_page() {
-    // FIXME
+    $this->_page_number++;
+    $this->_page_count++;
   }    
 
+  function open_object(){
+    // N/A
+  }
+
+  function close_object(){
+    // N/A
+  }
+
+  function add_object(){
+    // N/A
+  }
+
+  function page_text(){
+    // N/A
+  }
+  
   /**
    * Streams the image directly to the browser
    *

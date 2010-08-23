@@ -206,6 +206,55 @@ class Font_Metrics {
    * @see Font_Metrics::load_font_families()
    */
   static function save_font_families() {
+    
+    if ( strtolower(DOMPDF_PDF_BACKEND) === "gd" ) {
+      $files = glob("/usr/share/fonts/truetype/*.ttf") +
+               glob("/usr/share/fonts/truetype/*/*.ttf") +
+               glob("/usr/share/fonts/truetype/*/*/*.ttf") +
+               glob("C:\\Windows\\fonts\\*.ttf");
+      
+      new TTF_Info;
+      
+      $names = array();
+      
+      foreach($files as $file) {
+        $info = getFontInfo($file);
+        $info["path"] = $file;
+        $type = $info[2];
+        
+        if (preg_match("/regular|normal|medium/i", $type)) {
+          $type = "normal";
+        }
+        elseif (preg_match("/bold/i", $type)) {
+          if (preg_match("/italic|oblique/i", $type)) {
+            $type = "bold_italic";
+          }
+          else {
+            $type = "bold";
+          }
+        }
+        elseif (preg_match("/italic|oblique/i", $type)) {
+          $type = "italic";
+        }
+        
+        $names[mb_strtolower($info[1])][$type] = $file;
+      }
+      
+      $keys = array_keys($names);
+      
+      $matches = array_intersect(array("times", "times new roman"), $keys);
+      $names["serif"] = $names[reset($matches)];
+            
+      $matches = array_intersect(array("helvetica", "arial", "verdana"), $keys);
+      $names["sans-serif"] = $names[reset($matches)];   
+      
+      $matches = array_intersect(array("courier", "courier new"), $keys);
+      $names["monospace"] = $names[reset($matches)];
+      $names["fixed"] = $names[reset($matches)];
+      
+      self::$_font_lookup = $names;
+    }
+    
     // replace the path to the DOMPDF font directory with "DOMPDF_FONT_DIR" (allows for more portability)
     $cache_data = var_export(self::$_font_lookup, true);
     $cache_data = str_replace('\''.DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $cache_data);

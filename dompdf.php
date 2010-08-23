@@ -168,9 +168,7 @@ function getoptions() {
 }
 
 require_once("dompdf_config.inc.php");
-global $_dompdf_show_warnings;
-global $_dompdf_debug;
-global $_DOMPDF_DEBUG_TYPES;
+global $_dompdf_show_warnings, $_dompdf_debug, $_DOMPDF_DEBUG_TYPES;
 
 $sapi = php_sapi_name();
 $options = array();

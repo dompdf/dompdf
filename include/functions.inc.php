@@ -401,6 +401,63 @@ if ( !function_exists("mb_substr_count") ) {
   }
 }
 
+// WIP
+function rle_decode($str){
+  $decoded = "";
+  $l = strlen($str);
+  
+  //http://www.daubnet.com/en/file-format-bmp
+  //http://oldwww.rasip.fer.hr/research/compress/algorithms/fund/rl/index.html
+  //http://msdn.microsoft.com/en-us/library/cc669447(v=PROT.13).aspx
+  for ($i = 0; $i < $l; $i++) {
+    $n = ord($str[$i]);
+    if ($n > 2) {
+      $decoded .= str_repeat($str[++$i], $n);
+    } 
+    else {
+      $i++;
+      if ( $n == 0 ) {
+        $l = ord($str[$i]);
+        //var_dump($l);
+       // var_dump(ord($str[$i+1]));
+        //$decoded .= substr($str, $i, $l);
+        $i += $l-1;
+      }
+      if ( $n == 1 ){
+        
+      }
+      if ( $n == 2 ){
+        
+      }
+      else 
+        $decoded .= $str[$i];
+    }
+  }
+  
+  return $decoded;
+}
+
+// WIP
+function rle_decode_4bit($str){
+  $decoded = "";
+  $l = strlen($str);
+  
+  for ($i = 0; $i < $l; $i += 1) {
+    $c = $str[$i];
+    $higher =  ($c & 0xff00) >> 4;
+    $lower = ($c & 0x00ff);
+    $n = ord($higher);
+    //var_dump($n);
+    if ($n > 0) {
+      $decoded .= str_repeat($lower, $n);
+    } else {
+      $decoded .= $lower;
+    }
+  }
+  
+  return $decoded;
+}
+
 /**
  * Credit goes to mgutt 
  * http://www.programmierer-forum.de/function-imagecreatefrombmp-welche-variante-laeuft-t143137.htm
@@ -472,6 +529,17 @@ function imagecreatefrombmp($filename) {
   // create gd image
   $im = imagecreatetruecolor($meta['width'], $meta['height']);
   $data = fread($fh, $meta['imagesize']);
+
+  /*
+  if ($meta['compression'] == 1) {
+    $data = rle_decode($data);
+  }
+  elseif ($meta['compression'] == 2) {
+    $data = rle_decode_4bit($data);
+  }
+  */
+  
+
   $p = 0;
   $vide = chr(0);
   $y = $meta['height'] - 1;
@@ -540,6 +608,37 @@ function imagecreatefrombmp($filename) {
   return $im;
   } catch (Exception $e) {var_dump($e);}
 }
+}
+
+/**
+ * @param int $c
+ * @param int $m
+ * @param int $y
+ * @param int $k
+ * @return object
+ */
+function cmyk_to_rgb($c, $m = null, $y = null, $k = null) {
+  if (is_array($c)) {
+    list($c, $m, $y, $k) = $c;
+  }
+  
+  $c *= 255;
+  $m *= 255;
+  $y *= 255;
+  $k *= 255;
+  
+  $r = (1 - round(2.55 * ($c+$k))) ;
+  $g = (1 - round(2.55 * ($m+$k))) ;
+  $b = (1 - round(2.55 * ($y+$k))) ;
+    
+  if($r<0) $r = 0;
+  if($g<0) $g = 0;
+  if($b<0) $b = 0;
+    
+  return array(
+    $r, $g, $b,
+    "r" => $r, "g" => $g, "b" => $b
+  );
 }
 
 function unichr($c) {
