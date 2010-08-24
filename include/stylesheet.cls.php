@@ -363,7 +363,7 @@ class Stylesheet {
     // Add an implicit * at the beginning of the selector 
     // if it begins with an attribute selector
     if ( $selector[0] === "[" )
-      $selector = "* $selector";
+      $selector = "*$selector";
       
     // Add an implicit space at the beginning of the selector if there is no
     // delimiter there already.
@@ -456,6 +456,11 @@ class Stylesheet {
           $tok = "";
           break;
 
+        case "last-child":
+          $query .= "[not(following-sibling::*)]";
+          $tok = "";
+          break;
+
         case "link":
           $query .= "[@href]";
           $tok = "";
@@ -467,12 +472,36 @@ class Stylesheet {
         case "first-letter":
           break;
 
-        case "before":
+        /*case "before":
+          $query .= "*[@before]";
+          $tok = "";
           break;
 
         case "after":
+          $query .= "*[@after]";
+          $tok = "";
+          break;*/
+
+        case "empty":
+          $query .= "[not(*) and not(normalize-space())]";
+          $tok = "";
           break;
 
+        case "disabled":
+          $query .= "[@disabled]";
+          $tok = "";
+          break;
+
+        case "disabled":
+        case "checked":
+          $query .= "[@$tok]";
+          $tok = "";
+          break;
+          
+        case "enabled":
+          $query .= "[not(@disabled)]";
+          $tok = "";
+          break;
         }
 
         break;
@@ -635,11 +664,7 @@ class Stylesheet {
 
     // Apply all styles in stylesheet
     foreach ($this->_styles as $selector => $style) {
-
       $query = $this->_css_selector_to_xpath($selector);
-//       pre_var_dump($selector);
-//       pre_var_dump($query);
-//        echo ($style);
 
       // Retrieve the nodes
       $nodes = @$xp->query($query);
@@ -649,9 +674,8 @@ class Stylesheet {
       }
 
       foreach ($nodes as $node) {
-        //echo $node->nodeName . "\n";
         // Retrieve the node id
-        if ( $node->nodeType != 1 ) // Only DOMElements get styles
+        if ( $node->nodeType != XML_ELEMENT_NODE ) // Only DOMElements get styles
           continue;
 
         $id = $node->getAttribute("frame_id");
@@ -676,12 +700,12 @@ class Stylesheet {
       // Find nearest DOMElement parent
       $p = $frame;
       while ( $p = $p->get_parent() )
-        if ($p->get_node()->nodeType == 1 )
+        if ($p->get_node()->nodeType == XML_ELEMENT_NODE )
           break;
 
       // Styles can only be applied directly to DOMElements; anonymous
       // frames inherit from their parent
-      if ( $frame->get_node()->nodeType != 1 ) {
+      if ( $frame->get_node()->nodeType != XML_ELEMENT_NODE ) {
         if ( $p )
           $style->inherit($p->get_style());
         $frame->set_style($style);

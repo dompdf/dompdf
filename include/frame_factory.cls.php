@@ -76,7 +76,10 @@ class Frame_Factory {
   static function decorate_frame(Frame $frame, DOMPDF $dompdf) {
     if ( is_null($dompdf) )
       throw new Exception("foo");
-    switch ($frame->get_style()->display) {
+      
+    $style = $frame->get_style();
+    
+    switch ($style->display) {
       
     case "block":
       $positioner = "Block";        
@@ -140,12 +143,12 @@ class Frame_Factory {
       break;
 
     case "-dompdf-list-bullet":
-      if ( $frame->get_style()->list_style_position === "inside" )
+      if ( $style->list_style_position === "inside" )
         $positioner = "Inline";
       else        
         $positioner = "List_Bullet";
 
-      if ( $frame->get_style()->list_style_image !== "none" )
+      if ( $style->list_style_image !== "none" )
         $decorator = "List_Bullet_Image";
       else
         $decorator = "List_Bullet";
@@ -175,12 +178,14 @@ class Frame_Factory {
 
     }
 
-    if ( $frame->get_style()->position === "absolute" )
+    $position = $style->position;
+    
+    if ( $position === "absolute" )
       $positioner = "Absolute";
 
-    if ( $frame->get_style()->position === "fixed" )
+    else if ( $position === "fixed" )
       $positioner = "Fixed";
-
+  
     $positioner .= "_Positioner";
     $decorator .= "_Frame_Decorator";
     $reflower .= "_Frame_Reflower";

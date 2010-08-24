@@ -1470,31 +1470,36 @@ class  Cpdf {
     case  'new':
       // make the new object
       $this->objects[$id] = array('t'=>'image', 'data'=>&$options['data'], 'info'=>array());
-      $this->objects[$id]['info']['Type'] = '/XObject';
-      $this->objects[$id]['info']['Subtype'] = '/Image';
-      $this->objects[$id]['info']['Width'] = $options['iw'];
-      $this->objects[$id]['info']['Height'] = $options['ih'];
+      
+      $info =& $this->objects[$id]['info'];
+      
+      $info['Type'] = '/XObject';
+      $info['Subtype'] = '/Image';
+      $info['Width'] = $options['iw'];
+      $info['Height'] = $options['ih'];
 
-      if  (!isset($options['type']) ||  $options['type'] === 'jpg') {
+      if  (!isset($options['type']) || $options['type'] === 'jpg') {
         if  (!isset($options['channels'])) {
           $options['channels'] = 3;
         }
 
         switch ($options['channels']) {
-        case  1:
-          $this->objects[$id]['info']['ColorSpace'] = '/DeviceGray';
-          break;
-
-        default:
-          $this->objects[$id]['info']['ColorSpace'] = '/DeviceRGB';
-          break;
+          case  1: $info['ColorSpace'] = '/DeviceGray'; break;
+          case  4: $info['ColorSpace'] = '/DeviceCMYK'; break;
+          default: $info['ColorSpace'] = '/DeviceRGB'; break;
+        }
+        
+        if ($info['ColorSpace'] === '/DeviceCMYK') {
+          $info['Decode'] = '[1 0 1 0 1 0 1 0]';
         }
 
-        $this->objects[$id]['info']['Filter'] = '/DCTDecode';
-        $this->objects[$id]['info']['BitsPerComponent'] = 8;
-      } else  if  ($options['type'] === 'png') {
-        $this->objects[$id]['info']['Filter'] = '/FlateDecode';
-        $this->objects[$id]['info']['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
+        $info['Filter'] = '/DCTDecode';
+        $info['BitsPerComponent'] = 8;
+      } 
+      
+      else if  ($options['type'] === 'png') {
+        $info['Filter'] = '/FlateDecode';
+        $info['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
 
         if  (mb_strlen($options['pdata'], '8bit')) {
           $tmp =  ' [ /Indexed /DeviceRGB '.(mb_strlen($options['pdata'], '8bit') /3-1) .' ';
@@ -1503,12 +1508,13 @@ class  Cpdf {
           $this->objects[$this->numObj]['c'] = $options['pdata'];
           $tmp.= $this->numObj.' 0 R';
           $tmp.= ' ]';
-          $this->objects[$id]['info']['ColorSpace'] =  $tmp;
+          $info['ColorSpace'] =  $tmp;
+          
           if  (isset($options['transparency'])) {
             switch ($options['transparency']['type']) {
             case  'indexed':
               $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
-              $this->objects[$id]['info']['Mask'] =  $tmp;
+              $info['Mask'] =  $tmp;
               break;
 
             case 'color-key':
@@ -1517,10 +1523,8 @@ class  Cpdf {
                 $options['transparency']['g'] . ' ' . $options['transparency']['g'] .
                 $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
                 ' ] ';
-              $this->objects[$id]['info']['Mask'] = $tmp;
-              pre_r($tmp);
+              $info['Mask'] = $tmp;
               break;
-              
             }
           }
         } else {
@@ -1528,7 +1532,7 @@ class  Cpdf {
             switch ($options['transparency']['type']) {
             case  'indexed':
               $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
-              $this->objects[$id]['info']['Mask'] =  $tmp;
+              $info['Mask'] =  $tmp;
               break;
 
             case 'color-key':
@@ -1537,14 +1541,14 @@ class  Cpdf {
                 $options['transparency']['g'] . ' ' . $options['transparency']['g'] . ' ' .
                 $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
                 ' ] ';
-              $this->objects[$id]['info']['Mask'] = $tmp;
+              $info['Mask'] = $tmp;
               break;
             }
           }
-          $this->objects[$id]['info']['ColorSpace'] = '/'.$options['color'];
+          $info['ColorSpace'] = '/'.$options['color'];
         }
 
-        $this->objects[$id]['info']['BitsPerComponent'] = $options['bitsPerComponent'];
+        $info['BitsPerComponent'] = $options['bitsPerComponent'];
       }
 
       // assign it a place in the named resource dictionary as an external object, according to
@@ -1805,7 +1809,7 @@ class  Cpdf {
    * also the functions that the user will have are set here, such as print, modify, add
    */
   function  setEncryption($userPass = '', $ownerPass = '', $pc = array()) {
-    $p = bindec(11000000);
+    $p = bindec("11000000");
 
     $options =  array('print'=>4, 'modify'=>8, 'copy'=>16, 'add'=>32);
 
@@ -4064,7 +4068,6 @@ class  Cpdf {
       }
     }
 
-
     if  (!$error) {
       // set pointer
       $p =  8;
@@ -4306,13 +4309,13 @@ class  Cpdf {
 
 	if ( isset($this->imagelist[$img]) ) {
 	  $data = null;
-      $imageWidth = $this->imagelist[$img]['w'];
+      $imageWidth  = $this->imagelist[$img]['w'];
       $imageHeight = $this->imagelist[$img]['h'];
-      $channels =  $this->imagelist[$img]['c'];
+      $channels    = $this->imagelist[$img]['c'];
 	} else {
-      $tmp =  getimagesize($img);
-      $imageWidth =  $tmp[0];
-      $imageHeight =  $tmp[1];
+      $tmp = getimagesize($img);
+      $imageWidth  = $tmp[0];
+      $imageHeight = $tmp[1];
 
       if  (isset($tmp['channels'])) {
         $channels =  $tmp['channels'];
@@ -4320,10 +4323,7 @@ class  Cpdf {
         $channels =  3;
       }
 
-      //$fp = fopen($img,'rb');
       $data =  file_get_contents($img);
-      //fread($fp,filesize($img));
-      //fclose($fp);
     }
 
     if  ($w <=  0 &&  $h <=  0) {
@@ -4428,7 +4428,14 @@ class  Cpdf {
       $im =  $this->numImages;
       $label =  'I'.$im;
       $this->numObj++;
-      $this->o_image($this->numObj, 'new', array('label' => $label, 'data' => &$data, 'iw' => $imageWidth, 'ih' => $imageHeight, 'channels' => $channels));
+      
+      $this->o_image($this->numObj, 'new', array(
+        'label' => $label, 
+        'data' => &$data, 
+        'iw' => $imageWidth, 
+        'ih' => $imageHeight, 
+        'channels' => $channels
+      ));
       $this->imagelist[$imgname] = array('label' =>$label, 'w' => $imageWidth, 'h' => $imageHeight, 'c'=> $channels );
     }
 
