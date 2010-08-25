@@ -345,6 +345,20 @@ abstract class Frame_Decorator extends Frame {
 
     return $p;
   }
+  
+  function find_relative_parent() {
+
+    // Find our nearest relative positionned parent
+    $p = $this->get_parent();
+    while ( $p ) {
+      if ( $p->get_style()->position === "relative" )
+        break;
+
+      $p = $p->get_parent();
+    }
+
+    return $p;
+  }
 
   //........................................................................
 

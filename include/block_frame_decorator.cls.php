@@ -181,11 +181,10 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     $frame->position();
 
-
     $this->_lines[$this->_cl]["frames"][] = $frame;
 
     if ( $frame->get_node()->nodeName === "#text")
-      $this->_lines[$this->_cl]["wc"] += count(preg_split("/\s+/", $frame->get_text()));
+      $this->_lines[$this->_cl]["wc"] += count(preg_split("/\s+/", trim($frame->get_text())));
 
     $this->_lines[$this->_cl]["w"] += $w;
     $this->_lines[$this->_cl]["h"] = max($this->_lines[$this->_cl]["h"], $frame->get_margin_height());

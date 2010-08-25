@@ -57,7 +57,7 @@ class Absolute_Positioner extends Positioner {
     $right =  $style->length_in_pt($style->right, $cb["w"]);
     $bottom = $style->length_in_pt($style->bottom, $cb["w"]);
     
-    $p = $this->_frame->find_block_parent();
+    $p = $this->_frame->find_relative_parent();
 
     if ( $p ) {
       // Get the parent's padding box (see http://www.w3.org/TR/CSS21/visuren.html#propdef-top)

@@ -176,11 +176,15 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   // Call the above function, but resolve max/min widths
   protected function _calculate_restricted_width() {
-    $style = $this->_frame->get_style();
-    $cb = $this->_frame->get_containing_block();
+    $frame = $this->_frame;
+    $style = $frame->get_style();
+    $cb = $frame->get_containing_block();
     
-    if($style->position === "fixed")
-      $cb = $this->_frame->get_root()->get_containing_block();
+    if ( $style->position === "fixed" )
+      $cb = $frame->get_root()->get_containing_block();
+    
+    //if ( $style->position === "absolute" )
+    //  $cb = $frame->find_relative_parent()->get_containing_block();
 
     if ( !isset($cb["w"]) )
       throw new DOMPDF_Exception("Box property calculation requires containing block width");
@@ -353,7 +357,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     } else {
 
       // Expand the height if overflow is visible
-      if ( $height == "auto" && $content_height > $height && $style->overflow === "visible" )
+      if ( $height === "auto" && $content_height > $height && $style->overflow === "visible" )
         $height = $content_height;
 
       // FIXME: this should probably be moved to a seperate function as per
@@ -428,11 +432,15 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
 
     case "justify":
-      foreach ($this->_frame->get_lines() as $i => $line) {
+      // We justify all lines except the last one
+      $lines = array_splice($this->_frame->get_lines(), 0, -1);
+      
+      foreach ($lines as $i => $line) {
 
         // Only set the spacing if the line is long enough.  This is really
         // just an aesthetic choice ;)
         if ( $line["w"] > self::MIN_JUSTIFY_WIDTH * $width ) {
+          
           // Set the spacing for each child
           if ( $line["wc"] > 1 )
             $spacing = ($width - $line["w"]) / ($line["wc"] - 1);

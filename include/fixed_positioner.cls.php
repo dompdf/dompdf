@@ -47,28 +47,30 @@ class Fixed_Positioner extends Positioner {
 
   function position() {
 
-    $style = $this->_frame->get_original_style();
-    $initialcb = $this->_frame->get_root()->get_containing_block();
-    $initialcb_style = $this->_frame->get_root()->get_style();
+    $frame = $this->_frame;
+    $style = $frame->get_original_style();
+    $root = $frame->get_root();
+    $initialcb = $root->get_containing_block();
+    $initialcb_style = $root->get_style();
 
-    $p = $this->_frame->find_block_parent();
+    $p = $frame->find_block_parent();
     if ( $p ) {
       $p->add_line();
     }
 
     // Compute the margins of the @page style
-    $margin_top    = $initialcb_style->length_in_pt($initialcb_style->margin_top, $initialcb["h"]);
+    $margin_top    = $initialcb_style->length_in_pt($initialcb_style->margin_top,    $initialcb["h"]);
     $margin_bottom = $initialcb_style->length_in_pt($initialcb_style->margin_bottom, $initialcb["h"]);
-    $margin_left   = $initialcb_style->length_in_pt($initialcb_style->margin_left, $initialcb["w"]);
-    $margin_right  = $initialcb_style->length_in_pt($initialcb_style->margin_right, $initialcb["w"]);
+    $margin_left   = $initialcb_style->length_in_pt($initialcb_style->margin_left,   $initialcb["w"]);
+    $margin_right  = $initialcb_style->length_in_pt($initialcb_style->margin_right,  $initialcb["w"]);
     
     // The needed computed style of the element
     $height = $style->length_in_pt($style->height, $initialcb["h"]);
-    $top    = $style->length_in_pt($style->top, $initialcb["h"]);
+    $top    = $style->length_in_pt($style->top,    $initialcb["h"]);
     $bottom = $style->length_in_pt($style->bottom, $initialcb["h"]);
-    $left   = $style->length_in_pt($style->left, $initialcb["w"]);
-    $right  = $style->length_in_pt($style->right, $initialcb["w"]);
-    $width  = $style->length_in_pt($style->width, $initialcb["w"]);
+    $left   = $style->length_in_pt($style->left,   $initialcb["w"]);
+    $right  = $style->length_in_pt($style->right,  $initialcb["w"]);
+    $width  = $style->length_in_pt($style->width,  $initialcb["w"]);
 
     $y = $margin_top;
     if ( isset($top) ) {
@@ -103,9 +105,10 @@ class Fixed_Positioner extends Positioner {
         }
       }
     }
-    $this->_frame->set_position($x, $y);
+    
+    $frame->set_position($x, $y);
 
-    $children = $this->_frame->get_children();
+    $children = $frame->get_children();
     foreach($children as $child) {
       $child->set_position($x, $y);
     }
