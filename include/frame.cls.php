@@ -153,6 +153,8 @@ class Frame {
    */
   protected $_decorator;
   
+  protected $_containing_line;
+  
   /**
    * Class destructor
    */
@@ -454,6 +456,10 @@ class Frame {
     return $this->_opacity;
   }
   
+  function &get_containing_line() {
+    return $this->_containing_line;
+  }
+  
   //........................................................................
 
   // Set methods
@@ -519,6 +525,10 @@ class Frame {
     $parent = $this->get_parent();
     $base_opacity = (($parent && $parent->_opacity !== null) ? $parent->_opacity : 1.0);
     $this->_opacity = $base_opacity * $opacity;
+  }
+  
+  function set_containing_line(&$line) {
+    $this->_containing_line = &$line;
   }
 
   //........................................................................

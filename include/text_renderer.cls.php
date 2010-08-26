@@ -116,6 +116,9 @@ class Text_Renderer extends Abstract_Renderer {
       //print '<pre>Text_Renderer other than cpdf:'.$base.' '.$descent.' '.$size.'</pre>';
     }
     
+    $line = $frame->get_containing_line();
+    $height = $line["h"];
+    
     // Handle text decoration:
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-decoration
     
@@ -129,10 +132,10 @@ class Text_Renderer extends Abstract_Renderer {
     while ( count($stack) > 0 ) {
       $f = array_pop($stack);
 
-      $deco_y = $y;
       if ( ($text_deco = $f->get_style()->text_decoration) === "none" )
         continue;
-
+        
+      $deco_y = $line["y"];
       $color = $f->get_style()->color;
 
       switch ($text_deco) {
@@ -141,15 +144,15 @@ class Text_Renderer extends Abstract_Renderer {
         continue;
 
       case "underline":
-        $deco_y += $base - $descent+ $size * (self::UNDERLINE_OFFSET - self::DECO_THICKNESS/2);
+        $deco_y += $height * 0.8; // $base - $descent+ $size * (self::UNDERLINE_OFFSET - self::DECO_THICKNESS/2);
         break;
 
       case "overline":
-        $deco_y += $size * (self::OVERLINE_OFFSET + self::DECO_THICKNESS/2);
+        $deco_y += $height * 0.05; // $size * (self::OVERLINE_OFFSET + self::DECO_THICKNESS/2);
         break;
 
       case "line-through":
-        $deco_y += $base * 0.7 + $size * self::LINETHROUGH_OFFSET;
+        $deco_y += $height * 0.5; //$base * 0.7 + $size * self::LINETHROUGH_OFFSET;
         break;
 
       }
@@ -157,7 +160,7 @@ class Text_Renderer extends Abstract_Renderer {
       $dx = 0;
       $x1 = $x - self::DECO_EXTENSION;
       $x2 = $x + $style->width + $dx + self::DECO_EXTENSION;
-      $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $size * self::DECO_THICKNESS);
+      $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $line["h"] * self::DECO_THICKNESS);
 
     }
   }

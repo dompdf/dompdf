@@ -489,7 +489,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         if ( $style->display !== "inline" && $style->display !== "text" )
           continue;
 
-        $align = $style->vertical_align;
+        $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
 
         $frame_h = $frame->get_margin_height();
 
@@ -504,11 +504,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
           break;
 
         case "sub":
-          $y = $line["y"] + 0.9 * $line["h"];
+          $y = $line["y"] + 0.2 * $line["h"];
           break;
 
         case "super":
-          $y = $line["y"] + 0.1 * $line["h"];
+          $y = $line["y"] - 0.3 * $line["h"];
           break;
 
         case  "text-top":

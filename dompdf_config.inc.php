@@ -175,7 +175,7 @@ if (!defined("DOMPDF_CHROOT")) {
  *
  */
 if (!defined("DOMPDF_UNICODE_ENABLED")) {
-  define("DOMPDF_UNICODE_ENABLED", false);
+  define("DOMPDF_UNICODE_ENABLED", true);
 }
 
 /**

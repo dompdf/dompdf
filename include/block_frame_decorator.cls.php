@@ -124,7 +124,9 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
 
   function add_frame_to_line(Frame $frame) {
-
+    
+    $frame->set_containing_line($this->_lines[$this->_cl]);
+    
     // Handle inline frames (which are effectively wrappers)
     if ( $frame instanceof Inline_Frame_Decorator ) {
 

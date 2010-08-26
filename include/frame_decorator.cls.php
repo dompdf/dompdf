@@ -157,6 +157,7 @@ abstract class Frame_Decorator extends Frame {
 
   }
   
+  function get_frame() { return $this->_frame; }
   function get_node() { return $this->_frame->get_node(); }
   function get_id() { return $this->_frame->get_id(); }
   function get_style() { return $this->_frame->get_style(); }
