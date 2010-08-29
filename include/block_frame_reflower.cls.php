@@ -421,12 +421,15 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     case "right":
       foreach ($this->_frame->get_lines() as $line) {
-
         // Move each child over by $dx
         $dx = $width - $line["w"];
-        foreach($line["frames"] as $frame)
+        
+        foreach($line["frames"] as $frame) {
+          // Block frames are not aligned by text-align
+          if ($frame instanceof Block_Frame_Decorator) continue;
+          
           $frame->set_position( $frame->get_position("x") + $dx );
-
+        }
       }
       break;
 
@@ -466,16 +469,21 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     case "center":
     case "centre":
-      foreach ($this->_frame->get_lines() as $i => $line) {
+      foreach ($this->_frame->get_lines() as $line) {
         // Centre each line by moving each frame in the line by:
         $dx = ($width - $line["w"]) / 2;
-        foreach ($line["frames"] as $frame)
+        
+        foreach ($line["frames"] as $frame) {
+          // Block frames are not aligned by text-align
+          if ($frame instanceof Block_Frame_Decorator) continue;
+          
           $frame->set_position( $frame->get_position("x") + $dx );
+        }
       }
       break;
     }
-
   }
+  
   /**
    * Align inline children vertically
    */
@@ -483,6 +491,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Align each child vertically after each line is reflowed
     foreach ( $this->_frame->get_lines() as $i => $line ) {
 
+      $height = $line["h"];
+    
       foreach ( $line["frames"] as $frame ) {
         $style = $frame->get_style();
 
@@ -490,35 +500,34 @@ class Block_Frame_Reflower extends Frame_Reflower {
           continue;
 
         $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
-
         $frame_h = $frame->get_margin_height();
-
+        $y = $line["y"];
+        
         switch ($align) {
 
         case "baseline":
-          $y = $line["y"] + $line["h"] - $frame_h;
+          $y += $height - $frame_h;
           break;
 
         case "middle":
-          $y = $line["y"] + ($line["h"] + $frame_h) / 2;
+          $y += ($height + $frame_h) / 2;
           break;
 
         case "sub":
-          $y = $line["y"] + 0.2 * $line["h"];
+          $y += 0.2 * $height;
           break;
 
         case "super":
-          $y = $line["y"] - 0.3 * $line["h"];
+          $y += -0.3 * $height;
           break;
 
-        case  "text-top":
+        case "text-top":
         case "top": // Not strictly accurate, but good enough for now
-          $y = $line["y"];
           break;
 
         case "text-bottom":
         case "bottom":
-          $y = $line["y"] + $line["h"] - $frame_h;
+          $y += $height - $frame_h;
           break;
         }
 

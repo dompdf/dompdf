@@ -59,6 +59,12 @@ class Image_Frame_Reflower extends Frame_Reflower {
   }
 
   function reflow() {
+    //FLOAT
+    //$frame = $this->_frame;
+    //$page = $frame->get_root();
+    //if ($frame->get_style()->float !== "none" ) {
+    //  $page->add_floating_frame($this);
+    //}
     // Set the frame's width
     $this->get_min_max_width();
   }

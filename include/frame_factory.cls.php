@@ -98,9 +98,16 @@ class Frame_Factory {
       if ( $frame->get_node()->nodeName === "#text" ) {
         $decorator = "Text";
         $reflower = "Text";
-      } else {
-        $decorator = "Inline";
-        $reflower = "Inline";
+      } 
+      else {
+        if ( $style->float !== "none" ) {
+          $decorator = "Block";
+          $reflower = "Block";
+        }
+        else {
+          $decorator = "Inline";
+          $reflower = "Inline";
+        }
       }
       break;   
 
@@ -175,7 +182,6 @@ class Frame_Factory {
       $decorator = "Null";
       $reflower = "Null";
       break;
-
     }
 
     $position = $style->position;

@@ -64,6 +64,19 @@ class Block_Renderer extends Abstract_Renderer {
       $this->_background_image($url, $x, $y, $w, $h, $style);
 
     $this->_render_border($frame);
+    
+    if (DEBUG_LAYOUT && DEBUG_BLOCKS) {
+      $this->_debug_layout($frame->get_border_box(), "red");
+      if (DEBUG_PADDINGBOX) {
+        $this->_debug_layout($frame->get_padding_box(), "red", array(0, 1));
+      }
+    }
+    
+    if (DEBUG_LAYOUT && DEBUG_LINES && $frame->get_decorator()) {
+      foreach ($frame->get_decorator()->get_lines() as $line) {
+        $frame->_debug_layout(array($line["x"], $line["y"], $line["w"], $line["h"]), "orange");
+      }
+    }
   }
 
   protected function _render_border(Frame_Decorator $frame, $corner_style = "bevel") {

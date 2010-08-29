@@ -283,7 +283,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
      * next page (but they don't yet).
      */
 
-    $block_types = array("block", "list-item", "table");
+    $block_types = array("block", "list-item", "table", "-dompdf-image");
     dompdf_debug("page-break", "_page_break_allowed(" . $frame->get_node()->nodeName. ")");
     $display = $frame->get_style()->display;
 

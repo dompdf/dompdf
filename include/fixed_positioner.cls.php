@@ -60,17 +60,18 @@ class Fixed_Positioner extends Positioner {
 
     // Compute the margins of the @page style
     $margin_top    = $initialcb_style->length_in_pt($initialcb_style->margin_top,    $initialcb["h"]);
+    $margin_right  = $initialcb_style->length_in_pt($initialcb_style->margin_right,  $initialcb["w"]);
     $margin_bottom = $initialcb_style->length_in_pt($initialcb_style->margin_bottom, $initialcb["h"]);
     $margin_left   = $initialcb_style->length_in_pt($initialcb_style->margin_left,   $initialcb["w"]);
-    $margin_right  = $initialcb_style->length_in_pt($initialcb_style->margin_right,  $initialcb["w"]);
     
     // The needed computed style of the element
     $height = $style->length_in_pt($style->height, $initialcb["h"]);
+    $width  = $style->length_in_pt($style->width,  $initialcb["w"]);
+    
     $top    = $style->length_in_pt($style->top,    $initialcb["h"]);
+    $right  = $style->length_in_pt($style->right,  $initialcb["w"]);
     $bottom = $style->length_in_pt($style->bottom, $initialcb["h"]);
     $left   = $style->length_in_pt($style->left,   $initialcb["w"]);
-    $right  = $style->length_in_pt($style->right,  $initialcb["w"]);
-    $width  = $style->length_in_pt($style->width,  $initialcb["w"]);
 
     $y = $margin_top;
     if ( isset($top) ) {

@@ -103,7 +103,7 @@ class Text_Renderer extends Abstract_Renderer {
                          $font, $size,
                          $style->color, $spacing);
 
-    if ( method_exists( $this->_canvas, "get_cpdf" ) ) {
+    /*if ( method_exists( $this->_canvas, "get_cpdf" ) ) {
       $fontBBox = $this->_canvas->get_cpdf()->fonts[$this->_canvas->get_cpdf()->currentFont]['FontBBox'];
       $base = ($fontBBox[3]*$size)/1000;
       $descent = ($fontBBox[1]*$size)/1000;
@@ -114,10 +114,12 @@ class Text_Renderer extends Abstract_Renderer {
       $base = $size;
       $descent = $size-$height;
       //print '<pre>Text_Renderer other than cpdf:'.$base.' '.$descent.' '.$size.'</pre>';
-    }
+    }*/
     
     $line = $frame->get_containing_line();
-    $height = $line["h"];
+    $base_frame = $line["tallest_frame"] ? $line["tallest_frame"] : $frame;
+    $tallest_frame_style = $base_frame->get_style();
+    $height = $line["h"] * ($tallest_frame_style->font_size / $tallest_frame_style->line_height);
     
     // Handle text decoration:
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-decoration
@@ -144,7 +146,7 @@ class Text_Renderer extends Abstract_Renderer {
         continue;
 
       case "underline":
-        $deco_y += $height * 0.8; // $base - $descent+ $size * (self::UNDERLINE_OFFSET - self::DECO_THICKNESS/2);
+        $deco_y += $height * 0.90; // $base - $descent+ $size * (self::UNDERLINE_OFFSET - self::DECO_THICKNESS/2);
         break;
 
       case "overline":
@@ -152,16 +154,19 @@ class Text_Renderer extends Abstract_Renderer {
         break;
 
       case "line-through":
-        $deco_y += $height * 0.5; //$base * 0.7 + $size * self::LINETHROUGH_OFFSET;
+        $deco_y += $height * 0.55; //$base * 0.7 + $size * self::LINETHROUGH_OFFSET;
         break;
-
       }
 
       $dx = 0;
       $x1 = $x - self::DECO_EXTENSION;
       $x2 = $x + $style->width + $dx + self::DECO_EXTENSION;
-      $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $line["h"] * self::DECO_THICKNESS);
+      $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, self::DECO_THICKNESS);
 
+    }
+    
+    if (DEBUG_LAYOUT && DEBUG_LINES) {
+      $this->_debug_layout(array($x+$line["x"], $y, Font_Metrics::get_text_width($text, $font, $size)+($line["wc"]-1)*$spacing, $size), "orange", array(0, 2));
     }
   }
 

@@ -58,9 +58,14 @@ class Inline_Frame_Reflower extends Frame_Reflower {
     $page->check_forced_page_break($this->_frame);
     if ( $page->is_full() )
       return;
-
+      
     $style = $this->_frame->get_style();
     $this->_frame->position();
+  
+    //FLOAT
+    //if ($style->float !== "none" ) {
+    //  $page->add_floating_frame($child);
+    //}
 
     $cb = $this->_frame->get_containing_block();
 

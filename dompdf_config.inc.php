@@ -446,11 +446,30 @@ $_DOMPDF_DEBUG_TYPES = array(); //array("page-break" => 1);
  * the browser cache and the premature output prevents setting of the mime type.
  */
 if (!defined('DEBUGPNG')) {
-  define('DEBUGPNG',0);
+  define('DEBUGPNG', false);
 }
 if (!defined('DEBUGKEEPTEMP')) {
-  define('DEBUGKEEPTEMP',0);
+  define('DEBUGKEEPTEMP', false);
 }
 if (!defined('DEBUGCSS')) {
-  define('DEBUGCSS',0);
+  define('DEBUGCSS', false);
+}
+
+/* Layout debugging. Will display rectangles around different block levels.
+ * Visible in the PDF itself.
+ */
+if (!defined('DEBUG_LAYOUT')) {
+  define('DEBUG_LAYOUT', false);
+}
+if (!defined('DEBUG_LINES')) {
+  define('DEBUG_LINES', true);
+}
+if (!defined('DEBUG_BLOCKS')) {
+  define('DEBUG_BLOCKS', true);
+}
+if (!defined('DEBUG_INLINE')) {
+  define('DEBUG_INLINE', true);
+}
+if (!defined('DEBUG_PADDINGBOX')) {
+  define('DEBUG_PADDINGBOX', true);
 }

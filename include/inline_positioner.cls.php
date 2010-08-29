@@ -80,8 +80,6 @@ class Inline_Positioner extends Positioner {
       }
     }
 
-    $height = $style->length_in_pt($style->height, $cb["h"]);
-
     $f = $this->_frame;
 
     if ( !$is_fixed && $f->get_parent() &&
@@ -93,6 +91,7 @@ class Inline_Positioner extends Positioner {
       $height = $style->length_in_pt($style->height, $initialcb["h"]);
       
       // If the frame doesn't fit in the current page, a page break occurs
+      // FIXME this breaks rendering in some cases
       if ( $height !== "auto" && ($height > ($initialcb["h"]-$line["y"]*1.1) ) &&
           !$f->get_dompdf()->get_tree()->get_root()->get_decorator()->is_full()) {
         $f->split(null, true);

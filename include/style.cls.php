@@ -1499,42 +1499,42 @@ class Style {
       $this->_set_style("font_style", self::$_defaults["font_style"], $important);
     }
 
-	if ( preg_match("/^(small-caps|normal)\s*(.*)$/i",$val,$match) ) {
-		$this->_set_style("font_variant", $match[1], $important);
-		$val = $match[2];
-	} else {
-		$this->_set_style("font_variant", self::$_defaults["font_variant"], $important);
-	}
+    if ( preg_match("/^(small-caps|normal)\s*(.*)$/i",$val,$match) ) {
+      $this->_set_style("font_variant", $match[1], $important);
+      $val = $match[2];
+    } else {
+      $this->_set_style("font_variant", self::$_defaults["font_variant"], $important);
+    }
 
     //matching numeric value followed by unit -> this is indeed a subsequent font size. Skip!
-	if ( preg_match("/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900|normal)\s*(.*)$/i",$val,$match) &&
+    if ( preg_match("/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900|normal)\s*(.*)$/i",$val,$match) &&
          !preg_match("/^(?:pt|px|pc|em|ex|in|cm|mm|%)/",$match[2])
-	   ) {
-		$this->_set_style("font_weight", $match[1], $important);
-		$val = $match[2];
-	} else {
-		$this->_set_style("font_weight", self::$_defaults["font_weight"], $important);
-	}
-
-	if ( preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
-		$this->_set_style("font_size", $match[1], $important);
-		$val = $match[2];
-    if (preg_match("/^\/\s*(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
-			$this->_set_style("line_height", $match[1], $important);
-			$val = $match[2];
+       ) {
+      $this->_set_style("font_weight", $match[1], $important);
+      $val = $match[2];
     } else {
-			$this->_set_style("line_height", self::$_defaults["line_height"], $important);
+      $this->_set_style("font_weight", self::$_defaults["font_weight"], $important);
     }
-	} else {
- 		$this->_set_style("font_size", self::$_defaults["font_size"], $important);
-		$this->_set_style("line_height", self::$_defaults["line_height"], $important);
-	}
 
-	if(strlen($val) != 0) {
-	  $this->_set_style("font_family", $val, $important);
-	} else {
-	  $this->_set_style("font_family", self::$_defaults["font_family"], $important);
-	}
+    if ( preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
+      $this->_set_style("font_size", $match[1], $important);
+      $val = $match[2];
+      if (preg_match("/^\/\s*(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))\s*(.*)$/i",$val,$match) ) {
+        $this->_set_style("line_height", $match[1], $important);
+        $val = $match[2];
+      } else {
+        $this->_set_style("line_height", self::$_defaults["line_height"], $important);
+      }
+    } else {
+      $this->_set_style("font_size", self::$_defaults["font_size"], $important);
+      $this->_set_style("line_height", self::$_defaults["line_height"], $important);
+    }
+
+    if(strlen($val) != 0) {
+      $this->_set_style("font_family", $val, $important);
+    } else {
+      $this->_set_style("font_family", self::$_defaults["font_family"], $important);
+    }
   }
 
   /**#@+

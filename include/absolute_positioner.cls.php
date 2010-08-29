@@ -52,10 +52,10 @@ class Absolute_Positioner extends Positioner {
 
     $style = $this->_frame->get_style();
 
-    $top =    $style->length_in_pt($style->top, $cb["h"]);
-    $left =   $style->length_in_pt($style->left, $cb["h"]);
-    $right =  $style->length_in_pt($style->right, $cb["w"]);
-    $bottom = $style->length_in_pt($style->bottom, $cb["w"]);
+    $top =    $style->length_in_pt($style->top,    $cb["h"]);
+    $right =  $style->length_in_pt($style->right,  $cb["w"]);
+    $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
+    $left =   $style->length_in_pt($style->left,   $cb["w"]);
     
     $p = $this->_frame->find_relative_parent();
 

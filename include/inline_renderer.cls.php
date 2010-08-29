@@ -194,5 +194,12 @@ class Inline_Renderer extends Abstract_Renderer {
       if ( $href = $frame->get_node()->getAttribute("href") )
         $this->_canvas->add_link($href, $x, $y, $w, $h);
     }
+    
+    if (DEBUG_LAYOUT && DEBUG_INLINE) {
+      $this->_debug_layout($child->get_border_box(), "blue");
+      if (DEBUG_PADDINGBOX) {
+        $this->_debug_layout($child->get_padding_box(), "blue", array(0, 1));
+      }
+    }
   }
 }

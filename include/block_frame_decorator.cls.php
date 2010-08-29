@@ -58,25 +58,34 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
   function __construct(Frame $frame, DOMPDF $dompdf) {
     parent::__construct($frame, $dompdf);
-    $this->_lines = array(array("frames" => array(),
-                                "wc" => 0,
-                                "y" => null,
-                                "w" => 0,
-                                "h" => 0));
+    
+    $this->_lines = array(array(
+      "frames" => array(),
+      "wc" => 0,
+      "y" => null,
+      "w" => 0,
+      "h" => 0,
+      "tallest_frame" => null,
+    ));
+    
     $this->_counters = array(self::DEFAULT_COUNTER => 0);
     $this->_cl = 0;
-
   }
 
   //........................................................................
 
   function reset() {
     parent::reset();
-    $this->_lines = array(array("frames" => array(),
-                                "wc" => 0,
-                                "y" => null,
-                                "w" => 0,
-                                "h" => 0));
+    
+    $this->_lines = array(array(
+      "frames" => array(),
+      "wc" => 0,
+      "y" => null,
+      "w" => 0,
+      "h" => 0,
+      "tallest_frame" => null,
+    ));
+    
     $this->_counters = array(self::DEFAULT_COUNTER => 0);
     $this->_cl = 0;
   }
@@ -97,8 +106,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
   //........................................................................
 
   // Set methods
-  function set_current_line($y = null, $w = null, $h = null) {
-    $this->set_line($this->_cl, $y, $w, $h);
+  function set_current_line($y = null, $w = null, $h = null, $tallest_frame = null) {
+    $this->set_line($this->_cl, $y, $w, $h, $tallest_frame);
   }
 
   function clear_line($i) {
@@ -106,7 +115,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
       unset($this->_lines[$i]);
   }
 
-  function set_line($lineno, $y = null, $w = null, $h = null) {
+  function set_line($lineno, $y = null, $w = null, $h = null, $tallest_frame = null) {
 
     if ( is_array($y) )
       extract($y);
@@ -120,10 +129,14 @@ class Block_Frame_Decorator extends Frame_Decorator {
     if (is_numeric($h))
       $this->_lines[$lineno]["h"] = $h;
 
+    if ($tallest_frame && $tallest_frame instanceof Frame)
+      $this->_lines[$lineno]["tallest_frame"] = $tallest_frame;
+      
   }
 
 
   function add_frame_to_line(Frame $frame) {
+    $style = $frame->get_style();
     
     $frame->set_containing_line($this->_lines[$this->_cl]);
     
@@ -132,7 +145,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
       // Handle line breaks
       if ( $frame->get_node()->nodeName === "br" ) {
-        $this->maximize_line_height( $frame->get_style()->length_in_pt($frame->get_style()->line_height) );
+        $this->maximize_line_height( $style->length_in_pt($style->line_height), $frame );
         $this->add_line();
         return;
       }
@@ -148,12 +161,11 @@ class Block_Frame_Decorator extends Frame_Decorator {
     // but what can you do...
     if ( $this->_lines[$this->_cl]["w"] == 0 &&
          $frame->get_node()->nodeName === "#text" &&
-         ($frame->get_style()->white_space !== "pre" ||
-          $frame->get_style()->white_space !== "pre-wrap") ) {
+         ($style->white_space !== "pre" ||
+          $style->white_space !== "pre-wrap") ) {
 
       $frame->set_text( ltrim($frame->get_text()) );
       $frame->recalculate_width();
-
     }
 
     $w = $frame->get_margin_width();
@@ -183,14 +195,16 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     $frame->position();
 
-    $this->_lines[$this->_cl]["frames"][] = $frame;
+    $current_line = &$this->_lines[$this->_cl];
+    
+    $current_line["frames"][] = $frame;
 
     if ( $frame->get_node()->nodeName === "#text")
-      $this->_lines[$this->_cl]["wc"] += count(preg_split("/\s+/", trim($frame->get_text())));
+      $current_line["wc"] += count(preg_split("/\s+/", trim($frame->get_text())));
 
-    $this->_lines[$this->_cl]["w"] += $w;
-    $this->_lines[$this->_cl]["h"] = max($this->_lines[$this->_cl]["h"], $frame->get_margin_height());
-
+    $current_line["w"] += $w;
+    
+    $this->maximize_line_height($frame->get_margin_height(), $frame);
   }
 
   function remove_frames_from_line(Frame $frame) {
@@ -234,8 +248,11 @@ class Block_Frame_Decorator extends Frame_Decorator {
     $this->_lines[ $this->_cl ]["w"] += $w;
   }
 
-  function maximize_line_height($val) {
-    $this->_lines[ $this->_cl ]["h"] = max($this->_lines[ $this->_cl ]["h"], $val);
+  function maximize_line_height($val, Frame $frame) {
+    if ( $val > $this->_lines[ $this->_cl ]["h"] ) {
+      $this->_lines[ $this->_cl ]["tallest_frame"] = $frame;
+      $this->_lines[ $this->_cl ]["h"] = $val;
+    }
   }
 
   function add_line() {
@@ -245,9 +262,14 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     $y = $this->_lines[$this->_cl]["y"] + $this->_lines[$this->_cl]["h"];
 
-    $this->_lines[ ++$this->_cl ] = array("frames" => array(),
-                                          "wc" => 0,
-                                          "y" => $y, "w" => 0, "h" => 0);
+    $this->_lines[ ++$this->_cl ] = array(
+      "frames" => array(),
+      "wc" => 0,
+      "y" => $y, 
+      "w" => 0, 
+      "h" => 0, 
+      "tallest_frame" => null,
+    );
   }
 
   //........................................................................
@@ -261,7 +283,6 @@ class Block_Frame_Decorator extends Frame_Decorator {
       $this->_counters[$id] = $increment;
     else
       $this->_counters[$id] += $increment;
-
   }
 
   // TODO: What version is the best : this one or the one in List_Bullet_Renderer ?

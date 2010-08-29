@@ -320,7 +320,6 @@ class Frame {
    */
   function get_children() { return new FrameList($this); }
   
-  
   // Layout property accessors
   
   /** 

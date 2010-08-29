@@ -60,8 +60,47 @@ class Page_Frame_Reflower extends Frame_Reflower {
    * @var Canvas
    */
   private $_canvas;
+  
+  /**
+   * This page's floating frames
+   * 
+   * @var array
+   */
+  private $_floating_frames;
+  
+  /**
+   * true if the page has floating frales
+   * Used to improve performances as it will
+   * be accesses everytime
+   * @var bool
+   */
+  private $_has_floating_frames;
 
   function __construct(Page_Frame_Decorator $frame) { parent::__construct($frame); }
+  
+  /*
+   * @return array
+   */
+  function get_floating_frames() { return $this->_floating_frames; }
+  
+  /**
+   * Add a floating frame
+   * 
+   * @param $child Frame
+   */
+  function add_floating_frame(Frame $frame) {
+    $this->_floating_frames[] = $frame;
+    $this->_has_floating_frames = true;
+  }
+  
+  /**
+   * Tells if the page has floating frames
+   * 
+   * @return bool 
+   */
+  function has_floating_frames() {
+    return $this->_has_floating_frames;
+  }
   
   //........................................................................
 
@@ -82,7 +121,9 @@ class Page_Frame_Reflower extends Frame_Reflower {
     $content_y = $cb["y"] + $top;
     $content_width = $cb["w"] - $left - $right;
     $content_height = $cb["h"] - $top - $bottom;
+    
     $fixed_children = array();
+    
     $prev_child = null;
     $child = $this->_frame->get_first_child();
     $current_page = 0;

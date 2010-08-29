@@ -850,5 +850,9 @@ abstract class Abstract_Renderer {
       $this->_canvas->set_opacity( $opacity );
     }
   }
+  
+  protected function _debug_layout($box, $color = "red", $style = array()) {
+    $this->_canvas->rectangle($box[0], $box[1], $box[2], $box[3], CSS_Color::parse($color), 1, $style);
+  }
   //........................................................................
 }
