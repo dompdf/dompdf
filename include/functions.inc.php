@@ -401,62 +401,97 @@ if ( !function_exists("mb_substr_count") ) {
   }
 }
 
-// WIP
-function rle_decode($str){
-  $decoded = "";
-  $l = strlen($str);
+# Decoder for RLE8 compression in windows bitmaps
+# see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
+function rle8_decode ($str, $width){
+  $lineWidth = $width + (3 - ($width-1) % 4);
+  $out = '';
+  $cnt = strlen($str);
   
-  //http://www.daubnet.com/en/file-format-bmp
-  //http://oldwww.rasip.fer.hr/research/compress/algorithms/fund/rl/index.html
-  //http://msdn.microsoft.com/en-us/library/cc669447(v=PROT.13).aspx
-  for ($i = 0; $i < $l; $i++) {
-    $n = ord($str[$i]);
-    if ($n > 2) {
-      $decoded .= str_repeat($str[++$i], $n);
-    } 
-    else {
-      $i++;
-      if ( $n == 0 ) {
-        $l = ord($str[$i]);
-        //var_dump($l);
-       // var_dump(ord($str[$i+1]));
-        //$decoded .= substr($str, $i, $l);
-        $i += $l-1;
-      }
-      if ( $n == 1 ){
-        
-      }
-      if ( $n == 2 ){
-        
-      }
-      else 
-        $decoded .= $str[$i];
+  for ($i = 0; $i <$cnt; $i++) {
+    $o = ord($str[$i]);
+    switch ($o){
+      case 0: # ESCAPE
+        $i++;
+        switch (ord($str[$i])){
+          case 0: # NEW LINE
+            $padCnt = $lineWidth - strlen($out)%$lineWidth;
+            if ($padCnt<$lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+            break;
+          case 1: # END OF FILE
+            $padCnt = $lineWidth - strlen($out)%$lineWidth;
+            if ($padCnt<$lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+            break 3;
+          case 2: # DELTA
+            $i += 2;
+            break;
+          default: # ABSOLUTE MODE
+            $num = ord($str[$i]);
+            for ($j = 0; $j < $num; $j++)
+              $out .= $str[++$i];
+            if ($num % 2) $i++;
+        }
+      break;
+      default:
+      $out .= str_repeat($str[++$i], $o);
     }
   }
-  
-  return $decoded;
+  return $out;
 }
 
-// WIP
-function rle_decode_4bit($str){
-  $decoded = "";
-  $l = strlen($str);
+# Decoder for RLE4 compression in windows bitmaps
+# see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
+function rle4_decode ($str, $width) {
+  $w = floor($width/2) + ($width % 2);
+  $lineWidth = $w + (3 - ( ($width-1) / 2) % 4);    
+  $pixels = array();
+  $cnt = strlen($str);
   
-  for ($i = 0; $i < $l; $i += 1) {
-    $c = $str[$i];
-    $higher =  ($c & 0xff00) >> 4;
-    $lower = ($c & 0x00ff);
-    $n = ord($higher);
-    //var_dump($n);
-    if ($n > 0) {
-      $decoded .= str_repeat($lower, $n);
-    } else {
-      $decoded .= $lower;
+  for ($i = 0; $i < $cnt; $i++) {
+    $o = ord($str[$i]);
+    switch ($o) {
+      case 0: # ESCAPE
+        $i++;
+        switch (ord($str[$i])){
+          case 0: # NEW LINE                        
+            while (count($pixels)%$lineWidth!=0)
+              $pixels[]=0;
+            break;
+          case 1: # END OF FILE
+            while (count($pixels)%$lineWidth!=0)
+              $pixels[]=0;
+            break 3;
+          case 2: # DELTA
+            $i += 2;
+            break;
+          default: # ABSOLUTE MODE
+            $num = ord($str[$i]);
+            for ($j = 0; $j < $num; $j++){
+              if ($j%2 == 0){
+                $c = ord($str[++$i]);
+                $pixels[] = ($c & 240)>>4;
+              } else
+                $pixels[] = $c & 15;
+            }
+            if ($num % 2) $i++;
+       }
+       break;
+      default:
+        $c = ord($str[++$i]);
+        for ($j = 0; $j < $o; $j++)
+          $pixels[] = ($j%2==0 ? ($c & 240)>>4 : $c & 15);
     }
   }
   
-  return $decoded;
-}
+  $out = '';
+  if (count($pixels)%2) $pixels[]=0;
+  $cnt = count($pixels)/2;
+  
+  for ($i = 0; $i < $cnt; $i++)
+    $out .= chr(16*$pixels[2*$i] + $pixels[2*$i+1]);
+    
+  return $out;
+} 
 
 /**
  * Credit goes to mgutt 
@@ -529,16 +564,12 @@ function imagecreatefrombmp($filename) {
   // create gd image
   $im = imagecreatetruecolor($meta['width'], $meta['height']);
   $data = fread($fh, $meta['imagesize']);
-
-  /*
-  if ($meta['compression'] == 1) {
-    $data = rle_decode($data);
-  }
-  elseif ($meta['compression'] == 2) {
-    $data = rle_decode_4bit($data);
-  }
-  */
   
+  // uncompress data
+  switch ($meta['compression']) {
+    case 1: $data = rle8_decode($data, $meta['width']); break;
+    case 2: $data = rle4_decode($data, $meta['width']); break;
+  }
 
   $p = 0;
   $vide = chr(0);

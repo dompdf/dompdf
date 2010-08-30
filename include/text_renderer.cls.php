@@ -70,7 +70,7 @@ class Text_Renderer extends Abstract_Renderer {
 
   function render(Frame $frame) {
     $text = $frame->get_text();
-    if ( trim($text) == "" )
+    if ( trim($text) === "" )
       return;
       
     $style = $frame->get_style();

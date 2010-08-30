@@ -597,14 +597,29 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     // Set the y position of the first line in this block
     $this->_frame->set_current_line($line_y);
-
+    
+    $floating_children = array();
+    
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
-
       // Bail out if the page is full
       if ( $page->is_full() )
         break;
 
+      // Floating siblings
+      if ( count($child) ) {
+        $offset_x = 0;
+        
+        foreach ( $floating_children as $floating_child ) {
+          if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $this->_frame->get_current_line("y") + $this->_frame->get_current_line("h") )
+            $offset_x += $floating_child->get_margin_width();
+        }
+        
+        if ( $offset_x ) {
+          $child->get_style()->{"margin_".$floating_child->get_style()->float} += $offset_x;
+        }
+      }
+      
       $reflowed = false;
 
       if ( $this->_frame->get_parent()->get_style()->display === "block" ) {
@@ -622,11 +637,33 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $child->reflow();
       }
         
-      // If the frame is not absolutely positioned, It's okay to add the frame
-      // to the line
-      if ( $child->get_style()->position !== "absolute" &&
-           $child->get_style()->position !== "fixed" ) {
-        $this->_frame->add_frame_to_line( $child );
+      if ( $child->get_style()->float === "none") {
+        // If the frame is not absolutely positioned, It's okay to add the frame
+        // to the line
+        if ( $child->get_style()->position !== "absolute" &&
+             $child->get_style()->position !== "fixed" ) {
+          $this->_frame->add_frame_to_line( $child );
+        
+          $line_y += $child->get_margin_height();
+        }
+      }
+      else {
+        $floating_children[] = $child;
+        list($child_x, $child_y) = $child->get_position();
+        
+        $float_x = $cb_x;
+        $float_y = $this->_frame->get_current_line("y");
+        
+        $child_style = $child->get_style();
+        switch( $child_style->float ) {
+          case "left": break;
+          case "right": 
+            $width = $w;
+            $float_x += ($width - $child->get_margin_width());
+            break;
+        }
+        
+        $child->set_position($float_x, $float_y);
       }
     }
 
