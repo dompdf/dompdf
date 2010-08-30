@@ -438,15 +438,17 @@ class Block_Frame_Reflower extends Frame_Reflower {
       // We justify all lines except the last one
       $lines = array_splice($this->_frame->get_lines(), 0, -1);
       
+      // One space character's width. Will be used to get a more accurate spacing
+      $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
+      
       foreach ($lines as $i => $line) {
-
         // Only set the spacing if the line is long enough.  This is really
         // just an aesthetic choice ;)
         if ( $line["w"] > self::MIN_JUSTIFY_WIDTH * $width ) {
           
           // Set the spacing for each child
           if ( $line["wc"] > 1 )
-            $spacing = ($width - $line["w"]) / ($line["wc"] - 1);
+            $spacing = ($width - $line["w"] + $space_width) / ($line["wc"] - 1);
           else
             $spacing = 0;
 
@@ -499,7 +501,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
         if ( $style->display !== "inline" && $style->display !== "text" )
           continue;
 
-        $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
+        // FIXME?
+        if ( $this instanceof Table_Cell_Frame_Reflower )
+          $align = $frame->get_frame()->get_style()->vertical_align;
+        else 
+          $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
+          
         $frame_h = $frame->get_margin_height();
         $y = $line["y"];
         
@@ -611,12 +618,14 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $offset_x = 0;
         
         foreach ( $floating_children as $floating_child ) {
-          if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $this->_frame->get_current_line("y") + $this->_frame->get_current_line("h") )
+          $current_line = $this->_frame->get_current_line();
+          if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line["y"] + $current_line["h"] )
             $offset_x += $floating_child->get_margin_width();
         }
         
         if ( $offset_x ) {
-          $child->get_style()->{"margin_".$floating_child->get_style()->float} += $offset_x;
+          $float = $floating_child->get_style()->float;
+          $child->get_style()->{"margin_$float"} += $offset_x;
         }
       }
       
@@ -649,12 +658,20 @@ class Block_Frame_Reflower extends Frame_Reflower {
       }
       else {
         $floating_children[] = $child;
+        
+        // Remove next frame's beginning whitespace
+        $next = $child->get_next_sibling();
+        if ( $next && $next instanceof Text_Frame_Decorator) {
+          $next->set_text(ltrim($next->get_text()));
+        }
+        
         list($child_x, $child_y) = $child->get_position();
         
         $float_x = $cb_x;
         $float_y = $this->_frame->get_current_line("y");
         
         $child_style = $child->get_style();
+        
         switch( $child_style->float ) {
           case "left": break;
           case "right": 
