@@ -791,14 +791,14 @@ abstract class Abstract_Renderer {
     if ( !is_numeric($c) )
       return $c;
     
-    return min(1, $c + 0.66);
+    return min(1, $c + 0.16);
   }
 
   protected function _shade($c) {
     if ( !is_numeric($c) )
       return $c;
     
-    return max(0, $c - 0.66);
+    return max(0, $c - 0.33);
   }
 
   protected function _border_inset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {

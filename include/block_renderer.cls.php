@@ -65,14 +65,14 @@ class Block_Renderer extends Abstract_Renderer {
 
     $this->_render_border($frame);
     
-    if (DEBUG_LAYOUT && DEBUG_BLOCKS) {
+    if (DEBUG_LAYOUT && DEBUG_LAYOUT_BLOCKS) {
       $this->_debug_layout($frame->get_border_box(), "red");
-      if (DEBUG_PADDINGBOX) {
+      if (DEBUG_LAYOUT_PADDINGBOX) {
         $this->_debug_layout($frame->get_padding_box(), "red", array(0, 1));
       }
     }
     
-    if (DEBUG_LAYOUT && DEBUG_LINES && $frame->get_decorator()) {
+    if (DEBUG_LAYOUT && DEBUG_LAYOUT_LINES && $frame->get_decorator()) {
       foreach ($frame->get_decorator()->get_lines() as $line) {
         $frame->_debug_layout(array($line["x"], $line["y"], $line["w"], $line["h"]), "orange");
       }
@@ -81,15 +81,28 @@ class Block_Renderer extends Abstract_Renderer {
 
   protected function _render_border(Frame_Decorator $frame, $corner_style = "bevel") {
     $style = $frame->get_style();
-
     $bbox = $frame->get_border_box();
     $bp = $frame->get_style()->get_border_properties();
+
+    // If all the borders are "solid" with the same color and style, we'd better draw a rectangle
+    if (
+      $bp["top"]["style"] === "solid" &&
+      $bp["top"]    == $bp["right"] &&
+      $bp["right"]  == $bp["bottom"] &&
+      $bp["bottom"] == $bp["left"]
+    ) {
+      list($x, $y, $w, $h) = $bbox;
+      $props = $bp["top"];
+      $offset = $style->length_in_pt($props["width"]);
+      $this->_canvas->rectangle($x + $offset / 2, $y + $offset / 2, $w - $offset, $h - $offset, $props["color"], $offset);
+      return;
+    }
 
     $widths = array($style->length_in_pt($bp["top"]["width"]),
                     $style->length_in_pt($bp["right"]["width"]),
                     $style->length_in_pt($bp["bottom"]["width"]),
                     $style->length_in_pt($bp["left"]["width"]));
-
+    
     foreach ($bp as $side => $props) {
       list($x, $y, $w, $h) = $bbox;
 

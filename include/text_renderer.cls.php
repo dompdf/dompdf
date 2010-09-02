@@ -165,7 +165,7 @@ class Text_Renderer extends Abstract_Renderer {
 
     }
     
-    if (DEBUG_LAYOUT && DEBUG_LINES) {
+    if (DEBUG_LAYOUT && DEBUG_LAYOUT_LINES) {
       $this->_debug_layout(array($x+$line["x"], $y, Font_Metrics::get_text_width($text, $font, $size)+($line["wc"]-1)*$spacing, $size), "orange", array(0, 2));
     }
   }

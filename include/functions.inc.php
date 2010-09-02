@@ -50,6 +50,12 @@
 
 /* $Id$ */
 
+function def($name, $value = true) {
+  if (!defined($name)) {
+    define($name, $value);
+  }
+}
+
 /**
  * print_r wrapper for html/cli output
  *

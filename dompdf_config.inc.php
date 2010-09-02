@@ -114,10 +114,7 @@ require_once(DOMPDF_INC_DIR . "/functions.inc.php");
  *
  * *Please note the trailing slash.*
  */
-
-if (!defined("DOMPDF_FONT_DIR")) {
-  define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
-}
+def("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
 
 /**
  * The location of the DOMPDF font cache directory
@@ -129,10 +126,7 @@ if (!defined("DOMPDF_FONT_DIR")) {
  *
  * *Please note the trailing slash.*
  */
-
-if (!defined("DOMPDF_FONT_CACHE")) {
-  define("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
-}
+def("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
 
 /**
  * The location of a temporary directory.
@@ -141,9 +135,7 @@ if (!defined("DOMPDF_FONT_CACHE")) {
  * The temporary directory is required to download remote images and when
  * using the PFDLib back end.
  */
-if (!defined('DOMPDF_TEMP_DIR')) {
-  define("DOMPDF_TEMP_DIR", sys_get_temp_dir());
-}
+def("DOMPDF_TEMP_DIR", sys_get_temp_dir());
 
 /**
  * ==== IMPORTANT ====
@@ -157,9 +149,7 @@ if (!defined('DOMPDF_TEMP_DIR')) {
  * direct class use like:
  * $dompdf = new DOMPDF();	$dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
  */
-if (!defined("DOMPDF_CHROOT")) {
-  define("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
-}
+def("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
 
 /**
  * Whether to use Unicode fonts or not.
@@ -174,9 +164,7 @@ if (!defined("DOMPDF_CHROOT")) {
  * document must be present in your fonts, however.
  *
  */
-if (!defined("DOMPDF_UNICODE_ENABLED")) {
-  define("DOMPDF_UNICODE_ENABLED", true);
-}
+def("DOMPDF_UNICODE_ENABLED", true);
 
 /**
  * The path to the tt2pt1 utility (used to convert ttf to afm)
@@ -189,10 +177,8 @@ if (!defined("DOMPDF_UNICODE_ENABLED")) {
  *
  * @link http://ttf2pt1.sourceforge.net/
  */
-if (!defined("TTF2AFM")) {
-  define("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
-  //define("TTF2AFM", "/usr/bin/ttf2pt1");
-}
+def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
+//def("TTF2AFM", "/usr/bin/ttf2pt1");
 
 /**
  * The PDF rendering backend to use
@@ -222,9 +208,7 @@ if (!defined("TTF2AFM")) {
  * @link http://www.ros.co.nz/pdf
  * @link http://www.php.net/image
  */
-if (!defined("DOMPDF_PDF_BACKEND")) {
-  define("DOMPDF_PDF_BACKEND", "CPDF");
-}
+def("DOMPDF_PDF_BACKEND", "CPDF");
 
 /**
  * PDFlib license key
@@ -238,9 +222,7 @@ if (!defined("DOMPDF_PDF_BACKEND")) {
  * If pdflib present in web server and auto or selected explicitely above,
  * a real license code must exist!
  */
-if (!defined("DOMPDF_PDFLIB_LICENSE")) {
-  #define("DOMPDF_PDFLIB_LICENSE", "your license key here");
-}
+#def("DOMPDF_PDFLIB_LICENSE", "your license key here");
 
 /**
  * html target media view which should be rendered into pdf.
@@ -252,9 +234,7 @@ if (!defined("DOMPDF_PDFLIB_LICENSE")) {
  * the desired content might be different (e.g. screen or projection view of html file).
  * Therefore allow specification of content here.
  */
-if (!defined("DOMPDF_DEFAULT_MEDIA_TYPE")) {
-  define("DOMPDF_DEFAULT_MEDIA_TYPE", "screen");
-}
+def("DOMPDF_DEFAULT_MEDIA_TYPE", "screen");
 
 /**
  * The default paper size.
@@ -263,10 +243,7 @@ if (!defined("DOMPDF_DEFAULT_MEDIA_TYPE")) {
  *
  * @see CPDF_Adapter::PAPER_SIZES for valid sizes
  */
-if (!defined("DOMPDF_DEFAULT_PAPER_SIZE")) {
-  define("DOMPDF_DEFAULT_PAPER_SIZE", "letter");
-}
-
+def("DOMPDF_DEFAULT_PAPER_SIZE", "letter");
 
 /**
  * The default font family
@@ -274,9 +251,8 @@ if (!defined("DOMPDF_DEFAULT_PAPER_SIZE")) {
  * Used if no suitable fonts can be found. This must exist in the font folder.
  * @var string
  */
-if (!defined("DOMPDF_DEFAULT_FONT")) {
-  define("DOMPDF_DEFAULT_FONT", "serif");
-}
+def("DOMPDF_DEFAULT_FONT", "serif");
+
 /**
  * Image DPI setting
  *
@@ -310,9 +286,7 @@ if (!defined("DOMPDF_DEFAULT_FONT")) {
  *
  * @var int
  */
-if (!defined("DOMPDF_DPI")) {
-  define("DOMPDF_DPI", "96");
-}
+def("DOMPDF_DPI", 96);
 
 /**
  * Enable inline PHP
@@ -326,9 +300,7 @@ if (!defined("DOMPDF_DPI")) {
  *
  * @var bool
  */
-if (!defined("DOMPDF_ENABLE_PHP")) {
-  define("DOMPDF_ENABLE_PHP", true);
-}
+def("DOMPDF_ENABLE_PHP", false);
 
 /**
  * Enable inline Javascript
@@ -338,9 +310,7 @@ if (!defined("DOMPDF_ENABLE_PHP")) {
  *
  * @var bool
  */
-if (!defined("DOMPDF_ENABLE_JAVASCRIPT")) {
-  define("DOMPDF_ENABLE_JAVASCRIPT", true);
-}
+def("DOMPDF_ENABLE_JAVASCRIPT", true);
 
 /**
  * Enable remote file access
@@ -359,9 +329,7 @@ if (!defined("DOMPDF_ENABLE_JAVASCRIPT")) {
  *
  * @var bool
  */
-if (!defined("DOMPDF_ENABLE_REMOTE")) {
-  define("DOMPDF_ENABLE_REMOTE", false);
-}
+def("DOMPDF_ENABLE_REMOTE", false);
  
 /**
  * DOMPDF autoload function
@@ -445,31 +413,15 @@ $_DOMPDF_DEBUG_TYPES = array(); //array("page-break" => 1);
  * E.g. on repeated display of same pdf in browser when pdf is not taken out of
  * the browser cache and the premature output prevents setting of the mime type.
  */
-if (!defined('DEBUGPNG')) {
-  define('DEBUGPNG', false);
-}
-if (!defined('DEBUGKEEPTEMP')) {
-  define('DEBUGKEEPTEMP', false);
-}
-if (!defined('DEBUGCSS')) {
-  define('DEBUGCSS', false);
-}
+def('DEBUGPNG', false);
+def('DEBUGKEEPTEMP', false);
+def('DEBUGCSS', false);
 
 /* Layout debugging. Will display rectangles around different block levels.
  * Visible in the PDF itself.
  */
-if (!defined('DEBUG_LAYOUT')) {
-  define('DEBUG_LAYOUT', false);
-}
-if (!defined('DEBUG_LINES')) {
-  define('DEBUG_LINES', true);
-}
-if (!defined('DEBUG_BLOCKS')) {
-  define('DEBUG_BLOCKS', true);
-}
-if (!defined('DEBUG_INLINE')) {
-  define('DEBUG_INLINE', true);
-}
-if (!defined('DEBUG_PADDINGBOX')) {
-  define('DEBUG_PADDINGBOX', true);
-}
+def('DEBUG_LAYOUT', false);
+def('DEBUG_LAYOUT_LINES', true);
+def('DEBUG_LAYOUT_BLOCKS', true);
+def('DEBUG_LAYOUT_INLINE', true);
+def('DEBUG_LAYOUT_PADDINGBOX', true);

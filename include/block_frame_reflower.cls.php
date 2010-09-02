@@ -609,6 +609,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
+      
       // Bail out if the page is full
       if ( $page->is_full() )
         break;
@@ -621,16 +622,27 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $current_line = $this->_frame->get_current_line();
         
         foreach ( $floating_children as $child_key => $floating_child ) {
+          // We need to reflow the child to know its initial x position
+          $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+          $child->reflow();
+          
           $float = $floating_child->get_style()->float;
+          $floating_width = $floating_child->get_margin_width();
+          $floating_x = $floating_child->get_position("x");
+          
+          if ( $float === "left" ) {
+            if ($child->get_position("x") > $floating_x + $floating_width) continue;
+          }
+          else {
+            if ($child->get_position("x") + $child->get_margin_width() < $w - $floating_width) continue;
+          }
           
           // If the child is still shifted by the floating element
           if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line["y"] + $current_line["h"] ) {
-            $margin_width = $floating_child->get_margin_width();
-            
             if ( $float === "left" )
-              $offset_left += $margin_width;
+              $offset_left += $floating_width;
             else
-              $offset_right += $margin_width;
+              $offset_right += $floating_width;
           }
           
           // else, the floating element won't shift anymore
