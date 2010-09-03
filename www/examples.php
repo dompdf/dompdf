@@ -1,7 +1,12 @@
 <?php
 
 require_once("../dompdf_config.inc.php");
-if ( isset( $_POST["html"] ) ) {
+
+// We check wether the user is accessing the demo locally
+$local = array("::1", "127.0.0.1");
+$is_local = in_array($_SERVER['REMOTE_ADDR'], $local);
+
+if ( isset( $_POST["html"] ) && $is_local ) {
 
   if ( get_magic_quotes_gpc() )
     $_POST["html"] = stripslashes($_POST["html"]);
@@ -69,8 +74,13 @@ if ( $dompdf == '/' || $dompdf == '\\') {
 
 $dompdf .= "/dompdf.php?base_path=" . rawurlencode("www/test/");
 
+$pattern = "html";
+if ( DOMPDF_ENABLE_PHP ) {
+  $pattern .= "|php";
+}
+
 foreach ( $test_files as $file ) {
-  preg_match("@[\\/](([^_]+)_?(.*))\.(html|php)$@i", $file, $matches);
+  preg_match("@[\\/](([^_]+)_?(.*))\.($pattern)$@i", $file, $matches);
   $prefix = $matches[2];
 
   if ( array_key_exists($prefix, $sections) ) {
@@ -104,11 +114,14 @@ foreach ( $sections as $section => $files ) {
 
 <a name="demo"> </a>
 <h2>Demo</h2>
+
+<?php if ($is_local) { ?>
+
 <p>Enter your html snippet in the text box below to see it rendered as a
-PDF: (Note by default, remote stylesheets, images &amp; are disabled.)</p>
+PDF: (Note by default, remote stylesheets, images &amp; inline PHP are disabled.)</p>
 
 <form action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
-<p>Paper size and orientaion:
+<p>Paper size and orientation:
 <select name="paper">
 <?php
 foreach ( array_keys(CPDF_Adapter::$PAPER_SIZES) as $size )
@@ -147,5 +160,13 @@ foreach ( array_keys(CPDF_Adapter::$PAPER_SIZES) as $size )
 <p style="font-size: 0.65em; text-align: center;">(Note: if you use a KHTML
 based browser and are having difficulties loading the sample output, try
 saving it to a file first.)</p>
+
+<?php } else { ?>
+
+  <p style="color: red;">
+    User input has been disabled for remote connections.
+  </p>
+  
+<?php } ?>
 
 <?php include("foot.inc"); ?>
