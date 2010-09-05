@@ -193,10 +193,9 @@ class PDFLib_Adapter implements Canvas {
       $size = self::$PAPER_SIZES["letter"];
 
     if ( mb_strtolower($orientation) === "landscape" ) {
-      $a = $size[3];
-      $size[3] = $size[2];
-      $size[2] = $a;
+      list($size[2], $size[3]) = array($size[3], $size[2]);
     }
+    
     $this->_width = $size[2] - $size[0];
     $this->_height= $size[3] - $size[1];
 
@@ -239,23 +238,23 @@ class PDFLib_Adapter implements Canvas {
         $face = basename($file);
 
         // Prefer ttfs to afms
-        if ( file_exists($file.".ttf") ) {
+        if ( file_exists("$file.ttf") ) {
           $outline = "$file.ttf";
           $afm = null;
 
-        } else if ( file_exists($file .".TTF") ) {
+        } else if ( file_exists("$file.TTF") ) {
           $outline = "$file.TTF";
           $afm = null;
 
-        } else if ( file_exists($file . ".pfb") ) {
+        } else if ( file_exists("$file.pfb") ) {
           $outline = "$file.pfb";
 
-          if ( file_exists($file . ".afm") )
+          if ( file_exists("$file.afm") )
             $afm = "$file.afm";
 
-        } else if ( file_exists($file . ".PFB") ) {
+        } else if ( file_exists("$file.PFB") ) {
           $outline = "$file.PFB";
-          if ( file_exists($file . ".AFM") )
+          if ( file_exists("$file.AFM") )
             $afm = "$file.AFM";
         } else
           continue;
@@ -446,7 +445,7 @@ class PDFLib_Adapter implements Canvas {
       $dash[] = $dash[0];
 
     if ( count($dash) > 1 )
-      $this->_pdf->setdashpattern("dasharray={" . join(" ", $dash) . "}");
+      $this->_pdf->setdashpattern("dasharray={" . implode(" ", $dash) . "}");
     else
       $this->_pdf->setdash(0,0);
 
@@ -499,8 +498,20 @@ class PDFLib_Adapter implements Canvas {
 
     $this->_last_stroke_color = $color;
 
-    list($r,$g,$b) = $color;
-    $this->_pdf->setcolor("stroke", "rgb", $r, $g, $b, 0);
+    if (isset($color[3])) {
+      $type = "cmyk";
+      list($c1, $c2, $c3, $c4) = array($color[0], $color[1], $color[2], $color[3]);
+    }
+    elseif (isset($color[2])) {
+      $type = "rgb";
+      list($c1, $c2, $c3, $c4) = array($color[0], $color[1], $color[2], null);
+    }
+    else {
+      $type = "gray";
+      list($c1, $c2, $c3, $c4) = array($color[0], $color[1], null, null);
+    }
+    
+    $this->_pdf->setcolor("stroke", $type, $c1, $c2, $c3, $c4);
   }
 
   /**
@@ -514,8 +525,20 @@ class PDFLib_Adapter implements Canvas {
 
     $this->_last_fill_color = $color;
 
-    list($r,$g,$b) = $color;
-    $this->_pdf->setcolor("fill", "rgb", $r, $g, $b, 0);
+      if (isset($color[3])) {
+      $type = "cmyk";
+      list($c1, $c2, $c3, $c4) = array($color[0], $color[1], $color[2], $color[3]);
+    }
+    elseif (isset($color[2])) {
+      $type = "rgb";
+      list($c1, $c2, $c3, $c4) = array($color[0], $color[1], $color[2], null);
+    }
+    else {
+      $type = "gray";
+      list($c1, $c2, $c3, $c4) = array($color[0], $color[1], null, null);
+    }
+    
+    $this->_pdf->setcolor("fill", $type, $c1, $c2, $c3, $c4);
   }
   
   /**
@@ -563,7 +586,7 @@ class PDFLib_Adapter implements Canvas {
 
     }
 
-    $key = $font .":". $encoding .":". $options;
+    $key = "$font:$encoding:$options";
 
     if ( isset($this->_fonts[$key]) )
       return $this->_fonts[$key];

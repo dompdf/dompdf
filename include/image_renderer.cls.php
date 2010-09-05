@@ -63,6 +63,7 @@ class Image_Renderer extends Block_Renderer {
       $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $style);
     
     $this->_render_border($frame);
+    $this->_render_outline($frame);
     
     list($x, $y) = $frame->get_padding_box();
     $x += $style->length_in_pt($style->padding_left, $cb["w"]);

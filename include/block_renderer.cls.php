@@ -64,6 +64,7 @@ class Block_Renderer extends Abstract_Renderer {
       $this->_background_image($url, $x, $y, $w, $h, $style);
 
     $this->_render_border($frame);
+    $this->_render_outline($frame);
     
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_BLOCKS) {
       $this->_debug_layout($frame->get_border_box(), "red");
@@ -82,7 +83,7 @@ class Block_Renderer extends Abstract_Renderer {
   protected function _render_border(Frame_Decorator $frame, $corner_style = "bevel") {
     $style = $frame->get_style();
     $bbox = $frame->get_border_box();
-    $bp = $frame->get_style()->get_border_properties();
+    $bp = $style->get_border_properties();
 
     // If all the borders are "solid" with the same color and style, we'd better draw a rectangle
     if (
@@ -132,6 +133,70 @@ class Block_Renderer extends Abstract_Renderer {
         break;
       }
       $method = "_border_" . $props["style"];
+
+      $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style);
+    }
+  }
+
+  protected function _render_outline(Frame_Decorator $frame, $corner_style = "bevel") {
+    $style = $frame->get_style();
+    
+    $props = array(
+      "width" => $style->outline_width,
+      "style" => $style->outline_style,
+      "color" => $style->outline_color,
+    );
+    
+    if ( !$props["style"] || $props["style"] === "none" || $props["width"] <= 0 )
+      return;
+    $bbox = $frame->get_border_box();
+    $offset = $style->length_in_pt($props["width"]);
+
+    // If the outline style is "solid" we'd better draw a rectangle
+    if ( $props["style"] === "solid" ) {
+      $bbox[0] -= $offset / 2;
+      $bbox[1] -= $offset / 2;
+      $bbox[2] += $offset;
+      $bbox[3] += $offset;
+    
+      list($x, $y, $w, $h) = $bbox;
+      $this->_canvas->rectangle($x, $y, $w, $h, $props["color"], $offset);
+      return;
+    }
+
+    $bbox[0] -= $offset;
+    $bbox[1] -= $offset;
+    $bbox[2] += $offset * 2;
+    $bbox[3] += $offset * 2;
+    
+    $method = "_border_" . $props["style"];
+    $widths = array_fill(0, 4, $props["width"]);
+    $sides = array("top", "right", "left", "bottom");
+    
+    foreach ($sides as $side) {
+      list($x, $y, $w, $h) = $bbox;
+
+      switch($side) {
+      case "top":
+        $length = $w;
+        break;
+
+      case "bottom":
+        $length = $w;
+        $y += $h;
+        break;
+
+      case "left":
+        $length = $h;
+        break;
+
+      case "right":
+        $length = $h;
+        $x += $w;
+        break;
+      default:
+        break;
+      }
 
       $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style);
     }

@@ -205,6 +205,11 @@ tfoot {
   vertical-align: middle;
 }
 
+/* To simulate tbody auto-insertion */
+table > tr {
+  vertical-align: middle;
+}
+
 td { 
   display: table-cell;
   vertical-align: inherit;

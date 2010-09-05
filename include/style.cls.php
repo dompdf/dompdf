@@ -276,7 +276,7 @@ class Style {
       $d["min_width"] = "0";
       $d["opacity"] = "1.0";
       $d["orphans"] = "2";
-      $d["outline_color"] = "invert";
+      $d["outline_color"] = ""; // "invert" special color is not supported
       $d["outline_style"] = "none";
       $d["outline_width"] = "medium";
       $d["outline"] = "";
@@ -517,8 +517,8 @@ class Style {
           $this->_important_props[$prop] = true;
         }
         //see __set and __get, on all assignments clear cache!
-		$this->_prop_cache[$prop] = null;
-		$this->_props[$prop] = $parent->_props[$prop];
+        $this->_prop_cache[$prop] = null;
+        $this->_props[$prop] = $parent->_props[$prop];
       }
     }
       
@@ -533,8 +533,8 @@ class Style {
         //Therefore do not directly assign the value without __set
         //set _important_props before that to be able to propagate.
         //see __set and __get, on all assignments clear cache!
-		//$this->_prop_cache[$prop] = null;
-		//$this->_props[$prop] = $parent->_props[$prop];
+        //$this->_prop_cache[$prop] = null;
+        //$this->_props[$prop] = $parent->_props[$prop];
         //props_set for more obvious explicite assignment not implemented, because
         //too many implicite uses.
         // $this->props_set($prop, $parent->$prop);
@@ -544,7 +544,6 @@ class Style {
           
     return $this;
   }
-
   
   /**
    * Override properties in this style with those in $style
@@ -557,21 +556,20 @@ class Style {
     //the new rule is also !important
     foreach($style->_props as $prop => $val ) {
       if (isset($style->_important_props[$prop])) {
- 	    $this->_important_props[$prop] = true;
+        $this->_important_props[$prop] = true;
         //see __set and __get, on all assignments clear cache!
-		$this->_prop_cache[$prop] = null;
- 	    $this->_props[$prop] = $val;
- 	  } else if ( !isset($this->_important_props[$prop]) ) {
+        $this->_prop_cache[$prop] = null;
+        $this->_props[$prop] = $val;
+      } else if ( !isset($this->_important_props[$prop]) ) {
         //see __set and __get, on all assignments clear cache!
-		$this->_prop_cache[$prop] = null;
- 	    $this->_props[$prop] = $val;
- 	  }
- 	}
+        $this->_prop_cache[$prop] = null;
+        $this->_props[$prop] = $val;
+      }
+    }
 
     if ( isset($style->_props["font_size"]) )
       $this->__font_size_calculated = false;
   }
-
   
   /**
    * Returns an array(r, g, b, "r"=> r, "g"=>g, "b"=>b, "hex"=>"#rrggbb")
@@ -700,7 +698,7 @@ class Style {
   function get_font_family() {
   
     $DEBUGCSS=DEBUGCSS; //=DEBUGCSS; Allow override of global setting for ad hoc debug
-	
+
     // Select the appropriate font.  First determine the subtype, then check
     // the specified font-families for a candidate.
 
@@ -836,7 +834,7 @@ class Style {
       $fs = $this->length_in_pt($fs);
 
     //see __set and __get, on all assignments clear cache!
-	$this->_prop_cache["font_size"] = null;
+    $this->_prop_cache["font_size"] = null;
     $this->_props["font_size"] = $fs;
     $this->__font_size_calculated = true;
     return $this->_props["font_size"];
@@ -1055,7 +1053,7 @@ class Style {
       $this->_prop_cache["border_bottom_color"] = null;
       $this->_props["border_bottom_color"] = $this->__get("color");
     }
-    return $this->munge_color($this->_props["border_bottom_color"]);;
+    return $this->munge_color($this->_props["border_bottom_color"]);
   }
 
   function get_border_left_color() {
@@ -1151,7 +1149,51 @@ class Style {
   function get_border_bottom() { return $this->_get_border("bottom"); }
   function get_border_left() { return $this->_get_border("left"); }
   /**#@-*/
+  
+  /**
+   * Returns the outline colour as an array
+   *
+   * See {@link Style::get_color()}
+   *
+   * @link http://www.w3.org/TR/CSS21/box.html#border-color-properties
+   * @return array
+   */
+  function get_outline_color() {
+    if ( $this->_props["outline_color"] === "" ) {
+      //see __set and __get, on all assignments clear cache!
+      $this->_prop_cache["outline_color"] = null;
+      $this->_props["outline_color"] = $this->__get("color");
+    }
+    return $this->munge_color($this->_props["outline_color"]);
+  }
 
+ /**#@+
+   * Returns the outline width, as it is currently stored
+   * @return float|string
+   */
+  function get_outline_width() {
+    $style = $this->__get("outline_style");
+    return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props["outline_width"]) : 0;
+  }
+  
+  /**#@+
+   * Return full outline properties as a string
+   *
+   * Outline properties are returned just as specified in CSS:
+   * <pre>[width] [style] [color]</pre>
+   * e.g. "1px solid blue"
+   *
+   * @link http://www.w3.org/TR/CSS21/box.html#border-shorthand-properties
+   * @return string
+   */
+  function get_outline() {
+    $color = $this->__get("outline_color");
+    return 
+      $this->__get("outline_width") . " " . 
+      $this->__get("outline_style") . " " . 
+      $color["hex"]; 
+  }
+  /**#@-*/
 
   /**
    * Returns border spacing as an array
@@ -1253,7 +1295,7 @@ class Style {
       break;
     }
     //see __set and __get, on all assignments clear cache!
-	$this->_prop_cache[$style.$type] = null;
+    $this->_prop_cache[$style.$type] = null;
     $this->_props[$style.$type] = $val;
   }
 
@@ -1276,7 +1318,7 @@ class Style {
         $this->_important_props[$style] = true;
       }
       //see __set and __get, on all assignments clear cache!
-	  $this->_prop_cache[$style] = null;
+      $this->_prop_cache[$style] = null;
       $this->_props[$style] = $val;
     }
   }
@@ -1425,13 +1467,13 @@ class Style {
     
     foreach($tmp as $attr) {
       if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
-   	    $this->_set_style("background_image", $this->_image($attr), $important);
-  	  } else if ($attr === "fixed" || $attr === "scroll") {
-   	    $this->_set_style("background_attachment", $attr, $important);
-  	  } else if ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
-   	    $this->_set_style("background_repeat", $attr, $important);
+        $this->_set_style("background_image", $this->_image($attr), $important);
+      } else if ($attr === "fixed" || $attr === "scroll") {
+        $this->_set_style("background_attachment", $attr, $important);
+      } else if ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
+        $this->_set_style("background_repeat", $attr, $important);
       } else if (($col = $this->munge_color($attr)) != null ) {
-   	    $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
+        $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
       } else {
         $pos[] = $attr;
       }
@@ -1653,7 +1695,7 @@ class Style {
     }
 
     //see __set and __get, on all assignments clear cache!
-	$this->_prop_cache['border_'.$side] = null;
+    $this->_prop_cache['border_'.$side] = null;
     $this->_props['border_'.$side] = $border_spec;
   }
 
@@ -1675,7 +1717,7 @@ class Style {
     $this->_set_border("bottom", $val, $important);
     $this->_set_border("left", $val, $important);
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-	$this->_prop_cache["border"] = null;
+    $this->_prop_cache["border"] = null;
     $this->_props["border"] = $val;
   }
 
@@ -1689,6 +1731,64 @@ class Style {
 
   function set_border_style($val) {
     $this->_set_style_type_important('border','_style',$val);
+  }
+
+  /**#@+
+   * Sets the outline styles
+   *
+   * @link http://www.w3.org/TR/CSS21/ui.html#dynamic-outlines
+   * @param string $val
+   */
+  function set_outline($val) {
+    $important = isset($this->_important_props["outline"]);
+    
+    $props = array(
+      "outline_style", 
+      "outline_width", 
+      "outline_color",
+    );
+    
+    foreach($props as $prop) {
+      $_val = self::$_defaults[$prop];
+      
+      if ( !isset($this->_important_props[$prop]) || $important) {
+        //see __set and __get, on all assignments clear cache!
+        $this->_prop_cache[$prop] = null;
+        if ($important) {
+          $this->_important_props[$prop] = true;
+        }
+        $this->_props[$prop] = $_val;
+      }
+    }
+    
+    $arr = explode(" ", $val);
+    foreach ($arr as $value) {
+      $value = trim($value);
+      if ( in_array($value, self::$BORDER_STYLES) ) {
+        $this->set_outline_style($value);
+      } else if ( preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value ) ) {
+        $this->set_outline_width($value);
+      } else {
+        // must be colour
+        $this->set_outline_color($value);
+      }
+    }
+    
+    //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+    $this->_prop_cache["outline"] = null;
+    $this->_props["outline"] = $val;
+  }
+
+  function set_outline_width($val) {
+    $this->_set_style_type_important('outline','_width',$val);
+  }
+
+  function set_outline_color($val) {
+    $this->_set_style_type_important('outline','_color',$val);
+  }
+
+  function set_outline_style($val) {
+    $this->_set_style_type_important('outline','_style',$val);
   }
   /**#@-*/
 
@@ -1751,8 +1851,8 @@ class Style {
        * A value of 'none' for the 'list-style' property sets both 'list-style-type' and 'list-style-image' to 'none'
        */
       if ($value === "none") {
-   	    $this->_set_style("list_style_type", $value, $important);
-   	    $this->_set_style("list_style_image", $value, $important);
+         $this->_set_style("list_style_type", $value, $important);
+         $this->_set_style("list_style_image", $value, $important);
         continue;
       }
 
@@ -1762,14 +1862,14 @@ class Style {
       //Internet Explorer 7/8 and dompdf is right.
        
       if (mb_substr($value, 0, 3) === "url") {
-   	    $this->_set_style("list_style_image", $this->_image($value), $important);
+        $this->_set_style("list_style_image", $this->_image($value), $important);
         continue;
       }
 
       if ( in_array($value, $types) ) {
-   	    $this->_set_style("list_style_type", $value, $important);
+        $this->_set_style("list_style_type", $value, $important);
       } else if ( in_array($value, $positions) ) {
-   	    $this->_set_style("list_style_position", $value, $important);
+        $this->_set_style("list_style_position", $value, $important);
       }
     }
 
@@ -1798,7 +1898,7 @@ class Style {
 /*DEBUGCSS*/    foreach($this->_props as $prop => $val ) {
 /*DEBUGCSS*/      print $prop.':'.$val;
 /*DEBUGCSS*/      if (isset($this->_important_props[$prop])) {
-/*DEBUGCSS*/      	print '!important';
+/*DEBUGCSS*/        print '!important';
 /*DEBUGCSS*/      }
 /*DEBUGCSS*/      print ";\n";
 /*DEBUGCSS*/    }

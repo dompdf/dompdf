@@ -69,10 +69,12 @@ class Table_Cell_Renderer extends Block_Renderer {
 
     if ( $style->border_collapse !== "collapse" ) {
       $this->_render_border($frame, "bevel");
+      $this->_render_outline($frame, "bevel");
       return;
     }
 
     // The collapsed case is slightly complicated...
+    // @todo Add support for outlines here
 
     $cellmap = Table_Frame_Decorator::find_parent_table($frame)->get_cellmap();
     $cells = $cellmap->get_spanned_cells($frame);

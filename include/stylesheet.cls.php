@@ -465,14 +465,18 @@ class Stylesheet {
           $query .= "[@href]";
           $tok = "";
           break;
-
-        case "first-line":
+          
+        case "first-line": // TODO
+        case "first-letter": // TODO
+        
+        // N/A
+        case "active":
+        case "visited":
+          $query .= "[@dummy]";
+          $tok = "";
           break;
 
-        case "first-letter":
-          break;
-
-        /*case "before":
+        case "before":
           $query .= "*[@before]";
           $tok = "";
           break;
@@ -480,7 +484,7 @@ class Stylesheet {
         case "after":
           $query .= "*[@after]";
           $tok = "";
-          break;*/
+          break;
 
         case "empty":
           $query .= "[not(*) and not(normalize-space())]";
