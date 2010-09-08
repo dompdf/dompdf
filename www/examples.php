@@ -52,7 +52,13 @@ these files is included in the test/ directory of the distribution
 package.)</p>
 
 <?php
-$test_files = glob("test/*.{html,php}", GLOB_BRACE);
+
+$extensions = array("html");
+if ( DOMPDF_ENABLE_PHP ) {
+  $extensions[] = "php";
+}
+
+$test_files = glob("test/*.{".implode(",", $extensions)."}", GLOB_BRACE);
 $sections = array(
   "css"      => array(), 
   "dom"      => array(), 
@@ -74,13 +80,9 @@ if ( $dompdf == '/' || $dompdf == '\\') {
 
 $dompdf .= "/dompdf.php?base_path=" . rawurlencode("www/test/");
 
-$pattern = "html";
-if ( DOMPDF_ENABLE_PHP ) {
-  $pattern .= "|php";
-}
 
 foreach ( $test_files as $file ) {
-  preg_match("@[\\/](([^_]+)_?(.*))\.($pattern)$@i", $file, $matches);
+  preg_match("@[\\/](([^_]+)_?(.*))\.(".implode("|", $extensions).")$@i", $file, $matches);
   $prefix = $matches[2];
 
   if ( array_key_exists($prefix, $sections) ) {

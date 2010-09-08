@@ -53,11 +53,13 @@ class Block_Positioner extends Positioner {
   //........................................................................
 
   function position() {
-    $cb = $this->_frame->get_containing_block();
-    $p = $this->_frame->find_block_parent();
+    $frame = $this->_frame;
+    $cb = $frame->get_containing_block();
+    $p = $frame->find_block_parent();
     
     if ( $p ) {
-      if ( $this->_frame->get_style()->float === "none" ) {
+      $float = $frame->get_style()->float;
+      if ( !$float || $float === "none" ) {
         $p->add_line();
       }
       $y = $p->get_current_line("y");
@@ -67,6 +69,6 @@ class Block_Positioner extends Positioner {
 
     $x = $cb["x"];
     
-    $this->_frame->set_position($x, $y);
+    $frame->set_position($x, $y);
   }
 }

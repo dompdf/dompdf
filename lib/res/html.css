@@ -48,6 +48,9 @@
 
 /* $Id: html.css,v 1.4 2006-04-05 20:09:00 benjcarson Exp $ */
 
+@page {
+  margin: 1.2cm;
+}
 
 html { 
   display: -dompdf-page;
