@@ -91,8 +91,9 @@ class Renderer extends Abstract_Renderer {
       flush();
     }
 
-    $display = $frame->get_style()->display;
-    
+    $style = $frame->get_style();
+    $display = $style->display;
+  
     switch ($display) {
       
     case "block":
@@ -153,8 +154,19 @@ class Renderer extends Abstract_Renderer {
     // Check for begin frame callback
     $this->_check_callbacks("begin_frame", $frame);
     
+    // Starts the overflow: hidden box
+    if ( $style->overflow === "hidden" ) {
+      list($x, $y, $w, $h) = $frame->get_padding_box();
+      $this->_canvas->clipping_rectangle($x, $y, $w, $h);
+    }
+    
     foreach ($frame->get_children() as $child)
       $this->render($child);
+      
+    // Ends the overflow: hidden box
+    if ( $style->overflow === "hidden" ) {
+      $this->_canvas->clipping_end();
+    }
 
     // Check for end frame callback
     $this->_check_callbacks("end_frame", $frame);

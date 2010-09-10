@@ -2786,14 +2786,14 @@ class  Cpdf {
   /**
    * draw a polygon, the syntax for this is similar to the GD polygon command
    */
-  function  polygon($p, $np, $f =  0) {
+  function  polygon($p, $np, $f = false) {
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F m ", $p[0], $p[1]);
 
     for  ($i =  2; $i < $np * 2; $i =  $i + 2) {
       $this->objects[$this->currentContents]['c'].=  sprintf("%.3F %.3F l ", $p[$i], $p[$i+1]);
     }
 
-    if  ($f ==  1) {
+    if  ($f) {
       $this->objects[$this->currentContents]['c'].=  ' f';
     } else {
       $this->objects[$this->currentContents]['c'].=  ' S';
@@ -2816,6 +2816,22 @@ class  Cpdf {
    */
   function  rectangle($x1, $y1, $width, $height) {
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re S", $x1, $y1, $width, $height);
+  }
+
+  
+  /**
+   * draw a clipping rectangle, all the elements added after this will be clipped
+   */
+  function  clippingRectangle($x1, $y1, $width, $height) {
+    $this->objects[$this->currentContents]['c'].=  sprintf("\nq %.3F %.3F %.3F %.3F re W n", $x1, $y1, $width, $height);
+  }
+
+  
+  /*
+   * ends the last clipping shape
+   */
+  function  clippingEnd() {
+    $this->objects[$this->currentContents]['c'].=  "\nQ";
   }
 
 
@@ -4523,7 +4539,6 @@ class  Cpdf {
       }
     }
   }
-
 
   /**
    * used to add messages for use in debugging

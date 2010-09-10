@@ -368,7 +368,7 @@ class Frame {
 
   /**
    * Return the width of the margin box of the frame, in pt.  Meaningless
-   * unless the width has been calculted properly.
+   * unless the width has been calculated properly.
    * 
    * @return float
    */ 

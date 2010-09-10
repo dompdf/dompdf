@@ -123,6 +123,21 @@ interface Canvas {
   function filled_rectangle($x1, $y1, $w, $h, $color);
 
   /**
+   * Starts a clipping rectangle at x1,y1 with width w and height h
+   *
+   * @param float $x1
+   * @param float $y1
+   * @param float $w
+   * @param float $h
+   */   
+  function clipping_rectangle($x1, $y1, $w, $h);
+  
+  /**
+   * Ends the last clipping shape
+   */  
+  function clipping_end();
+  
+  /**
    * Draws a polygon
    *
    * The polygon is formed by joining all the points stored in the $points

@@ -98,7 +98,7 @@ class Inline_Renderer extends Abstract_Renderer {
         // If this is the first row, draw the left border
         if ( $first_row ) {
 
-          if ( $bp["left"]["style"] !== "none" && $bp["left"]["width"] > 0 ) {
+          if ( $bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $bp["left"]["width"] > 0 ) {
             $method = "_border_" . $bp["left"]["style"];            
             $this->$method($x, $y, $h + $widths[0] + $widths[2], $bp["left"]["color"], $widths, "left");
           }
@@ -106,12 +106,12 @@ class Inline_Renderer extends Abstract_Renderer {
         }
 
         // Draw the top & bottom borders
-        if ( $bp["top"]["style"] !== "none" && $bp["top"]["width"] > 0 ) {
+        if ( $bp["top"]["style"] !== "none" && $bp["top"]["color"] !== "transparent" && $bp["top"]["width"] > 0 ) {
           $method = "_border_" . $bp["top"]["style"];
           $this->$method($x, $y, $w + $widths[1] + $widths[3], $bp["top"]["color"], $widths, "top");
         }
         
-        if ( $bp["bottom"]["style"] !== "none" && $bp["bottom"]["width"] > 0 ) {
+        if ( $bp["bottom"]["style"] !== "none" && $bp["bottom"]["color"] !== "transparent" && $bp["bottom"]["width"] > 0 ) {
           $method = "_border_" . $bp["bottom"]["style"];
           $this->$method($x, $y + $h + $widths[0] + $widths[2], $w + $widths[1] + $widths[3], $bp["bottom"]["color"], $widths, "bottom");
         }
@@ -162,18 +162,18 @@ class Inline_Renderer extends Abstract_Renderer {
     $x += $left_margin;
 
     // If this is the first row, draw the left border too
-    if ( $first_row && $bp["left"]["style"] !== "none" && $widths[3] > 0 ) {
+    if ( $first_row && $bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $widths[3] > 0 ) {
       $method = "_border_" . $bp["left"]["style"];
       $this->$method($x, $y, $h, $bp["left"]["color"], $widths, "left");
     }
     
     // Draw the top & bottom borders
-    if ( $bp["top"]["style"] !== "none" && $widths[0] > 0 ) {
+    if ( $bp["top"]["style"] !== "none" && $bp["top"]["color"] !== "transparent" && $widths[0] > 0 ) {
       $method = "_border_" . $bp["top"]["style"];
       $this->$method($x, $y, $w, $bp["top"]["color"], $widths, "top");
     }
     
-    if ( $bp["bottom"]["style"] !== "none" && $widths[2] > 0 ) {
+    if ( $bp["bottom"]["style"] !== "none" && $bp["bottom"]["color"] !== "transparent" && $widths[2] > 0 ) {
       $method = "_border_" . $bp["bottom"]["style"];
       $this->$method($x, $y + $h, $w, $bp["bottom"]["color"], $widths, "bottom");
     }
@@ -181,7 +181,7 @@ class Inline_Renderer extends Abstract_Renderer {
     //    pre_var_dump(get_class($frame->get_next_sibling()));
     //    $last_row = get_class($frame->get_next_sibling()) !== 'Inline_Frame_Decorator';
     // Draw the right border if this is the last row
-    if ( $bp["right"]["style"] !== "none" && $widths[1] > 0 ) {
+    if ( $bp["right"]["style"] !== "none" && $bp["right"]["color"] !== "transparent" && $widths[1] > 0 ) {
       $method = "_border_" . $bp["right"]["style"];
       $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
     }

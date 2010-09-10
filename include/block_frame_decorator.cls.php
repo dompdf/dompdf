@@ -140,6 +140,22 @@ class Block_Frame_Decorator extends Frame_Decorator {
     
     $frame->set_containing_line($this->_lines[$this->_cl]);
     
+    /*
+    // Adds a new line after a block, only if certain conditions are met
+    if ((($frame instanceof Inline_Frame_Decorator && $frame->get_node()->nodeName !== "br") || 
+          $frame instanceof Text_Frame_Decorator && trim($frame->get_text())) && 
+        ($frame->get_prev_sibling() && $frame->get_prev_sibling()->get_style()->display === "block" && 
+         $this->_lines[$this->_cl]["w"] > 0 )) {
+           
+           $this->maximize_line_height( $style->length_in_pt($style->line_height), $frame );
+           $this->add_line();
+         
+           // Add each child of the inline frame to the line individually
+           foreach ($frame->get_children() as $child)
+             $this->add_frame_to_line( $child );     
+    }
+    else*/
+
     // Handle inline frames (which are effectively wrappers)
     if ( $frame instanceof Inline_Frame_Decorator ) {
 

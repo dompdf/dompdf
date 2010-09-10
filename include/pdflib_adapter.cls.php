@@ -644,6 +644,19 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf->rect(floatval($x1), floatval($y1), floatval($w), floatval($h));
     $this->_pdf->fill();
   }
+  
+  function clipping_rectangle($x1, $y1, $w, $h) {
+    $this->_pdf->save();
+    
+    $y1 = $this->y($y1) - $h;
+    
+    $this->_pdf->rect(floatval($x1), floatval($y1), floatval($w), floatval($h));
+    $this->_pdf->clip();
+  }
+  
+  function clipping_end() {
+    $this->_pdf->restore();
+  }
 
   //........................................................................
 

@@ -543,6 +543,14 @@ class CPDF_Adapter implements Canvas {
     $this->_set_line_style(1, "square", "miter", array());
     $this->_pdf->filledRectangle($x1, $this->y($y1) - $h, $w, $h);
   }
+  
+  function clipping_rectangle($x1, $y1, $w, $h) {
+    $this->_pdf->clippingRectangle($x1, $this->y($y1) - $h, $w, $h);
+  }
+  
+  function clipping_end() {
+    $this->_pdf->clippingEnd();
+  }
 
   //........................................................................
 

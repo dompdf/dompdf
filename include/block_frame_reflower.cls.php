@@ -356,8 +356,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     } else {
 
-      // Expand the height if overflow is visible
-      if ( $height === "auto" && $content_height > $height && $style->overflow === "visible" )
+      // Expand the height if overflow is visible 
+      if ( $height === "auto" && $content_height > $height /* && $style->overflow === "visible" */) 
         $height = $content_height;
 
       // FIXME: this should probably be moved to a seperate function as per
@@ -619,13 +619,13 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $offset_left = 0;
         $offset_right = 0;
         
+        // We need to reflow the child to know its initial x position
+        $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+        $child->reflow();
+          
         $current_line = $this->_frame->get_current_line();
         
         foreach ( $floating_children as $child_key => $floating_child ) {
-          // We need to reflow the child to know its initial x position
-          $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-          $child->reflow();
-          
           $float = $floating_child->get_style()->float;
           $floating_width = $floating_child->get_margin_width();
           $floating_x = $floating_child->get_position("x");

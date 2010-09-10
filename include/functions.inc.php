@@ -459,7 +459,7 @@ function rle4_decode ($str, $width) {
       case 0: # ESCAPE
         $i++;
         switch (ord($str[$i])){
-          case 0: # NEW LINE                        
+          case 0: # NEW LINE
             while (count($pixels)%$lineWidth!=0)
               $pixels[]=0;
             break;

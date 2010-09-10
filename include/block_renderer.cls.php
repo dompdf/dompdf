@@ -92,8 +92,10 @@ class Block_Renderer extends Abstract_Renderer {
       $bp["right"]  == $bp["bottom"] &&
       $bp["bottom"] == $bp["left"]
     ) {
-      list($x, $y, $w, $h) = $bbox;
       $props = $bp["top"];
+      if ( $props["color"] === "transparent" || $props["width"] <= 0 ) return;
+      
+      list($x, $y, $w, $h) = $bbox;
       $offset = $style->length_in_pt($props["width"]);
       $this->_canvas->rectangle($x + $offset / 2, $y + $offset / 2, $w - $offset, $h - $offset, $props["color"], $offset);
       return;
@@ -107,9 +109,11 @@ class Block_Renderer extends Abstract_Renderer {
     foreach ($bp as $side => $props) {
       list($x, $y, $w, $h) = $bbox;
 
-      if ( !$props["style"] || $props["style"] === "none" || $props["width"] <= 0 )
+      if ( !$props["style"] || 
+            $props["style"] === "none" || 
+            $props["width"] <= 0 || 
+            $props["color"] == "transparent" )
         continue;
-
 
       switch($side) {
       case "top":

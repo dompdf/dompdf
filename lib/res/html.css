@@ -65,7 +65,6 @@ div, map, dt, isindex {
 body {
   page-break-before: avoid;
   display: block;
-  margin: 8px;
 }
 
 p, dl, multicol {
