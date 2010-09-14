@@ -65,6 +65,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
       "y" => null,
       "w" => 0,
       "h" => 0,
+      "left" => 0,
+      "right" => 0,
       "tallest_frame" => null,
     ));
     
@@ -83,6 +85,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
       "y" => null,
       "w" => 0,
       "h" => 0,
+      "left" => 0,
+      "right" => 0,
       "tallest_frame" => null,
     ));
     
@@ -106,8 +110,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
   //........................................................................
 
   // Set methods
-  function set_current_line($y = null, $w = null, $h = null, $tallest_frame = null) {
-    $this->set_line($this->_cl, $y, $w, $h, $tallest_frame);
+  function set_current_line($y = null, $w = null, $h = null, $tallest_frame = null, $left = null, $right = null) {
+    $this->set_line($this->_cl, $y, $w, $h, $tallest_frame, $left, $right);
   }
 
   function clear_line($i) {
@@ -115,7 +119,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
       unset($this->_lines[$i]);
   }
 
-  function set_line($lineno, $y = null, $w = null, $h = null, $tallest_frame = null) {
+  function set_line($lineno, $y = null, $w = null, $h = null, $tallest_frame = null, $left = null, $right = null) {
 
     if ( is_array($y) )
       extract($y);
@@ -131,7 +135,12 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     if ($tallest_frame && $tallest_frame instanceof Frame)
       $this->_lines[$lineno]["tallest_frame"] = $tallest_frame;
-      
+
+    if (is_numeric($left))
+      $this->_lines[$lineno]["left"] = $left;
+
+    if (is_numeric($right))
+      $this->_lines[$lineno]["right"] = $right;
   }
 
 
@@ -206,7 +215,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
     */
     // End debugging
 
-    if ($this->_lines[$this->_cl]["w"] + $w > $this->get_containing_block("w"))
+    $line = $this->_lines[$this->_cl];
+    if ( $line["left"] + $line["w"] + $line["right"] + $w > $this->get_containing_block("w"))
       $this->add_line();
 
     $frame->position();
@@ -284,6 +294,8 @@ class Block_Frame_Decorator extends Frame_Decorator {
       "y" => $y, 
       "w" => 0, 
       "h" => 0, 
+      "left" => 0, 
+      "right" => 0, 
       "tallest_frame" => null,
     );
   }

@@ -58,17 +58,17 @@ function usage() {
 
   echo <<<EOD
 
-Usage: {$_SERVER["argv"][0]} font_family n_file [b_file] [i_file] [bi_file]
+Usage: {$_SERVER["argv"][0]} font_family [n_file [b_file] [i_file] [bi_file]]
 
 font_family:      the name of the font, e.g. Verdana, 'Times New Roman',
-                  monospace, sans-serif.
+                  monospace, sans-serif. If it equals to "system_fonts", 
+                  all the system fonts will be installed.
 
 n_file:           the .pfb or .ttf file for the normal, non-bold, non-italic
                   face of the font.
 
 {b|i|bi}_file:    the files for each of the respective (bold, italic,
                   bold-italic) faces.
-
 
 If the optional b|i|bi files are not specified, load_font.php will search
 the directory containing normal font file (n_file) for additional files that
@@ -82,12 +82,11 @@ Examples:
 ./load_font.php silkscreen /usr/share/fonts/truetype/slkscr.ttf
 ./load_font.php 'Times New Roman' /mnt/c_drive/WINDOWS/Fonts/times.ttf
 
-
 EOD;
 
 }
 
-if ( $_SERVER["argc"] < 3 ) {
+if ( $_SERVER["argc"] < 3 && $_SERVER["argv"][1] != "system_fonts" ) {
   usage();
   die();
 }
@@ -186,9 +185,10 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
       }
       
       $dest = DOMPDF_FONT_DIR . mb_substr(basename($font), 0 , -4);
-      $command = _TTF2AFM . " " . escapeshellarg($font) . " " . escapeshellarg($dest);
+      $stdout = ( ( strpos(PHP_OS, "WIN") === false ) ? " >/dev/null" : " 2>&1" );
+      $command = _TTF2AFM . " " . escapeshellarg($font) . " " . escapeshellarg($dest) . $stdout;
       echo "Generating .afm for $font...\n";
-      echo $command . "\n";
+      //echo $command . "\n";
       exec( $command, $output, $ret );
 
       $entry[$var] = $dest;
@@ -198,10 +198,30 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   // FIXME: how to generate afms from pfb?
 
   // Store the fonts in the lookup table
-  Font_Metrics::set_font_family(strtolower($fontname), $entry);
+  Font_Metrics::set_font_family($fontname, $entry);
 
   // Save the changes
   Font_Metrics::save_font_families();
 }
 
-call_user_func_array("install_font_family", array_slice($_SERVER["argv"], 1));
+// If installing system fonts (may take a long time)
+if ( $_SERVER["argv"][1] === "system_fonts" ) {
+  $fonts = Font_Metrics::get_system_fonts();
+  var_dump($fonts);
+  foreach ( $fonts as $family => $files ) {
+    echo " >> Installing '$family'... \n";
+    
+    if ( !isset($files["normal"]) ) {
+      echo "No 'normal' style font file\n";
+    }
+    else {
+      install_font_family( $family, @$files["normal"], @$files["bold"], @$files["italic"], @$files["bold_italic"]);
+      echo "Done !\n";
+    }
+    
+    echo "\n";
+  }
+}
+else {
+  call_user_func_array("install_font_family", array_slice($_SERVER["argv"], 1));
+}

@@ -91,10 +91,11 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $size = $style->font_size;
     $font = $style->font_family;
-
+    $current_line = $this->_block_parent->get_current_line();
+    
     // Determine the available width
     $line_width = $this->_frame->get_containing_block("w");
-    $current_line_width = $this->_block_parent->get_current_line("w");
+    $current_line_width = $current_line["left"] + $current_line["w"] + $current_line["right"];
 
     $available_width = $line_width - $current_line_width;
 

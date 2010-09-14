@@ -127,6 +127,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
           $width = $diff;
 
         } else if ( $left === "auto" ) {
+          
           if ( $lm === "auto" )
             $lm = 0;
           if ( $rm === "auto" )
@@ -410,19 +411,26 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
     $width = $style->length_in_pt($style->width, $w);
-
+      
     // Adjust the justification of each of our lines.
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-align
     switch ($style->text_align) {
 
     default:
     case "left":
+      foreach ($this->_frame->get_lines() as $line) {
+        if ( !$line["left"] ) continue;
+        foreach($line["frames"] as $frame) {
+          if ( $frame instanceof Block_Frame_Decorator) continue;
+          $frame->set_position( $frame->get_position("x") + $line["left"] );
+        }
+      }
       return;
 
     case "right":
       foreach ($this->_frame->get_lines() as $line) {
         // Move each child over by $dx
-        $dx = $width - $line["w"];
+        $dx = $width - $line["w"] - $line["right"];
         
         foreach($line["frames"] as $frame) {
           // Block frames are not aligned by text-align
@@ -442,13 +450,22 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
       
       foreach ($lines as $i => $line) {
+        if ( $line["left"] ) {
+          foreach($line["frames"] as $frame) {
+            if ( !$frame instanceof Text_Frame_Decorator )
+              continue;
+  
+            $frame->set_position( $frame->get_position("x") + $line["left"] );
+          }
+        }
+          
         // Only set the spacing if the line is long enough.  This is really
         // just an aesthetic choice ;)
-        if ( $line["w"] > self::MIN_JUSTIFY_WIDTH * $width ) {
+        //if ( $line["left"] + $line["w"] + $line["right"] > self::MIN_JUSTIFY_WIDTH * $width ) {
           
           // Set the spacing for each child
           if ( $line["wc"] > 1 )
-            $spacing = ($width - $line["w"] + $space_width) / ($line["wc"] - 1);
+            $spacing = ($width - ($line["left"] + $line["w"] + $line["right"]) + $space_width) / ($line["wc"] - 1);
           else
             $spacing = 0;
 
@@ -465,7 +482,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
           // The line (should) now occupy the entire width
           $this->_frame->set_line($i, null, $width);
 
-        }
+        //}
       }
       break;
 
@@ -473,7 +490,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     case "centre":
       foreach ($this->_frame->get_lines() as $line) {
         // Centre each line by moving each frame in the line by:
-        $dx = ($width - $line["w"]) / 2;
+        $dx = ($width + $line["left"] - $line["w"] - $line["right"] ) / 2;
         
         foreach ($line["frames"] as $frame) {
           // Block frames are not aligned by text-align
@@ -614,6 +631,14 @@ class Block_Frame_Reflower extends Frame_Reflower {
       if ( $page->is_full() )
         break;
 
+      /*
+      echo("left:".$current_line["left"]);
+      echo("<br />");
+      echo("right:".$current_line["right"]);
+      echo("<br />");
+      echo("<br />");
+      */
+
       // Floating siblings
       if ( count($floating_children) ) {
         $offset_left = 0;
@@ -631,14 +656,14 @@ class Block_Frame_Reflower extends Frame_Reflower {
           $floating_x = $floating_child->get_position("x");
           
           if ( $float === "left" ) {
-            if ($child->get_position("x") > $floating_x + $floating_width) continue;
+            if ($current_line["left"] + $child->get_position("x") > $floating_x + $floating_width) continue;
           }
           else {
-            if ($child->get_position("x") + $child->get_margin_width() < $w - $floating_width) continue;
+            if ($current_line["left"] + $child->get_position("x") + $child->get_margin_width() < $w - $floating_width - $current_line["right"]) continue;
           }
           
           // If the child is still shifted by the floating element
-          if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line["y"] + $current_line["h"] ) {
+          if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line["y"] ) {
             if ( $float === "left" )
               $offset_left += $floating_width;
             else
@@ -651,11 +676,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
           }
         }
         
-        if ( $offset_left )
-          $child->get_style()->margin_left += $offset_left;
+        if ($offset_left/* && !$current_line["left"]*/) 
+          $this->_frame->set_current_line(array("left" => $offset_left));
           
-        if ( $offset_right )
-          $child->get_style()->margin_right += $offset_right;
+        if ($offset_right/* && !$current_line["right"]*/)
+          $this->_frame->set_current_line(array("right" => $offset_right));
       }
       
       $reflowed = false;

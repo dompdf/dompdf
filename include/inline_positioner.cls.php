@@ -99,7 +99,7 @@ class Inline_Positioner extends Positioner {
       }
       
       // If the frame doesn't fit in the current line, a line break occurs
-      if ( $min_max["min"] > ($cb["w"]-$line["w"]) ) {
+      if ( $min_max["min"] > ($cb["w"]-$line["left"]-$line["w"]-$line["right"]) ) {
         $p->add_line();
       }
     }

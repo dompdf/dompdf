@@ -177,8 +177,10 @@ def("DOMPDF_UNICODE_ENABLED", true);
  *
  * @link http://ttf2pt1.sourceforge.net/
  */
-def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
-//def("TTF2AFM", "/usr/bin/ttf2pt1");
+if ( strpos(PHP_OS, "WIN") === false )
+  def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/ttf2ufm-src/ttf2pt1");
+else 
+  def("TTF2AFM", "C:\\Program Files\\GnuWin32\\bin\\ttf2pt1.exe");
 
 /**
  * The PDF rendering backend to use
