@@ -93,9 +93,12 @@ class Inline_Positioner extends Positioner {
       // If the frame doesn't fit in the current page, a page break occurs
       // FIXME this breaks rendering in some cases
       if ( $height !== "auto" && ($height > ($initialcb["h"]-$line["y"]*1.1) ) &&
-          !$f->get_dompdf()->get_tree()->get_root()->get_decorator()->is_full()) {
-        $f->split(null, true);
-        return;
+           !$f->get_dompdf()->get_tree()->get_root()->get_decorator()->is_full()) {
+        
+        if ( !Table_Frame_Decorator::find_parent_table($this->_frame) ) {
+          $f->split(null, true);
+          return;
+        }
       }
       
       // If the frame doesn't fit in the current line, a line break occurs
