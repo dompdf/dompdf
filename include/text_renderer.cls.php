@@ -105,7 +105,10 @@ class Text_Renderer extends Abstract_Renderer {
                          $style->color, $spacing);
     
     $line = $frame->get_containing_line();
-    if ( $line["tallest_frame"] ) {
+    
+    // FIXME Instead of using the tallest frame to position,
+    // the decoration, the text should be well placed
+    if ( false && $line["tallest_frame"] ) {
       $base_frame = $line["tallest_frame"];
       $style = $base_frame->get_style();
       $size = $style->font_size;
@@ -142,7 +145,7 @@ class Text_Renderer extends Abstract_Renderer {
       if ( ($text_deco = $f->get_style()->text_decoration) === "none" )
         continue;
         
-      $deco_y = $line["y"];
+      $deco_y = $y; //$line["y"];
       $color = $f->get_style()->color;
 
       switch ($text_deco) {
