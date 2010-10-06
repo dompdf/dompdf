@@ -166,7 +166,20 @@ table {
   margin-top: 0;
   margin-bottom: 0;
   text-indent: 0;
+	text-align: left; /* quirk */
 }
+
+table[border] {
+	border-style: outset;
+	border-color: gray;
+}
+
+/* This won't work (???) */
+/*
+table[border] td,
+table[border] th {
+  border: 1pt solid grey;
+}*/
 
 /* make sure backgrounds are inherited in tables  -- see bug 4510 */
 td, th, tr {

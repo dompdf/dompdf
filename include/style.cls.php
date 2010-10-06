@@ -98,7 +98,22 @@ class Style {
    * @var float
    */
   static $default_line_height = 1.2;
-
+  
+  /**
+   * Default "absolute" font sizes relative to the default font-size
+   * http://www.w3.org/TR/css3-fonts/#font-size-the-font-size-property
+   * @var array<float>
+   */
+  static $font_size_keywords = array(
+    "xx-small" => 0.6,   // 3/5
+    "x-small"  => 0.75,  // 3/4
+    "small"    => 0.889, // 8/9
+    "medium"   => 1,     // 1
+    "large"    => 1.2,   // 6/5
+    "x-large"  => 1.5,   // 3/2
+    "xx-large" => 2.0,   // 2/1
+  );
+  
   /**
    * List of all inline types.  Should really be a constant.
    *
@@ -321,6 +336,10 @@ class Style {
       $d["width"] = "auto";
       $d["word_spacing"] = "normal";
       $d["z_index"] = "auto";
+      
+      // for @font-face
+      $d["src"] = "";
+      $d["unicode-range"] = "";
 
       // Properties that inherit by default
       self::$_inherited = array("azimuth",
@@ -788,37 +807,24 @@ class Style {
       $this->_parent_font_size = self::$default_font_size;
     
     switch ($fs) {
-      
     case "xx-small":
-      $fs = 3/5 * $this->_parent_font_size;
-      break;
-
     case "x-small":
-      $fs = 3/4 * $this->_parent_font_size;
+    case "small":
+    case "medium":
+    case "large":
+    case "x-large":
+    case "xx-large":
+      $fs = self::$default_font_size * self::$font_size_keywords[$fs];
       break;
 
     case "smaller":
-    case "small":
       $fs = 8/9 * $this->_parent_font_size;
       break;
-
-    case "medium":
-      $fs = $this->_parent_font_size;
-      break;
-
+      
     case "larger":
-    case "large":
       $fs = 6/5 * $this->_parent_font_size;
       break;
-
-    case "x-large":
-      $fs = 3/2 * $this->_parent_font_size;
-      break;
-
-    case "xx-large":
-      $fs = 2/1 * $this->_parent_font_size;
-      break;
-
+      
     default:
       break;
     }

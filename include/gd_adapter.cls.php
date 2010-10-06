@@ -397,6 +397,25 @@ class GD_Adapter implements Canvas {
     imagefilledrectangle($this->_img, $x1, $y1, $x1 + $w, $y1 + $h, $c);
 
   }
+  
+  /**
+   * Starts a clipping rectangle at x1,y1 with width w and height h
+   *
+   * @param float $x1
+   * @param float $y1
+   * @param float $w
+   * @param float $h
+   */   
+  function clipping_rectangle($x1, $y1, $w, $h) {
+    // @todo
+  }
+  
+  /**
+   * Ends the last clipping shape
+   */  
+  function clipping_end() {
+    // @todo
+  }
 
   /**
    * Draws a polygon

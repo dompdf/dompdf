@@ -576,7 +576,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
   //........................................................................
 
-  function split($frame = null) {
+  function split($frame = null, $force_pagebreak = false) {
     // Do nothing
   }
 

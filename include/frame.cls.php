@@ -771,7 +771,9 @@ class Frame {
           //"\ncount => " . $line["count"] . "\n".
           "\ny => " . $line["y"] . "\n" .
           "w => " . $line["w"] . "\n" .
-          "h => " . $line["h"] . "\n";
+          "h => " . $line["h"] . "\n" .
+          "left => " . $line["left"] . "\n" .
+          "right => " . $line["right"] . "\n";
       }
       $str .= "</pre>";
     }

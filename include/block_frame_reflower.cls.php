@@ -444,7 +444,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     case "justify":
       // We justify all lines except the last one
-      $lines = array_splice($this->_frame->get_lines(), 0, -1);
+      $lines = $this->_frame->get_lines(); // needs to be a variable (strict standards)
+      $lines = array_splice($lines, 0, -1);
       
       // One space character's width. Will be used to get a more accurate spacing
       $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
@@ -631,7 +632,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
       if ( $page->is_full() )
         break;
 
-      /*
+        /*
+      echo $child;
       echo("left:".$current_line["left"]);
       echo("<br />");
       echo("right:".$current_line["right"]);

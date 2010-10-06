@@ -899,6 +899,10 @@ class Stylesheet {
             $this->_page_style->merge($this->_parse_properties($match[5]));
           break;
 
+        case "font-face":
+          $this->_parse_font_face($match[5]);
+          break;
+          
         default:
           // ignore everything else
           break;
@@ -1006,6 +1010,30 @@ class Stylesheet {
       $this->_base_path = $path;
     }
 
+  }
+  
+  /**
+   * parse @font-face{} sections
+   * http://www.w3.org/TR/css3-fonts/#the-font-face-rule
+   * 
+   * @param string $str CSS @font-face rules
+   * @return Style
+   */
+  private function _parse_font_face($str) {
+    $descriptors = $this->_parse_properties($str);
+    
+    preg_match_all("/(url|local)\s*\([\"\']?([^\"\'\)]+)[\"\']?\)\s*(format\s*\([\"\']?([^\"\'\)]+)[\"\']?\))?/i", $descriptors->src, $src);
+    
+    $sources = array();
+    foreach($src[0] as $i => $value) {
+      $sources[] = array(
+        "local"  => strtolower($src[1][$i]) === "local",
+        "uri"    => $src[2][$i],
+        "format" => $src[4][$i],
+      );
+    }
+    
+    //@todo download font file, ttf2afm, etc
   }
 
   /**

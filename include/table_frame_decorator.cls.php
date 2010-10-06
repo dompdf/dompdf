@@ -131,7 +131,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
    *
    * @param Frame $row
    */
-  function split($child = null) {
+  function split($child = null, $force_pagebreak = false) {
 
     if ( is_null($child) ) {
       parent::split();

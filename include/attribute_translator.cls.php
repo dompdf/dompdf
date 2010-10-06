@@ -308,7 +308,6 @@ class Attribute_Translator {
   //.....................................................................
 
   static protected function _set_table_cellpadding($node, $value) {
-
     $td_list = $node->getElementsByTagName("td");
     foreach ($td_list as $td) {
       $style = rtrim($td->getAttribute("style"), ";");
@@ -326,26 +325,29 @@ class Attribute_Translator {
       if ( strpos($style, "border") !== false )
         continue;
       $style = rtrim($style, ";");
-      $style .= "; border-width: $value" . "px; border-style: ridge;";
+      $style .= "; border-width: 1pt; border-style: inset;";
       $style = ltrim($style, ";");
       $td->setAttribute("style", $style);
     }
+    
     $th_list = $node->getElementsByTagName("th");
     foreach ($th_list as $th) {
       $style = $th->getAttribute("style");
       if ( strpos($style, "border") !== false )
         continue;
       $style = rtrim($style, ";");
-      $style .= "; border-width: $value" . "px; border-style: ridge;";
+      $style .= "; border-width: 1pt; border-style: inset;";
       $style = ltrim($style, ";");
       $th->setAttribute("style", $style);
     }
     
-    return null;
+    $style = rtrim($node->getAttribute("style"),";");
+    $style .= "; border-width: $value" . "px; ";
+    return ltrim($style, "; ");
   }
 
   static protected function _set_table_cellspacing($node, $value) {
-    $style = rtrim($td->getAttribute($style), ";");
+    $style = rtrim($node->getAttribute($style), ";");
 
     if ( $value == 0 )
       $style .= "; border-collapse: collapse;";
@@ -395,7 +397,6 @@ class Attribute_Translator {
   }
 
   static protected function _set_hr_align($node, $value) {
-
     $style = rtrim($node->getAttribute("style"),";");
     $width = $node->getAttribute("width");
     if ( $width == "" )
@@ -420,7 +421,6 @@ class Attribute_Translator {
       return null;
     }
     return ltrim($style, "; ");
-    
   }
 
   static protected function _set_table_row_align($node, $value) {
