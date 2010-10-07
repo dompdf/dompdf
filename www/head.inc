@@ -23,16 +23,15 @@ function li_star() {
 <div id="header" class="bar">
   <a href="index.php"><img id="logo" src="images/title.gif" alt="dompdf"/></a>
   <a href="http://code.google.com/p/dompdf/" target="_blank">dompdf @ google code</a>
+  &mdash; 
+  Send bug reports &amp; support questions to <a href="http://groups.google.com/group/dompdf">Google Groups</a>.
 </div>
 
 <div id="left_col">
-  <h2>Examples</h2>
   <ul>
-    <li style="list-style-image: url('images/arrow_02.gif');"><a href="examples.php#samples">samples</a></li>
-    <li style="list-style-image: url('images/arrow_03.gif');"><a href="examples.php#demo">demo</a></li>
+    <li style="list-style-image: url('images/arrow_02.gif');"><a href="examples.php">Examples</a></li>
+    <li style="list-style-image: url('images/arrow_03.gif');"><a href="setup.php">Setup / Config</a></li>
   </ul>
+</div>
 
-  <p>Send bug reports &amp; support questions to <a href="http://groups.google.com/group/dompdf">Google Groups</a>.
-  </p>
-</div>  
 <div id="content">

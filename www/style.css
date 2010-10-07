@@ -33,6 +33,10 @@ select {
 	font-weight: bold; 
 }
 
+h2 {
+	margin: 0.3em 0;
+}
+
 .bar {
   background-image: url('images/h_bar.gif');
   background-repeat: repeat-x;
@@ -66,7 +70,7 @@ select {
 }
 
 #left_col, #content {
-  vertical-align: top;  
+  vertical-align: top;
 }
 /*
 #left_col {
@@ -81,9 +85,9 @@ select {
 */
 
 #left_col {
-  padding: 3px 3px 1em 3px;
+  padding: 3px 3px 3em 3px;
   margin-top: 2px;
-  width: 140px;
+  width: 120px;
   padding-right: 10px;
   float: left;
 }
@@ -106,7 +110,7 @@ select {
 #left_col iframe { margin-left: 40px; margin-top: 10px; }
 
 #content {
-  margin-left: 140px;
+  margin-left: 120px;
   padding: 1em 1em 1em 2em;
   min-width: 800px;
   background-image: url('images/v_bar.gif');
@@ -174,6 +178,29 @@ select {
 	width: 60%; 
 	border: 1px solid #666; 
 	margin-left: 1em;
+}
+
+table.setup {
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+}
+
+table.setup td,
+table.setup th {
+  border: 1px solid #ccc;
+	padding: 2px;
+}
+
+table.setup td.ok {
+	background-color: #9e4;
+}
+
+table.setup td.failed {
+  background-color: #ea8;
+}
+
+table.setup td.warning {
+  background-color: #FCC612;
 }
 
 /* Method definitions from phpdoc */
