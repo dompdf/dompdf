@@ -54,6 +54,7 @@
 
 html { 
   display: -dompdf-page;
+  counter-increment: page;
 }
 
 /* blocks */
@@ -241,6 +242,9 @@ th {
 }
 
 /* inlines */
+q {
+	quotes: '"' '"' "'" "'"; /* FIXME only the first level is used */
+}
 
 q:before {
   content: open-quote;
@@ -378,8 +382,12 @@ br {
   display: -dompdf-br;
 }
 
-img {
+img, img_generated {
   display: -dompdf-image;
+}
+
+dompdf_generated {
+	display: inline;
 }
 
 /* hidden elements */

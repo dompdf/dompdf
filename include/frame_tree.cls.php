@@ -205,4 +205,24 @@ class Frame_Tree {
     
     return $frame;
   }
+  
+  public function insert_node($node, $new_node, $pos) {
+    if ($pos === "after" || !$node->firstChild)
+      $node->appendChild($new_node);
+    else 
+      $node->insertBefore($new_node, $node->firstChild);
+    
+    $this->_build_tree_r($new_node);
+    
+    $frame_id = $new_node->getAttribute("frame_id");
+    $frame = $this->get_frame($frame_id);
+    
+    $parent_id = $node->getAttribute("frame_id");
+    $parent = $this->get_frame($parent_id);
+    
+    if ($pos === "before")
+      $parent->prepend_child($frame, false);
+    else 
+      $parent->append_child($frame, false);
+  }
 }

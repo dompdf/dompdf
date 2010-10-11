@@ -59,33 +59,36 @@ class Inline_Frame_Reflower extends Frame_Reflower {
     if ( $page->is_full() )
       return;
       
-    $style = $this->_frame->get_style();
+    $frame = $this->_frame;
+    $style = $frame->get_style();
+    
+    $this->_set_content();
+    
     $this->_frame->position();
-  
+    
     //FLOAT
     //if ($style->float !== "none" ) {
     //  $page->add_floating_frame($child);
     //}
 
-    $cb = $this->_frame->get_containing_block();
+    $cb = $frame->get_containing_block();
 
     // Add our margin, padding & border to the first and last children
-    if ( ($f = $this->_frame->get_first_child()) && $f instanceof Text_Frame_Decorator ) {
-      $f->get_style()->margin_left = $style->margin_left;
+    if ( ($f = $frame->get_first_child()) && $f instanceof Text_Frame_Decorator ) {
+      $f->get_style()->margin_left  = $style->margin_left;
       $f->get_style()->padding_left = $style->padding_left;
-      $f->get_style()->border_left = $style->border_left;
+      $f->get_style()->border_left  = $style->border_left;
     }
 
-    if ( ($l = $this->_frame->get_last_child()) && $l instanceof Text_Frame_Decorator ) {
-      $f->get_style()->margin_right = $style->margin_right;
+    if ( ($l = $frame->get_last_child()) && $l instanceof Text_Frame_Decorator ) {
+      $f->get_style()->margin_right  = $style->margin_right;
       $f->get_style()->padding_right = $style->padding_right;
-      $f->get_style()->border_right = $style->border_right;
+      $f->get_style()->border_right  = $style->border_right;
     }
 
     // Set the containing blocks and reflow each child.  The containing
     // block is not changed by line boxes.
-    foreach ( $this->_frame->get_children() as $child ) {
-      
+    foreach ( $frame->get_children() as $child ) {
       $child->set_containing_block($cb);
       $child->reflow();
     }

@@ -574,6 +574,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Bail if the page is full
     if ( $page->is_full() )
       return;
+      
+    $this->_set_content();
 
     // Collapse margins if required
     $this->_collapse_margins();
@@ -581,7 +583,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
     
-    if ( $style->position === "fixed")
+    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
+      $this->_frame->increment_counter($increment);
+    
+    if ( $style->position === "fixed" )
       $cb = $this->_frame->get_root()->get_containing_block();
     
     // Determine the constraints imposed by this frame: calculate the width

@@ -200,34 +200,7 @@ class Frame_Factory {
     $deco->set_positioner( new $positioner($deco) );
     $reflow = new $reflower($deco);
     
-    // Generated content is a special case
-    if ( $frame->get_node()->nodeName === "_dompdf_generated" ) {
-      // Decorate the reflower
-      $gen = new Generated_Frame_Reflower( $deco );
-      $gen->set_reflower( $reflow );
-      $reflow = $gen;
-    }
-    
     $deco->set_reflower( $reflow );
-
-    // Images are a special case
-//    if ( $frame->get_node()->nodeName === "img" ) {
-
-//       // FIXME: This is a hack
-//       $node =$frame->get_node()->ownerDocument->createElement("img_sub");
-//       $node->setAttribute("src", $frame->get_node()->getAttribute("src"));
-      
-//       $img_frame = new Frame( $node );
-
-//       $style = $frame->get_style()->get_stylesheet()->create_style();
-//       $style->inherit($frame->get_style());
-//       $img_frame->set_style( $style );
-
-//       $img_deco = new Image_Frame_Decorator($img_frame, $dompdf);
-//       $img_deco->set_reflower( new Image_Frame_Reflower($img_deco) );
-//       $deco->append_child($img_deco);
-
-//     }   
     
     return $deco;
   }
