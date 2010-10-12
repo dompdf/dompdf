@@ -1,7 +1,7 @@
 body, select {
   color: #7d7a7a;
   font-family: 'trebuchet ms', verdana, sans-serif;
-	font-size: 14px;
+	font-size: 13px;
 }
 
 a:link, a:visited, a:active { 
@@ -45,6 +45,7 @@ h2 {
 
 #header {
   height: 50px;
+  line-height: 30px;
 }
 
 #footer {
@@ -101,9 +102,9 @@ h2 {
 #left_col ul {
   margin-top: 0.25em;
   padding-left: 0px;
+  margin-left: 0px;
+  position: fixed;
 }
-
-#left_col ul { margin-left: 0px; }
 
 #left_col ul li { list-style-position: inside; }
 
@@ -145,8 +146,9 @@ h2 {
   text-align: justify;
 }
 
-#content table td { 
-  padding: 0.5em; 
+#content table td,
+#content table th { 
+  padding: 0.3em; 
 }
 
 #content table td.input { 
@@ -159,6 +161,9 @@ h2 {
   padding: 4px;
   width: 100%;
   border: 1px dashed #5F83BA;
+  -moz-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.1);
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.1);
 }
 
 #content button { 
@@ -178,6 +183,9 @@ h2 {
 	width: 60%; 
 	border: 1px solid #666; 
 	margin-left: 1em;
+  -moz-box-shadow: 0px 0px 6px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0px 0px 6px rgba(0,0,0,0.5);
+  box-shadow: 0px 0px 6px rgba(0,0,0,0.5);
 }
 
 table.setup {
@@ -188,7 +196,6 @@ table.setup {
 table.setup td,
 table.setup th {
   border: 1px solid #ccc;
-	padding: 2px;
 }
 
 table.setup td.ok {

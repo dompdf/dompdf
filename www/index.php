@@ -20,12 +20,8 @@ the memory requirements of dompdf somewhat, while the R&amp;OS CPDF class,
 though slightly slower, eliminates any dependencies on external PDF
 libraries.</p>
 
-<p>dompdf was entered in the <a
-href="http://www.zend.com/php5/contest/contest.php">Zend PHP 5
-Contest</a> and placed 20th overall.</p>
-
-<p>Please note that dompdf works only with PHP 5.  There are no plans for
-a PHP 4 port.  If your web host does not offer PHP 4, I suggest either pestering
+<p>Please note that dompdf works only with PHP 5. There are no plans for
+a PHP 4 port. If your web host does not offer PHP 4, I suggest either pestering
 them, or setting up your own PHP 5 box and using it to run dompdf.  Your scripts
 on your web host can redirect PDF requests to your PHP 5 box.</p>
 

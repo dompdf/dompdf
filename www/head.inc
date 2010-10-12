@@ -6,11 +6,8 @@ function li_star() {
   return '<li style="list-style-image: url(\'images/star_0' . rand(1,5) . '.gif\');">';  
 }
 ?>
-<?php echo '<?' . 'xml version="1.0" encoding="iso-8859-1"?' . '>'; ?>
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <title>dompdf - The PHP 5 HTML to PDF Converter</title>
   <link rel="stylesheet" href="style.css" type="text/css"/>
@@ -22,15 +19,17 @@ function li_star() {
 
 <div id="header" class="bar">
   <a href="index.php"><img id="logo" src="images/title.gif" alt="dompdf"/></a>
-  <a href="http://code.google.com/p/dompdf/" target="_blank">dompdf @ google code</a>
+  <a href="http://www.dompdf.com/" target="_blank">www.dompdf.com</a>
   &mdash; 
-  Send bug reports &amp; support questions to <a href="http://groups.google.com/group/dompdf">Google Groups</a>.
+  Send bug reports to <a href="http://code.google.com/p/dompdf/issues/list">the bug tracker</a> 
+  &amp; support questions to <a href="http://groups.google.com/group/dompdf">Google Groups</a>.
 </div>
 
 <div id="left_col">
   <ul>
-    <li style="list-style-image: url('images/arrow_02.gif');"><a href="examples.php">Examples</a></li>
-    <li style="list-style-image: url('images/arrow_03.gif');"><a href="setup.php">Setup / Config</a></li>
+    <li style="list-style-image: url('images/star_02.gif');"><a href="index.php">Overview</a></li>
+    <li style="list-style-image: url('images/star_02.gif');"><a href="examples.php">Examples</a></li>
+    <li style="list-style-image: url('images/star_02.gif');"><a href="setup.php">Setup / Config</a></li>
   </ul>
 </div>
 

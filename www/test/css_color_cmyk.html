@@ -4,6 +4,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
 
 <style type="text/css">
+body {
+  color: cmyk(0,0,0,1);
+}
 div {
   margin: 2px;
 }
@@ -12,8 +15,7 @@ div {
 </head>
 
 <body>
-
-All these rectangles should look red
+All these rectangles should look red:
 
 <div style="background-color: red;">
   red
@@ -38,8 +40,29 @@ All these rectangles should look red
 <div style="background-color: cmyk(0, 1, 1, 0);">
   cmyk(0, 1, 1, 0)
 </div>
+<br />
+<br />
 
+CMYK JPEG: <br />
 <img src="images/cmyk_test2.jpg" />
+
+<br /><br />
+CMYK: 
+<div style="background-color: cmyk(1,0,0,0);">
+  C
+</div>
+
+<div style="background-color: cmyk(0,1,0,0);">
+  M
+</div>
+
+<div style="background-color: cmyk(0,0,2,0);">
+  Y
+</div>
+
+<div style="background-color: cmyk(0,0,0,1);">
+  K
+</div>
 
 
 </body> </html>
