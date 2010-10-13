@@ -19,12 +19,6 @@ $server_configs = array(
     "value"    => phpversion("DOM"),
     "result"   => class_exists("DOMDocument"),
   ),
-  "MBString extension" => array(
-    "required" => true,
-    "value"    => phpversion("mbstring"),
-    "result"   => function_exists("mb_substr"),
-    "fallback" => "Recommended",
-  ),
   "PCRE" => array(
     "required" => true,
     "value"    => phpversion("pcre"),
@@ -34,18 +28,21 @@ $server_configs = array(
     "required" => true,
     "value"    => phpversion("zlib"),
     "result"   => function_exists("gzcompress"),
-    "fallback" => "Recommended",
+    "fallback" => "Recommended to compress PDF documents",
+  ),
+  "MBString extension" => array(
+    "required" => true,
+    "value"    => phpversion("mbstring"),
+    "result"   => function_exists("mb_send_mail"), // Should never be reimplemented in dompdf
+    "fallback" => "Recommended, will use fallback functions",
+  ),
+  "GD" => array(
+    "required" => true,
+    "value"    => phpversion("gd"),
+    "result"   => function_exists("imagecreate"),
+    "fallback" => "Required if you have images in your documents",
   ),
 );
-
-if (strtolower(DOMPDF_PDF_BACKEND) == "pdflib") {
-  $server_configs["PDF lib"] = array(
-    "required" => false,
-    "value"    => phpversion("pdf"),
-    "result"   => function_exists("PDF_begin_document"),
-    "fallback" => "Required as the chosen backend is PDFLIB",
-  );
-}
 
 ?>
 
@@ -58,11 +55,12 @@ if (strtolower(DOMPDF_PDF_BACKEND) == "pdflib") {
   
   <?php foreach($server_configs as $label => $server_config) { ?>
     <tr>
-      <td><?php echo $label; ?></td>
+      <td class="title"><?php echo $label; ?></td>
       <td><?php echo ($server_config["required"] === true ? "Yes" : $server_config["required"]); ?></td>
       <td class="<?php echo ($server_config["result"] ? "ok" : (isset($server_config["fallback"]) ? "warning" : "failed")); ?>">
         <?php
         echo $server_config["value"];
+        if ($server_config["result"] && !$server_config["value"]) echo "Yes";
         if (!$server_config["result"] && isset($server_config["fallback"])) {
           echo "<div>".$server_config["fallback"]."</div>";
         }
@@ -78,14 +76,144 @@ if (strtolower(DOMPDF_PDF_BACKEND) == "pdflib") {
 <?php 
 $dompdf_constants = array();
 $defined_constants = get_defined_constants(true);
+
+$constants = array(
+  "DOMPDF_DIR" => array(
+    "desc" => "Root directory of DOMPDF",
+    "success" => "read",
+  ),
+  "DOMPDF_INC_DIR" => array(
+    "desc" => "Include directory of DOMPDF",
+    "success" => "read",
+  ),
+  "DOMPDF_LIB_DIR" => array(
+    "desc" => "Third-party libraries directory of DOMPDF",
+    "success" => "read",
+  ),
+  "DOMPDF_FONT_DIR" => array(
+    "desc" => "Additional fonts directory",
+    "success" => "read",
+  ),
+  "DOMPDF_FONT_CACHE" => array(
+    "desc" => "Font metrics cache",
+    "success" => "write",
+  ),
+  "DOMPDF_TEMP_DIR" => array(
+    "desc" => "Temporary folder",
+    "success" => "write",
+  ),
+  "DOMPDF_CHROOT" => array(
+    "desc" => "Restricted path",
+    "success" => "read",
+  ),
+  "DOMPDF_UNICODE_ENABLED" => array(
+    "desc" => "Unicode support (thanks to additionnal fonts)",
+  ),
+  "TTF2AFM" => array(
+    "desc" => "Path to the ttf2afm executable",
+    "success" => "read",
+  ),
+  "DOMPDF_PDF_BACKEND" => array(
+    "desc" => "Backend library that makes the outputted file (PDF, image)",
+    "success" => "backend",
+  ),
+  "DOMPDF_DEFAULT_MEDIA_TYPE" => array(
+    "desc" => "Default media type (print, screen, ...)",
+  ),
+  "DOMPDF_DEFAULT_PAPER_SIZE" => array(
+    "desc" => "Default paper size (A4, letter, ...)",
+  ),
+  "DOMPDF_DEFAULT_FONT" => array(
+    "desc" => "Default font, used if the specified font in the CSS stylesheet was not found",
+  ),
+  "DOMPDF_DPI" => array(
+    "desc" => "DPI scale of the document",
+  ),
+  "DOMPDF_ENABLE_PHP" => array(
+    "desc" => "Inline PHP support",
+  ),
+  "DOMPDF_ENABLE_JAVASCRIPT" => array(
+    "desc" => "Inline JavaScript support",
+  ),
+  "DOMPDF_ENABLE_REMOTE" => array(
+    "desc" => "Allow remote stylesheets and images",
+    "success" => "remote",
+  ),
+  "DEBUGPNG" => array(
+    "desc" => "Debug PNG images",
+  ),
+  "DEBUGKEEPTEMP" => array(
+    "desc" => "Keep temporary image files",
+  ),
+  "DEBUGCSS" => array(
+    "desc" => "Debug CSS",
+  ),
+  "DEBUG_LAYOUT" => array(
+    "desc" => "Debug layout",
+  ),
+  "DEBUG_LAYOUT_LINES" => array(
+    "desc" => "Debug text lines layout",
+  ),
+  "DEBUG_LAYOUT_BLOCKS" => array(
+    "desc" => "Debug block elements layout",
+  ),
+  "DEBUG_LAYOUT_INLINE" => array(
+    "desc" => "Debug inline elements layout",
+  ),
+  "DEBUG_LAYOUT_PADDINGBOX" => array(
+    "desc" => "Debug padding boxes layout",
+  ),
+);
 ?>
 
 <table class="setup">
-
+  <tr>
+    <th>Config name</th>
+    <th>Value</th>
+    <th>Description</th>
+    <th>Status</th>
+  </tr>
+  
   <?php foreach($defined_constants["user"] as $const => $value) { ?>
     <tr>
-      <td><?php echo $const; ?></td>
+      <td class="title"><?php echo $const; ?></td>
       <td><?php var_export($value); ?></td>
+      <td><?php echo $constants[$const]["desc"] ?></td>
+      <td <?php 
+        $message = "";
+        if (isset($constants[$const]["success"])) {
+          switch($constants[$const]["success"]) {
+            case "read":  
+              $success = is_readable($value);
+              $message = ($success ? "Readable" : "Not readable");
+            break;
+            case "write": 
+              $success = is_writable($value);
+              $message = ($success ? "Writable" : "Not writable");
+            break;
+            case "remote": 
+              $success = ini_get("allow_url_fopen");
+              $message = ($success ? "allow_url_fopen enabled" : "allow_url_fopen disabled");
+            break;
+            case "backend": 
+              switch (strtolower($value)) {
+                case "cpdf": 
+                  $success = true;
+                break;
+                case "pdflib":
+                  $success = function_exists("PDF_begin_document");
+                  $message = "The PDFLib backend needs the PDF PECL extension";
+                break;
+                case "gd":
+                  $success = function_exists("imagecreate");
+                  $message = "The GD backend require GD2";
+                break;
+              }
+            break;
+          }
+          echo 'class="' . ($success ? "ok" : "failed") . '"';
+        }
+      ?>><?php echo $message; ?></td>
     </tr>
   <?php } ?>
 
@@ -101,7 +229,7 @@ $fonts = Font_Metrics::get_font_families();
 
   <?php foreach($fonts as $family => $variants) { ?>
     <tr>
-      <td>
+      <td class="title">
         <?php 
           echo $family; 
           if ($family == DOMPDF_DEFAULT_FONT) echo ' (default)';

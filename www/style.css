@@ -198,16 +198,35 @@ table.setup th {
   border: 1px solid #ccc;
 }
 
-table.setup td.ok {
+table.setup th {
+  background-color: #ddd;
+}
+
+table.setup td.title {
+  background-color: #f6f6f6;
+}
+
+table.setup td.ok,
+table.setup tr:hover td.ok {
 	background-color: #9e4;
 }
 
-table.setup td.failed {
+table.setup td.failed,
+table.setup tr:hover td.failed {
   background-color: #ea8;
 }
 
-table.setup td.warning {
+table.setup td.warning,
+table.setup tr:hover td.warning {
   background-color: #FCC612;
+}
+
+table.setup tr:hover td {
+  background-color: #EBF1F7;
+}
+
+table.setup tr:hover td.title {
+  background-color: #D0E0F2;
 }
 
 /* Method definitions from phpdoc */
