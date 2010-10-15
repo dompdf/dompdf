@@ -314,6 +314,7 @@ class Style {
       $d["quotes"] = "";
       $d["richness"] = "50";
       $d["right"] = "auto";
+      $d["size"] = "auto"; // @page
       $d["speak_header"] = "once";
       $d["speak_numeral"] = "continuous";
       $d["speak_punctuation"] = "none";
@@ -1882,6 +1883,42 @@ class Style {
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["list_style"] = null;
     $this->_props["list_style"] = $val;
+  }
+  
+  function set_size($val) {
+    $length_re = "/(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))/";
+
+    $val = mb_strtolower($val);
+    
+    if ( $val === "auto" ) {
+      return;
+    }
+        
+    $parts = preg_split("/\s+/", $val);
+    
+    $computed = array();
+    if ( preg_match($length_re, $parts[0]) ) {
+      $computed[] = $this->length_in_pt($parts[0]);
+      
+      if ( isset($parts[1]) && preg_match($length_re, $parts[1]) ) {
+        $computed[] = $this->length_in_pt($parts[1]);
+      }
+      else {
+        $computed[] = $computed[0];
+      }
+    }
+    elseif ( isset(CPDF_Adapter::$PAPER_SIZES[$parts[0]]) ) {
+      $computed = array_slice(CPDF_Adapter::$PAPER_SIZES[$parts[0]], 2, 2);
+      
+      if ( isset($parts[1]) && $parts[1] === "landscape" ) {
+        $computed = array_reverse($computed);
+      }
+    }
+    else {
+      return;
+    }
+    
+    $this->_props["size"] = $computed;
   }
 
   /**

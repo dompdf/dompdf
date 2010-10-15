@@ -130,7 +130,7 @@ class CPDF_Adapter implements Canvas {
                               "tabloid" => array(0,0,792.00, 1224.00),
                               "executive" => array(0,0,521.86,756.00),
                               "folio" => array(0,0,612.00,936.00),
-                              "commerical #10 envelope" => array(0,0,684,297),
+                              "commercial #10 envelope" => array(0,0,684,297),
                               "catalog #10 1/2 envelope" => array(0,0,648,864),
                               "8.5x11" => array(0,0,612.00,792.00),
                               "8.5x14" => array(0,0,612.00,1008.0),

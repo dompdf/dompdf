@@ -190,6 +190,13 @@ class Stylesheet {
    * @return string
    */
   function get_base_path() { return $this->_base_path; }
+  
+  /**
+   * Return the page style
+   *
+   * @return Style
+   */
+  function get_page_style() { return $this->_page_style; }
 
   /**
    * Add a new Style object to the stylesheet

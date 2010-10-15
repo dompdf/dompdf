@@ -120,7 +120,12 @@ abstract class Frame_Decorator extends Frame {
     unset($this->_reflower);
   }
 
-  // Return a copy of this frame with $node as its node
+  /**
+   * Return a copy of this frame with $node as its node
+   * 
+   * @param DomNode $node 
+   * @return Frame
+   */ 
   function copy(DomNode $node) {
     $frame = new Frame($node);
     $frame->set_style(clone $this->_frame->get_original_style());
@@ -147,16 +152,20 @@ abstract class Frame_Decorator extends Frame {
   }
   //........................................................................
   
-  // Delegate calls to decorated frame object
+  /**
+   * Delegate calls to decorated frame object
+   */
   function reset() {
     $this->_frame->reset();
 
     // Reset all children
     foreach ($this->get_children() as $child)
       $child->reset();
-
   }
   
+  /**
+   * @return Frame
+   */
   function get_frame() { return $this->_frame; }
   function get_node() { return $this->_frame->get_node(); }
   function get_id() { return $this->_frame->get_id(); }
@@ -164,14 +173,12 @@ abstract class Frame_Decorator extends Frame {
   function get_original_style() { return $this->_frame->get_original_style(); }
   function get_containing_block($i = null) { return $this->_frame->get_containing_block($i); }
   function get_position($i = null) { return $this->_frame->get_position($i); }
+  
+  /**
+   * @return DOMPDF
+   */
   function get_dompdf() { return $this->_dompdf; }
-//   function get_decorator() {
-//     if ( isset($this->_decorator) )
-//       return $this->_decorator;
-//     else
-//       return $this;
-//   }
-
+  
   function get_margin_height() { return $this->_frame->get_margin_height(); }
   function get_margin_width() { return $this->_frame->get_margin_width(); }
   function get_padding_box() { return $this->_frame->get_padding_box(); }
@@ -232,6 +239,9 @@ abstract class Frame_Decorator extends Frame {
   
   //........................................................................
 
+  /**
+   * @return Frame_Decorator
+   */
   function get_parent() {
 
     $p = $this->_frame->get_parent();
@@ -246,6 +256,9 @@ abstract class Frame_Decorator extends Frame {
       return null;
   }
 
+  /**
+   * @return Frame_Decorator
+   */
   function get_first_child() {
     $c = $this->_frame->get_first_child();
     if ( $c && $deco = $c->get_decorator() ) {
@@ -258,6 +271,9 @@ abstract class Frame_Decorator extends Frame {
       return null;
   }
 
+  /**
+   * @return Frame_Decorator
+   */
   function get_last_child() {
     $c = $this->_frame->get_last_child();
     if ( $c && $deco = $c->get_decorator() ) {
@@ -270,6 +286,9 @@ abstract class Frame_Decorator extends Frame {
       return null;
   }
 
+  /**
+   * @return Frame_Decorator
+   */
   function get_prev_sibling() {
     $s = $this->_frame->get_prev_sibling();
     if ( $s && $deco = $s->get_decorator() ) {
@@ -282,6 +301,9 @@ abstract class Frame_Decorator extends Frame {
       return null;
   }
   
+  /**
+   * @return Frame_Decorator
+   */
   function get_next_sibling() {
     $s = $this->_frame->get_next_sibling();
     if ( $s && $deco = $s->get_decorator() ) {
@@ -294,10 +316,16 @@ abstract class Frame_Decorator extends Frame {
       return null;
   }
 
+  /**
+   * @return FrameList
+   */
   function get_children() {
     return new FrameList($this);
   }
 
+  /**
+   * @return FrameTreeList
+   */
   function get_subtree() {
     return new FrameTreeList($this);
   }

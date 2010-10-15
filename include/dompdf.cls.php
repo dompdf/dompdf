@@ -579,7 +579,13 @@ class DOMPDF {
       }
 
     }
-
+    
+    $page_style = $this->_css->get_page_style();
+    
+    if ( $page_style && is_array($page_style->size) ) {
+      $this->set_paper(array(0, 0, $page_style->size[0], $page_style->size[1]));
+    }
+    
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
 
     // Add meta information

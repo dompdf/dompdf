@@ -209,6 +209,13 @@ abstract class Frame_Reflower {
     return $this->_min_max_cache = array($min, $max, "min"=>$min, "max"=>$max);
   }
 
+  /**
+   * Parses a CSS string containing quotes and escaped hex characters
+   * 
+   * @param $string string The CSS string to parse
+   * @param $single_trim
+   * @return string
+   */
   protected function _parse_string($string, $single_trim = false) {
     if ($single_trim) {
       $string = preg_replace("/^[\"\']/", "", $string);
@@ -229,6 +236,11 @@ abstract class Frame_Reflower {
     return $string;
   }
   
+  /**
+   * Parses a CSS "quotes" property
+   * 
+   * @return array An array of pairs of quotes
+   */
   protected function _parse_quotes() {
     
     // Matches quote types
@@ -252,6 +264,11 @@ abstract class Frame_Reflower {
     return array_chunk($quotes_array, 2);
   }
 
+  /**
+   * Parses the CSS "content" property
+   * 
+   * @return string The resulting string
+   */
   protected function _parse_content() {
 
     // Matches generated content
@@ -366,13 +383,15 @@ abstract class Frame_Reflower {
           $text .= $this->_frame->get_parent()->get_node()->getAttribute($attr);
         } else
           continue;
-
       }
     }
 
     return $text;
   }
   
+  /**
+   * Sets the generated content of a generated frame
+   */
   protected function _set_content(){
     $frame = $this->_frame;
     $style = $frame->get_style();
