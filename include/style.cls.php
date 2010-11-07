@@ -340,7 +340,7 @@ class Style {
       
       // for @font-face
       $d["src"] = "";
-      $d["unicode-range"] = "";
+      $d["unicode_range"] = "";
 
       // Properties that inherit by default
       self::$_inherited = array("azimuth",

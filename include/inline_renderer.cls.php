@@ -198,7 +198,7 @@ class Inline_Renderer extends Abstract_Renderer {
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_INLINE) {
       $this->_debug_layout($child->get_border_box(), "blue");
       if (DEBUG_LAYOUT_PADDINGBOX) {
-        $this->_debug_layout($child->get_padding_box(), "blue", array(0, 1));
+        $this->_debug_layout($child->get_padding_box(), "blue", array(0.5, 0.5));
       }
     }
   }

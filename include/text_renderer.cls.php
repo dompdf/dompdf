@@ -54,7 +54,7 @@
  */
 class Text_Renderer extends Abstract_Renderer {
   
-  const DECO_THICKNESS = 0.03;     // Thickness of underline. Screen: 0.08, print: better less, e.g. 0.04
+  const DECO_THICKNESS = 0.02;     // Thickness of underline. Screen: 0.08, print: better less, e.g. 0.04
 
   //Tweaking if $base and $descent are not accurate.
   //Check method_exists( $this->_canvas, "get_cpdf" )
@@ -174,7 +174,8 @@ class Text_Renderer extends Abstract_Renderer {
     }
     
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_LINES) {
-      $this->_debug_layout(array($x+$line["x"], $y, Font_Metrics::get_text_width($text, $font, $frame_font_size)+($line["wc"]-1)*$spacing, $frame_font_size), "orange", array(0, 2));
+      $text_width = Font_Metrics::get_text_width($text, $font, $frame_font_size);
+      $this->_debug_layout(array($x, $y, $text_width+($line["wc"]-1)*$spacing, $frame_font_size), "orange", array(0.5, 0.5));
     }
   }
 }

@@ -29,6 +29,7 @@ function li_star() {
   <ul>
     <li style="list-style-image: url('images/star_02.gif');"><a href="index.php">Overview</a></li>
     <li style="list-style-image: url('images/star_02.gif');"><a href="examples.php">Examples</a></li>
+    <li style="list-style-image: url('images/star_02.gif');"><a href="demo.php">Demo</a></li>
     <li style="list-style-image: url('images/star_02.gif');"><a href="setup.php">Setup / Config</a></li>
   </ul>
 </div>

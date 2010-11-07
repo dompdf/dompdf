@@ -88,7 +88,7 @@ class Image_Renderer extends Block_Renderer {
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_BLOCKS) {
       $this->_debug_layout($frame->get_border_box(), "blue");
       if (DEBUG_LAYOUT_PADDINGBOX) {
-        $this->_debug_layout($frame->get_padding_box(), "blue", array(0, 1));
+        $this->_debug_layout($frame->get_padding_box(), "blue", array(0.5, 0.5));
       }
     }
   }

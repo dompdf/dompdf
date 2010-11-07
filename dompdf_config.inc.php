@@ -83,6 +83,11 @@ if( !isset($_SERVER['DOCUMENT_ROOT']) ) {
   $_SERVER['DOCUMENT_ROOT'] = str_replace( '\\', '/', substr($path, 0, 0-strlen($_SERVER['PHP_SELF'])));
 }
 
+/** Include the custom config file if it exists */
+if ( file_exists(DOMPDF_DIR . "/dompdf_config.custom.inc.php") ){
+  require_once(DOMPDF_DIR . "/dompdf_config.custom.inc.php");
+}
+
 //FIXME: Some function definitions rely on the constants defined by DOMPDF. However, might this location prove problematic?
 require_once(DOMPDF_INC_DIR . "/functions.inc.php");
 

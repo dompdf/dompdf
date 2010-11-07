@@ -10,6 +10,9 @@ body {
 div {
   margin: 2px;
 }
+div:before {
+  content: attr(style);
+}
 </style>
 
 </head>
@@ -17,29 +20,17 @@ div {
 <body>
 All these rectangles should look red:
 
-<div style="background-color: red;">
-  red
-</div>
+<div style="background-color: red;"></div>
 
-<div style="background-color: #FF0000;">
-  #FF0000
-</div>
+<div style="background-color: #FF0000;"></div>
 
-<div style="background-color: #F00;">
-  #F00
-</div>
+<div style="background-color: #F00;"></div>
 
-<div style="background-color: rgb(255, 0, 0);">
-  rgb(255, 0, 0)
-</div>
+<div style="background-color: rgb(255, 0, 0);"></div>
 
-<div style="background-color: rgb(100%, 0%, 0%);">
-  rgb(100%, 0%, 0%)
-</div>
+<div style="background-color: rgb(100%, 0%, 0%);"></div>
 
-<div style="background-color: cmyk(0, 1, 1, 0);">
-  cmyk(0, 1, 1, 0)
-</div>
+<div style="background-color: cmyk(0, 1, 1, 0);"></div>
 <br />
 <br />
 
@@ -48,21 +39,13 @@ CMYK JPEG: <br />
 
 <br /><br />
 CMYK: 
-<div style="background-color: cmyk(1,0,0,0);">
-  C
-</div>
+<div style="background-color: cmyk(1,0,0,0);"></div>
 
-<div style="background-color: cmyk(0,1,0,0);">
-  M
-</div>
+<div style="background-color: cmyk(0,1,0,0);"></div>
 
-<div style="background-color: cmyk(0,0,2,0);">
-  Y
-</div>
+<div style="background-color: cmyk(0,0,1,0);"></div>
 
-<div style="background-color: cmyk(0,0,0,1);">
-  K
-</div>
+<div style="background-color: cmyk(0,0,0,1);"></div>
 
 
 </body> </html>

@@ -158,11 +158,11 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
 
       // Verify that the fonts exist and are readable
       if ( !is_readable($src) )
-        throw new User_DOMPDF_Exception("Requested font '$pathname' is not readable");
+        throw new DOMPDF_Exception("Requested font '$pathname' is not readable");
 
       $dest = DOMPDF_FONT_DIR . basename($src);
       if ( !is_writeable(dirname($dest)) )
-        throw new User_DOMPDF_Exception("Unable to write to destination '$dest'.");
+        throw new DOMPDF_Exception("Unable to write to destination '$dest'.");
 
       echo "Copying $src to $dest...\n";
 

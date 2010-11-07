@@ -223,6 +223,43 @@ $constants = array(
 
 <?php 
 $fonts = Font_Metrics::get_font_families();
+$ttfstat = array("size"=> 0, "mtime" =>0);
+$TTCfontID = 0;
+$fontkey = 0;
+$ttffile = "C:/Windows/fonts/ERASMD.TTF";
+$ttf = new TT_Font_File();
+    $ttf->getMetrics($ttffile, $TTCfontID, false, 0);
+    $cw = $ttf->charWidths;
+    ksort($cw);
+    $name = preg_replace('/[ ()]/','',$ttf->fullName);
+    $desc= array('Ascent'=>round($ttf->ascent),
+    'Descent'=>round($ttf->descent),
+    'CapHeight'=>round($ttf->capHeight),
+    'Flags'=>$ttf->flags,
+    'FontBBox'=>'['.round($ttf->bbox[0])." ".round($ttf->bbox[1])." ".round($ttf->bbox[2])." ".round($ttf->bbox[3]).']',
+    'ItalicAngle'=>$ttf->italicAngle,
+    'StemV'=>round($ttf->stemV),
+    'MissingWidth'=>round($ttf->defaultWidth));
+    $up = round($ttf->underlinePosition);
+    $ut = round($ttf->underlineThickness);
+    $originalsize = $ttfstat['size']+0;
+    $modified = $ttfstat['mtime']+0;
+    $type = 'TTF';
+    //Generate metrics .php file
+    $s='?php'."\n";
+    $s.='$name=\''.$name."';\n";
+    $s.='$type=\''.$type."';\n";
+    $s.='$desc='.var_export($desc,true).";\n";
+    $s.='$up='.$up.";\n";
+    $s.='$ut='.$ut.";\n";
+    $s.='$cw='.var_export($cw,true).";\n";
+    $s.='$ttffile=\''.$ttffile."';\n";
+    $s.='$TTCfontID=\''.$TTCfontID."';\n";
+    $s.='$originalsize='.$originalsize.";\n";
+    $s.='$modified='.$modified.";\n";
+    $s.='$fontkey=\''.$fontkey."';\n";
+    $s.="?>";
+    echo nl2br($s);
 ?>
 
 <table class="setup">

@@ -548,7 +548,10 @@ class PDFLib_Adapter implements Canvas {
    * @param $mode
    */
   function set_opacity($opacity, $mode = "Normal") {
-    // Not implemented
+    if ( $mode === "Normal" ) {
+      $gstate = $this->_pdf->create_gstate("opacityfill=$opacity opacitystroke=$opacity");
+      $this->_pdf->set_gstate($gstate);
+    }
   }
 
   /**

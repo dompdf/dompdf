@@ -69,7 +69,7 @@ class Block_Renderer extends Abstract_Renderer {
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_BLOCKS) {
       $this->_debug_layout($frame->get_border_box(), "red");
       if (DEBUG_LAYOUT_PADDINGBOX) {
-        $this->_debug_layout($frame->get_padding_box(), "red", array(0, 1));
+        $this->_debug_layout($frame->get_padding_box(), "red", array(0.5, 0.5));
       }
     }
     
