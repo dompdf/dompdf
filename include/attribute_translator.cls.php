@@ -325,7 +325,7 @@ class Attribute_Translator {
       if ( strpos($style, "border") !== false )
         continue;
       $style = rtrim($style, ";");
-      $style .= "; border-width: 1pt; border-style: inset;";
+      $style .= "; border-width: " . ($value > 0 ? 1 : 0) . "pt; border-style: inset;";
       $style = ltrim($style, ";");
       $td->setAttribute("style", $style);
     }
@@ -336,7 +336,7 @@ class Attribute_Translator {
       if ( strpos($style, "border") !== false )
         continue;
       $style = rtrim($style, ";");
-      $style .= "; border-width: 1pt; border-style: inset;";
+      $style .= "; border-width: " . ($value > 0 ? 1 : 0) . "pt; border-style: inset;";
       $style = ltrim($style, ";");
       $th->setAttribute("style", $style);
     }
