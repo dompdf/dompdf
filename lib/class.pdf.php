@@ -320,6 +320,11 @@ class  Cpdf {
   protected $compressionReady = false;
   
   /**
+   * @var string the target internal encoding
+   */
+  static protected $targetEncoding = 'iso-8859-1';
+  
+  /**
    * class constructor
    * this will start a new document
    * @var array array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
@@ -332,6 +337,10 @@ class  Cpdf {
     $this->newDocument($pageSize);
     
     $this->compressionReady = function_exists('gzcompress');
+    
+    if ( in_array('Windows-1252', mb_list_encodings()) ) {
+      self::$targetEncoding = 'Windows-1252';
+    }
 
     // also initialize the font families that are known about already
     $this->setFontFamily('init');
@@ -1681,8 +1690,8 @@ class  Cpdf {
       $res.= "\n/Filter /Standard";
       $res.= "\n/V 1";
       $res.= "\n/R 2";
-      $res.= "\n/O (".$this->filterText($o['info']['O']) .')';
-      $res.= "\n/U (".$this->filterText($o['info']['U']) .')';
+      $res.= "\n/O (".$this->filterText($o['info']['O'], true, false) .')';
+      $res.= "\n/U (".$this->filterText($o['info']['U'], true, false) .')';
       // and the p-value needs to be converted to account for the twos-complement approach
       $o['info']['p'] =  (($o['info']['p']^255) +1) *-1;
       $res.= "\n/P ".($o['info']['p']);
@@ -2990,27 +2999,24 @@ class  Cpdf {
    *
    * @access private
    */
-  function  filterText($text, $bom = true) {
+  function  filterText($text, $bom = true, $convert_encoding = true) {
     if (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
     
-  	$cf = $this->currentFont;
-    if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
-      //$text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
-      $text =  $this->utf8toUtf16BE($text, $bom);
-    } else {
-      if (in_array('Windows-1252', mb_list_encodings())) {
-        $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+    if ($convert_encoding) {
+    	$cf = $this->currentFont;
+      if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
+        //$text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+        $text =  $this->utf8toUtf16BE($text, $bom);
       } else {
-        $text = mb_convert_encoding($text, 'iso-8859-1', 'UTF-8');
+        //$text = html_entity_decode($text, ENT_QUOTES);
+        $text = mb_convert_encoding($text, self::$targetEncoding, 'UTF-8');
       }
-      //$text = html_entity_decode($text, ENT_QUOTES);
     }
 
     // the chr(13) substitution fixes a bug seen in TCPDF (bug #1421290)
-    $text = strtr($text, array(')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r'));
-    return  $text;
+    return strtr($text, array(')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r'));
   }
 
   /**
