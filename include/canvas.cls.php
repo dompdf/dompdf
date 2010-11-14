@@ -138,6 +138,41 @@ interface Canvas {
   function clipping_end();
   
   /**
+   * Save current state
+   */
+  function save();
+  
+  /**
+   * Restore last state
+   */
+  function restore();
+  
+  /**
+   * Rotate
+   */
+  function rotate($angle, $x, $y);
+  
+  /**
+   * Skew
+   */
+  function skew($angle_x, $angle_y, $x, $y);
+  
+  /**
+   * Scale
+   */
+  function scale($s_x, $s_y, $x, $y);
+  
+  /**
+   * Translate
+   */
+  function translate($t_x, $t_y);
+  
+  /**
+   * Transform
+   */
+  function transform($a, $b, $c, $d, $e, $f);
+  
+  /**
    * Draws a polygon
    *
    * The polygon is formed by joining all the points stored in the $points

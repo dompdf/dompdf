@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+<title></title>
+<style>
+  body {
+    font-family: 'trebuchet ms', verdana, sans-serif;
+    font-size: 11px;
+  }
+  div {
+    border: 1px solid red;
+    -webkit-transform-origin: 50% 50%;
+    margin: 1em;
+  }
+  div:after {
+    content: attr(style);
+  }
+  
+  div.grid {
+    border: 1px dotted grey;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid"><div style="-webkit-transform: rotate(0.1rad);">&nbsp; </div></div>
+
+<div class="grid"><div style="-webkit-transform: scale(0.5, 1.5)">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: scale(0.5)">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: scaleX(0.5)">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: scaleY(0.5)">&nbsp; </div></div>
+
+<div class="grid"><div style="-webkit-transform: translate(10px, 10px);">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: translate(20px);">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: translateX(20%);">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: translateY(30%);">&nbsp; </div></div>
+
+<div class="grid"><div style="-webkit-transform: skew(30deg, -4deg)">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: skew(-4deg)">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: skewX(20deg)">&nbsp; </div></div>
+<div class="grid"><div style="-webkit-transform: skewY(-4deg)">&nbsp; </div></div>
+
+<div class="grid"><div style="-webkit-transform: rotate(10deg) translate(10px, 40px) scale(0.5, 1.5)">&nbsp; </div></div>
+
+<div class="grid"><div style="-webkit-transform: none">&nbsp; </div></div>
+
+</body>
+</html>

@@ -416,6 +416,34 @@ class GD_Adapter implements Canvas {
   function clipping_end() {
     // @todo
   }
+  
+  function save() {
+    // @todo
+  }
+  
+  function restore() {
+    // @todo
+  }
+  
+  function rotate($angle, $x, $y) {
+    // @todo
+  }
+  
+  function skew($angle_x, $angle_y, $x, $y) {
+    // @todo
+  }
+  
+  function scale($s_x, $s_y, $x, $y) {
+    // @todo
+  }
+  
+  function translate($t_x, $t_y) {
+    // @todo
+  }
+  
+  function transform($a, $b, $c, $d, $e, $f) {
+    // @todo
+  }
 
   /**
    * Draws a polygon

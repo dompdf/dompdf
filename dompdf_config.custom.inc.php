@@ -2,7 +2,7 @@
 //define("DOMPDF_TEMP_DIR", "/tmp");
 //define("DOMPDF_CHROOT", DOMPDF_DIR);
 //define("DOMPDF_UNICODE_ENABLED", false);
-define("TTF2AFM", "C:/Program Files (x86)/GnuWin32/bin/ttf2pt1.exe");
+//define("TTF2AFM", "C:/Program Files (x86)/GnuWin32/bin/ttf2pt1.exe");
 //define("DOMPDF_PDF_BACKEND", "PDFLib");
 //define("DOMPDF_DEFAULT_MEDIA_TYPE", "print");
 //define("DOMPDF_DEFAULT_PAPER_SIZE", "letter");

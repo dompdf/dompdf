@@ -93,6 +93,26 @@ class Renderer extends Abstract_Renderer {
 
     $style = $frame->get_style();
     $display = $style->display;
+    
+    // Starts the CSS transformation
+    if ( $style->transform && is_array($style->transform) ) {
+      $this->_canvas->save();
+      list($x, $y, $w, $h) = $frame->get_padding_box();
+      $origin = $style->transform_origin;
+      
+      foreach($style->transform as $transform) {
+        list($function, $values) = $transform;
+        if ( $function === "matrix" ) {
+          $function = "transform";
+        }
+        
+        $values = array_map("floatval", $values);
+        $values[] = $x + $style->length_in_pt($origin[0], $style->width);
+        $values[] = $y + $style->length_in_pt($origin[1], $style->height);
+        
+        call_user_func_array(array($this->_canvas, $function), $values);
+      }
+    }
   
     switch ($display) {
       
@@ -166,6 +186,10 @@ class Renderer extends Abstract_Renderer {
     // Ends the overflow: hidden box
     if ( $style->overflow === "hidden" ) {
       $this->_canvas->clipping_end();
+    }
+
+    if ( $style->transform && is_array($style->transform) ) {
+      $this->_canvas->restore();
     }
 
     // Check for end frame callback

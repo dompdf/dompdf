@@ -289,7 +289,7 @@ class Style {
       $d["max_width"] = "none";
       $d["min_height"] = "0";
       $d["min_width"] = "0";
-      $d["opacity"] = "1.0";
+      $d["opacity"] = "1.0"; // CSS3
       $d["orphans"] = "2";
       $d["outline_color"] = ""; // "invert" special color is not supported
       $d["outline_style"] = "none";
@@ -327,6 +327,10 @@ class Style {
       $d["text_indent"] = "0";
       $d["text_transform"] = "none";
       $d["top"] = "auto";
+      $d["transform"] = "none"; // CSS3
+      $d["transform_origin"] = "50% 50%"; // CSS3
+      $d["_webkit_transform"] = $d["transform"]; // CSS3
+      $d["_webkit_transform_origin"] = $d["transform_origin"]; // CSS3
       $d["unicode_bidi"] = "normal";
       $d["vertical_align"] = "baseline";
       $d["visibility"] = "visible";
@@ -1814,7 +1818,7 @@ class Style {
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["border_spacing"] = null;
-    $this->_props["border_spacing"] = $arr[0] . " " . $arr[1];
+    $this->_props["border_spacing"] = "$arr[0] $arr[1]";
   }
 
   /**
@@ -1919,6 +1923,168 @@ class Style {
     }
     
     $this->_props["size"] = $computed;
+  }
+  
+  /**
+   * Sets the CSS3 transform property
+   *
+   * @link http://www.w3.org/TR/css3-2d-transforms/#transform-property
+   * @param string $val
+   */
+  function set_transform($val) {
+    $number   = "\s*([^,\s]+)\s*";
+    $tr_value = "\s*([^,\s]+)\s*";
+    $angle    = "\s*([^,\s]+(?:deg|rad)?)\s*";
+    
+    if( !preg_match_all("/[a-z]+\([^\)]+\)/i", $val, $parts, PREG_SET_ORDER) ) {
+      return;
+    }
+    
+    $functions = array(
+      //"matrix"     => "\($number,$number,$number,$number,$number,$number\)",
+    
+      "translate"  => "\($tr_value(?:,$tr_value)?\)",
+      "translateX" => "\($tr_value\)",
+      "translateY" => "\($tr_value\)",
+    
+      "scale"      => "\($number(?:,$number)?\)",
+      "scaleX"     => "\($number\)",
+      "scaleY"     => "\($number\)",
+    
+      "rotate"     => "\($angle\)",
+    
+      "skew"       => "\($angle(?:,$angle)?\)",
+      "skewX"      => "\($angle\)",
+      "skewY"      => "\($angle\)",
+    );
+    
+    $transforms = array();
+    
+    foreach($parts as $part) {
+      $t = $part[0];
+      
+      foreach($functions as $name => $pattern) {
+        if (preg_match("/$name\s*$pattern/i", $t, $matches)) {
+          $values = array_slice($matches, 1);
+          
+          switch($name) {
+            // <angle> units
+            case "rotate":
+            case "skew":
+            case "skewX":
+            case "skewY":
+              
+              foreach($values as $i => $value) {
+                if ( strpos($value, "rad") ) 
+                  $values[$i] = rad2deg(floatval($value));
+                else
+                  $values[$i] = floatval($value);
+              }
+              
+              switch($name) {
+                case "skew":
+                  if ( !isset($values[1]) ) 
+                    $values[1] = 0;
+                break;
+                case "skewX":
+                  $name = "skew";
+                  $values = array($values[0], 0);
+                break;
+                case "skewY":
+                  $name = "skew";
+                  $values = array(0, $values[0]);
+                break;
+              }
+            break;
+            
+            // <translation-value> units
+            case "translate":
+              $values[0] = $this->length_in_pt($values[0], $this->width);
+              
+              if ( isset($values[1]) ) 
+                $values[1] = $this->length_in_pt($values[1], $this->height);
+              else
+                $values[1] = 0;
+            break;
+            
+            case "translateX":
+              $name = "translate";
+              $values = array($this->length_in_pt($values[0], $this->width), 0);
+            break;
+            
+            case "translateY":
+              $name = "translate";
+              $values = array(0, $this->length_in_pt($values[0], $this->height));
+            break;
+            
+            // <number> units
+            case "scale":
+              if ( !isset($values[1]) ) 
+                $values[1] = $values[0];
+            break;
+            
+            case "scaleX":
+              $name = "scale";
+              $values = array($values[0], 1.0);
+            break;
+            
+            case "scaleY":
+              $name = "scale";
+              $values = array(1.0, $values[0]);
+            break;
+          }
+          
+          $transforms[] = array(
+            $name, 
+            $values,
+          );
+        }
+      }
+    }
+    
+    //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+    $this->_prop_cache["transform"] = null;
+    $this->_props["transform"] = $transforms;
+  }
+  
+  function set__webkit_transform($val) {
+    return $this->set_transform($val);
+  }
+  
+  function set__webkit_transform_origin($val) {
+    return $this->set_transform_origin($val);
+  }
+  
+  /**
+   * Sets the CSS3 transform-origin property
+   *
+   * @link http://www.w3.org/TR/css3-2d-transforms/#transform-origin
+   * @param string $val
+   */
+  function set_transform_origin($val) {
+    $values = preg_split("/\s+/", $val);
+    
+    if ( count($values) === 0) {
+      return;
+    }
+    
+    foreach($values as &$value) {
+      if ( in_array($value, array("top", "left")) ) {
+        $value = 0;
+      }
+      
+      if ( in_array($value, array("bottom", "right")) ) {
+        $value = "100%";
+      }
+    }
+    
+    if ( !isset($values[1]) ) {
+      $values[1] = $values[0];
+    }
+    
+    //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+    $this->_prop_cache["transform_origin"] = null;
+    $this->_props["transform_origin"] = $values;
   }
 
   /**

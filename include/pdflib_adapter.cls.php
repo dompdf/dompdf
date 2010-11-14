@@ -660,6 +660,40 @@ class PDFLib_Adapter implements Canvas {
   function clipping_end() {
     $this->_pdf->restore();
   }
+  
+  function save() {
+    $this->_pdf->save();
+  }
+  
+  function restore() {
+    $this->_pdf->restore();
+  }
+  
+  function rotate($angle, $x, $y) {
+    $pdf = $this->_pdf;
+    $pdf->translate($x, $y);
+    $pdf->rotate($angle);
+  }
+  
+  function skew($angle_x, $angle_y, $x, $y) {
+    $pdf = $this->_pdf;
+    $pdf->translate($x, $y);
+    $pdf->skew($angle_y, $angle_x); // Needs to be inverted
+  }
+  
+  function scale($s_x, $s_y, $x, $y) {
+    $pdf = $this->_pdf;
+    $pdf->translate($x, $y);
+    $pdf->scale($s_x, $s_y);
+  }
+  
+  function translate($t_x, $t_y) {
+    $this->_pdf->translate($t_x, $t_y);
+  }
+  
+  function transform($a, $b, $c, $d, $e, $f) {
+    $this->_pdf->concat($a, $b, $c, $d, $e, $f);
+  }
 
   //........................................................................
 

@@ -193,7 +193,7 @@ class  Cpdf {
    * an array containing options about the document
    * it defaults to turning on the compression of the objects
    */
-  public  $options = array('compression'=>1);
+  public  $options = array('compression'=>true);
 
   /**
    * the objectId of the first page of the document
@@ -318,6 +318,11 @@ class  Cpdf {
    * @var boolean whether the compression is possible
    */
   protected $compressionReady = false;
+
+  /**
+   * @var array current page size
+   */
+  protected $currentPageSize = array("width" => 0, "height" => 0);
   
   /**
    * @var string the target internal encoding
@@ -330,7 +335,7 @@ class  Cpdf {
    * @var array array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
    * @var boolean whether text will be treated as Unicode or not.
    */
-  function  Cpdf ($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
+  function __construct ($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
     $this->isUnicode = $isUnicode;
     $this->fontcache = $fontcache;
     $this->tmp = $tmp;
@@ -573,6 +578,7 @@ class  Cpdf {
     case  'mediaBox':
       $o['info']['mediaBox'] = $options;
       // which should be an array of 4 numbers
+      $this->currentPageSize = array('width' => $options[2], 'height' => $options[3]);
       break;
 
     case  'font':
@@ -892,7 +898,7 @@ class  Cpdf {
           break;
 
         case  'FontBBox':
-          $res.= "/$label [".$value[0].' '.$value[1].' '.$value[2].' '.$value[3]."]\n";
+          $res.= "/$label [$value[0] $value[1] $value[2] $value[3]]\n";
           break;
 
         case  'FontName':
@@ -1028,7 +1034,7 @@ class  Cpdf {
         $cid_widths = &$this->fonts[$o['info']['fontFileName']]['CIDWidths'];
         $w = '';
         foreach ($cid_widths as $cid => $width) {
-          $w .= $cid.' ['.$width.'] ';
+          $w .= "$cid [$width] ";
         }
         $res.=  "/W [$w]\n";
       }
@@ -1057,9 +1063,11 @@ class  Cpdf {
 
     case  'out':
       $res = "\n$id 0 obj\n";
-      $tmp = $this->fonts[$o['info']['fontFileName']]['CIDtoGID'] = base64_decode($this->fonts[$o['info']['fontFileName']]['CIDtoGID']);
-      $compressed = isset($this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed']) &&
-                    $this->fonts[$o['info']['fontFileName']]['CIDtoGID_Compressed'];
+      $fontFileName = $o['info']['fontFileName'];
+      $tmp = $this->fonts[$fontFileName]['CIDtoGID'] = base64_decode($this->fonts[$fontFileName]['CIDtoGID']);
+      
+      $compressed = isset($this->fonts[$fontFileName]['CIDtoGID_Compressed']) &&
+                    $this->fonts[$fontFileName]['CIDtoGID_Compressed'];
 
       if  (!$compressed && isset($o['raw'])) {
         $res.= $tmp;
@@ -1520,17 +1528,18 @@ class  Cpdf {
           $info['ColorSpace'] =  $tmp;
           
           if  (isset($options['transparency'])) {
-            switch ($options['transparency']['type']) {
+            $transparency = $options['transparency'];
+            switch ($transparency['type']) {
             case  'indexed':
-              $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
+              $tmp = ' [ '.$transparency['data'].' '.$transparency['data'].'] ';
               $info['Mask'] =  $tmp;
               break;
 
             case 'color-key':
               $tmp = ' [ '.
-                $options['transparency']['r'] . ' ' . $options['transparency']['r'] .
-                $options['transparency']['g'] . ' ' . $options['transparency']['g'] .
-                $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
+                $transparency['r'] . ' ' . $transparency['r'] .
+                $transparency['g'] . ' ' . $transparency['g'] .
+                $transparency['b'] . ' ' . $transparency['b'] .
                 ' ] ';
               $info['Mask'] = $tmp;
               break;
@@ -1538,17 +1547,19 @@ class  Cpdf {
           }
         } else {
           if  (isset($options['transparency'])) {
-            switch ($options['transparency']['type']) {
+            $transparency = $options['transparency'];
+            
+            switch ($transparency['type']) {
             case  'indexed':
-              $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
+              $tmp = ' [ '.$transparency['data'].' '.$transparency['data'].'] ';
               $info['Mask'] =  $tmp;
               break;
 
             case 'color-key':
               $tmp = ' [ '.
-                $options['transparency']['r'] . ' ' . $options['transparency']['r'] . ' ' .
-                $options['transparency']['g'] . ' ' . $options['transparency']['g'] . ' ' .
-                $options['transparency']['b'] . ' ' . $options['transparency']['b'] .
+                $transparency['r'] . ' ' . $transparency['r'] . ' ' .
+                $transparency['g'] . ' ' . $transparency['g'] . ' ' .
+                $transparency['b'] . ' ' . $transparency['b'] .
                 ' ] ';
               $info['Mask'] = $tmp;
               break;
@@ -1709,7 +1720,7 @@ class  Cpdf {
   /**
    * calculate the 16 byte version of the 128 bit md5 digest of the string
    */
-  function  md5_16($string) {
+  function md5_16($string) {
     $tmp =  md5($string);
     $out = '';
     for  ($i = 0;$i <= 30;$i = $i+2) {
@@ -1722,7 +1733,7 @@ class  Cpdf {
   /**
    * initialize the encryption for processing a particular object
    */
-  function  encryptInit($id) {
+  function encryptInit($id) {
     $tmp =  $this->encryptionKey;
     $hex =  dechex($id);
     if  (mb_strlen($hex, '8bit') <6) {
@@ -1737,7 +1748,7 @@ class  Cpdf {
   /**
    * initialize the ARC4 encryption
    */
-  function  ARC4_init($key = '') {
+  function ARC4_init($key = '') {
     $this->arc4 =  '';
 
     // setup the control array
@@ -1769,7 +1780,7 @@ class  Cpdf {
   /**
    * ARC4 encrypt a text string
    */
-  function  ARC4($text) {
+  function ARC4($text) {
     $len = mb_strlen($text, '8bit');
     $a = 0;
     $b = 0;
@@ -1795,7 +1806,7 @@ class  Cpdf {
   /**
    * add a link in the document to an external URL
    */
-  function  addLink($url, $x0, $y0, $x1, $y1) {
+  function addLink($url, $x0, $y0, $x1, $y1) {
     $this->numObj++;
     $info =  array('type'=>'link', 'url'=>$url, 'rect'=>array($x0, $y0, $x1, $y1));
     $this->o_annotation($this->numObj, 'new', $info);
@@ -1805,7 +1816,7 @@ class  Cpdf {
   /**
    * add a link in the document to an internal destination (ie. within the document)
    */
-  function  addInternalLink($label, $x0, $y0, $x1, $y1) {
+  function addInternalLink($label, $x0, $y0, $x1, $y1) {
     $this->numObj++;
     $info =  array('type'=>'ilink', 'label'=>$label, 'rect'=>array($x0, $y0, $x1, $y1));
     $this->o_annotation($this->numObj, 'new', $info);
@@ -1817,7 +1828,7 @@ class  Cpdf {
    * can be used to turn it on and/or set the passwords which it will have.
    * also the functions that the user will have are set here, such as print, modify, add
    */
-  function  setEncryption($userPass = '', $ownerPass = '', $pc = array()) {
+  function setEncryption($userPass = '', $ownerPass = '', $pc = array()) {
     $p = bindec("11000000");
 
     $options =  array('print'=>4, 'modify'=>8, 'copy'=>16, 'add'=>32);
@@ -1846,17 +1857,17 @@ class  Cpdf {
   /**
    * should be used for internal checks, not implemented as yet
    */
-  function  checkAllHere() {
+  function checkAllHere() {
   }
 
 
   /**
    * return the pdf stream as a string returned from the function
    */
-  function  output($debug = false) {
+  function output($debug = false) {
     if  ($debug) {
       // turn compression off
-      $this->options['compression'] = 0;
+      $this->options['compression'] = false;
     }
     
     if ($this->javascript) {
@@ -1919,7 +1930,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  newDocument($pageSize = array(0, 0, 612, 792)) {
+  function newDocument($pageSize = array(0, 0, 612, 792)) {
     $this->numObj = 0;
     $this->objects =  array();
 
@@ -1958,7 +1969,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  openFont($font) {
+  function openFont($font) {
     // assume that $font contains the path and file but not the extension
     $pos = strrpos($font, '/');
 
@@ -2181,7 +2192,7 @@ class  Cpdf {
    * and 'differences' => an array of mappings between numbers 0->255 and character names.
    *
    */
-  function  selectFont($fontName, $encoding =  '', $set =  true) {
+  function selectFont($fontName, $encoding =  '', $set =  true) {
     $ext = substr($fontName, -4);
     if  ($ext === '.afm' || $ext === '.ufm') {
       $fontName = substr($fontName, 0, mb_strlen($fontName)-4);
@@ -2464,7 +2475,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  setCurrentFont() {
+  function setCurrentFont() {
     //   if (strlen($this->currentBaseFont) == 0){
     //     // then assume an initial font
     //     $this->selectFont($this->defaultFont);
@@ -2493,7 +2504,7 @@ class  Cpdf {
    * function for the user to find out what the ID is of the first page that was created during
    * startup - useful if they wish to add something to it later.
    */
-  function  getFirstPageId() {
+  function getFirstPageId() {
     return  $this->firstPageId;
   }
 
@@ -2503,7 +2514,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  addContent($content) {
+  function addContent($content) {
     $this->objects[$this->currentContents]['c'].=  $content;
   }
 
@@ -2511,8 +2522,8 @@ class  Cpdf {
   /**
    * sets the colour for fill operations
    */
-  function  setColor($color, $force = false) {
-    $new_color = array($color[0], $color[1], $color[2], $color[3]);
+  function setColor($color, $force = false) {
+    $new_color = array($color[0], $color[1], $color[2], isset($color[3]) ? $color[3] : null);
     
     if (!$force && $this->currentColour == $new_color) return;
     
@@ -2531,8 +2542,8 @@ class  Cpdf {
   /**
    * sets the colour for stroke operations
    */
-  function  setStrokeColor($color, $force =  false) {
-    $new_color = array($color[0], $color[1], $color[2], $color[3]);
+  function setStrokeColor($color, $force =  false) {
+    $new_color = array($color[0], $color[1], $color[2], isset($color[3]) ? $color[3] : null);
     
     if (!$force && $this->currentStrokeColour == $new_color) return;
     
@@ -2551,7 +2562,7 @@ class  Cpdf {
   /**
    * Set the graphics state for compositions
    */
-  function  setGraphicsState($parameters) {
+  function setGraphicsState($parameters) {
     // Create a new graphics state object
     // FIXME: should actually keep track of states that have already been created...
     $this->numObj++;
@@ -2632,7 +2643,7 @@ class  Cpdf {
   /**
    * draw a line from one set of coordinates to another
    */
-  function  line($x1, $y1, $x2, $y2) {
+  function line($x1, $y1, $x2, $y2) {
     $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m %.3F %.3F l S", $x1, $y1, $x2, $y2);
   }
 
@@ -2640,7 +2651,7 @@ class  Cpdf {
   /**
    * draw a bezier curve based on 4 control points
    */
-  function  curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3) {
+  function curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3) {
     // in the current line style, draw a bezier curve from (x0,y0) to (x3,y3) using the other two points
     // as the control points for the curve.
     $this->objects[$this->currentContents]['c'] .=
@@ -2651,16 +2662,16 @@ class  Cpdf {
   /**
    * draw a part of an ellipse
    */
-  function  partEllipse($x0, $y0, $astart, $afinish, $r1, $r2 =  0, $angle =  0, $nSeg =  8) {
-    $this->ellipse($x0, $y0, $r1, $r2, $angle, $nSeg, $astart, $afinish, 0);
+  function partEllipse($x0, $y0, $astart, $afinish, $r1, $r2 =  0, $angle =  0, $nSeg =  8) {
+    $this->ellipse($x0, $y0, $r1, $r2, $angle, $nSeg, $astart, $afinish, false);
   }
 
 
   /**
    * draw a filled ellipse
    */
-  function  filledEllipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360) {
-    return  $this->ellipse($x0, $y0, $r1, $r2 =  0, $angle, $nSeg, $astart, $afinish, 1, 1);
+  function filledEllipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360) {
+    return  $this->ellipse($x0, $y0, $r1, $r2 =  0, $angle, $nSeg, $astart, $afinish, true, true);
   }
 
 
@@ -2674,7 +2685,7 @@ class  Cpdf {
    * nSeg is not allowed to be less than 2, as this will simply draw a line (and will even draw a
    * pretty crappy shape at 2, as we are approximating with bezier curves.
    */
-  function  ellipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360, $close =  1, $fill =  0) {
+  function ellipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360, $close =  true, $fill =  false) {
     if  ($r1 ==  0) {
       return;
     }
@@ -2698,7 +2709,7 @@ class  Cpdf {
       $a =  -1*deg2rad((float)$angle);
 
       $this->objects[$this->currentContents]['c'] .=
-        sprintf("\n q %.3F %.3F %.3F %.3F %.3F %.3F cm", cos($a), (-1.0*sin($a)), sin($a), cos($a), $x0, $y0);
+        sprintf("\n q %.3F %.3F %.3F %.3F %.3F %.3F cm", cos($a), -sin($a), sin($a), cos($a), $x0, $y0);
 
       $x0 =  0;
       $y0 =  0;
@@ -2756,7 +2767,7 @@ class  Cpdf {
    *   (2,1) is 2 on, 1 off, 2 on, 1 off.. etc
    * phase is a modifier on the dash pattern which is used to shift the point at which the pattern starts.
    */
-  function  setLineStyle($width =  1, $cap =  '', $join =  '', $dash =  '', $phase =  0) {
+  function setLineStyle($width =  1, $cap =  '', $join =  '', $dash =  '', $phase =  0) {
     // this is quite inefficient in that it sets all the parameters whenever 1 is changed, but will fix another day
     $string =  '';
 
@@ -2767,23 +2778,17 @@ class  Cpdf {
     $ca =  array('butt' => 0, 'round' => 1, 'square' => 2);
 
     if  (isset($ca[$cap])) {
-      $string.=  ' '.$ca[$cap].' J';
+      $string.=  " $ca[$cap] J";
     }
 
     $ja =  array('miter' => 0, 'round' => 1, 'bevel' => 2);
 
     if  (isset($ja[$join])) {
-      $string.=  ' '.$ja[$join].' j';
+      $string.=  " $ja[$join] j";
     }
 
     if  (is_array($dash)) {
-      $string.=  ' [';
-
-      foreach ($dash as  $len) {
-        $string.=  " $len";
-      }
-
-      $string.=  " ] $phase d";
+      $string.=  ' [ ' . implode(' ', $dash) . " ] $phase d";
     }
 
     $this->currentLineStyle =  $string;
@@ -2795,7 +2800,7 @@ class  Cpdf {
   /**
    * draw a polygon, the syntax for this is similar to the GD polygon command
    */
-  function  polygon($p, $np, $f = false) {
+  function polygon($p, $np, $f = false) {
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F m ", $p[0], $p[1]);
 
     for  ($i =  2; $i < $np * 2; $i =  $i + 2) {
@@ -2814,7 +2819,7 @@ class  Cpdf {
    * a filled rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
    * the coordinates of the upper-right corner
    */
-  function  filledRectangle($x1, $y1, $width, $height) {
+  function filledRectangle($x1, $y1, $width, $height) {
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re f", $x1, $y1, $width, $height);
   }
 
@@ -2823,24 +2828,126 @@ class  Cpdf {
    * draw a rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
    * the coordinates of the upper-right corner
    */
-  function  rectangle($x1, $y1, $width, $height) {
+  function rectangle($x1, $y1, $width, $height) {
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re S", $x1, $y1, $width, $height);
   }
 
+
+  /**
+   * save the current graphic state
+   */
+  function save() {
+    $this->objects[$this->currentContents]['c'].=  "\nq";
+  }
+  
+  /**
+   * restore the last graphic state
+   */
+  function restore() {
+    $this->objects[$this->currentContents]['c'].=  "\nQ";
+  }
   
   /**
    * draw a clipping rectangle, all the elements added after this will be clipped
    */
-  function  clippingRectangle($x1, $y1, $width, $height) {
-    $this->objects[$this->currentContents]['c'].=  sprintf("\nq %.3F %.3F %.3F %.3F re W n", $x1, $y1, $width, $height);
+  function clippingRectangle($x1, $y1, $width, $height) {
+    $this->save();
+    $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re W n", $x1, $y1, $width, $height);
   }
 
   
   /*
    * ends the last clipping shape
    */
-  function  clippingEnd() {
-    $this->objects[$this->currentContents]['c'].=  "\nQ";
+  function clippingEnd() {
+    $this->restore();
+  }
+
+  /**
+   * scale
+   * @param float $s_x scaling factor for width as percent
+   * @param float $s_y scaling factor for height as percent
+   * @param float $x Origin abscisse
+   * @param float $y Origin ordinate
+   */
+  function scale($s_x, $s_y, $x, $y) {
+    $y = $this->currentPageSize["height"] - $y;
+
+    $tm = array(
+      $s_x,        0,
+      0,           $s_y,
+      $x*(1-$s_x), $y*(1-$s_y)
+    );
+    
+    $this->transform($tm);
+  }
+  
+  /**
+   * translate
+   * @param float $t_x movement to the right
+   * @param float $t_y movement to the bottom
+   */
+  function translate($t_x, $t_y) {
+    $tm = array(
+      1,    0,
+      0,    1,
+      $t_x, -$t_y
+    );
+    
+    $this->transform($tm);
+  }
+
+  /**
+   * rotate
+   * @param float $angle angle in degrees for counter-clockwise rotation
+   * @param float $x Origin abscisse
+   * @param float $y Origin ordinate
+   */
+  function rotate($angle, $x, $y) {
+    $y = $this->currentPageSize["height"] - $y;
+    
+    $a = deg2rad($angle);
+    $cos_a = cos($a);
+    $sin_a = sin($a);
+    
+    $tm = array(
+      $cos_a,                     -$sin_a,
+      $sin_a,                     $cos_a,
+      $x - $sin_a*$y - $cos_a*$x, $y - $cos_a*$y + $sin_a*$x, 
+    );
+    
+    $this->transform($tm);
+  }
+  
+  /**
+   * skew
+   * @param float $angle_x
+   * @param float $angle_y
+   * @param float $x Origin abscisse
+   * @param float $y Origin ordinate
+   */
+  function skew($angle_x, $angle_y, $x, $y) {
+    $y = $this->currentPageSize["height"] - $y;
+    
+    $tan_x = tan(deg2rad($angle_x));
+    $tan_y = tan(deg2rad($angle_y));
+    
+    $tm = array(
+      1,         -$tan_y,
+      -$tan_x,   1,
+      $tan_x*$y, $tan_y*$x, 
+    );
+
+    $this->transform($tm);
+  }
+
+  /**
+   * apply graphic transformations
+   * @param array $tm transformation matrix
+   */
+  function transform($tm) {
+    $this->objects[$this->currentContents]['c'].=
+      vsprintf("\n %.3F %.3F %.3F %.3F %.3F %.3F cm", $tm);
   }
 
 
@@ -2848,7 +2955,7 @@ class  Cpdf {
    * add a new page to the document
    * this also makes the new page the current active object
    */
-  function  newPage($insert =  0, $id =  0, $pos =  'after') {
+  function newPage($insert =  0, $id =  0, $pos =  'after') {
     // if there is a state saved, then go up the stack closing them
     // then on the new page, re-open them with the right setings
 
@@ -2900,7 +3007,7 @@ class  Cpdf {
    * output the pdf code, streaming it to the browser
    * the relevant headers are set so that hopefully the browser will recognise it
    */
-  function  stream($options =  '') {
+  function stream($options =  '') {
     // setting the options allows the adjustment of the headers
     // values at the moment are:
     // 'Content-Disposition' => 'filename'  - sets the filename, though not too sure how well this will
@@ -2917,11 +3024,8 @@ class  Cpdf {
     if  ( headers_sent())
       die("Unable to stream pdf: headers already sent");
 
-    if  ( isset($options['compress']) &&  $options['compress'] ==  0) {
-      $tmp =  ltrim($this->output(1));
-    } else {
-      $tmp =  ltrim($this->output());
-    }
+    $debug = empty($options['compression']);
+    $tmp =  ltrim($this->output($debug));
 
     header("Cache-Control: private");
     header("Content-type: application/pdf");
@@ -2950,7 +3054,7 @@ class  Cpdf {
   /**
    * return the height in units of the current font in the given size
    */
-  function  getFontHeight($size) {
+  function getFontHeight($size) {
     if  (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
@@ -2980,7 +3084,7 @@ class  Cpdf {
    * if you add this number to the baseline, you get the level of the bottom of the font
    * it is in the pdf user units
    */
-  function  getFontDescender($size) {
+  function getFontDescender($size) {
     // note that this will most likely return a negative value
     if  (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
@@ -2999,7 +3103,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  filterText($text, $bom = true, $convert_encoding = true) {
+  function filterText($text, $bom = true, $convert_encoding = true) {
     if (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
@@ -3032,7 +3136,7 @@ class  Cpdf {
    * @param string $text UTF-8 string to process
    * @return array UTF-8 codepoints array for the string
    */
-  function  utf8toCodePointsArray(&$text) {
+  function utf8toCodePointsArray(&$text) {
     $length = mb_strlen($text, '8bit'); // http://www.php.net/manual/en/function.mb-strlen.php#77040
     $unicode = array(); // array containing unicode values
     $bytes = array(); // array containing single character byte sequences
@@ -3104,7 +3208,7 @@ class  Cpdf {
    * @param boolean $bom whether to add the byte order marker
    * @return string UTF-16 result string
    */
-  function  utf8toUtf16BE(&$text, $bom = true) {
+  function utf8toUtf16BE(&$text, $bom = true) {
     $cf =  $this->currentFont;
     if (!$this->fonts[$cf]['isUnicode']) return $text;
     $out = $bom ? "\xFE\xFF" : '';
@@ -3132,7 +3236,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  PRVTgetTextPosition($x, $y, $angle, $size, $wa, $text) {
+  function PRVTgetTextPosition($x, $y, $angle, $size, $wa, $text) {
     // given this information return an array containing x and y for the end position as elements 0 and 1
     $w =  $this->getTextWidth($size, $text);
 
@@ -3151,7 +3255,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  PRVTcheckTextDirective(&$text, $i, &$f) {
+  function PRVTcheckTextDirective(&$text, $i, &$f) {
     return  0;
     $x =  0;
     $y =  0;
@@ -3168,7 +3272,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  PRVTcheckTextDirective1(&$text, $i, &$f, $final, &$x, &$y, $size =  0, $angle =  0, $wordSpaceAdjust =  0) {
+  function PRVTcheckTextDirective1(&$text, $i, &$f, $final, &$x, &$y, $size =  0, $angle =  0, $wordSpaceAdjust =  0) {
     return  0;
     $directive =  0;
     $j =  $i;
@@ -3348,7 +3452,7 @@ class  Cpdf {
   /**
    * add text to the document, at a specified location, size and angle on the page
    */
-  function  addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0) {
+  function addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0) {
     if  (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
@@ -3361,9 +3465,9 @@ class  Cpdf {
                        'y' => $y,
                        'angle' => $angle,
                        'status' => 'sol',
-                       'p' => $this->callback[$i]['p'],
+                       'p'         => $this->callback[$i]['p'],
                        'nCallback' => $this->callback[$i]['nCallback'],
-                       'height' => $this->callback[$i]['height'],
+                       'height'    => $this->callback[$i]['height'],
                        'descender' => $this->callback[$i]['descender']);
 
         $func =  $this->callback[$i]['f'];
@@ -3376,7 +3480,7 @@ class  Cpdf {
     } else {
       $a =  deg2rad((float)$angle);
       $this->objects[$this->currentContents]['c'].=
-        sprintf("\nBT %.3F %.3F %.3F %.3F %.3F %.3F Tm", cos($a), (-1.0*sin($a)), sin($a), cos($a), $x, $y);
+        sprintf("\nBT %.3F %.3F %.3F %.3F %.3F %.3F Tm", cos($a), -sin($a), sin($a), cos($a), $x, $y);
     }
 
     if  ($wordSpaceAdjust !=  0 ||  $wordSpaceAdjust !=  $this->wordSpaceAdjust) {
@@ -3438,10 +3542,10 @@ class  Cpdf {
       if ($this->fonts[$cf]['isUnicode'] && $wordSpaceAdjust != 0) {
         $space_scale = 1000 / $size;
         //$place_text = str_replace(' ', ') ( ) '.($this->getTextWidth($size, chr(32), $wordSpaceAdjust)*-75).' (', $place_text);
-        $place_text = str_replace(' ', ' ) '.(-1*round($space_scale*$wordSpaceAdjust)).' (', $place_text);
+        $place_text = str_replace(' ', ' ) '.(-round($space_scale*$wordSpaceAdjust)).' (', $place_text);
       }
-      $this->objects[$this->currentContents]['c'].=  ' /F'.$this->currentFontNum.' '.sprintf('%.1F', $size) .' Tf ';
-      $this->objects[$this->currentContents]['c'].=  ' [('.$place_text.')] TJ';
+      $this->objects[$this->currentContents]['c'].=  " /F$this->currentFontNum ".sprintf('%.1F Tf ', $size);
+      $this->objects[$this->currentContents]['c'].=  " [($place_text)] TJ";
     }
 
     $this->objects[$this->currentContents]['c'].=  ' ET';
@@ -3456,9 +3560,9 @@ class  Cpdf {
           'y' => $tmp[1],
           'angle' => $angle,
           'status' => 'eol',
-          'p' => $this->callback[$i]['p'],
+          'p'         => $this->callback[$i]['p'],
           'nCallback' => $this->callback[$i]['nCallback'],
-          'height' => $this->callback[$i]['height'],
+          'height'    => $this->callback[$i]['height'],
           'descender' => $this->callback[$i]['descender']
         );
         $func =  $this->callback[$i]['f'];
@@ -3472,7 +3576,7 @@ class  Cpdf {
    * calculate how wide a given text string will be on a page, at a given size.
    * this can be called externally, but is alse used by the other class functions
    */
-  function  getTextWidth($size, $text, $spacing =  0) {
+  function getTextWidth($size, $text, $spacing =  0) {
     // this function should not change any of the settings, though it will need to
     // track any directives which change during calculation, so copy them at the start
     // and put them back at the end.
@@ -3550,7 +3654,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  PRVTadjustWrapText($text, $actual, $width, &$x, &$adjust, $justification) {
+  function PRVTadjustWrapText($text, $actual, $width, &$x, &$adjust, $justification) {
     switch  ($justification) {
     case  'left':
       return;
@@ -3585,7 +3689,7 @@ class  Cpdf {
    * and return the remainder.
    * justification and angle can also be specified for the text
    */
-  function  addTextWrap($x, $y, $width, $size, $text, $justification =  'left', $angle =  0, $test =  0) {
+  function addTextWrap($x, $y, $width, $size, $text, $justification =  'left', $angle =  0, $test =  0) {
   	// TODO - need to support Unicode
     $cf =  $this->currentFont;
     if ($this->fonts[$cf]['isUnicode']) {
@@ -3722,7 +3826,7 @@ class  Cpdf {
     $this->setCurrentFont();
 
     if  (!$test) {
-      $this->addText($x, $y, $size, $text, $angle, $adjust, $angle);
+      $this->addText($x, $y, $size, $text, $angle, $adjust);
     }
 
     return  '';
@@ -3735,7 +3839,7 @@ class  Cpdf {
    * This is to get around not being able to have open 'q' across pages
    *
    */
-  function  saveState($pageEnd =  0) {
+  function saveState($pageEnd =  0) {
     if  ($pageEnd) {
       // this will be called at a new page to return the state to what it was on the
       // end of the previous page, before the stack was closed down
@@ -3755,26 +3859,26 @@ class  Cpdf {
       );
     }
 
-    $this->objects[$this->currentContents]['c'].=  "\nq";
+    $this->save();
   }
 
 
   /**
    * restore a previously saved state
    */
-  function  restoreState($pageEnd =  0) {
+  function restoreState($pageEnd =  0) {
     if  (!$pageEnd) {
       $n =  $this->nStateStack;
-      $this->currentColour =  $this->stateStack[$n]['col'];
-      $this->currentStrokeColour =  $this->stateStack[$n]['str'];
+      $this->currentColour =       $this->stateStack[$n]['col'];
+      $this->currentStrokeColour = $this->stateStack[$n]['str'];
       $this->objects[$this->currentContents]['c'].=  "\n".$this->stateStack[$n]['lin'];
-      $this->currentLineStyle =  $this->stateStack[$n]['lin'];
+      $this->currentLineStyle =    $this->stateStack[$n]['lin'];
       $this->stateStack[$n] = null;
       unset($this->stateStack[$n]);
       $this->nStateStack--;
     }
     
-    $this->objects[$this->currentContents]['c'].=  "\nQ";
+    $this->restore();
   }
 
 
@@ -3784,7 +3888,7 @@ class  Cpdf {
    * this object will not appear until it is included within a page.
    * the function will return the object number
    */
-  function  openObject() {
+  function openObject() {
     $this->nStack++;
     $this->stack[$this->nStack] =  array('c' => $this->currentContents, 'p' => $this->currentPage);
     // add a new object of the content type, to hold the data flow
@@ -3800,7 +3904,7 @@ class  Cpdf {
   /**
    * open an existing object for editing
    */
-  function  reopenObject($id) {
+  function reopenObject($id) {
     $this->nStack++;
     $this->stack[$this->nStack] =  array('c' => $this->currentContents, 'p' => $this->currentPage);
     $this->currentContents =  $id;
@@ -3815,7 +3919,7 @@ class  Cpdf {
   /**
    * close an object
    */
-  function  closeObject() {
+  function closeObject() {
     // close the object, as long as there was one open in the first place, which will be indicated by
     // an objectId on the stack.
     if  ($this->nStack>0) {
@@ -3831,7 +3935,7 @@ class  Cpdf {
   /**
    * stop an object from appearing on pages from this point on
    */
-  function  stopObject($id) {
+  function stopObject($id) {
     // if an object has been appearing on pages up to now, then stop it, this page will
     // be the last one that could contian it.
     if  (isset($this->addLooseObjects[$id])) {
@@ -3843,7 +3947,7 @@ class  Cpdf {
   /**
    * after an object has been created, it wil only show if it has been added, using this function.
    */
-  function  addObject($id, $options =  'add') {
+  function addObject($id, $options =  'add') {
     // add the specified object to the page
     if  (isset($this->looseObjects[$id]) &&  $this->currentContents !=  $id) {
       // then it is a valid object, and it is not being added to itself
@@ -3898,7 +4002,7 @@ class  Cpdf {
   /**
    * return a storable representation of a specific object
    */
-  function  serializeObject($id) {
+  function serializeObject($id) {
     if  ( array_key_exists($id,  $this->objects))
       return  var_export($this->objects[$id],  true);
   }
@@ -3907,7 +4011,7 @@ class  Cpdf {
   /**
    * restore an object from its stored representation.  returns its new object id.
    */
-  function  restoreSerializedObject($obj) {
+  function restoreSerializedObject($obj) {
     $obj_id =  $this->openObject();
     eval('$this->objects[$obj_id] = ' . $obj . ';');
     $this->closeObject();
@@ -3918,7 +4022,7 @@ class  Cpdf {
   /**
    * add content to the documents info object
    */
-  function  addInfo($label, $value =  0) {
+  function addInfo($label, $value =  0) {
     // this will only work if the label is one of the valid ones.
     // modify this so that arrays can be passed as well.
     // if $label is an array then assume that it is key => value pairs
@@ -3936,7 +4040,7 @@ class  Cpdf {
   /**
    * set the viewer preferences of the document, it is up to the browser to obey these.
    */
-  function  setPreferences($label, $value =  0) {
+  function setPreferences($label, $value =  0) {
     // this will only work if the label is one of the valid ones.
     if  (is_array($label)) {
       foreach ($label as  $l => $v) {
@@ -3953,7 +4057,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  PRVT_getBytes(&$data, $pos, $num) {
+  function PRVT_getBytes(&$data, $pos, $num) {
     // return the integer represented by $num bytes from $pos within $data
     $ret =  0;
     for  ($i =  0;$i<$num;$i++) {
@@ -4019,7 +4123,7 @@ class  Cpdf {
    * add a PNG image into the document, from a file
    * this should work with remote files
    */
-  function  addPngFromFile($file, $x, $y, $w =  0, $h =  0) {
+  function addPngFromFile($file, $x, $y, $w =  0, $h =  0) {
     //if already cached, need not to read again
 	if ( isset($this->imagelist[$file]) ) {
 	  $img = null;
@@ -4061,7 +4165,7 @@ class  Cpdf {
   /**
    * add a PNG image into the document, from a memory buffer of the file
    */
-  function  addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data) {
+  function addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data) {
 	if ( isset($this->imagelist[$file]) ) {
       //debugpng
       //if (DEBUGPNG) print '[addPngFromBuf Duplicate '.$file.']';
@@ -4321,7 +4425,7 @@ class  Cpdf {
   /**
    * add a JPEG image into the document, from a file
    */
-  function  addJpegFromFile($img, $x, $y, $w =  0, $h =  0) {
+  function addJpegFromFile($img, $x, $y, $w =  0, $h =  0) {
     // attempt to add a jpeg image straight from a file, using no GD commands
     // note that this function is unable to operate on a remote file.
 
@@ -4369,7 +4473,7 @@ class  Cpdf {
    * this function is not all that reliable, and I would probably encourage people to use
    * the file based functions
    */
-  function  addImage(&$img, $x, $y, $w =  0, $h =  0, $quality =  75) {
+  function addImage(&$img, $x, $y, $w =  0, $h =  0, $quality =  75) {
     /* Todo:
      * Pass in original filename as $imgname
      * If already cached like image_iscached(), allow empty $img
@@ -4422,7 +4526,7 @@ class  Cpdf {
   /* Check if image already added to pdf image directory.
    * If yes, need not to create again (pass empty data)
    */
-  function  image_iscached($imgname) {
+  function image_iscached($imgname) {
     return isset($this->imagelist[$imgname]);
   }
 
@@ -4432,7 +4536,7 @@ class  Cpdf {
    *
    * @access private
    */
-  function  addJpegImage_common(&$data, $x, $y, $w =  0, $h =  0, $imageWidth, $imageHeight, $channels =  3, $imgname) {
+  function addJpegImage_common(&$data, $x, $y, $w =  0, $h =  0, $imageWidth, $imageHeight, $channels =  3, $imgname) {
     if ( isset($this->imagelist[$imgname]) ) {
       $label = $this->imagelist[$imgname]['label'];
       //debugpng
@@ -4469,7 +4573,7 @@ class  Cpdf {
   /**
    * specify where the document should open when it first starts
    */
-  function  openHere($style, $a =  0, $b =  0, $c =  0) {
+  function openHere($style, $a =  0, $b =  0, $c =  0) {
     // this function will open the document at a specified page, in a specified style
     // the values for style, and the required paramters are:
     // 'XYZ'  left, top, zoom
@@ -4494,7 +4598,7 @@ class  Cpdf {
   /**
    * create a labelled destination within the document
    */
-  function  addDestination($label, $style, $a =  0, $b =  0, $c =  0) {
+  function addDestination($label, $style, $a =  0, $b =  0, $c =  0) {
     // associates the given label with the destination, it is done this way so that a destination can be specified after
     // it has been linked to
     // styles are the same as the 'openHere' function
@@ -4512,7 +4616,7 @@ class  Cpdf {
    * and for the user to add new ones for their fonts. The default bahavious can be overridden should
    * that be desired.
    */
-  function  setFontFamily($family, $options =  '') {
+  function setFontFamily($family, $options =  '') {
     if  (!is_array($options)) {
       if  ($family ===  'init') {
         // set the known family groups
@@ -4549,7 +4653,7 @@ class  Cpdf {
   /**
    * used to add messages for use in debugging
    */
-  function  addMessage($message) {
+  function addMessage($message) {
     $this->messages.=  $message."\n";
   }
 
@@ -4557,16 +4661,16 @@ class  Cpdf {
   /**
    * a few functions which should allow the document to be treated transactionally.
    */
-  function  transaction($action) {
+  function transaction($action) {
     switch  ($action) {
-    case  'start':
+    case 'start':
       // store all the data away into the checkpoint variable
       $data =  get_object_vars($this);
       $this->checkpoint =  $data;
       unset($data);
       break;
 
-    case  'commit':
+    case 'commit':
       if  (is_array($this->checkpoint) &&  isset($this->checkpoint['checkpoint'])) {
         $tmp =  $this->checkpoint['checkpoint'];
         $this->checkpoint =  $tmp;
@@ -4576,7 +4680,7 @@ class  Cpdf {
       }
       break;
 
-    case  'rewind':
+    case 'rewind':
       // do not destroy the current checkpoint, but move us back to the state then, so that we can try again
       if  (is_array($this->checkpoint)) {
         // can only abort if were inside a checkpoint
@@ -4591,7 +4695,7 @@ class  Cpdf {
       }
       break;
 
-    case  'abort':
+    case 'abort':
       if  (is_array($this->checkpoint)) {
         // can only abort if were inside a checkpoint
         $tmp =  $this->checkpoint;

@@ -53,22 +53,25 @@ class Block_Frame_Decorator extends Frame_Decorator {
                      //                 y, w, h) )
   protected $_counters; // array([id] => counter_value) (for generated content)
   protected $_cl;    // current line index
+  
+  static protected $_initial_line_state = array(
+    "frames" => array(),
+    "wc" => 0,
+    "y" => null,
+    "w" => 0,
+    "h" => 0,
+    "left" => 0,
+    "right" => 0,
+    "tallest_frame" => null,
+    "br" => false,
+  );
 
   //........................................................................
 
   function __construct(Frame $frame, DOMPDF $dompdf) {
     parent::__construct($frame, $dompdf);
     
-    $this->_lines = array(array(
-      "frames" => array(),
-      "wc" => 0,
-      "y" => null,
-      "w" => 0,
-      "h" => 0,
-      "left" => 0,
-      "right" => 0,
-      "tallest_frame" => null,
-    ));
+    $this->_lines = array(self::$_initial_line_state);
     
     $this->_counters = array(self::DEFAULT_COUNTER => 0);
     $this->_cl = 0;
@@ -79,16 +82,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
   function reset() {
     parent::reset();
     
-    $this->_lines = array(array(
-      "frames" => array(),
-      "wc" => 0,
-      "y" => null,
-      "w" => 0,
-      "h" => 0,
-      "left" => 0,
-      "right" => 0,
-      "tallest_frame" => null,
-    ));
+    $this->_lines = array(self::$_initial_line_state);
     
     $this->_counters = array(self::DEFAULT_COUNTER => 0);
     $this->_cl = 0;
@@ -171,6 +165,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
       // Handle line breaks
       if ( $frame->get_node()->nodeName === "br" ) {
         $this->maximize_line_height( $style->length_in_pt($style->line_height), $frame );
+        $this->_lines[$this->_cl]["br"] = true;
         $this->add_line();
         return;
       }
@@ -288,16 +283,10 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     $y = $this->_lines[$this->_cl]["y"] + $this->_lines[$this->_cl]["h"];
 
-    $this->_lines[ ++$this->_cl ] = array(
-      "frames" => array(),
-      "wc" => 0,
-      "y" => $y, 
-      "w" => 0, 
-      "h" => 0, 
-      "left" => 0, 
-      "right" => 0, 
-      "tallest_frame" => null,
-    );
+    $new_line = self::$_initial_line_state;
+    $new_line["y"] = $y;
+    
+    $this->_lines[ ++$this->_cl ] = $new_line;
   }
 
   //........................................................................

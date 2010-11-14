@@ -551,6 +551,34 @@ class CPDF_Adapter implements Canvas {
   function clipping_end() {
     $this->_pdf->clippingEnd();
   }
+  
+  function save() {
+    $this->_pdf->saveState();
+  }
+  
+  function restore() {
+    $this->_pdf->restoreState();
+  }
+  
+  function rotate($angle, $x, $y) {
+    $this->_pdf->rotate($angle, $x, $y);
+  }
+  
+  function skew($angle_x, $angle_y, $x, $y) {
+    $this->_pdf->skew($angle_x, $angle_y, $x, $y);
+  }
+  
+  function scale($s_x, $s_y, $x, $y) {
+    $this->_pdf->scale($s_x, $s_y, $x, $y);
+  }
+  
+  function translate($t_x, $t_y) {
+    $this->_pdf->translate($t_x, $t_y);
+  }
+  
+  function transform($a, $b, $c, $d, $e, $f) {
+    $this->_pdf->transform(array($a, $b, $c, $d, $e, $f));
+  }
 
   //........................................................................
 
@@ -647,13 +675,13 @@ class CPDF_Adapter implements Canvas {
 
   //........................................................................
 
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0),
-                $adjust = 0, $angle = 0) {
-
-    $this->_pdf->setColor($color);
-    $font .= ".afm";
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
+    $pdf = $this->_pdf;
     
-    $this->_pdf->selectFont($font);
+    $pdf->setColor($color);
+    
+    $font .= ".afm";
+    $pdf->selectFont($font);
     
     //Font_Metrics::get_font_height($font, $size) ==
     //$this->get_font_height($font, $size) ==
@@ -681,12 +709,12 @@ class CPDF_Adapter implements Canvas {
     //hang over the background box border.
     //Therefore compensate only the extent above the Baseline.
     //
-    //print '<pre>['.$font.','.$size.','.$this->_pdf->getFontHeight($size).','.$this->_pdf->getFontDescender($size).','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3].','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][1].','.$this->_pdf->fonts[$this->_pdf->currentFont]['FontHeightOffset'].','.$this->_pdf->fonts[$this->_pdf->currentFont]['Ascender'].','.$this->_pdf->fonts[$this->_pdf->currentFont]['Descender'].']</pre>';
+    //print '<pre>['.$font.','.$size.','.$pdf->getFontHeight($size).','.$pdf->getFontDescender($size).','.$pdf->fonts[$pdf->currentFont]['FontBBox'][3].','.$pdf->fonts[$pdf->currentFont]['FontBBox'][1].','.$pdf->fonts[$pdf->currentFont]['FontHeightOffset'].','.$pdf->fonts[$pdf->currentFont]['Ascender'].','.$pdf->fonts[$pdf->currentFont]['Descender'].']</pre>';
     //
-    //$this->_pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $adjust);
-	//$this->_pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $adjust);
-	//$this->_pdf->addText($x, $this->y($y) - $this->_pdf->getFontHeight($size)-$this->_pdf->getFontDescender($size), $size, $text, $angle, $adjust);
-	$this->_pdf->addText($x, $this->y($y) - ($this->_pdf->fonts[$this->_pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $adjust);
+    //$pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $adjust);
+    //$pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $adjust);
+    //$pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size)-$pdf->getFontDescender($size), $size, $text, $angle, $adjust);
+    $pdf->addText($x, $this->y($y) - ($pdf->fonts[$pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $adjust);
   }
 
   //........................................................................
@@ -703,7 +731,7 @@ class CPDF_Adapter implements Canvas {
    * @param string $anchorname The name of the named destination
    */
   function add_named_dest($anchorname) {
-    $this->_pdf->addDestination($anchorname,"Fit");
+    $this->_pdf->addDestination($anchorname, "Fit");
   }
 
   //........................................................................
@@ -730,7 +758,6 @@ class CPDF_Adapter implements Canvas {
     } else {
       $this->_pdf->addLink(rawurldecode($url), $x, $y, $x + $width, $y + $height);
     }
-    
   }
 
   //........................................................................
@@ -769,8 +796,7 @@ class CPDF_Adapter implements Canvas {
    * @param float $adjust word spacing adjustment
    * @param float $angle angle to write the text at, measured CW starting from the x-axis
    */
-  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
-                     $adjust = 0, $angle = 0) {
+  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
     $_t = "text";
     $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "adjust", "angle");
   }
@@ -863,20 +889,17 @@ class CPDF_Adapter implements Canvas {
 
   /**
    * Returns the PDF as a string
-   *
+   * 
+   * @param array $options Output options
    * @return string
    */
   function output($options = null) {
     // Add page text
     $this->_add_page_text();
 
-    if ( isset($options["compress"]) && $options["compress"] != 1 )
-      $debug = 1;
-    else
-      $debug = 0;
+    $debug = isset($options["compress"]) && $options["compress"] != 1;
     
     return $this->_pdf->output($debug);
-    
   }
   
   //........................................................................

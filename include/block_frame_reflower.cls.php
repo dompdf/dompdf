@@ -447,6 +447,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $lines = $this->_frame->get_lines(); // needs to be a variable (strict standards)
       $lines = array_splice($lines, 0, -1);
       
+      foreach($lines as $i => $line) {
+        if ( $line["br"] ) {
+          unset($lines[$i]);
+        }
+      }
+      
       // One space character's width. Will be used to get a more accurate spacing
       $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
       
