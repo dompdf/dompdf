@@ -462,6 +462,34 @@ abstract class Abstract_Renderer {
         unlink($tmp_file);
     }
   }
+  
+  protected function _get_dash_pattern($style, $width) {
+    $pattern = array();
+    
+    switch ($style) {
+      default:
+      /*case "solid":
+      case "double":
+      case "groove":
+      case "inset":
+      case "outset":
+      case "ridge":*/
+      case "none": break;
+      
+      case "dotted": 
+        if ( $width < 2 )
+          $pattern = array($width, 2);
+        else
+          $pattern = array($width);
+      break;
+      
+      case "dashed": 
+        $pattern = array(3 * $width);
+      break;
+    }
+    
+    return $pattern;
+  }
 
   protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     return;
@@ -471,11 +499,7 @@ abstract class Abstract_Renderer {
   protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     list($top, $right, $bottom, $left) = $widths;
 
-    if ( $$side < 2 )
-      $dash = array($$side, 2);
-    else
-      $dash = array($$side);
-  
+    $pattern = $this->_get_dash_pattern("dotted", $$side);
     
     switch ($side) {
 
@@ -483,14 +507,14 @@ abstract class Abstract_Renderer {
       $delta = $top / 2;
     case "bottom":
       $delta = isset($delta) ? $delta : -$bottom / 2;
-      $this->_canvas->line($x, $y + $delta, $x + $length, $y + $delta, $color, $$side, $dash);
+      $this->_canvas->line($x, $y + $delta, $x + $length, $y + $delta, $color, $$side, $pattern);
       break;
 
     case "left":
       $delta = $left / 2;
     case "right":
       $delta = isset($delta) ? $delta : - $right / 2;
-      $this->_canvas->line($x + $delta, $y, $x + $delta, $y + $length, $color, $$side, $dash);
+      $this->_canvas->line($x + $delta, $y, $x + $delta, $y + $length, $color, $$side, $pattern);
       break;
 
     default:
@@ -503,20 +527,22 @@ abstract class Abstract_Renderer {
   protected function _border_dashed($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     list($top, $right, $bottom, $left) = $widths;
 
+    $pattern = $this->_get_dash_pattern("dashed", $$side);
+    
     switch ($side) {
 
     case "top":
       $delta = $top / 2;
     case "bottom":
       $delta = isset($delta) ? $delta : -$bottom / 2;
-      $this->_canvas->line($x, $y + $delta, $x + $length, $y + $delta, $color, $$side, array(3 * $$side));
+      $this->_canvas->line($x, $y + $delta, $x + $length, $y + $delta, $color, $$side, $pattern);
       break;
 
     case "left":
       $delta = $left / 2;
     case "right":
       $delta = isset($delta) ? $delta : - $right / 2;
-      $this->_canvas->line($x + $delta, $y, $x + $delta, $y + $length, $color, $$side, array(3 * $$side));
+      $this->_canvas->line($x + $delta, $y, $x + $delta, $y + $length, $color, $$side, $pattern);
       break;
 
     default:

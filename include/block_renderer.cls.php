@@ -87,7 +87,7 @@ class Block_Renderer extends Abstract_Renderer {
 
     // If all the borders are "solid" with the same color and style, we'd better draw a rectangle
     if (
-      $bp["top"]["style"] === "solid" &&
+      in_array($bp["top"]["style"], array("solid", "dashed", "dotted")) && 
       $bp["top"]    == $bp["right"] &&
       $bp["right"]  == $bp["bottom"] &&
       $bp["bottom"] == $bp["left"]
@@ -96,8 +96,9 @@ class Block_Renderer extends Abstract_Renderer {
       if ( $props["color"] === "transparent" || $props["width"] <= 0 ) return;
       
       list($x, $y, $w, $h) = $bbox;
-      $offset = $style->length_in_pt($props["width"]);
-      $this->_canvas->rectangle($x + $offset / 2, $y + $offset / 2, $w - $offset, $h - $offset, $props["color"], $offset);
+      $width = $style->length_in_pt($props["width"]);
+      $pattern = $this->_get_dash_pattern($props["style"], $width);
+      $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width, $pattern);
       return;
     }
 

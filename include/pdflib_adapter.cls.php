@@ -629,7 +629,7 @@ class PDFLib_Adapter implements Canvas {
 
   function rectangle($x1, $y1, $w, $h, $color, $width, $style = null) {
     $this->_set_stroke_color($color);
-    $this->_set_line_style($width, "square", "miter", $style);
+    $this->_set_line_style($width, "butt", "", $style);
 
     $y1 = $this->y($y1) - $h;
 
@@ -671,24 +671,27 @@ class PDFLib_Adapter implements Canvas {
   
   function rotate($angle, $x, $y) {
     $pdf = $this->_pdf;
-    $pdf->translate($x, $y);
-    $pdf->rotate($angle);
+    $pdf->translate($x, $this->_height-$y);
+    $pdf->rotate(-$angle);
+    $pdf->translate(-$x, -$this->_height+$y);
   }
   
   function skew($angle_x, $angle_y, $x, $y) {
     $pdf = $this->_pdf;
-    $pdf->translate($x, $y);
+    $pdf->translate($x, $this->_height-$y);
     $pdf->skew($angle_y, $angle_x); // Needs to be inverted
+    $pdf->translate(-$x, -$this->_height+$y);
   }
   
   function scale($s_x, $s_y, $x, $y) {
     $pdf = $this->_pdf;
-    $pdf->translate($x, $y);
+    $pdf->translate($x, $this->_height-$y);
     $pdf->scale($s_x, $s_y);
+    $pdf->translate(-$x, -$this->_height+$y);
   }
   
   function translate($t_x, $t_y) {
-    $this->_pdf->translate($t_x, $t_y);
+    $this->_pdf->translate($t_x, -$t_y);
   }
   
   function transform($a, $b, $c, $d, $e, $f) {

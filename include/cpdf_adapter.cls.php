@@ -532,7 +532,7 @@ class CPDF_Adapter implements Canvas {
 
   function rectangle($x1, $y1, $w, $h, $color, $width, $style = array()) {
     $this->_set_stroke_color($color);
-    $this->_set_line_style($width, "square", "miter", $style);
+    $this->_set_line_style($width, "butt", "", $style);
     $this->_pdf->rectangle($x1, $this->y($y1) - $h, $w, $h);
   }
 
@@ -540,7 +540,6 @@ class CPDF_Adapter implements Canvas {
   
   function filled_rectangle($x1, $y1, $w, $h, $color) {
     $this->_set_fill_color($color);
-    $this->_set_line_style(1, "square", "miter", array());
     $this->_pdf->filledRectangle($x1, $this->y($y1) - $h, $w, $h);
   }
   
