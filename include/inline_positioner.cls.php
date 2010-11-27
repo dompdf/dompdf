@@ -65,11 +65,11 @@ class Inline_Positioner extends Positioner {
     if ( !$p )
       throw new DOMPDF_Exception("No block-level parent found.  Not good.");
 
-    $cb = $this->_frame->get_containing_block();
-    $style = $this->_frame->get_style();
-    $line = $p->get_current_line();
-    
     $f = $this->_frame;
+    
+    $cb = $f->get_containing_block();
+    $style = $f->get_style();
+    $line = $p->get_current_line();
 
     // Skip the page break if in a fixed position element
     $is_fixed = false;

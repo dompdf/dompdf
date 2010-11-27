@@ -180,22 +180,24 @@ class Frame_Tree {
       $children[] = $node->childNodes->item($i);
 
     foreach ($children as $child) {
+      $node_name = mb_strtolower($child->nodeName);
+      
       // Skip non-displaying nodes
-      if ( in_array( mb_strtolower($child->nodeName), self::$_HIDDEN_TAGS) )  {
-        if ( mb_strtolower($child->nodeName) !== "head" &&
-             mb_strtolower($child->nodeName) !== "style" ) 
+      if ( in_array($node_name, self::$_HIDDEN_TAGS) )  {
+        if ( $node_name !== "head" &&
+             $node_name !== "style" ) 
           $child->parentNode->removeChild($child);
         continue;
       }
 
       // Skip empty text nodes
-      if ( $child->nodeName === "#text" && $child->nodeValue == "" ) {
+      if ( $node_name === "#text" && $child->nodeValue == "" ) {
         $child->parentNode->removeChild($child);
         continue;
       }
 
       // Skip empty image nodes
-      if ( $child->nodeName === "img" && $child->getAttribute("src") == "" ) {
+      if ( $node_name === "img" && $child->getAttribute("src") == "" ) {
         $child->parentNode->removeChild($child);
         continue;
       }
@@ -206,7 +208,7 @@ class Frame_Tree {
     return $frame;
   }
   
-  public function insert_node($node, $new_node, $pos) {
+  public function insert_node(DOMNode $node, DOMNode $new_node, $pos) {
     if ($pos === "after" || !$node->firstChild)
       $node->appendChild($new_node);
     else 

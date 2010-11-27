@@ -186,12 +186,14 @@ class Inline_Renderer extends Abstract_Renderer {
       $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
     }
 
+    $node = $frame->get_node();
+    
     // Handle anchors & links
-    if ( $frame->get_node()->nodeName === "a" ) {
-      if ( $name = $frame->get_node()->getAttribute("name") )
+    if ( $node->nodeName === "a" ) {
+      if ( $name = $node->getAttribute("name") )
         $this->_canvas->add_named_dest($name);
 
-      if ( $href = $frame->get_node()->getAttribute("href") )
+      if ( $href = $node->getAttribute("href") )
         $this->_canvas->add_link($href, $x, $y, $w, $h);
     }
     

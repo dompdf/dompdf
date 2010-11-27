@@ -239,7 +239,7 @@ class Stylesheet {
    * @param Style $parent The style of this style's parent in the DOM tree
    * @return Style
    */
-  function create_style($parent = null) {
+  function create_style(Style $parent = null) {
     return new Style($this, $parent);
   }
 

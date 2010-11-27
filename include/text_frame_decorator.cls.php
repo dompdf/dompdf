@@ -75,10 +75,10 @@ class Text_Frame_Decorator extends Frame_Decorator {
       
   function get_text() {
     // FIXME: this should be in a child class (and is incorrect)
-    if ( $this->_frame->get_style()->content !== "normal" ) {
-      $this->_frame->get_node()->data = $this->_frame->get_style()->content;
-      $this->_frame->get_style()->content = "normal";
-    }
+//    if ( $this->_frame->get_style()->content !== "normal" ) {
+//      $this->_frame->get_node()->data = $this->_frame->get_style()->content;
+//      $this->_frame->get_style()->content = "normal";
+//    }
 
 //      pre_r("---");
 //      $style = $this->_frame->get_style();

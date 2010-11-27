@@ -52,19 +52,20 @@ class Inline_Frame_Reflower extends Frame_Reflower {
   //........................................................................
 
   function reflow() {
-
+    $frame = $this->_frame;
+    
   	// Check if a page break is forced
-    $page = $this->_frame->get_root();
-    $page->check_forced_page_break($this->_frame);
+    $page = $frame->get_root();
+    $page->check_forced_page_break($frame);
+    
     if ( $page->is_full() )
       return;
       
-    $frame = $this->_frame;
     $style = $frame->get_style();
     
     $this->_set_content();
     
-    $this->_frame->position();
+    $frame->position();
     
     //FLOAT
     //if ($style->float !== "none" ) {
@@ -75,15 +76,17 @@ class Inline_Frame_Reflower extends Frame_Reflower {
 
     // Add our margin, padding & border to the first and last children
     if ( ($f = $frame->get_first_child()) && $f instanceof Text_Frame_Decorator ) {
-      $f->get_style()->margin_left  = $style->margin_left;
-      $f->get_style()->padding_left = $style->padding_left;
-      $f->get_style()->border_left  = $style->border_left;
+      $f_style = $f->get_style();
+      $f_style->margin_left  = $style->margin_left;
+      $f_style->padding_left = $style->padding_left;
+      $f_style->border_left  = $style->border_left;
     }
 
     if ( ($l = $frame->get_last_child()) && $l instanceof Text_Frame_Decorator ) {
-      $f->get_style()->margin_right  = $style->margin_right;
-      $f->get_style()->padding_right = $style->padding_right;
-      $f->get_style()->border_right  = $style->border_right;
+      $l_style = $l->get_style();
+      $l_style->margin_right  = $style->margin_right;
+      $l_style->padding_right = $style->padding_right;
+      $l_style->border_right  = $style->border_right;
     }
 
     // Set the containing blocks and reflow each child.  The containing
