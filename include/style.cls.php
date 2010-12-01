@@ -194,6 +194,11 @@ class Style {
    */
   protected $_parent_font_size; // Font size of parent element
   
+  /**
+   * @var Frame
+   */
+  protected $_frame;
+  
   // private members
   /**
    * True once the font size is resolved absolutely
@@ -398,6 +403,14 @@ class Style {
    */
   function dispose() {
     clear_object($this);
+  }
+  
+  function set_frame(Frame $frame) {
+    $this->_frame = $frame;
+  }
+  
+  function get_frame() {
+    return $this->_frame;
   }
   
   /**

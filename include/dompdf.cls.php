@@ -378,6 +378,23 @@ class DOMPDF {
     set_error_handler("record_warnings");
     $this->_xml->loadHTML($str);
     restore_error_handler();
+    
+    /**
+    @todo Take the quirksmode into account
+    // http://hsivonen.iki.fi/doctype/
+    // https://developer.mozilla.org/en/mozilla's_quirks_mode
+    $quirksmode = false;
+    
+    // HTML5 <!DOCTYPE html>
+    if ( !$this->_xml->doctype->publicId && !$this->_xml->doctype->systemId ) {
+      $quirksmode = false;
+    }
+    
+    // not XHTML
+    if ( !preg_match("/xhtml/i", $this->_xml->doctype->publicId) ) {
+      $quirksmode = true;
+    }
+    */
   }
 
   /**

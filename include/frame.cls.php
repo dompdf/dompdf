@@ -156,6 +156,12 @@ class Frame {
   protected $_containing_line;
   
   /**
+   * Tells wether the frame was already pushed to the next page
+   * @var bool
+   */
+  public $_already_pushed = false;
+  
+  /**
    * Class destructor
    */
   function __destruct() {
@@ -476,6 +482,7 @@ class Frame {
     if ( is_null($this->_style) )
       $this->_original_style = clone $style;
     
+    //$style->set_frame($this);
     $this->_style = $style;
   }
   
