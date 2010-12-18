@@ -734,6 +734,12 @@ class Frame {
       $str .= "<pre>'" .  mb_substr($tmp,0,70) .
         (mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";
     }
+    
+    if ( $css_class = $this->_node->getAttribute("class") ) {
+      $tmp = htmlspecialchars($css_class);
+      $str .= "CSS class: '$css_class'<br/>";
+    }
+    
     if ( $this->_parent )
       $str .= "\nParent:" . $this->_parent->_node->nodeName .
         " (" . spl_object_hash($this->_parent->_node) . ") " .

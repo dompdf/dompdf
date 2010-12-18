@@ -54,11 +54,12 @@ class Block_Positioner extends Positioner {
 
   function position() {
     $frame = $this->_frame;
+    $style = $frame->get_style();
     $cb = $frame->get_containing_block();
     $p = $frame->find_block_parent();
     
     if ( $p ) {
-      $float = $frame->get_style()->float;
+      $float = $style->float;
       if ( !$float || $float === "none" ) {
         $p->add_line();
       }
@@ -68,6 +69,17 @@ class Block_Positioner extends Positioner {
       $y = $cb["y"];
 
     $x = $cb["x"];
+
+    // Relative positionning
+    if ( $style->position === "relative" ) {
+      $top =    $style->length_in_pt($style->top,    $cb["h"]);
+      //$right =  $style->length_in_pt($style->right,  $cb["w"]);
+      //$bottom = $style->length_in_pt($style->bottom, $cb["h"]);
+      $left =   $style->length_in_pt($style->left,   $cb["w"]);
+      
+      $x += $left;
+      $y += $top;
+    }
     
     $frame->set_position($x, $y);
   }

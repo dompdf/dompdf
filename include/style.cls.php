@@ -126,7 +126,14 @@ class Style {
    *
    * @var array
    */
-  static $BLOCK_TYPES = array("block","inline-block", "table-cell", "list-item");
+  static $BLOCK_TYPES = array("block", "inline-block", "table-cell", "list-item");
+  
+  /**
+   * List of all positionned types.  Should really be a constant.
+   *
+   * @var array
+   */
+  static $POSITIONNED_TYPES = array("relative", "absolute", "fixed");
 
   /**
    * List of all table types.  Should really be a constant.
@@ -677,7 +684,7 @@ class Style {
       return;
     }
     
-    if ( $prop !== "content" && is_string($val) && mb_strpos($val, "url") === false ) {
+    if ( $prop !== "content" && is_string($val) && strlen($val) > 5 && mb_strpos($val, "url") === false ) {
       $val = mb_strtolower(trim(str_replace(array("\n", "\t"), array(" "), $val)));
       $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
     }

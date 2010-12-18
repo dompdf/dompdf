@@ -384,7 +384,7 @@ class Stylesheet {
         $c = $selector[$i];
         $c_prev = $selector[$i-1];
         
-        if ( in_array($c, $delimiters) && !$in_attr )
+        if ( !$in_attr && in_array($c, $delimiters) )
           break;
           
         if ( $c_prev === "[" ) {

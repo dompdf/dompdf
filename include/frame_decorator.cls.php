@@ -81,6 +81,20 @@ abstract class Frame_Decorator extends Frame {
    * @var DOMPDF
    */
   protected $_dompdf;
+  
+  /**
+   * First block parent
+   * 
+   * @var Frame_Decorator
+   */
+  private $_block_parent;
+  
+  /**
+   * First positionned parent (position: relative | absolute | fixed)
+   * 
+   * @var Frame_Decorator
+   */
+  private $_positionned_parent;
 
   /**
    * Class constructor
@@ -243,9 +257,7 @@ abstract class Frame_Decorator extends Frame {
    * @return Frame_Decorator
    */
   function get_parent() {
-
     $p = $this->_frame->get_parent();
-    
     if ( $p && $deco = $p->get_decorator() ) {
       while ( $tmp = $deco->get_decorator() )
         $deco = $tmp;      
@@ -360,8 +372,12 @@ abstract class Frame_Decorator extends Frame {
   
   //........................................................................
 
+  /**
+   * @return Frame_Decorator
+   */
   function find_block_parent() {
-
+    if ( $this->_block_parent ) return $this->_block_parent;
+    
     // Find our nearest block level parent
     $p = $this->get_parent();
     
@@ -372,21 +388,30 @@ abstract class Frame_Decorator extends Frame {
       $p = $p->get_parent();
     }
 
-    return $p;
+    return $this->_block_parent = $p;
   }
   
-  function find_relative_parent() {
+  /**
+   * @return Frame_Decorator
+   */
+  function find_positionned_parent() {
+    if ( $this->_positionned_parent ) return $this->_positionned_parent;
 
     // Find our nearest relative positionned parent
     $p = $this->get_parent();
     while ( $p ) {
-      if ( $p->get_style()->position === "relative" )
+      if ( in_array($p->get_style()->position, Style::$POSITIONNED_TYPES) ) {
         break;
+      }
 
       $p = $p->get_parent();
     }
+    
+    if ( !$p ) {
+      $p = $this->_root;
+    }
 
-    return $p;
+    return $this->_positionned_parent = $p;
   }
 
   //........................................................................
