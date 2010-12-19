@@ -59,10 +59,10 @@ class Attribute_Translator {
                                    'top' => 'vertical-align: top;',
                                    'left' => 'float: left;',
                                    'right' => 'float: right;'),
-                  'border' => 'border-width: %0.2f px;',
+                  'border' => 'border-width: %0.2F px;',
                   'height' => 'height: %s px;',
-                  'hspace' => 'padding-left: %1$0.2f px; padding-right: %1$0.2f px;',
-                  'vspace' => 'padding-top: %1$0.2f px; padding-bottom: %1$0.2f px;',
+                  'hspace' => 'padding-left: %1$0.2F px; padding-right: %1$0.2F px;',
+                  'vspace' => 'padding-top: %1$0.2F px; padding-bottom: %1$0.2F px;',
                   'width' => 'width: %s px;',
                   ),
            'table' =>
@@ -73,7 +73,7 @@ class Attribute_Translator {
                   'bgcolor' => 'background-color: %s;',
                   'border' => '!set_table_border',
                   'cellpadding' => '!set_table_cellpadding',
-                  'cellspacing' => 'border-spacing: %0.2f; border-collapse: separate;',
+                  'cellspacing' => 'border-spacing: %0.2F; border-collapse: separate;',
                   'frame' => array('void' => 'border-style: none;',
                                    'above' => 'border-top-style: solid;',
                                    'below' => 'border-bottom-style: solid;',
@@ -90,7 +90,7 @@ class Attribute_Translator {
            array (
                   'align' => '!set_hr_align', // Need to grab width to set 'left' & 'right' correctly
                   'noshade' => 'border-style: solid;',
-                  'size' => 'border-width: %0.2f px;',
+                  'size' => 'border-width: %0.2F px;',
                   'width' => 'width: %s;',
                   ),
            'div' =>
