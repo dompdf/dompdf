@@ -302,8 +302,8 @@ class DOMPDF {
     // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
     if ( isset($http_response_header) ) {
       foreach($http_response_header as $_header) {
-        if ( preg_match("@Content-Type:\s*([\w/]+)(;\s*?charset=([^\s]+))?@i", $_header, $matches) ) {
-          $encoding = strtoupper($matches[3]);
+        if ( preg_match("@Content-Type:\s*[\w/]+;\s*?charset=([^\s]+)@i", $_header, $matches) ) {
+          $encoding = strtoupper($matches[1]);
           break;
         }
       }

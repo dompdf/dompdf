@@ -59,6 +59,8 @@ class Image_Frame_Reflower extends Frame_Reflower {
   }
 
   function reflow() {
+    $this->_frame->position();
+    
     //FLOAT
     //$frame = $this->_frame;
     //$page = $frame->get_root();

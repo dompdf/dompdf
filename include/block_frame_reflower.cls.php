@@ -185,7 +185,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $cb = $frame->get_root()->get_containing_block();
     
     //if ( $style->position === "absolute" )
-    //  $cb = $frame->find_relative_parent()->get_containing_block();
+    //  $cb = $frame->find_positionned_parent()->get_containing_block();
 
     if ( !isset($cb["w"]) )
       throw new DOMPDF_Exception("Box property calculation requires containing block width");
