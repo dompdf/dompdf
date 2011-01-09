@@ -47,34 +47,19 @@
  */
 class Text_Frame_Reflower extends Frame_Reflower {
 
+  /**
+   * @var Block_Frame_Decorator
+   */
   protected $_block_parent; // Nearest block-level ancestor
   
-  public static $_whitespace_pattern;
+  /**
+   * @var Text_Frame_Decorator
+   */
+  protected $_frame;
+  
+  public static $_whitespace_pattern = "/[ \t\r\n\f]+/u";
 
-  function __construct(Text_Frame_Decorator $frame) {
-    parent::__construct($frame);
-    $this->_block_parent = null;
-
-    // Handle text transform
-    $transform = $this->_frame->get_style()->text_transform;
-    switch ( strtolower($transform) ) {
-    case "capitalize":
-      $this->_frame->set_text( ucwords($this->_frame->get_text()) );
-      break;
-
-    case "uppercase":
-      $this->_frame->set_text( strtoupper($this->_frame->get_text()) );
-      break;
-
-    case "lowercase":
-      $this->_frame->set_text( strtolower($this->_frame->get_text()) );
-      break;
-
-    default:
-      // Do nothing
-      break;
-    }
-  }
+  function __construct(Text_Frame_Decorator $frame) { parent::__construct($frame); }
 
   //........................................................................
 
@@ -96,7 +81,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // Determine the available width
     $line_width = $this->_frame->get_containing_block("w");
     $current_line_width = $current_line["left"] + $current_line["w"] + $current_line["right"];
-
+    //$current_line_width = $current_line["left"] + $current_line["reflow_w"] + $current_line["right"];
+    
     $available_width = $line_width - $current_line_width;
 
     // split the text into words
@@ -115,6 +101,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
                                    $style->padding_right,
                                    $style->border_right_width,
                                    $style->margin_right), $line_width );
+                                   
     $frame_width = $text_width + $mbp_width;
 
 // Debugging:
@@ -136,6 +123,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $str = "";
     reset($words);
 
+    // @todo support <shy>, <wbr>
     for ($i = 0; $i < $wc; $i += 2) {
       $word = $words[$i] . (isset($words[$i+1]) ? $words[$i+1] : "");
       $word_width = Font_Metrics::get_text_width($word, $font, $size, $word_spacing);
@@ -192,29 +180,15 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     // Handle text transform:
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-transform
-
-    switch ($style->text_transform) {
-
-    default:
-      break;
-
-    case "capitalize":
-      $text = mb_convert_case($text, MB_CASE_TITLE, 'UTF-8');
-      break;
-
-    case "uppercase":
-      $text = mb_convert_case($text, MB_CASE_UPPER, 'UTF-8');
-      break;
-
-    case "lowercase":
-      $text = mb_convert_case($text, MB_CASE_LOWER, 'UTF-8');
-      break;
-
+    switch (strtolower($style->text_transform)) {
+      default: break;
+      case "capitalize": $text = mb_convert_case($text, MB_CASE_TITLE); break;
+      case "uppercase":  $text = mb_convert_case($text, MB_CASE_UPPER); break;
+      case "lowercase":  $text = mb_convert_case($text, MB_CASE_LOWER); break;
     }
     
     // Handle white-space property:
     // http://www.w3.org/TR/CSS21/text.html#propdef-white-space
-
     switch ($style->white_space) {
 
     default:
@@ -321,19 +295,26 @@ class Text_Frame_Reflower extends Frame_Reflower {
       // FIXME: Include non-breaking spaces?
       $t = $this->_frame->get_text();
       $parent = $this->_frame->get_parent();
-      if ((get_class($parent)!='Inline_Frame_Decorator' && !$this->_frame->get_next_sibling()) || (get_class($parent)=='Inline_Frame_Decorator' && !$parent->get_next_sibling())) {
+      $is_inline_frame = get_class($parent) === 'Inline_Frame_Decorator';
+      
+      if ((!$is_inline_frame && !$this->_frame->get_next_sibling()) || 
+          ( $is_inline_frame && !$parent->get_next_sibling())) {
         $t = rtrim($t);
       }
-      if ((get_class($parent)!='Inline_Frame_Decorator' && !$this->_frame->get_prev_sibling()) || (get_class($parent)=='Inline_Frame_Decorator' && !$parent->get_prev_sibling())) {
+      
+      if ((!$is_inline_frame && !$this->_frame->get_prev_sibling()) || 
+          ( $is_inline_frame && !$parent->get_prev_sibling())) {
       	$t = ltrim($t);
       }
+      
       $this->_frame->set_text( $t );
       
     }
 
     // Set our new width
-    $this->_frame->recalculate_width();
-
+    $width = $this->_frame->recalculate_width();
+    
+    //$this->_block_parent->increase_line_reflow_width($width);
   }
 
   //........................................................................
@@ -453,5 +434,3 @@ class Text_Frame_Reflower extends Frame_Reflower {
   }
 
 }
-
-Text_Frame_Reflower::$_whitespace_pattern = version_compare(PHP_VERSION, '5.2.4', '<') ? "/[ \t\r\n\x0a\x0b\x0c\x0d\x85\x2028\x2029\f]+/u" : "/[ \t\r\n\v\f]+/u";

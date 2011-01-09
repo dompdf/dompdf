@@ -154,18 +154,20 @@ class Block_Renderer extends Abstract_Renderer {
     
     if ( !$props["style"] || $props["style"] === "none" || $props["width"] <= 0 )
       return;
+      
     $bbox = $frame->get_border_box();
     $offset = $style->length_in_pt($props["width"]);
+    $pattern = $this->_get_dash_pattern($props["style"], $offset);
 
     // If the outline style is "solid" we'd better draw a rectangle
-    if ( $props["style"] === "solid" ) {
+    if ( in_array($props["style"], array("solid", "dashed", "dotted")) ) {
       $bbox[0] -= $offset / 2;
       $bbox[1] -= $offset / 2;
       $bbox[2] += $offset;
       $bbox[3] += $offset;
     
       list($x, $y, $w, $h) = $bbox;
-      $this->_canvas->rectangle($x, $y, $w, $h, $props["color"], $offset);
+      $this->_canvas->rectangle($x, $y, $w, $h, $props["color"], $offset, $pattern);
       return;
     }
 

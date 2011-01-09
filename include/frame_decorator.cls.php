@@ -177,13 +177,27 @@ abstract class Frame_Decorator extends Frame {
       $child->reset();
   }
   
+  // Getters -----------
+  function get_id() { return $this->_frame->get_id(); }
+  
   /**
    * @return Frame
    */
   function get_frame() { return $this->_frame; }
+  
+  /**
+   * @return DomNode
+   */
   function get_node() { return $this->_frame->get_node(); }
-  function get_id() { return $this->_frame->get_id(); }
+  
+  /**
+   * @return Style
+   */
   function get_style() { return $this->_frame->get_style(); }
+  
+  /**
+   * @return Style
+   */
   function get_original_style() { return $this->_frame->get_original_style(); }
   function get_containing_block($i = null) { return $this->_frame->get_containing_block($i); }
   function get_position($i = null) { return $this->_frame->get_position($i); }
@@ -198,6 +212,7 @@ abstract class Frame_Decorator extends Frame {
   function get_padding_box() { return $this->_frame->get_padding_box(); }
   function get_border_box() { return $this->_frame->get_border_box(); }
 
+  // Setters -----------
   function set_id($id) { $this->_frame->set_id($id); }
   function set_style(Style $style) { $this->_frame->set_style($style); }
 

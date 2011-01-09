@@ -46,16 +46,23 @@
  * @package dompdf
  */
 class Block_Frame_Reflower extends Frame_Reflower {
-  const MIN_JUSTIFY_WIDTH = 0.80;  // (Minimum line width to justify, as
-                                   // fraction of available width)
+  // Minimum line width to justify, as fraction of available width
+  const MIN_JUSTIFY_WIDTH = 0.80;
 
+  /**
+   * @var Block_Frame_Decorator
+   */
+  protected $_frame;
+  
   function __construct(Block_Frame_Decorator $frame) { parent::__construct($frame); }
 
-  //........................................................................
-
-  // Calculate the ideal used value for the width property as per:
-  // http://www.w3.org/TR/CSS21/visudet.html#Computing_widths_and_margins
-
+  /**
+   *  Calculate the ideal used value for the width property as per:
+   *  http://www.w3.org/TR/CSS21/visudet.html#Computing_widths_and_margins
+   *  
+   *  @param float $width
+   *  @return array
+   */
   protected function _calculate_width($width) {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
@@ -170,12 +177,13 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     }
 
-    $ret = array("width"=> $width, "margin_left" => $lm, "margin_right" => $rm, "left" => $left, "right" => $right);
-
-    return $ret;
+    return array("width"=> $width, "margin_left" => $lm, "margin_right" => $rm, "left" => $left, "right" => $right);
   }
 
-  // Call the above function, but resolve max/min widths
+  /** 
+   * Call the above function, but resolve max/min widths
+   * @return array
+   */
   protected function _calculate_restricted_width() {
     $frame = $this->_frame;
     $style = $frame->get_style();
@@ -216,24 +224,26 @@ class Block_Frame_Reflower extends Frame_Reflower {
     return array($width, $margin_left, $margin_right, $left, $right);
 
   }
-
-  //........................................................................
-
-  // Determine the unrestricted height of content within the block
+  
+  /** 
+   * Determine the unrestricted height of content within the block
+   * by adding each line's height
+   * @return float
+   */
   protected function _calculate_content_height() {
-
-    // Calculate the actual height
     $height = 0;
     
-    // Add the height of all lines
-    foreach ($this->_frame->get_lines() as $line)
+    foreach ($this->_frame->get_lines() as $line) {
       $height += $line["h"];
+    }
 
     return $height;
-
   }
 
-  // Determine the frame's restricted height
+  /** 
+   * Determine the frame's restricted height
+   * @return array
+   */
   protected function _calculate_restricted_height() {
     $style = $this->_frame->get_style();
     $content_height = $this->_calculate_content_height();
@@ -241,10 +251,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     
     $height = $style->length_in_pt($style->height, $cb["h"]);
 
-    $top = $style->length_in_pt($style->top, $cb["h"]);
+    $top    = $style->length_in_pt($style->top, $cb["h"]);
     $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
 
-    $margin_top = $style->length_in_pt($style->margin_top, $cb["h"]);
+    $margin_top    = $style->length_in_pt($style->margin_top, $cb["h"]);
     $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["h"]);
 
     if ( $style->position === "absolute" || $style->position === "fixed" ) {
@@ -405,15 +415,14 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   }
 
-  //........................................................................
-
+  /**
+   * Adjust the justification of each of our lines.
+   * http://www.w3.org/TR/CSS21/text.html#propdef-text-align
+   */
   protected function _text_align() {
     $style = $this->_frame->get_style();
     $w = $this->_frame->get_containing_block("w");
     $width = $style->length_in_pt($style->width, $w);
-      
-    // Adjust the justification of each of our lines.
-    // http://www.w3.org/TR/CSS21/text.html#propdef-text-align
     switch ($style->text_align) {
 
     default:
@@ -511,10 +520,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
   }
   
   /**
-   * Align inline children vertically
+   * Align inline children vertically.
+   * Aligns each child vertically after each line is reflowed
    */
   function vertical_align() {
-    // Align each child vertically after each line is reflowed
+    
     foreach ( $this->_frame->get_lines() as $i => $line ) {
 
       $height = $line["h"];
@@ -569,8 +579,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
   }
 
-  //........................................................................
-
   function reflow() {
 
     // Check if a page break is forced
@@ -613,6 +621,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $cb["w"]);
     $this->_frame->increase_line_width($indent);
+    //$this->_frame->increase_line_reflow_width($indent);
 
     // Determine the content edge
     $top = $style->length_in_pt(array($style->margin_top,
@@ -623,16 +632,15 @@ class Block_Frame_Reflower extends Frame_Reflower {
                                          $style->margin_bottom,
                                          $style->padding_bottom), $cb["h"]);
 
-    $cb_x = $x + $left_margin +
-      $style->length_in_pt($style->border_left_width, $cb["w"]) +
-      $style->length_in_pt($style->padding_left, $cb["w"]);
+    $cb_x = $x + $left_margin + $style->length_in_pt(array($style->border_left_width, 
+                                                           $style->padding_left), $cb["w"]);
 
-    $cb_y = $line_y = $y + $top;
+    $cb_y = $y + $top;
 
     $cb_h = ($cb["h"] + $cb["y"]) - $bottom - $cb_y;
 
     // Set the y position of the first line in this block
-    $this->_frame->set_current_line($line_y);
+    $this->_frame->set_current_line($cb_y);
     
     $floating_children = array();
     
@@ -759,7 +767,4 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     $this->vertical_align();
   }
-
-  //........................................................................
-
 }

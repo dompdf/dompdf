@@ -59,6 +59,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     "wc" => 0,
     "y" => null,
     "w" => 0,
+    "reflow_w" => 0, // used in text frame reflower
     "h" => 0,
     "left" => 0,
     "right" => 0,
@@ -165,8 +166,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
       // Handle line breaks
       if ( $frame->get_node()->nodeName === "br" ) {
         $this->maximize_line_height( $style->length_in_pt($style->line_height), $frame );
-        $this->_lines[$this->_cl]["br"] = true;
-        $this->add_line();
+        $this->add_line(true);
         return;
       }
 
@@ -195,12 +195,12 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     // Debugging code:
     /*
-    pre_r("\nAdding frame to line:");
+    pre_r("\n<h3>Adding frame to line:</h3>");
 
     //    pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
     //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
     if ( $frame->get_node()->nodeName === "#text" )
-      pre_r($frame->get_node()->nodeValue);
+      pre_r('"'.$frame->get_node()->nodeValue.'"');
 
     pre_r("Line width: " . $this->_lines[$this->_cl]["w"]);
     pre_r("Frame: " . get_class($frame));
@@ -223,7 +223,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     if ( $frame->get_node()->nodeName === "#text")
       $current_line["wc"] += count(preg_split("/\s+/", trim($frame->get_text())));
 
-    $current_line["w"] += $w;
+    $this->increase_line_width($w);
     
     $this->maximize_line_height($frame->get_margin_height(), $frame);
   }
@@ -269,6 +269,10 @@ class Block_Frame_Decorator extends Frame_Decorator {
     $this->_lines[ $this->_cl ]["w"] += $w;
   }
 
+  function increase_line_reflow_width($w) {
+    $this->_lines[ $this->_cl ]["reflow_w"] += $w;
+  }
+
   function maximize_line_height($val, Frame $frame) {
     if ( $val > $this->_lines[ $this->_cl ]["h"] ) {
       $this->_lines[ $this->_cl ]["tallest_frame"] = $frame;
@@ -276,11 +280,12 @@ class Block_Frame_Decorator extends Frame_Decorator {
     }
   }
 
-  function add_line() {
+  function add_line($br = false) {
 
 //     if ( $this->_lines[$this->_cl]["h"] == 0 ) //count($this->_lines[$i]["frames"]) == 0 ||
 //       return;
 
+    $this->_lines[$this->_cl]["br"] = $br;
     $y = $this->_lines[$this->_cl]["y"] + $this->_lines[$this->_cl]["h"];
 
     $new_line = self::$_initial_line_state;

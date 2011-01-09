@@ -147,7 +147,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
     $font = $style->font_family;
     $word_spacing = $style->length_in_pt($style->word_spacing);
 
-    $style->width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
+    return $style->width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
   }
   
   //........................................................................

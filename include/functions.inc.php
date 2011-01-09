@@ -97,7 +97,40 @@ if ( !function_exists("pre_var_dump") ) {
 function pre_var_dump($mixed) {
   if ( php_sapi_name() !== "cli")
     echo("<pre>");
+    
   var_dump($mixed);
+  
+  if ( php_sapi_name() !== "cli")
+    echo("</pre>");
+}
+}
+
+/**
+ * generic debug function
+ *
+ * Takes everything and does its best to give a good debug output
+ *
+ * @param mixed $mixed variable or expression to display.
+ */
+if ( !function_exists("d") ) {
+function d($mixed) {
+  if ( php_sapi_name() !== "cli")
+    echo("<pre>");
+    
+  // line
+  if (is_array($mixed) && array_key_exists("tallest_frame", $mixed)) {
+    echo "<strong>LINE</strong>:\n";
+    foreach($mixed as $key => $value) {
+      if (is_array($value) || is_object($value)) continue;
+      echo "  $key:\t".var_export($value,true)."\n";
+    }
+  }
+  
+  // other
+  else {
+    var_dump($mixed);
+  }
+  
   if ( php_sapi_name() !== "cli")
     echo("</pre>");
 }
@@ -307,6 +340,12 @@ function dec2roman($num) {
  */
 function is_percent($value) { return false !== mb_strpos($value, "%"); }
 
+/**
+ * Parses a data URI scheme
+ * http://en.wikipedia.org/wiki/Data_URI_scheme
+ * @param string $data_uri The data URI to parse
+ * @return array The result with charset, mime type and decoded data
+ */
 function parse_data_uri($data_uri) {
   if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/i', $data_uri, $match)) {
     return false;
@@ -415,8 +454,10 @@ if ( !function_exists("mb_strlen") ) {
   }
 }
 
-# Decoder for RLE8 compression in windows bitmaps
-# see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
+/** 
+ * Decoder for RLE8 compression in windows bitmaps
+ * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
+ */
 function rle8_decode ($str, $width){
   $lineWidth = $width + (3 - ($width-1) % 4);
   $out = '';
@@ -453,8 +494,10 @@ function rle8_decode ($str, $width){
   return $out;
 }
 
-# Decoder for RLE4 compression in windows bitmaps
-# see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
+/** 
+ * Decoder for RLE4 compression in windows bitmaps
+ * see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
+ */
 function rle4_decode ($str, $width) {
   $w = floor($width/2) + ($width % 2);
   $lineWidth = $w + (3 - ( ($width-1) / 2) % 4);    
@@ -507,12 +550,13 @@ function rle4_decode ($str, $width) {
   return $out;
 } 
 
+if ( !function_exists("imagecreatefrombmp") ) {
+
 /**
  * Credit goes to mgutt 
  * http://www.programmierer-forum.de/function-imagecreatefrombmp-welche-variante-laeuft-t143137.htm
- * Modified by Fabien Ménager to support RGB555 BMP format
+ * Modified by Fabien Menager to support RGB555 BMP format
  */
-if ( !function_exists("imagecreatefrombmp") ) {
 function imagecreatefrombmp($filename) {
   try {
   // version 1.00
@@ -706,9 +750,7 @@ if ( !function_exists("date_default_timezone_get") ) {
   function date_default_timezone_get() {
     return "";
   }
-}
-
-if ( !function_exists("date_default_timezone_set") ) {
+  
   function date_default_timezone_set($timezone_identifier) {
     return true;
   }
@@ -747,6 +789,9 @@ function record_warnings($errno, $errstr, $errfile, $errline) {
  * Print a useful backtrace
  */
 function bt() {
+  if ( php_sapi_name() !== "cli")
+    echo("<pre>");
+    
   $bt = debug_backtrace();
 
   array_shift($bt); // remove actual bt() call
@@ -765,6 +810,9 @@ function bt() {
     $i++;
   }
   echo "\n";
+  
+  if ( php_sapi_name() !== "cli")
+    echo("</pre>");
 }
 
 /**

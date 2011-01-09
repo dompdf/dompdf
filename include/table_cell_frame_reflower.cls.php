@@ -104,6 +104,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $w);
     $this->_frame->increase_line_width($indent);
+    //$this->_frame->increase_line_reflow_width($indent);
 
     // Set the y position of the first line in the cell
     $page = $this->_frame->get_root();
