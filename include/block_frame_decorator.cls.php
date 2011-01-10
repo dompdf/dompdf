@@ -100,6 +100,10 @@ class Block_Frame_Decorator extends Frame_Decorator {
     return $cl;
   }
 
+  function get_current_line_number() {
+    return $this->_cl;
+  }
+
   function get_lines() { return $this->_lines; }
 
   //........................................................................

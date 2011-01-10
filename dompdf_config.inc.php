@@ -337,6 +337,12 @@ def("DOMPDF_ENABLE_JAVASCRIPT", true);
  * @var bool
  */
 def("DOMPDF_ENABLE_REMOTE", false);
+
+/**
+ * The debug output log
+ * @var string
+ */
+def("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR."log.htm");
  
 /**
  * DOMPDF autoload function

@@ -391,7 +391,7 @@ abstract class Frame_Decorator extends Frame {
    * @return Frame_Decorator
    */
   function find_block_parent() {
-    if ( $this->_block_parent ) return $this->_block_parent;
+    //if ( $this->_block_parent ) return $this->_block_parent; // FIXME: makes dom_anchor_link example fail
     
     // Find our nearest block level parent
     $p = $this->get_parent();
@@ -410,7 +410,7 @@ abstract class Frame_Decorator extends Frame {
    * @return Frame_Decorator
    */
   function find_positionned_parent() {
-    if ( $this->_positionned_parent ) return $this->_positionned_parent;
+    //if ( $this->_positionned_parent ) return $this->_positionned_parent; // FIXME: makes dom_anchor_link example fail
 
     // Find our nearest relative positionned parent
     $p = $this->get_parent();

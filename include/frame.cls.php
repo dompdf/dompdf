@@ -824,8 +824,19 @@ class FrameList implements IteratorAggregate {
  */
 class FrameListIterator implements Iterator {
 
+  /**
+   * @var Frame
+   */
   protected $_parent;
+  
+  /**
+   * @var Frame
+   */
   protected $_cur;
+  
+  /**
+   * @var int
+   */
   protected $_num;
 
   function __construct(Frame $frame) {
@@ -839,12 +850,23 @@ class FrameListIterator implements Iterator {
     $this->_num = 0;
   }
 
+  /**
+   * @return bool
+   */
   function valid() {
     return isset($this->_cur);// && ($this->_cur->get_prev_sibling() === $this->_prev);
   }
+  
   function key() { return $this->_num; }
+  
+  /**
+   * @return Frame
+   */
   function current() { return $this->_cur; }
 
+  /**
+   * @return Frame
+   */
   function next() {
 
     $ret = $this->_cur;
@@ -866,11 +888,17 @@ class FrameListIterator implements Iterator {
  * @package dompdf
  */
 class FrameTreeList implements IteratorAggregate {
-
+  /**
+   * @var Frame
+   */
   protected $_root;
+  
   function __construct(Frame $root) { $this->_root = $root; }
+  
+  /**
+   * @return FrameTreeIterator
+   */
   function getIterator() { return new FrameTreeIterator($this->_root); }
-
 }
 
 /**
@@ -882,9 +910,15 @@ class FrameTreeList implements IteratorAggregate {
  * @package dompdf
  */
 class FrameTreeIterator implements Iterator {
-
+  /**
+   * @var Frame
+   */
   protected $_root;
   protected $_stack = array();
+  
+  /**
+   * @var int
+   */
   protected $_num;
   
   function __construct(Frame $root) {
@@ -896,11 +930,25 @@ class FrameTreeIterator implements Iterator {
     $this->_stack = array($this->_root);
     $this->_num = 0;
   }
-    
+  
+  /**
+   * @return bool
+   */
   function valid() { return count($this->_stack) > 0; }
+  
+  /**
+   * @return int
+   */
   function key() { return $this->_num; }
+  
+  /**
+   * @var Frame
+   */
   function current() { return end($this->_stack); }
 
+  /**
+   * @var Frame
+   */
   function next() {
     $b = end($this->_stack);
     

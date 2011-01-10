@@ -538,6 +538,9 @@ class DOMPDF {
   function render() {
 
     //enable_mem_profile();
+    if ( is_writable(DOMPDF_LOG_OUTPUT_FILE) ) {
+      ob_start();
+    }
 
     $this->_process_html();
     
@@ -677,6 +680,11 @@ class DOMPDF {
    * @param array  $options header options (see above)
    */
   function stream($filename, $options = null) {
+		if ( is_writable(DOMPDF_LOG_OUTPUT_FILE) ) {
+      $out = ob_get_clean();
+      file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
+		}
+    
     if (!is_null($this->_pdf))
       $this->_pdf->stream($filename, $options);
   }
