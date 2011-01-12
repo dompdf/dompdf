@@ -37,7 +37,7 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 				  success: log
 				});
       });
-		})
+		});
 	</script>
 	
 	<style type="text/css">
@@ -54,10 +54,6 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 			width: 100%;
 			border: none;
 		}
-		
-    #addressbar {
-      
-    }
     
     #preview {
       width: 100%;
@@ -76,13 +72,18 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
       background: #eee; 
 			overflow: scroll; 
       height: 850px;
-      font-size: 11px; 
       padding: 4px;
 		}
 		
 		#console pre {
 			margin: 2px 0;
 		}
+    
+    #console, #console pre {
+      font-size: 11px; 
+      font-family: Courier, "Courier new", monospace;
+      white-space: pre-wrap;
+    }
 	</style>
 </head>
 

@@ -1494,7 +1494,11 @@ class  Cpdf {
       $info['Subtype'] = '/Image';
       $info['Width'] = $options['iw'];
       $info['Height'] = $options['ih'];
-
+      
+      if (isset($options['masked']) && $options['masked']) {
+        $info['SMask'] = ($this->numObj-1).' 0 R';
+      }
+      
       if  (!isset($options['type']) || $options['type'] === 'jpg') {
         if  (!isset($options['channels'])) {
           $options['channels'] = 3;
@@ -1517,57 +1521,62 @@ class  Cpdf {
       else if  ($options['type'] === 'png') {
         $info['Filter'] = '/FlateDecode';
         $info['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
-
-        if  (mb_strlen($options['pdata'], '8bit')) {
-          $tmp =  ' [ /Indexed /DeviceRGB '.(mb_strlen($options['pdata'], '8bit') /3-1) .' ';
-          $this->numObj++;
-          $this->o_contents($this->numObj, 'new');
-          $this->objects[$this->numObj]['c'] = $options['pdata'];
-          $tmp.= $this->numObj.' 0 R';
-          $tmp.= ' ]';
-          $info['ColorSpace'] =  $tmp;
-          
-          if  (isset($options['transparency'])) {
-            $transparency = $options['transparency'];
-            switch ($transparency['type']) {
-            case  'indexed':
-              $tmp = ' [ '.$transparency['data'].' '.$transparency['data'].'] ';
-              $info['Mask'] =  $tmp;
-              break;
-
-            case 'color-key':
-              $tmp = ' [ '.
-                $transparency['r'] . ' ' . $transparency['r'] .
-                $transparency['g'] . ' ' . $transparency['g'] .
-                $transparency['b'] . ' ' . $transparency['b'] .
-                ' ] ';
-              $info['Mask'] = $tmp;
-              break;
-            }
-          }
-        } else {
-          if  (isset($options['transparency'])) {
-            $transparency = $options['transparency'];
-            
-            switch ($transparency['type']) {
-            case  'indexed':
-              $tmp = ' [ '.$transparency['data'].' '.$transparency['data'].'] ';
-              $info['Mask'] =  $tmp;
-              break;
-
-            case 'color-key':
-              $tmp = ' [ '.
-                $transparency['r'] . ' ' . $transparency['r'] . ' ' .
-                $transparency['g'] . ' ' . $transparency['g'] . ' ' .
-                $transparency['b'] . ' ' . $transparency['b'] .
-                ' ] ';
-              $info['Mask'] = $tmp;
-              break;
-            }
-          }
-          $info['ColorSpace'] = '/'.$options['color'];
+      
+        if ($options['isMask']) {
+          $info['ColorSpace'] = '/DeviceGray';
         }
-
+        else {
+          if  (mb_strlen($options['pdata'], '8bit')) {
+            $tmp =  ' [ /Indexed /DeviceRGB '.(mb_strlen($options['pdata'], '8bit') /3-1) .' ';
+            $this->numObj++;
+            $this->o_contents($this->numObj, 'new');
+            $this->objects[$this->numObj]['c'] = $options['pdata'];
+            $tmp.= $this->numObj.' 0 R';
+            $tmp.= ' ]';
+            $info['ColorSpace'] =  $tmp;
+            
+            if  (isset($options['transparency'])) {
+              $transparency = $options['transparency'];
+              switch ($transparency['type']) {
+              case  'indexed':
+                $tmp = ' [ '.$transparency['data'].' '.$transparency['data'].'] ';
+                $info['Mask'] =  $tmp;
+                break;
+  
+              case 'color-key':
+                $tmp = ' [ '.
+                  $transparency['r'] . ' ' . $transparency['r'] .
+                  $transparency['g'] . ' ' . $transparency['g'] .
+                  $transparency['b'] . ' ' . $transparency['b'] .
+                  ' ] ';
+                $info['Mask'] = $tmp;
+                break;
+              }
+            }
+          } else {
+            if  (isset($options['transparency'])) {
+              $transparency = $options['transparency'];
+              
+              switch ($transparency['type']) {
+              case  'indexed':
+                $tmp = ' [ '.$transparency['data'].' '.$transparency['data'].'] ';
+                $info['Mask'] =  $tmp;
+                break;
+  
+              case 'color-key':
+                $tmp = ' [ '.
+                  $transparency['r'] . ' ' . $transparency['r'] . ' ' .
+                  $transparency['g'] . ' ' . $transparency['g'] . ' ' .
+                  $transparency['b'] . ' ' . $transparency['b'] .
+                  ' ] ';
+                $info['Mask'] = $tmp;
+                break;
+              }
+            }
+            $info['ColorSpace'] = '/'.$options['color'];
+          }
+        }
+        
         $info['BitsPerComponent'] = $options['bitsPerComponent'];
       }
 
@@ -4073,7 +4082,7 @@ class  Cpdf {
    * add a PNG image into the document, from a GD object
    * this should work with remote files
    */
-  function addImagePng($file, $x, $y, $w =  0, $h =  0, &$img) {
+  function addImagePng($file, $x, $y, $w =  0, $h =  0, &$img, $is_mask = false, $mask = null) {
     //if already cached, need not to read again
 	if ( isset($this->imagelist[$file]) ) {
 	  $data = null;
@@ -4088,8 +4097,9 @@ class  Cpdf {
       // }
 	  // blending mode (literal/blending) on drawing into current image. not relevant when not saved or not drawn
 	  //imagealphablending($img, true);
+	  
 	  //default, but explicitely set to ensure pdf compatibility
-      imagesavealpha($img, false);
+      imagesavealpha($img, false/*!$is_mask && !$mask*/);
       
       $error =  0;
       //DEBUG_IMG_TEMP
@@ -4098,7 +4108,6 @@ class  Cpdf {
 
       ob_start();
       @imagepng($img);
-      //$data = ob_get_contents(); ob_end_clean();
       $data = ob_get_clean();
 
       if ($data == '') {
@@ -4114,9 +4123,74 @@ class  Cpdf {
         return;
       }
     }  //End isset($this->imagelist[$file]) (png Duplicate removal)
-
-    $this->addPngFromBuf($file, $x, $y, $w, $h, $data);
+  
+    $this->addPngFromBuf($file, $x, $y, $w, $h, $data, $is_mask, $mask);
   }
+  
+  protected function addImagePngAlpha($file, $x, $y, $w, $h) {
+      // generate images
+      $img = imagecreatefrompng($file);
+      
+      if ($img === false) {
+        return;
+      }
+      
+      $wpx = imagesx($img);
+      $hpx = imagesy($img);
+      
+      imagesavealpha($img, false);
+      
+      $imgalpha = imagecreate($wpx, $hpx);
+      imagesavealpha($imgalpha, false);
+      
+      // generate gray scale palette (0 -> 255)
+      for ($c = 0; $c < 256; ++$c) {
+        imagecolorallocate($imgalpha, $c, $c, $c);
+      }
+      
+      // extract alpha channel
+      for ($xpx = 0; $xpx < $wpx; ++$xpx) {
+        for ($ypx = 0; $ypx < $hpx; ++$ypx) {
+          $color = imagecolorat($img, $xpx, $ypx);
+          $gammacorr = 2.2; // gamma correction
+          
+          // from mPDF
+          $col = imagecolorsforindex($img, $color);
+          $alpha = $col['alpha'];
+          
+          // from TCPDF (more tests fail in image_transparent_png)
+          //$alpha = ($color >> 24); // shifts off the first 24 bits (where 8x3 are used for each color), and returns the remaining 7 allocated bits (commonly used for alpha)
+          
+          $pixel = (pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255);
+          
+          imagesetpixel($imgalpha, $xpx, $ypx, $pixel);
+        }
+      }
+      
+      // create temp alpha file
+      $tempfile_alpha = tempnam($this->tmp, "cpdf_img_").'.png';
+      imagepng($imgalpha, $tempfile_alpha);
+      
+      // extract image without alpha channel
+      $imgplain = imagecreatetruecolor($wpx, $hpx);
+      imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
+      
+      // create temp image file
+      $tempfile_plain = tempnam($this->tmp, "cpdf_img_").'.png';
+      imagepng($imgplain, $tempfile_plain);
+      
+      // embed mask image
+      $this->addImagePng($tempfile_alpha, $x, $y, $w, $h, $imgalpha, true);
+      imagedestroy($imgalpha);
+      
+      // embed image, masked with previously embedded mask
+      $this->addImagePng($tempfile_plain, $x, $y, $w, $h, $imgplain, false, true);
+      imagedestroy($imgplain);
+      
+      // remove temp files
+      unlink($tempfile_alpha);
+      unlink($tempfile_plain);
+    }
 
 
   /**
@@ -4125,9 +4199,17 @@ class  Cpdf {
    */
   function addPngFromFile($file, $x, $y, $w =  0, $h =  0) {
     //if already cached, need not to read again
-	if ( isset($this->imagelist[$file]) ) {
-	  $img = null;
-	} else {
+  	if ( isset($this->imagelist[$file]) ) {
+  	  $img = null;
+  	} 
+  	
+  	else {
+	    $is_alpha = (ord (file_get_contents ($file, false, null, 25, 1)) & 6); // 6 => 32b, 4 => 8b
+
+      if ($is_alpha) { // exclude grayscale alpha
+        return $this->addImagePngAlpha($file, $x, $y, $w, $h);
+	    }
+
       //png files typically contain an alpha channel.
       //pdf file format or class.pdf does not support alpha blending.
       //on alpha blended images, more transparent areas have a color near black.
@@ -4146,15 +4228,18 @@ class  Cpdf {
       $sy = imagesy($imgtmp);
       $img = imagecreatetruecolor($sx,$sy);
       imagealphablending($img, true);
+      
+      // @todo is it still needed ??
   	  $ti = imagecolortransparent($imgtmp);
-	  if ($ti >= 0) {
-	    $tc = imagecolorsforindex($imgtmp,$ti);
+  	  if ($ti >= 0) {
+  	    $tc = imagecolorsforindex($imgtmp,$ti);
         $ti = imagecolorallocate($img,$tc['red'],$tc['green'],$tc['blue']);
         imagefill($img,0,0,$ti);
         imagecolortransparent($img, $ti);
       } else {
         imagefill($img,1,1,imagecolorallocate($img,255,255,255));
       }
+      
       imagecopy($img,$imgtmp,0,0,0,0,$sx,$sy);
       imagedestroy($imgtmp);
     }
@@ -4165,7 +4250,7 @@ class  Cpdf {
   /**
    * add a PNG image into the document, from a memory buffer of the file
    */
-  function addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data) {
+  function addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data, $is_mask = false, $mask = null) {
 	if ( isset($this->imagelist[$file]) ) {
       //debugpng
       //if (DEBUGPNG) print '[addPngFromBuf Duplicate '.$file.']';
@@ -4342,32 +4427,31 @@ class  Cpdf {
 
       $errormsg =  'only bit depth of 8 or less is supported';
     }
-
+    
     if  (!$error) {
-      if  ($info['colorType'] !=  2 &&  $info['colorType'] !=  0 &&  $info['colorType'] !=  3) {
+      switch  ($info['colorType']) {
+      case  3:
+        $color =  'DeviceRGB';
+        $ncolor =  1;
+        break;
+
+      case  2:
+        $color =  'DeviceRGB';
+        $ncolor =  3;
+        break;
+
+      case  0:
+        $color =  'DeviceGray';
+        $ncolor =  1;
+        break;
+      
+      default: 
         $error =  1;
 
         //debugpng
         if (DEBUGPNG) print '[addPngFromFile alpha channel not supported: '.$info['colorType'].' '.$file.']';
 
         $errormsg =  'transparancey alpha channel not supported, transparency only supported for palette images.';
-      } else {
-        switch  ($info['colorType']) {
-        case  3:
-          $color =  'DeviceRGB';
-          $ncolor =  1;
-          break;
-
-        case  2:
-          $color =  'DeviceRGB';
-          $ncolor =  3;
-          break;
-
-        case  0:
-          $color =  'DeviceGray';
-          $ncolor =  1;
-          break;
-        }
       }
     }
 
@@ -4393,7 +4477,9 @@ class  Cpdf {
         'ih' => $info['height'],
         'type' => 'png',
         'color' => $color,
-        'ncolor' => $ncolor
+        'ncolor' => $ncolor,
+        'masked' => $mask,
+        'isMask' => $is_mask,
       );
 
       if  (isset($transparency)) {
@@ -4402,6 +4488,10 @@ class  Cpdf {
 
       $this->o_image($this->numObj, 'new', $options);
       $this->imagelist[$file] = array('label' =>$label, 'w' => $info['width'], 'h' => $info['height']);
+    }
+    
+    if ($is_mask) {
+      return;
     }
 
     if  ($w <=  0 && $h <=  0) {
