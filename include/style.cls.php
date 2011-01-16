@@ -1493,7 +1493,8 @@ class Style {
   function set_background($val) {
     $col = null;
     $pos = array();
-    $tmp = explode(" ", $val);
+    $tmp = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
+    $tmp = explode(" ", $tmp);
     $important = isset($this->_important_props["background"]);
     
     foreach($tmp as $attr) {
@@ -1700,7 +1701,8 @@ class Style {
    * @param string $border_spec  ([width] [style] [color])
    */
   protected function _set_border($side, $border_spec, $important) {
-    $border_spec = str_replace(",", " ", $border_spec);
+    $border_spec = preg_replace("/\s*\,\s*/", ",", $border_spec);
+    //$border_spec = str_replace(",", " ", $border_spec); // Why did we have this ?? rbg(10, 102, 10) > rgb(10  102  10)
     $arr = explode(" ", $border_spec);
 
     // FIXME: handle partial values
@@ -1792,6 +1794,7 @@ class Style {
       }
     }
     
+    $val = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
     $arr = explode(" ", $val);
     foreach ($arr as $value) {
       $value = trim($value);

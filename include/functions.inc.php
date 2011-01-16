@@ -128,7 +128,7 @@ function d($mixed) {
   
   // other
   else {
-    var_dump($mixed);
+    var_export($mixed);
   }
   
   if ( php_sapi_name() !== "cli")
