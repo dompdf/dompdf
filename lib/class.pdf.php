@@ -4606,7 +4606,6 @@ class  Cpdf {
     // gotta get the data out of the img..
     ob_start();
     imagejpeg($img, '', $quality);
-    //$data = ob_get_contents(); ob_end_clean();
     $data = ob_get_clean();
 
     $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $imgname);

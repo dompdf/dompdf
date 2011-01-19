@@ -75,13 +75,27 @@ class Page_Frame_Reflower extends Frame_Reflower {
    * @var bool
    */
   private $_has_floating_frames;
+  
+  /**
+   * The stacking context, containing all z-indexed frames
+   * @var array
+   */
+  private $_stacking_context = array();
 
   function __construct(Page_Frame_Decorator $frame) { parent::__construct($frame); }
   
-  /*
+  /**
    * @return array
    */
   function get_floating_frames() { return $this->_floating_frames; }
+
+  /**
+   * @param $frame Frame
+   * @return void
+   */
+  function add_frame_to_stacking_context(Frame $frame, $z_index) {
+    $this->_stacking_context[$z_index][] = $frame;
+  }
   
   /**
    * Add a floating frame
@@ -158,8 +172,21 @@ class Page_Frame_Reflower extends Frame_Reflower {
       // Check for begin render callback
       $this->_check_callbacks("begin_page_render", $child);
       
+      $renderer = $this->_frame->get_renderer();
+
       // Render the page
-      $this->_frame->get_renderer()->render($child);
+      $renderer->render($child);
+      
+      // http://www.w3.org/TR/CSS21/visuren.html#z-index
+      ksort($this->_stacking_context);
+      
+      foreach( $this->_stacking_context as $_z_index => $_frames ) {
+        foreach ( $_frames as $_frame ) {
+          $renderer->render($_frame);
+        }
+      }
+      
+      $this->_stacking_context = array();
       
       // Check for end render callback
       $this->_check_callbacks("end_page_render", $child);

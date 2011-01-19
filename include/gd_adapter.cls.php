@@ -828,8 +828,7 @@ class GD_Adapter implements Canvas {
       break;
     }
 
-    $image = ob_get_contents();
-    ob_end_clean();
+    $image = ob_get_clean();
 
     if ( $this->_aa_factor != 1 )
       imagedestroy($dst);

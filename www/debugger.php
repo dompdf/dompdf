@@ -11,14 +11,21 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 	<script type="text/javascript">
 		function updateAddress(){
 			var addressbar = $('#addressbar'),
-			    preview = $('#preview');
-					
-      preview.attr('src', "about:blank");
-			
+			    preview = $('#preview'),
+          preview_html = $('#preview_html'),
+          address = addressbar.val();
+
+      // HTML file
+      preview_html.attr("src", "about:blank");
+      preview_html.attr("src", "test/"+address+"?"+(new Date).getTime());
+
+			// PDF file
+      preview.attr("src", "about:blank");
+
       setTimeout(function(){
-				var address = "../dompdf.php?base_path=www/test/&options[Attachment]=0&input_file="+addressbar.val()+"#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0";
-				preview.attr('src', address);
-		  }, 0.1);
+        address = "../dompdf.php?base_path=www/test/&options[Attachment]=0&input_file="+address+"#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0";
+  			preview.attr('src', address);
+      }, 0.1);
 		}
 		
 		function log(str){
@@ -27,8 +34,17 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 			console.html(console.html() + str + "<hr />");
 			console.scrollTop(console[0].scrollHeight);
 		}
+    
+    function resizePage(){
+      var page = $("#page");
+      var height = $(window).height() - page.offset().top - 40;
+      $("iframe, #console").height(height);
+    }
+
+    $(function(){
+      resizePage();
+      $(window).resize(resizePage);
 		
-		$(function(){
       $('#preview').load(function(){
 			  if (this.src == "about:blank") return;
 				
@@ -37,6 +53,8 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 				  success: log
 				});
       });
+
+      $('#addressbar').val($("#examples").val());
 		});
 	</script>
 	
@@ -53,11 +71,12 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 		#page {
 			width: 100%;
 			border: none;
+      border-spacing: 0;
+      border-collapse: collapse;
 		}
     
-    #preview {
+    iframe {
       width: 100%;
-      height: 850px;
     }
 		
 		#output td {
@@ -71,7 +90,6 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 		#console {
       background: #eee; 
 			overflow: scroll; 
-      height: 850px;
       padding: 4px;
 		}
 		
@@ -89,11 +107,11 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 
 <body>
 
-<table border="0" id="page">
+<table id="page">
   <tr>
-    <td colspan="2">
+    <td colspan="3">
       <button onclick="$('#console').html('')" style="float: right;">Reset</button>
-			<select onchange="$('#addressbar').val($(this).val()); updateAddress()">
+			<select onchange="$('#addressbar').val($(this).val()); updateAddress()" id="examples">
 				<?php foreach($files as $file) { ?>
 				  <option value="<?php echo basename($file); ?>"><?php echo basename($file); ?></option>
 			  <?php } ?>
@@ -103,10 +121,13 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
     </td>
   </tr>
 	<tr id="output">
-    <td style="width: 50%;">
+    <td style="width: 40%;">
+      <iframe id="preview_html" name="preview_html" src="about:blank" frameborder="0" marginheight="0" marginwidth="0"></iframe>
+    </td>
+    <td style="width: 40%;">
       <iframe id="preview" name="preview" src="about:blank" frameborder="0" marginheight="0" marginwidth="0"></iframe>
     </td>
-    <td id="console-container">
+    <td style="min-width: 400px; width: 20%;" id="console-container">
 		  <div id="console"></div>
 		</td>
 	</tr>

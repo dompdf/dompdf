@@ -185,6 +185,11 @@ class DOMPDF {
     $this->_base_path = "";
     $this->_callbacks = array();
     $this->_cache_id = null;
+    
+    if ( DOMPDF_LOG_OUTPUT_FILE ) {
+      touch(DOMPDF_LOG_OUTPUT_FILE);
+      ob_start();
+    }
   }
   
   /**
@@ -363,8 +368,7 @@ class DOMPDF {
     if ( DOMPDF_ENABLE_PHP ) {
       ob_start();
       eval("?" . ">$str");
-      $str = ob_get_contents();
-      ob_end_clean();
+      $str = ob_get_clean();
     }
     
     // if the document contains non utf-8 with a utf-8 meta tag chars and was 
@@ -538,9 +542,6 @@ class DOMPDF {
   function render() {
 
     //enable_mem_profile();
-    if ( is_writable(DOMPDF_LOG_OUTPUT_FILE) ) {
-      ob_start();
-    }
 
     $this->_process_html();
     
@@ -680,7 +681,7 @@ class DOMPDF {
    * @param array  $options header options (see above)
    */
   function stream($filename, $options = null) {
-		if ( is_writable(DOMPDF_LOG_OUTPUT_FILE) ) {
+		if ( DOMPDF_LOG_OUTPUT_FILE ) {
       $out = ob_get_clean();
       file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
 		}
@@ -704,6 +705,10 @@ class DOMPDF {
    * @return string
    */
   function output($options = null) {
+    if ( DOMPDF_LOG_OUTPUT_FILE ) {
+      $out = ob_get_clean();
+      file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
+    }
 
     if ( is_null($this->_pdf) )
       return null;
