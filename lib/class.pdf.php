@@ -1992,11 +1992,11 @@ class  Cpdf {
     
     $fontcache = $this->fontcache;
     if ($fontcache == '') {
-    	$fontcache = $dir;
+      $fontcache = $dir;
     }
     
     //$name       filename without folder and extension of font metrics
-    //$dir		  folder of font metrics
+    //$dir      folder of font metrics
     //$fontcache  folder of runtime created php serialized version of font metrics.
     //            If this is not given, the same folder as the font metrics will be used.
     //            Storing and reusing serialized versions improves speed much
@@ -3118,7 +3118,7 @@ class  Cpdf {
     }
     
     if ($convert_encoding) {
-    	$cf = $this->currentFont;
+      $cf = $this->currentFont;
       if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
         //$text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
         $text =  $this->utf8toUtf16BE($text, $bom);
@@ -3699,7 +3699,7 @@ class  Cpdf {
    * justification and angle can also be specified for the text
    */
   function addTextWrap($x, $y, $width, $size, $text, $justification =  'left', $angle =  0, $test =  0) {
-  	// TODO - need to support Unicode
+    // TODO - need to support Unicode
     $cf =  $this->currentFont;
     if ($this->fonts[$cf]['isUnicode']) {
         die("addTextWrap does not support Unicode yet!");
@@ -4084,10 +4084,10 @@ class  Cpdf {
    */
   function addImagePng($file, $x, $y, $w =  0, $h =  0, &$img, $is_mask = false, $mask = null) {
     //if already cached, need not to read again
-	if ( isset($this->imagelist[$file]) ) {
-	  $data = null;
-	} else {
-  	  // Example for transparency handling on new image. Retain for current image
+    if ( isset($this->imagelist[$file]) ) {
+      $data = null;
+    } else {
+      // Example for transparency handling on new image. Retain for current image
       // $tIndex = imagecolortransparent($img);
       // if ($tIndex > 0) {
       //   $tColor    = imagecolorsforindex($img, $tIndex);
@@ -4095,10 +4095,10 @@ class  Cpdf {
       //   imagefill($new_img, 0, 0, $new_tIndex);
       //   imagecolortransparent($new_img, $new_tIndex);
       // }
-	  // blending mode (literal/blending) on drawing into current image. not relevant when not saved or not drawn
-	  //imagealphablending($img, true);
-	  
-	  //default, but explicitely set to ensure pdf compatibility
+      // blending mode (literal/blending) on drawing into current image. not relevant when not saved or not drawn
+      //imagealphablending($img, true);
+      
+      //default, but explicitely set to ensure pdf compatibility
       imagesavealpha($img, false/*!$is_mask && !$mask*/);
       
       $error =  0;
@@ -4116,7 +4116,7 @@ class  Cpdf {
         //DEBUG_IMG_TEMP
         //debugpng
         if (DEBUGPNG) print 'trouble writing file from GD';
-	  }
+      }
 
       if  ($error) {
         $this->addMessage('PNG error - ('.$file.') '.$errormsg);
@@ -4127,70 +4127,93 @@ class  Cpdf {
     $this->addPngFromBuf($file, $x, $y, $w, $h, $data, $is_mask, $mask);
   }
   
-  protected function addImagePngAlpha($file, $x, $y, $w, $h) {
-      // generate images
-      $img = imagecreatefrompng($file);
-      
-      if ($img === false) {
-        return;
-      }
-      
-      $wpx = imagesx($img);
-      $hpx = imagesy($img);
-      
-      imagesavealpha($img, false);
-      
-      $imgalpha = imagecreate($wpx, $hpx);
-      imagesavealpha($imgalpha, false);
-      
-      // generate gray scale palette (0 -> 255)
-      for ($c = 0; $c < 256; ++$c) {
-        imagecolorallocate($imgalpha, $c, $c, $c);
-      }
-      
-      // extract alpha channel
-      for ($xpx = 0; $xpx < $wpx; ++$xpx) {
-        for ($ypx = 0; $ypx < $hpx; ++$ypx) {
-          $color = imagecolorat($img, $xpx, $ypx);
-          $gammacorr = 2.2; // gamma correction
-          
-          // from mPDF
-          $col = imagecolorsforindex($img, $color);
-          $alpha = $col['alpha'];
-          
-          // from TCPDF (more tests fail in image_transparent_png)
-          //$alpha = ($color >> 24); // shifts off the first 24 bits (where 8x3 are used for each color), and returns the remaining 7 allocated bits (commonly used for alpha)
-          
-          $pixel = (pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255);
-          
-          imagesetpixel($imgalpha, $xpx, $ypx, $pixel);
-        }
-      }
-      
-      // create temp alpha file
-      $tempfile_alpha = tempnam($this->tmp, "cpdf_img_").'.png';
-      imagepng($imgalpha, $tempfile_alpha);
-      
-      // extract image without alpha channel
-      $imgplain = imagecreatetruecolor($wpx, $hpx);
-      imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
-      
-      // create temp image file
-      $tempfile_plain = tempnam($this->tmp, "cpdf_img_").'.png';
-      imagepng($imgplain, $tempfile_plain);
-      
-      // embed mask image
-      $this->addImagePng($tempfile_alpha, $x, $y, $w, $h, $imgalpha, true);
-      imagedestroy($imgalpha);
-      
-      // embed image, masked with previously embedded mask
-      $this->addImagePng($tempfile_plain, $x, $y, $w, $h, $imgplain, false, true);
-      imagedestroy($imgplain);
-      
-      // remove temp files
-      unlink($tempfile_alpha);
-      unlink($tempfile_plain);
+  protected function addImagePngAlpha($file, $x, $y, $w, $h, $byte) {
+    // generate images
+    $img = imagecreatefrompng($file);
+    
+    if ($img === false) {
+      return;
     }
+    
+    $wpx = imagesx($img);
+    $hpx = imagesy($img);
+    
+    imagesavealpha($img, false);
+    
+    $imgalpha = imagecreate($wpx, $hpx);
+    imagesavealpha($imgalpha, false);
+    
+    // generate gray scale palette (0 -> 255)
+    for ($c = 0; $c < 256; ++$c) {
+      imagecolorallocate($imgalpha, $c, $c, $c);
+    }
+   
+    // FIXME The pixel transformation doesn't work well with 8bit PNGs
+    $eight_bit = ($byte & 4) !== 4;
+    
+    // allocated colors cache
+    $allocated_colors = array();
+    
+    // extract alpha channel
+    for ($xpx = 0; $xpx < $wpx; ++$xpx) {
+      for ($ypx = 0; $ypx < $hpx; ++$ypx) {
+        $color = imagecolorat($img, $xpx, $ypx);
+        $col = imagecolorsforindex($img, $color);
+        $alpha = $col['alpha'];
+        
+        if ($eight_bit) {
+          // with gamma correction
+          $gammacorr = 2.2;
+          $pixel = pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255;
+        }
+        
+        else {
+          // without gamma correction
+          $pixel = (127 - $alpha) * 2;
+          
+          if ( $alpha != 0 && $alpha != 127 ) {
+            $key = implode("-", array($col['red'], $col['green'], $col['blue']));
+            
+            if (!isset($allocated_colors[$key])) {
+              $pixel_img = imagecolorallocate($img, $col['red'], $col['green'], $col['blue']);
+              $allocated_colors[$key] = $pixel_img;
+            }
+            else {
+              $pixel_img = $allocated_colors[$key]; 
+            }
+            
+            imagesetpixel($img, $xpx, $ypx, $pixel_img);
+          }
+        }
+        
+        imagesetpixel($imgalpha, $xpx, $ypx, $pixel);
+      }
+    }
+      
+    // create temp alpha file
+    $tempfile_alpha = tempnam($this->tmp, "cpdf_img_").'.png';
+    imagepng($imgalpha, $tempfile_alpha);
+    
+    // extract image without alpha channel
+    $imgplain = imagecreatetruecolor($wpx, $hpx);
+    imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
+    
+    // create temp image file
+    $tempfile_plain = tempnam($this->tmp, "cpdf_img_").'.png';
+    imagepng($imgplain, $tempfile_plain);
+    
+    // embed mask image
+    $this->addImagePng($tempfile_alpha, $x, $y, $w, $h, $imgalpha, true);
+    imagedestroy($imgalpha);
+    
+    // embed image, masked with previously embedded mask
+    $this->addImagePng($tempfile_plain, $x, $y, $w, $h, $imgplain, false, true);
+    imagedestroy($imgplain);
+    
+    // remove temp files
+    unlink($tempfile_alpha);
+    unlink($tempfile_plain);
+  }
 
 
   /**
@@ -4199,16 +4222,17 @@ class  Cpdf {
    */
   function addPngFromFile($file, $x, $y, $w =  0, $h =  0) {
     //if already cached, need not to read again
-  	if ( isset($this->imagelist[$file]) ) {
-  	  $img = null;
-  	} 
-  	
-  	else {
-	    $is_alpha = (ord (file_get_contents ($file, false, null, 25, 1)) & 6); // 6 => 32b, 4 => 8b
+    if ( isset($this->imagelist[$file]) ) {
+      $img = null;
+    } 
+    
+    else {
+      $byte = ord (file_get_contents ($file, false, null, 25, 1));
+      $is_alpha = ($byte & 6); // 6 => 32b, 4 => 8b
 
       if ($is_alpha) { // exclude grayscale alpha
-        return $this->addImagePngAlpha($file, $x, $y, $w, $h);
-	    }
+        return $this->addImagePngAlpha($file, $x, $y, $w, $h, $byte);
+      }
 
       //png files typically contain an alpha channel.
       //pdf file format or class.pdf does not support alpha blending.
@@ -4230,9 +4254,9 @@ class  Cpdf {
       imagealphablending($img, true);
       
       // @todo is it still needed ??
-  	  $ti = imagecolortransparent($imgtmp);
-  	  if ($ti >= 0) {
-  	    $tc = imagecolorsforindex($imgtmp,$ti);
+      $ti = imagecolortransparent($imgtmp);
+      if ($ti >= 0) {
+        $tc = imagecolorsforindex($imgtmp,$ti);
         $ti = imagecolorallocate($img,$tc['red'],$tc['green'],$tc['blue']);
         imagefill($img,0,0,$ti);
         imagecolortransparent($img, $ti);
@@ -4251,17 +4275,17 @@ class  Cpdf {
    * add a PNG image into the document, from a memory buffer of the file
    */
   function addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data, $is_mask = false, $mask = null) {
-	if ( isset($this->imagelist[$file]) ) {
+  if ( isset($this->imagelist[$file]) ) {
       //debugpng
       //if (DEBUGPNG) print '[addPngFromBuf Duplicate '.$file.']';
-	  $data = null;
+    $data = null;
       $info['width'] = $this->imagelist[$file]['w'];
       $info['height'] = $this->imagelist[$file]['h'];
       $label = $this->imagelist[$file]['label'];
 
-	} else {
+  } else {
       if ($data == null) {
-      	$this->addMessage('addPngFromBuf error - ('.$imgname.') data not present!');
+        $this->addMessage('addPngFromBuf error - ('.$imgname.') data not present!');
         return;
       }
       //debugpng
@@ -4523,12 +4547,12 @@ class  Cpdf {
       return;
     }
 
-	if ( isset($this->imagelist[$img]) ) {
-	  $data = null;
+  if ( isset($this->imagelist[$img]) ) {
+    $data = null;
       $imageWidth  = $this->imagelist[$img]['w'];
       $imageHeight = $this->imagelist[$img]['h'];
       $channels    = $this->imagelist[$img]['c'];
-	} else {
+  } else {
       $tmp = getimagesize($img);
       $imageWidth  = $tmp[0];
       $imageHeight = $tmp[1];
@@ -4633,7 +4657,7 @@ class  Cpdf {
 
     } else {
       if ($data == null) {
-      	$this->addMessage('addJpegImage_common error - ('.$imgname.') data not present!');
+        $this->addMessage('addJpegImage_common error - ('.$imgname.') data not present!');
         return;
       }
 
