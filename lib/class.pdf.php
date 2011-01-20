@@ -4171,19 +4171,17 @@ class  Cpdf {
           // without gamma correction
           $pixel = (127 - $alpha) * 2;
           
-          if ( $alpha != 0 && $alpha != 127 ) {
-            $key = implode("-", array($col['red'], $col['green'], $col['blue']));
-            
-            if (!isset($allocated_colors[$key])) {
-              $pixel_img = imagecolorallocate($img, $col['red'], $col['green'], $col['blue']);
-              $allocated_colors[$key] = $pixel_img;
-            }
-            else {
-              $pixel_img = $allocated_colors[$key]; 
-            }
-            
-            imagesetpixel($img, $xpx, $ypx, $pixel_img);
+          $key = implode("-", array($col['red'], $col['green'], $col['blue']));
+          
+          if (!isset($allocated_colors[$key])) {
+            $pixel_img = imagecolorallocate($img, $col['red'], $col['green'], $col['blue']);
+            $allocated_colors[$key] = $pixel_img;
           }
+          else {
+            $pixel_img = $allocated_colors[$key]; 
+          }
+          
+          imagesetpixel($img, $xpx, $ypx, $pixel_img);
         }
         
         imagesetpixel($imgalpha, $xpx, $ypx, $pixel);
