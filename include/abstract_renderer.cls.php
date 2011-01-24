@@ -130,7 +130,7 @@ abstract class Abstract_Renderer {
 	//Therefore read dimension directly from file, instead of creating gd object first.
     //$img_w = imagesx($src); $img_h = imagesy($src);
 
-    list($img_w, $img_h) = getimagesize($img);
+    list($img_w, $img_h) = dompdf_getimagesize($img);
     if (!isset($img_w) || $img_w == 0 || !isset($img_h) || $img_h == 0) {
       return;
     }
@@ -285,39 +285,39 @@ abstract class Abstract_Renderer {
 	     method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) &&
 	     method_exists( $this->_canvas->get_cpdf(), "image_iscached" ) &&
 	     $this->_canvas->get_cpdf()->image_iscached($filedummy) ) {
-	  $bg = null;
+       $bg = null;
 
       //debugpng
       //if (DEBUGPNG) print '[_background_image skip]';
-
-	} else {
+	} 
+	
+	else {
 
     // Create a new image to fit over the background rectangle
     $bg = imagecreatetruecolor($bg_width, $bg_height);
+    
     //anyway default
-	//imagealphablending($img, true);
+    //imagealphablending($img, true);
 
     switch (strtolower($ext)) {
-
-    case "png":
-      $src = imagecreatefrompng($img);
-      break;
-
-    case "jpg":
-    case "jpeg":
-      $src = imagecreatefromjpeg($img);
-      break;
-
-    case "gif":
-      $src = imagecreatefromgif($img);
-      break;
-      
-    case "bmp":
-      $src = imagecreatefrombmp($img);
-      break;
-
-    default:
-      return; // Unsupported image type
+      case "png":
+        $src = imagecreatefrompng($img);
+        break;
+  
+      case "jpg":
+      case "jpeg":
+        $src = imagecreatefromjpeg($img);
+        break;
+  
+      case "gif":
+        $src = imagecreatefromgif($img);
+        break;
+        
+      case "bmp":
+        $src = imagecreatefrombmp($img);
+        break;
+  
+      default: return; // Unsupported image type
     }
 
     if ($src == null) {
@@ -329,9 +329,10 @@ abstract class Abstract_Renderer {
     //Transparent image: The image controls the transparency and lets shine through whatever background.
     //However on transparent imaage preset the composed image with the transparency color,
     //to keep the transparency when copying over the non transparent parts of the tiles.
-	$ti = imagecolortransparent($src);
-	if ($ti >= 0) {
-	  $tc = imagecolorsforindex($src,$ti);
+    $ti = imagecolortransparent($src);
+    
+    if ($ti >= 0) {
+      $tc = imagecolorsforindex($src,$ti);
       $ti = imagecolorallocate($bg,$tc['red'],$tc['green'],$tc['blue']);
       imagefill($bg,0,0,$ti);
       imagecolortransparent($bg, $ti);
@@ -355,13 +356,12 @@ abstract class Abstract_Renderer {
       $dst_y = $bg_y;
     }
 
-	//For historical reasons exchange meanings of variables:
-	//start_* will be the start values, while bg_* will be the temporary start values in the loops
+    //For historical reasons exchange meanings of variables:
+    //start_* will be the start values, while bg_* will be the temporary start values in the loops
     $start_x = $bg_x;
     $start_y = $bg_y;
 
     // Copy regions from the source image to the background
-
     if ( $repeat === "no-repeat" ) {
 
       // Simply place the image on the background
@@ -425,35 +425,41 @@ abstract class Abstract_Renderer {
           imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $h);
         }
       }
-    } else {
- print 'Unknown repeat!';
-    }   
+    }
+    
+    else {
+      print 'Unknown repeat!';
+    }
+    
+    imagedestroy($src);
 
     } /* End optimize away creation of duplicates */
 
     //img: image url string
-	//img_w, img_h: original image size in px
-	//width, height: box size in pt
-	//bg_width, bg_height: box size in px
-	//x, y: left/top edge of box on page in pt
-	//start_x, start_y: placement of image relativ to pattern
-	//$repeat: repeat mode
-	//$bg: GD object of result image
-	//$src: GD object of original image
+    //img_w, img_h: original image size in px
+    //width, height: box size in pt
+    //bg_width, bg_height: box size in px
+    //x, y: left/top edge of box on page in pt
+    //start_x, start_y: placement of image relativ to pattern
+    //$repeat: repeat mode
+    //$bg: GD object of result image
+    //$src: GD object of original image
     //When using cpdf and optimization to direct png creation from gd object is available,
     //don't create temp file, but place gd object directly into the pdf
-	if ( method_exists( $this->_canvas, "get_cpdf" ) && method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) ) {
-      //Note: CPDF_Adapter image converts y position
-	  $this->_canvas->get_cpdf()->addImagePng(
-	  		$filedummy,
-			$x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
-	} else {
+    if ( method_exists( $this->_canvas, "get_cpdf" ) && 
+         method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) ) {
+      // Note: CPDF_Adapter image converts y position
+      $this->_canvas->get_cpdf()->addImagePng($filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
+    } 
+    
+    else {
       $tmp_file = tempnam(DOMPDF_TEMP_DIR, "bg_dompdf_img_").'.png';
       //debugpng
       if (DEBUGPNG) print '[_background_image '.$tmp_file.']';
 
       imagepng($bg, $tmp_file);
       $this->_canvas->image($tmp_file, "png", $x, $y, $width, $height);
+      imagedestroy($bg);
 
       //debugpng
       if (DEBUGPNG) print '[_background_image unlink '.$tmp_file.']';

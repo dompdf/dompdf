@@ -707,7 +707,7 @@ class GD_Adapter implements Canvas {
 
     // FIXME: word spacing
     list(,$y2,,,,$y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl");  // Test string with ascenders, descenders and caps
-    return $y2 - $y1;
+    return ($y2 - $y1) * DOMPDF_FONT_HEIGHT_RATIO;
   }
 
   

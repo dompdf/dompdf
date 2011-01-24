@@ -576,7 +576,7 @@ function imagecreatefrombmp($filename) {
   
   // read image header
   $meta += unpack('Vheadersize/Vwidth/Vheight/vplanes/vbits/Vcompression/Vimagesize/Vxres/Vyres/Vcolors/Vimportant', fread($fh, 40));
-
+  
   // read additional bitfield header
   if ($meta['compression'] == 3) {
     $meta += unpack('VrMask/VgMask/VbMask', fread($fh, 12));
@@ -697,6 +697,27 @@ function imagecreatefrombmp($filename) {
   return $im;
   } catch (Exception $e) {var_dump($e);}
 }
+}
+
+/**
+ * getimagesize doesn't give a good size for 32bit BMP image v5
+ * @param string $filename
+ * @return array The same format as getimagesize($filename)
+ */
+function dompdf_getimagesize($filename) {
+  $size = getimagesize($filename);
+  
+  if ( $size[0] == null || $size[1] == null ) {
+    $data = file_get_contents($filename, null, null, 0, 26);
+    
+    if ( substr($data, 0, 2) === "BM" ) {
+      $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
+      $size[0] = (int)$meta['width'];
+      $size[1] = (int)$meta['height'];
+    }
+  }
+  
+  return $size;
 }
 
 /**

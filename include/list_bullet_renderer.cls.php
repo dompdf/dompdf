@@ -119,7 +119,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       // Tested php ver: value measured in px, suffix "px" not in value: rtrim unnecessary.
       //$w = $frame->get_width();
       //$h = $frame->get_height();
-      list($width, $height) = getimagesize($img);
+      list($width, $height) = dompdf_getimagesize($img);
       $w = (((float)rtrim($width, "px")) * 72) / DOMPDF_DPI;
       $h = (((float)rtrim($height, "px")) * 72) / DOMPDF_DPI;
       

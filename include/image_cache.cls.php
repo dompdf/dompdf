@@ -150,7 +150,7 @@ class Image_Cache {
         //- local cached file does not have a matching file extension
         //Therefore get image type from the content
 
-        $imagedim = getimagesize($resolved_url);
+        $imagedim = dompdf_getimagesize($resolved_url);
         
         if( $imagedim[0] && $imagedim[1] && 
             in_array($imagedim[2], array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_BMP)) ) {

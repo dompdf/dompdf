@@ -343,6 +343,11 @@ def("DOMPDF_ENABLE_REMOTE", false);
  * @var string
  */
 def("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR."log.htm");
+
+/**
+ * A ratio applied to the fonts height to be more like browsers' line height
+ */
+def("DOMPDF_FONT_HEIGHT_RATIO", 1.1);
  
 /**
  * DOMPDF autoload function

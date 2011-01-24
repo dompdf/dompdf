@@ -3068,12 +3068,15 @@ class  Cpdf {
       $this->selectFont($this->defaultFont);
     }
     
+    $font = $this->fonts[$this->currentFont];
+    
     // for the current font, and the given size, what is the height of the font in user units
-    $h =  $this->fonts[$this->currentFont]['FontBBox'][3]-$this->fonts[$this->currentFont]['FontBBox'][1];
+    $h =  $font['Ascender']-$font['Descender'];
+    //$h =  $font['FontBBox'][3]-$font['FontBBox'][1];
 
     // have to adjust by a font offset for Windows fonts.  unfortunately it looks like
     // the bounding box calculations are wrong and I don't know why.
-    if (isset($this->fonts[$this->currentFont]['FontHeightOffset'])) {
+    if (isset($font['FontHeightOffset'])) {
       // For CourierNew from Windows this needs to be -646 to match the
       // Adobe native Courier font.
       //
@@ -3081,7 +3084,7 @@ class  Cpdf {
       // Courier font.
       //
       // Both have been added manually to the .afm and .ufm files.
-      $h += (int)$this->fonts[$this->currentFont]['FontHeightOffset'];
+      $h += (int)$font['FontHeightOffset'];
     }
 
     return  $size*$h/1000;
@@ -3602,24 +3605,31 @@ class  Cpdf {
     // calculate the width of each character, add them up and convert to user units
     $w = 0;
     $cf = $this->currentFont;
+    $current_font = $this->fonts[$cf];
     $space_scale = 1000 / $size;
-    if ( $this->fonts[$cf]['isUnicode']) {
+    
+    if ( $current_font['isUnicode']) {
       // for Unicode, use the code points array to calculate width rather
       // than just the string itself
       $unicode = $this->utf8toCodePointsArray($text);
 
       foreach ($unicode as $char) {
         // check if we have to replace character
-        if ( isset($this->fonts[$cf]['differences'][$char]) ) {
-          $char = $this->fonts[$cf]['differences'][$char];
+        if ( isset($current_font['differences'][$char])) {
+          $char = $current_font['differences'][$char];
         }
-        // add the character width
-        if ( isset($this->fonts[$cf]['C'][$char]['WX']) ) {
-          $w+= $this->fonts[$cf]['C'][$char]['WX'];
-        }
-        // add additional padding for space
-        if  ( $this->fonts[$cf]['C'][$char]['N'] == 'space' ) {  // Space
-          $w+= $spacing * $space_scale;
+        
+        if ( isset($current_font['C'][$char]) ) {
+          $char_data = $current_font['C'][$char];
+          
+          // add the character width
+          if ( isset($char_data['WX'])) {
+            $w += $char_data['WX'];
+          }
+          // add additional padding for space
+          if ( $char_data['N'] === 'space' ) {  // Space
+            $w += $spacing * $space_scale;
+          }
         }
       }
 
@@ -3631,13 +3641,14 @@ class  Cpdf {
 
       for ($i = 0; $i < $len; $i++) {
         $char = ord($text[$i]);
+        
         // check if we have to replace character
-        if ( isset($this->fonts[$cf]['differences'][$char])) {
-          $char = $this->fonts[$cf]['differences'][$char];
+        if ( isset($current_font['differences'][$char])) {
+          $char = $current_font['differences'][$char];
         }
         
-        if ( isset($this->fonts[$cf]['C'][$char]) ) {
-          $char_data = $this->fonts[$cf]['C'][$char];
+        if ( isset($current_font['C'][$char]) ) {
+          $char_data = $current_font['C'][$char];
           
           // add the character width
           if ( isset($char_data['WX'])) {
@@ -4081,6 +4092,15 @@ class  Cpdf {
   /**
    * add a PNG image into the document, from a GD object
    * this should work with remote files
+   * 
+   * @param string $file The PNG file
+   * @param float $x X position
+   * @param float $y Y position
+   * @param float $w Width
+   * @param float $h Height
+   * @param resource $img A GD resource
+   * @param bool $is_mask true if the image is a mask
+   * @param bool $mask true if the image is masked
    */
   function addImagePng($file, $x, $y, $w =  0, $h =  0, &$img, $is_mask = false, $mask = null) {
     //if already cached, need not to read again
@@ -4109,7 +4129,7 @@ class  Cpdf {
       ob_start();
       @imagepng($img);
       $data = ob_get_clean();
-
+      
       if ($data == '') {
         $error = 1;
         $errormsg = 'trouble writing file from GD';
@@ -4195,6 +4215,7 @@ class  Cpdf {
     // extract image without alpha channel
     $imgplain = imagecreatetruecolor($wpx, $hpx);
     imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
+    imagedestroy($img);
     
     // create temp image file
     $tempfile_plain = tempnam($this->tmp, "cpdf_img_").'.png';
@@ -4266,6 +4287,7 @@ class  Cpdf {
       imagedestroy($imgtmp);
     }
     $this->addImagePng($file, $x, $y, $w, $h, $img);
+    imagedestroy($img);
   }
 
 
@@ -4273,15 +4295,16 @@ class  Cpdf {
    * add a PNG image into the document, from a memory buffer of the file
    */
   function addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data, $is_mask = false, $mask = null) {
-  if ( isset($this->imagelist[$file]) ) {
+    if ( isset($this->imagelist[$file]) ) {
       //debugpng
       //if (DEBUGPNG) print '[addPngFromBuf Duplicate '.$file.']';
-    $data = null;
+      $data = null;
       $info['width'] = $this->imagelist[$file]['w'];
       $info['height'] = $this->imagelist[$file]['h'];
       $label = $this->imagelist[$file]['label'];
-
-  } else {
+    }
+    
+    else {
       if ($data == null) {
         $this->addMessage('addPngFromBuf error - ('.$imgname.') data not present!');
         return;

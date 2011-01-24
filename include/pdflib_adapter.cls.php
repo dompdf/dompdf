@@ -70,16 +70,6 @@ class PDFLib_Adapter implements Canvas {
                                         // CPDF_Adapter::$PAPER_SIZES below.
 
   /**
-   * Fudge factor to adjust reported font heights
-   *
-   * CPDF reports larger font heights than PDFLib.  This factor
-   * adjusts the height reported by get_font_height().
-   *
-   * @var float
-   */
-  const FONT_HEIGHT_SCALE = 1.2;
-
-  /**
    * Whether to create PDFs in memory or on disk
    *
    * @var bool
@@ -861,7 +851,7 @@ class PDFLib_Adapter implements Canvas {
     $desc = $this->_pdf->get_value("descender", $fh);
 
     // $desc is usually < 0,
-    return self::FONT_HEIGHT_SCALE * $size * ($asc - $desc);
+    return $size * ($asc - $desc) * DOMPDF_FONT_HEIGHT_RATIO;
   }
 
   //........................................................................
