@@ -91,9 +91,10 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     // Account for word-spacing
     $word_spacing = $style->length_in_pt($style->word_spacing);
+    $char_spacing = $style->length_in_pt($style->letter_spacing);
 
     // Determine the frame width including margin, padding & border
-    $text_width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
+    $text_width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing, $char_spacing);
     $mbp_width =
       $style->length_in_pt( array( $style->margin_left,
                                    $style->border_left_width,
@@ -126,7 +127,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // @todo support <shy>, <wbr>
     for ($i = 0; $i < $wc; $i += 2) {
       $word = $words[$i] . (isset($words[$i+1]) ? $words[$i+1] : "");
-      $word_width = Font_Metrics::get_text_width($word, $font, $size, $word_spacing);
+      $word_width = Font_Metrics::get_text_width($word, $font, $size, $word_spacing, $char_spacing);
       if ( $width + $word_width + $mbp_width > $available_width )
         break;
 
@@ -171,6 +172,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $size = $style->font_size;
     $font = $style->font_family;
     $word_spacing = $style->length_in_pt($style->word_spacing);
+    $char_spacing = $style->length_in_pt($style->letter_spacing);
 
     // Determine the text height
     $style->height = Font_Metrics::get_font_height( $font, $size );
@@ -357,7 +359,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $size = $style->font_size;
     $font = $style->font_family;
 
-    $spacing = $style->length_in_pt($style->word_spacing);
+    $word_spacing = $style->length_in_pt($style->word_spacing);
+    $char_spacing = $style->length_in_pt($style->letter_spacing);
 
     switch($style->white_space) {
 
@@ -374,7 +377,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
       // yes I took the time to bench it ;)
       $words = array_flip(preg_split("/[\s-]+/u",$str, -1, PREG_SPLIT_DELIM_CAPTURE));
       array_walk($words, create_function('&$val,$str',
-                                         '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$spacing.');'));
+                                         '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$word_spacing.', '.$char_spacing.');'));
       arsort($words);
       $min = reset($words);
       break;
@@ -382,14 +385,14 @@ class Text_Frame_Reflower extends Frame_Reflower {
     case "pre":
       $lines = array_flip(preg_split("/\n/u", $str));
       array_walk($lines, create_function('&$val,$str',
-                                         '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$spacing.');'));
+                                         '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$word_spacing.', '.$char_spacing.');'));
 
       arsort($lines);
       $min = reset($lines);
       break;
 
     case "nowrap":
-      $min = Font_Metrics::get_text_width($this->_collapse_white_space($str), $font, $size, $spacing);
+      $min = Font_Metrics::get_text_width($this->_collapse_white_space($str), $font, $size, $word_spacing, $char_spacing);
       break;
 
     }
@@ -410,7 +413,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
       // Find the longest word (i.e. minimum length)
       $lines = array_flip(preg_split("/\n/", $text));
       array_walk($lines, create_function('&$val,$str',
-                                         '$val = Font_Metrics::get_text_width($str, "'.$font.'", '.$size.', '.$spacing.');'));
+                                         '$val = Font_Metrics::get_text_width($str, "'.$font.'", '.$size.', '.$word_spacing.', '.$char_spacing.');'));
       arsort($lines);
       reset($lines);
       $str = key($lines);
@@ -418,7 +421,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     }
 
-    $max = Font_Metrics::get_text_width($str, $font, $size, $spacing);
+    $max = Font_Metrics::get_text_width($str, $font, $size, $word_spacing, $char_spacing);
     
     $delta = $style->length_in_pt(array($style->margin_left,
                                         $style->border_left_width,

@@ -243,7 +243,7 @@ interface Canvas {
    * @param array $color
    * @param float $adjust word spacing adjustment
    */
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0);
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0);
 
   /**
    * Add a named destination (similar to <a name="foo">...</a> in html)
@@ -280,7 +280,7 @@ interface Canvas {
    * @param float  $spacing word spacing, if any
    * @return float
    */
-  function get_text_width($text, $font, $size, $spacing = 0);
+  function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0);
 
   /**
    * Calculates font height, in points

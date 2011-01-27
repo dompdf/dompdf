@@ -207,6 +207,12 @@ class  Cpdf {
   public  $wordSpaceAdjust = 0;
 
   /**
+   * used to track the last used value of the inter-letter spacing, this is so that it is known
+   * when the spacing is changed.
+   */
+  public  $charSpaceAdjust = 0;
+  
+  /**
    * the object Id of the procset object
    */
   public  $procsetObjectId;
@@ -3071,8 +3077,12 @@ class  Cpdf {
     $font = $this->fonts[$this->currentFont];
     
     // for the current font, and the given size, what is the height of the font in user units
-    $h =  $font['Ascender']-$font['Descender'];
-    //$h =  $font['FontBBox'][3]-$font['FontBBox'][1];
+    if ( isset($font['Ascender']) && isset($font['Descender']) ) {
+      $h =  $font['Ascender']-$font['Descender'];
+    }
+    else {
+      $h =  $font['FontBBox'][3]-$font['FontBBox'][1];
+    }
 
     // have to adjust by a font offset for Windows fonts.  unfortunately it looks like
     // the bounding box calculations are wrong and I don't know why.
@@ -3464,7 +3474,7 @@ class  Cpdf {
   /**
    * add text to the document, at a specified location, size and angle on the page
    */
-  function addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0) {
+  function addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0, $charSpaceAdjust =  0) {
     if  (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
@@ -3496,8 +3506,13 @@ class  Cpdf {
     }
 
     if  ($wordSpaceAdjust !=  0 ||  $wordSpaceAdjust !=  $this->wordSpaceAdjust) {
-      $this->wordSpaceAdjust =  $wordSpaceAdjust;
+      $this->wordSpaceAdjust =  $wordSpaceAdjust;d($wordSpaceAdjust);
       $this->objects[$this->currentContents]['c'].=  sprintf(" %.3F Tw", $wordSpaceAdjust);
+    }
+
+    if  ($charSpaceAdjust !=  0 ||  $charSpaceAdjust !=  $this->charSpaceAdjust) {
+      $this->charSpaceAdjust =  $charSpaceAdjust;
+      $this->objects[$this->currentContents]['c'].=  sprintf(" %.3F Tc", $charSpaceAdjust);
     }
 
     $len =  mb_strlen($text);
@@ -3588,7 +3603,7 @@ class  Cpdf {
    * calculate how wide a given text string will be on a page, at a given size.
    * this can be called externally, but is alse used by the other class functions
    */
-  function getTextWidth($size, $text, $spacing =  0) {
+  function getTextWidth($size, $text, $word_spacing =  0, $char_spacing =  0) {
     // this function should not change any of the settings, though it will need to
     // track any directives which change during calculation, so copy them at the start
     // and put them back at the end.
@@ -3607,6 +3622,7 @@ class  Cpdf {
     $cf = $this->currentFont;
     $current_font = $this->fonts[$cf];
     $space_scale = 1000 / $size;
+    $n_spaces = 0;
     
     if ( $current_font['isUnicode']) {
       // for Unicode, use the code points array to calculate width rather
@@ -3626,16 +3642,25 @@ class  Cpdf {
           if ( isset($char_data['WX'])) {
             $w += $char_data['WX'];
           }
+          
           // add additional padding for space
           if ( $char_data['N'] === 'space' ) {  // Space
-            $w += $spacing * $space_scale;
+            $w += $word_spacing * $space_scale;
+            $n_spaces++;
           }
         }
+      }
+      
+      // add additionnal char spacing
+      if ( $char_spacing != 0 ) {
+        $w += $char_spacing * $space_scale * (count($unicode) + $n_spaces);
       }
 
     } else {
       // If CPDF is in Unicode mode but the current font does not support Unicode we need to convert the character set to Windows-1252
-      if ($this->isUnicode) { $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8'); }
+      if ( $this->isUnicode ) { 
+        $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+      }
       
       $len = mb_strlen($text, 'Windows-1252');
 
@@ -3654,11 +3679,18 @@ class  Cpdf {
           if ( isset($char_data['WX'])) {
             $w += $char_data['WX'];
           }
+          
           // add additional padding for space
           if ( $char_data['N'] === 'space' ) {  // Space
-            $w += $spacing * $space_scale;
+            $w += $word_spacing * $space_scale;
+            $n_spaces++;
           }
         }
+      }
+      
+      // add additionnal char spacing
+      if ( $char_spacing != 0 )  {
+        $w += $char_spacing * $space_scale * ($len + $n_spaces);
       }
     }
 

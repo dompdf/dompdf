@@ -489,10 +489,17 @@ class Block_Frame_Reflower extends Frame_Reflower {
           foreach($line["frames"] as $frame) {
             if ( !$frame instanceof Text_Frame_Decorator )
               continue;
-
+              
+            $text = $frame->get_text();
+            $spaces = mb_substr_count($text, " ");
+            
+            $char_spacing = $style->length_in_pt($style->letter_spacing);
+            $_spacing = $spacing + $char_spacing;
+            
             $frame->set_position( $frame->get_position("x") + $dx );
-            $frame->set_text_spacing($spacing);
-            $dx += mb_substr_count($frame->get_text(), " ") * $spacing;
+            $frame->set_text_spacing($_spacing);
+            
+            $dx += $spaces * $_spacing;
           }
 
           // The line (should) now occupy the entire width

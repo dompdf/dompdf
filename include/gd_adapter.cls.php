@@ -617,7 +617,7 @@ class GD_Adapter implements Canvas {
    * @param float $adjust word spacing adjustment
    * @param float $angle Text angle
    */
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_spacing = 0, $char_spacing = 0, $angle = 0) {
 
     // Scale by the AA factor
     $x *= $this->_aa_factor;
@@ -682,7 +682,7 @@ class GD_Adapter implements Canvas {
    * @param float  $spacing word spacing, if any
    * @return float
    */
-  function get_text_width($text, $font, $size, $spacing = 0) {    
+  function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {    
 
     if ( strpos($font, '.ttf') === false )
       $font .= ".ttf";

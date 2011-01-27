@@ -884,6 +884,17 @@ class Style {
   }
 
   /**
+   * @link http://www.w3.org/TR/CSS21/text.html#propdef-letter-spacing
+   * @return float
+   */
+  function get_letter_spacing() {
+    if ( $this->_props["letter_spacing"] === "normal" )
+      return 0;
+
+    return $this->_props["letter_spacing"];
+  }
+
+  /**
    * @link http://www.w3.org/TR/CSS21/visudet.html#propdef-line-height
    * @return float
    */

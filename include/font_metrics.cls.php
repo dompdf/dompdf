@@ -121,8 +121,8 @@ class Font_Metrics {
    * @param float  $spacing word spacing, if any
    * @return float
    */
-  static function get_text_width($text, $font, $size, $spacing = 0) {
-    return self::$_pdf->get_text_width($text, $font, $size, $spacing);
+  static function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
+    return self::$_pdf->get_text_width($text, $font, $size, $word_spacing, $char_spacing);
   }
 
   /**

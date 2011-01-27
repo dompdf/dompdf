@@ -91,7 +91,8 @@ class Text_Renderer extends Abstract_Renderer {
     $font = $style->font_family;
     $size = $frame_font_size = $style->font_size;
     $height = $style->height;    
-    $spacing = $frame->get_text_spacing() + $style->word_spacing;
+    $word_spacing = $frame->get_text_spacing() + $style->length_in_pt($style->word_spacing);
+    $char_spacing = $style->length_in_pt($style->letter_spacing);
     $width = $style->width;
 
     /*$text = str_replace(
@@ -102,7 +103,7 @@ class Text_Renderer extends Abstract_Renderer {
     
     $this->_canvas->text($x, $y, $text,
                          $font, $size,
-                         $style->color, $spacing);
+                         $style->color, $word_spacing, $char_spacing);
     
     $line = $frame->get_containing_line();
     
@@ -175,7 +176,7 @@ class Text_Renderer extends Abstract_Renderer {
     
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_LINES) {
       $text_width = Font_Metrics::get_text_width($text, $font, $frame_font_size);
-      $this->_debug_layout(array($x, $y, $text_width+($line["wc"]-1)*$spacing, $frame_font_size), "orange", array(0.5, 0.5));
+      $this->_debug_layout(array($x, $y, $text_width+($line["wc"]-1)*$char_spacing, $frame_font_size), "orange", array(0.5, 0.5));
     }
   }
 }

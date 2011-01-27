@@ -130,11 +130,13 @@ class Text_Frame_Decorator extends Frame_Decorator {
 
   // Set method
   function set_text_spacing($spacing) {
-    $this->_text_spacing = $spacing;
-
     $style = $this->_frame->get_style();
+    
+    $this->_text_spacing = $spacing;
+    $char_spacing = $style->length_in_pt($style->letter_spacing);
+    
     // Re-adjust our width to account for the change in spacing
-    $style->width = Font_Metrics::get_text_width($this->get_text(), $style->font_family, $style->font_size, $spacing);
+    $style->width = Font_Metrics::get_text_width($this->get_text(), $style->font_family, $style->font_size, $spacing, $char_spacing);
   }
 
   //........................................................................
@@ -146,8 +148,9 @@ class Text_Frame_Decorator extends Frame_Decorator {
     $size = $style->font_size;
     $font = $style->font_family;
     $word_spacing = $style->length_in_pt($style->word_spacing);
+    $char_spacing = $style->length_in_pt($style->letter_spacing);
 
-    return $style->width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing);
+    return $style->width = Font_Metrics::get_text_width($text, $font, $size, $word_spacing, $char_spacing);
   }
   
   //........................................................................

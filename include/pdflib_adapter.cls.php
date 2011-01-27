@@ -761,7 +761,7 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_spacing = 0, $char_spacing = 0, $angle = 0) {
     $fh = $this->_load_font($font);
 
     $this->_pdf->setfont($fh, $size);
@@ -769,10 +769,11 @@ class PDFLib_Adapter implements Canvas {
 
     $y = $this->y($y) - Font_Metrics::get_font_height($font, $size);
 
-    $adjust = (float)$adjust;
-    $angle = -(float)$angle;
+    $word_spacing = (float)$word_spacing;
+    $char_spacing = (float)$char_spacing;
+    $angle        = -(float)$angle;
 
-    $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$adjust");
+    $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$word_spacing charspacing=$char_spacing ");
 
   }
 
@@ -830,12 +831,18 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
-  function get_text_width($text, $font, $size, $spacing = 0) {
+  function get_text_width($text, $font, $size, $word_spacing = 0, $letter_spacing = 0) {
     $fh = $this->_load_font($font);
 
     // Determine the additional width due to extra spacing
     $num_spaces = mb_substr_count($text," ");
-    $delta = $spacing * $num_spaces;
+    $delta = $word_spacing * $num_spaces;
+    
+    if ( $letter_spacing ) {
+      $num_chars = mb_strlen($text);
+      $delta += ($num_chars - $num_spaces) * $letter_spacing;
+    }
+    
     return $this->_pdf->stringwidth($text, $fh, $size) + $delta;
   }
 

@@ -676,7 +676,7 @@ class CPDF_Adapter implements Canvas {
 
   //........................................................................
 
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $adjust = 0, $angle = 0) {
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0, $angle = 0) {
     $pdf = $this->_pdf;
     
     $pdf->setColor($color);
@@ -712,10 +712,10 @@ class CPDF_Adapter implements Canvas {
     //
     //print '<pre>['.$font.','.$size.','.$pdf->getFontHeight($size).','.$pdf->getFontDescender($size).','.$pdf->fonts[$pdf->currentFont]['FontBBox'][3].','.$pdf->fonts[$pdf->currentFont]['FontBBox'][1].','.$pdf->fonts[$pdf->currentFont]['FontHeightOffset'].','.$pdf->fonts[$pdf->currentFont]['Ascender'].','.$pdf->fonts[$pdf->currentFont]['Descender'].']</pre>';
     //
-    //$pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $adjust);
-    //$pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $adjust);
-    //$pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size)-$pdf->getFontDescender($size), $size, $text, $angle, $adjust);
-    $pdf->addText($x, $this->y($y) - ($pdf->fonts[$pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $adjust);
+    //$pdf->addText($x, $this->y($y) - Font_Metrics::get_font_height($font, $size), $size, $text, $angle, $word_space, $char_space);
+    //$pdf->addText($x, $this->y($y) - $size, $size, $text, $angle, $word_space, $char_space);
+    //$pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size)-$pdf->getFontDescender($size), $size, $text, $angle, $word_space, $char_space);
+    $pdf->addText($x, $this->y($y) - ($pdf->fonts[$pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $word_space, $char_space);
   }
 
   //........................................................................
@@ -763,12 +763,12 @@ class CPDF_Adapter implements Canvas {
 
   //........................................................................
 
-  function get_text_width($text, $font, $size, $spacing = 0) {
+  function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
     $this->_pdf->selectFont($font);
     if (!DOMPDF_UNICODE_ENABLED) {
     	$text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
     }
-    return $this->_pdf->getTextWidth($size, $text, $spacing);
+    return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
   }
 
   //........................................................................
