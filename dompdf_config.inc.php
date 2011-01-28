@@ -348,6 +348,14 @@ def("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR."log.htm");
  * A ratio applied to the fonts height to be more like browsers' line height
  */
 def("DOMPDF_FONT_HEIGHT_RATIO", 1.1);
+
+/**
+ * Enable CSS float
+ *
+ * Allows people to disabled CSS float support
+ * @var bool
+ */
+def("DOMPDF_ENABLE_CSS_FLOAT", false);
  
 /**
  * DOMPDF autoload function

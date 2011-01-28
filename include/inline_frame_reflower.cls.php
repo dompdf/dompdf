@@ -63,14 +63,10 @@ class Inline_Frame_Reflower extends Frame_Reflower {
       
     $style = $frame->get_style();
     
+    // Generated content
     $this->_set_content();
     
     $frame->position();
-    
-    //FLOAT
-    //if ($style->float !== "none" ) {
-    //  $page->add_floating_frame($child);
-    //}
 
     $cb = $frame->get_containing_block();
 

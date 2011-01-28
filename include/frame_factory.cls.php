@@ -100,7 +100,7 @@ class Frame_Factory {
         $reflower = "Text";
       } 
       else {
-        if ( $style->float !== "none" ) {
+        if ( DOMPDF_ENABLE_CSS_FLOAT && $style->float !== "none" ) {
           $decorator = "Block";
           $reflower = "Block";
         }

@@ -81,7 +81,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // Determine the available width
     $line_width = $this->_frame->get_containing_block("w");
     $current_line_width = $current_line["left"] + $current_line["w"] + $current_line["right"];
-    //$current_line_width = $current_line["left"] + $current_line["reflow_w"] + $current_line["right"];
+    ///$current_line_width = $current_line["left"] + $current_line["reflow_w"] + $current_line["right"];
     
     $available_width = $line_width - $current_line_width;
 
@@ -264,14 +264,14 @@ class Text_Frame_Reflower extends Frame_Reflower {
         // Layout the new line
         $this->_layout_line();
 
-      } else if ( $split < mb_strlen($this->_frame->get_text()) ) {
+      } 
+      
+      else if ( $split < mb_strlen($t = $this->_frame->get_text()) ) {
         
         // split the line if required
         $this->_frame->split_text($split);
 
         // Remove any trailing newlines
-        $t = $this->_frame->get_text();
-
         if ( $split > 1 && $t[$split-1] === "\n" )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
 

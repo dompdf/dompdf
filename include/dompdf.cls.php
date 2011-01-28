@@ -88,7 +88,6 @@
  */
 class DOMPDF {
 
-
   /**
    * DomDocument representing the HTML document
    *
@@ -206,8 +205,6 @@ class DOMPDF {
    */
   function get_tree() { return $this->_tree; }
 
-  //........................................................................
-
   /**
    * Sets the protocol to use
    *
@@ -264,8 +261,6 @@ class DOMPDF {
    * @return array
    */
   function get_callbacks() { return $this->_callbacks; }
-  
-  //........................................................................
 
   /**
    * Loads an HTML file
@@ -480,10 +475,7 @@ class DOMPDF {
 
       $this->_css->load_css($css);
     }
-
   }
-
-  //........................................................................
 
   /**
    * Sets the paper size & orientation
@@ -496,8 +488,6 @@ class DOMPDF {
     $this->_paper_orientation = $orientation;
   }
 
-  //........................................................................
-
   /**
    * Enable experimental caching capability
    * @access private
@@ -505,8 +495,6 @@ class DOMPDF {
   function enable_caching($cache_id) {
     $this->_cache_id = $cache_id;
   }
-
-  //........................................................................
 
   /**
    * Sets callbacks for events like rendering of pages and elements.
@@ -533,8 +521,6 @@ class DOMPDF {
       }
     }
   }
-  
-  //........................................................................
 
   /**
    * Renders the HTML to PDF
@@ -648,8 +634,6 @@ class DOMPDF {
     }
   }
 
-  //........................................................................
-
   /**
    * Add meta information to the PDF after rendering
    */
@@ -657,8 +641,26 @@ class DOMPDF {
     if (!is_null($this->_pdf))
       $this->_pdf->add_info($label, $value);
   }
-  
-  //........................................................................
+
+  /**
+   * Writes the output buffer in the log file
+   * @return void
+   */
+  private function write_log() {
+    if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) return;
+    
+    if ( function_exists("memory_get_peak_usage") ) {
+      $memory = memory_get_peak_usage(true);
+    }
+    else {
+      $memory = memory_get_usage(true);
+    }
+    
+    $memory = number_format($memory/1024);
+    $out = "<span style='color: #C00'>Memory: $memory KB</span><br />";
+    $out .= ob_get_clean();
+    file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
+  }
 
   /**
    * Streams the PDF to the client
@@ -681,10 +683,7 @@ class DOMPDF {
    * @param array  $options header options (see above)
    */
   function stream($filename, $options = null) {
-		if ( DOMPDF_LOG_OUTPUT_FILE ) {
-      $out = ob_get_clean();
-      file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
-		}
+    $this->write_log();
     
     if (!is_null($this->_pdf))
       $this->_pdf->stream($filename, $options);
@@ -705,17 +704,13 @@ class DOMPDF {
    * @return string
    */
   function output($options = null) {
-    if ( DOMPDF_LOG_OUTPUT_FILE ) {
-      $out = ob_get_clean();
-      file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
-    }
+    $this->write_log();
 
     if ( is_null($this->_pdf) )
       return null;
 
     return $this->_pdf->output( $options );
   }
-
 
   /**
    * Returns the underlying HTML document as a string
@@ -725,6 +720,4 @@ class DOMPDF {
   function output_html() {
     return $this->_xml->saveHTML();
   }
-  //........................................................................
-
 }

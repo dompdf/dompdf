@@ -645,17 +645,21 @@ class CPDF_Adapter implements Canvas {
   	      //duplicate will anyway be eliminated.
   	      $img = null;
   	      unset($img);
-  	    } else {
+  	    }
+        else {
   	      $func_name = "imagecreatefrom$img_type";
       	  $img = @$func_name($img_url);
-      	  if (!$img) {
-        	  return;
+      	  if ( !$img ) {
+        	return;
       	  }
       	  imageinterlace($img, false);
       	}
 
       	$this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
-      	imagedestroy($img);
+
+        if ( $img ) {
+      	  imagedestroy($img);
+        }
       } 
       else {
         //debugpng

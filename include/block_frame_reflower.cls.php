@@ -596,6 +596,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( $page->is_full() )
       return;
       
+    // Generated content
     $this->_set_content();
 
     // Collapse margins if required
@@ -658,17 +659,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
       if ( $page->is_full() )
         break;
 
-        /*
-      echo $child;
-      echo("left:".$current_line["left"]);
-      echo("<br />");
-      echo("right:".$current_line["right"]);
-      echo("<br />");
-      echo("<br />");
-      */
-
       // Floating siblings
-      if ( count($floating_children) ) {
+      if ( DOMPDF_ENABLE_CSS_FLOAT && count($floating_children) ) {
         $offset_left = 0;
         $offset_right = 0;
         
@@ -704,34 +696,26 @@ class Block_Frame_Reflower extends Frame_Reflower {
           }
         }
         
-        if ($offset_left/* && !$current_line["left"]*/) 
+        if ( $offset_left ) 
           $this->_frame->set_current_line(array("left" => $offset_left));
           
-        if ($offset_right/* && !$current_line["right"]*/)
+        if ( $offset_right )
           $this->_frame->set_current_line(array("right" => $offset_right));
       }
       
-      $reflowed = false;
-      if ( $this->_frame->get_parent()->get_style()->display === "block" ) {
-        $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-        $child->reflow();
-        $reflowed = true;
-      }
+      $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+      $child->reflow();
       
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
         break;
-
-      if ( !$reflowed ) {
-        $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-        $child->reflow();
-      }
         
-      if ( $child->get_style()->float === "none") {
+      $child_style = $child->get_style();
+      
+      if ( !DOMPDF_ENABLE_CSS_FLOAT || $child_style->float === "none") {
         // If the frame is not absolutely positioned, It's okay to add the frame
         // to the line
-        if ( $child->get_style()->position !== "absolute" &&
-             $child->get_style()->position !== "fixed" ) {
+        if ( !in_array($child_style->position, array("absolute", "fixed")) ) {
           $this->_frame->add_frame_to_line( $child );
         }
       }
@@ -771,7 +755,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style->bottom = $bottom;
 
     $this->_text_align();
-
     $this->vertical_align();
   }
 }

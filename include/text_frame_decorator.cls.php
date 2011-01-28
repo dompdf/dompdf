@@ -184,6 +184,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
     if ( $p instanceof Inline_Frame_Decorator )
       $p->split($deco);
 
+    return $deco;
   }
 
   //........................................................................
