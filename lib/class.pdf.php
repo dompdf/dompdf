@@ -237,7 +237,7 @@ class  Cpdf {
    * The version of the font metrics cache file.
    * This value must be manually incremented whenever the internal font data structure is modified.
    */
-  public  $fontcacheVersion = 2;
+  public  $fontcacheVersion = 4;
 
   /**
    * temporary folder.
@@ -2044,6 +2044,9 @@ class  Cpdf {
       $this->addMessage("openFont: build php file from $dir$metrics_name");
       $data =  array();
       
+      // 20 => 'space'
+      $data['codeToName'] = array(); 
+      
       // Since we're not going to enable Unicode for the core fonts we need to use a font-based
       // setting for Unicode support rather than a global setting.
       $data['isUnicode'] = (strtolower(substr($metrics_name, -3)) !== 'afm');
@@ -2089,82 +2092,89 @@ class  Cpdf {
             $data[$key] = explode(' ', trim(substr($row, $pos)));
             break;
 
+          //C 39 ; WX 222 ; N quoteright ; B 53 463 157 718 ;
           case  'C': // Found in AFM files
-            //C 39 ; WX 222 ; N quoteright ; B 53 463 157 718 ;
             $bits = explode(';', trim($row));
             $dtmp = array();
 
             foreach($bits as  $bit) {
               $bits2 =  explode(' ', trim($bit));
-              if  (mb_strlen($bits2[0], '8bit')) {
-                if  (count($bits2) >2) {
-                  $dtmp[$bits2[0]] = array();
-                  for  ($i = 1;$i<count($bits2);$i++) {
-                    $dtmp[$bits2[0]][] = $bits2[$i];
-                  }
-                } else  if  (count($bits2) == 2) {
-                  $dtmp[$bits2[0]] = $bits2[1];
+              if  (mb_strlen($bits2[0], '8bit') == 0) continue;
+              
+              if  (count($bits2) >2) {
+                $dtmp[$bits2[0]] = array();
+                for  ($i = 1;$i<count($bits2);$i++) {
+                  $dtmp[$bits2[0]][] = $bits2[$i];
                 }
+              } else  if  (count($bits2) == 2) {
+                $dtmp[$bits2[0]] = $bits2[1];
               }
             }
 
-            $cc = (int)$dtmp['C'];
-            if  ($cc >= 0) {
-              $data['C'][$dtmp['C']] = $dtmp;
-              $data['C'][$dtmp['N']] = $dtmp;
+            $c = (int)$dtmp['C'];
+            $n = $dtmp['N'];
+            $width = floatval($dtmp['WX']);
+            
+            if  ($c >= 0) {
+              $data['codeToName'][$c] = $n;
+              $data['C'][$c] = $width;
             } else {
-              $data['C'][$dtmp['N']] = $dtmp;
+              $data['C'][$n] = $width;
             }
 
-            if  (!isset($data['MissingWidth']) && $cc == -1 && $dtmp['N'] === '.notdef') {
+            if  (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
               $data['MissingWidth'] = $width;
             }
             
             break;
 
+          // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
           case  'U': // Found in UFM files
-            if ($data['isUnicode']) {
-              // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
-              $bits = explode(';', trim($row));
-              $dtmp = array();
+            if (!$data['isUnicode']) break;
+            
+            $bits = explode(';', trim($row));
+            $dtmp = array();
 
-              foreach($bits as  $bit) {
-                $bits2 =  explode(' ', trim($bit));
-                if  (mb_strlen($bits2[0], '8bit')) {
-                  if  (count($bits2) >2) {
-                    $dtmp[$bits2[0]] = array();
-                    for  ($i = 1;$i<count($bits2);$i++) {
-                      $dtmp[$bits2[0]][] = $bits2[$i];
-                    }
-                  } else  if  (count($bits2) == 2) {
-                    $dtmp[$bits2[0]] = $bits2[1];
-                  }
-                }
-              }
-
-              $cc = (int)$dtmp['U'];
-              $glyph = $dtmp['G'];
-              $width = $dtmp['WX'];
-              if  ($cc >= 0) {
-                // Set values in CID to GID map
-                if ($cc >= 0 && $cc < 0xFFFF && $glyph) {
-                  $cidtogid[$cc*2] = chr($glyph >> 8);
-                  $cidtogid[$cc*2 + 1] = chr($glyph & 0xFF);
-                }
-
-                $data['C'][$dtmp['U']] = $dtmp;
-                $data['C'][$dtmp['N']] = $dtmp;
-              } else {
-                $data['C'][$dtmp['N']] = $dtmp;
-              }
+            foreach($bits as  $bit) {
+              $bits2 =  explode(' ', trim($bit));
+              if  (mb_strlen($bits2[0], '8bit') === 0) continue;
               
-              if  (!isset($data['MissingWidth']) && $cc == -1 && $dtmp['N'] === '.notdef') {
-                $data['MissingWidth'] = $width;
+              if  (count($bits2) >2) {
+                $dtmp[$bits2[0]] = array();
+                for  ($i = 1;$i<count($bits2);$i++) {
+                  $dtmp[$bits2[0]][] = $bits2[$i];
+                }
+              } else  if  (count($bits2) == 2) {
+                $dtmp[$bits2[0]] = $bits2[1];
               }
             }
+
+            $c = (int)$dtmp['U'];
+            $n = $dtmp['N'];
+            $glyph = $dtmp['G'];
+            $width = floatval($dtmp['WX']);
+            
+            if  ($c >= 0) {
+              // Set values in CID to GID map
+              if ($c >= 0 && $c < 0xFFFF && $glyph) {
+                $cidtogid[$c*2] = chr($glyph >> 8);
+                $cidtogid[$c*2 + 1] = chr($glyph & 0xFF);
+              }
+
+              $data['codeToName'][$c] = $n;
+              $data['C'][$c] = $width;
+            } else {
+              $data['C'][$n] = $width;
+            }
+            
+            if  (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
+              $data['MissingWidth'] = $width;
+            }
+              
             break;
 
           case  'KPX':
+            break; // don't include them as they are not used yet
             //KPX Adieresis yacute -40
             $bits = explode(' ', trim($row));
             $data['KPX'][$bits[1]][$bits[2]] = $bits[3];
@@ -2289,10 +2299,10 @@ class  Cpdf {
                 }
               }
 
-              $widths[] =  $d['WX'];
+              $widths[] =  $d;
 
               if ($this->fonts[$fontName]['isUnicode']) {
-                $cid_widths[$num] =  $d['WX'];
+                $cid_widths[$num] =  $d;
               }
 
               if  ($firstChar ==  -1) {
@@ -2318,9 +2328,9 @@ class  Cpdf {
               }
 
               if  (isset($this->fonts[$fontName]['C'][$charName])) {
-                $widths[$charNum-$firstChar] =  $this->fonts[$fontName]['C'][$charName]['WX'];
+                $widths[$charNum-$firstChar] =  $this->fonts[$fontName]['C'][$charName];
                 if ($this->fonts[$fontName]['isUnicode']) {
-                  $cid_widths[$charName] =  $this->fonts[$fontName]['C'][$charName]['WX'];
+                  $cid_widths[$charName] =  $this->fonts[$fontName]['C'][$charName];
                 }
               }
             }
@@ -3636,15 +3646,13 @@ class  Cpdf {
         }
         
         if ( isset($current_font['C'][$char]) ) {
-          $char_data = $current_font['C'][$char];
+          $char_width = $current_font['C'][$char];
           
           // add the character width
-          if ( isset($char_data['WX'])) {
-            $w += $char_data['WX'];
-          }
+          $w += $char_width;
           
           // add additional padding for space
-          if ( $char_data['N'] === 'space' ) {  // Space
+          if ( $current_font['codeToName'][$char] === 'space' ) {  // Space
             $w += $word_spacing * $space_scale;
             $n_spaces++;
           }
@@ -3673,15 +3681,13 @@ class  Cpdf {
         }
         
         if ( isset($current_font['C'][$char]) ) {
-          $char_data = $current_font['C'][$char];
+          $char_width = $current_font['C'][$char];
           
           // add the character width
-          if ( isset($char_data['WX'])) {
-            $w += $char_data['WX'];
-          }
+          $w += $char_width;
           
           // add additional padding for space
-          if ( $char_data['N'] === 'space' ) {  // Space
+          if ( $current_font['codeToName'][$char] === 'space' ) {  // Space
             $w += $word_spacing * $space_scale;
             $n_spaces++;
           }
@@ -3794,8 +3800,8 @@ class  Cpdf {
           $cOrd2 =  $cOrd;
         }
 
-        if  (isset($this->fonts[$cf]['C'][$cOrd2]['WX'])) {
-          $w+=  $this->fonts[$cf]['C'][$cOrd2]['WX'];
+        if  (isset($this->fonts[$cf]['C'][$cOrd2])) {
+          $w+=  $this->fonts[$cf]['C'][$cOrd2];
         }
 
         if  ($w>$tw) {
@@ -3830,7 +3836,7 @@ class  Cpdf {
               $ctmp =  $this->fonts[$cf]['differences'][$ctmp];
             }
 
-            $tmpw =  ($w-$this->fonts[$cf]['C'][$ctmp]['WX']) *$size/1000;
+            $tmpw =  ($w-$this->fonts[$cf]['C'][$ctmp]) *$size/1000;
             $this->PRVTadjustWrapText($tmp, $tmpw, $width, $x, $adjust, $justification);
 
             // reset the text state
@@ -3858,7 +3864,7 @@ class  Cpdf {
             $ctmp =  $this->fonts[$cf]['differences'][$ctmp];
           }
 
-          $breakWidth =  ($w-$this->fonts[$cf]['C'][$ctmp]['WX']) *$size/1000;
+          $breakWidth =  ($w-$this->fonts[$cf]['C'][$ctmp]) *$size/1000;
         }
       }
     }

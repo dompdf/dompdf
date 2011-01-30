@@ -629,7 +629,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Adjust the first line based on the text-indent property
     $indent = $style->length_in_pt($style->text_indent, $cb["w"]);
     $this->_frame->increase_line_width($indent);
-    //$this->_frame->increase_line_reflow_width($indent);
 
     // Determine the content edge
     $top = $style->length_in_pt(array($style->margin_top,

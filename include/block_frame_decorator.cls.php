@@ -59,7 +59,6 @@ class Block_Frame_Decorator extends Frame_Decorator {
     "wc" => 0,
     "y" => null,
     "w" => 0,
-    "reflow_w" => 0, // used in text frame reflower
     "h" => 0,
     "left" => 0,
     "right" => 0,
@@ -271,10 +270,6 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
   function increase_line_width($w) {
     $this->_lines[ $this->_cl ]["w"] += $w;
-  }
-
-  function increase_line_reflow_width($w) {
-    $this->_lines[ $this->_cl ]["reflow_w"] += $w;
   }
 
   function maximize_line_height($val, Frame $frame) {

@@ -81,7 +81,6 @@ class Text_Frame_Reflower extends Frame_Reflower {
     // Determine the available width
     $line_width = $this->_frame->get_containing_block("w");
     $current_line_width = $current_line["left"] + $current_line["w"] + $current_line["right"];
-    ///$current_line_width = $current_line["left"] + $current_line["reflow_w"] + $current_line["right"];
     
     $available_width = $line_width - $current_line_width;
 
@@ -315,8 +314,6 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     // Set our new width
     $width = $this->_frame->recalculate_width();
-    
-    //$this->_block_parent->increase_line_reflow_width($width);
   }
 
   //........................................................................
