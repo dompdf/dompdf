@@ -241,9 +241,11 @@ interface Canvas {
    * @param string $font the font file to use
    * @param float $size the font size, in points
    * @param array $color
-   * @param float $adjust word spacing adjustment
+   * @param float $word_space word spacing adjustment
+   * @param float $char_space whar spacing adjustment
+   * @param float $angle angle
    */
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0);
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0, $angle = 0);
 
   /**
    * Add a named destination (similar to <a name="foo">...</a> in html)

@@ -58,7 +58,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
     parent::__construct($frame);
   }
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
     $this->_frame->position();
     
     //FLOAT
@@ -69,6 +69,10 @@ class Image_Frame_Reflower extends Frame_Reflower {
     //}
     // Set the frame's width
     $this->get_min_max_width();
+    
+    if ( $block ) {
+      $block->add_frame_to_line($this->_frame);
+    }
   }
 
   function get_min_max_width() {

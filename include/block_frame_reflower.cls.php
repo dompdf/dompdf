@@ -586,7 +586,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
   }
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
 
     // Check if a page break is forced
     $page = $this->_frame->get_root();
@@ -666,7 +666,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         
         // We need to reflow the child to know its initial x position
         $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-        $child->reflow();
+        $child->reflow($this->_frame);
           
         $current_line = $this->_frame->get_current_line();
         
@@ -704,7 +704,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       }
       
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-      $child->reflow();
+      $child->reflow($this->_frame);
       
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
@@ -712,14 +712,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         
       $child_style = $child->get_style();
       
-      if ( !DOMPDF_ENABLE_CSS_FLOAT || $child_style->float === "none") {
-        // If the frame is not absolutely positioned, It's okay to add the frame
-        // to the line
-        if ( !in_array($child_style->position, array("absolute", "fixed")) ) {
-          $this->_frame->add_frame_to_line( $child );
-        }
-      }
-      else {
+      if ( DOMPDF_ENABLE_CSS_FLOAT && $child_style->float !== "none") {
         $floating_children[] = $child;
         
         // Remove next frame's beginning whitespace
@@ -756,5 +749,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     $this->_text_align();
     $this->vertical_align();
+    
+    if ( $block ) {
+      $block->add_frame_to_line($this->_frame);
+    }
   }
 }

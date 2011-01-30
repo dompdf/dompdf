@@ -1843,7 +1843,7 @@ if ( isset($pdf) ) {
     // Mark the document as a duplicate if has been approved
     $watermark = $pdf->open_object();
     $pdf->text(110, $h - 240, "DUPLICATE", Font_Metrics::get_font("verdana", "bold"),
-               110, array(0.5, 0.5, 0.5), 0, -52, "Normal", 0.5);
+               110, array(0.5, 0.5, 0.5), 0, 0, -52);
 
     $text = "Approved: 2004-11-18";
     $width = Font_Metrics::get_text_width($text, $font, $size);

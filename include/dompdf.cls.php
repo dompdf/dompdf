@@ -166,6 +166,13 @@ class DOMPDF {
    * @var string
    */
   protected $_protocol;
+  
+  /**
+   * Timestamp of the script start time
+   * 
+   * @var int 
+   */
+  private $_start_time = null;
 
   /**
    * Class constructor
@@ -184,11 +191,6 @@ class DOMPDF {
     $this->_base_path = "";
     $this->_callbacks = array();
     $this->_cache_id = null;
-    
-    if ( DOMPDF_LOG_OUTPUT_FILE ) {
-      touch(DOMPDF_LOG_OUTPUT_FILE);
-      ob_start();
-    }
   }
   
   /**
@@ -526,6 +528,14 @@ class DOMPDF {
    * Renders the HTML to PDF
    */
   function render() {
+    if ( DOMPDF_LOG_OUTPUT_FILE ) {
+      if ( !file_exists(DOMPDF_LOG_OUTPUT_FILE) && is_writable(dirname(DOMPDF_LOG_OUTPUT_FILE)) ) {
+        touch(DOMPDF_LOG_OUTPUT_FILE);
+      }
+      
+      $this->_start_time = microtime(true);
+      ob_start();
+    }
 
     //enable_mem_profile();
 
@@ -649,15 +659,17 @@ class DOMPDF {
   private function write_log() {
     if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) return;
     
-    if ( function_exists("memory_get_peak_usage") ) {
+    if ( function_exists("memory_get_peak_usage") )
       $memory = memory_get_peak_usage(true);
-    }
-    else {
+    else
       $memory = memory_get_usage(true);
-    }
     
     $memory = number_format($memory/1024);
-    $out = "<span style='color: #C00'>Memory: $memory KB</span><br />";
+    $time = number_format((microtime(true) - $this->_start_time) * 1000, 4);
+    
+    $out = "<span style='color: #900'>$memory KB</span>    ".
+    "<span style='color: #090'>$time ms</span><br />";
+    
     $out .= ob_get_clean();
     file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);
   }

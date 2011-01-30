@@ -51,7 +51,7 @@ class Inline_Frame_Reflower extends Frame_Reflower {
   
   //........................................................................
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
     $frame = $this->_frame;
     
   	// Check if a page break is forced
@@ -84,12 +84,16 @@ class Inline_Frame_Reflower extends Frame_Reflower {
       $l_style->padding_right = $style->padding_right;
       $l_style->border_right  = $style->border_right;
     }
+    
+    if ( $block ) {
+      $block->add_frame_to_line($this->_frame);
+    }
 
     // Set the containing blocks and reflow each child.  The containing
     // block is not changed by line boxes.
     foreach ( $frame->get_children() as $child ) {
       $child->set_containing_block($cb);
-      $child->reflow();
+      $child->reflow($block);
     }
   }
 }

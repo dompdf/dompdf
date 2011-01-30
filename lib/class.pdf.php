@@ -3506,7 +3506,7 @@ class  Cpdf {
     }
 
     if  ($wordSpaceAdjust !=  0 ||  $wordSpaceAdjust !=  $this->wordSpaceAdjust) {
-      $this->wordSpaceAdjust =  $wordSpaceAdjust;d($wordSpaceAdjust);
+      $this->wordSpaceAdjust =  $wordSpaceAdjust;
       $this->objects[$this->currentContents]['c'].=  sprintf(" %.3F Tw", $wordSpaceAdjust);
     }
 

@@ -470,11 +470,11 @@ abstract class Frame_Decorator extends Frame {
 
   final function position() { $this->_positioner->position();  }
   
-  final function reflow() {
+  final function reflow(Frame_Decorator $block = null) {
     // Uncomment this to see the frames before they're laid out, instead of
     // during rendering.
     //echo $this->_frame; flush();
-    $this->_reflower->reflow();
+    $this->_reflower->reflow($block);
   }
 
   final function get_min_max_width() { return $this->_reflower->get_min_max_width(); }

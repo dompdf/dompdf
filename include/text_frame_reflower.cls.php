@@ -321,7 +321,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
   //........................................................................
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
 
     $page = $this->_frame->get_root();
     $page->check_forced_page_break($this->_frame);
@@ -342,7 +342,10 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $this->_frame->position();
 
     $this->_layout_line();
-
+    
+    if ( $block ) {
+      $block->add_frame_to_line($this->_frame);
+    }
   }
 
   //........................................................................

@@ -118,7 +118,7 @@ class Page_Frame_Reflower extends Frame_Reflower {
   
   //........................................................................
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
     $style = $this->_frame->get_style();
     
     // Paged layout:

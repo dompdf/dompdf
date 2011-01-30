@@ -93,16 +93,16 @@ abstract class Frame_Reflower {
 
     // Collapse vertical margins:
     $n = $this->_frame->get_next_sibling();
-    while ( $n && !in_array($n->get_style()->display, Style::$BLOCK_TYPES) )
+    
+    // FIXME If there is a non-empty inline frame between the blocks, it is not taken into account
+    while ( $n && !in_array($n->get_style()->display, Style::$BLOCK_TYPES) ) {
       $n = $n->get_next_sibling();
-
+    }
+    
     if ( $n ) { // && !$n instanceof Page_Frame_Decorator ) {
-
       $b = max($b, $style->length_in_pt($n->get_style()->margin_top, $cb["h"]));
-
       $n->get_style()->margin_top = "0pt";
       $style->margin_bottom = $b."pt";
-
     }
 
     // Collapse our first child's margin
@@ -114,14 +114,14 @@ abstract class Frame_Reflower {
     if ( $f && in_array($f->get_style()->display, Style::$BLOCK_TYPES)) {
       $t = max( $t, $style->length_in_pt($f->get_style()->margin_top, $cb["h"]));
       $style->margin_top = $t."pt";
-      $f->get_style()->margin_top = "0pt";
+      $f->get_style()->margin_bottom = "0pt";
     }
 
   }
 
   //........................................................................
 
-  abstract function reflow();
+  abstract function reflow(Frame_Decorator $block = null);
 
   //........................................................................
 

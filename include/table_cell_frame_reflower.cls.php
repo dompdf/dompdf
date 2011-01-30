@@ -56,7 +56,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
 
   //........................................................................
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
 
     $style = $this->_frame->get_style();
 
@@ -117,9 +117,7 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
         break;
     
       $child->set_containing_block($content_x, $content_y, $cb_w, $h);
-      $child->reflow();
-
-      $this->_frame->add_frame_to_line( $child );
+      $child->reflow($this->_frame);
 
     }
 

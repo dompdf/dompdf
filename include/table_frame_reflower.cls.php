@@ -375,7 +375,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
   }
   //........................................................................
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
     $frame = $this->_frame;
     
     // Check if a page break is forced
@@ -498,6 +498,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     // Debugging:
     //echo ($this->_frame->get_cellmap());
+    
+    if ( $block ) {
+      $block->add_frame_to_line($this->_frame);
+    }
   }
 
   //........................................................................

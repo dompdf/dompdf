@@ -41,6 +41,19 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
       $("iframe, #console").height(height);
     }
 
+    function navigateExamples(way) {
+      var select = $('#examples')[0],
+          n = select.options.length;
+
+      if (way == "previous")
+        select.selectedIndex = (select.selectedIndex - 1) % n;
+      else
+        select.selectedIndex = (select.selectedIndex + 1) % n;
+
+      $('#addressbar').val($("#examples").val());
+      updateAddress();
+    }
+
     $(function(){
       resizePage();
       $(window).resize(resizePage);
@@ -55,6 +68,14 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
       });
 
       $('#addressbar').val($("#examples").val());
+      
+      // Catch F5 to reload the iframes, not the page itself
+      $(document).keydown(function(event) {
+        if (event.which == 116) {
+          event.preventDefault();
+          updateAddress();
+        }
+      });
 		});
 	</script>
 	
@@ -111,11 +132,15 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
   <tr>
     <td colspan="3">
       <button onclick="$('#console').html('')" style="float: right;">Reset</button>
+      
+      <button onclick="navigateExamples('previous')">&lt;</button>
 			<select onchange="$('#addressbar').val($(this).val()); updateAddress()" id="examples">
 				<?php foreach($files as $file) { ?>
 				  <option value="<?php echo basename($file); ?>"><?php echo basename($file); ?></option>
 			  <?php } ?>
 		  </select>
+      <button onclick="navigateExamples('next')">&gt;</button>
+      
       <input id="addressbar" type="text" size="100" value="" />
 			<button onclick="updateAddress()">Go</button>
     </td>

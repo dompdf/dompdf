@@ -146,6 +146,11 @@ class Block_Frame_Decorator extends Frame_Decorator {
   function add_frame_to_line(Frame $frame) {
     $style = $frame->get_style();
     
+    if ( in_array($style->position, array("absolute", "fixed")) ||
+         (DOMPDF_ENABLE_CSS_FLOAT && $style->float !== "none") ) {
+      return;
+    }
+    
     $frame->set_containing_line($this->_lines[$this->_cl]);
     
     /*
@@ -171,12 +176,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
       if ( $frame->get_node()->nodeName === "br" ) {
         $this->maximize_line_height( $style->length_in_pt($style->line_height), $frame );
         $this->add_line(true);
-        return;
       }
-
-      // Add each child of the inline frame to the line individually
-      foreach ($frame->get_children() as $child)
-        $this->add_frame_to_line( $child );
 
       return;
     }

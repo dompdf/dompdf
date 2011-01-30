@@ -51,7 +51,7 @@ class Table_Row_Group_Frame_Reflower extends Frame_Reflower {
     parent::__construct($frame);
   }
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
     $page = $this->_frame->get_root();
 
     $style = $this->_frame->get_style();

@@ -54,7 +54,7 @@ class Table_Row_Frame_Reflower extends Frame_Reflower {
 
   //........................................................................
 
-  function reflow() {
+  function reflow(Frame_Decorator $block = null) {
     $page = $this->_frame->get_root();
 
     if ( $page->is_full() )
