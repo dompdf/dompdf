@@ -167,13 +167,8 @@ h2 {
 }
 
 #content button { 
-  border: 1px dashed #5F83BA;
-  color: #7d7a7a;
+  color: #6d6a6a;
   font-family: 'trebuchet ms', verdana, sans-serif;
-}
-
-#content button:hover { 
-  background: #ccc;
 }
 
 #preview {
@@ -213,7 +208,8 @@ table.setup tr:hover td.ok {
 
 table.setup td.failed,
 table.setup tr:hover td.failed {
-  background-color: #ea8;
+  background-color: #f43;
+	color: white;
 }
 
 table.setup td.warning,

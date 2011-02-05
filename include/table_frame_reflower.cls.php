@@ -90,11 +90,11 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     $width = $style->width;
 
-    // Calcluate padding & border fudge factor
+    // Calculate padding & border fudge factor
     $left = $style->margin_left;
     $right = $style->margin_right;
 
-    $left = $left === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
+    $left  = $left  === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
     $right = $right === "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
 
     $delta = $left + $right + $style->length_in_pt(array($style->padding_left,

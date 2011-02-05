@@ -396,3 +396,27 @@ noembed, noscript, param {
    display: none;
 }
 
+fieldset {
+  display: block;
+  margin-left: 2px;
+  margin-right: 2px;
+  padding: 0.35em 0.625em 0.75em;
+  border: 1pt groove #666;
+}
+
+fieldset > legend {
+  padding-left: 2px;
+  padding-right: 2px;
+  min-width: 1em;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  white-space: nowrap;
+	margin-top: -1.0em;
+	background: white;
+}
+
+legend {
+  display: inline-block;
+}

@@ -746,26 +746,28 @@ class  Cpdf {
         $this->o_contents($toUnicodeId, 'new', 'raw');
         $this->objects[$id]['info']['toUnicode'] = $toUnicodeId;
         
-        $stream =  "/CIDInit /ProcSet findresource begin\n";
-        $stream.=  "12 dict begin\n";
-        $stream.=  "begincmap\n";
-        $stream.=  "/CIDSystemInfo\n";
-        $stream.=  "<</Registry (Adobe)\n";
-        $stream.=  "/Ordering (UCS)\n";
-        $stream.=  "/Supplement 0\n";
-        $stream.=  ">> def\n";
-        $stream.=  "/CMapName /Adobe-Identity-UCS def\n";
-        $stream.=  "/CMapType 2 def\n";
-        $stream.=  "1 begincodespacerange\n";
-        $stream.=  "<0000> <FFFF>\n";
-        $stream.=  "endcodespacerange\n";
-        $stream.=  "1 beginbfrange\n";
-        $stream.=  "<0000> <FFFF> <0000>\n";
-        $stream.=  "endbfrange\n";
-        $stream.=  "endcmap\n";
-        $stream.=  "CMapName currentdict /CMap defineresource pop\n";
-        $stream.=  "end\n";
-        $stream.=  "end\n";
+        $stream =  <<<EOT
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo
+<</Registry (Adobe)
+/Ordering (UCS)
+/Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <FFFF>
+endcodespacerange
+1 beginbfrange
+<0000> <FFFF> <0000>
+endbfrange
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+EOT;
 
         $res =   "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
         $res .=  "stream\n" . $stream . "endstream";
@@ -825,33 +827,33 @@ class  Cpdf {
         $res.=  ">>\n";
         $res.=  "endobj";
       } else {
-      $res =  "\n$id 0 obj\n<< /Type /Font\n/Subtype /".$o['info']['SubType']."\n";
-      $res.=  "/Name /F".$o['info']['fontNum']."\n";
-      $res.=  "/BaseFont /".$o['info']['name']."\n";
-
-      if  (isset($o['info']['encodingDictionary'])) {
-        // then place a reference to the dictionary
-        $res.=  "/Encoding ".$o['info']['encodingDictionary']." 0 R\n";
-      } else  if  (isset($o['info']['encoding'])) {
-        // use the specified encoding
-        $res.=  "/Encoding /".$o['info']['encoding']."\n";
-      }
-
-      if  (isset($o['info']['FirstChar'])) {
-        $res.=  "/FirstChar ".$o['info']['FirstChar']."\n";
-      }
-
-      if  (isset($o['info']['LastChar'])) {
-        $res.=  "/LastChar ".$o['info']['LastChar']."\n";
-      }
-
-      if  (isset($o['info']['Widths'])) {
-        $res.=  "/Widths ".$o['info']['Widths']." 0 R\n";
-      }
-
-      if  (isset($o['info']['FontDescriptor'])) {
-        $res.=  "/FontDescriptor ".$o['info']['FontDescriptor']." 0 R\n";
-      }
+        $res =  "\n$id 0 obj\n<< /Type /Font\n/Subtype /".$o['info']['SubType']."\n";
+        $res.=  "/Name /F".$o['info']['fontNum']."\n";
+        $res.=  "/BaseFont /".$o['info']['name']."\n";
+  
+        if  (isset($o['info']['encodingDictionary'])) {
+          // then place a reference to the dictionary
+          $res.=  "/Encoding ".$o['info']['encodingDictionary']." 0 R\n";
+        } else  if  (isset($o['info']['encoding'])) {
+          // use the specified encoding
+          $res.=  "/Encoding /".$o['info']['encoding']."\n";
+        }
+  
+        if  (isset($o['info']['FirstChar'])) {
+          $res.=  "/FirstChar ".$o['info']['FirstChar']."\n";
+        }
+  
+        if  (isset($o['info']['LastChar'])) {
+          $res.=  "/LastChar ".$o['info']['LastChar']."\n";
+        }
+  
+        if  (isset($o['info']['Widths'])) {
+          $res.=  "/Widths ".$o['info']['Widths']." 0 R\n";
+        }
+  
+        if  (isset($o['info']['FontDescriptor'])) {
+          $res.=  "/FontDescriptor ".$o['info']['FontDescriptor']." 0 R\n";
+        }
 
         $res.=  ">>\n";
         $res.=  "endobj";

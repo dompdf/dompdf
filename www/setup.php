@@ -68,7 +68,7 @@ $server_configs = array(
         echo $server_config["value"];
         if ($server_config["result"] && !$server_config["value"]) echo "Yes";
         if (!$server_config["result"] && isset($server_config["fallback"])) {
-          echo "<div>".$server_config["fallback"]."</div>";
+          echo "<div>No. ".$server_config["fallback"]."</div>";
         }
         ?>
       </td>
@@ -169,6 +169,16 @@ $constants = array(
   "DEBUG_LAYOUT_PADDINGBOX" => array(
     "desc" => "Debug padding boxes layout",
   ),
+  "DOMPDF_LOG_OUTPUT_FILE" => array(
+    "desc" => "The file in which dompdf will write warnings and messages",
+    "success" => "write",
+  ),
+  "DOMPDF_FONT_HEIGHT_RATIO" => array(
+    "desc" => "The line height ratio to apply to get a render like web browsers",
+  ),
+  "DOMPDF_ENABLE_CSS_FLOAT" => array(
+    "desc" => "Enable CSS float support (experimental)",
+  ),
 );
 ?>
 
@@ -184,7 +194,7 @@ $constants = array(
     <tr>
       <td class="title"><?php echo $const; ?></td>
       <td><?php var_export($value); ?></td>
-      <td><?php echo $constants[$const]["desc"] ?></td>
+      <td><?php if (isset($constants[$const]["desc"])) echo $constants[$const]["desc"]; ?></td>
       <td <?php 
         $message = "";
         if (isset($constants[$const]["success"])) {
@@ -225,30 +235,83 @@ $constants = array(
 
 </table>
 
-<h3>Installed fonts</h3>
+<h3>Installed fonts for the Cpdf Backend</h3>
 
 <?php 
 $fonts = Font_Metrics::get_font_families();
+$extensions = array("TTF", "AFM", "AFM.php", "UFM", "UFM.php");
 ?>
 
-<table class="setup">
+<button onclick="$('#clear-font-cache-message').load('controller.php?cmd=clear-font-cache')">Clear font cache</button>
+<span id="clear-font-cache-message"></span>
 
+<table class="setup">
+  <tr>
+    <th rowspan="2">Font family</th>
+    <th rowspan="2">Variants</th>
+    <th colspan="6">File versions</th>
+  </tr>
+  <tr>
+    <th>TTF</th>
+    <th>AFM</th>
+    <th>AFM cache</th>
+    <th>UFM</th>
+    <th>UFM cache</th>
+  </tr>
   <?php foreach($fonts as $family => $variants) { ?>
     <tr>
-      <td class="title">
+      <td class="title" rowspan="<?php echo count($variants); ?>">
         <?php 
           echo $family; 
-          if ($family == DOMPDF_DEFAULT_FONT) echo ' (default)';
+          if ($family == DOMPDF_DEFAULT_FONT) echo ' <strong>(default)</strong>';
         ?>
       </td>
-      <td>
       <?php 
+      $i = 0;
       foreach($variants as $name => $path) {
-        echo "<strong style='width: 10em;'>$name</strong> : $path<br />";
+        if ($i > 0) {
+          echo "<tr>";
+        }
+        
+        echo "
+        <td>
+          <strong style='width: 10em;'>$name</strong> : $path<br />
+        </td>";
+        
+        foreach ($extensions as $ext) {
+          echo "<td style='width: 2em; text-align: center;'>";
+          if (is_readable("$path.$ext")) {
+            // if not cache file
+            if (strpos($ext, ".php") === false) {
+              echo $ext;
+            }
+            
+            // cache file
+            else {
+              // check if old cache format
+              $content = file_get_contents("$path.$ext", null, null, null, 50);
+              if (strpos($content, '$this->')) {
+                echo "DEPREC.";
+              }
+              else {
+                ob_start();
+                $d = include("$path.$ext");
+                ob_end_clean();
+                
+                if ($d == 1)
+                  echo "DEPREC.";
+                else
+                  echo $d["_version_"];
+              }
+            }
+          }
+          echo "</td>";
+        }
+        
+        echo "</tr>";
+        $i++;
       }
       ?>
-      </td>
-    </tr>
   <?php } ?>
 
 </table>

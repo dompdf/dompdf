@@ -13,17 +13,25 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 			var addressbar = $('#addressbar'),
 			    preview = $('#preview'),
           preview_html = $('#preview_html'),
-          address = addressbar.val();
+          address = encodeURI(addressbar.val()),
+          addressHTML = address,
+          addressPDF = address,
+          basePath = "";
+
+      if ( !/[a-z]+:\/\//.test(address) ) {
+        addressHTML = "test/"+address+"?"+(new Date).getTime();
+        basePath = "www/test/";
+      }
 
       // HTML file
       preview_html.attr("src", "about:blank");
-      preview_html.attr("src", "test/"+address+"?"+(new Date).getTime());
+      preview_html.attr("src", addressHTML);
 
 			// PDF file
       preview.attr("src", "about:blank");
 
       setTimeout(function(){
-        address = "../dompdf.php?base_path=www/test/&options[Attachment]=0&input_file="+address+"#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0";
+        address = "../dompdf.php?base_path="+basePath+"&options[Attachment]=0&input_file="+addressPDF+"#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0";
   			preview.attr('src', address);
       }, 0.1);
 		}
