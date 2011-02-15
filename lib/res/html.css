@@ -102,44 +102,37 @@ blockquote[type=cite] {
   border-width: thin;
 }
 
-h1 {
+h1, h2, h3, h4, h5, h6 {
   display: block;
-  font-size: 2em;
   font-weight: bold;
+}
+
+h1 {
+  font-size: 2em;
   margin: .67em 0;
 }
 
 h2 {
-  display: block;
   font-size: 1.5em;
-  font-weight: bold;
   margin: .83em 0;
 }
 
 h3 {
-  display: block;
   font-size: 1.17em;
-  font-weight: bold;
   margin: 1em 0;
 }
 
 h4 {
-  display: block;
-  font-weight: bold;
   margin: 1.33em 0;
 }
 
 h5 {
-  display: block;
   font-size: 0.83em;
-  font-weight: bold;
   margin: 1.67em 0;
 }
 
 h6 {
-  display: block;
   font-size: 0.67em;
-  font-weight: bold;
   margin: 2.33em 0;
 }
 
@@ -243,7 +236,7 @@ th {
 
 /* inlines */
 q {
-	quotes: '"' '"' "'" "'"; /* FIXME only the first level is used */
+  quotes: '"' '"' "'" "'"; /* FIXME only the first level is used */
 }
 
 q:before {
@@ -360,6 +353,43 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
   list-style-type: square;
 }
 
+/* forms */
+
+/*
+input[type=text] {
+	border: 1pt solid black;
+	background-color: white;
+}
+
+input[type=text]:before {
+  content: attr(value);
+}*/
+
+fieldset {
+  display: block;
+  margin-left: 2px;
+  margin-right: 2px;
+  padding: 0.35em 0.625em 0.75em;
+  border: 1pt groove #666;
+}
+
+fieldset > legend {
+  padding-left: 2px;
+  padding-right: 2px;
+  min-width: 1em;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  white-space: nowrap;
+  margin-top: -1.0em;
+  background: white;
+}
+
+legend {
+  display: inline-block;
+}
+
 
 /* leafs */
 
@@ -387,36 +417,11 @@ img, img_generated {
 }
 
 dompdf_generated {
-	display: inline;
+  display: inline;
 }
 
 /* hidden elements */
 area, base, basefont, head, meta, script, style, title,
 noembed, noscript, param {
-   display: none;
-}
-
-fieldset {
-  display: block;
-  margin-left: 2px;
-  margin-right: 2px;
-  padding: 0.35em 0.625em 0.75em;
-  border: 1pt groove #666;
-}
-
-fieldset > legend {
-  padding-left: 2px;
-  padding-right: 2px;
-  min-width: 1em;
-  max-width: none;
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  white-space: nowrap;
-	margin-top: -1.0em;
-	background: white;
-}
-
-legend {
-  display: inline-block;
+  display: none;
 }

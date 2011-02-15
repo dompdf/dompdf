@@ -2118,7 +2118,9 @@ EOT;
             $width = floatval($dtmp['WX']);
             
             if  ($c >= 0) {
-              $data['codeToName'][$c] = $n;
+              if ($c != hexdec($n)) {
+                $data['codeToName'][$c] = $n;
+              }
               $data['C'][$c] = $width;
             } else {
               $data['C'][$n] = $width;
@@ -2162,8 +2164,10 @@ EOT;
                 $cidtogid[$c*2] = chr($glyph >> 8);
                 $cidtogid[$c*2 + 1] = chr($glyph & 0xFF);
               }
-
-              $data['codeToName'][$c] = $n;
+            
+              if ($c != hexdec($n)) {
+                $data['codeToName'][$c] = $n;
+              }
               $data['C'][$c] = $width;
             } else {
               $data['C'][$n] = $width;
@@ -3481,14 +3485,22 @@ EOT;
 
     return  $directive;
   }
+  
+  function toUpper($matches) {
+    return mb_strtoupper($matches[0]);
+  }
 
 
   /**
    * add text to the document, at a specified location, size and angle on the page
    */
-  function addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0, $charSpaceAdjust =  0) {
+  function addText($x, $y, $size, $text, $angle =  0, $wordSpaceAdjust =  0, $charSpaceAdjust =  0, $smallCaps = false) {
     if  (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
+    }
+    
+    if ($smallCaps) {
+      $text = preg_replace_callback("/\p{Ll}/u", array($this, "toUpper"), $text);
     }
 
     // if there are any open callbacks, then they should be called, to show the start of the line
@@ -3654,7 +3666,7 @@ EOT;
           $w += $char_width;
           
           // add additional padding for space
-          if ( $current_font['codeToName'][$char] === 'space' ) {  // Space
+          if ( isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space' ) {  // Space
             $w += $word_spacing * $space_scale;
             $n_spaces++;
           }
@@ -3689,7 +3701,7 @@ EOT;
           $w += $char_width;
           
           // add additional padding for space
-          if ( $current_font['codeToName'][$char] === 'space' ) {  // Space
+          if ( isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space' ) {  // Space
             $w += $word_spacing * $space_scale;
             $n_spaces++;
           }

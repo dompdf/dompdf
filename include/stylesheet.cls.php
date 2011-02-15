@@ -746,6 +746,9 @@ class Stylesheet {
 
       // Locate any additional style attributes
       if ( ($str = $frame->get_node()->getAttribute("style")) !== "" ) {
+        // Destroy CSS comments
+        $str = preg_replace("'/\*.*?\*/'si", "", $str);
+        
         $spec = $this->_specificity("!style attribute");
         $styles[$id][$spec][] = $this->_parse_properties($str);
       }

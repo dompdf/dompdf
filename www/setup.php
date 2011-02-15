@@ -239,7 +239,7 @@ $constants = array(
 
 <?php 
 $fonts = Font_Metrics::get_font_families();
-$extensions = array("TTF", "AFM", "AFM.php", "UFM", "UFM.php");
+$extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
 ?>
 
 <button onclick="$('#clear-font-cache-message').load('controller.php?cmd=clear-font-cache')">Clear font cache</button>
@@ -279,11 +279,14 @@ $extensions = array("TTF", "AFM", "AFM.php", "UFM", "UFM.php");
         </td>";
         
         foreach ($extensions as $ext) {
-          echo "<td style='width: 2em; text-align: center;'>";
+          $v = "";
+          $class = "";
+          
           if (is_readable("$path.$ext")) {
             // if not cache file
             if (strpos($ext, ".php") === false) {
-              echo $ext;
+              $class = "ok";
+              $v = $ext;
             }
             
             // cache file
@@ -291,7 +294,7 @@ $extensions = array("TTF", "AFM", "AFM.php", "UFM", "UFM.php");
               // check if old cache format
               $content = file_get_contents("$path.$ext", null, null, null, 50);
               if (strpos($content, '$this->')) {
-                echo "DEPREC.";
+                $v = "DEPREC.";
               }
               else {
                 ob_start();
@@ -299,13 +302,16 @@ $extensions = array("TTF", "AFM", "AFM.php", "UFM", "UFM.php");
                 ob_end_clean();
                 
                 if ($d == 1)
-                  echo "DEPREC.";
-                else
-                  echo $d["_version_"];
+                  $v = "DEPREC.";
+                else {
+                  $class = "ok";
+                  $v = $d["_version_"];
+                }
               }
             }
           }
-          echo "</td>";
+          
+          echo "<td style='width: 2em; text-align: center;' class='$class'>$v</td>";
         }
         
         echo "</tr>";

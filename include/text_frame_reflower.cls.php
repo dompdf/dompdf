@@ -265,11 +265,12 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
       } 
       
-      else if ( $split < mb_strlen($t = $this->_frame->get_text()) ) {
-        
+      else if ( $split < mb_strlen($this->_frame->get_text()) ) {
         // split the line if required
         $this->_frame->split_text($split);
 
+        $t = $this->_frame->get_text();
+        
         // Remove any trailing newlines
         if ( $split > 1 && $t[$split-1] === "\n" )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
