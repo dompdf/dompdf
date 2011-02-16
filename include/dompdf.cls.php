@@ -178,11 +178,18 @@ class DOMPDF {
    * @var string The system's locale
    */
   private $_system_locale = null;
+  
+  /**
+   * @var bool Tells if the system's locale is the C standard one
+   */
+  private $_locale_standard = false;
 
   /**
    * Class constructor
    */
   function __construct() {
+    $this->_locale_standard = sprintf('%.1f', 1.0) == '1.0';
+    
     $this->save_locale();
     
     $this->_messages = array();
@@ -213,15 +220,19 @@ class DOMPDF {
    * Save the system's locale configuration and 
    * set the right value for numeric formatting
    */
-  private function save_locale(){
-    //$this->_system_locale = setlocale(LC_NUMERIC, "C");
+  private function save_locale() {
+    if ( $this->_locale_standard ) return;
+    
+    $this->_system_locale = setlocale(LC_NUMERIC, "C");
   }
   
   /**
    * Restore the system's locale configuration
    */
-  private function restore_locale(){
-    //setlocale(LC_NUMERIC, $this->_system_locale);
+  private function restore_locale() {
+    if ( $this->_locale_standard ) return;
+    
+    setlocale(LC_NUMERIC, $this->_system_locale);
   }
 
   /**
