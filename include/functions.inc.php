@@ -56,6 +56,7 @@ function def($name, $value = true) {
   }
 }
 
+if ( !function_exists("pre_r") ) {
 /**
  * print_r wrapper for html/cli output
  *
@@ -67,7 +68,6 @@ function def($name, $value = true) {
  * @param bool $return
  *
  */
-if ( !function_exists("pre_r") ) {
 function pre_r($mixed, $return = false) {
   if ($return)
     return "<pre>" . print_r($mixed, true) . "</pre>";
@@ -85,6 +85,7 @@ function pre_r($mixed, $return = false) {
 }
 }
 
+if ( !function_exists("pre_var_dump") ) {
 /**
  * var_dump wrapper for html/cli output
  *
@@ -93,7 +94,6 @@ function pre_r($mixed, $return = false) {
  *
  * @param mixed $mixed variable or expression to display.
  */
-if ( !function_exists("pre_var_dump") ) {
 function pre_var_dump($mixed) {
   if ( php_sapi_name() !== "cli")
     echo("<pre>");
@@ -105,6 +105,7 @@ function pre_var_dump($mixed) {
 }
 }
 
+if ( !function_exists("d") ) {
 /**
  * generic debug function
  *
@@ -112,7 +113,6 @@ function pre_var_dump($mixed) {
  *
  * @param mixed $mixed variable or expression to display.
  */
-if ( !function_exists("d") ) {
 function d($mixed) {
   if ( php_sapi_name() !== "cli")
     echo("<pre>");
@@ -312,21 +312,11 @@ function dec2roman($num) {
 
   $ret = "";
   switch (mb_strlen($num)) {
-
-  case 4:
-    $ret .= $thou[$num[3]];
-
-  case 3:
-    $ret .= $hund[$num[2]];
-
-  case 2:
-    $ret .= $tens[$num[1]];
-
-  case 1:
-    $ret .= $ones[$num[0]];
-
-  default:
-    break;
+    case 4: $ret .= $thou[$num[3]];
+    case 3: $ret .= $hund[$num[2]];
+    case 2: $ret .= $tens[$num[1]];
+    case 1: $ret .= $ones[$num[0]];
+    default: break;
   }
   return $ret;
 
@@ -351,7 +341,7 @@ function parse_data_uri($data_uri) {
     return false;
   }
   
-  $match['data'] = urldecode($match['data']);
+  $match['data'] = rawurldecode($match['data']);
   $result = array(
     'charset' => $match['charset'] ? $match['charset'] : 'US-ASCII',
     'mime'    => $match['mime'] ? $match['mime'] : 'text/plain',
@@ -701,6 +691,7 @@ function imagecreatefrombmp($filename) {
 
 /**
  * getimagesize doesn't give a good size for 32bit BMP image v5
+ * 
  * @param string $filename
  * @return array The same format as getimagesize($filename)
  */
@@ -721,6 +712,8 @@ function dompdf_getimagesize($filename) {
 }
 
 /**
+ * Converts a CMYK color to RGB
+ * 
  * @param int $c
  * @param int $m
  * @param int $y
@@ -851,10 +844,10 @@ function dompdf_debug($type, $msg) {
   }
 }
 
+if ( !function_exists("print_memusage") ) {
 /**
  * Dump memory usage
  */
-if ( !function_exists("print_memusage") ) {
 function print_memusage() {
   global $memusage;
   echo ("Memory Usage\n");
@@ -873,10 +866,10 @@ function print_memusage() {
 }
 }
 
+if ( !function_exists("enable_mem_profile") ) {
 /**
  * Initialize memory profiling code
  */
-if ( !function_exists("enable_mem_profile") ) {
 function enable_mem_profile() {
     global $memusage;
     $memusage = array("Startup" => memory_get_usage());
@@ -884,12 +877,12 @@ function enable_mem_profile() {
 }
 }
 
+if ( !function_exists("mark_memusage") ) {
 /**
  * Record the current memory usage
  *
  * @param string $location a meaningful location
  */
-if ( !function_exists("mark_memusage") ) {
 function mark_memusage($location) {
   global $memusage;
   if ( isset($memusage) )
@@ -897,21 +890,37 @@ function mark_memusage($location) {
 }
 }
 
+if ( !function_exists('sys_get_temp_dir')) {
 /**
  * Find the current system temporary directory
  *
  * @link http://us.php.net/manual/en/function.sys-get-temp-dir.php#85261
  */
-if ( !function_exists('sys_get_temp_dir')) {
-  function sys_get_temp_dir() {
-    if (!empty($_ENV['TMP'])) { return realpath($_ENV['TMP']); }
-    if (!empty($_ENV['TMPDIR'])) { return realpath( $_ENV['TMPDIR']); }
-    if (!empty($_ENV['TEMP'])) { return realpath( $_ENV['TEMP']); }
-    $tempfile=tempnam(uniqid(rand(),TRUE),'');
-    if (file_exists($tempfile)) {
-    unlink($tempfile);
-    return realpath(dirname($tempfile));
-    }
+function sys_get_temp_dir() {
+  if (!empty($_ENV['TMP'])) { return realpath($_ENV['TMP']); }
+  if (!empty($_ENV['TMPDIR'])) { return realpath( $_ENV['TMPDIR']); }
+  if (!empty($_ENV['TEMP'])) { return realpath( $_ENV['TEMP']); }
+  $tempfile=tempnam(uniqid(rand(),TRUE),'');
+  if (file_exists($tempfile)) {
+  unlink($tempfile);
+  return realpath(dirname($tempfile));
+  }
+}
+}
+
+if ( function_exists("memory_get_peak_usage") ) {
+  function DOMPDF_memory_usage(){
+    return memory_get_peak_usage(true);
+  }
+}
+else if ( function_exists("memory_get_peak_usage") ) {
+  function DOMPDF_memory_usage(){
+    return memory_get_usage(true);
+  }
+}
+else {
+  function DOMPDF_memory_usage(){
+    return "N/A";
   }
 }
 

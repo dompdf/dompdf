@@ -173,11 +173,18 @@ class DOMPDF {
    * @var int 
    */
   private $_start_time = null;
+  
+  /**
+   * @var string The system's locale
+   */
+  private $_system_locale = null;
 
   /**
    * Class constructor
    */
   function __construct() {
+    $this->save_locale();
+    
     $this->_messages = array();
     $this->_xml = new DOMDocument();
     $this->_xml->preserveWhiteSpace = true;
@@ -191,6 +198,8 @@ class DOMPDF {
     $this->_base_path = "";
     $this->_callbacks = array();
     $this->_cache_id = null;
+    
+    $this->restore_locale();
   }
   
   /**
@@ -198,6 +207,21 @@ class DOMPDF {
    */
   function __destruct() {
     clear_object($this);
+  }
+  
+  /**
+   * Save the system's locale configuration and 
+   * set the right value for numeric formatting
+   */
+  private function save_locale(){
+    //$this->_system_locale = setlocale(LC_NUMERIC, "C");
+  }
+  
+  /**
+   * Restore the system's locale configuration
+   */
+  private function restore_locale(){
+    //setlocale(LC_NUMERIC, $this->_system_locale);
   }
 
   /**
@@ -209,10 +233,10 @@ class DOMPDF {
 
   /**
    * Sets the protocol to use
-   *
+   * FIXME validate these
+   * 
    * @param string $proto
    */
-  // FIXME: validate these
   function set_protocol($proto) { $this->_protocol = $proto; }
 
   /**
@@ -272,6 +296,8 @@ class DOMPDF {
    * @param string $file a filename or url to load
    */
   function load_html_file($file) {
+    $this->save_locale();
+    
     // Store parsing warnings as messages (this is to prevent output to the
     // browser if the html is ugly and the dom extension complains,
     // preventing the pdf from being streamed.)
@@ -311,6 +337,8 @@ class DOMPDF {
       }
     }
     
+    $this->restore_locale();
+    
     $this->load_html($contents, $encoding);
   }
 
@@ -322,6 +350,8 @@ class DOMPDF {
    * @param string $str HTML text to load
    */
   function load_html($str, $encoding = null) {
+    $this->save_locale();
+    
     // TODO: use the $encoding variable
     // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
     mb_detect_order('auto');
@@ -396,6 +426,8 @@ class DOMPDF {
       $quirksmode = true;
     }
     */
+    
+    $this->restore_locale();
   }
 
   /**
@@ -403,6 +435,8 @@ class DOMPDF {
    * the {@link Frame_Tree}
    */
   protected function _process_html() {
+    $this->save_locale();
+    
     $this->_tree->build_tree();
 
     $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET);
@@ -477,6 +511,8 @@ class DOMPDF {
 
       $this->_css->load_css($css);
     }
+    
+    $this->restore_locale();
   }
 
   /**
@@ -528,6 +564,8 @@ class DOMPDF {
    * Renders the HTML to PDF
    */
   function render() {
+    $this->save_locale();
+    
     if ( DOMPDF_LOG_OUTPUT_FILE ) {
       if ( !file_exists(DOMPDF_LOG_OUTPUT_FILE) && is_writable(dirname(DOMPDF_LOG_OUTPUT_FILE)) ) {
         touch(DOMPDF_LOG_OUTPUT_FILE);
@@ -642,6 +680,8 @@ class DOMPDF {
       echo '</pre>';
       flush();
     }
+    
+    $this->restore_locale();
   }
 
   /**
@@ -659,11 +699,7 @@ class DOMPDF {
   private function write_log() {
     if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) return;
     
-    if ( function_exists("memory_get_peak_usage") )
-      $memory = memory_get_peak_usage(true);
-    else
-      $memory = memory_get_usage(true);
-    
+    $memory = DOMPDF_memory_usage();
     $memory = number_format($memory/1024);
     $time = number_format((microtime(true) - $this->_start_time) * 1000, 4);
     
@@ -695,10 +731,14 @@ class DOMPDF {
    * @param array  $options header options (see above)
    */
   function stream($filename, $options = null) {
+    $this->save_locale();
+    
     $this->write_log();
     
     if (!is_null($this->_pdf))
       $this->_pdf->stream($filename, $options);
+      
+    $this->restore_locale();
   }
 
   /**
@@ -716,12 +756,18 @@ class DOMPDF {
    * @return string
    */
   function output($options = null) {
+    $this->save_locale();
+    
     $this->write_log();
 
     if ( is_null($this->_pdf) )
       return null;
 
-    return $this->_pdf->output( $options );
+    $output = $this->_pdf->output( $options );
+    
+    $this->restore_locale();
+    
+    return $output;
   }
 
   /**

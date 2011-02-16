@@ -2,7 +2,7 @@
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-Javascript test
+  <title>Javascript test</title>
 </head>
 
 <body>
@@ -12,14 +12,12 @@ This page will be printed automatically
 <h1>A title</h1>
   
 <script type="text/javascript">
-if (typeof getPrintParams != "undefined") {
-	var pp = getPrintParams();
-	pp.interactive = pp.constants.interactionLevel.full;
-	print(pp);
-}
-else {
-	window.onload = print;
-}
+	try {
+		this.print();
+	}
+	catch(e) {
+		window.onload = window.print;
+	}
 </script>
 
 </body>

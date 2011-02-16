@@ -124,10 +124,10 @@ abstract class Abstract_Renderer {
     if ( $img === DOMPDF_LIB_DIR . "/res/broken_image.png" )
       return;
 
-	//Try to optimize away reading and composing of same background multiple times
-	//Postponing read with imagecreatefrom   ...()
-	//final composition paramters and name not known yet
-	//Therefore read dimension directly from file, instead of creating gd object first.
+    //Try to optimize away reading and composing of same background multiple times
+    //Postponing read with imagecreatefrom   ...()
+    //final composition paramters and name not known yet
+    //Therefore read dimension directly from file, instead of creating gd object first.
     //$img_w = imagesx($src); $img_h = imagesy($src);
 
     list($img_w, $img_h) = dompdf_getimagesize($img);
@@ -138,8 +138,8 @@ abstract class Abstract_Renderer {
     $repeat = $style->background_repeat;
     $bg_color = $style->background_color;
 
-	//Increase background resolution and dependent box size according to image resolution to be placed in
-	//Then image can be copied in without resize
+    //Increase background resolution and dependent box size according to image resolution to be placed in
+    //Then image can be copied in without resize
     $bg_width = round((float)($width * DOMPDF_DPI) / 72);
     $bg_height = round((float)($height * DOMPDF_DPI) / 72);
 
@@ -189,7 +189,7 @@ abstract class Abstract_Renderer {
         $bg_x = 0;
       }
       if ($bg_width <= 0) {
-      	return;
+          return;
       }
       $width = (float)($bg_width * 72)/DOMPDF_DPI;
     } else {
@@ -217,7 +217,7 @@ abstract class Abstract_Renderer {
         $bg_y = 0;
       }
       if ($bg_height <= 0) {
-      	return;
+          return;
       }
       $height = (float)($bg_height * 72)/DOMPDF_DPI;
     } else {
@@ -244,54 +244,54 @@ abstract class Abstract_Renderer {
       $repeat = "no-repeat";
     }
 
-	//Use filename as indicator only
-	//different names for different variants to have different copies in the pdf
-	//This is not dependent of background color of box! .'_'.(is_array($bg_color) ? $bg_color["hex"] : $bg_color)
-	//Note: Here, bg_* are the start values, not end values after going through the tile loops!
+    //Use filename as indicator only
+    //different names for different variants to have different copies in the pdf
+    //This is not dependent of background color of box! .'_'.(is_array($bg_color) ? $bg_color["hex"] : $bg_color)
+    //Note: Here, bg_* are the start values, not end values after going through the tile loops!
 
-	$filedummy = $img;
+    $filedummy = $img;
 
     /* 
-    //Make shorter strings with limited characters for cache associative array index - needed?	
-	//Strip common base path - server root, explicite temp, default temp; remove unwanted characters;
-	$filedummy = strtr($filedummy,"\\:","//");
-	$p = strtr($_SERVER["DOCUMENT_ROOT"],"\\:","//");
-	$l = strlen($p);
-	if ( substr($filedummy,0,$l) == $p) {
-	  $filedummy = substr($filedummy,$l);
-	} else {
+    //Make shorter strings with limited characters for cache associative array index - needed?    
+    //Strip common base path - server root, explicite temp, default temp; remove unwanted characters;
+    $filedummy = strtr($filedummy,"\\:","//");
+    $p = strtr($_SERVER["DOCUMENT_ROOT"],"\\:","//");
+    $l = strlen($p);
+    if ( substr($filedummy,0,$l) == $p) {
+      $filedummy = substr($filedummy,$l);
+    } else {
       $p = strtr(DOMPDF_TEMP_DIR,"\\:","//");
-	  $l = strlen($p);
-	  if ( substr($filedummy,0,$l) == $p) {
-	    $filedummy = substr($filedummy,$l);
-	  } else {
+      $l = strlen($p);
+      if ( substr($filedummy,0,$l) == $p) {
+        $filedummy = substr($filedummy,$l);
+      } else {
         $p = strtr(sys_get_temp_dir(),"\\:","//");
-	    $l = strlen($p);
-	    if ( substr($filedummy,0,$l) == $p) {
-	      $filedummy = substr($filedummy,$l);
-	    }
-	  }
-	}
-	*/
-	
-	$filedummy .= '_'.$bg_width.'_'.$bg_height.'_'.$bg_x.'_'.$bg_y.'_'.$repeat;
+        $l = strlen($p);
+        if ( substr($filedummy,0,$l) == $p) {
+          $filedummy = substr($filedummy,$l);
+        }
+      }
+    }
+    */
+    
+    $filedummy .= '_'.$bg_width.'_'.$bg_height.'_'.$bg_x.'_'.$bg_y.'_'.$repeat;
     //debugpng
     //if (DEBUGPNG) print '<pre>[_background_image name '.$filedummy.']</pre>';
 
     //Optimization to avoid multiple times rendering the same image.
     //If check functions are existing and identical image already cached,
     //then skip creation of duplicate, because it is not needed by addImagePng
-	if ( method_exists( $this->_canvas, "get_cpdf" ) &&
-	     method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) &&
-	     method_exists( $this->_canvas->get_cpdf(), "image_iscached" ) &&
-	     $this->_canvas->get_cpdf()->image_iscached($filedummy) ) {
+    if ( method_exists( $this->_canvas, "get_cpdf" ) &&
+         method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) &&
+         method_exists( $this->_canvas->get_cpdf(), "image_iscached" ) &&
+         $this->_canvas->get_cpdf()->image_iscached($filedummy) ) {
        $bg = null;
 
       //debugpng
       //if (DEBUGPNG) print '[_background_image skip]';
-	} 
-	
-	else {
+    } 
+    
+    else {
 
     // Create a new image to fit over the background rectangle
     $bg = imagecreatetruecolor($bg_width, $bg_height);
