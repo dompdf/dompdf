@@ -304,8 +304,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
         $t = rtrim($t);
       }
       
-      if ((!$is_inline_frame && !$this->_frame->get_prev_sibling()) || 
-          ( $is_inline_frame && !$parent->get_prev_sibling())) {
+      if ((!$is_inline_frame && !$this->_frame->get_prev_sibling())/* || 
+          ( $is_inline_frame && !$parent->get_prev_sibling())*/) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
       	$t = ltrim($t);
       }
       

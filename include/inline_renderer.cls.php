@@ -190,7 +190,7 @@ class Inline_Renderer extends Abstract_Renderer {
     
     // Handle anchors & links
     if ( $node->nodeName === "a" ) {
-      if ( $name = $node->getAttribute("name") )
+      if ( ($name = $node->getAttribute("name")) || ($name = $node->getAttribute("id")) )
         $this->_canvas->add_named_dest($name);
 
       if ( $href = $node->getAttribute("href") )

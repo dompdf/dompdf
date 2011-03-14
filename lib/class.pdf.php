@@ -1216,6 +1216,8 @@ EOT;
       $res = "\n$id 0 obj\n<< /Type /Action";
       switch ($o['type']) {
       case  'ilink':
+        if (!isset($this->destinations[(string)$o['info']['label']])) break;
+        
         // there will be an 'label' setting, this is the name of the destination
         $res.= "\n/S /GoTo\n/D ".$this->destinations[(string)$o['info']['label']]." 0 R";
         break;
