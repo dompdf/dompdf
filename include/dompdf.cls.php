@@ -166,6 +166,14 @@ class DOMPDF {
    * @var string
    */
   protected $_protocol;
+
+  /**
+   * HTTP context created with stream_context_create()
+   * Will be used for file_get_contents
+   *
+   * @var resource 
+   */
+  protected $_http_context;
   
   /**
    * Timestamp of the script start time
@@ -196,13 +204,14 @@ class DOMPDF {
     $this->_xml = new DOMDocument();
     $this->_xml->preserveWhiteSpace = true;
     $this->_tree = new Frame_Tree($this->_xml);
-    $this->_css = new Stylesheet();
+    $this->_css = new Stylesheet($this);
     $this->_pdf = null;
     $this->_paper_size = "letter";
     $this->_paper_orientation = "portrait";
     $this->_base_protocol = "";
     $this->_base_host = "";
     $this->_base_path = "";
+    $this->_http_context = null;
     $this->_callbacks = array();
     $this->_cache_id = null;
     
@@ -263,7 +272,14 @@ class DOMPDF {
    * @param string $path
    */
   function set_base_path($path) { $this->_base_path = $path; }
-
+  
+  /**
+   * Sets the HTTP context
+   *
+   * @param resource $http_context
+   */
+  function set_http_context($http_context) { $this->_http_context = $http_context; }
+  
   /**
    * Returns the protocol in use
    *
@@ -284,6 +300,13 @@ class DOMPDF {
    * @return string
    */
   function get_base_path() { return $this->_base_path; }
+  
+  /**
+   * Returns the HTTP context
+   *
+   * @return resource
+   */
+  function get_http_context() { return $this->_http_context; }
 
   /**
    * Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)
@@ -335,7 +358,7 @@ class DOMPDF {
       $file = $realfile;
     }
 
-    $contents = file_get_contents($file);
+    $contents = file_get_contents($file, null, $this->_http_context);
     $encoding = null;
 
     // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/

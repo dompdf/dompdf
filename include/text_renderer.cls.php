@@ -109,11 +109,11 @@ class Text_Renderer extends Abstract_Renderer {
     
     // FIXME Instead of using the tallest frame to position,
     // the decoration, the text should be well placed
-    if ( false && $line["tallest_frame"] ) {
-      $base_frame = $line["tallest_frame"];
+    if ( false && $line->tallest_frame ) {
+      $base_frame = $line->tallest_frame;
       $style = $base_frame->get_style();
       $size = $style->font_size;
-      $height = $line["h"] * ($size / $style->line_height);
+      $height = $line->h * ($size / $style->line_height);
     }
     
     if ( method_exists( $this->_canvas, "get_cpdf" ) ) {
@@ -146,7 +146,7 @@ class Text_Renderer extends Abstract_Renderer {
       if ( ($text_deco = $f->get_style()->text_decoration) === "none" )
         continue;
         
-      $deco_y = $y; //$line["y"];
+      $deco_y = $y; //$line->y;
       $color = $f->get_style()->color;
 
       switch ($text_deco) {
@@ -176,7 +176,7 @@ class Text_Renderer extends Abstract_Renderer {
     
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_LINES) {
       $text_width = Font_Metrics::get_text_width($text, $font, $frame_font_size);
-      $this->_debug_layout(array($x, $y, $text_width+($line["wc"]-1)*$word_spacing, $frame_font_size), "orange", array(0.5, 0.5));
+      $this->_debug_layout(array($x, $y, $text_width+($line->wc-1)*$word_spacing, $frame_font_size), "orange", array(0.5, 0.5));
     }
   }
 }

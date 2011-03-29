@@ -69,7 +69,7 @@ class Inline_Positioner extends Positioner {
     
     $cb = $f->get_containing_block();
     $style = $f->get_style();
-    $line = $p->get_current_line();
+    $line = $p->get_current_line_box();
 
     // Skip the page break if in a fixed position element
     $is_fixed = false;
@@ -91,12 +91,12 @@ class Inline_Positioner extends Positioner {
       $height = $style->length_in_pt($style->height, $initialcb["h"]);
       
       // If the frame doesn't fit in the current line, a line break occurs
-      if ( $min_max["min"] > ($cb["w"]-$line["left"]-$line["w"]-$line["right"]) ) {
+      if ( $min_max["min"] > ($cb["w"] - $line->left - $line->w - $line->right) ) {
         $p->add_line();
       }
     }
 
-    $this->_frame->set_position($cb["x"] + $line["w"], $line["y"]);
+    $this->_frame->set_position($cb["x"] + $line->w, $line->y);
 
   }
 }

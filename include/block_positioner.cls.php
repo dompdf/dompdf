@@ -63,7 +63,7 @@ class Block_Positioner extends Positioner {
       if ( !DOMPDF_ENABLE_CSS_FLOAT || !$float || $float === "none" ) {
         $p->add_line();
       }
-      $y = $p->get_current_line("y");
+      $y = $p->get_current_line_box()->y;
       
     } else
       $y = $cb["y"];

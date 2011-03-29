@@ -186,15 +186,15 @@ class Renderer extends Abstract_Renderer {
       $child_style = $child->get_style();
       
       // Stacking context
-      if ( $child_style->z_index !== false && ($child_style->z_index !== "auto" || in_array($child_style->position, Style::$POSITIONNED_TYPES)) ) {
+      /*if ( $child_style->z_index !== false && ($child_style->z_index !== "auto" || in_array($child_style->position, Style::$POSITIONNED_TYPES)) ) {
         $z_index = ($child_style->z_index === "auto") ? 0 : intval($child_style->z_index);
         $page->add_frame_to_stacking_context($child, $z_index);
         $child_style->z_index = false;
       }
       
-      else {
+      else {*/
         $this->render($child);
-      }
+      //}
     }
       
     // Ends the overflow: hidden box

@@ -75,6 +75,12 @@ class Stylesheet {
   const DEFAULT_STYLESHEET = __DEFAULT_STYLESHEET; 
 
   /**
+   * Current dompdf instance
+   * @var DOMPDF
+   */
+  private $_dompdf;
+  
+  /**
    * Array of currently defined styles
    * @var array
    */
@@ -135,7 +141,8 @@ class Stylesheet {
    * The base protocol, host & path are initialized to those of
    * the current script.
    */
-  function __construct() {
+  function __construct(DOMPDF $dompdf) {
+    $this->_dompdf = $dompdf;
     $this->_styles = array();
     $this->_loaded_files = array();
     list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($_SERVER["SCRIPT_FILENAME"]);
@@ -281,7 +288,7 @@ class Stylesheet {
       $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
 
     set_error_handler("record_warnings");
-    $css = file_get_contents($file);
+    $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
     restore_error_handler();
 
     if ( $css == "" ) {
@@ -743,6 +750,10 @@ class Stylesheet {
 
       // Handle HTML 4.0 attributes
       Attribute_Translator::translate_attributes($frame);
+      if ( ($str = $frame->get_node()->getAttribute(Attribute_Translator::$_style_attr)) !== "" ) {
+        // Lowest specificity 
+        $styles[$id][1][] = $this->_parse_properties($str);
+      }
 
       // Locate any additional style attributes
       if ( ($str = $frame->get_node()->getAttribute("style")) !== "" ) {

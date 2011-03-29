@@ -153,6 +153,10 @@ class Frame {
    */
   protected $_decorator;
   
+  /**
+   * This frame's containing line box
+   * @var Line_Box
+   */
   protected $_containing_line;
   
   /**
@@ -335,8 +339,9 @@ class Frame {
    * @return array|float
    */
   function get_containing_block($i = null) {
-    if ( isset($i) )
-      return $this->_containing_block[$i];    
+    if ( isset($i) ) {
+      return $this->_containing_block[$i];  
+    }  
     return $this->_containing_block;
   }
   
@@ -484,6 +489,9 @@ class Frame {
     return $this->_opacity;
   }
   
+  /**
+   * @return Line_Box
+   */
   function &get_containing_line() {
     return $this->_containing_line;
   }
@@ -556,7 +564,7 @@ class Frame {
     $this->_opacity = $base_opacity * $opacity;
   }
   
-  function set_containing_line(&$line) {
+  function set_containing_line(Line_Box &$line) {
     $this->_containing_line = &$line;
   }
 
@@ -791,8 +799,8 @@ class Frame {
 
     if ( $this->_decorator instanceof Block_Frame_Decorator ) {
       $str .= "Lines:<pre>";
-      foreach ($this->_decorator->get_lines() as $line) {
-        foreach ($line["frames"] as $frame) {
+      foreach ($this->_decorator->get_line_boxes() as $line) {
+        foreach ($line->get_frames() as $frame) {
           if ($frame instanceof Text_Frame_Decorator) {
             $str .= "\ntext: ";          
             $str .= "'". htmlspecialchars($frame->get_text()) ."'";
@@ -802,12 +810,11 @@ class Frame {
         }
         
         $str .=
-          //"\ncount => " . $line["count"] . "\n".
-          "\ny => " . $line["y"] . "\n" .
-          "w => " . $line["w"] . "\n" .
-          "h => " . $line["h"] . "\n" .
-          "left => " . $line["left"] . "\n" .
-          "right => " . $line["right"] . "\n";
+          "\ny => " . $line->y . "\n" .
+          "w => " . $line->w . "\n" .
+          "h => " . $line->h . "\n" .
+          "left => " . $line->left . "\n" .
+          "right => " . $line->right . "\n";
       }
       $str .= "</pre>";
     }

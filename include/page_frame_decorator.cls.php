@@ -347,7 +347,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
       // Rule C
       $block_parent = $frame->find_block_parent();
-      if ( count($block_parent->get_lines() ) < $frame->get_style()->orphans ) {
+      if ( count($block_parent->get_line_boxes() ) < $frame->get_style()->orphans ) {
           dompdf_debug("page-break", "orphans");
         return false;
       }

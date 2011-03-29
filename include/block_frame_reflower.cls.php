@@ -54,6 +54,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
    */
   protected $_frame;
   
+  protected $_floating_children;
+  
   function __construct(Block_Frame_Decorator $frame) { parent::__construct($frame); }
 
   /**
@@ -233,8 +235,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
   protected function _calculate_content_height() {
     $height = 0;
     
-    foreach ($this->_frame->get_lines() as $line) {
-      $height += $line["h"];
+    foreach ($this->_frame->get_line_boxes() as $line) {
+      $height += $line->h;
     }
 
     return $height;
@@ -427,21 +429,21 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     default:
     case "left":
-      foreach ($this->_frame->get_lines() as $line) {
-        if ( !$line["left"] ) continue;
-        foreach($line["frames"] as $frame) {
+      foreach ($this->_frame->get_line_boxes() as $line) {
+        if ( !$line->left ) continue;
+        foreach($line->get_frames() as $frame) {
           if ( $frame instanceof Block_Frame_Decorator) continue;
-          $frame->set_position( $frame->get_position("x") + $line["left"] );
+          $frame->set_position( $frame->get_position("x") + $line->left );
         }
       }
       return;
 
     case "right":
-      foreach ($this->_frame->get_lines() as $line) {
+      foreach ($this->_frame->get_line_boxes() as $line) {
         // Move each child over by $dx
-        $dx = $width - $line["w"] - $line["right"];
+        $dx = $width - $line->w - $line->right;
         
-        foreach($line["frames"] as $frame) {
+        foreach($line->get_frames() as $frame) {
           // Block frames are not aligned by text-align
           if ($frame instanceof Block_Frame_Decorator) continue;
           
@@ -453,11 +455,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     case "justify":
       // We justify all lines except the last one
-      $lines = $this->_frame->get_lines(); // needs to be a variable (strict standards)
+      $lines = $this->_frame->get_line_boxes(); // needs to be a variable (strict standards)
       $lines = array_splice($lines, 0, -1);
       
       foreach($lines as $i => $line) {
-        if ( $line["br"] ) {
+        if ( $line->br ) {
           unset($lines[$i]);
         }
       }
@@ -466,12 +468,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
       
       foreach ($lines as $i => $line) {
-        if ( $line["left"] ) {
-          foreach($line["frames"] as $frame) {
+        if ( $line->left ) {
+          foreach($line->get_frames() as $frame) {
             if ( !$frame instanceof Text_Frame_Decorator )
               continue;
   
-            $frame->set_position( $frame->get_position("x") + $line["left"] );
+            $frame->set_position( $frame->get_position("x") + $line->left );
           }
         }
           
@@ -480,13 +482,13 @@ class Block_Frame_Reflower extends Frame_Reflower {
         //if ( $line["left"] + $line["w"] + $line["right"] > self::MIN_JUSTIFY_WIDTH * $width ) {
           
           // Set the spacing for each child
-          if ( $line["wc"] > 1 )
-            $spacing = ($width - ($line["left"] + $line["w"] + $line["right"]) + $space_width) / ($line["wc"] - 1);
+          if ( $line->wc > 1 )
+            $spacing = ($width - ($line->left + $line->w + $line->right) + $space_width) / ($line->wc - 1);
           else
             $spacing = 0;
 
           $dx = 0;
-          foreach($line["frames"] as $frame) {
+          foreach($line->get_frames() as $frame) {
             if ( !$frame instanceof Text_Frame_Decorator )
               continue;
               
@@ -511,11 +513,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     case "center":
     case "centre":
-      foreach ($this->_frame->get_lines() as $line) {
+      foreach ($this->_frame->get_line_boxes() as $line) {
         // Centre each line by moving each frame in the line by:
-        $dx = ($width + $line["left"] - $line["w"] - $line["right"] ) / 2;
+        $dx = ($width + $line->left - $line->w - $line->right ) / 2;
         
-        foreach ($line["frames"] as $frame) {
+        foreach ($line->get_frames() as $frame) {
           // Block frames are not aligned by text-align
           if ($frame instanceof Block_Frame_Decorator) continue;
           
@@ -532,11 +534,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
    */
   function vertical_align() {
     
-    foreach ( $this->_frame->get_lines() as $i => $line ) {
+    foreach ( $this->_frame->get_line_boxes() as $line ) {
 
-      $height = $line["h"];
+      $height = $line->h;
     
-      foreach ( $line["frames"] as $frame ) {
+      foreach ( $line->get_frames() as $frame ) {
         $style = $frame->get_style();
 
         if ( $style->display !== "inline" && $style->display !== "text" )
@@ -549,7 +551,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
           $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
           
         $frame_h = $frame->get_margin_height();
-        $y = $line["y"];
+        $y = $line->y;
         
         switch ($align) {
 
@@ -584,6 +586,47 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
       }
     }
+  }
+  
+  function get_float_offsets($frame, $w) {
+    if ( !DOMPDF_ENABLE_CSS_FLOAT || !count($this->_floating_children) ) return;
+    
+    $offset_left = 0;
+    $offset_right = 0;
+      
+    $current_line = $this->_frame->get_current_line_box();
+    
+    foreach ( $this->_floating_children as $child_key => $floating_child ) {
+      $float = $floating_child->get_style()->float;
+      $floating_width = $floating_child->get_margin_width();
+      $floating_x = $floating_child->get_position("x");
+      
+      if ( $float === "left" ) {
+        if ($current_line->left + $current_line->w > $floating_x + $floating_width) continue;
+      }
+      else {
+        if ($current_line->left + $current_line->w + $frame->get_margin_width() < $w - $floating_width - $current_line->right) continue;
+      }
+      
+      // If the child is still shifted by the floating element
+      if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line->y ) {
+        if ( $float === "left" )
+          $offset_left += $floating_width;
+        else
+          $offset_right += $floating_width;
+      }
+      
+      // else, the floating element won't shift anymore
+      else {
+        unset($this->_floating_children[$child_key]);
+      }
+    }
+    
+    if ( $offset_left ) 
+      $this->_frame->set_current_line(array("left" => $offset_left));
+      
+    if ( $offset_right )
+      $this->_frame->set_current_line(array("right" => $offset_right));
   }
 
   function reflow(Frame_Decorator $block = null) {
@@ -649,7 +692,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Set the y position of the first line in this block
     $this->_frame->set_current_line($cb_y);
     
-    $floating_children = array();
+    $this->_floating_children = array();
     
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
@@ -657,53 +700,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
       // Bail out if the page is full
       if ( $page->is_full() )
         break;
-
-      // Floating siblings
-      if ( DOMPDF_ENABLE_CSS_FLOAT && count($floating_children) ) {
-        $offset_left = 0;
-        $offset_right = 0;
-        
-        // We need to reflow the child to know its initial x position
-        $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-        $child->reflow($this->_frame);
-          
-        $current_line = $this->_frame->get_current_line();
-        
-        foreach ( $floating_children as $child_key => $floating_child ) {
-          $float = $floating_child->get_style()->float;
-          $floating_width = $floating_child->get_margin_width();
-          $floating_x = $floating_child->get_position("x");
-          
-          if ( $float === "left" ) {
-            if ($current_line["left"] + $child->get_position("x") > $floating_x + $floating_width) continue;
-          }
-          else {
-            if ($current_line["left"] + $child->get_position("x") + $child->get_margin_width() < $w - $floating_width - $current_line["right"]) continue;
-          }
-          
-          // If the child is still shifted by the floating element
-          if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line["y"] ) {
-            if ( $float === "left" )
-              $offset_left += $floating_width;
-            else
-              $offset_right += $floating_width;
-          }
-          
-          // else, the floating element won't shift anymore
-          else {
-            unset($floating_children[$child_key]);
-          }
-        }
-        
-        if ( $offset_left ) 
-          $this->_frame->set_current_line(array("left" => $offset_left));
-          
-        if ( $offset_right )
-          $this->_frame->set_current_line(array("right" => $offset_right));
-      }
+      
+      $this->get_float_offsets($child, $w);
       
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-      $child->reflow($this->_frame);
+      $child->reflow($this->_frame); // << must check in the reflower for offsets in new lines after split !!
       
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
@@ -712,7 +713,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $child_style = $child->get_style();
       
       if ( DOMPDF_ENABLE_CSS_FLOAT && $child_style->float !== "none") {
-        $floating_children[] = $child;
+        $this->_floating_children[] = $child;
         
         // Remove next frame's beginning whitespace
         $next = $child->get_next_sibling();
@@ -721,9 +722,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         }
         
         $float_x = $cb_x;
-        $float_y = $this->_frame->get_current_line("y");
-        
-        $child_style = $child->get_style();
+        $float_y = $this->_frame->get_current_line_box()->y;
         
         switch( $child_style->float ) {
           case "left": break;

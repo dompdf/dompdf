@@ -113,8 +113,8 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
       }
    
       // Move our children
-      foreach ( $this->get_lines() as $i => $line ) {
-        foreach ( $line["frames"] as $frame )
+      foreach ( $this->get_line_boxes() as $i => $line ) {
+        foreach ( $line->get_frames() as $frame )
           $frame->set_position( null, $frame->get_position("y") + $delta );
       }
    }

@@ -70,7 +70,7 @@ class List_Bullet_Positioner extends Positioner {
 
     $p = $this->_frame->find_block_parent();
 
-    $y = $p->get_current_line("y");
+    $y = $p->get_current_line_box()->y;
 
     // This is a bit of a hack...
     $n = $this->_frame->get_next_sibling();

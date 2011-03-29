@@ -65,7 +65,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
   protected function _collapse_white_space($text) {
     //$text = $this->_frame->get_text();
-//     if ( $this->_block_parent->get_current_line("w") == 0 )
+//     if ( $this->_block_parent->get_current_line_box->w == 0 )
 //       $text = ltrim($text, " \n\r\t");
     return preg_replace(self::$_whitespace_pattern, " ", $text);
   }
@@ -76,11 +76,11 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $size = $style->font_size;
     $font = $style->font_family;
-    $current_line = $this->_block_parent->get_current_line();
+    $current_line = $this->_block_parent->get_current_line_box();
     
     // Determine the available width
     $line_width = $this->_frame->get_containing_block("w");
-    $current_line_width = $current_line["left"] + $current_line["w"] + $current_line["right"];
+    $current_line_width = $current_line->left + $current_line->w + $current_line->right;
     
     $available_width = $line_width - $current_line_width;
 
@@ -331,7 +331,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     // Left trim the text if this is the first text on the line and we're
     // collapsing white space
-//     if ( $this->_block_parent->get_current_line("w") == 0 &&
+//     if ( $this->_block_parent->get_current_line()->w == 0 &&
 //          ($this->_frame->get_style()->white_space !== "pre" ||
 //           $this->_frame->get_style()->white_space !== "pre-wrap") ) {
 //       $this->_frame->set_text( ltrim( $this->_frame->get_text() ) );

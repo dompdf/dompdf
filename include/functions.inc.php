@@ -118,12 +118,8 @@ function d($mixed) {
     echo("<pre>");
     
   // line
-  if (is_array($mixed) && array_key_exists("tallest_frame", $mixed)) {
-    echo "<strong>LINE</strong>:\n";
-    foreach($mixed as $key => $value) {
-      if (is_array($value) || is_object($value)) continue;
-      echo "  $key:\t".var_export($value,true)."\n";
-    }
+  if ($mixed instanceof Line_Box) {
+    echo $mixed;
   }
   
   // other

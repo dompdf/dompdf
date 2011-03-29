@@ -59,7 +59,7 @@ if ( function_exists("spl_autoload_register") ) {
   $funcs = spl_autoload_functions();
   
   // No functions currently in the stack. 
-  if ( !DOMPDF_AUTOLOAD_PREPEND || $funcs === false ) { 
+  if ( !DOMPDF_AUTOLOAD_PREPEND || $funcs === false ) {
     spl_autoload_register($autoload); 
   }
   
