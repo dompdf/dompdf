@@ -49,7 +49,9 @@
  */
 abstract class Positioner {
   
-  // protected members
+  /**
+   * @var Frame_Decorator
+   */
   protected $_frame;
   
   //........................................................................

@@ -534,6 +534,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
    */
   function vertical_align() {
     
+    $canvas = null;
+    
     foreach ( $this->_frame->get_line_boxes() as $line ) {
 
       $height = $line->h;
@@ -553,22 +555,28 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $frame_h = $frame->get_margin_height();
         $y = $line->y;
         
+        if ( !isset($canvas) ) {
+          $canvas = $frame->get_root()->get_dompdf()->get_canvas();
+        }
+        
+        $baseline = $canvas->get_font_baseline($style->font_family, $style->font_size);
+        
         switch ($align) {
 
         case "baseline":
-          $y += $height - $frame_h;
+          $y += $height*0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
           break;
 
         case "middle":
-          $y += ($height + $frame_h) / 2;
+          $y += ($height*0.8 - $baseline) / 2;
           break;
 
         case "sub":
-          $y += 0.2 * $height;
+          $y += 0.3 * $height;
           break;
 
         case "super":
-          $y += -0.3 * $height;
+          $y += -0.2 * $height;
           break;
 
         case "text-top":
@@ -577,7 +585,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
         case "text-bottom":
         case "bottom":
-          $y += $height - $frame_h;
+          $y += $height*0.8 - $baseline;
           break;
         }
 

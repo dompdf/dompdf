@@ -781,6 +781,10 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->selectFont($font);
     return $this->_pdf->getFontHeight($size) * DOMPDF_FONT_HEIGHT_RATIO;
   }
+  
+  function get_font_baseline($font, $size) {
+    return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO;
+  }
 
   //........................................................................
   

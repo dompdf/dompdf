@@ -293,6 +293,8 @@ interface Canvas {
    */
   function get_font_height($font, $size);
   
+  function get_font_baseline($font, $size);
+  
   /**
    * Sets the opacity
    *

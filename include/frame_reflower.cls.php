@@ -93,30 +93,48 @@ abstract class Frame_Reflower {
 
     // Collapse vertical margins:
     $n = $this->_frame->get_next_sibling();
-    
-    // FIXME If there is a non-empty inline frame between the blocks, it is not taken into account
-    while ( $n && !in_array($n->get_style()->display, Style::$BLOCK_TYPES) ) {
-      $n = $n->get_next_sibling();
+    if ( $n && !in_array($n->get_style()->display, Style::$BLOCK_TYPES) ) {
+      while ( $n = $n->get_next_sibling() ) {
+        if ( in_array($n->get_style()->display, Style::$BLOCK_TYPES) ) {
+          break;
+        }
+        
+        if ( !$n->get_first_child() ) {
+          $n = null;
+          break;
+        }
+      }
     }
     
-    if ( $n ) { // && !$n instanceof Page_Frame_Decorator ) {
-      $b = max($b, $style->length_in_pt($n->get_style()->margin_top, $cb["h"]));
-      $n->get_style()->margin_top = "0pt";
+    if ( $n ) {
+      $n_style = $n->get_style();
+      $b = max($b, $n_style->length_in_pt($n_style->margin_top, $cb["h"]));
+      $n_style->margin_top = "0pt";
       $style->margin_bottom = $b."pt";
     }
 
     // Collapse our first child's margin
-    $f = $this->_frame->get_first_child();
-    while ( $f && !in_array($f->get_style()->display, Style::$BLOCK_TYPES) )
-      $f = $f->get_next_sibling();
-
-    // Margin are collapsed only between block elements
-    if ( $f && in_array($f->get_style()->display, Style::$BLOCK_TYPES)) {
-      $t = max( $t, $style->length_in_pt($f->get_style()->margin_top, $cb["h"]));
-      $style->margin_top = $t."pt";
-      $f->get_style()->margin_bottom = "0pt";
+    /*$f = $this->_frame->get_first_child();
+    if ( $f && !in_array($f->get_style()->display, Style::$BLOCK_TYPES) ) {
+      while ( $f = $f->get_next_sibling() ) {
+        if ( in_array($f->get_style()->display, Style::$BLOCK_TYPES) ) {
+          break;
+        }
+        
+        if ( !$f->get_first_child() ) {
+          $f = null;
+          break;
+        }
+      }
     }
 
+    // Margin are collapsed only between block elements
+    if ( $f ) {
+      $f_style = $f->get_style();
+      $t = max($t, $f_style->length_in_pt($f_style->margin_top, $cb["h"]));
+      $style->margin_top = $t."pt";
+      $f_style->margin_bottom = "0pt";
+    }*/
   }
 
   //........................................................................

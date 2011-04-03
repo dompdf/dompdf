@@ -85,7 +85,7 @@ abstract class Frame_Decorator extends Frame {
   /**
    * First block parent
    * 
-   * @var Frame_Decorator
+   * @var Block_Frame_Decorator
    */
   private $_block_parent;
   
@@ -388,7 +388,7 @@ abstract class Frame_Decorator extends Frame {
   //........................................................................
 
   /**
-   * @return Frame_Decorator
+   * @return Block_Frame_Decorator
    */
   function find_block_parent() {
     //if ( $this->_block_parent ) return $this->_block_parent; // FIXME: makes dom_anchor_link example fail

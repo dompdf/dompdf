@@ -709,7 +709,10 @@ class GD_Adapter implements Canvas {
     list(,$y2,,,,$y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl");  // Test string with ascenders, descenders and caps
     return ($y2 - $y1) * DOMPDF_FONT_HEIGHT_RATIO;
   }
-
+  
+  function get_font_baseline($font, $size) {
+    return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO;
+  }
   
   /**
    * Starts a new page

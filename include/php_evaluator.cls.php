@@ -47,6 +47,9 @@
  */
 class PHP_Evaluator {
   
+  /**
+   * @var Canvas
+   */
   protected $_canvas;
 
   function __construct(Canvas $canvas) {
@@ -64,9 +67,10 @@ class PHP_Evaluator {
     
     // Override those variables if passed in
     foreach ($vars as $k => $v) {
-        $$k = $v;
+      $$k = $v;
     }
 
+    //$code = html_entity_decode($code); // @todo uncomment this when tested
     eval(utf8_decode($code)); 
   }
 

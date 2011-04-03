@@ -860,6 +860,10 @@ class PDFLib_Adapter implements Canvas {
     // $desc is usually < 0,
     return $size * ($asc - $desc) * DOMPDF_FONT_HEIGHT_RATIO;
   }
+  
+  function get_font_baseline($font, $size) {
+    return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO * 1.1;
+  }
 
   //........................................................................
 

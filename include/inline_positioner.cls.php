@@ -51,7 +51,10 @@ class Inline_Positioner extends Positioner {
   //........................................................................
 
   function position() {
-    // Find our nearest block level parent and access its lines property.
+    /**
+     * Find our nearest block level parent and access its lines property.
+     * @var Block_Frame_Decorator
+     */ 
     $p = $this->_frame->find_block_parent();
 
     // Debugging code:
@@ -68,7 +71,6 @@ class Inline_Positioner extends Positioner {
     $f = $this->_frame;
     
     $cb = $f->get_containing_block();
-    $style = $f->get_style();
     $line = $p->get_current_line_box();
 
     // Skip the page break if in a fixed position element
@@ -87,16 +89,14 @@ class Inline_Positioner extends Positioner {
          $f->get_node()->nodeName === "#text" ) {
       
       $min_max = $f->get_reflower()->get_min_max_width();
-      $initialcb = $f->get_root()->get_containing_block();
-      $height = $style->length_in_pt($style->height, $initialcb["h"]);
       
       // If the frame doesn't fit in the current line, a line break occurs
       if ( $min_max["min"] > ($cb["w"] - $line->left - $line->w - $line->right) ) {
         $p->add_line();
       }
     }
-
-    $this->_frame->set_position($cb["x"] + $line->w, $line->y);
+    
+    $f->set_position($cb["x"] + $line->w, $line->y);
 
   }
 }
