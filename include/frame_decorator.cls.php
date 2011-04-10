@@ -373,6 +373,9 @@ abstract class Frame_Decorator extends Frame {
       $this->_frame->set_reflower( $reflower );
   }
   
+  /**
+   * @return Frame_Reflower
+   */
   function get_reflower() { return $this->_reflower; }
   
   //........................................................................
@@ -452,6 +455,8 @@ abstract class Frame_Decorator extends Frame {
 
     $split = $this->copy( $this->_frame->get_node()->cloneNode() );
     $split->reset();
+    $split->get_original_style()->text_indent = 0;
+    
     $this->get_parent()->insert_child_after($split, $this);
 
     // Add $frame and all following siblings to the new split node

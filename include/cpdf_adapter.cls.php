@@ -222,7 +222,6 @@ class CPDF_Adapter implements Canvas {
 
     $this->_width = $size[2] - $size[0];
     $this->_height= $size[3] - $size[1];
-    $this->_pdf->openHere('Fit');
     
     $this->_page_number = $this->_page_count = 1;
     $this->_page_text = array();
@@ -471,6 +470,12 @@ class CPDF_Adapter implements Canvas {
   function set_opacity($opacity, $mode = "Normal") {
     $this->_set_line_transparency($mode, $opacity);
     $this->_set_fill_transparency($mode, $opacity);
+  }
+  
+  function set_default_view($view, $options = array()) {
+    array_unshift($options, $view);
+    $currentPage = $this->_pdf->currentPage;
+    call_user_func_array(array($this->_pdf, "openHere"), $options);
   }
   
   //........................................................................

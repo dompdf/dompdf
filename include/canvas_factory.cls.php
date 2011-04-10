@@ -54,6 +54,13 @@ class Canvas_Factory {
    */
   private function __construct() { }
 
+  /**
+   * @param string|array $paper
+   * @param string $orientation
+   * @param string $class
+   * 
+   * @return Canvas
+   */
   static function get_instance($paper = null, $orientation = null,  $class = null) {
 
     $backend = strtolower(DOMPDF_PDF_BACKEND);
@@ -68,7 +75,7 @@ class Canvas_Factory {
     else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
       $class = "CPDF_Adapter";
 
-    else if ( ( $backend === "tcpdf") )
+    else if ( $backend === "tcpdf")
       $class = "TCPDF_Adapter";
       
     else if ( $backend === "gd" )

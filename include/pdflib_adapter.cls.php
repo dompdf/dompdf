@@ -543,6 +543,22 @@ class PDFLib_Adapter implements Canvas {
       $this->_pdf->set_gstate($gstate);
     }
   }
+  
+  function set_default_view($view, $options = array()) {
+    // TODO
+    // http://www.pdflib.com/fileadmin/pdflib/pdf/manuals/PDFlib-8.0.2-API-reference.pdf
+    /**
+     * fitheight Fit the page height to the window, with the x coordinate left at the left edge of the window.
+     * fitrect Fit the rectangle specified by left, bottom, right, and top to the window.
+     * fitvisible Fit the visible contents of the page (the ArtBox) to the window.
+     * fitvisibleheight Fit the visible contents of the page to the window with the x coordinate left at the left edge of the window.
+     * fitvisiblewidth Fit the visible contents of the page to the window with the y coordinate top at the top edge of the window.
+     * fitwidth Fit the page width to the window, with the y coordinate top at the top edge of the window.
+     * fitwindow Fit the complete page to the window.
+     * fixed
+     */
+    //$this->_pdf->set_parameter("openaction", $view);
+  }
 
   /**
    * Loads a specific font and stores the corresponding descriptor.

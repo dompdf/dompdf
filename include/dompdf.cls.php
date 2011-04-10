@@ -191,6 +191,16 @@ class DOMPDF {
    * @var bool Tells if the system's locale is the C standard one
    */
   private $_locale_standard = false;
+  
+  /**
+   * @var string The default view of the PDF in the viewer
+   */
+  private $_default_view = "Fit";
+  
+  /**
+   * @var array The default view options of the PDF in the viewer
+   */
+  private $_default_view_options = array();
 
   /**
    * Class constructor
@@ -279,6 +289,16 @@ class DOMPDF {
    * @param resource $http_context
    */
   function set_http_context($http_context) { $this->_http_context = $http_context; }
+  
+  /**
+   * Sets the default view
+   *
+   * @param string $default_view
+   */
+  function set_default_view($default_view, $options) { 
+    $this->_default_view = $default_view;
+    $this->_default_view_options = $options; 
+  }
   
   /**
    * Returns the protocol in use
@@ -593,6 +613,20 @@ class DOMPDF {
       }
     }
   }
+  
+  function parse_default_view($value) {
+    $valid = array("XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV");
+    
+    $options = preg_split("/\s*,\s*/", trim($value));
+    $default_view = array_shift($options);
+    
+    if ( !in_array($default_view, $valid) ) {
+      return false;
+    }
+    
+    $this->set_default_view($default_view, $options);
+    return true;
+  }
 
   /**
    * Renders the HTML to PDF
@@ -691,8 +725,15 @@ class DOMPDF {
     );
     foreach($metas as $meta) {
       $name = mb_strtolower($meta->getAttribute("name"));
+      $value = trim($meta->getAttribute("content"));
+      
       if ( isset($labels[$name]) ) {
-        $this->_pdf->add_info($labels[$name], trim($meta->getAttribute("content")));
+        $this->_pdf->add_info($labels[$name], $value);
+        continue;
+      }
+      
+      if ( $name === "dompdf.view" && $this->parse_default_view($value) ) {
+        $this->_pdf->set_default_view($this->_default_view, $this->_default_view_options);
       }
     }
     

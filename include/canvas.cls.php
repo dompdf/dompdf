@@ -305,6 +305,22 @@ interface Canvas {
   function set_opacity($opacity, $mode = "Normal");
   
   /**
+   * Sets the default view
+   *
+   * @param string $view
+   * 
+   * 'XYZ'  left, top, zoom
+   * 'Fit'
+   * 'FitH' top
+   * 'FitV' left
+   * 'FitR' left,bottom,right
+   * 'FitB'
+   * 'FitBH' top
+   * 'FitBV' left
+   */
+  function set_default_view($view, $options = array());
+  
+  /**
    * Starts a new page
    *
    * Subsequent drawing operations will appear on the new page.
