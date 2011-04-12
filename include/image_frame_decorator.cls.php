@@ -66,6 +66,13 @@ class Image_Frame_Decorator extends Frame_Decorator {
    * @var string
    */
   protected $_image_ext;
+  
+  /**
+   * The image's file error message
+   *
+   * @var string
+   */
+  protected $_image_msg;
 
   /**
    * Class constructor
@@ -82,7 +89,7 @@ class Image_Frame_Decorator extends Frame_Decorator {
     //debugpng
     if (DEBUGPNG) print '[__construct '.$url.']';
 
-    list($this->_image_url, $this->_image_ext) = Image_Cache::resolve_url($url,
+    list($this->_image_url, $this->_image_ext, $this->_image_msg) = Image_Cache::resolve_url($url,
                                                                           $dompdf->get_protocol(),
                                                                           $dompdf->get_host(),
                                                                           $dompdf->get_base_path());
@@ -111,6 +118,15 @@ class Image_Frame_Decorator extends Frame_Decorator {
    */
   function get_image_ext() {
     return $this->_image_ext;
+  }
+
+  /**
+   * Return the image's error message
+   *
+   * @return string The image's error message
+   */
+  function get_image_msg() {
+    return $this->_image_msg;
   }
   
 }

@@ -327,7 +327,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     if ( $page->is_full() )
       return;
 
-    $this->_block_parent = $this->_frame->find_block_parent();
+    $this->_block_parent = /*isset($block) ? $block : */$this->_frame->find_block_parent();
 
     // Left trim the text if this is the first text on the line and we're
     // collapsing white space

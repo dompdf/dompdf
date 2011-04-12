@@ -85,6 +85,16 @@ class Image_Renderer extends Block_Renderer {
       $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h);
     }
     
+    if ( $msg = $frame->get_image_msg() ) {
+      $parts = preg_split("/\s*\n\s*/", $msg);
+      $height = 10;
+      $_y = $alt ? $y+$h-count($parts)*$height : $y;
+      
+      foreach($parts as $i => $_part) {
+        $this->_canvas->text($x, $_y + $i*$height, $_part, "times", $height*0.8, array(0.5, 0.5, 0.5));
+      }
+    }
+    
     if (DEBUG_LAYOUT && DEBUG_LAYOUT_BLOCKS) {
       $this->_debug_layout($frame->get_border_box(), "blue");
       if (DEBUG_LAYOUT_PADDINGBOX) {

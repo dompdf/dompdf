@@ -83,6 +83,7 @@ class Image_Cache {
     global $_dompdf_warnings;
 
     $parsed_url = explode_url($url);
+    $message = null;
 
     $DEBUGPNG=DEBUGPNG; //=DEBUGPNG; Allow override of global setting for ad hoc debug
     $full_url_dbg = '';
@@ -98,6 +99,7 @@ class Image_Cache {
     if ( !DOMPDF_ENABLE_REMOTE && $remote && !$datauri ) {
       $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
       $ext = "png";
+      $message = "DOMPDF_ENABLE_REMOTE is set to FALSE \n $url";
 
       //debugpng
       if ($DEBUGPNG) $full_url_dbg = '(blockedremote)';
@@ -135,7 +137,13 @@ class Image_Cache {
           //target image not found
           $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
           $ext = "png";
-
+          if ( $datauri ) {
+            $message = "Data-URI could not be parsed";
+          }
+          else {
+            $message = "Image not found \n $full_url";
+          }
+          
           //debugpng
           if ($DEBUGPNG) $full_url_dbg = $full_url.'(missing)';
 
@@ -172,6 +180,7 @@ class Image_Cache {
           
           $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
           $ext = "png";
+          $message = "Image type unknown \n $full_url";
         }
         }
 
@@ -201,6 +210,7 @@ class Image_Cache {
       if ($DEBUGPNG) $full_url_dbg .= '(nocache'.$resolved_url.')';
 
       $_dompdf_warnings[] = "File " .$resolved_url . " is not readable or is an empty file.\n";
+      $message = "Image not readable or empty \n $resolved_url";
       $resolved_url = DOMPDF_LIB_DIR . "/res/broken_image.png";
       $ext = "png";
     }
@@ -208,7 +218,7 @@ class Image_Cache {
     //debugpng
     if ($DEBUGPNG) print '[resolve_url '.$url.'|'.$full_url_dbg.'|'.$resolved_url.'|'.$ext.']';
 
-    return array($resolved_url, $ext);
+    return array($resolved_url, $ext, $message);
   }
 
   /**

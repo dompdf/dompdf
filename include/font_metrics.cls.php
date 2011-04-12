@@ -232,16 +232,8 @@ class Font_Metrics {
     }
   }
   
-  static function get_system_fonts() {
-    $files = glob("/usr/share/fonts/truetype/*.ttf") +
-             glob("/usr/share/fonts/truetype/*/*.ttf") +
-             glob("/usr/share/fonts/truetype/*/*/*.ttf") +
-             glob("C:\\Windows\\fonts\\*.ttf") + 
-             glob("C:\\WinNT\\fonts\\*.ttf") + 
-             glob("/mnt/c_drive/WINDOWS/Fonts/");
-    
+  static function install_fonts($files) {
     new TTF_Info;
-    
     $names = array();
     
     foreach($files as $file) {
@@ -267,9 +259,20 @@ class Font_Metrics {
       $names[mb_strtolower($info[1])][$type] = $file;
     }
     
-    $keys = array_keys($names);
+    return $names;
+  }
+  
+  static function get_system_fonts() {
+    $files = glob("/usr/share/fonts/truetype/*.ttf") +
+             glob("/usr/share/fonts/truetype/*/*.ttf") +
+             glob("/usr/share/fonts/truetype/*/*/*.ttf") +
+             glob("C:\\Windows\\fonts\\*.ttf") + 
+             glob("C:\\WinNT\\fonts\\*.ttf") + 
+             glob("/mnt/c_drive/WINDOWS/Fonts/");
     
-    /*$matches = array_intersect(array("times", "times new roman"), $keys);
+    /*$keys = array_keys($names);
+    
+    $matches = array_intersect(array("times", "times new roman"), $keys);
     $names["serif"] = $names[reset($matches)];
           
     $matches = array_intersect(array("helvetica", "arial", "verdana"), $keys);
@@ -279,7 +282,7 @@ class Font_Metrics {
     $names["monospace"] = $names[reset($matches)];
     $names["fixed"] = $names[reset($matches)];*/
     
-    return $names;
+    return self::install_fonts($files);
   }
 
   /**

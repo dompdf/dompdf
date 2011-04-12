@@ -177,6 +177,8 @@ class Page_Frame_Reflower extends Frame_Reflower {
       // Render the page
       $renderer->render($child);
       
+      Renderer::$stacking_first_pass = false;
+      
       // http://www.w3.org/TR/CSS21/visuren.html#z-index
       ksort($this->_stacking_context);
       

@@ -66,6 +66,8 @@ class Inline_Frame_Reflower extends Frame_Reflower {
     // Generated content
     $this->_set_content();
     
+    //$block->get_float_offsets($frame, 200);
+    
     $frame->position();
 
     $cb = $frame->get_containing_block();

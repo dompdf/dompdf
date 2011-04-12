@@ -53,14 +53,11 @@ class Table_Cell_Renderer extends Block_Renderer {
     $style = $frame->get_style();
 
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
+    list($x, $y, $w, $h) = $frame->get_border_box();
     
     // Draw our background, border and content
     if ( ($bg = $style->background_color) !== "transparent" ) {
-      list($x, $y, $w, $h) = $frame->get_padding_box();
-      $this->_canvas->filled_rectangle( $x, $y, $w, $h, $bg );
-    }
-    else {
-      list($x, $y, $w, $h) = $frame->get_padding_box();
+      $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
     }
 
     if ( ($url = $style->background_image) && $url !== "none" ) {

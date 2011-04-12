@@ -51,7 +51,7 @@ class Block_Renderer extends Abstract_Renderer {
 
   function render(Frame $frame) {
     $style = $frame->get_style(); 
-    list($x, $y, $w, $h) = $frame->get_padding_box();
+    list($x, $y, $w, $h) = $frame->get_border_box();
     
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
 
