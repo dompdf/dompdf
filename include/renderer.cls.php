@@ -194,16 +194,15 @@ class Renderer extends Abstract_Renderer {
     
     foreach ($frame->get_children() as $child) {
       $child_style = $child->get_style();
-      $_stacking = false;
       
       // Stacking context
       if ( self::$stacking_first_pass && ($child_style->z_index !== "auto" || in_array($child_style->position, Style::$POSITIONNED_TYPES)) ) {
         $z_index = ($child_style->z_index === "auto") ? 0 : intval($child_style->z_index);
         $page->add_frame_to_stacking_context($child, $z_index);
-        $_stacking = true;
+        $stacking = true;
       }
       
-      $this->render($child, $_stacking);
+      $this->render($child, $stacking);
     }
      
     if ( $render_self ) {
