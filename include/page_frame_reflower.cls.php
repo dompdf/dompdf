@@ -182,12 +182,13 @@ class Page_Frame_Reflower extends Frame_Reflower {
       // http://www.w3.org/TR/CSS21/visuren.html#z-index
       ksort($this->_stacking_context);
       
-      foreach( $this->_stacking_context as $_z_index => $_frames ) {
+      foreach( $this->_stacking_context as $_frames ) {
         foreach ( $_frames as $_frame ) {
           $renderer->render($_frame);
         }
       }
       
+      Renderer::$stacking_first_pass = true;
       $this->_stacking_context = array();
       
       // Check for end render callback
