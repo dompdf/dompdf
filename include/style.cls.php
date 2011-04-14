@@ -236,6 +236,8 @@ class Style {
       $d["background_attachment"] = "scroll";
       $d["background_color"] = "transparent";
       $d["background_image"] = "none";
+      $d["background_image_resolution"] = "auto, normal";
+      $d["_dompdf_background_image_resolution"] = $d["background_image_resolution"];
       $d["background_position"] = "0% 0%";
       $d["background_repeat"] = "repeat";
       $d["background"] = "";
@@ -285,6 +287,8 @@ class Style {
       $d["font_weight"] = "normal";
       $d["font"] = "";
       $d["height"] = "auto";
+      $d["image_resolution"] = "auto, normal";
+      $d["_dompdf_image_resolution"] = $d["image_resolution"];
       $d["left"] = "auto";
       $d["letter_spacing"] = "normal";
       $d["line_height"] = "normal";
@@ -360,6 +364,7 @@ class Style {
 
       // Properties that inherit by default
       self::$_inherited = array("azimuth",
+                                 "background_image_resolution",
                                  "border_collapse",
                                  "border_spacing",
                                  "caption_side",
@@ -374,6 +379,7 @@ class Style {
                                  "font_variant",
                                  "font_weight",
                                  "font",
+                                 "image_resolution",
                                  "letter_spacing",
                                  "line_height",
                                  "list_style_image",
@@ -2119,6 +2125,31 @@ class Style {
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["transform_origin"] = null;
     $this->_props["transform_origin"] = $values;
+  }
+  
+  protected function parse_image_resolution($val) {
+    if ( !preg_match("/(\d+|normal|auto)(?:\s*,\s*(\d+|normal))?/i", $val, $matches) ) {
+      return false;
+    }
+    
+    d($matches);
+    return $matches;
+  }
+  
+  function set_background_image_resolution($val) {
+    $this->parse_image_resolution($val);
+  }
+  
+  function set_image_resolution($val) {
+    $this->parse_image_resolution($val);
+  }
+  
+  function set__dompdf_background_image_resolution($val) {
+    return $this->set_background_image_resolution($val);
+  }
+  
+  function set__dompdf_image_resolution($val) {
+    return $this->set_image_resolution($val);
   }
 
   /**

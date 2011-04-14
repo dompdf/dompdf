@@ -208,7 +208,9 @@ class PDFLib_Adapter implements Canvas {
     if ( self::$IN_MEMORY )
       $this->_pdf->begin_document("","");
     else {
-      $this->_file = tempnam(DOMPDF_TEMP_DIR, "libdompdf_pdf_").'.pdf';
+      $tempname = tempnam(DOMPDF_TEMP_DIR, "libdompdf_pdf_");
+      @unlink($tempname);
+      $this->_file = "$tempname.pdf";
       $this->_pdf->begin_document($this->_file,"");
     }
 

@@ -4263,7 +4263,9 @@ EOT;
     }
       
     // create temp alpha file
-    $tempfile_alpha = tempnam($this->tmp, "cpdf_img_").'.png';
+    $tempfile_alpha = tempnam($this->tmp, "cpdf_img_");
+    @unlink($tempfile_alpha);
+    $tempfile_alpha = "$tempfile_alpha.png";
     imagepng($imgalpha, $tempfile_alpha);
     
     // extract image without alpha channel
@@ -4272,7 +4274,9 @@ EOT;
     imagedestroy($img);
     
     // create temp image file
-    $tempfile_plain = tempnam($this->tmp, "cpdf_img_").'.png';
+    $tempfile_plain = tempnam($this->tmp, "cpdf_img_");
+    @unlink($tempfile_plain);
+    $tempfile_plain = "$tempfile_plain.png";
     imagepng($imgplain, $tempfile_plain);
     
     // embed mask image
@@ -4671,7 +4675,9 @@ EOT;
      *
      * But anyway, this function is not used!
      */
-    $imgname = tempnam($this->tmp, "cpdf_img_").'.jpeg';
+    $tempname = tempnam($this->tmp, "cpdf_img_");
+    @unlink($tempname);
+    $imgname = "$tempname.jpeg";
 
     // add a new image into the current location, as an external object
     // add the image at $x,$y, and with width and height as defined by $w & $h

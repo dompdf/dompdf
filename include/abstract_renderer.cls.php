@@ -115,7 +115,7 @@ abstract class Abstract_Renderer {
     //debugpng
     if (DEBUGPNG) print '[_background_image '.$url.']';
 
-    list($img, $ext) = Image_Cache::resolve_url($url,
+    list($img, $ext, $msg) = Image_Cache::resolve_url($url,
                                                 $sheet->get_protocol(),
                                                 $sheet->get_host(),
                                                 $sheet->get_base_path());
@@ -274,6 +274,7 @@ abstract class Abstract_Renderer {
     }
     */
     
+    $is_png = false;
     $filedummy .= '_'.$bg_width.'_'.$bg_height.'_'.$bg_x.'_'.$bg_y.'_'.$repeat;
     //debugpng
     //if (DEBUGPNG) print '<pre>[_background_image name '.$filedummy.']</pre>';
@@ -296,11 +297,11 @@ abstract class Abstract_Renderer {
     // Create a new image to fit over the background rectangle
     $bg = imagecreatetruecolor($bg_width, $bg_height);
     
-    //anyway default
-    //imagealphablending($img, true);
-
     switch (strtolower($ext)) {
       case "png":
+        $is_png = true;
+        imagesavealpha($bg, true);
+        imagealphablending($bg, false);
         $src = imagecreatefrompng($img);
         break;
   
@@ -446,14 +447,17 @@ abstract class Abstract_Renderer {
     //$src: GD object of original image
     //When using cpdf and optimization to direct png creation from gd object is available,
     //don't create temp file, but place gd object directly into the pdf
-    if ( method_exists( $this->_canvas, "get_cpdf" ) && 
+    if ( !$is_png && method_exists( $this->_canvas, "get_cpdf" ) && 
          method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) ) {
       // Note: CPDF_Adapter image converts y position
       $this->_canvas->get_cpdf()->addImagePng($filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
     } 
     
     else {
-      $tmp_file = tempnam(DOMPDF_TEMP_DIR, "bg_dompdf_img_").'.png';
+      $tmp_name = tempnam(DOMPDF_TEMP_DIR, "bg_dompdf_img_");
+      @unlink($tmp_name);
+      $tmp_file = "$tmp_name.png";
+      
       //debugpng
       if (DEBUGPNG) print '[_background_image '.$tmp_file.']';
 
