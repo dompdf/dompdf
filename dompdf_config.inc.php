@@ -105,8 +105,8 @@ require_once(DOMPDF_INC_DIR . "/functions.inc.php");
  *
  * Only the original "Base 14 fonts" are present on all pdf viewers. Additional fonts must
  * be embedded in the pdf file or the PDF may not display correctly. This can significantly
- * increase file size and could violate copyright provisions of a font. Font embedding is
- * not currently supported (? via HT).
+ * increase file size and could violate copyright provisions of a font. Font subsetting is
+ * not currently supported.
  *
  * Any font specification in the source HTML is translated to the closest font available
  * in the font directory.
