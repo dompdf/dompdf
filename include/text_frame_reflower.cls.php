@@ -272,7 +272,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
         $t = $this->_frame->get_text();
         
         // Remove any trailing newlines
-        if ( $split > 1 && $t[$split-1] === "\n" )
+        if ( $split > 1 && $t[$split-1] === "\n" && !in_array($style->white_space, array("pre", "pre-wrap")) )
           $this->_frame->set_text( mb_substr($t, 0, -1) );
 
         // Do we need to trim spaces on wrapped lines? This might be desired, however, we 

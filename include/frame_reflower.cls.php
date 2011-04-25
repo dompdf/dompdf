@@ -73,9 +73,18 @@ abstract class Frame_Reflower {
     clear_object($this);
   }
 
+  /**
+   * Collapse frames margins
+   * http://www.w3.org/TR/CSS2/box.html#collapsing-margins
+   */
   protected function _collapse_margins() {
     $cb = $this->_frame->get_containing_block();
     $style = $this->_frame->get_style();
+    
+    if ( in_array($style->position, Style::$POSITIONNED_TYPES) ||
+         $style->float !== "none" ) {
+      return;
+    }
 
     $t = $style->length_in_pt($style->margin_top, $cb["h"]);
     $b = $style->length_in_pt($style->margin_bottom, $cb["h"]);

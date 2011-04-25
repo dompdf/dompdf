@@ -117,9 +117,16 @@ class Inline_Renderer extends Abstract_Renderer {
         }
 
         // Handle anchors & links
+        $link_node = null;
         if ( $frame->get_node()->nodeName === "a" ) {
-          if ( $href = $frame->get_node()->getAttribute("href") )
-            $this->_canvas->add_link($href, $x, $y, $w, $h);
+          $link_node = $frame->get_node();
+        }
+        else if ( $frame->get_parent()->get_node()->nodeName === "a" ){
+          $link_node = $frame->get_parent()->get_node();
+        }
+        
+        if ( $link_node && $href = $link_node->getAttribute("href") ) {
+          $this->_canvas->add_link($href, $x, $y, $w, $h);
         }
 
         $x = $child_x;
@@ -186,14 +193,23 @@ class Inline_Renderer extends Abstract_Renderer {
       $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
     }
 
-    $node = $frame->get_node();
+    // Only two levels of links frames
+    $link_node = null;
+    if ( $frame->get_node()->nodeName === "a" ) {
+      $link_node = $frame->get_node();
+      
+      if ( ($name = $link_node->getAttribute("name")) || ($name = $link_node->getAttribute("id")) ) {
+        $this->_canvas->add_named_dest($name);
+      }
+    }
+    
+    if ( $frame->get_parent() && $frame->get_parent()->get_node()->nodeName === "a" ){
+      $link_node = $frame->get_parent()->get_node();
+    }
     
     // Handle anchors & links
-    if ( $node->nodeName === "a" ) {
-      if ( ($name = $node->getAttribute("name")) || ($name = $node->getAttribute("id")) )
-        $this->_canvas->add_named_dest($name);
-
-      if ( $href = $node->getAttribute("href") )
+    if ( $link_node ) {
+      if ( $href = $link_node->getAttribute("href") )
         $this->_canvas->add_link($href, $x, $y, $w, $h);
     }
     

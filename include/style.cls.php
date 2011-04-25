@@ -236,7 +236,7 @@ class Style {
       $d["background_attachment"] = "scroll";
       $d["background_color"] = "transparent";
       $d["background_image"] = "none";
-      $d["background_image_resolution"] = "auto, normal";
+      $d["background_image_resolution"] = "normal";
       $d["_dompdf_background_image_resolution"] = $d["background_image_resolution"];
       $d["background_position"] = "0% 0%";
       $d["background_repeat"] = "repeat";
@@ -287,7 +287,7 @@ class Style {
       $d["font_weight"] = "normal";
       $d["font"] = "";
       $d["height"] = "auto";
-      $d["image_resolution"] = "auto, normal";
+      $d["image_resolution"] = "normal";
       $d["_dompdf_image_resolution"] = $d["image_resolution"];
       $d["left"] = "auto";
       $d["letter_spacing"] = "normal";
@@ -2128,20 +2128,32 @@ class Style {
   }
   
   protected function parse_image_resolution($val) {
-    if ( !preg_match("/(\d+|normal|auto)(?:\s*,\s*(\d+|normal))?/i", $val, $matches) ) {
-      return false;
+    // If exif data could be get: 
+    // $re = '/^\s*(\d+|normal|auto)(?:\s*,\s*(\d+|normal))?\s*$/';
+    
+    $re = '/^\s*(\d+|normal|auto)\s*$/';
+    
+    if ( !preg_match($re, $val, $matches) ) {
+      return null;
     }
     
-    d($matches);
-    return $matches;
+    return $matches[1];
   }
   
+  // auto | normal | dpi
   function set_background_image_resolution($val) {
-    $this->parse_image_resolution($val);
+    $parsed = $this->parse_image_resolution($val);
+    
+    $this->_prop_cache["background_image_resolution"] = null;
+    $this->_props["background_image_resolution"] = $parsed;
   }
   
+  // auto | normal | dpi
   function set_image_resolution($val) {
-    $this->parse_image_resolution($val);
+    $parsed = $this->parse_image_resolution($val);
+    
+    $this->_prop_cache["image_resolution"] = null;
+    $this->_props["image_resolution"] = $parsed;
   }
   
   function set__dompdf_background_image_resolution($val) {

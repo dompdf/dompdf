@@ -82,7 +82,7 @@ class Image_Renderer extends Block_Renderer {
                            $style->color, $spacing);
     }
     else {
-      $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h);
+      $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h, $style->image_resolution);
     }
     
     if ( $msg = $frame->get_image_msg() ) {

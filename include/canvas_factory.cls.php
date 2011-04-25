@@ -72,8 +72,9 @@ class Canvas_Factory {
               class_exists("PDFLib", false) )
       $class = "PDFLib_Adapter";
 
-    else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
-      $class = "CPDF_Adapter";
+    // FIXME The TCPDF adapter is not ready yet
+    //else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
+    //  $class = "CPDF_Adapter";
 
     else if ( $backend === "tcpdf")
       $class = "TCPDF_Adapter";

@@ -613,7 +613,7 @@ class CPDF_Adapter implements Canvas {
   
   //........................................................................
 
-  function image($img_url, $img_type, $x, $y, $w, $h) {
+  function image($img_url, $img_type, $x, $y, $w, $h, $resolution = "normal") {
     //debugpng
     if (DEBUGPNG) print '[image:'.$img_url.'|'.$img_type.']';
 

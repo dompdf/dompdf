@@ -193,10 +193,9 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     // Trim leading text if this is an empty line.  Kinda a hack to put it here,
     // but what can you do...
-    if ( $this->_line_boxes[$this->_cl]->w == 0 &&
+    if ( $this->get_current_line_box()->w == 0 &&
          $frame->get_node()->nodeName === "#text" &&
-         ($style->white_space !== "pre" ||
-          $style->white_space !== "pre-wrap") ) {
+         !in_array($style->white_space, array("pre", "pre-wrap")) ) {
 
       $frame->set_text( ltrim($frame->get_text()) );
       $frame->recalculate_width();

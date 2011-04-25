@@ -357,8 +357,8 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
 
 /*
 input[type=text] {
-	border: 1pt solid black;
-	background-color: white;
+  border: 1pt solid black;
+  background-color: white;
 }
 
 input[type=text]:before {
@@ -395,7 +395,7 @@ legend {
 
 hr {
   display: block;
-  height: 2px;
+  height: 0;
   border: 1px inset;
   margin: 0.5em auto 0.5em auto;
 }

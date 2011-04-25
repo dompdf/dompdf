@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>CSS white-space property</title>
+  <link rel="Stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css"> 
+  <style>
+    #wrap { margin:30px auto; width:600px; font-family:sans-serif; color:#444; cursor:default; }
+    h1 { font-size:40px; text-align:center; font-weight:bold; margin-bottom:30px; text-shadow:0 0 3px #ddd; }
+    pre { background-color:#eee; margin:10px 0; padding:5px; }
+    p.demo { background-color:orange; width:100px; margin:10px 0; font-family:monospace; }
+  </style>
+</head>
+
+<body>
+
+  <div id="wrap">
+    <h1>CSS white-space property</h1>
+    <p> Given this CSS code: </p>
+<pre>
+p {
+  width:100px;
+  background-color:orange;
+  margin:10px 0;
+  font-family:monospace;
+}
+</pre>
+    <p> and this HTML code: </p>
+<pre>
+&lt;p&gt;
+P
+  A
+    R
+      A
+        G
+          R
+            A
+              P
+                H
+&lt;/p&gt;
+</pre>
+    <p> Depending on the white-space property, the resulting presentation will be: </p>
+    <hr>
+    <p> normal </p>
+<p class="demo" style="white-space:normal">
+P
+  A
+    R
+      A
+        G
+          R
+            A
+              P
+                H
+</p>
+  <hr>
+  <p> nowrap </p>
+<p class="demo" style="white-space:nowrap">
+P
+  A
+    R
+      A
+        G
+          R
+            A
+              P
+                H
+</p>
+  <hr>
+  <p> pre </p>
+<p class="demo" style="white-space:pre">
+P
+  A
+    R
+      A
+        G
+          R
+            A
+              P
+                H
+</p>
+  <hr>
+  <p> pre-wrap </p>
+<p class="demo" style="white-space:pre-wrap">
+P
+  A
+    R
+      A
+        G
+          R
+            A
+              P
+                H
+</p>
+  <hr>
+  <p> pre-line </p>
+<p class="demo" style="white-space:pre-line">
+P
+  A
+    R
+      A
+        G
+          R
+            A
+              P
+                H
+</p>
+    
+  </div>
+</body>
+</html>
+
