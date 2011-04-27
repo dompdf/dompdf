@@ -752,9 +752,34 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style->margin_bottom = $margin_bottom;
     $style->top = $top;
     $style->bottom = $bottom;
+    
+    $needs_reposition = ($style->position === "absolute" && ($style->right !== "auto" || $style->bottom !== "auto"));
+    
+    // Absolute positioning measurement
+    if ( $needs_reposition ) {
+      $orig_style = $this->_frame->get_original_style();
+      if ( $orig_style->width === "auto" && ($orig_style->left === "auto" || $orig_style->right === "auto") ) {
+        $width = 0;
+        foreach ($this->_frame->get_line_boxes() as $line) {
+          $width = max($line->w, $width);
+        }
+        $style->width = $width;
+      }
+      
+      $style->left = $orig_style->left;
+      $style->right = $orig_style->right;
+    }
 
     $this->_text_align();
     $this->vertical_align();
+    
+    // Absolute positioning
+    if ( $needs_reposition ) {
+      list($x, $y) = $this->_frame->get_position();
+      $this->_frame->position();
+      list($new_x, $new_y) = $this->_frame->get_position();
+      $this->_frame->move($new_x-$x, $new_y-$y, true);
+    }
     
     if ( $block ) {
       $block->add_frame_to_line($this->_frame);

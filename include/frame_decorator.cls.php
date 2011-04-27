@@ -475,6 +475,8 @@ abstract class Frame_Decorator extends Frame {
 
   final function position() { $this->_positioner->position();  }
   
+  final function move($offset_x, $offset_y, $ignore_self = false) { $this->_positioner->move($offset_x, $offset_y, $ignore_self); }
+  
   final function reflow(Frame_Decorator $block = null) {
     // Uncomment this to see the frames before they're laid out, instead of
     // during rendering.

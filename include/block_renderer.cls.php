@@ -88,10 +88,6 @@ class Block_Renderer extends Abstract_Renderer {
     $style = $frame->get_style();
     $bbox = $frame->get_border_box();
     $bp = $style->get_border_properties();
-    
-    if ( $frame->get_node()->nodeName === "body" ) {
-      $bbox[3] = $frame->get_containing_block("h");
-    }
 
     // If all the borders are "solid" with the same color and style, we'd better draw a rectangle
     if (

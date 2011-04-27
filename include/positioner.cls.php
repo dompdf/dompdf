@@ -70,4 +70,15 @@ abstract class Positioner {
 
   abstract function position();
   
+  function move($offset_x, $offset_y, $ignore_self = false) {
+    list($x, $y) = $this->_frame->get_position();
+    
+    if ( !$ignore_self ) {
+      $this->_frame->set_position($x + $offset_x, $y + $offset_y);
+    }
+    
+    foreach($this->_frame->get_children() as $child) {
+      $child->move($offset_x, $offset_y);
+    }
+  }
 }
