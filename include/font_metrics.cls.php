@@ -61,9 +61,9 @@ require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
  */
 if (!defined("__DOMPDF_FONT_CACHE_FILE")) {
   if (file_exists(DOMPDF_FONT_DIR . "dompdf_font_family_cache")) {
-  	define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache");
+    define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache");
   } else {
-  	define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.dist.php");
+    define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.dist.php");
   }
 }
 

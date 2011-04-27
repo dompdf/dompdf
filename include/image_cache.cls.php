@@ -151,10 +151,10 @@ class Image_Cache {
 
         file_put_contents($resolved_url, $image);
 
-		//e.g. fetch.php?media=url.jpg&cache=1
-		//- Image file name might be one of the dynamic parts of the url, don't strip off!
-		//  if ( preg_match("/.*\.(\w+)/",$url,$match) ) $ext = $match[1];
-		//- a remote url does not need to have a file extension at all
+    //e.g. fetch.php?media=url.jpg&cache=1
+    //- Image file name might be one of the dynamic parts of the url, don't strip off!
+    //  if ( preg_match("/.*\.(\w+)/",$url,$match) ) $ext = $match[1];
+    //- a remote url does not need to have a file extension at all
         //- local cached file does not have a matching file extension
         //Therefore get image type from the content
 
@@ -170,8 +170,8 @@ class Image_Cache {
           $resolved_url .= '.'.$ext;
         }
  
- 		//Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
- 		//Only execute on successfull caching of remote image.
+     //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
+     //Only execute on successfull caching of remote image.
         self::$_cache[$full_url] = array($resolved_url,$ext);
 
         } else {

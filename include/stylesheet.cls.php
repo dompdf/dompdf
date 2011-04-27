@@ -328,13 +328,13 @@ class Stylesheet {
     //see _css_selector_to_xpath
 
     if ( !in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) ) {
-    	$d++;
+      $d++;
     }
 
     if (DEBUGCSS) {
-      /*DEBUGCSS*/	print "<pre>\n";
-      /*DEBUGCSS*/	printf("_specificity(): 0x%08x \"%s\"\n", ($a << 24) | ($b << 16) | ($c << 8) | ($d), $selector);
-      /*DEBUGCSS*/	print "</pre>";
+      /*DEBUGCSS*/  print "<pre>\n";
+      /*DEBUGCSS*/  printf("_specificity(): 0x%08x \"%s\"\n", ($a << 24) | ($b << 16) | ($c << 8) | ($d), $selector);
+      /*DEBUGCSS*/  print "</pre>";
     }
 
     return ($a << 24) | ($b << 16) | ($c << 8) | ($d);
@@ -1106,21 +1106,21 @@ class Stylesheet {
       //Therefore set a _important_props["prop_name"]=true to indicate the modifier
 
       /* Instead of short code, prefer the typical case with fast code
-	  $important = preg_match("/(.*?)!\s*important/",$prop,$match);
+    $important = preg_match("/(.*?)!\s*important/",$prop,$match);
       if ( $important ) {
-      	$prop = $match[1];
+        $prop = $match[1];
       }
       $prop = trim($prop);
       */
       if (DEBUGCSS) print '(';
- 	  $important = false;
+     $important = false;
       $prop = trim($prop);
       if (substr($prop,-9) === 'important') {
-      	$prop_tmp = rtrim(substr($prop,0,-9));
-      	if (substr($prop_tmp,-1) === '!') {
-      		$prop = rtrim(substr($prop_tmp,0,-1));
-      		$important = true;
-      	}
+        $prop_tmp = rtrim(substr($prop,0,-9));
+        if (substr($prop_tmp,-1) === '!') {
+          $prop = rtrim(substr($prop_tmp,0,-1));
+          $important = true;
+        }
       }
 
       if ($prop == "") {

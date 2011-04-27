@@ -104,7 +104,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
       for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
         $t = (float)($f->get_style()->width); //always in pt
         if ((float)$t != 0) {
-        	break;
+          break;
         }
       }
       $width = ((float)rtrim($width,"%") * $t)/100; //maybe 0
@@ -122,7 +122,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
       for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
         $t = (float)($f->get_style()->height); //always in pt
         if ((float)$t != 0) {
-        	break;
+          break;
         }
       }
       $height = ((float)rtrim($height,"%") * $t)/100; //maybe 0

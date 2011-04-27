@@ -54,7 +54,7 @@ class Inline_Frame_Reflower extends Frame_Reflower {
   function reflow(Frame_Decorator $block = null) {
     $frame = $this->_frame;
     
-  	// Check if a page break is forced
+    // Check if a page break is forced
     $page = $frame->get_root();
     $page->check_forced_page_break($frame);
     

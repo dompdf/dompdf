@@ -80,30 +80,30 @@ class List_Bullet_Positioner extends Positioner {
                                   $n->get_containing_block("w") );
     }
 
-	// Now the position is the left top of the block which should be marked with the bullet.
-	// We tried to find out the y of the start of the first text character within the block.
-	// But the top margin/padding does not fit, neither from this nor from the next sibling
-	// The "bit of a hack" above does not work also.
-	
-	// Instead let's position the bullet vertically centered to the block which should be marked.
-	// But for get_next_sibling() the get_containing_block is all zero, and for find_block_parent()
-	// the get_containing_block is paper width and the entire list as height.
-	
+  // Now the position is the left top of the block which should be marked with the bullet.
+  // We tried to find out the y of the start of the first text character within the block.
+  // But the top margin/padding does not fit, neither from this nor from the next sibling
+  // The "bit of a hack" above does not work also.
+  
+  // Instead let's position the bullet vertically centered to the block which should be marked.
+  // But for get_next_sibling() the get_containing_block is all zero, and for find_block_parent()
+  // the get_containing_block is paper width and the entire list as height.
+  
     // if ($p) {
     //   //$cb = $n->get_containing_block();
     //   $cb = $p->get_containing_block();
     //   $y += $cb["h"]/2;
     // print 'cb:'.$cb["x"].':'.$cb["y"].':'.$cb["w"].':'.$cb["h"].':';
-    // }	 
+    // }   
 
-	// Todo:
-	// For now give up on the above. Use Guesswork with font y-pos in the middle of the line spacing
+  // Todo:
+  // For now give up on the above. Use Guesswork with font y-pos in the middle of the line spacing
 
     $style = $p->get_style();
     $font_size = $style->get_font_size();
     $line_height = $style->length_in_pt($style->line_height, $font_size);
-    $y += ($line_height - $font_size) / 2;  	
-	 
+    $y += ($line_height - $font_size) / 2;    
+   
     //Position is x-end y-top of character position of the bullet.    
     $this->_frame->set_position($x, $y);
     

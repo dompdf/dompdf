@@ -141,7 +141,7 @@ class Page_Frame_Reflower extends Frame_Reflower {
     $prev_child = null;
     $child = $this->_frame->get_first_child();
     $current_page = 0;
-		
+    
     while ($child) {
       // Only if it's the first page, we save the nodes with a fixed position
       if ($current_page == 0) {

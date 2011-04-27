@@ -144,7 +144,7 @@ class Cellmap {
   }
   
   function __destruct() {
-  	clear_object($this);
+    clear_object($this);
   }
   //........................................................................
 

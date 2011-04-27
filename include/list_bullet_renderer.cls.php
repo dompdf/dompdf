@@ -156,7 +156,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
         $y += ($font_size*(1-List_Bullet_Frame_Decorator::BULLET_DESCENT-List_Bullet_Frame_Decorator::BULLET_SIZE))/2;
         $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
         break;
-		
+    
       case "decimal-leading-zero":
       case "decimal":
       case "lower-alpha":

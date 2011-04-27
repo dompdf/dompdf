@@ -174,7 +174,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
    * @return bool true if a page break occured
    */
   function check_forced_page_break(Frame $frame) {
-    	
+      
     // Skip check if page is already split
     if ( $this->_page_full )
       return;
@@ -202,7 +202,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // $frame->style to the frame's orignal style.
       $frame->get_style()->page_break_before = "auto";
       $this->_page_full = true;
-			
+      
       return true;
     }
 
@@ -213,7 +213,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       $this->_page_full = true;
       return true;
     }
-		
+    
     if( $prev && $prev->get_last_child() && $frame->get_node()->nodeName != "body" ) {
       $prev_last_child = $prev->get_last_child();
       if ( in_array($prev_last_child->get_style()->page_break_after, $page_breaks) ) {

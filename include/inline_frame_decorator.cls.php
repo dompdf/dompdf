@@ -98,7 +98,7 @@ class Inline_Frame_Decorator extends Frame_Decorator {
       $frame->reset();
       $split->append_child($frame);
     }
-		
+    
     $page_breaks = array("always", "left", "right");
     $frame_style = $frame->get_style();
     if( $force_pagebreak ||

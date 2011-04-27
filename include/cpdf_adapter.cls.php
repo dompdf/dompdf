@@ -518,7 +518,7 @@ class CPDF_Adapter implements Canvas {
     $im = $func_name($image_url);
 
     if ( $im ) {
-      imageinterlace($im, 0);
+      imageinterlace($im, false);
 
       $tempname = tempnam(DOMPDF_TEMP_DIR, "{$image_type}dompdf_img_");
       @unlink($tempname);
@@ -646,26 +646,26 @@ class CPDF_Adapter implements Canvas {
 
         //If optimization to direct png creation from gd object is available,
         //don't create temp file, but place gd object directly into the pdf
-  	    if ( method_exists( $this->_pdf, "image_iscached" ) &&
-  	        $this->_pdf->image_iscached($img_url) ) {
-  	      //If same image has occured already before, no need to load because
-  	      //duplicate will anyway be eliminated.
-  	      $img = null;
-  	      unset($img);
-  	    }
+        if ( method_exists( $this->_pdf, "image_iscached" ) &&
+            $this->_pdf->image_iscached($img_url) ) {
+          //If same image has occured already before, no need to load because
+          //duplicate will anyway be eliminated.
+          $img = null;
+          unset($img);
+        }
         else {
-  	      $func_name = "imagecreatefrom$img_type";
-      	  $img = @$func_name($img_url);
-      	  if ( !$img ) {
-        	return;
-      	  }
-      	  imageinterlace($img, false);
-      	}
+          $func_name = "imagecreatefrom$img_type";
+          $img = @$func_name($img_url);
+          if ( !$img ) {
+          return;
+          }
+          imageinterlace($img, false);
+        }
 
-      	$this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
+        $this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
 
         if ( $img ) {
-      	  imagedestroy($img);
+          imagedestroy($img);
         }
       } 
       else {
@@ -777,7 +777,7 @@ class CPDF_Adapter implements Canvas {
   function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
     $this->_pdf->selectFont($font);
     if (!DOMPDF_UNICODE_ENABLED) {
-    	$text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+      $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
     }
     return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
   }

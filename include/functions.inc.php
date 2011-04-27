@@ -551,6 +551,8 @@ function imagecreatefrombmp($filename) {
     return false;
   }
   
+  $bytes_read = 0;
+  
   // read file header
   $meta = unpack('vtype/Vfilesize/Vreserved/Voffset', fread($fh, 14));
   
@@ -562,13 +564,13 @@ function imagecreatefrombmp($filename) {
   
   // read image header
   $meta += unpack('Vheadersize/Vwidth/Vheight/vplanes/vbits/Vcompression/Vimagesize/Vxres/Vyres/Vcolors/Vimportant', fread($fh, 40));
+  $bytes_read += 40;
   
   // read additional bitfield header
   if ($meta['compression'] == 3) {
     $meta += unpack('VrMask/VgMask/VbMask', fread($fh, 12));
+    $bytes_read += 12;
   }
-  
-  //pre_r($filename);pre_r($meta);
   
   // set bytes and padding
   $meta['bytes'] = $meta['bits'] / 8;
@@ -603,6 +605,11 @@ function imagecreatefrombmp($filename) {
         $palette[$i] = $color + 16777216;
       }
     }
+  }
+  
+  // ignore extra bitmap headers
+  if ($meta['headersize'] > $bytes_read) {
+    fread($fh, $meta['headersize'] - $bytes_read);
   }
   
   // create gd image
