@@ -154,10 +154,12 @@ abstract class Abstract_Renderer {
       $x1 = $p * $img_w;
       $x2 = $p * $bg_width;
 
-      $bg_x = round($x2 - $x1);
+      $bg_x = $x2 - $x1;
     } else {
-      $bg_x = round((float)($style->length_in_pt($bg_x)*DOMPDF_DPI) / 72);
+      $bg_x = (float)($style->length_in_pt($bg_x)*DOMPDF_DPI) / 72;
     }
+    
+    $bg_x = round($bg_x + $style->length_in_pt($style->border_left_width)*DOMPDF_DPI / 72);
 
     if ( is_percent($bg_y) ) {
       // The point $bg_y % from the left edge of the image is placed
@@ -166,10 +168,12 @@ abstract class Abstract_Renderer {
       $y1 = $p * $img_h;
       $y2 = $p * $bg_height;
 
-      $bg_y = round($y2 - $y1);
+      $bg_y = $y2 - $y1;
     } else {
-      $bg_y = round((float)($style->length_in_pt($bg_y)*DOMPDF_DPI) / 72);
+      $bg_y = (float)($style->length_in_pt($bg_y)*DOMPDF_DPI) / 72;
     }
+    
+    $bg_y = round($bg_y + $style->length_in_pt($style->border_top_width)*DOMPDF_DPI / 72);
 
     //clip background to the image area on partial repeat. Nothing to do if img off area
     //On repeat, normalize start position to the tile at immediate left/top or 0/0 of area
@@ -189,7 +193,7 @@ abstract class Abstract_Renderer {
         $bg_x = 0;
       }
       if ($bg_width <= 0) {
-          return;
+        return;
       }
       $width = (float)($bg_width * 72)/DOMPDF_DPI;
     } else {
@@ -217,7 +221,7 @@ abstract class Abstract_Renderer {
         $bg_y = 0;
       }
       if ($bg_height <= 0) {
-          return;
+        return;
       }
       $height = (float)($bg_height * 72)/DOMPDF_DPI;
     } else {

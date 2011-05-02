@@ -53,15 +53,14 @@ class Image_Renderer extends Block_Renderer {
     $cb = $frame->get_containing_block();
     list($x, $y, $w, $h) = $frame->get_border_box();
   
-    $this->_set_opacity( $frame->get_opacity( $style->opacity ) );  
+    $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
 
-    // Handle the last child
-    if ( ($bg = $style->background_color) !== "transparent" ) 
-      $this->_canvas->filled_rectangle( $x + $widths[3], $y + $widths[0], $w, $h, $bg);
+    if ( ($bg = $style->background_color) !== "transparent" )
+      $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
 
-    if ( ($url = $style->background_image) && $url !== "none" )           
-      $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $style);
-    
+    if ( ($url = $style->background_image) && $url !== "none" )
+      $this->_background_image($url, $x, $y, $w, $h, $style);
+         
     $this->_render_border($frame);
     $this->_render_outline($frame);
     

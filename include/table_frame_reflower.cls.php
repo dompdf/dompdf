@@ -437,10 +437,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
       $style->margin_right = "$right pt";
 
     } else {
-        if($left === "auto") {
+        if ( $left === "auto" ) {
           $left = $style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
         }
-        if($right === "auto") {
+        if ( $right === "auto" ) {
           $left = $style->length_in_pt($left, $cb["w"]);
         }
     }
@@ -501,6 +501,7 @@ class Table_Frame_Reflower extends Frame_Reflower {
     
     if ( $block ) {
       $block->add_frame_to_line($this->_frame);
+      $block->add_line();
     }
   }
 
@@ -568,7 +569,11 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $this->_state["min_width"] += $delta;
     $this->_state["max_width"] += $delta;
 
-    return $this->_min_max_cache = array($this->_state["min_width"], $this->_state["max_width"],
-                 "min" => $this->_state["min_width"], "max" => $this->_state["max_width"]);
+    return $this->_min_max_cache = array(
+      $this->_state["min_width"], 
+      $this->_state["max_width"],
+      "min" => $this->_state["min_width"], 
+      "max" => $this->_state["max_width"],
+    );
   }
 }

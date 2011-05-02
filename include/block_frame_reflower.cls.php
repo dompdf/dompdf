@@ -783,6 +783,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     
     if ( $block ) {
       $block->add_frame_to_line($this->_frame);
+      $block->add_line();
     }
   }
 }

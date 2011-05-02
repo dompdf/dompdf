@@ -452,6 +452,11 @@ class Stylesheet {
         break;
 
       case ":":
+        $i2 = $i-strlen($tok)-2; // the char before ":"
+        if ( !isset($selector[$i2]) || in_array($selector[$i2], $delimiters) ) {
+          $query .= "*";
+        }
+        
         // Pseudo-classes
         switch ($tok) {
 
@@ -475,6 +480,7 @@ class Stylesheet {
         
         // N/A
         case "active":
+        case "hover":
         case "visited":
           $query .= "[@dummy]";
           $tok = "";

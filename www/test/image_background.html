@@ -2,11 +2,30 @@
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
 <style>
+body {
+  font-family: sans-serif;
+  font-size: 10pt;
+}
+img  {
+	margin: 15px; 
+	height: 120px; 
+	padding: 5px; 
+	border: 10px dotted red; 
+	background-color: green; 
+	background-image: url(images/dokuwiki-128.png);
+}
 p.c1 { background-image: url(images/dompdf_simple.png); background-repeat: repeat-x; background-position: 100px 50%; }
 p.c2 { background-image: url(images/php.gif); background-position: bottom center; background-repeat: repeat-y; }
+
 </style>
 </head>
-<body>
+<body style="background-color: #eee;">
+  Images with background-color, background-image, border, margin and padding
+  <img src="images/php.gif" />
+  <img src="images/dompdf_simple.png" />
+  <img src="images/dompdf_simple.png" style="background-repeat: no-repeat;" />
+  <img src="images/php.gif" style="background-repeat: no-repeat;" />
+
 <h1>Lorem ipsum dolor sit amet</h1>
 <p class="c1">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec at
 odio vitae libero tempus convallis. Cum sociis natoque penatibus et

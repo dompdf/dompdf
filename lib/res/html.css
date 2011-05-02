@@ -247,7 +247,7 @@ q:after {
   content: close-quote;
 }
 
-a:link {
+:link {
   color: #00c;
   text-decoration: underline;
 }

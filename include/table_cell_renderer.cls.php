@@ -65,8 +65,8 @@ class Table_Cell_Renderer extends Block_Renderer {
     }
 
     if ( $style->border_collapse !== "collapse" ) {
-      $this->_render_border($frame, "bevel");
-      $this->_render_outline($frame, "bevel");
+      $this->_render_border($frame);
+      $this->_render_outline($frame);
       return;
     }
 

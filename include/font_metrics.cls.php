@@ -195,6 +195,16 @@ class Font_Metrics {
     }
     return null;
   }
+  
+  static function get_family($family) {
+    $family = str_replace( array("'", '"'), "", mb_strtolower($family));
+    
+    if ( isset(self::$_font_lookup[$family]) ) {
+      return self::$_font_lookup[$family];
+    }
+    
+    return null;
+  }
 
   /**
    * Saves the stored font family cache
@@ -232,6 +242,25 @@ class Font_Metrics {
     }
   }
   
+  static function get_type($type) {
+    if (preg_match("/regular|normal|medium|book/i", $type)) {
+      $type = "normal";
+    }
+    elseif (preg_match("/bold/i", $type)) {
+      if (preg_match("/italic|oblique/i", $type)) {
+        $type = "bold_italic";
+      }
+      else {
+        $type = "bold";
+      }
+    }
+    elseif (preg_match("/italic|oblique/i", $type)) {
+      $type = "italic";
+    }
+      
+    return $type;
+  }
+  
   static function install_fonts($files) {
     new TTF_Info;
     $names = array();
@@ -239,23 +268,7 @@ class Font_Metrics {
     foreach($files as $file) {
       $info = getFontInfo($file);
       $info["path"] = $file;
-      $type = $info[2];
-      
-      if (preg_match("/regular|normal|medium|book/i", $type)) {
-        $type = "normal";
-      }
-      elseif (preg_match("/bold/i", $type)) {
-        if (preg_match("/italic|oblique/i", $type)) {
-          $type = "bold_italic";
-        }
-        else {
-          $type = "bold";
-        }
-      }
-      elseif (preg_match("/italic|oblique/i", $type)) {
-        $type = "italic";
-      }
-      
+      $type = self::get_type($info[2]);
       $names[mb_strtolower($info[1])][$type] = $file;
     }
     

@@ -70,16 +70,16 @@ class Inline_Frame_Decorator extends Frame_Decorator {
 
     // Unset the current node's right style properties
     $style = $this->_frame->get_style();
-    $style->margin_right = "0";
-    $style->padding_right = "0";
-    $style->border_right_width = "0";
+    $style->margin_right = 0;
+    $style->padding_right = 0;
+    $style->border_right_width = 0;
 
     // Unset the split node's left style properties since we don't want them
     // to propagate
     $style = $split->get_style();
-    $style->margin_left = "0";
-    $style->padding_left = "0";
-    $style->border_left_width = "0";
+    $style->margin_left = 0;
+    $style->padding_left = 0;
+    $style->border_left_width = 0;
 
     //On continuation of inline element on next line,
     //don't repeat non-vertically repeatble background images
