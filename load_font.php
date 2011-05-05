@@ -207,7 +207,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
 // If installing system fonts (may take a long time)
 if ( $_SERVER["argv"][1] === "system_fonts" ) {
   $fonts = Font_Metrics::get_system_fonts();
-  var_dump($fonts);
+  
   foreach ( $fonts as $family => $files ) {
     echo " >> Installing '$family'... \n";
     

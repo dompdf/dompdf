@@ -501,6 +501,11 @@ class Style {
         continue;
       }
 
+      if ( ($i = mb_strpos($l, "rem"))  !== false ) {
+        $ret += mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->get_tree()->get_root()->get_style()->font_size;
+        continue;
+      }
+
       if ( ($i = mb_strpos($l, "em"))  !== false ) {
         $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
         continue;

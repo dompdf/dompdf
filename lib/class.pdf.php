@@ -47,8 +47,7 @@
 /* $Id$ */
 
 class  Cpdf {
-
-
+  
   /**
    * the current number of pdf objects in the document
    */
@@ -305,7 +304,8 @@ class  Cpdf {
    */
   public  $checkpoint =  '';
 
-  /* Table of Image origin filenames and image labels which were already added with o_image().
+  /**
+   * Table of Image origin filenames and image labels which were already added with o_image().
    * Allows to merge identical images
    */
   public  $imagelist = array();
@@ -357,7 +357,6 @@ class  Cpdf {
     $this->setFontFamily('init');
     //  $this->fileIdentifier = md5('xxxxxxxx'.time());
   }
-
 
   /**
    * Class destructor
@@ -417,7 +416,6 @@ class  Cpdf {
     }
   }
 
-
   /**
    * set the viewer preferences
    */
@@ -456,7 +454,6 @@ class  Cpdf {
       return  $res;
     }
   }
-
 
   /**
    * define the document catalog, the overall controller for the document
@@ -522,7 +519,6 @@ class  Cpdf {
       return  $res;
     }
   }
-
 
   /**
    * object which is a parent to the pages in the document
@@ -657,7 +653,6 @@ class  Cpdf {
     }
   }
 
-
   /**
    * define the outlines in the doc, empty for now
    */
@@ -691,7 +686,6 @@ class  Cpdf {
       return  $res;
     }
   }
-
 
   /**
    * an object to hold the font description
@@ -863,7 +857,6 @@ EOT;
     }
   }
 
-
   /**
    * a font descriptor, needed for including additional fonts
    */
@@ -921,7 +914,6 @@ EOT;
     }
   }
 
-
   /**
    * the font encoding
    */
@@ -965,7 +957,6 @@ EOT;
       return  $res;
     }
   }
-
 
   /**
    * a descendent cid font,  needed for unicode fonts
@@ -1055,7 +1046,6 @@ EOT;
     }
   }
   
-
   /**
    * a font glyph to character map,  needed for unicode fonts
    */
@@ -1099,7 +1089,6 @@ EOT;
     }
   }
   
-
   /**
    * the document procset, solves some problems with printing to old PS printers
    */
@@ -1136,7 +1125,6 @@ EOT;
       return  $res;
     }
   }
-
 
   /**
    * define the document information
@@ -1189,7 +1177,6 @@ EOT;
     }
   }
 
-
   /**
    * an action object, used to link to URLS initially
    */
@@ -1238,7 +1225,6 @@ EOT;
       return  $res;
     }
   }
-
 
   /**
    * an annotation object, this will add an annotation to the current page.
@@ -1297,7 +1283,6 @@ EOT;
       return  $res;
     }
   }
-
 
   /**
    * a page object, it also creates a contents object to hold its contents
@@ -1381,7 +1366,6 @@ EOT;
       return  $res;
     }
   }
-
 
   /**
    * the contents objects hold all of the content which appears on pages
@@ -1617,7 +1601,6 @@ EOT;
     }
   }
 
-
   /**
    * graphics state object
    */
@@ -1655,7 +1638,6 @@ EOT;
       return  $res;
     }
   }
-
 
   /**
    * encryption object.
@@ -1730,7 +1712,6 @@ EOT;
     }
   }
 
-
   /**
    * ARC4 functions
    * A series of function to implement ARC4 encoding in PHP
@@ -1748,7 +1729,6 @@ EOT;
     return  $out;
   }
 
-
   /**
    * initialize the encryption for processing a particular object
    */
@@ -1762,7 +1742,6 @@ EOT;
     $key =  $this->md5_16($tmp);
     $this->ARC4_init(substr($key, 0, 10));
   }
-
 
   /**
    * initialize the ARC4 encryption
@@ -1795,7 +1774,6 @@ EOT;
     }
   }
 
-
   /**
    * ARC4 encrypt a text string
    */
@@ -1817,7 +1795,6 @@ EOT;
     return  $out;
   }
 
-
   /**
    * functions which can be called to adjust or add to the document
    */
@@ -1831,7 +1808,6 @@ EOT;
     $this->o_annotation($this->numObj, 'new', $info);
   }
 
-
   /**
    * add a link in the document to an internal destination (ie. within the document)
    */
@@ -1840,7 +1816,6 @@ EOT;
     $info =  array('type'=>'ilink', 'label'=>$label, 'rect'=>array($x0, $y0, $x1, $y1));
     $this->o_annotation($this->numObj, 'new', $info);
   }
-
 
   /**
    * set the encryption of the document
@@ -1872,13 +1847,11 @@ EOT;
     }
   }
 
-
   /**
    * should be used for internal checks, not implemented as yet
    */
   function checkAllHere() {
   }
-
 
   /**
    * return the pdf stream as a string returned from the function
@@ -2532,7 +2505,6 @@ EOT;
     //  }
   }
 
-
   /**
    * function for the user to find out what the ID is of the first page that was created during
    * startup - useful if they wish to add something to it later.
@@ -2540,7 +2512,6 @@ EOT;
   function getFirstPageId() {
     return  $this->firstPageId;
   }
-
 
   /**
    * add content to the currently active object
@@ -2550,7 +2521,6 @@ EOT;
   function addContent($content) {
     $this->objects[$this->currentContents]['c'].=  $content;
   }
-
 
   /**
    * sets the colour for fill operations
@@ -2571,7 +2541,6 @@ EOT;
     }
   }
 
-
   /**
    * sets the colour for stroke operations
    */
@@ -2591,7 +2560,6 @@ EOT;
     }
   }
 
-
   /**
    * Set the graphics state for compositions
    */
@@ -2602,7 +2570,6 @@ EOT;
     $this->o_extGState($this->numObj,  'new',  $parameters);
     $this->objects[ $this->currentContents ]['c'].=  "\n/GS$this->numStates gs";
   }
-
 
   /**
    * Set current blend mode & opacity for lines.
@@ -2680,7 +2647,6 @@ EOT;
     $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m %.3F %.3F l S", $x1, $y1, $x2, $y2);
   }
 
-
   /**
    * draw a bezier curve based on 4 control points
    */
@@ -2691,7 +2657,6 @@ EOT;
       sprintf("\n%.3F %.3F m %.3F %.3F %.3F %.3F %.3F %.3F c S", $x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3);
   }
 
-
   /**
    * draw a part of an ellipse
    */
@@ -2699,14 +2664,12 @@ EOT;
     $this->ellipse($x0, $y0, $r1, $r2, $angle, $nSeg, $astart, $afinish, false);
   }
 
-
   /**
    * draw a filled ellipse
    */
   function filledEllipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360) {
     return  $this->ellipse($x0, $y0, $r1, $r2 =  0, $angle, $nSeg, $astart, $afinish, true, true);
   }
-
 
   /**
    * draw an ellipse
@@ -2786,7 +2749,6 @@ EOT;
     }
   }
 
-
   /**
    * this sets the line drawing style.
    * width, is the thickness of the line in user units
@@ -2828,8 +2790,6 @@ EOT;
     $this->objects[$this->currentContents]['c'].=  "\n$string";
   }
 
-
-
   /**
    * draw a polygon, the syntax for this is similar to the GD polygon command
    */
@@ -2847,7 +2807,6 @@ EOT;
     }
   }
 
-
   /**
    * a filled rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
    * the coordinates of the upper-right corner
@@ -2856,7 +2815,6 @@ EOT;
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re f", $x1, $y1, $width, $height);
   }
 
-
   /**
    * draw a rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
    * the coordinates of the upper-right corner
@@ -2864,7 +2822,6 @@ EOT;
   function rectangle($x1, $y1, $width, $height) {
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re S", $x1, $y1, $width, $height);
   }
-
 
   /**
    * save the current graphic state
@@ -2888,8 +2845,7 @@ EOT;
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re W n", $x1, $y1, $width, $height);
   }
 
-  
-  /*
+  /**
    * ends the last clipping shape
    */
   function clippingEnd() {
@@ -2983,7 +2939,6 @@ EOT;
       vsprintf("\n %.3F %.3F %.3F %.3F %.3F %.3F cm", $tm);
   }
 
-
   /**
    * add a new page to the document
    * this also makes the new page the current active object
@@ -3035,7 +2990,6 @@ EOT;
     return  $this->currentContents;
   }
 
-
   /**
    * output the pdf code, streaming it to the browser
    * the relevant headers are set so that hopefully the browser will recognise it
@@ -3083,7 +3037,6 @@ EOT;
     flush();
   }
 
-
   /**
    * return the height in units of the current font in the given size
    */
@@ -3118,7 +3071,6 @@ EOT;
     return  $size*$h/1000;
   }
 
-
   /**
    * return the font descender, this will normally return a negative number
    * if you add this number to the baseline, you get the level of the bottom of the font
@@ -3135,7 +3087,6 @@ EOT;
 
     return  $size*$h/1000;
   }
-
 
   /**
    * filter the text, this is applied to all text just before being inserted into the pdf document
@@ -3269,7 +3220,6 @@ EOT;
     return $out;
   }
 
-
   /**
    * given a start position and information about how text is to be laid out, calculate where
    * on the page the text will end
@@ -3289,7 +3239,6 @@ EOT;
     return  array(cos($a) *$w+$x, -sin($a) *$w+$y);
   }
 
-
   /**
    * wrapper function for PRVTcheckTextDirective1
    *
@@ -3301,7 +3250,6 @@ EOT;
     $y =  0;
     return  $this->PRVTcheckTextDirective1($text, $i, $f, 0, $x, $y);
   }
-
 
   /**
    * checks if the text stream contains a control directive
@@ -3488,10 +3436,15 @@ EOT;
     return  $directive;
   }
   
+  /**
+   * Callback method used by smallCaps
+   * 
+   * @param array $matches
+   * @return string
+   */
   function toUpper($matches) {
     return mb_strtoupper($matches[0]);
   }
-
 
   /**
    * add text to the document, at a specified location, size and angle on the page
@@ -3624,7 +3577,6 @@ EOT;
     }
   }
 
-
   /**
    * calculate how wide a given text string will be on a page, at a given size.
    * this can be called externally, but is alse used by the other class functions
@@ -3722,7 +3674,6 @@ EOT;
     return  $w*$size/1000;
   }
 
-
   /**
    * do a part of the calculation for sorting out the justification of the text
    *
@@ -3755,7 +3706,6 @@ EOT;
       break;
     }
   }
-
 
   /**
    * add text to the page, but ensure that it fits within a certain width
@@ -3906,7 +3856,6 @@ EOT;
     return  '';
   }
 
-
   /**
    * this will be called at a new page to return the state to what it was on the
    * end of the previous page, before the stack was closed down
@@ -3936,7 +3885,6 @@ EOT;
     $this->save();
   }
 
-
   /**
    * restore a previously saved state
    */
@@ -3954,7 +3902,6 @@ EOT;
     
     $this->restore();
   }
-
 
   /**
    * make a loose object, the output will go into this object, until it is closed, then will revert to
@@ -3974,7 +3921,6 @@ EOT;
     return  $this->numObj;
   }
 
-
   /**
    * open an existing object for editing
    */
@@ -3988,7 +3934,6 @@ EOT;
       $this->currentPage =  $this->objects[$id]['onPage'];
     }
   }
-
 
   /**
    * close an object
@@ -4005,7 +3950,6 @@ EOT;
     }
   }
 
-
   /**
    * stop an object from appearing on pages from this point on
    */
@@ -4016,7 +3960,6 @@ EOT;
       $this->addLooseObjects[$id] =  '';
     }
   }
-
 
   /**
    * after an object has been created, it wil only show if it has been added, using this function.
@@ -4072,7 +4015,6 @@ EOT;
     }
   }
 
-
   /**
    * return a storable representation of a specific object
    */
@@ -4080,7 +4022,6 @@ EOT;
     if  ( array_key_exists($id,  $this->objects))
       return  var_export($this->objects[$id],  true);
   }
-
 
   /**
    * restore an object from its stored representation.  returns its new object id.
@@ -4091,7 +4032,6 @@ EOT;
     $this->closeObject();
     return  $obj_id;
   }
-
 
   /**
    * add content to the documents info object
@@ -4110,7 +4050,6 @@ EOT;
     }
   }
 
-
   /**
    * set the viewer preferences of the document, it is up to the browser to obey these.
    */
@@ -4124,7 +4063,6 @@ EOT;
       $this->o_catalog($this->catalogId, 'viewerPreferences', array($label => $value));
     }
   }
-
 
   /**
    * extract an integer from a position in a byte stream
@@ -4141,7 +4079,6 @@ EOT;
 
     return  $ret;
   }
-
 
   /**
    * add a PNG image into the document, from a GD object
@@ -4292,7 +4229,6 @@ EOT;
     unlink($tempfile_plain);
   }
 
-
   /**
    * add a PNG image into the document, from a file
    * this should work with remote files
@@ -4347,7 +4283,6 @@ EOT;
     $this->addImagePng($file, $x, $y, $w, $h, $img);
     imagedestroy($img);
   }
-
 
   /**
    * add a PNG image into the document, from a memory buffer of the file
@@ -4614,7 +4549,6 @@ EOT;
     $this->objects[$this->currentContents]['c'].=  "\n/$label Do\nQ";
   }
 
-
   /**
    * add a JPEG image into the document, from a file
    */
@@ -4659,7 +4593,6 @@ EOT;
 
     $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $channels, $img);
   }
-
 
   /**
    * add an image into the document, from a GD object
@@ -4716,14 +4649,13 @@ EOT;
     $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $imgname);
   }
 
-
-  /* Check if image already added to pdf image directory.
+  /**
+   * Check if image already added to pdf image directory.
    * If yes, need not to create again (pass empty data)
    */
   function image_iscached($imgname) {
     return isset($this->imagelist[$imgname]);
   }
-
 
   /**
    * common code used by the two JPEG adding functions
@@ -4763,7 +4695,6 @@ EOT;
     $this->objects[$this->currentContents]['c'].=  "\n/$label Do\nQ";
   }
 
-
   /**
    * specify where the document should open when it first starts
    */
@@ -4784,10 +4715,15 @@ EOT;
     $this->o_catalog($id, 'openHere', $this->numObj);
   }
   
+  /**
+   * Add JavaScript code to the PDF document
+   * 
+   * @param string $code
+   * @return void
+   */
   function addJavascript($code) {
     $this->javascript .= $code;
   }
-
 
   /**
    * create a labelled destination within the document
@@ -4803,7 +4739,6 @@ EOT;
     // store the label->idf relationship, note that this means that labels can be used only once
     $this->destinations["$label"] =  $id;
   }
-
 
   /**
    * define font families, this is used to initialize the font families for the default fonts
@@ -4850,7 +4785,6 @@ EOT;
   function addMessage($message) {
     $this->messages.=  $message."\n";
   }
-
 
   /**
    * a few functions which should allow the document to be treated transactionally.
@@ -4902,4 +4836,4 @@ EOT;
     }
   }
 }
-// end of class
+

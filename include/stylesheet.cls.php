@@ -178,6 +178,13 @@ class Stylesheet {
   function set_base_path($path) { $this->_base_path = $path; }
 
   /**
+   * Return the DOMPDF object
+   *
+   * @return DOMPDF
+   */
+  function get_dompdf() { return $this->_dompdf; }
+
+  /**
    * Return the base protocol for this stylesheet
    *
    * @return string

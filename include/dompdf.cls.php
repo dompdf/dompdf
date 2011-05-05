@@ -203,6 +203,11 @@ class DOMPDF {
   private $_default_view_options = array();
 
   /**
+   * @var bool Tells wether the DOM document is in quirksmode (experimental)
+   */
+  private $_quirskmode = false;
+
+  /**
    * Class constructor
    */
   function __construct() {
@@ -401,12 +406,12 @@ class DOMPDF {
    *
    * Parse errors are stored in the global array _dompdf_warnings.
    *
+   * @todo use the $encoding variable
    * @param string $str HTML text to load
    */
   function load_html($str, $encoding = null) {
     $this->save_locale();
     
-    // TODO: use the $encoding variable
     // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
     mb_detect_order('auto');
     
@@ -464,8 +469,7 @@ class DOMPDF {
     $this->_xml->loadHTML($str);
     restore_error_handler();
     
-    /**
-    @todo Take the quirksmode into account
+    // @todo Take the quirksmode into account
     // http://hsivonen.iki.fi/doctype/
     // https://developer.mozilla.org/en/mozilla's_quirks_mode
     $quirksmode = false;
@@ -479,7 +483,8 @@ class DOMPDF {
     if ( !preg_match("/xhtml/i", $this->_xml->doctype->publicId) ) {
       $quirksmode = true;
     }
-    */
+
+    $this->_quirksmode = $quirksmode;
     
     $this->restore_locale();
   }
@@ -778,8 +783,12 @@ class DOMPDF {
     $memory = number_format($memory/1024);
     $time = number_format((microtime(true) - $this->_start_time) * 1000, 4);
     
-    $out = "<span style='color: #900'>$memory KB</span>    ".
-    "<span style='color: #090'>$time ms</span><br />";
+    $out = 
+      "<span style='color: #900'>$memory KB</span>\t".
+      "<span style='color: #090'>$time ms</span>\t".
+      "<span style='color: #009'>quirksmode ".
+        ($this->_quirksmode ? "<span style='color: #c00'>ON</span>" : "<span style='color: #0c0'>OFF</span>").
+      "</span><br />";
     
     $out .= ob_get_clean();
     file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);

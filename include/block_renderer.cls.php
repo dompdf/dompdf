@@ -56,7 +56,14 @@ class Block_Renderer extends Abstract_Renderer {
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
 
     if ( $frame->get_node()->nodeName === "body" ) {
-      $h = $frame->get_containing_block("h");
+      $h = $frame->get_containing_block("h") - $style->length_in_pt(array(
+        $style->margin_top,
+        $style->padding_top,
+        $style->border_top_width,
+        $style->border_bottom_width,
+        $style->padding_bottom,
+        $style->margin_bottom),
+      $style->width);
     }
     
     // Draw our background, border and content

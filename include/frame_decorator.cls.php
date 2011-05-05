@@ -453,22 +453,27 @@ abstract class Frame_Decorator extends Frame {
     if ( $child->get_parent() !== $this )
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
 
-    $split = $this->copy( $this->_frame->get_node()->cloneNode() );
+    $node = $this->_frame->get_node();
+    
+    $split = $this->copy( $node->cloneNode() );
     $split->reset();
     $split->get_original_style()->text_indent = 0;
     
-    // Style reset on the first and second parts
-    $style = $this->_frame->get_style();
-    $style->margin_bottom = 0;
-    $style->padding_bottom = 0;
-    $style->border_bottom = 0;
-    
-    // second
-    $orig_style = $split->get_original_style();
-    $orig_style->text_indent = 0;
-    $orig_style->margin_top = 0;
-    $orig_style->padding_top = 0;
-    $orig_style->border_top = 0;
+    // The body's properties must be kept
+    if ( $node->nodeName !== "body" ) {
+      // Style reset on the first and second parts
+      $style = $this->_frame->get_style();
+      $style->margin_bottom = 0;
+      $style->padding_bottom = 0;
+      $style->border_bottom = 0;
+      
+      // second
+      $orig_style = $split->get_original_style();
+      $orig_style->text_indent = 0;
+      $orig_style->margin_top = 0;
+      $orig_style->padding_top = 0;
+      $orig_style->border_top = 0;
+    }
     
     $this->get_parent()->insert_child_after($split, $this);
 
