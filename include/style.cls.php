@@ -360,6 +360,7 @@ class Style {
       $d["voice_family"] = "";
       $d["volume"] = "medium";
       $d["white_space"] = "normal";
+      $d["word_wrap"] = "normal";
       $d["widows"] = "2";
       $d["width"] = "auto";
       $d["word_spacing"] = "normal";
@@ -412,6 +413,7 @@ class Style {
                                  "voice_family",
                                  "volume",
                                  "white_space",
+                                 "word_wrap",
                                  "widows",
                                  "word_spacing");
     }

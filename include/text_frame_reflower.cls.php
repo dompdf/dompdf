@@ -132,13 +132,36 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
       $width += $word_width;
       $str .= $word;
-
     }
 
+    $break_word = ($style->word_wrap === "break-word");
+    
     // The first word has overflowed.   Force it onto the line
     if ( $current_line_width == 0 && $width == 0 ) {
-      $width += $word_width;
-      $str .= $word;
+      
+      $s = "";
+      $last_width = 0;
+        
+      if ( $break_word ) {
+        for ( $j = 0; $j < strlen($word); $j++ ) {
+          $s .= $word[$j];
+          $_width = Font_Metrics::get_text_width($s, $font, $size, $word_spacing, $char_spacing);
+          if ($_width > $available_width) {
+            break;
+          }
+          
+          $last_width = $_width;
+        }
+      }
+      
+      if ( $break_word && $last_width > 0 ) {
+        $width += $last_width;
+        $str .= substr($s, 0, -1);
+      }
+      else {
+        $width += $word_width;
+        $str .= $word;
+      }
     }
 
     $offset = mb_strlen($str);
