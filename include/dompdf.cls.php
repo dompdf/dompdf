@@ -781,7 +781,7 @@ class DOMPDF {
     
     $memory = DOMPDF_memory_usage();
     $memory = number_format($memory/1024);
-    $time = number_format((microtime(true) - $this->_start_time) * 1000, 4);
+    $time = number_format((microtime(true) - $this->_start_time) * 1000, 2);
     
     $out = 
       "<span style='color: #900'>$memory KB</span>\t".

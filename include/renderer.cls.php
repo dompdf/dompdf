@@ -129,9 +129,6 @@ class Renderer extends Abstract_Renderer {
       case "list-item":
       case "inline-block":
       case "table":
-      case "table-row-group":
-      case "table-header-group":
-      case "table-footer-group":
       case "inline-table":
         $this->_render_frame("block", $frame);
         break;
@@ -145,6 +142,12 @@ class Renderer extends Abstract_Renderer {
   
       case "table-cell":
         $this->_render_frame("table-cell", $frame);
+        break;
+  
+      case "table-row-group":
+      case "table-header-group":
+      case "table-footer-group":
+        $this->_render_frame("table-row-group", $frame);
         break;
   
       case "-dompdf-list-bullet":
@@ -280,6 +283,10 @@ class Renderer extends Abstract_Renderer {
       
       case "table-cell":
         $this->_renderers[$type] = new Table_Cell_Renderer($this->_dompdf);
+        break;
+      
+      case "table-row-group":
+        $this->_renderers[$type] = new Table_Row_Group_Renderer($this->_dompdf);
         break;
 
       case "list-bullet":

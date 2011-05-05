@@ -167,6 +167,13 @@ class Style {
    * @var array
    */
   static protected $_inherited = null;
+  
+  /**
+   * Caches method_exists result
+   * 
+   * @var array<bool>
+   */
+  static protected $_methods_cache = array();
 
   /**
    * The stylesheet this style belongs to
@@ -528,7 +535,7 @@ class Style {
       
       // FIXME: em:ex ratio?
       if ( ($i = mb_strpos($l, "ex"))  !== false ) {
-        $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
+        $ret += mb_substr($l, 0, $i) * $this->__get("font_size") / 2;
         continue;
       }
       
@@ -701,8 +708,12 @@ class Style {
     }
     
     $method = "set_$prop";
+    
+    if ( !isset(self::$_methods_cache[$method]) ) {
+      self::$_methods_cache[$method] = method_exists($this, $method);
+    }
 
-    if ( method_exists($this, $method) )
+    if ( self::$_methods_cache[$method] )
       $this->$method($val);
     else
       $this->_props[$prop] = $val;
@@ -734,7 +745,11 @@ class Style {
     if ( !isset($this->_props[$prop]) )
       $this->_props[$prop] = self::$_defaults[$prop];
 
-    if ( method_exists($this, $method) )
+    if ( !isset(self::$_methods_cache[$method]) ) {
+      self::$_methods_cache[$method] = method_exists($this, $method);
+    }
+    
+    if ( self::$_methods_cache[$method] )
       return $this->_prop_cache[$prop] = $this->$method();
 
     return $this->_prop_cache[$prop] = $this->_props[$prop];

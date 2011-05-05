@@ -145,8 +145,24 @@ class Frame_Tree {
     if ( is_null($html) )
       throw new DOMPDF_Exception("Requested HTML document contains no data.");
 
+    $this->fix_tables();
+    
     $this->_root = $this->_build_tree_r($html);
 
+  }
+  
+  /**
+   * Adds missing TBODYs around TR
+   */
+  protected function fix_tables(){
+    $xp = new DOMXPath($this->_dom);
+    
+    $rows = $xp->query("//table/tr");
+    foreach($rows as $row) {
+      $tbody = $this->_dom->createElement("tbody");
+      $tbody = $row->parentNode->insertBefore($tbody, $row);
+      $tbody->appendChild($row);
+    }
   }
 
   /**

@@ -357,13 +357,6 @@ class  Cpdf {
     $this->setFontFamily('init');
     //  $this->fileIdentifier = md5('xxxxxxxx'.time());
   }
-
-  /**
-   * Class destructor
-   */
-  function __destruct() {
-    clear_object($this);
-  }
   
   /**
    * Document object methods (internal use only)
@@ -3069,6 +3062,24 @@ EOT;
     }
 
     return  $size*$h/1000;
+  }
+  
+  function getFontXHeight($size) {
+    if  (!$this->numFonts) {
+      $this->selectFont($this->defaultFont);
+    }
+    
+    $font = $this->fonts[$this->currentFont];
+    
+    // for the current font, and the given size, what is the height of the font in user units
+    if ( isset($font['XHeight']) ) {
+      $xh =  $font['Ascender']-$font['Descender'];
+    }
+    else {
+      $xh =  $this->getFontHeight($size) / 2;
+    }
+
+    return  $size*$xh/1000;
   }
 
   /**

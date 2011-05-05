@@ -296,6 +296,15 @@ interface Canvas {
   function get_font_baseline($font, $size);
   
   /**
+   * Returns the font x-height, in points
+   *
+   * @param string $font
+   * @param float $size
+   * @return float
+   */
+  //function get_font_x_height($font, $size);
+  
+  /**
    * Sets the opacity
    *
    * @param float $opacity

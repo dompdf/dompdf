@@ -243,7 +243,6 @@ class CPDF_Adapter implements Canvas {
       if (!DEBUGKEEPTEMP)
         unlink($img);
     }
-    clear_object($this);
   }
   
   /**
@@ -788,6 +787,11 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->selectFont($font);
     return $this->_pdf->getFontHeight($size) * DOMPDF_FONT_HEIGHT_RATIO;
   }
+  
+  /*function get_font_x_height($font, $size) {
+    $this->_pdf->selectFont($font);
+    return $this->_pdf->getFontXHeight($size) * DOMPDF_FONT_HEIGHT_RATIO;
+  }*/
   
   function get_font_baseline($font, $size) {
     return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO;

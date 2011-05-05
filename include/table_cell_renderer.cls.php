@@ -63,8 +63,10 @@ class Table_Cell_Renderer extends Block_Renderer {
     if ( ($url = $style->background_image) && $url !== "none" ) {
       $this->_background_image($url, $x, $y, $w, $h, $style);
     }
+    
+    $table = Table_Frame_Decorator::find_parent_table($frame);
 
-    if ( $style->border_collapse !== "collapse" ) {
+    if ( $table->get_style()->border_collapse !== "collapse" ) {
       $this->_render_border($frame);
       $this->_render_outline($frame);
       return;
@@ -73,8 +75,8 @@ class Table_Cell_Renderer extends Block_Renderer {
     // The collapsed case is slightly complicated...
     // @todo Add support for outlines here
 
-    $cellmap = Table_Frame_Decorator::find_parent_table($frame)->get_cellmap();
-    $cells = $cellmap->get_spanned_cells($frame);
+    $cellmap  = $table->get_cellmap();
+    $cells    = $cellmap->get_spanned_cells($frame);
     $num_rows = $cellmap->get_num_rows();
     $num_cols = $cellmap->get_num_cols();
 

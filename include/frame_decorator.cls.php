@@ -344,13 +344,6 @@ abstract class Frame_Decorator extends Frame {
   }
 
   /**
-   * @return FrameList
-   */
-  function get_children() {
-    return new FrameList($this);
-  }
-
-  /**
    * @return FrameTreeList
    */
   function get_subtree() {

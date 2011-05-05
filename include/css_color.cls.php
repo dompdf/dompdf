@@ -196,12 +196,12 @@ class CSS_Color {
       return $colour;
     
     $colour = strtolower($colour);
+      
+    if ( in_array($colour, array("transparent", "inherit")) )
+      return $colour;
     
     if (isset(self::$cssColorNames[$colour])) 
       return self::getArray(self::$cssColorNames[$colour]);
-      
-    if ($colour === "transparent")
-      return "transparent";
       
     $length = mb_strlen($colour);
     

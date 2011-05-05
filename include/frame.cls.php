@@ -94,6 +94,13 @@ class Frame {
    * @var Frame
    */
   protected $_parent;
+  
+  /**
+   * This frame's children
+   *
+   * @var array
+   */
+  protected $_frame_list;
 
   /**
    * This frame's first child.  All children are handled as a
@@ -328,7 +335,14 @@ class Frame {
   /**
    * @return FrameList
    */
-  function get_children() { return new FrameList($this); }
+  function get_children() { 
+    if ( isset($this->_frame_list) ) {
+      return $this->_frame_list;
+    }
+    
+    $this->_frame_list = new FrameList($this);
+    return $this->_frame_list; 
+  }
   
   // Layout property accessors
   

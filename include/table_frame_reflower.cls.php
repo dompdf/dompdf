@@ -93,15 +93,23 @@ class Table_Frame_Reflower extends Frame_Reflower {
     // Calculate padding & border fudge factor
     $left = $style->margin_left;
     $right = $style->margin_right;
+    
+    $centered = ( $left === "auto" && $right === "auto" );
 
     $left  = $left  === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
     $right = $right === "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
 
-    $delta = $left + $right + $style->length_in_pt(array($style->padding_left,
-                                                         $style->border_left_width,
-                                                         $style->border_right_width,
-                                                         $style->padding_right), $cb["w"]);
-
+    $delta = $left + $right;
+    
+    if ( !$centered ) {
+      $delta += $style->length_in_pt(array(
+        $style->padding_left,
+        $style->border_left_width,
+        $style->border_right_width,
+        $style->padding_right), 
+      $cb["w"]);
+    }
+    
     $min_table_width = $style->length_in_pt( $style->min_width, $cb["w"] - $delta );
 
     // min & max widths already include borders & padding
