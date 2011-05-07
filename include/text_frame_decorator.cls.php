@@ -203,4 +203,4 @@ class Text_Frame_Decorator extends Frame_Decorator {
 
 }
 
-Text_Frame_Decorator::$_buggy_splittext = version_compare(PHP_VERSION, '5.2.6', '<=');
+Text_Frame_Decorator::$_buggy_splittext = version_compare(PHP_VERSION, '5.2.7', '<');
