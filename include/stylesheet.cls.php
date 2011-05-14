@@ -73,6 +73,30 @@ class Stylesheet {
    * The location of the default built-in CSS file.
    */
   const DEFAULT_STYLESHEET = __DEFAULT_STYLESHEET; 
+  
+  /**
+   * User agent stylesheet origin
+   * @var int
+   */
+  const ORIG_UA = 1;
+  
+  /**
+   * User normal stylesheet origin
+   * @var int
+   */
+  const ORIG_USER = 2;
+  
+  /**
+   * Author normal stylesheet origin
+   * @var int
+   */
+  const ORIG_AUTHOR = 3;
+  
+  private static $_stylesheet_origins = array(
+    self::ORIG_UA => -0x0FFFFFFF, // user agent style sheets
+    self::ORIG_USER => -0x0000FFFF, // user normal style sheets
+    self::ORIG_AUTHOR =>  0x00000000, // author normal style sheets
+  );
 
   /**
    * Current dompdf instance
@@ -108,16 +132,18 @@ class Stylesheet {
   private $_base_path;
 
   /**
-   * The style defined by @page rules
-   * @var Style
+   * The styles defined by @page rules
+   * @var array<Style>
    */
-  private $_page_style;
+  private $_page_styles;
 
   /**
    * List of loaded files, used to prevent recursion
    * @var array
    */
   private $_loaded_files;
+  
+  private $_current_origin = self::ORIG_UA;
 
   /**
    * Accepted CSS media types
@@ -146,7 +172,7 @@ class Stylesheet {
     $this->_styles = array();
     $this->_loaded_files = array();
     list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($_SERVER["SCRIPT_FILENAME"]);
-    $this->_page_style = null;
+    $this->_page_styles = array("base" => null);
   }
   
   /**
@@ -206,11 +232,11 @@ class Stylesheet {
   function get_base_path() { return $this->_base_path; }
   
   /**
-   * Return the page style
+   * Return the array of page styles
    *
-   * @return Style
+   * @return array<Style>
    */
-  function get_page_style() { return $this->_page_style; }
+  function get_page_styles() { return $this->_page_styles; }
 
   /**
    * Add a new Style object to the stylesheet
@@ -229,6 +255,8 @@ class Stylesheet {
       $this->_styles[$key]->merge($style);
     else
       $this->_styles[$key] = clone $style;
+      
+    $this->_styles[$key]->set_origin( $this->_current_origin );
   }
 
   /**
@@ -254,7 +282,7 @@ class Stylesheet {
    * @return Style
    */
   function create_style(Style $parent = null) {
-    return new Style($this, $parent);
+    return new Style($this, $this->_current_origin);
   }
 
   /**
@@ -270,8 +298,12 @@ class Stylesheet {
    *
    * @param string $file
    */
-  function load_css_file($file) {
+  function load_css_file($file, $origin = self::ORIG_AUTHOR) {
     global $_dompdf_warnings;
+    
+    if ( $origin ) {
+      $this->_current_origin = $origin;
+    }
 
     // Prevent circular references
     if ( isset($this->_loaded_files[$file]) )
@@ -307,17 +339,26 @@ class Stylesheet {
   }
 
   /**
-   * @link http://www.w3.org/TR/CSS21/cascade.html#specificity}
+   * @link http://www.w3.org/TR/CSS21/cascade.html#specificity
+   * 
+   * 
    *
    * @param string $selector
+   * @param string $origin : 
+   *    - ua: user agent style sheets
+   *    - un: user normal style sheets
+   *    - an: author normal style sheets
+   *    - ai: author important style sheets
+   *    - ui: user important style sheets
+   *    
    * @return int
    */
-  private function _specificity($selector) {
+  private function _specificity($selector, $origin = self::ORIG_AUTHOR) {
     // http://www.w3.org/TR/CSS21/cascade.html#specificity
     // ignoring the ":" pseudoclass modifyers
     // also ignored in _css_selector_to_xpath
 
-    $a = ($selector === "!style attribute") ? 1 : 0;
+    $a = ($selector === "!attr") ? 1 : 0;
 
     $b = min(mb_substr_count($selector, "#"), 255);
 
@@ -334,7 +375,7 @@ class Stylesheet {
     //this can lead to a too small specificity
     //see _css_selector_to_xpath
 
-    if ( !in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) ) {
+    if ( !in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "["))/* && $selector !== "*"*/) {
       $d++;
     }
 
@@ -343,8 +384,8 @@ class Stylesheet {
       /*DEBUGCSS*/  printf("_specificity(): 0x%08x \"%s\"\n", ($a << 24) | ($b << 16) | ($c << 8) | ($d), $selector);
       /*DEBUGCSS*/  print "</pre>";
     }
-
-    return ($a << 24) | ($b << 16) | ($c << 8) | ($d);
+    
+    return self::$_stylesheet_origins[$origin] + ($a << 24) | ($b << 16) | ($c << 8) | ($d);
   }
 
   /**
@@ -738,8 +779,8 @@ class Stylesheet {
     $root_flg = false;
     foreach ($tree->get_frames() as $frame) {
       // pre_r($frame->get_node()->nodeName . ":");
-      if ( !$root_flg && $this->_page_style ) {
-        $style = $this->_page_style;
+      if ( !$root_flg && $this->_page_styles["base"] ) {
+        $style = $this->_page_styles["base"];
         $root_flg = true;
       } else
         $style = $this->create_style();
@@ -773,7 +814,7 @@ class Stylesheet {
         // Destroy CSS comments
         $str = preg_replace("'/\*.*?\*/'si", "", $str);
         
-        $spec = $this->_specificity("!style attribute");
+        $spec = $this->_specificity("!attr");
         $styles[$id][$spec][] = $this->_parse_properties($str);
       }
 
@@ -939,14 +980,26 @@ class Stylesheet {
           //assign it to the <body> tag, possibly only for the css of the correct media type.
 
           // If the page has a name, skip the style.
-          if ($match[3] !== "")
-            return;
+          $page_selector = trim($match[3]);
+          
+          switch($page_selector) {
+            case "": 
+              $key = "base"; 
+              break;
+              
+            case ":left":
+            case ":right":
+            case ":first":
+              $key = $page_selector;
+              
+            default: continue;
+          }
 
           // Store the style for later...
-          if ( is_null($this->_page_style) )
-            $this->_page_style = $this->_parse_properties($match[5]);
+          if ( empty($this->_page_styles[$key]) )
+            $this->_page_styles[$key] = $this->_parse_properties($match[5]);
           else
-            $this->_page_style->merge($this->_parse_properties($match[5]));
+            $this->_page_styles[$key]->merge($this->_parse_properties($match[5]));
           break;
 
         case "font-face":
@@ -1102,6 +1155,7 @@ class Stylesheet {
 
     // Create the style
     $style = new Style($this);
+    
     foreach ($properties as $prop) {
       // If the $prop contains an url, the regex may be wrong
       // @todo: fix the regex so that it works everytime
@@ -1126,17 +1180,20 @@ class Stylesheet {
       $prop = trim($prop);
       */
       if (DEBUGCSS) print '(';
-     $important = false;
+      
+      $important = false;
       $prop = trim($prop);
-      if (substr($prop,-9) === 'important') {
-        $prop_tmp = rtrim(substr($prop,0,-9));
-        if (substr($prop_tmp,-1) === '!') {
-          $prop = rtrim(substr($prop_tmp,0,-1));
+      
+      if ( substr($prop, -9) === 'important' ) {
+        $prop_tmp = rtrim(substr($prop, 0, -9));
+        
+        if ( substr($prop_tmp, -1) === '!' ) {
+          $prop = rtrim(substr($prop_tmp, 0, -1));
           $important = true;
         }
       }
 
-      if ($prop == "") {
+      if ( $prop === "" ) {
         if (DEBUGCSS) print 'empty)';
         continue;
       }

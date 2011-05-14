@@ -213,6 +213,13 @@ class Style {
    */
   protected $_frame;
   
+  /**
+   * The origin of the style
+   * 
+   * @var int
+   */
+  protected $_origin = Stylesheet::ORIG_AUTHOR;
+  
   // private members
   /**
    * True once the font size is resolved absolutely
@@ -226,10 +233,11 @@ class Style {
    *
    * @param Stylesheet $stylesheet the stylesheet this Style is associated with.
    */
-  function __construct(Stylesheet $stylesheet) {
+  function __construct(Stylesheet $stylesheet, $origin = Stylesheet::ORIG_AUTHOR) {
     $this->_props = array();
     $this->_important_props = array();
     $this->_stylesheet = $stylesheet;
+    $this->_origin = $origin;
     $this->_parent_font_size = null;
     $this->__font_size_calculated = false;
     
@@ -435,6 +443,14 @@ class Style {
     return $this->_frame;
   }
   
+  function set_origin($origin) {
+    $this->_origin = $origin;
+  }
+  
+  function get_origin() {
+    return $this->_origin;
+  }
+  
   /**
    * returns the {@link Stylesheet} this Style is associated with.
    *
@@ -509,6 +525,11 @@ class Style {
         $ret += mb_substr($l, 0, $i);
         continue;
       }
+      
+      if ( ($i = mb_strpos($l, "%"))  !== false ) {
+        $ret += mb_substr($l, 0, $i)/100 * $ref_size;
+        continue;
+      }
 
       if ( ($i = mb_strpos($l, "rem"))  !== false ) {
         $ret += mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->get_tree()->get_root()->get_style()->font_size;
@@ -517,11 +538,6 @@ class Style {
 
       if ( ($i = mb_strpos($l, "em"))  !== false ) {
         $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
-        continue;
-      }
-      
-      if ( ($i = mb_strpos($l, "%"))  !== false ) {
-        $ret += mb_substr($l, 0, $i)/100 * $ref_size;
         continue;
       }
           
@@ -547,7 +563,7 @@ class Style {
       }
           
       if ( ($i = mb_strpos($l, "pc")) !== false ) {
-        $ret += mb_substr($l, 0, $i) / 12;
+        $ret += mb_substr($l, 0, $i) * 12;
         continue;
       }
           
@@ -2184,6 +2200,15 @@ class Style {
   
   function set__dompdf_image_resolution($val) {
     return $this->set_image_resolution($val);
+  }
+
+  function set_z_index($val) {
+    if ( round($val) != $val && $val !== "auto" ) {
+      return;
+    }
+
+    $this->_prop_cache["z_index"] = null;
+    $this->_props["z_index"] = $val;
   }
 
   /**

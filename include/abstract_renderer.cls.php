@@ -632,7 +632,7 @@ abstract class Abstract_Renderer {
   protected function _border_double($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     list($top, $right, $bottom, $left) = $widths;
     
-    $line_width = $$side / 4;
+    $line_width = $$side / 3;
     
     // We draw the outermost edge first. Points are ordered: outer left,
     // outer right, inner right, inner left, or outer top, outer bottom,
@@ -641,8 +641,8 @@ abstract class Abstract_Renderer {
 
     case "top":
       if ( $corner_style === "bevel" ) {
-        $left_line_width = $left / 4;
-        $right_line_width = $right / 4;
+        $left_line_width = $left / 3;
+        $right_line_width = $right / 3;
         
         $points = array($x, $y,
                         $x + $length, $y,
@@ -665,8 +665,8 @@ abstract class Abstract_Renderer {
       
     case "bottom":
       if ( $corner_style === "bevel" ) {
-        $left_line_width = $left / 4;
-        $right_line_width = $right / 4;
+        $left_line_width = $left / 3;
+        $right_line_width = $right / 3;
         
         $points = array($x, $y,
                         $x + $length, $y,
@@ -689,8 +689,8 @@ abstract class Abstract_Renderer {
 
     case "left":
       if ( $corner_style === "bevel" ) {
-        $top_line_width = $top / 4;
-        $bottom_line_width = $bottom / 4;
+        $top_line_width = $top / 3;
+        $bottom_line_width = $bottom / 3;
         
         $points = array($x, $y,
                         $x, $y + $length,
@@ -713,8 +713,8 @@ abstract class Abstract_Renderer {
                       
     case "right":
       if ( $corner_style === "bevel" ) {
-        $top_line_width = $top / 4;
-        $bottom_line_width = $bottom / 4;
+        $top_line_width = $top / 3;
+        $bottom_line_width = $bottom / 3;
         
       
         $points = array($x, $y,

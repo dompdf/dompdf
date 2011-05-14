@@ -54,7 +54,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
   public static $_buggy_splittext;
   
   function __construct(Frame $frame, DOMPDF $dompdf) {
-    if ( $frame->get_node()->nodeName !== "#text" )
+    if ( !$frame->is_text_node() )
       throw new DOMPDF_Exception("Text_Decorator can only be applied to #text nodes.");
     
     parent::__construct($frame, $dompdf);

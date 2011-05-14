@@ -194,7 +194,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     // Trim leading text if this is an empty line.  Kinda a hack to put it here,
     // but what can you do...
     if ( $this->get_current_line_box()->w == 0 &&
-         $frame->get_node()->nodeName === "#text" &&
+         $frame->is_text_node() &&
          !in_array($style->white_space, array("pre", "pre-wrap")) ) {
 
       $frame->set_text( ltrim($frame->get_text()) );
@@ -212,7 +212,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
     //    pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
     //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
-    if ( $frame->get_node()->nodeName === "#text" )
+    if ( $frame->is_text_node() )
       pre_r('"'.$frame->get_node()->nodeValue.'"');
 
     pre_r("Line width: " . $this->_line_boxes[$this->_cl]->w);
@@ -232,7 +232,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     $current_line = $this->_line_boxes[$this->_cl];
     $current_line->add_frame($frame);
 
-    if ( $frame->get_node()->nodeName === "#text")
+    if ( $frame->is_text_node() )
       $current_line->wc += count(preg_split("/\s+/", trim($frame->get_text())));
 
     $this->increase_line_width($w);

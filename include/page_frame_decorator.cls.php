@@ -89,7 +89,6 @@ class Page_Frame_Decorator extends Frame_Decorator {
     $this->_bottom_page_margin = null;
   }
 
-
   /**
    * Set the renderer used for this pdf
    *
@@ -369,7 +368,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       // page-break-inside: avoid, ensure that at least one frame with
       // some content is on the page before splitting.
       $prev = $frame->get_prev_sibling();
-      while ( $prev && ($prev->get_node()->nodeName === "#text" && trim($prev->get_node()->nodeValue) == "") )
+      while ( $prev && ($prev->is_text_node() && trim($prev->get_node()->nodeValue) == "") )
         $prev = $prev->get_prev_sibling();
 
       if ( $block_parent->get_node()->nodeName === "body" && !$prev ) {
@@ -379,7 +378,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       }
 
       // Skip breaks on empty text nodes
-      if ( $frame->get_node()->nodeName === "#text" &&
+      if ( $frame->is_text_node() &&
            $frame->get_node()->nodeValue == "" )
         return false;
 

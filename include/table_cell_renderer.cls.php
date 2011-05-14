@@ -51,6 +51,10 @@ class Table_Cell_Renderer extends Block_Renderer {
 
   function render(Frame $frame) {
     $style = $frame->get_style();
+    
+    if ( trim($frame->get_node()->nodeValue) === "" && $style->empty_cells === "hide" ) {
+      return;
+    }
 
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
     list($x, $y, $w, $h) = $frame->get_border_box();

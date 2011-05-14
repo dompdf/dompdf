@@ -583,7 +583,15 @@ class Frame {
   }
 
   //........................................................................
-    
+
+  /**
+   * Tells if the frame is a text node
+   * @return bool 
+   */
+  function is_text_node(){
+    return $this->get_node()->nodeName === "#text";
+  }
+  
   /**
    * Inserts a new child at the beginning of the Frame
    * 
@@ -764,7 +772,7 @@ class Frame {
   // Debugging function:
   function __toString() {
     // Skip empty text frames
-//     if ( $this->_node->nodeName === "#text" &&
+//     if ( $this->is_text_node() &&
 //          preg_replace("/\s/", "", $this->_node->data) === "" )
 //       return "";
     
@@ -774,7 +782,7 @@ class Frame {
     $str .= "Id: " .$this->get_id() . "<br/>";
     $str .= "Class: " .get_class($this) . "<br/>";
     
-    if ( $this->_node->nodeName === "#text" ) {
+    if ( $this->is_text_node() ) {
       $tmp = htmlspecialchars($this->_node->nodeValue);
       $str .= "<pre>'" .  mb_substr($tmp,0,70) .
         (mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";

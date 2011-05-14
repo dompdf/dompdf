@@ -95,7 +95,7 @@ class Frame_Factory {
 
     case "inline":
       $positioner = "Inline";
-      if ( $frame->get_node()->nodeName === "#text" ) {
+      if ( $frame->is_text_node() ) {
         $decorator = "Text";
         $reflower = "Text";
       } 

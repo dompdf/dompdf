@@ -348,6 +348,13 @@ class DOMPDF {
   function get_callbacks() { return $this->_callbacks; }
 
   /**
+   * Returns the stylesheet
+   *
+   * @return Stylesheet
+   */
+  function get_css() { return $this->_css; }
+
+  /**
    * Loads an HTML file
    *
    * Parse errors are stored in the global array _dompdf_warnings.
@@ -498,7 +505,7 @@ class DOMPDF {
     
     $this->_tree->build_tree();
 
-    $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET);
+    $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET, Stylesheet::ORIG_UA);
 
     $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
     if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
@@ -533,7 +540,7 @@ class DOMPDF {
         $url = $link->getAttribute("href");
         $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
 
-        $this->_css->load_css_file($url);
+        $this->_css->load_css_file($url, Stylesheet::ORIG_AUTHOR);
       }
 
     }
@@ -708,10 +715,17 @@ class DOMPDF {
 
     }
     
-    $page_style = $this->_css->get_page_style();
+    $page_styles = $this->_css->get_page_styles();
     
-    if ( $page_style && is_array($page_style->size) ) {
-      $this->set_paper(array(0, 0, $page_style->size[0], $page_style->size[1]));
+    $base_page_style = $page_styles["base"];
+    unset($page_styles["base"]);
+    
+    foreach($page_styles as $_page_style) {
+      $_page_style->inherit($base_page_style);
+    }
+    
+    if ( is_array($base_page_style->size) ) {
+      $this->set_paper(array(0, 0, $base_page_style->size[0], $base_page_style->size[1]));
     }
     
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);

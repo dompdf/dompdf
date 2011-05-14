@@ -86,7 +86,7 @@ class Inline_Positioner extends Positioner {
 
     if ( !$is_fixed && $f->get_parent() &&
          $f->get_parent() instanceof Inline_Frame_Decorator &&
-         $f->get_node()->nodeName === "#text" ) {
+         $f->is_text_node() ) {
       
       $min_max = $f->get_reflower()->get_min_max_width();
       

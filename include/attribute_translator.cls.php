@@ -50,6 +50,7 @@ class Attribute_Translator {
   
   // Munged data originally from
   // http://www.w3.org/TR/REC-html40/index/attributes.html
+  // http://www.cs.tut.fi/~jkorpela/html2css.html
   static private $__ATTRIBUTE_LOOKUP = array(
     //'caption' => array ( 'align' => '', ),
     'img' => array(
@@ -287,38 +288,49 @@ class Attribute_Translator {
     $style = ltrim($style, ";");
     $node->setAttribute(self::$_style_attr, $style);
   }
+  
+  static protected function get_cell_list($node) {
+    $xpath = new DOMXpath($node->ownerDocument);
+    
+    switch($node->nodeName) {
+      case "table":
+        $query = "tr/td | thead/tr/td | tbody/tr/td | tfoot/tr/td | tr/th | thead/tr/th | tbody/tr/th | tfoot/tr/th";
+        break;
+        
+      case "tbody":
+      case "tfoot":
+      case "thead":
+        $query = "tr/td | tr/th";
+        break;
+        
+      case "tr":
+        $query = "td | th";
+        break;
+    }
+    
+    return $xpath->query($query, $node);
+  }
 
   //.....................................................................
 
   static protected function _set_table_cellpadding($node, $value) {
-    $td_list = $node->getElementsByTagName("td");
-    foreach ($td_list as $td) {
-      self::append_style($td, "; padding: $value" . "px;");
+    $cell_list = self::get_cell_list($node);
+    
+    foreach ($cell_list as $cell) {
+      self::append_style($cell, "; padding: $value" . "px;");
     }
+    
     return null;
   }
 
   static protected function _set_table_border($node, $value) {
-    $td_list = $node->getElementsByTagName("td");
-    foreach ($td_list as $td) {
-      $style = $td->getAttribute(self::$_style_attr);
-      if ( strpos($style, "border") !== false )
-        continue;
-      $style = rtrim($style, ";");
+    $cell_list = self::get_cell_list($node);
+
+    foreach ($cell_list as $cell) {
+      $style = rtrim($cell->getAttribute(self::$_style_attr));
       $style .= "; border-width: " . ($value > 0 ? 1 : 0) . "pt; border-style: inset;";
       $style = ltrim($style, ";");
-      $td->setAttribute(self::$_style_attr, $style);
-    }
-    
-    $th_list = $node->getElementsByTagName("th");
-    foreach ($th_list as $th) {
-      $style = $th->getAttribute(self::$_style_attr);
-      if ( strpos($style, "border") !== false )
-        continue;
-      $style = rtrim($style, ";");
-      $style .= "; border-width: " . ($value > 0 ? 1 : 0) . "pt; border-style: inset;";
-      $style = ltrim($style, ";");
-      $th->setAttribute(self::$_style_attr, $style);
+      $cell->setAttribute(self::$_style_attr, $style);
     }
     
     $style = rtrim($node->getAttribute(self::$_style_attr), ";");
@@ -366,14 +378,18 @@ class Attribute_Translator {
       return null;
     }
 
-    $td_list = $node->getElementsByTagName("td");
+    $cell_list = self::get_cell_list($node);
     
-    foreach ($td_list as $td) {
-      $style = $td->getAttribute(self::$_style_attr);
+    foreach ($cell_list as $cell) {
+      $style = $cell->getAttribute(self::$_style_attr);
       $style .= $new_style;
-      $td->setAttribute(self::$_style_attr, $style);
+      $cell->setAttribute(self::$_style_attr, $style);
     }
-    return null;
+    
+    $style = rtrim($node->getAttribute(self::$_style_attr), ";");
+    $style .= "; border-collapse: collapse; ";
+    
+    return ltrim($style, "; ");
   }
 
   static protected function _set_hr_size($node, $value) {
@@ -410,40 +426,36 @@ class Attribute_Translator {
   }
 
   static protected function _set_table_row_align($node, $value) {
+    $cell_list = self::get_cell_list($node);
 
-    $td_list = $node->getElementsByTagName("td");
-
-    foreach ($td_list as $td) {
-      self::append_style($td, "; text-align: $value;");
+    foreach ($cell_list as $cell) {
+      self::append_style($cell, "; text-align: $value;");
     }
 
     return null;
   }
 
   static protected function _set_table_row_valign($node, $value) {
+    $cell_list = self::get_cell_list($node);
 
-    $td_list = $node->getElementsByTagName("td");
-
-    foreach ($td_list as $td) {
-      self::append_style($td, "; vertical-align: $value;");
+    foreach ($cell_list as $cell) {
+      self::append_style($cell, "; vertical-align: $value;");
     }
 
     return null;
   }
 
   static protected function _set_table_row_bgcolor($node, $value) {
-
-    $td_list = $node->getElementsByTagName("td");
-
-    foreach ($td_list as $td) {
-      self::append_style($td, "; background-color: $value;");
+    $cell_list = self::get_cell_list($node);
+    
+    foreach ($cell_list as $cell) {
+      self::append_style($cell, "; background-color: $value;");
     }
 
     return null;
   }
 
   static protected function _set_body_link($node, $value) {
-
     $a_list = $node->getElementsByTagName("a");
 
     foreach ($a_list as $a) {

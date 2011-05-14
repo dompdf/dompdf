@@ -266,7 +266,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
           continue;
         }
 
-        if ( $display === "table-cell") {
+        if ( $display === "table-cell" ) {
           // Create an anonymous table row
           $tr = $this->get_node()->ownerDocument->createElement("tr");
 

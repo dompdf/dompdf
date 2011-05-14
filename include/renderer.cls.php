@@ -96,11 +96,16 @@ class Renderer extends Abstract_Renderer {
       echo $frame;
       flush();
     }
+    
+    $style = $frame->get_style();
+    
+    if ( in_array($style->visibility, array("hidden", "collapse")) ) {
+      return;
+    }
 
     $render_self = self::$stacking_first_pass && !$stacking || !self::$stacking_first_pass;
     
     if ( $render_self ) {
-      $style = $frame->get_style();
       $display = $style->display;
       
       // Starts the CSS transformation
@@ -134,7 +139,7 @@ class Renderer extends Abstract_Renderer {
         break;
   
       case "inline":
-        if ( $frame->get_node()->nodeName === "#text" )
+        if ( $frame->is_text_node() )
           $this->_render_frame("text", $frame);
         else
           $this->_render_frame("inline", $frame);

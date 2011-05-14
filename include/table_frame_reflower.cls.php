@@ -384,6 +384,9 @@ class Table_Frame_Reflower extends Frame_Reflower {
   //........................................................................
 
   function reflow(Frame_Decorator $block = null) {
+    /**
+     * @var Table_Frame_Decorator
+     */
     $frame = $this->_frame;
     
     // Check if a page break is forced
