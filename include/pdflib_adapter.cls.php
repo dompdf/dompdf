@@ -755,7 +755,7 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
-  function image($img_url, $img_type, $x, $y, $w, $h) {
+  function image($img_url, $img_type, $x, $y, $w, $h, $resolution = "normal") {
     $w = (int)$w;
     $h = (int)$h;
 
