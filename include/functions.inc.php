@@ -934,7 +934,7 @@ else {
 function clear_object(&$object) {
   if ( is_object($object) ) {
     foreach (array_keys((array)$object) as $key) {
-      clear_object($property);
+      clear_object($key);
     }
     foreach(get_class_vars(get_class($object)) as $property => $value) {
       clear_object($property);
