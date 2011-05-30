@@ -113,7 +113,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
       // Otherwise aspect changed on %/auto combination for width/height
       // Resample according to px per inch
       // See also List_Bullet_Image_Frame_Decorator::__construct
-      $width = (float)($width * 72) / DOMPDF_DPI;
+      $width = $style->length_in_pt($width);
     }
 
     $height = ($style->height > 0 ? $style->height : 0);
@@ -131,7 +131,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
       // Otherwise aspect changed on %/auto combination for width/height
       // Resample according to px per inch
       // See also List_Bullet_Image_Frame_Decorator::__construct
-      $height = (float)($height * 72) / DOMPDF_DPI;
+      $height = $style->length_in_pt($height);
     }
 
     if ($width == 0 || $height == 0) {
