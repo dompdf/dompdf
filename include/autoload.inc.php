@@ -64,14 +64,13 @@ if ( function_exists("spl_autoload_register") ) {
   }
   
   // If PHP >= 5.3 the $prepend argument is available
-  else if ( version_compare(PHP_VERSION, '5.3', '>=') ) {
+  else if ( PHP_VERSION_ID >= 50300 ) {
     spl_autoload_register($autoload, true, true); 
   }
   
   else {
     // Unregister existing autoloaders... 
-    $compat = version_compare(PHP_VERSION, '5.1.2', '<=') && 
-              version_compare(PHP_VERSION, '5.1.0', '>=');
+    $compat = (PHP_VERSION_ID <= 50102 && PHP_VERSION_ID >= 50100);
               
     foreach ($funcs as $func) { 
       if (is_array($func)) { 

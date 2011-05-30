@@ -320,6 +320,10 @@ li {
   display: list-item;
 }
 
+/*li:before {
+	display: -dompdf-list-bullet !important;
+}*/
+
 /* nested lists have no top/bottom margins */
 ul ul,   ul ol,   ul dir,   ul menu,   ul dl,
 ol ul,   ol ol,   ol dir,   ol menu,   ol dl,

@@ -335,6 +335,13 @@ class  Cpdf {
    */
   static protected $targetEncoding = 'iso-8859-1';
   
+  static protected $coreFonts = array(
+    'courier', 'courier-bold', 'courier-oblique', 'courier-boldoblique',
+    'helvetica', 'helvetica-bold', 'helvetica-oblique', 'helvetica-boldoblique',
+    'times-roman', 'times-bold', 'times-italic', 'times-bolditalic',
+    'symbol', 'zapfdingbats'
+  );
+  
   /**
    * class constructor
    * this will start a new document
@@ -1979,15 +1986,16 @@ EOT;
     
     $this->addMessage("openFont: $font - $name");
 
-    $metrics_name = $name . ($this->isUnicode ? '.ufm' : '.afm');
-    
-    // Core fonts don't currently work with composite fonts (for Unicode support).
-    // The .ufm files have been removed so we need to check whether or not to use the
-    // .ufm or .afm.
-    if ($this->isUnicode && !file_exists("$dir/$metrics_name")) { $metrics_name = $name . '.afm'; }
+    if ( !$this->isUnicode || in_array(mb_strtolower(basename($name)), self::$coreFonts) ) {
+      $metrics_name = "$name.afm";
+    }
+    else {
+      $metrics_name = "$name.ufm";
+    }
     
     $cache_name = "$metrics_name.php";
     $this->addMessage("metrics: $metrics_name, cache: $cache_name");
+    
     if  (file_exists($fontcache . $cache_name)) {
       $this->addMessage("openFont: php file exists $fontcache$cache_name");
       $this->fonts[$font] = require($fontcache . $cache_name);
@@ -3464,6 +3472,8 @@ EOT;
     if  (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
+
+    $text = str_replace(array("\r", "\n"), "", $text);
     
     if ($smallCaps) {
       $text = preg_replace_callback("/\p{Ll}/u", array($this, "toUpper"), $text);
@@ -3601,6 +3611,8 @@ EOT;
     if (!$this->numFonts) {
       $this->selectFont($this->defaultFont);
     }
+
+    $text = str_replace(array("\r", "\n"), "", $text);
 
     // converts a number or a float to a string so it can get the width
     $text = "$text";

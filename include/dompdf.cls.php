@@ -793,14 +793,16 @@ class DOMPDF {
   private function write_log() {
     if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) return;
     
+    $frames = Frame::$ID_COUNTER;
     $memory = DOMPDF_memory_usage();
     $memory = number_format($memory/1024);
     $time = number_format((microtime(true) - $this->_start_time) * 1000, 2);
     
     $out = 
-      "<span style='color: #900'>$memory KB</span>\t".
-      "<span style='color: #090'>$time ms</span>\t".
-      "<span style='color: #009'>quirksmode ".
+      "<span style='color: #000'>{$frames} frames</span>\t".
+      "<span style='color: #900'>{$memory} KB</span>\t".
+      "<span style='color: #090'>{$time} ms</span>\t".
+      "<span style='color: #009' title='Quirksmode'>".
         ($this->_quirksmode ? "<span style='color: #c00'>ON</span>" : "<span style='color: #0c0'>OFF</span>").
       "</span><br />";
     

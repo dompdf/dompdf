@@ -62,7 +62,6 @@ class List_Bullet_Positioner extends Positioner {
     // Bullets & friends are positioned an absolute distance to the left of
     // the content edge of their parent element
     $cb = $this->_frame->get_containing_block();
-    $style = $this->_frame->get_style();
     
     // Note: this differs from most frames in that we must position
     // ourselves after determining our width
@@ -76,8 +75,9 @@ class List_Bullet_Positioner extends Positioner {
     $n = $this->_frame->get_next_sibling();
     if ( $n ) {
       $style = $n->get_style();
-      $y += $style->length_in_pt( array($style->margin_top, $style->padding_top),
-                                  $n->get_containing_block("w") );
+      $line_height = $style->length_in_pt($style->line_height, $style->get_font_size());
+      $offset = $style->length_in_pt($line_height, $n->get_containing_block("h")) - $this->_frame->get_height();             
+      $y += $offset / 2;
     }
 
   // Now the position is the left top of the block which should be marked with the bullet.
@@ -99,10 +99,10 @@ class List_Bullet_Positioner extends Positioner {
   // Todo:
   // For now give up on the above. Use Guesswork with font y-pos in the middle of the line spacing
 
-    $style = $p->get_style();
+    /*$style = $p->get_style();
     $font_size = $style->get_font_size();
     $line_height = $style->length_in_pt($style->line_height, $font_size);
-    $y += ($line_height - $font_size) / 2;    
+    $y += ($line_height - $font_size) / 2;    */
    
     //Position is x-end y-top of character position of the bullet.    
     $this->_frame->set_position($x, $y);

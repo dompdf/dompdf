@@ -157,6 +157,13 @@ class Frame_Tree {
   protected function fix_tables(){
     $xp = new DOMXPath($this->_dom);
     
+    /*$captions = $xp->query("//table/caption");
+    foreach($captions as $caption) {
+      $tr = $this->_dom->createElement("tr");
+      $tr = $caption->parentNode->insertBefore($tr, $caption);
+      $tr->appendChild($caption);
+    }*/
+    
     $rows = $xp->query("//table/tr");
     foreach($rows as $row) {
       $tbody = $this->_dom->createElement("tbody");

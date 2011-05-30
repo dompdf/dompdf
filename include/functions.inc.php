@@ -50,6 +50,11 @@
 
 /* $Id$ */
 
+if ( !defined('PHP_VERSION_ID') ) {
+  $version = explode('.', PHP_VERSION);
+  define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+}
+
 function def($name, $value = true) {
   if (!defined($name)) {
     define($name, $value);
@@ -916,7 +921,7 @@ if ( function_exists("memory_get_peak_usage") ) {
     return memory_get_peak_usage(true);
   }
 }
-else if ( function_exists("memory_get_peak_usage") ) {
+else if ( function_exists("memory_get_usage") ) {
   function DOMPDF_memory_usage(){
     return memory_get_usage(true);
   }
@@ -927,19 +932,50 @@ else {
   }
 }
 
+if ( function_exists("curl_init") ) {
+  function DOMPDF_fetch_url($url, &$headers = null) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, TRUE);
+    
+    $data = curl_exec($ch);
+    $raw_headers = substr($data, 0, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
+    $headers = preg_split("/[\n\r]+/", trim($raw_headers));
+    $data = substr($data, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
+    curl_close($ch);
+    
+    return $data;
+  }
+}
+else {
+  function DOMPDF_fetch_url($url, &$headers = null) {
+    $data = file_get_contents($url);
+    $headers = $http_response_header;
+    
+    return $data;
+  }
+}
+
 /**
  * Affect null to the unused objects
- * @param unknown_type $object
+ * @param mixed $object
  */
-function clear_object(&$object) {
-  if ( is_object($object) ) {
-    foreach (array_keys((array)$object) as $key) {
-      clear_object($key);
+if ( PHP_VERSION_ID < 50300 ) {
+  function clear_object(&$object) {
+    if ( is_object($object) ) {
+      foreach ($object as &$value) {
+        clear_object($value);
+      }
     }
-    foreach(get_class_vars(get_class($object)) as $property => $value) {
-      clear_object($property);
-    }
+    
+    $object = null;
+    unset($object);
   }
-  $object = null;
-  unset($object);
+}
+else {
+  function clear_object(&$object) {
+    // void
+  } 
 }

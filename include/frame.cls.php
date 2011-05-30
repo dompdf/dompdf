@@ -71,7 +71,7 @@ class Frame {
   /**
    * Unique id counter
    */
-  static protected $ID_COUNTER = 0;
+  static /*protected*/ $ID_COUNTER = 0;
   
   /**
    * This frame's calculated style

@@ -53,10 +53,11 @@
 class Frame_Factory {
 
   /**
-   * Decorate the Frame
+   * Decorate the root Frame
    * 
    * @param $root Frame The frame to decorate
    * @param $dompdf DOMPDF The dompdf instance
+   * @return Page_Frame_Decorator
    */
   static function decorate_root(Frame $root, DOMPDF $dompdf) {
     $frame = new Page_Frame_Decorator($root, $dompdf);

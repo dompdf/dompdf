@@ -491,8 +491,8 @@ abstract class Abstract_Renderer {
       case "none": break;
       
       case "dotted": 
-        if ( $width < 2 )
-          $pattern = array($width, 2);
+        if ( $width <= 1 )
+          $pattern = array($width, $width*2);
         else
           $pattern = array($width);
       break;

@@ -127,7 +127,7 @@ class Line_Box {
     $props = array("wc", "y", "w", "h", "left", "right", "br");
     $s = "";
     foreach($props as $prop) {
-      $s .= "$prop: $this->{$prop}\n";
+      $s .= "$prop: ".$this->$prop."\n";
     }
     return $s;
   }
