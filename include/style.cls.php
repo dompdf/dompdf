@@ -1363,7 +1363,9 @@ class Style {
   }
 
   protected function _set_style_type($style,$type,$val,$important) {
+    $val = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
     $arr = explode(" ", $val);
+    
     switch (count($arr)) {
     case 1:
       $this->_set_style_sides_type($style,$arr[0],$arr[0],$arr[0],$arr[0],$type,$important);
