@@ -66,7 +66,13 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     list($x, $y) = $cellmap->get_frame_position($this->_frame);
     $this->_frame->set_position($x, $y);
 
-    $w = $cellmap->get_frame_width($this->_frame);
+    $cells = $cellmap->get_spanned_cells($this->_frame);
+
+    $w = 0;
+    foreach ( $cells["columns"] as $i ) {
+      $col = $cellmap->get_column( $i );
+      $w += $col["used-width"];
+    }
 
     //FIXME?
     $h = $this->_frame->get_containing_block("h");
@@ -122,7 +128,6 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     $height = max($style_height, $this->_frame->get_content_height());
 
     // Let the cellmap know our height
-    $cells = $cellmap->get_spanned_cells($this->_frame);
     $cell_height = $height / count($cells["rows"]);
 
     if ($style_height <= $height)

@@ -4263,11 +4263,16 @@ EOT;
     } 
     
     else {
-      $byte = ord (file_get_contents ($file, false, null, 25, 1));
-      $is_alpha = ($byte & 6); // 6 => 32b, 4 => 8b
+      $color_type = ord (file_get_contents ($file, false, null, 25, 1));
+      
+      // http://www.w3.org/TR/PNG/#11IHDR
+      // 3 => indexed
+      // 4 => greyscale with alpha
+      // 6 => fullcolor with alpha
+      $is_alpha = in_array($color_type, array(3, 4, 6));
 
       if ($is_alpha) { // exclude grayscale alpha
-        return $this->addImagePngAlpha($file, $x, $y, $w, $h, $byte);
+        return $this->addImagePngAlpha($file, $x, $y, $w, $h, $color_type);
       }
 
       //png files typically contain an alpha channel.
@@ -4304,7 +4309,10 @@ EOT;
       imagedestroy($imgtmp);
     }
     $this->addImagePng($file, $x, $y, $w, $h, $img);
-    imagedestroy($img);
+    
+    if ( $img ) {
+      imagedestroy($img);
+    }
   }
 
   /**
