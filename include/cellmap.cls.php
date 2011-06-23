@@ -282,8 +282,9 @@ class Cellmap {
   function get_frame_height($frame) {
     $key = $frame->get_id();
 
-    if ( !isset($this->_frames[$key]) )
+    if ( !isset($this->_frames[$key]) ) {
       throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+    }
 
     $rows = $this->_frames[$key]["rows"];
     $h = 0;

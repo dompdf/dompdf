@@ -243,19 +243,19 @@ class Font_Metrics {
   }
   
   static function get_type($type) {
-    if (preg_match("/regular|normal|medium|book/i", $type)) {
-      $type = "normal";
-    }
-    elseif (preg_match("/bold/i", $type)) {
+  	if (preg_match("/bold/i", $type)) {
       if (preg_match("/italic|oblique/i", $type)) {
         $type = "bold_italic";
       }
       else {
         $type = "bold";
       }
-    }
+		}
     elseif (preg_match("/italic|oblique/i", $type)) {
       $type = "italic";
+    }
+    else {
+      $type = "normal";
     }
       
     return $type;

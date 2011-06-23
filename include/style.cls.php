@@ -773,6 +773,9 @@ class Style {
     return $this->_prop_cache[$prop] = $this->_props[$prop];
   }
 
+  function get_font_family_raw(){
+  	return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
+  }
 
   /**
    * Getter for the 'font-family' CSS property.

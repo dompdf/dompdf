@@ -521,7 +521,7 @@ function rle4_decode ($str, $width) {
               } else
                 $pixels[] = $c & 15;
             }
-            if ($num % 2) $i++;
+            if ($num % 2 == 0) $i++;
        }
        break;
       default:
