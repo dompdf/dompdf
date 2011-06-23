@@ -423,7 +423,7 @@ abstract class Frame_Reflower {
     $frame = $this->_frame;
     $style = $frame->get_style();
   
-    if ( $style->content && $frame->get_node()->nodeName === "dompdf_generated" ) {
+    if ( $style->content && !$frame->get_first_child() && $frame->get_node()->nodeName === "dompdf_generated" ) {
       $content = $this->_parse_content();
       $node = $frame->get_node()->ownerDocument->createTextNode($content);
       
