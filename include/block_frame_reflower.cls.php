@@ -57,6 +57,14 @@ class Block_Frame_Reflower extends Frame_Reflower {
   protected $_floating_children;
   
   function __construct(Block_Frame_Decorator $frame) { parent::__construct($frame); }
+  
+  public function get_floating_children() {
+    return $this->_floating_children;
+  }
+  
+  public function remove_floating_child($key) {
+    unset($this->_floating_children[$key]);
+  }
 
   /**
    *  Calculate the ideal used value for the width property as per:
@@ -595,47 +603,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
       }
     }
   }
-  
-  function get_float_offsets($frame, $w) {
-    if ( !DOMPDF_ENABLE_CSS_FLOAT || !count($this->_floating_children) ) return;
-    
-    $offset_left = 0;
-    $offset_right = 0;
-      
-    $current_line = $this->_frame->get_current_line_box();
-    
-    foreach ( $this->_floating_children as $child_key => $floating_child ) {
-      $float = $floating_child->get_style()->float;
-      $floating_width = $floating_child->get_margin_width();
-      $floating_x = $floating_child->get_position("x");
-      
-      if ( $float === "left" ) {
-        if ($current_line->left + $current_line->w > $floating_x + $floating_width) continue;
-      }
-      else {
-        if ($current_line->left + $current_line->w + $frame->get_margin_width() < $w - $floating_width - $current_line->right) continue;
-      }
-      
-      // If the child is still shifted by the floating element
-      if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $current_line->y ) {
-        if ( $float === "left" )
-          $offset_left += $floating_width;
-        else
-          $offset_right += $floating_width;
-      }
-      
-      // else, the floating element won't shift anymore
-      else {
-        unset($this->_floating_children[$child_key]);
-      }
-    }
-    
-    if ( $offset_left ) 
-      $this->_frame->set_current_line(array("left" => $offset_left));
-      
-    if ( $offset_right )
-      $this->_frame->set_current_line(array("right" => $offset_right));
-  }
 
   function reflow(Frame_Decorator $block = null) {
 
@@ -709,8 +676,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
       if ( $page->is_full() )
         break;
       
-      $this->get_float_offsets($child, $w);
-      
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
       $child->reflow($this->_frame); // << must check in the reflower for offsets in new lines after split !!
       
@@ -729,16 +694,21 @@ class Block_Frame_Reflower extends Frame_Reflower {
           $next->set_text(ltrim($next->get_text()));
         }
         
+        $line_box = $this->_frame->get_current_line_box();
         $float_x = $cb_x;
-        $float_y = $this->_frame->get_current_line_box()->y;
+        $float_y = $line_box->y;
         
         switch( $child_style->float ) {
-          case "left": break;
+          case "left": 
+            $float_x += $line_box->left;
+            break;
           case "right": 
             $width = $w;
-            $float_x += ($width - $child->get_margin_width());
+            $float_x += ($width - $line_box->right - $child->get_margin_width());
             break;
         }
+        
+        $line_box->get_float_offsets();
         
         $child->set_position($float_x, $float_y);
       }

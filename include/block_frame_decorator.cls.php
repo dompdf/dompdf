@@ -297,8 +297,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     $this->_line_boxes[$this->_cl]->br = $br;
     $y = $this->_line_boxes[$this->_cl]->y + $this->_line_boxes[$this->_cl]->h;
 
-    $new_line = new Line_Box($this);
-    $new_line->y = $y;
+    $new_line = new Line_Box($this, $y);
     
     $this->_line_boxes[ ++$this->_cl ] = $new_line;
   }

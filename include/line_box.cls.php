@@ -94,6 +94,8 @@ class Line_Box {
    */
   public $tallest_frame = null;
   
+  public $floating_blocks = array();
+  
   /**
    * @var bool
    */
@@ -104,9 +106,47 @@ class Line_Box {
    *
    * @param Block_Frame_Decorator $frale the Block_Frame_Decorator containing this line
    */
-  function __construct(Block_Frame_Decorator $frame) {
+  function __construct(Block_Frame_Decorator $frame, $y = 0) {
     $this->_block_frame = $frame;
     $this->_frames = array();
+    $this->y = $y;
+    
+    $this->get_float_offsets();
+  }
+  
+  function get_float_offsets() {
+    $reflower = $this->_block_frame->get_reflower();
+    
+    if ( !$reflower ) return;
+    
+    $floating_children = $reflower->get_floating_children();
+    
+    if ( DOMPDF_ENABLE_CSS_FLOAT && !empty($floating_children) ) {
+      foreach ( $floating_children as $child_key => $floating_child ) {
+        $id = $floating_child->get_id();
+        
+        if ( isset($this->floating_blocks[$id]) ) continue;
+        
+        $float = $floating_child->get_style()->float;
+        
+        $floating_width = $floating_child->get_margin_width();
+        
+        // If the child is still shifted by the floating element
+        if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $this->y ) {
+          if ( $float === "left" )
+            $this->left  += $floating_width;
+          else
+            $this->right += $floating_width;
+            
+          $this->floating_blocks[$id] = true;
+        }
+        
+        // else, the floating element won't shift anymore
+        else {
+          $reflower->remove_floating_child($child_key);
+        }
+      }
+    }
   }
 
   /**

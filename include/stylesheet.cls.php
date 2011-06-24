@@ -314,12 +314,6 @@ class Stylesheet {
 
     list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
-    if ( !DOMPDF_ENABLE_REMOTE &&
-         ($this->_protocol != "" && $this->_protocol !== "file://") ) {
-      record_warnings(E_USER_WARNING, "Remote CSS file '$file' requested, but DOMPDF_ENABLE_REMOTE is false.", __FILE__, __LINE__);
-      return;
-    }
-
     // Fix submitted by Nick Oostveen for aliased directory support:
     if ( $this->_protocol == "" )
       $file = $this->_base_path . $filename;
@@ -410,7 +404,7 @@ class Stylesheet {
     // Parse the selector
     //$s = preg_split("/([ :>.#+])/", $selector, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-    $delimiters = array(" ", ">", ".", "#", "+", ":", "[");
+    $delimiters = array(" ", ">", ".", "#", "+", ":", "[", "(");
 
     // Add an implicit * at the beginning of the selector 
     // if it begins with an attribute selector
@@ -518,6 +512,37 @@ class Stylesheet {
           $tok = "";
           break;
 
+        // only n, odd, and even
+        case "nth-child":
+          $p = $i+1;
+          $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i)-$p));
+          
+          $condition = "";
+          
+          // 1
+          if ( preg_match("/^\d+$/", $nth) ) {
+            $condition = "position() = $nth";
+          }
+          
+          // odd
+          elseif ( $nth === "odd" ) {
+            $condition = "(position() mod 2) = 1";
+          }
+          
+          // even
+          elseif ( $nth === "even" ) {
+            $condition = "(position() mod 2) = 0";
+          }
+          
+          // ?
+          else {
+            $condition = "false()";
+          }
+          
+          $query .= "[$condition]";
+          $tok = "";
+          break;
+
         case "link":
           $query .= "[@href]";
           $tok = "";
@@ -530,7 +555,7 @@ class Stylesheet {
         case "active":
         case "hover":
         case "visited":
-          $query .= "[@dummy]";
+          $query .= "[false()]";
           $tok = "";
           break;
 
@@ -1133,10 +1158,78 @@ class Stylesheet {
         "local"  => strtolower($src[1][$i]) === "local",
         "uri"    => $src[2][$i],
         "format" => $src[4][$i],
+        "path"   => build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
       );
     }
-    
-    //@todo download font file, ttf2afm, etc
+		
+		$fontname = $descriptors->get_font_family_raw();
+		$families = Font_Metrics::get_font_families();
+		
+		$entry = array();
+		if ( isset($families[$fontname]) ) {
+			$entry = $families[$fontname];
+		}
+		
+    $remote_file = $sources[0]["path"];
+    $local_file = DOMPDF_FONT_DIR . md5($remote_file) . ".ttf";
+    $cache_entry = substr($local_file, 0, -4);
+		$style_string = Font_Metrics::get_type("$descriptors->font_weight $descriptors->font_style");
+		
+		if ( true || !isset($entry[$style_string]) ) {
+			$entry[$style_string] = $cache_entry;
+			
+		  Font_Metrics::set_font_family($fontname, $entry);
+			
+			if ( !is_file($local_file)) {
+			  file_put_contents($local_file, file_get_contents($remote_file));
+			}
+			
+		  $ttf = new TTFParser();
+		  $ttf->Parse($local_file);
+			
+			$cid_to_gid = str_pad('', 256*256*2, "\x00");
+			
+			foreach($ttf->charToGlyph as $c => $glyph) {
+        if ($c >= 0 && $c < 0xFFFF && $glyph) {
+          $cid_to_gid[$c*2] = chr($glyph >> 8);
+          $cid_to_gid[$c*2 + 1] = chr($glyph & 0xFF);
+        }
+			}
+			
+			$data = array(
+			  "isUnicode" => true,
+				"Notice" => "Converted by DOMPDF",
+        "FontName"  => $ttf->postScriptName,
+        "FullName"  => $ttf->postScriptName,
+        "FamilyName"  => $ttf->postScriptName,
+        "EncodingScheme" => 'FontSpecific',
+				"Weight" => ($ttf->Bold ? "Bold" : "Book"),
+        "Ascender" => $ttf->typoAscender,
+        "Descender" => $ttf->typoDescender,
+        "UnderlinePosition" => $ttf->underlinePosition,
+        "UnderlineThickness" => $ttf->underlineThickness,
+        "IsFixedPitch" => ($ttf->isFixedPitch ? "true" : "false"),
+				"ItalicAngle" => $ttf->italicAngle,
+				"UnitsPerEm" => 1000,//$ttf->unitsPerEm,
+				"FontBBox" => array(
+				  $ttf->xMin, 
+					$ttf->xMax, 
+					$ttf->yMin, 
+					$ttf->yMax,
+				),
+				"_version_" => 4,
+				"C" => $ttf->widthsUnicode
+			);
+      
+      $data['CIDtoGID_Compressed'] = true;
+      $cid_to_gid =  gzcompress($cid_to_gid, 6);
+      $data['CIDtoGID'] = base64_encode($cid_to_gid);
+			
+			file_put_contents("$cache_entry.ufm.php", '<?php return ' . var_export($data, true) . ';');
+			
+	    // Save the changes
+	    Font_Metrics::save_font_families();
+		}
   }
 
   /**

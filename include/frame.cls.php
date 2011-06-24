@@ -578,8 +578,8 @@ class Frame {
     $this->_opacity = $base_opacity * $opacity;
   }
   
-  function set_containing_line(Line_Box &$line) {
-    $this->_containing_line = &$line;
+  function set_containing_line(Line_Box $line) {
+    $this->_containing_line = $line;
   }
 
   //........................................................................
