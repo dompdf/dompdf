@@ -76,7 +76,7 @@ class Attribute_Translator {
       'bgcolor' => 'background-color: %s;',
       'border' => '!set_table_border',
       'cellpadding' => '!set_table_cellpadding',
-      'cellspacing' => 'border-spacing: %0.2F; border-collapse: separate;',
+      'cellspacing' => '!set_table_cellspacing',
       'frame' => array(
         'void'   => 'border-style: none;',
         'above'  => 'border-top-style: solid;',

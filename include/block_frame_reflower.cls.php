@@ -677,7 +677,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         break;
       
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
-      $child->reflow($this->_frame); // << must check in the reflower for offsets in new lines after split !!
+      $child->reflow($this->_frame);
       
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
@@ -695,8 +695,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
         }
         
         $line_box = $this->_frame->get_current_line_box();
+        list($old_x, $old_y) = $child->get_position();
+        
         $float_x = $cb_x;
-        $float_y = $line_box->y;
+        $float_y = $old_y;
         
         switch( $child_style->float ) {
           case "left": 
@@ -711,6 +713,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $line_box->get_float_offsets();
         
         $child->set_position($float_x, $float_y);
+        $child->move($float_x - $old_x, 0, true);
       }
       
     }
