@@ -50,7 +50,15 @@ class Absolute_Positioner extends Positioner {
 
     $frame = $this->_frame;
     $style = $frame->get_style();
+    
+    $p = $frame->find_positionned_parent();
+    
     list($x, $y, $w, $h) = $frame->get_containing_block();
+    
+    if ( $p ) {
+      // Get the parent's padding box (see http://www.w3.org/TR/CSS21/visuren.html#propdef-top)
+      list($x, $y) = $p->get_padding_box();
+    }
 
     $top    = $style->length_in_pt($style->top,    $h);
     $right  = $style->length_in_pt($style->right,  $w);
@@ -62,21 +70,6 @@ class Absolute_Positioner extends Positioner {
     $orig_style = $this->_frame->get_original_style();
     $orig_width = $orig_style->width;
     $orig_height = $orig_style->height;
-    
-    /*$p = $frame->find_positionned_parent();
-    
-    if ( $p ) {
-      // Get the parent's padding box (see http://www.w3.org/TR/CSS21/visuren.html#propdef-top)
-      list($x, $y, $w, $h) = $p->get_padding_box();
-    } else {
-      $x = $cb["x"];
-      $y = $cb["y"];
-    }*/
-
-    /*d("left: $left");
-    d("right: $right");
-    d("orig_width: $orig_width");
-    d("w: $w");*/
     
     if ( $left !== "auto" ) {
       $x += $left;
