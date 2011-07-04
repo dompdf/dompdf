@@ -2828,6 +2828,9 @@ EOT;
    * save the current graphic state
    */
   function save() {
+    // we must reset the colour cache or it will keep bad colours after clipping
+    $this->currentColour = null;
+    $this->currentStrokeColour = null;
     $this->objects[$this->currentContents]['c'].=  "\nq";
   }
   

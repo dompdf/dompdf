@@ -686,7 +686,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $child_style = $child->get_style();
       
       if ( DOMPDF_ENABLE_CSS_FLOAT && $child_style->float !== "none") {
-        $this->_floating_children[] = $child;
+        array_unshift($this->_floating_children, $child);
         
         // Remove next frame's beginning whitespace
         $next = $child->get_next_sibling();
@@ -698,22 +698,22 @@ class Block_Frame_Reflower extends Frame_Reflower {
         list($old_x, $old_y) = $child->get_position();
         
         $float_x = $cb_x;
-        $float_y = $old_y;
+        $float_y = $line_box->y;
+        $float_w = $child->get_margin_width();
         
         switch( $child_style->float ) {
           case "left": 
             $float_x += $line_box->left;
             break;
           case "right": 
-            $width = $w;
-            $float_x += ($width - $line_box->right - $child->get_margin_width());
+            $float_x += ($w - $line_box->right - $float_w);
             break;
         }
         
         $line_box->get_float_offsets();
         
         $child->set_position($float_x, $float_y);
-        $child->move($float_x - $old_x, 0, true);
+        $child->move($float_x - $old_x, $float_y - $old_y, true);
       }
       
     }

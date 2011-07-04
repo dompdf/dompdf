@@ -169,6 +169,7 @@ class Line_Box {
     foreach($props as $prop) {
       $s .= "$prop: ".$this->$prop."\n";
     }
+    $s .= count($this->_frames)." frames\n";
     return $s;
   }
   /*function __get($prop) {
