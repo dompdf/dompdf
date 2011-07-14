@@ -46,7 +46,8 @@
 
 /* $Id$ */
 
-require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
+require_once DOMPDF_LIB_DIR . "/class.pdf.php";
+require_once DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php";
 
 /**
  * Name of the font cache file
@@ -262,12 +263,12 @@ class Font_Metrics {
   }
   
   static function install_fonts($files) {
-    new TTF_Info;
     $names = array();
     
     foreach($files as $file) {
-      $info = getFontInfo($file);
-      $info["path"] = $file;
+      $font = Font::load($file);
+      $name = $font->getData("name");
+      $info = $name["nameRecord"];
       $type = self::get_type($info[2]);
       $names[mb_strtolower($info[1])][$type] = $file;
     }
@@ -309,6 +310,41 @@ class Font_Metrics {
 
   static function set_font_family($fontname, $entry) {
     self::$_font_lookup[mb_strtolower($fontname)] = $entry;
+  }
+  
+  static function register_font($descriptors, $remote_file) {
+    $fontname = $descriptors->get_font_family_raw();
+    $families = Font_Metrics::get_font_families();
+    
+    $entry = array();
+    if ( isset($families[$fontname]) ) {
+      $entry = $families[$fontname];
+    }
+    
+    $remote_file = $remote_file;
+    $local_file = DOMPDF_FONT_DIR . md5($remote_file);
+    $cache_entry = $local_file;
+    $local_file .= ".ttf";
+    
+    $style_string = Font_Metrics::get_type("$descriptors->font_weight $descriptors->font_style");
+    
+    if ( true || !isset($entry[$style_string]) ) {
+      $entry[$style_string] = $cache_entry;
+      
+      Font_Metrics::set_font_family($fontname, $entry);
+      
+      // Download the remote file
+      if ( !is_file($local_file) ) {
+        file_put_contents($local_file, file_get_contents($remote_file));
+      }
+      
+      $font = Font::load($local_file);
+      $font->parse();
+      $font->saveAdobeFontMetrics("$cache_entry.ufm");
+      
+      // Save the changes
+      Font_Metrics::save_font_families();
+    }
   }
 }
 

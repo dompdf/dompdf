@@ -93,8 +93,8 @@ class Stylesheet {
   const ORIG_AUTHOR = 3;
   
   private static $_stylesheet_origins = array(
-    self::ORIG_UA => -0x0FFFFFFF, // user agent style sheets
-    self::ORIG_USER => -0x0000FFFF, // user normal style sheets
+    self::ORIG_UA =>     -0x0FFFFFFF, // user agent style sheets
+    self::ORIG_USER =>   -0x0000FFFF, // user normal style sheets
     self::ORIG_AUTHOR =>  0x00000000, // author normal style sheets
   );
 
@@ -1153,83 +1153,29 @@ class Stylesheet {
     preg_match_all("/(url|local)\s*\([\"\']?([^\"\'\)]+)[\"\']?\)\s*(format\s*\([\"\']?([^\"\'\)]+)[\"\']?\))?/i", $descriptors->src, $src);
     
     $sources = array();
+    $valid_sources = array();
+    
     foreach($src[0] as $i => $value) {
-      $sources[] = array(
+      $source = array(
         "local"  => strtolower($src[1][$i]) === "local",
         "uri"    => $src[2][$i],
         "format" => $src[4][$i],
         "path"   => build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
       );
-    }
-		
-		$fontname = $descriptors->get_font_family_raw();
-		$families = Font_Metrics::get_font_families();
-		
-		$entry = array();
-		if ( isset($families[$fontname]) ) {
-			$entry = $families[$fontname];
-		}
-		
-    $remote_file = $sources[0]["path"];
-    $local_file = DOMPDF_FONT_DIR . md5($remote_file) . ".ttf";
-    $cache_entry = substr($local_file, 0, -4);
-		$style_string = Font_Metrics::get_type("$descriptors->font_weight $descriptors->font_style");
-		
-		if ( true || !isset($entry[$style_string]) ) {
-			$entry[$style_string] = $cache_entry;
-			
-		  Font_Metrics::set_font_family($fontname, $entry);
-			
-			if ( !is_file($local_file)) {
-			  file_put_contents($local_file, file_get_contents($remote_file));
-			}
-			
-		  $ttf = new TTFParser();
-		  $ttf->Parse($local_file);
-			
-			$cid_to_gid = str_pad('', 256*256*2, "\x00");
-			
-			foreach($ttf->charToGlyph as $c => $glyph) {
-        if ($c >= 0 && $c < 0xFFFF && $glyph) {
-          $cid_to_gid[$c*2] = chr($glyph >> 8);
-          $cid_to_gid[$c*2 + 1] = chr($glyph & 0xFF);
-        }
-			}
-			
-			$data = array(
-			  "isUnicode" => true,
-				"Notice" => "Converted by DOMPDF",
-        "FontName"  => $ttf->postScriptName,
-        "FullName"  => $ttf->postScriptName,
-        "FamilyName"  => $ttf->postScriptName,
-        "EncodingScheme" => 'FontSpecific',
-				"Weight" => ($ttf->Bold ? "Bold" : "Book"),
-        "Ascender" => $ttf->typoAscender,
-        "Descender" => $ttf->typoDescender,
-        "UnderlinePosition" => $ttf->underlinePosition,
-        "UnderlineThickness" => $ttf->underlineThickness,
-        "IsFixedPitch" => ($ttf->isFixedPitch ? "true" : "false"),
-				"ItalicAngle" => $ttf->italicAngle,
-				"UnitsPerEm" => 1000,//$ttf->unitsPerEm,
-				"FontBBox" => array(
-				  $ttf->xMin, 
-					$ttf->xMax, 
-					$ttf->yMin, 
-					$ttf->yMax,
-				),
-				"_version_" => 4,
-				"C" => $ttf->widthsUnicode
-			);
       
-      $data['CIDtoGID_Compressed'] = true;
-      $cid_to_gid =  gzcompress($cid_to_gid, 6);
-      $data['CIDtoGID'] = base64_encode($cid_to_gid);
-			
-			file_put_contents("$cache_entry.ufm.php", '<?php return ' . var_export($data, true) . ';');
-			
-	    // Save the changes
-	    Font_Metrics::save_font_families();
-		}
+      if ( !$source["local"] && in_array($source["format"], array("", "woff", "opentype", "truetype")) ) {
+        $valid_sources[] = $source;
+      }
+      
+      $sources[] = $source;
+    }
+    
+    // No valid sources
+    if ( empty($valid_sources) ) {
+      return;
+    }
+    
+    Font_Metrics::register_font($descriptors, $valid_sources[0]["path"]);
   }
 
   /**

@@ -236,7 +236,7 @@ function explode_url($url) {
         $path = $arr["path"];
         $file = "";
       } else {
-        $path = dirname($arr["path"]) . "/";
+        $path = rtrim(dirname($arr["path"]), '/\\') . "/";
         $file = basename($arr["path"]);
       }
     }
