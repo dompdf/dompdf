@@ -328,7 +328,7 @@ class Font_Metrics {
     
     $style_string = Font_Metrics::get_type("$descriptors->font_weight $descriptors->font_style");
     
-    if ( true || !isset($entry[$style_string]) ) {
+    if ( !isset($entry[$style_string]) ) {
       $entry[$style_string] = $cache_entry;
       
       Font_Metrics::set_font_family($fontname, $entry);
