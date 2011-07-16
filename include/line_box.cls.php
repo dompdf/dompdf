@@ -120,6 +120,7 @@ class Line_Box {
     if ( !$reflower ) return;
     
     $floating_children = $reflower->get_floating_children();
+    $cb_w = null;
     
     if ( DOMPDF_ENABLE_CSS_FLOAT && !empty($floating_children) ) {
       foreach ( $floating_children as $child_key => $floating_child ) {
@@ -130,6 +131,17 @@ class Line_Box {
         $float = $floating_child->get_style()->float;
         
         $floating_width = $floating_child->get_margin_width();
+        
+        if (!$cb_w) {
+          $cb_w = $floating_child->get_containing_block("w");
+        }
+        
+        $line_w = $this->get_width();
+        
+        if (!$floating_child->_float_next_line && ($cb_w <= $line_w + $floating_width) && ($cb_w > $line_w) ) {
+          $floating_child->_float_next_line = true;
+          continue;
+        }
         
         // If the child is still shifted by the floating element
         if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $this->y ) {
@@ -147,6 +159,10 @@ class Line_Box {
         }
       }
     }
+  }
+  
+  function get_width(){
+    return $this->left + $this->w + $this->right;
   }
 
   /**

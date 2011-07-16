@@ -712,6 +712,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
         
         $line_box->get_float_offsets();
         
+        if ( $child->_float_next_line ) {
+          $float_y += $line_box->h;
+        }
+        
         $child->set_position($float_x, $float_y);
         $child->move($float_x - $old_x, $float_y - $old_y, true);
       }

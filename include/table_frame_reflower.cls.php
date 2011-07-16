@@ -510,8 +510,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
     // Debugging:
     //echo ($this->_frame->get_cellmap());
     
-    if ( $block ) {
-      $block->add_frame_to_line($this->_frame);
+    if ( $block && $style->float === "none" ) {
+      $block->add_frame_to_line($frame);
       $block->add_line();
     }
   }
