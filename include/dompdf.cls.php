@@ -206,6 +206,11 @@ class DOMPDF {
    * @var bool Tells wether the DOM document is in quirksmode (experimental)
    */
   private $_quirskmode = false;
+  
+  public static $native_fonts = array("courier", "courier-bold", "courier-oblique", "courier-boldoblique",
+                          "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
+                          "times-roman", "times-bold", "times-italic", "times-bolditalic",
+                          "symbol", "zapfdinbats");
 
   /**
    * Class constructor

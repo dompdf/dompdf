@@ -111,6 +111,9 @@ abstract class Abstract_Renderer {
     // Skip degenerate cases
     if ( $width == 0 || $height == 0 )
       return;
+    
+    $box_width = $width;
+    $box_height = $height;
 
     //debugpng
     if (DEBUGPNG) print '[_background_image '.$url.']';
@@ -440,6 +443,8 @@ abstract class Abstract_Renderer {
 
     } /* End optimize away creation of duplicates */
 
+    $this->_canvas->clipping_rectangle($x, $y, $box_width, $box_height);
+    
     //img: image url string
     //img_w, img_h: original image size in px
     //width, height: box size in pt
@@ -475,6 +480,8 @@ abstract class Abstract_Renderer {
       if (!DEBUGKEEPTEMP)
         unlink($tmp_file);
     }
+    
+    $this->_canvas->clipping_end();
   }
   
   protected function _get_dash_pattern($style, $width) {

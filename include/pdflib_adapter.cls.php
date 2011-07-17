@@ -572,13 +572,8 @@ class PDFLib_Adapter implements Canvas {
 
     // Check if the font is a native PDF font
     // Embed non-native fonts
-    $native_fonts = array("courier", "courier-bold", "courier-oblique", "courier-boldoblique",
-                          "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
-                          "times-roman", "times-bold", "times-italic", "times-bolditalic",
-                          "symbol", "zapfdinbats");
-
     $test = strtolower(basename($font));
-    if ( in_array($test, $native_fonts) ) {
+    if ( in_array($test, DOMPDF::$native_fonts) ) {
       $font = basename($font);
 
     } else {

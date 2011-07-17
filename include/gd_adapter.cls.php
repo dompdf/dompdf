@@ -560,7 +560,7 @@ class GD_Adapter implements Canvas {
    * @param int $w width (in pixels)
    * @param int $h height (in pixels)
    */
-  function image($img_url, $img_type, $x, $y, $w, $h) {
+  function image($img_url, $img_type, $x, $y, $w, $h, $resolution = "normal") {
 
     switch ($img_type) {
     case "png":
@@ -629,8 +629,7 @@ class GD_Adapter implements Canvas {
     
     $text = mb_encode_numericentity($text, array(0x0080, 0xff, 0, 0xff), 'UTF-8');
 
-    if ( strpos($font, '.ttf') === false )
-      $font .= ".ttf";
+    $font = $this->get_ttf_file($font);
 
     // FIXME: word spacing
     @imagettftext($this->_img, $size, $angle, $x, $y + $h, $c, $font, $text);
@@ -673,6 +672,10 @@ class GD_Adapter implements Canvas {
     // N/A
   }
   
+  function set_default_view($view, $options = array()) {
+    // N/A
+  }
+  
   /**
    * Calculates text size, in points
    *
@@ -682,16 +685,27 @@ class GD_Adapter implements Canvas {
    * @param float  $spacing word spacing, if any
    * @return float
    */
-  function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {    
-
-    if ( strpos($font, '.ttf') === false )
-      $font .= ".ttf";
+  function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
+    $font = $this->get_ttf_file($font);
       
     $text = mb_encode_numericentity($text, array(0x0080, 0xffff, 0, 0xffff), 'UTF-8');
 
     // FIXME: word spacing
     list($x1,,$x2) = @imagettfbbox($size, 0, $font, $text);
     return $x2 - $x1;
+  }
+  
+  function get_ttf_file($font) {
+    if ( strpos($font, '.ttf') === false )
+      $font .= ".ttf";
+    
+    /*$filename = substr(strtolower(basename($font)), 0, -4);
+    
+    if ( in_array($filename, DOMPDF::$native_fonts) ) {
+      return "arial.ttf";
+    }*/
+    
+    return $font;
   }
 
   /**
@@ -702,9 +716,8 @@ class GD_Adapter implements Canvas {
    * @return float
    */
   function get_font_height($font, $size) {
-    if ( strpos($font, '.ttf') === false )
-      $font .= ".ttf";
-
+    $font = $this->get_ttf_file($font);
+      
     // FIXME: word spacing
     list(,$y2,,,,$y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl");  // Test string with ascenders, descenders and caps
     return ($y2 - $y1) * DOMPDF_FONT_HEIGHT_RATIO;

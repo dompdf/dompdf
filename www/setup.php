@@ -3,7 +3,12 @@
 <a name="setup"> </a>
 <h2>Setup</h2>
 
-<h3>System Configuration</h3>
+<ul>
+  <li style="list-style-image: url('images/star_02.gif');"><a href="#system">System Configuration</a></li>
+  <li style="list-style-image: url('images/star_02.gif');"><a href="#dompdf-config">DOMPDF Configuration</a></li>
+</ul>
+
+<h3 id="system">System Configuration</h3>
 
 <?php 
 require_once("../dompdf_config.inc.php");
@@ -77,7 +82,7 @@ $server_configs = array(
   
 </table>
 
-<h3>DOMPDF Configuration</h3>
+<h3 id="dompdf-config">DOMPDF Configuration</h3>
 
 <?php 
 $dompdf_constants = array();
@@ -235,91 +240,5 @@ $constants = array(
 
 </table>
 
-<h3>Installed fonts for the Cpdf Backend</h3>
-
-<?php 
-$fonts = Font_Metrics::get_font_families();
-$extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
-?>
-
-<button onclick="$('#clear-font-cache-message').load('controller.php?cmd=clear-font-cache')">Clear font cache</button>
-<span id="clear-font-cache-message"></span>
-
-<table class="setup">
-  <tr>
-    <th rowspan="2">Font family</th>
-    <th rowspan="2">Variants</th>
-    <th colspan="6">File versions</th>
-  </tr>
-  <tr>
-    <th>TTF</th>
-    <th>AFM</th>
-    <th>AFM cache</th>
-    <th>UFM</th>
-    <th>UFM cache</th>
-  </tr>
-  <?php foreach($fonts as $family => $variants) { ?>
-    <tr>
-      <td class="title" rowspan="<?php echo count($variants); ?>">
-        <?php 
-          echo $family; 
-          if ($family == DOMPDF_DEFAULT_FONT) echo ' <strong>(default)</strong>';
-        ?>
-      </td>
-      <?php 
-      $i = 0;
-      foreach($variants as $name => $path) {
-        if ($i > 0) {
-          echo "<tr>";
-        }
-        
-        echo "
-        <td>
-          <strong style='width: 10em;'>$name</strong> : $path<br />
-        </td>";
-        
-        foreach ($extensions as $ext) {
-          $v = "";
-          $class = "";
-          
-          if (is_readable("$path.$ext")) {
-            // if not cache file
-            if (strpos($ext, ".php") === false) {
-              $class = "ok";
-              $v = $ext;
-            }
-            
-            // cache file
-            else {
-              // check if old cache format
-              $content = file_get_contents("$path.$ext", null, null, null, 50);
-              if (strpos($content, '$this->')) {
-                $v = "DEPREC.";
-              }
-              else {
-                ob_start();
-                $d = include("$path.$ext");
-                ob_end_clean();
-                
-                if ($d == 1)
-                  $v = "DEPREC.";
-                else {
-                  $class = "ok";
-                  $v = $d["_version_"];
-                }
-              }
-            }
-          }
-          
-          echo "<td style='width: 2em; text-align: center;' class='$class'>$v</td>";
-        }
-        
-        echo "</tr>";
-        $i++;
-      }
-      ?>
-  <?php } ?>
-
-</table>
 
 <?php include("foot.inc"); ?>

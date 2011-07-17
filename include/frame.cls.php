@@ -172,6 +172,13 @@ class Frame {
    */
   public $_already_pushed = false;
   
+  public $_float_next_line = false;
+  
+  static $_ws_state = self::WS_SPACE;
+  
+  const WS_TEXT = 1;
+  const WS_SPACE = 2;
+  
   /**
    * Class destructor
    */
@@ -219,6 +226,63 @@ class Frame {
     $this->_decorator = null;
 
     $this->set_id( self::$ID_COUNTER++ );
+  }
+  
+  // WIP : preprocessing to remove all the unused whitespace
+  protected function ws_trim(){
+    if ( $this->ws_keep() ) return;
+    
+    switch(self::$_ws_state) {
+      case self::WS_SPACE: 
+        $node = $this->_node;
+        
+        if ( $node->nodeName === "#text" ) {
+          $node->data = preg_replace("/[ \t\r\n\f]+/u", " ", $text);
+          
+          // starts with a whitespace
+          if ( isset($node->data[0]) && $node->data[0] === " " ) {
+            $node->data = ltrim($node->data);
+          }
+          
+          // if not empty
+          if ( $node->data !== "" ) {
+            // change the current state (text)
+            self::$_ws_state = self::WS_TEXT;
+          
+            // ends with a whitespace
+            if ( preg_match("/[ \t\r\n\f]+$/u", $node->data) ) {
+              $node->data = ltrim($node->data);
+            }
+          }
+        }
+      break;
+      
+      case self::WS_TEXT:
+    }
+  }
+  
+  protected function ws_keep(){
+    $whitespace = $this->get_style()->white_space;
+    return in_array($whitespace, array("pre", "pre-wrap", "pre-line"));
+  }
+  
+  protected function ws_is_text(){
+    $node = $this->get_node();
+    
+    if ($node->nodeName === "img") {
+      return true;
+    }
+    
+    $style = $this->get_style();
+    if ( $style->float !== "none" || in_array($style->position, array("absolute", "fixed")) ) {
+      return false;
+    }
+    
+    if ($this->is_text_node()) {
+      return trim($node->nodeValue) !== "";
+    }
+    
+    return true;
   }
 
   /**

@@ -454,6 +454,9 @@ class Stylesheet {
         if ( mb_substr($query, -1, 1) !== "/" )
           $query .= "/";
 
+        // Tag names are case-insensitive
+        $tok = strtolower($tok);
+        
         if ( !$tok )
           $tok = "*";
 
@@ -1175,7 +1178,13 @@ class Stylesheet {
       return;
     }
     
-    Font_Metrics::register_font($descriptors, $valid_sources[0]["path"]);
+    $style = array(
+      "family" => $descriptors->get_font_family_raw(),
+      "weight" => $descriptors->font_weight,
+      "style"  => $descriptors->font_style,
+    );
+    
+    Font_Metrics::register_font($style, $valid_sources[0]["path"]);
   }
 
   /**

@@ -312,8 +312,8 @@ class Font_Metrics {
     self::$_font_lookup[mb_strtolower($fontname)] = $entry;
   }
   
-  static function register_font($descriptors, $remote_file) {
-    $fontname = $descriptors->get_font_family_raw();
+  static function register_font($style, $remote_file) {
+    $fontname = $style["family"];
     $families = Font_Metrics::get_font_families();
     
     $entry = array();
@@ -326,7 +326,7 @@ class Font_Metrics {
     $cache_entry = $local_file;
     $local_file .= ".ttf";
     
-    $style_string = Font_Metrics::get_type("$descriptors->font_weight $descriptors->font_style");
+    $style_string = Font_Metrics::get_type("{$style['weight']} {$style['style']}");
     
     if ( !isset($entry[$style_string]) ) {
       $entry[$style_string] = $cache_entry;
@@ -339,12 +339,19 @@ class Font_Metrics {
       }
       
       $font = Font::load($local_file);
+      
+      if (!$font) {
+        return false;
+      }
+      
       $font->parse();
       $font->saveAdobeFontMetrics("$cache_entry.ufm");
       
       // Save the changes
       Font_Metrics::save_font_families();
     }
+    
+    return true;
   }
 }
 

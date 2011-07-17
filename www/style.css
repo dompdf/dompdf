@@ -225,6 +225,10 @@ table.setup tr:hover td.title {
   background-color: #D0E0F2;
 }
 
+input[type="file"] {
+	width: 30em;
+}
+
 /* Method definitions from phpdoc */
 .method-definition {
   background-image: url('images/h_bar.gif');
