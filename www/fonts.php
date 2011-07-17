@@ -148,6 +148,8 @@ function checkFileName(form) {
 </script>
 
 <?php 
+
+if (auth_ok()) {
 $max_size = min(to_bytes(ini_get('post_max_size')), to_bytes(ini_get('upload_max_filesize'))); 
 ?>
 
@@ -182,5 +184,9 @@ $max_size = min(to_bytes(ini_get('post_max_size')), to_bytes(ini_get('upload_max
     </tr>
   </table>
 </form>
+<?php }
+else {
+  echo auth_get_link();
+} ?>
 
 <?php include("foot.inc"); ?>

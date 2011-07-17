@@ -22,3 +22,7 @@
 //define("DOMPDF_FONT_HEIGHT_RATIO", 1.0);
 //define("DEBUG_LAYOUT_PADDINGBOX", false);
 //define("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR."log.htm");
+
+// DOMPDF authentication
+//define("DOMPDF_ADMIN_USERNAME", "user");
+//define("DOMPDF_ADMIN_PASSWORD", "password");

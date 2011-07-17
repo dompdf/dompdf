@@ -95,6 +95,12 @@ if ( file_exists(DOMPDF_DIR . "/dompdf_config.custom.inc.php") ){
 require_once(DOMPDF_INC_DIR . "/functions.inc.php");
 
 /**
+ * Username and password used by the configuration utility in www/
+ */
+def("DOMPDF_ADMIN_USERNAME", "user");
+def("DOMPDF_ADMIN_PASSWORD", "password");
+
+/**
  * The location of the DOMPDF font directory
  *
  * If DOMPDF_FONT_DIR identical to DOMPDF_FONT_CACHE or user executing DOMPDF from the CLI,

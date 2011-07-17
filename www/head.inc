@@ -1,10 +1,64 @@
 <?php
+
+session_start();
+
+require_once "../dompdf_config.inc.php";
+
 function li_arrow() {
   return '<li style="list-style-image: url(\'images/arrow_0' . rand(1,6) . '.gif\');">';  
 }
+
 function li_star() {
   return '<li style="list-style-image: url(\'images/star_0' . rand(1,5) . '.gif\');">';  
 }
+
+function auth_ok(){
+  return isset($_SESSION["authenticated"]) && $_SESSION["authenticated"] === true;
+}
+
+function auth_get_link(){
+  return '<a href="'.get_php_self().'?login=1">Authenticate to access this section</a>';
+}
+
+function get_php_self(){
+  return isset($_SERVER['PHP_SELF']) ? htmlentities(strip_tags($_SERVER['PHP_SELF'],''), ENT_QUOTES, 'UTF-8') : '';
+}
+
+// From apc.php
+function auth_check() {
+  if ( DOMPDF_ADMIN_PASSWORD == "password" ) return false;
+  
+  if ( isset($_GET["login"]) || isset($_SERVER["PHP_AUTH_USER"]) ) {
+
+    if (!isset($_SERVER["PHP_AUTH_USER"]) ||
+        !isset($_SERVER["PHP_AUTH_PW"]) ||
+        $_SERVER["PHP_AUTH_USER"] != DOMPDF_ADMIN_USERNAME ||
+        $_SERVER["PHP_AUTH_PW"]   != DOMPDF_ADMIN_PASSWORD) {
+  
+      $PHP_SELF = get_php_self();
+  
+      header('WWW-Authenticate: Basic realm="DOMPDF Login"');
+      header('HTTP/1.0 401 Unauthorized');
+
+      echo <<<EOB
+        <html><body>
+        <h1>Rejected!</h1>
+        <big>Wrong Username or Password!</big><br/>&nbsp;<br/>&nbsp;
+        <big><a href='$PHP_SELF'>Continue...</a></big>
+        </body></html>
+EOB;
+      exit;
+    }
+    
+    else {
+      $_SESSION["authenticated"] = true;
+      return true;
+    }
+  }
+}
+
+auth_check();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
