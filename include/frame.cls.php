@@ -166,6 +166,8 @@ class Frame {
    */
   protected $_containing_line;
   
+  protected $_is_cache = array();
+  
   /**
    * Tells wether the frame was already pushed to the next page
    * @var bool
@@ -273,8 +275,7 @@ class Frame {
       return true;
     }
     
-    $style = $this->get_style();
-    if ( $style->float !== "none" || in_array($style->position, array("absolute", "fixed")) ) {
+    if ( !$this->is_in_flow() ) {
       return false;
     }
     
@@ -647,14 +648,65 @@ class Frame {
   }
 
   //........................................................................
-
+  
   /**
    * Tells if the frame is a text node
    * @return bool 
    */
-  function is_text_node(){
-    return $this->get_node()->nodeName === "#text";
+  function is_text_node() {
+    if ( isset($this->_is_cache["text_node"]) ) {
+      return $this->_is_cache["text_node"];
+    }
+    
+    return $this->_is_cache["text_node"] = ($this->get_node()->nodeName === "#text");
   }
+  
+  function is_positionned() {
+    if ( isset($this->_is_cache["positionned"]) ) {
+      return $this->_is_cache["positionned"];
+    }
+    
+    return $this->_is_cache["positionned"] = in_array($this->get_style()->position, Style::$POSITIONNED_TYPES);
+  }
+  
+  function is_absolute() {
+    if ( isset($this->_is_cache["absolute"]) ) {
+      return $this->_is_cache["absolute"];
+    }
+    
+    $position = $this->get_style()->position;
+   
+    return $this->_is_cache["absolute"] = ($position === "absolute" || $position === "fixed");
+  }
+  
+  function is_block() {
+    if ( isset($this->_is_cache["block"]) ) {
+      return $this->_is_cache["block"];
+    }
+    
+    return $this->_is_cache["block"] = in_array($this->get_style()->display, Style::$BLOCK_TYPES);
+  }
+  
+  function is_in_flow() {
+    if ( isset($this->_is_cache["in_flow"]) ) {
+      return $this->_is_cache["in_flow"];
+    }
+    
+    $style = $this->get_style();
+    
+    return $this->_is_cache["in_flow"] = !(DOMPDF_ENABLE_CSS_FLOAT && $style->float !== "none" || $this->is_absolute());
+  }
+  
+  function is_pre(){
+    if ( isset($this->_is_cache["pre"]) ) {
+      return $this->_is_cache["pre"];
+    }
+    
+    $white_space = $this->get_style()->white_space;
+   
+    return $this->_is_cache["pre"] = in_array($white_space, array("pre", "pre-wrap"));
+  }
+  
   
   /**
    * Inserts a new child at the beginning of the Frame

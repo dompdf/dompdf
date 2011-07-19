@@ -446,7 +446,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
     // If the frame is absolute of fixed it shouldn't break
     $p = $frame;
     do {
-      if ( in_array($p->get_style()->position, array("fixed", "absolute")) )
+      if ( $p->is_absolute() )
         return false;
     } while ( $p = $p->get_parent() );
     

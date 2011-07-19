@@ -78,11 +78,11 @@ abstract class Frame_Reflower {
    * http://www.w3.org/TR/CSS2/box.html#collapsing-margins
    */
   protected function _collapse_margins() {
-    $cb = $this->_frame->get_containing_block();
-    $style = $this->_frame->get_style();
+    $frame = $this->_frame;
+    $cb = $frame->get_containing_block();
+    $style = $frame->get_style();
     
-    if ( in_array($style->position, Style::$POSITIONNED_TYPES) ||
-         $style->float !== "none" ) {
+    if ( !$frame->is_in_flow() ) {
       return;
     }
 
@@ -101,10 +101,10 @@ abstract class Frame_Reflower {
     }
 
     // Collapse vertical margins:
-    $n = $this->_frame->get_next_sibling();
-    if ( $n && !in_array($n->get_style()->display, Style::$BLOCK_TYPES) ) {
+    $n = $frame->get_next_sibling();
+    if ( $n && !$n->is_block() ) {
       while ( $n = $n->get_next_sibling() ) {
-        if ( in_array($n->get_style()->display, Style::$BLOCK_TYPES) ) {
+        if ( $n->is_block() ) {
           break;
         }
         
@@ -124,9 +124,9 @@ abstract class Frame_Reflower {
 
     // Collapse our first child's margin
     /*$f = $this->_frame->get_first_child();
-    if ( $f && !in_array($f->get_style()->display, Style::$BLOCK_TYPES) ) {
+    if ( $f && !$f->is_block() ) {
       while ( $f = $f->get_next_sibling() ) {
-        if ( in_array($f->get_style()->display, Style::$BLOCK_TYPES) ) {
+        if ( $f->is_block() ) {
           break;
         }
         

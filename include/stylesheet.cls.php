@@ -502,6 +502,8 @@ class Stylesheet {
           $query .= "*";
         }
         
+        $last = false;
+        
         // Pseudo-classes
         switch ($tok) {
 
@@ -515,7 +517,22 @@ class Stylesheet {
           $tok = "";
           break;
 
-        // only n, odd, and even
+        case "first-of-type":
+          $query .= "[position() = 1]";
+          $tok = "";
+          break;
+
+        case "last-of-type":
+          $query .= "[position() = last()]";
+          $tok = "";
+          break;
+
+        // an+b, n, odd, and even
+        case "nth-last-of-type":
+        case "nth-last-child":
+          $last = true;
+          
+        case "nth-of-type":
         case "nth-child":
           $p = $i+1;
           $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i)-$p));
@@ -537,9 +554,9 @@ class Stylesheet {
             $condition = "(position() mod 2) = 0";
           }
           
-          // ?
+          // an+b
           else {
-            $condition = "false()";
+            $condition = $this->_selector_an_plus_b($nth, $last);
           }
           
           $query .= "[$condition]";
@@ -721,6 +738,31 @@ class Stylesheet {
 
     return array("query" => $query, "pseudo_elements" => $pseudo_elements);
   }
+  
+  // https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
+  protected function _selector_an_plus_b($expr, $last = false) {
+    $expr = preg_replace("/\s/", "", $expr);
+    if ( !preg_match("/^(?P<a>-?[0-9]*)?n(?P<b>[-+]?[0-9]+)?$/", $expr, $matches)) {
+      return "false()";
+    }
+    
+    $a = ((isset($matches["a"]) && $matches["a"] !== "") ? intval($matches["a"]) : 1);
+    $b = ((isset($matches["b"]) && $matches["b"] !== "") ? intval($matches["b"]) : 0);
+    
+    $position = ($last ? "(last()-position()+1)" : "position()");
+
+    if ($b == 0) {
+      return "($position mod $a) = 0";
+    }
+    else {
+      $compare = (($a < 0) ? "<=" : ">=");
+      $b2 = -$b;
+      if( $b2 >= 0 ) {
+        $b2 = "+$b2";
+      }
+      return "($position $compare $b) and ((($position $b2) mod ".abs($a).") = 0)";
+    }
+  }
 
   /**
    * applies all current styles to a particular document tree
@@ -732,7 +774,6 @@ class Stylesheet {
    * @param Frame_Tree $tree
    */
   function apply_styles(Frame_Tree $tree) {
-
     // Use XPath to select nodes.  This would be easier if we could attach
     // Frame objects directly to DOMNodes using the setUserData() method, but
     // we can't do that just yet.  Instead, we set a _node attribute_ in

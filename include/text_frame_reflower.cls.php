@@ -189,8 +189,9 @@ class Text_Frame_Reflower extends Frame_Reflower {
   //........................................................................
 
   protected function _layout_line() {
-    $style = $this->_frame->get_style();
-    $text = $this->_frame->get_text();
+    $frame = $this->_frame;
+    $style = $frame->get_style();
+    $text = $frame->get_text();
     $size = $style->font_size;
     $font = $style->font_family;
     $word_spacing = $style->length_in_pt($style->word_spacing);
@@ -217,7 +218,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     default:
     case "normal":
-      $this->_frame->set_text( $text = $this->_collapse_white_space($text) );
+      $frame->set_text( $text = $this->_collapse_white_space($text) );
       if ( $text == "" )
         break;
 
@@ -230,7 +231,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
       break;
 
     case "nowrap":
-      $this->_frame->set_text( $text = $this->_collapse_white_space($text) );
+      $frame->set_text( $text = $this->_collapse_white_space($text) );
       break;
 
     case "pre-wrap":
@@ -246,7 +247,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     case "pre-line":
       // Collapse white-space except for \n
-      $this->_frame->set_text( $text = preg_replace( "/[ \t]+/u", " ", $text ) );
+      $frame->set_text( $text = preg_replace( "/[ \t]+/u", " ", $text ) );
 
       if ( $text == "" )
         break;
@@ -271,7 +272,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
       // Handle edge cases
       if ( $split == 0 && $text === " " ) {
-        $this->_frame->set_text("");
+        $frame->set_text("");
         return;
       }
 
@@ -281,22 +282,22 @@ class Text_Frame_Reflower extends Frame_Reflower {
         //$this->_frame->set_text(ltrim($text, "\n\r"));
 
         $this->_block_parent->add_line();
-        $this->_frame->position();
+        $frame->position();
 
         // Layout the new line
         $this->_layout_line();
 
       } 
       
-      else if ( $split < mb_strlen($this->_frame->get_text()) ) {
+      else if ( $split < mb_strlen($frame->get_text()) ) {
         // split the line if required
-        $this->_frame->split_text($split);
+        $frame->split_text($split);
 
-        $t = $this->_frame->get_text();
+        $t = $frame->get_text();
         
         // Remove any trailing newlines
-        if ( $split > 1 && $t[$split-1] === "\n" && !in_array($style->white_space, array("pre", "pre-wrap")) )
-          $this->_frame->set_text( mb_substr($t, 0, -1) );
+        if ( $split > 1 && $t[$split-1] === "\n" && !$frame->is_pre() )
+          $frame->set_text( mb_substr($t, 0, -1) );
 
         // Do we need to trim spaces on wrapped lines? This might be desired, however, we 
         // can't trim the lines here or the layout will be affected if trimming the line 
@@ -310,7 +311,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
       if ( $add_line ) {
         $this->_block_parent->add_line();
-        $this->_frame->position();
+        $frame->position();
       }
 
     } else {
@@ -318,54 +319,54 @@ class Text_Frame_Reflower extends Frame_Reflower {
       // Remove empty space from start and end of line, but only where there isn't an inline sibling
       // and the parent node isn't an inline element with siblings
       // FIXME: Include non-breaking spaces?
-      $t = $this->_frame->get_text();
-      $parent = $this->_frame->get_parent();
+      $t = $frame->get_text();
+      $parent = $frame->get_parent();
       $is_inline_frame = get_class($parent) === 'Inline_Frame_Decorator';
       
-      if ((!$is_inline_frame && !$this->_frame->get_next_sibling()) || 
+      if ((!$is_inline_frame && !$frame->get_next_sibling()) || 
           ( $is_inline_frame && !$parent->get_next_sibling())) {
         $t = rtrim($t);
       }
       
-      if ((!$is_inline_frame && !$this->_frame->get_prev_sibling())/* || 
+      if ((!$is_inline_frame && !$frame->get_prev_sibling())/* || 
           ( $is_inline_frame && !$parent->get_prev_sibling())*/) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
         $t = ltrim($t);
       }
       
-      $this->_frame->set_text( $t );
+      $frame->set_text( $t );
       
     }
 
     // Set our new width
-    $width = $this->_frame->recalculate_width();
+    $width = $frame->recalculate_width();
   }
 
   //........................................................................
 
   function reflow(Frame_Decorator $block = null) {
-
-    $page = $this->_frame->get_root();
+    $frame = $this->_frame;
+    $page = $frame->get_root();
     $page->check_forced_page_break($this->_frame);
     
     if ( $page->is_full() )
       return;
 
-    $this->_block_parent = /*isset($block) ? $block : */$this->_frame->find_block_parent();
+    $this->_block_parent = /*isset($block) ? $block : */$frame->find_block_parent();
 
     // Left trim the text if this is the first text on the line and we're
     // collapsing white space
 //     if ( $this->_block_parent->get_current_line()->w == 0 &&
-//          ($this->_frame->get_style()->white_space !== "pre" ||
-//           $this->_frame->get_style()->white_space !== "pre-wrap") ) {
-//       $this->_frame->set_text( ltrim( $this->_frame->get_text() ) );
+//          ($frame->get_style()->white_space !== "pre" ||
+//           $frame->get_style()->white_space !== "pre-wrap") ) {
+//       $frame->set_text( ltrim( $frame->get_text() ) );
 //     }
     
-    $this->_frame->position();
+    $frame->position();
 
     $this->_layout_line();
     
     if ( $block ) {
-      $block->add_frame_to_line($this->_frame);
+      $block->add_frame_to_line($frame);
     }
   }
 
@@ -374,12 +375,14 @@ class Text_Frame_Reflower extends Frame_Reflower {
   // Returns an array(0 => min, 1 => max, "min" => min, "max" => max) of the
   // minimum and maximum widths of this frame
   function get_min_max_width() {
+    /*if ( !is_null($this->_min_max_cache)  )
+      return $this->_min_max_cache;*/
+    $frame = $this->_frame;
+    $style = $frame->get_style();
+    $this->_block_parent = $frame->find_block_parent();
+    $line_width = $frame->get_containing_block("w");
 
-    $style = $this->_frame->get_style();
-    $this->_block_parent = $this->_frame->find_block_parent();
-    $line_width = $this->_frame->get_containing_block("w");
-
-    $str = $text = $this->_frame->get_text();
+    $str = $text = $frame->get_text();
     $size = $style->font_size;
     $font = $style->font_family;
 
@@ -456,7 +459,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $min += $delta;
     $max += $delta;
 
-    return array($min, $max, "min" => $min, "max" => $max);
+    return $this->_min_max_cache = array($min, $max, "min" => $min, "max" => $max);
 
   }
 

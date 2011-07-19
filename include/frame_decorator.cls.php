@@ -387,15 +387,15 @@ abstract class Frame_Decorator extends Frame {
    * @return Block_Frame_Decorator
    */
   function find_block_parent() {
-    //if ( $this->_block_parent ) return $this->_block_parent; // FIXME: makes dom_anchor_link example fail
+    /*if ( $this->_block_parent && !isset($this->_block_parent->_splitted) ) {
+      return $this->_block_parent;
+    }*/
     
     // Find our nearest block level parent
     $p = $this->get_parent();
     
     while ( $p ) {
-      if ( in_array($p->get_style()->display, Style::$BLOCK_TYPES) )
-        break;
-
+      if ( $p->is_block() ) break;
       $p = $p->get_parent();
     }
 
@@ -406,15 +406,14 @@ abstract class Frame_Decorator extends Frame {
    * @return Frame_Decorator
    */
   function find_positionned_parent() {
-    //if ( $this->_positionned_parent ) return $this->_positionned_parent; // FIXME: makes dom_anchor_link example fail
+    /*if ( $this->_positionned_parent && !isset($this->_block_parent->_splitted) ) {
+      return $this->_positionned_parent;
+    }*/
 
     // Find our nearest relative positionned parent
     $p = $this->get_parent();
     while ( $p ) {
-      if ( in_array($p->get_style()->position, Style::$POSITIONNED_TYPES) ) {
-        break;
-      }
-
+      if ( $p->is_positionned() ) break;
       $p = $p->get_parent();
     }
     
@@ -447,6 +446,9 @@ abstract class Frame_Decorator extends Frame {
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
 
     $node = $this->_frame->get_node();
+    
+    // mark the frame as splitted (don't use the find_***_parent cache)
+    //$this->_splitted = true;
     
     $split = $this->copy( $node->cloneNode() );
     $split->reset();
@@ -486,7 +488,9 @@ abstract class Frame_Decorator extends Frame {
 
   final function position() { $this->_positioner->position();  }
   
-  final function move($offset_x, $offset_y, $ignore_self = false) { $this->_positioner->move($offset_x, $offset_y, $ignore_self); }
+  final function move($offset_x, $offset_y, $ignore_self = false) { 
+    $this->_positioner->move($offset_x, $offset_y, $ignore_self); 
+  }
   
   final function reflow(Frame_Decorator $block = null) {
     // Uncomment this to see the frames before they're laid out, instead of

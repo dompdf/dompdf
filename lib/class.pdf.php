@@ -2214,6 +2214,8 @@ EOT;
       if  (isset($this->fonts[$fontName])) {
         $this->numObj++;
         $this->numFonts++;
+    
+        $font = &$this->fonts[$fontName];
 
         //$this->numFonts = md5($fontName);
         $pos =  strrpos($fontName, '/');
@@ -2237,21 +2239,22 @@ EOT;
 
         $fontObj =  $this->numObj;
         $this->o_font($this->numObj, 'new', $options);
-        $this->fonts[$fontName]['fontNum'] =  $this->numFonts;
+        $font['fontNum'] =  $this->numFonts;
 
         // if this is a '.afm' font, and there is a '.pfa' file to go with it ( as there
         // should be for all non-basic fonts), then load it into an object and put the
         // references into the font object
         $basefile =  $fontName;
-        if  (file_exists($basefile.'.pfb')) {
+        
+        $fbtype = '';
+        if  (file_exists("$basefile.pfb")) {
           $fbtype =  'pfb';
-        } else  if  (file_exists($basefile.'.ttf')) {
+        } 
+        elseif  (file_exists("$basefile.ttf")) {
           $fbtype =  'ttf';
-        } else {
-          $fbtype =  '';
         }
 
-        $fbfile =  $basefile.'.'.$fbtype;
+        $fbfile =  "$basefile.$fbtype";
 
         //      $pfbfile = substr($fontName,0,strlen($fontName)-4).'.pfb';
         //      $ttffile = substr($fontName,0,strlen($fontName)-4).'.ttf';
@@ -2259,10 +2262,10 @@ EOT;
 
         // OAR - I don't understand this old check
         // if  (substr($fontName, -4) ===  '.afm' &&  strlen($fbtype)) {
-        if  (mb_strlen($fbtype, '8bit')) {
-          $adobeFontName =  $this->fonts[$fontName]['FontName'];
+        if  ($fbtype) {
+          $adobeFontName =  $font['FontName'];
           //        $fontObj = $this->numObj;
-          $this->addMessage('selectFont: adding font file - '.$fbfile.' - '.$adobeFontName);
+          $this->addMessage("selectFont: adding font file - $fbfile - $adobeFontName");
 
           // find the array of font widths, and put that into an object.
           $firstChar =  -1;
@@ -2270,9 +2273,9 @@ EOT;
           $widths =  array();
           $cid_widths = array();
 
-          foreach ($this->fonts[$fontName]['C'] as  $num => $d) {
+          foreach ($font['C'] as  $num => $d) {
             if  (intval($num) >0 ||  $num ==  '0') {
-              if (!$this->fonts[$fontName]['isUnicode']) {
+              if (!$font['isUnicode']) {
                 // With Unicode, widths array isn't used
                 if  ($lastChar>0 &&  $num>$lastChar+1) {
                   for ($i =  $lastChar+1;$i<$num;$i++) {
@@ -2283,7 +2286,7 @@ EOT;
 
               $widths[] =  $d;
 
-              if ($this->fonts[$fontName]['isUnicode']) {
+              if ($font['isUnicode']) {
                 $cid_widths[$num] =  $d;
               }
 
@@ -2299,7 +2302,7 @@ EOT;
           if  (isset($options['differences'])) {
             foreach($options['differences'] as  $charNum => $charName) {
               if  ($charNum > $lastChar) {
-                if (!$this->fonts[$fontName]['isUnicode']) {
+                if (!$font['isUnicode']) {
                   // With Unicode, widths array isn't used
                   for ($i =  $lastChar + 1; $i <=  $charNum; $i++) {
                     $widths[] =  0;
@@ -2309,17 +2312,17 @@ EOT;
                 $lastChar =  $charNum;
               }
 
-              if  (isset($this->fonts[$fontName]['C'][$charName])) {
-                $widths[$charNum-$firstChar] =  $this->fonts[$fontName]['C'][$charName];
-                if ($this->fonts[$fontName]['isUnicode']) {
-                  $cid_widths[$charName] =  $this->fonts[$fontName]['C'][$charName];
+              if  (isset($font['C'][$charName])) {
+                $widths[$charNum-$firstChar] =  $font['C'][$charName];
+                if ($font['isUnicode']) {
+                  $cid_widths[$charName] =  $font['C'][$charName];
                 }
               }
             }
           }
 
-          if ($this->fonts[$fontName]['isUnicode']) {
-            $this->fonts[$fontName]['CIDWidths'] = $cid_widths;
+          if ($font['isUnicode']) {
+            $font['CIDWidths'] = $cid_widths;
           }
 
           $this->addMessage('selectFont: FirstChar = '.$firstChar);
@@ -2327,30 +2330,24 @@ EOT;
 
           $widthid = -1;
 
-          if (!$this->fonts[$fontName]['isUnicode']) {
+          if (!$font['isUnicode']) {
             // With Unicode, widths array isn't used
 
             $this->numObj++;
             $this->o_contents($this->numObj, 'new', 'raw');
-            $this->objects[$this->numObj]['c'].=  '[';
-
-            foreach($widths as  $width) {
-              $this->objects[$this->numObj]['c'].=  ' '.$width;
-            }
-
-            $this->objects[$this->numObj]['c'].=  ' ]';
+            $this->objects[$this->numObj]['c'].=  '['.implode(' ', $widths).']';
             $widthid =  $this->numObj;
           }
 
           $missing_width = 500;
           $stemV = 70;
 
-          if (isset($this->fonts[$fontName]['MissingWidth'])) {
-            $missing_width =  $this->fonts[$fontName]['MissingWidth'];
+          if (isset($font['MissingWidth'])) {
+            $missing_width =  $font['MissingWidth'];
           }
-          if (isset($this->fonts[$fontName]['StdVW'])) {
-            $stemV = $this->fonts[$fontName]['StdVW'];
-          } elseif (isset($this->fonts[$fontName]['Weight']) && preg_match('!(bold|black)!i', $this->fonts[$fontName]['Weight'])) {
+          if (isset($font['StdVW'])) {
+            $stemV = $font['StdVW'];
+          } elseif (isset($font['Weight']) && preg_match('!(bold|black)!i', $font['Weight'])) {
             $stemV = 120;
           }
 
@@ -2369,11 +2366,11 @@ EOT;
           // determine flags (more than a little flakey, hopefully will not matter much)
           $flags =  0;
 
-          if  ($this->fonts[$fontName]['ItalicAngle'] !=  0) {
+          if  ($font['ItalicAngle'] !=  0) {
             $flags+=  pow(2, 6);
           }
 
-          if  ($this->fonts[$fontName]['IsFixedPitch'] === 'true') {
+          if  ($font['IsFixedPitch'] === 'true') {
             $flags+=  1;
           }
 
@@ -2393,8 +2390,8 @@ EOT;
           );
 
           foreach($list as  $k => $v) {
-            if  (isset($this->fonts[$fontName][$v])) {
-              $fdopt[$k] =  $this->fonts[$fontName][$v];
+            if  (isset($font[$v])) {
+              $fdopt[$k] =  $font[$v];
             }
           }
 
@@ -2435,10 +2432,10 @@ EOT;
             $tmp['SubType'] =  'TrueType';
           }
 
-          $this->addMessage('adding extra info to font.('.$fontObj.')');
+          $this->addMessage("adding extra info to font.($fontObj)");
 
           foreach($tmp as  $fk => $fv) {
-            $this->addMessage($fk." : ".$fv);
+            $this->addMessage("$fk : $fv");
           }
 
           $this->o_font($fontObj, 'add', $tmp);
@@ -2449,7 +2446,7 @@ EOT;
         // also set the differences here, note that this means that these will take effect only the
         //first time that a font is selected, else they are ignored
         if  (isset($options['differences'])) {
-          $this->fonts[$fontName]['differences'] =  $options['differences'];
+          $font['differences'] =  $options['differences'];
         }
       }
     }

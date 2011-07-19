@@ -154,12 +154,11 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
 
   function add_frame_to_line(Frame $frame) {
-    $style = $frame->get_style();
-    
-    if ( in_array($style->position, array("absolute", "fixed")) ||
-         (DOMPDF_ENABLE_CSS_FLOAT && $style->float !== "none") ) {
+    if ( !$frame->is_in_flow() ) {
       return;
     }
+    
+    $style = $frame->get_style();
     
     $frame->set_containing_line($this->_line_boxes[$this->_cl]);
     
@@ -195,7 +194,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
     // but what can you do...
     if ( $this->get_current_line_box()->w == 0 &&
          $frame->is_text_node() &&
-         !in_array($style->white_space, array("pre", "pre-wrap")) ) {
+        !$frame->is_pre() ) {
 
       $frame->set_text( ltrim($frame->get_text()) );
       $frame->recalculate_width();

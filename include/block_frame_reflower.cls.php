@@ -74,11 +74,13 @@ class Block_Frame_Reflower extends Frame_Reflower {
    *  @return array
    */
   protected function _calculate_width($width) {
-    $style = $this->_frame->get_style();
-    $w = $this->_frame->get_containing_block("w");
+    $frame = $this->_frame;
+    $style = $frame->get_style();
+    $w = $frame->get_containing_block("w");
 
-    if( $style->position === "fixed" )
-      $w = $this->_frame->get_parent()->get_containing_block("w");
+    if ( $style->position === "fixed" ) {
+      $w = $frame->get_parent()->get_containing_block("w");
+    }
 
     $rm = $style->length_in_pt($style->margin_right, $w);
     $lm = $style->length_in_pt($style->margin_left, $w);
@@ -96,7 +98,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
                   $lm !== "auto" ? $lm : 0);
 
     // absolutely positioned boxes take the 'left' and 'right' properties into account
-    if ( $style->position === "absolute" || $style->position === "fixed" ) {
+    if ( $frame->is_absolute() ) {
       $absolute = true;
       $dims[] = $left !== "auto" ? $left : 0;
       $dims[] = $right !== "auto" ? $right : 0;
@@ -199,8 +201,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $frame->get_style();
     $cb = $frame->get_containing_block();
     
-    if ( $style->position === "fixed" )
+    if ( $style->position === "fixed" ) {
       $cb = $frame->get_root()->get_containing_block();
+    }
     
     //if ( $style->position === "absolute" )
     //  $cb = $frame->find_positionned_parent()->get_containing_block();
@@ -255,9 +258,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
    * @return array
    */
   protected function _calculate_restricted_height() {
-    $style = $this->_frame->get_style();
+    $frame = $this->_frame;
+    $style = $frame->get_style();
     $content_height = $this->_calculate_content_height();
-    $cb = $this->_frame->get_containing_block();
+    $cb = $frame->get_containing_block();
     
     $height = $style->length_in_pt($style->height, $cb["h"]);
 
@@ -267,7 +271,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $margin_top    = $style->length_in_pt($style->margin_top, $cb["h"]);
     $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["h"]);
 
-    if ( $style->position === "absolute" || $style->position === "fixed" ) {
+    if ( $frame->is_absolute() ) {
 
       // see http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-height
 
@@ -626,8 +630,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
     if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
       $this->_frame->increment_counter($increment);
     
-    if ( $style->position === "fixed" )
+    if ( $style->position === "fixed" ) {
       $cb = $this->_frame->get_root()->get_containing_block();
+    }
     
     // Determine the constraints imposed by this frame: calculate the width
     // of the content area:
