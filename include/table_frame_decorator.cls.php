@@ -185,7 +185,7 @@ class Table_Frame_Decorator extends Frame_Decorator {
   static function find_parent_table(Frame $frame) {
 
     while ( $frame = $frame->get_parent() )
-      if ( in_array($frame->get_style()->display, Style::$TABLE_TYPES) )
+      if ( $frame->is_table() )
         break;
 
     return $frame;

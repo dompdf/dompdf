@@ -509,7 +509,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       if ( !$flg && $next = $iter->get_last_child() ) {
          dompdf_debug("page-break", "following last child.");
 
-        if ( in_array($next->get_style()->display, Style::$TABLE_TYPES) )
+        if ( $next->is_table() )
           $this->_in_table++;
 
         $iter = $next;
@@ -519,12 +519,10 @@ class Page_Frame_Decorator extends Frame_Decorator {
       if ( $next = $iter->get_prev_sibling() ) {
          dompdf_debug("page-break", "following prev sibling.");
 
-        if ( in_array($next->get_style()->display, Style::$TABLE_TYPES) &&
-             !in_array($iter->get_style()->display, Style::$TABLE_TYPES) )
+             if ( $next->is_table() && !$iter->is_table() )
           $this->_in_table++;
 
-        else if ( !in_array($next->get_style()->display, Style::$TABLE_TYPES) &&
-                  in_array($iter->get_style()->display, Style::$TABLE_TYPES) )
+        else if ( !$next->is_table() && $iter->is_table() )
           $this->_in_table--;
 
         $iter = $next;
@@ -535,7 +533,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       if ( $next = $iter->get_parent() ) {
          dompdf_debug("page-break", "following parent.");
 
-        if ( in_array($iter->get_style()->display, Style::$TABLE_TYPES) )
+        if ( $iter->is_table() )
           $this->_in_table--;
 
         $iter = $next;
@@ -556,7 +554,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
       $num_tables = $this->_in_table - 1;
 
       $iter = $frame;
-      while ( $iter && $num_tables && $iter->get_style->display !== "table" ) {
+      while ( $iter && $num_tables && $iter->get_style()->display !== "table" ) {
         $iter = $iter->get_parent();
         $num_tables--;
       }

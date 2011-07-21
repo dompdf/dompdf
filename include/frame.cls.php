@@ -666,7 +666,9 @@ class Frame {
       return $this->_is_cache["positionned"];
     }
     
-    return $this->_is_cache["positionned"] = in_array($this->get_style()->position, Style::$POSITIONNED_TYPES);
+    $position = $this->get_style()->position;
+    
+    return $this->_is_cache["positionned"] = in_array($position, Style::$POSITIONNED_TYPES);
   }
   
   function is_absolute() {
@@ -692,9 +694,7 @@ class Frame {
       return $this->_is_cache["in_flow"];
     }
     
-    $style = $this->get_style();
-    
-    return $this->_is_cache["in_flow"] = !(DOMPDF_ENABLE_CSS_FLOAT && $style->float !== "none" || $this->is_absolute());
+    return $this->_is_cache["in_flow"] = !(DOMPDF_ENABLE_CSS_FLOAT && $this->get_style()->float !== "none" || $this->is_absolute());
   }
   
   function is_pre(){
@@ -705,6 +705,16 @@ class Frame {
     $white_space = $this->get_style()->white_space;
    
     return $this->_is_cache["pre"] = in_array($white_space, array("pre", "pre-wrap"));
+  }
+  
+  function is_table(){
+    if ( isset($this->_is_cache["table"]) ) {
+      return $this->_is_cache["table"];
+    }
+    
+    $display = $this->get_style()->display;
+   
+    return $this->_is_cache["table"] = in_array($display, Style::$TABLE_TYPES);
   }
   
   
