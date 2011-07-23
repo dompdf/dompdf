@@ -27,7 +27,8 @@ $server_configs = array(
   "PCRE" => array(
     "required" => true,
     "value"    => phpversion("pcre"),
-    "result"   => function_exists("preg_match"),
+    "result"   => function_exists("preg_match") && @preg_match("/./u", "a"),
+    "failure"  => "PCRE is required with Unicode support (the \"u\" modifier)",
   ),
   "Zlib" => array(
     "required" => true,
@@ -72,8 +73,13 @@ $server_configs = array(
         <?php
         echo $server_config["value"];
         if ($server_config["result"] && !$server_config["value"]) echo "Yes";
-        if (!$server_config["result"] && isset($server_config["fallback"])) {
-          echo "<div>No. ".$server_config["fallback"]."</div>";
+        if (!$server_config["result"]) {
+          if (isset($server_config["fallback"])) {
+            echo "<div>No. ".$server_config["fallback"]."</div>";
+          }
+          if (isset($server_config["failure"])) {
+            echo "<div>".$server_config["failure"]."</div>";
+          }
         }
         ?>
       </td>
@@ -184,6 +190,15 @@ $constants = array(
   "DOMPDF_ENABLE_CSS_FLOAT" => array(
     "desc" => "Enable CSS float support (experimental)",
   ),
+  "DOMPDF_ADMIN_USERNAME" => array(
+    "desc" => "The username required to access restricted sections",
+    "secret" => true,
+  ),
+  "DOMPDF_ADMIN_PASSWORD" => array(
+    "desc" => "The password required to access restricted sections",
+    "secret" => true,
+    "success" => "auth",
+  ),
 );
 ?>
 
@@ -198,7 +213,16 @@ $constants = array(
   <?php foreach($defined_constants["user"] as $const => $value) { ?>
     <tr>
       <td class="title"><?php echo $const; ?></td>
-      <td><?php var_export($value); ?></td>
+      <td>
+      <?php 
+        if (isset($constants[$const]["secret"])) {
+          echo "******";
+        }
+        else {
+          var_export($value); 
+        }
+      ?>
+      </td>
       <td><?php if (isset($constants[$const]["desc"])) echo $constants[$const]["desc"]; ?></td>
       <td <?php 
         $message = "";
@@ -230,6 +254,10 @@ $constants = array(
                   $message = "The GD backend requires GD2";
                 break;
               }
+            break;
+            case "auth": 
+              $success = !in_array($value, array("admin", "password"));
+              $message = ($success ? "OK" : "Password should be changed");
             break;
           }
           echo 'class="' . ($success ? "ok" : "failed") . '"';

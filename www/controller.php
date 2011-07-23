@@ -3,6 +3,7 @@
 $cmd = isset($_GET["cmd"]) ? $_GET["cmd"] : null;
 
 include "../dompdf_config.inc.php";
+include "functions.inc.php";
 
 switch ($cmd) {
   case "clear-font-cache":
@@ -13,6 +14,8 @@ switch ($cmd) {
   break;
   
   case "install-font":
+    if (!auth_ok()) break;
+    
     $family = $_POST["family"];
     $data = $_FILES["file"];
     
