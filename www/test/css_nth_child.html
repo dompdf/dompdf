@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>CSS Selector :nth-child</title>
+
+<style type="text/css">
+
+p {
+  margin: 2px;
+}
+
+div {
+  margin-bottom: 1em;
+  border: 1px solid #ddd;
+}
+
+div div {
+  margin: 0;
+}
+
+.nth-child-1 p:nth-child(1) strong,
+.nth-child-3 p:nth-child(3) strong,
+.nth-child-odd p:nth-child(odd) strong,
+.nth-child-even p:nth-child(even) strong,
+.nth-child-n p:nth-child(n) strong,
+.nth-child-3n p:nth-child(3n) strong,
+.nth-child-n2 p:nth-child(n+2) strong, /* won't work because of the split("+") */
+.nth-child-2n1 p:nth-child(2n+1) strong, /* won't work because of the split("+") */
+.nth-child-3nm2 p:nth-child(3n-2) strong {
+  background-color: #99ff99;
+}
+</style>
+
+</head>
+
+<body>
+  
+<h3>nth-child(1)</h3>
+<div class="nth-child-1">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(3)</h3>
+<div class="nth-child-3">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(odd)</h3>
+<div class="nth-child-odd">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(even)</h3>
+<div class="nth-child-even">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(n)</h3>
+<div class="nth-child-n">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(3n)</h3>
+<div class="nth-child-3n">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(n+2)</h3>
+<div class="nth-child-n2">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(2n+1)</h3>
+<div class="nth-child-2n1">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+<h3>nth-child(3n-2)</h3>
+<div class="nth-child-3nm2">
+  <p><strong>1</strong></p>
+  <p><strong>2</strong></p>
+  <p><strong>3</strong></p>
+  <p><strong>4</strong></p>
+  <p><strong>5</strong></p>
+</div>
+
+</body>
+</html>

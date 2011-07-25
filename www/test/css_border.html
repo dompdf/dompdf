@@ -41,6 +41,36 @@ div.partial2top { border-top:thin solid; margin:2pt;}
 div.partial1top {border-top-color:green; }
 div.partial2top {border-top:blue;}
 
+.d { width: 1in; height: 1in; margin: 5pt; }
+
+.b1 {
+  border: 1px solid red;
+}
+
+.b2 {
+  border: solid thick blue;
+}
+
+.b3 {
+  border: #369 thin dashed;
+}
+
+.b4 {
+  border: dotted green 2px;
+}
+
+.b5 {
+  border: 0.1em #0033DD solid;
+}
+
+.b6 {
+  border: orange inset 4pt;
+}
+
+hr {
+	page-break-after: always;
+	visibility: hidden;
+}
 
 </style>
 </head>
@@ -121,4 +151,13 @@ div.partial2top {border-top:blue;}
 <div class="full" style="border-width:1pt 2pt 3pt;">{border:thin blue solid;}{border-width:1pt 2pt 3pt;}</div>
 <div class="full" style="border-width:1pt 2pt 3pt 4pt;">{border:thin blue solid;}{border-width:1pt 2pt 3pt 4pt;}</div>
 
+<hr />
+<h2>Misc. values</h2>
+
+<div class="d b1"> </div>
+<div class="d b2"> </div>
+<div class="d b3"> </div>
+<div class="d b4"> </div>
+<div class="d b5"> </div>
+<div class="d b6"> </div>
 </body> </html>

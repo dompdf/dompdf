@@ -42,7 +42,6 @@
 /**
  * Standard exception thrown by DOMPDF classes
  *
- * @link http://www.zend.com/php5/articles/engine2-php5-changes.php#Heading12
  * @package dompdf
  */
 class DOMPDF_Exception extends Exception {

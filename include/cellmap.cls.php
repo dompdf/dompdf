@@ -224,7 +224,7 @@ class Cellmap {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
-      throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+      throw new DOMPDF_Exception("Frame not found in cellmap");
     }
 
     return $this->_frames[$key];
@@ -242,7 +242,7 @@ class Cellmap {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
-      throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+      throw new DOMPDF_Exception("Frame not found in cellmap");
     }
 
     $col = $this->_frames[$key]["columns"][0];
@@ -267,7 +267,7 @@ class Cellmap {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
-      throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+      throw new DOMPDF_Exception("Frame not found in cellmap");
     }
 
     $cols = $this->_frames[$key]["columns"];
@@ -283,7 +283,7 @@ class Cellmap {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
-      throw new DOMPDF_Internal_Exception("Frame not found in cellmap");
+      throw new DOMPDF_Exception("Frame not found in cellmap");
     }
 
     $rows = $this->_frames[$key]["rows"];

@@ -59,13 +59,6 @@ class Image_Frame_Decorator extends Frame_Decorator {
    * @var string
    */
   protected $_image_url;
-
-  /**
-   * The image's file extension (i.e. png, jpeg, gif)
-   *
-   * @var string
-   */
-  protected $_image_ext;
   
   /**
    * The image's file error message
@@ -89,12 +82,12 @@ class Image_Frame_Decorator extends Frame_Decorator {
     //debugpng
     if (DEBUGPNG) print '[__construct '.$url.']';
 
-    list($this->_image_url, $this->_image_ext, $this->_image_msg) = Image_Cache::resolve_url($url,
+    list($this->_image_url, $type, $this->_image_msg) = Image_Cache::resolve_url($url,
                                                                           $dompdf->get_protocol(),
                                                                           $dompdf->get_host(),
                                                                           $dompdf->get_base_path());
 
-    if ( strrpos( $this->_image_url, DOMPDF_LIB_DIR . "/res/broken_image.png", 0) !== false &&
+    if ( Image_Cache::is_broken($this->_image_url) &&
          $alt = $frame->get_node()->getAttribute("alt") ) {
       $style = $frame->get_style();
       $style->width  = (4/3)*Font_Metrics::get_text_width($alt, $style->font_family, $style->font_size, $style->word_spacing);
@@ -109,15 +102,6 @@ class Image_Frame_Decorator extends Frame_Decorator {
    */
   function get_image_url() {
     return $this->_image_url;
-  }
-
-  /**
-   * Return the image's file extension
-   *
-   * @return string The image's file extension
-   */
-  function get_image_ext() {
-    return $this->_image_ext;
   }
 
   /**

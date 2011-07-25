@@ -118,13 +118,13 @@ abstract class Abstract_Renderer {
     //debugpng
     if (DEBUGPNG) print '[_background_image '.$url.']';
 
-    list($img, $ext, $msg) = Image_Cache::resolve_url($url,
+    list($img, $type, $msg) = Image_Cache::resolve_url($url,
                                                 $sheet->get_protocol(),
                                                 $sheet->get_host(),
                                                 $sheet->get_base_path());
 
     // Bail if the image is no good
-    if ( $img === DOMPDF_LIB_DIR . "/res/broken_image.png" )
+    if ( Image_Cache::is_broken($img) )
       return;
 
     //Try to optimize away reading and composing of same background multiple times
@@ -304,24 +304,23 @@ abstract class Abstract_Renderer {
     // Create a new image to fit over the background rectangle
     $bg = imagecreatetruecolor($bg_width, $bg_height);
     
-    switch (strtolower($ext)) {
-      case "png":
+    switch (strtolower($type)) {
+      case IMAGETYPE_PNG:
         $is_png = true;
         imagesavealpha($bg, true);
         imagealphablending($bg, false);
         $src = imagecreatefrompng($img);
         break;
   
-      case "jpg":
-      case "jpeg":
+      case IMAGETYPE_JPEG:
         $src = imagecreatefromjpeg($img);
         break;
   
-      case "gif":
+      case IMAGETYPE_GIF:
         $src = imagecreatefromgif($img);
         break;
         
-      case "bmp":
+      case IMAGETYPE_BMP:
         $src = imagecreatefrombmp($img);
         break;
   
@@ -471,7 +470,7 @@ abstract class Abstract_Renderer {
       if (DEBUGPNG) print '[_background_image '.$tmp_file.']';
 
       imagepng($bg, $tmp_file);
-      $this->_canvas->image($tmp_file, "png", $x, $y, $width, $height);
+      $this->_canvas->image($tmp_file, $x, $y, $width, $height);
       imagedestroy($bg);
 
       //debugpng

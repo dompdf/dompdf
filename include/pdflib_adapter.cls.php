@@ -750,26 +750,22 @@ class PDFLib_Adapter implements Canvas {
 
   //........................................................................
 
-  function image($img_url, $img_type, $x, $y, $w, $h, $resolution = "normal") {
+  function image($img_url, $x, $y, $w, $h, $resolution = "normal") {
     $w = (int)$w;
     $h = (int)$h;
 
-    $img_type = strtolower($img_type);
+    $img_type = Image_Cache::detect_type($img_url);
+    $img_ext  = Image_Cache::type_to_ext($img_type);
 
-    if ( $img_type === "jpg" )
-      $img_type = "jpeg";
-
-    if ( isset($this->_imgs[$img_url]) )
+    if ( isset($this->_imgs[$img_url]) ) {
       $img = $this->_imgs[$img_url];
-
+    }
     else {
-
       $img = $this->_imgs[$img_url] = $this->_pdf->load_image($img_type, $img_url, "");
     }
 
     $y = $this->y($y) - $h;
-    $this->_pdf->fit_image($img, $x, $y, 'boxsize={'. "$w $h" .'} fitmethod=entire');
-
+    $this->_pdf->fit_image($img, $x, $y, "boxsize=\{$w $h\} fitmethod=entire");
   }
 
   //........................................................................

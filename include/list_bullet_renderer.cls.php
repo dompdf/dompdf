@@ -109,7 +109,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
     // Handle list-style-image
     // If list style image is requested but missing, fall back to predefined types
     if ( $style->list_style_image !== "none" &&
-         strcmp($img = $frame->get_image_url(), DOMPDF_LIB_DIR . "/res/broken_image.png") != 0) {
+         !Image_Cache::is_broken($img = $frame->get_image_url())) {
 
       list($x,$y) = $frame->get_position();
       
@@ -126,7 +126,7 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       $x -= $w;
       $y -= ($line_height - $font_size)/2; //Reverse hinting of list_bullet_positioner
 
-      $this->_canvas->image( $img, $frame->get_image_ext(), $x, $y, $w, $h);
+      $this->_canvas->image( $img, $x, $y, $w, $h);
 
     } else {
 

@@ -70,8 +70,10 @@ class Image_Renderer extends Block_Renderer {
     
     $w = $style->length_in_pt($style->width, $cb["w"]);
     $h = $style->length_in_pt($style->height, $cb["h"]);
+    
+    $src = $frame->get_image_url();
 
-    if ( strrpos( $frame->get_image_url(), DOMPDF_LIB_DIR . "/res/broken_image.png", 0) !== false &&
+    if ( Image_Cache::is_broken($src) &&
       $alt = $frame->get_node()->getAttribute("alt") ) {
       $font = $style->font_family;
       $size = $style->font_size;
@@ -81,7 +83,7 @@ class Image_Renderer extends Block_Renderer {
                            $style->color, $spacing);
     }
     else {
-      $this->_canvas->image( $frame->get_image_url(), $frame->get_image_ext(), $x, $y, $w, $h, $style->image_resolution);
+      $this->_canvas->image( $src, $x, $y, $w, $h, $style->image_resolution);
     }
     
     if ( $msg = $frame->get_image_msg() ) {

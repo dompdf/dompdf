@@ -155,7 +155,7 @@ function d($mixed) {
  * is appended (o.k. also for Windows)
  */
 function build_url($protocol, $host, $base_path, $url) {
-  if ( mb_strlen($url) == 0 ) {
+  if ( strlen($url) == 0 ) {
     //return $protocol . $host . rtrim($base_path, "/\\") . "/";
     return $protocol . $host . $base_path;
   }
@@ -211,7 +211,7 @@ function explode_url($url) {
 
   if ( isset($arr["scheme"]) &&
        $arr["scheme"] !== "file" &&
-       mb_strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
+       strlen($arr["scheme"]) > 1 ) // Exclude windows drive letters...
     {
     $protocol = $arr["scheme"] . "://";
 
@@ -704,19 +704,26 @@ function imagecreatefrombmp($filename) {
  * @return array The same format as getimagesize($filename)
  */
 function dompdf_getimagesize($filename) {
-  $size = getimagesize($filename);
+  static $cache = array();
   
-  if ( $size[0] == null || $size[1] == null ) {
+  if ( isset($cache[$filename]) ) {
+    return $cache[$filename];
+  }
+  
+  list($width, $height, $type) = getimagesize($filename);
+  
+  if ( $width == null || $height == null ) {
     $data = file_get_contents($filename, null, null, 0, 26);
     
     if ( substr($data, 0, 2) === "BM" ) {
       $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
-      $size[0] = (int)$meta['width'];
-      $size[1] = (int)$meta['height'];
+      $width  = (int)$meta['width'];
+      $height = (int)$meta['height'];
+      $type   = IMAGETYPE_BMP;
     }
   }
   
-  return $size;
+  return $cache[$filename] = array($width, $height, $type);
 }
 
 /**

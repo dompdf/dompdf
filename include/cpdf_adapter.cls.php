@@ -506,7 +506,8 @@ class CPDF_Adapter implements Canvas {
    *
    * @return string The url of the newly converted image
    */
-  protected function _convert_gif_bmp_to_png($image_url, $image_type) {
+  protected function _convert_gif_bmp_to_png($image_url, $type) {
+    $image_type = Image_Cache::type_to_ext($type);
     $func_name = "imagecreatefrom$image_type";
     
     if ( !function_exists($func_name) ) {
@@ -526,9 +527,9 @@ class CPDF_Adapter implements Canvas {
 
       imagepng($im, $filename);
       imagedestroy($im);
-    } else {
-      $filename = DOMPDF_LIB_DIR . "/res/broken_image.png";
-
+    } 
+    else {
+      $filename = Image_Cache::$broken_image;
     }
 
     restore_error_handler();
@@ -612,76 +613,33 @@ class CPDF_Adapter implements Canvas {
   
   //........................................................................
 
-  function image($img_url, $img_type, $x, $y, $w, $h, $resolution = "normal") {
+  function image($img, $x, $y, $w, $h, $resolution = "normal") {
+    list($width, $height, $type) = dompdf_getimagesize($img);
+    
     //debugpng
-    if (DEBUGPNG) print '[image:'.$img_url.'|'.$img_type.']';
+    if (DEBUGPNG) print "[image:$img|$width|$height|$type]";
 
-    $img_type = mb_strtolower($img_type);
-
-    switch ($img_type) {
-    case "jpeg":
-    case "jpg":
-      //debugpng
+    switch ($type) {
+    case IMAGETYPE_JPEG:
       if (DEBUGPNG)  print '!!!jpg!!!';
-
-      $this->_pdf->addJpegFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
+      $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
       break;
+      
+    case IMAGETYPE_GIF:
+    case IMAGETYPE_BMP:
+      if (DEBUGPNG)  print '!!!bmp or gif!!!';
+      // @todo use cache for BMP and GIF
+      $img = $this->_convert_gif_bmp_to_png($img, $type);
 
-    case "png":
-      //debugpng
+    case IMAGETYPE_PNG:
       if (DEBUGPNG)  print '!!!png!!!';
 
-      $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
-      break;
-
-    case "gif":
-    case "bmp":
-      // Convert gifs or bmps to pngs
-      //DEBUG_IMG_TEMP
-      //if (0) {
-      if ( method_exists( $this->_pdf, "addImagePng" ) ) {
-        //debugpng
-        if (DEBUGPNG)  print "!!!$img_type addImagePng!!!";
-
-        //If optimization to direct png creation from gd object is available,
-        //don't create temp file, but place gd object directly into the pdf
-        if ( method_exists( $this->_pdf, "image_iscached" ) &&
-            $this->_pdf->image_iscached($img_url) ) {
-          //If same image has occured already before, no need to load because
-          //duplicate will anyway be eliminated.
-          $img = null;
-          unset($img);
-        }
-        else {
-          $func_name = "imagecreatefrom$img_type";
-          $img = @$func_name($img_url);
-          if ( !$img ) {
-          return;
-          }
-          imageinterlace($img, false);
-        }
-
-        $this->_pdf->addImagePng($img_url, $x, $this->y($y) - $h, $w, $h, $img);
-
-        if ( $img ) {
-          imagedestroy($img);
-        }
-      } 
-      else {
-        //debugpng
-        if (DEBUGPNG)  print "!!!$img_type addPngFromFile!!!";
-        $img_url = $this->_convert_gif_bmp_to_png($img_url, $img_type);
-        $this->_pdf->addPngFromFile($img_url, $x, $this->y($y) - $h, $w, $h);
-      }
+      $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
       break;
 
     default:
-      //debugpng
       if (DEBUGPNG) print '!!!unknown!!!';
-      break;
     }
-    
-    return;
   }
 
   //........................................................................

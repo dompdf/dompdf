@@ -175,14 +175,5 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
   function get_image_url() {
     return $this->_img->get_image_url();
   }
-
-  /**
-   * Return the image extension
-   *
-   * @return string
-   */
-  function get_image_ext() {
-    return $this->_img->get_image_ext();
-  }
   
 }

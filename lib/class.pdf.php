@@ -3464,6 +3464,14 @@ EOT;
   function toUpper($matches) {
     return mb_strtoupper($matches[0]);
   }
+  
+  function concatMatches($matches) {
+    $str = "";
+    foreach($matches as $match){
+      $str .= $match[0];
+    }
+    return $str;
+  }
 
   /**
    * add text to the document, at a specified location, size and angle on the page
@@ -3475,8 +3483,16 @@ EOT;
 
     $text = str_replace(array("\r", "\n"), "", $text);
     
-    if ($smallCaps) {
-      $text = preg_replace_callback("/\p{Ll}/u", array($this, "toUpper"), $text);
+    if ( $smallCaps ) {
+      preg_match_all("/(\P{Ll}+)/u", $text, $matches, PREG_SET_ORDER);
+      $lower = $this->concatMatches($matches);
+      d($lower);
+      
+      preg_match_all("/(\p{Ll}+)/u", $text, $matches, PREG_SET_ORDER);
+      $other = $this->concatMatches($matches);
+      d($other);
+      
+      //$text = preg_replace_callback("/\p{Ll}/u", array($this, "toUpper"), $text);
     }
 
     // if there are any open callbacks, then they should be called, to show the start of the line
@@ -4104,6 +4120,14 @@ EOT;
   }
 
   /**
+   * Check if image already added to pdf image directory.
+   * If yes, need not to create again (pass empty data)
+   */
+  function image_iscached($imgname) {
+    return isset($this->imagelist[$imgname]);
+  }
+
+  /**
    * add a PNG image into the document, from a GD object
    * this should work with remote files
    * 
@@ -4120,7 +4144,8 @@ EOT;
     //if already cached, need not to read again
     if ( isset($this->imagelist[$file]) ) {
       $data = null;
-    } else {
+    }
+    else {
       // Example for transparency handling on new image. Retain for current image
       // $tIndex = imagecolortransparent($img);
       // if ($tIndex > 0) {
@@ -4320,8 +4345,6 @@ EOT;
    */
   function addPngFromBuf($file, $x, $y, $w =  0, $h =  0, &$data, $is_mask = false, $mask = null) {
     if ( isset($this->imagelist[$file]) ) {
-      //debugpng
-      //if (DEBUGPNG) print '[addPngFromBuf Duplicate '.$file.']';
       $data = null;
       $info['width'] = $this->imagelist[$file]['w'];
       $info['height'] = $this->imagelist[$file]['h'];
@@ -4333,207 +4356,213 @@ EOT;
         $this->addMessage('addPngFromBuf error - ('.$imgname.') data not present!');
         return;
       }
-      //debugpng
-      //if (DEBUGPNG) print '[addPngFromBuf file='.$file.']';
-    $error =  0;
-
-    if  (!$error) {
-      $header =  chr(137) .chr(80) .chr(78) .chr(71) .chr(13) .chr(10) .chr(26) .chr(10);
-      if  (mb_substr($data, 0, 8, '8bit') !=  $header) {
-        $error =  1;
-        //debugpng
-        if (DEBUGPNG) print '[addPngFromFile this file does not have a valid header '.$file.']';
-
-        $errormsg =  'this file does not have a valid header';
-      }
-    }
-
-    if  (!$error) {
-      // set pointer
-      $p =  8;
-      $len =  mb_strlen($data, '8bit');
-
-      // cycle through the file, identifying chunks
-      $haveHeader =  0;
-      $info =  array();
-      $idata =  '';
-      $pdata =  '';
-
-      while  ($p < $len) {
-        $chunkLen =  $this->PRVT_getBytes($data, $p, 4);
-        $chunkType =  mb_substr($data, $p+4, 4, '8bit');
-        //      echo $chunkType.' - '.$chunkLen.'<br>';
-        switch ($chunkType) {
-        case  'IHDR':
-          // this is where all the file information comes from
-          $info['width'] =  $this->PRVT_getBytes($data, $p+8, 4);
-          $info['height'] =  $this->PRVT_getBytes($data, $p+12, 4);
-          $info['bitDepth'] =  ord($data[$p+16]);
-          $info['colorType'] =  ord($data[$p+17]);
-          $info['compressionMethod'] =  ord($data[$p+18]);
-          $info['filterMethod'] =  ord($data[$p+19]);
-          $info['interlaceMethod'] =  ord($data[$p+20]);
-
-          //print_r($info);
-          $haveHeader =  1;
-          if  ($info['compressionMethod'] !=  0) {
-            $error =  1;
-
-            //debugpng
-            if (DEBUGPNG) print '[addPngFromFile unsupported compression method '.$file.']';
-
-            $errormsg =  'unsupported compression method';
-          }
-
-          if  ($info['filterMethod'] !=  0) {
-            $error =  1;
-
-            //debugpng
-            if (DEBUGPNG) print '[addPngFromFile unsupported filter method '.$file.']';
-
-            $errormsg =  'unsupported filter method';
-          }
-          break;
-
-        case  'PLTE':
-          $pdata.=  mb_substr($data, $p+8, $chunkLen, '8bit');
-          break;
-
-        case  'IDAT':
-          $idata.=  mb_substr($data, $p+8, $chunkLen, '8bit');
-          break;
-
-        case  'tRNS':
-          //this chunk can only occur once and it must occur after the PLTE chunk and before IDAT chunk
-          //print "tRNS found, color type = ".$info['colorType']."\n";
-          $transparency =  array();
-
-          if  ($info['colorType'] ==  3) {
-            // indexed color, rbg
-            /* corresponding to entries in the plte chunk
-             Alpha for palette index 0: 1 byte
-             Alpha for palette index 1: 1 byte
-             ...etc...
-            */
-            // there will be one entry for each palette entry. up until the last non-opaque entry.
-            // set up an array, stretching over all palette entries which will be o (opaque) or 1 (transparent)
-            $transparency['type'] =  'indexed';
-            $numPalette =  mb_strlen($pdata, '8bit')/3;
-            $trans =  0;
-
-            for  ($i =  $chunkLen;$i >=  0;$i--) {
-              if  (ord($data[$p+8+$i]) ==  0) {
-                $trans =  $i;
-              }
-            }
-
-            $transparency['data'] =  $trans;
-          } elseif ($info['colorType'] ==  0) {
-            // grayscale
-            /* corresponding to entries in the plte chunk
-             Gray: 2 bytes, range 0 .. (2^bitdepth)-1
-            */
-            //            $transparency['grayscale'] = $this->PRVT_getBytes($data,$p+8,2); // g = grayscale
-            $transparency['type'] =  'indexed';
-
-            $transparency['data'] =  ord($data[$p+8+1]);
-          } elseif ($info['colorType'] ==  2) {
-            // truecolor
-            /* corresponding to entries in the plte chunk
-             Red: 2 bytes, range 0 .. (2^bitdepth)-1
-             Green: 2 bytes, range 0 .. (2^bitdepth)-1
-             Blue: 2 bytes, range 0 .. (2^bitdepth)-1
-            */
-            $transparency['r'] =  $this->PRVT_getBytes($data, $p+8, 2);
-            // r from truecolor
-            $transparency['g'] =  $this->PRVT_getBytes($data, $p+10, 2);
-            // g from truecolor
-            $transparency['b'] =  $this->PRVT_getBytes($data, $p+12, 2);
-            // b from truecolor
-
-            $transparency['type'] = 'color-key';
-            
-          } else {
-            //unsupported transparency type
-            //debugpng
-            if (DEBUGPNG) print '[addPngFromFile unsupported transparency type '.$file.']';
-          }
-          // KS End new code
-          break;
-
-        default:
-          break;
-        }
-
-        $p+=  $chunkLen+12;
-      }
-
-
-      if (!$haveHeader) {
-        $error =  1;
-
-        //debugpng
-        if (DEBUGPNG) print '[addPngFromFile information header is missing '.$file.']';
-
-        $errormsg =  'information header is missing';
-      }
-
-      if  (isset($info['interlaceMethod']) &&  $info['interlaceMethod']) {
-        $error =  1;
-
-        //debugpng
-        if (DEBUGPNG) print '[addPngFromFile no support for interlaced images in pdf '.$file.']';
-
-        $errormsg =  'There appears to be no support for interlaced images in pdf.';
-      }
-    }
-
-    if  (!$error &&  $info['bitDepth'] > 8) {
-      $error =  1;
-
-      //debugpng
-      if (DEBUGPNG) print '[addPngFromFile bit depth of 8 or less is supported '.$file.']';
-
-      $errormsg =  'only bit depth of 8 or less is supported';
-    }
-    
-    if  (!$error) {
-      switch  ($info['colorType']) {
-      case  3:
-        $color =  'DeviceRGB';
-        $ncolor =  1;
-        break;
-
-      case  2:
-        $color =  'DeviceRGB';
-        $ncolor =  3;
-        break;
-
-      case  0:
-        $color =  'DeviceGray';
-        $ncolor =  1;
-        break;
       
-      default: 
-        $error =  1;
-
-        //debugpng
-        if (DEBUGPNG) print '[addPngFromFile alpha channel not supported: '.$info['colorType'].' '.$file.']';
-
-        $errormsg =  'transparancey alpha channel not supported, transparency only supported for palette images.';
+      $error =  0;
+  
+      if  (!$error) {
+        $header =  chr(137) .chr(80) .chr(78) .chr(71) .chr(13) .chr(10) .chr(26) .chr(10);
+        
+        if  (mb_substr($data, 0, 8, '8bit') !=  $header) {
+          $error =  1;
+          
+          if (DEBUGPNG) print '[addPngFromFile this file does not have a valid header '.$file.']';
+  
+          $errormsg =  'this file does not have a valid header';
+        }
       }
-    }
-
-    if  ($error) {
-      $this->addMessage('PNG error - ('.$file.') '.$errormsg);
-      return;
-    }
+  
+      if  (!$error) {
+        // set pointer
+        $p =  8;
+        $len =  mb_strlen($data, '8bit');
+  
+        // cycle through the file, identifying chunks
+        $haveHeader =  0;
+        $info =  array();
+        $idata =  '';
+        $pdata =  '';
+  
+        while  ($p < $len) {
+          $chunkLen =  $this->PRVT_getBytes($data, $p, 4);
+          $chunkType =  mb_substr($data, $p+4, 4, '8bit');
+          
+          switch ($chunkType) {
+          case  'IHDR':
+            // this is where all the file information comes from
+            $info['width'] =  $this->PRVT_getBytes($data, $p+8, 4);
+            $info['height'] =  $this->PRVT_getBytes($data, $p+12, 4);
+            $info['bitDepth'] =  ord($data[$p+16]);
+            $info['colorType'] =  ord($data[$p+17]);
+            $info['compressionMethod'] =  ord($data[$p+18]);
+            $info['filterMethod'] =  ord($data[$p+19]);
+            $info['interlaceMethod'] =  ord($data[$p+20]);
+  
+            //print_r($info);
+            $haveHeader =  1;
+            if  ($info['compressionMethod'] !=  0) {
+              $error =  1;
+  
+              //debugpng
+              if (DEBUGPNG) print '[addPngFromFile unsupported compression method '.$file.']';
+  
+              $errormsg =  'unsupported compression method';
+            }
+  
+            if  ($info['filterMethod'] !=  0) {
+              $error =  1;
+  
+              //debugpng
+              if (DEBUGPNG) print '[addPngFromFile unsupported filter method '.$file.']';
+  
+              $errormsg =  'unsupported filter method';
+            }
+            break;
+  
+          case  'PLTE':
+            $pdata.=  mb_substr($data, $p+8, $chunkLen, '8bit');
+            break;
+  
+          case  'IDAT':
+            $idata.=  mb_substr($data, $p+8, $chunkLen, '8bit');
+            break;
+  
+          case  'tRNS':
+            //this chunk can only occur once and it must occur after the PLTE chunk and before IDAT chunk
+            //print "tRNS found, color type = ".$info['colorType']."\n";
+            $transparency =  array();
+            
+            switch ($info['colorType']) {
+              // indexed color, rbg
+              case 3:
+                /* corresponding to entries in the plte chunk
+                 Alpha for palette index 0: 1 byte
+                 Alpha for palette index 1: 1 byte
+                 ...etc...
+                */
+                // there will be one entry for each palette entry. up until the last non-opaque entry.
+                // set up an array, stretching over all palette entries which will be o (opaque) or 1 (transparent)
+                $transparency['type'] =  'indexed';
+                
+                $numPalette =  mb_strlen($pdata, '8bit')/3;
+                $trans =  0;
+    
+                for  ($i =  $chunkLen;$i >=  0;$i--) {
+                  if  (ord($data[$p+8+$i]) ==  0) {
+                    $trans =  $i;
+                  }
+                }
+    
+                $transparency['data'] =  $trans;
+              break;
+              
+              // grayscale
+              case 0:
+                /* corresponding to entries in the plte chunk
+                 Gray: 2 bytes, range 0 .. (2^bitdepth)-1
+                */
+                //            $transparency['grayscale'] = $this->PRVT_getBytes($data,$p+8,2); // g = grayscale
+                $transparency['type'] =  'indexed';
+                $transparency['data'] =  ord($data[$p+8+1]);
+              break;
+              
+              // truecolor
+              case 2:      
+                /* corresponding to entries in the plte chunk
+                 Red: 2 bytes, range 0 .. (2^bitdepth)-1
+                 Green: 2 bytes, range 0 .. (2^bitdepth)-1
+                 Blue: 2 bytes, range 0 .. (2^bitdepth)-1
+                */
+                $transparency['r'] =  $this->PRVT_getBytes($data, $p+8, 2);
+                // r from truecolor
+                $transparency['g'] =  $this->PRVT_getBytes($data, $p+10, 2);
+                // g from truecolor
+                $transparency['b'] =  $this->PRVT_getBytes($data, $p+12, 2);
+                // b from truecolor
+    
+                $transparency['type'] = 'color-key';
+              break;
+              
+              //unsupported transparency type
+              default:
+                if (DEBUGPNG) print '[addPngFromFile unsupported transparency type '.$file.']';
+                break;
+            }
+  
+            // KS End new code
+            break;
+  
+          default:
+            break;
+          }
+  
+          $p +=  $chunkLen+12;
+        }
+  
+        if (!$haveHeader) {
+          $error =  1;
+  
+          //debugpng
+          if (DEBUGPNG) print '[addPngFromFile information header is missing '.$file.']';
+  
+          $errormsg =  'information header is missing';
+        }
+  
+        if  (isset($info['interlaceMethod']) &&  $info['interlaceMethod']) {
+          $error =  1;
+  
+          //debugpng
+          if (DEBUGPNG) print '[addPngFromFile no support for interlaced images in pdf '.$file.']';
+  
+          $errormsg =  'There appears to be no support for interlaced images in pdf.';
+        }
+      }
+  
+      if  (!$error &&  $info['bitDepth'] > 8) {
+        $error =  1;
+  
+        //debugpng
+        if (DEBUGPNG) print '[addPngFromFile bit depth of 8 or less is supported '.$file.']';
+  
+        $errormsg =  'only bit depth of 8 or less is supported';
+      }
+      
+      if  (!$error) {
+        switch  ($info['colorType']) {
+        case  3:
+          $color =  'DeviceRGB';
+          $ncolor =  1;
+          break;
+  
+        case  2:
+          $color =  'DeviceRGB';
+          $ncolor =  3;
+          break;
+  
+        case  0:
+          $color =  'DeviceGray';
+          $ncolor =  1;
+          break;
+        
+        default: 
+          $error =  1;
+  
+          //debugpng
+          if (DEBUGPNG) print '[addPngFromFile alpha channel not supported: '.$info['colorType'].' '.$file.']';
+  
+          $errormsg =  'transparancey alpha channel not supported, transparency only supported for palette images.';
+        }
+      }
+  
+      if  ($error) {
+        $this->addMessage('PNG error - ('.$file.') '.$errormsg);
+        return;
+      }
 
       //print_r($info);
       // so this image is ok... add it in.
       $this->numImages++;
       $im =  $this->numImages;
-      $label =  'I'.$im;
+      $label =  "I$im";
       $this->numObj++;
 
       //  $this->o_image($this->numObj,'new',array('label' => $label,'data' => $idata,'iw' => $w,'ih' => $h,'type' => 'png','ic' => $info['width']));
@@ -4576,8 +4605,7 @@ EOT;
       $h =  $w*$info['height']/$info['width'];
     }
 
-    $this->objects[$this->currentContents]['c'].=  sprintf("\nq\n%.3F 0 0 %.3F %.3F %.3F cm", $w, $h, $x, $y);
-    $this->objects[$this->currentContents]['c'].=  "\n/$label Do\nQ";
+    $this->objects[$this->currentContents]['c'].=  sprintf("\nq\n%.3F 0 0 %.3F %.3F %.3F cm /%s Do\nQ", $w, $h, $x, $y, $label);
   }
 
   /**
@@ -4591,17 +4619,18 @@ EOT;
       return;
     }
 
-  if ( isset($this->imagelist[$img]) ) {
-    $data = null;
+    if ( $this->image_iscached($img) ) {
+      $data = null;
       $imageWidth  = $this->imagelist[$img]['w'];
       $imageHeight = $this->imagelist[$img]['h'];
       $channels    = $this->imagelist[$img]['c'];
-  } else {
+    } 
+    else {
       $tmp = getimagesize($img);
       $imageWidth  = $tmp[0];
       $imageHeight = $tmp[1];
 
-      if  (isset($tmp['channels'])) {
+      if ( isset($tmp['channels']) ) {
         $channels =  $tmp['channels'];
       } else {
         $channels =  3;
@@ -4626,75 +4655,12 @@ EOT;
   }
 
   /**
-   * add an image into the document, from a GD object
-   * this function is not all that reliable, and I would probably encourage people to use
-   * the file based functions
-   */
-  function addImage(&$img, $x, $y, $w =  0, $h =  0, $quality =  75) {
-    /* Todo:
-     * Pass in original filename as $imgname
-     * If already cached like image_iscached(), allow empty $img
-     * How to get w  and h in this case?
-     * Then caller can check with image_iscached() whether generation of image is needed.
-     *
-     * But anyway, this function is not used!
-     */
-    $tempname = tempnam($this->tmp, "cpdf_img_");
-    @unlink($tempname);
-    $imgname = "$tempname.jpeg";
-
-    // add a new image into the current location, as an external object
-    // add the image at $x,$y, and with width and height as defined by $w & $h
-
-    // note that this will only work with full colour images and makes them jpg images for display
-    // later versions could present lossless image formats if there is interest.
-
-    // there seems to be some problem here in that images that have quality set above 75 do not appear
-    // not too sure why this is, but in the meantime I have restricted this to 75.
-    if  ($quality>75) {
-      $quality =  75;
-    }
-
-    // if the width or height are set to zero, then set the other one based on keeping the image
-    // height/width ratio the same, if they are both zero, then give up :)
-    $imageWidth =  imagesx($img);
-    $imageHeight =  imagesy($img);
-
-    if  ($w <=  0 &&  $h <=  0) {
-      return;
-    }
-
-    if  ($w ==  0) {
-      $w =  $h/$imageHeight*$imageWidth;
-    }
-
-    if  ($h ==  0) {
-      $h =  $w*$imageHeight/$imageWidth;
-    }
-
-    // gotta get the data out of the img..
-    ob_start();
-    imagejpeg($img, '', $quality);
-    $data = ob_get_clean();
-
-    $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $imgname);
-  }
-
-  /**
-   * Check if image already added to pdf image directory.
-   * If yes, need not to create again (pass empty data)
-   */
-  function image_iscached($imgname) {
-    return isset($this->imagelist[$imgname]);
-  }
-
-  /**
    * common code used by the two JPEG adding functions
    *
    * @access private
    */
   function addJpegImage_common(&$data, $x, $y, $w =  0, $h =  0, $imageWidth, $imageHeight, $channels =  3, $imgname) {
-    if ( isset($this->imagelist[$imgname]) ) {
+    if ( $this->image_iscached($imgname) ) {
       $label = $this->imagelist[$imgname]['label'];
       //debugpng
       //if (DEBUGPNG) print '[addJpegImage_common Duplicate '.$imgname.']';
@@ -4709,7 +4675,7 @@ EOT;
       // it is just the common code between the GD and the file options
       $this->numImages++;
       $im =  $this->numImages;
-      $label =  'I'.$im;
+      $label =  "I$im";
       $this->numObj++;
       
       $this->o_image($this->numObj, 'new', array(
@@ -4719,11 +4685,11 @@ EOT;
         'ih' => $imageHeight, 
         'channels' => $channels
       ));
+      
       $this->imagelist[$imgname] = array('label' =>$label, 'w' => $imageWidth, 'h' => $imageHeight, 'c'=> $channels );
     }
 
-    $this->objects[$this->currentContents]['c'].=  sprintf("\nq\n%.3F 0 0 %.3F %.3F %.3F cm", $w, $h, $x, $y);
-    $this->objects[$this->currentContents]['c'].=  "\n/$label Do\nQ";
+    $this->objects[$this->currentContents]['c'].=  sprintf("\nq\n%.3F 0 0 %.3F %.3F %.3F cm /%s Do\nQ ", $w, $h, $x, $y, $label);
   }
 
   /**

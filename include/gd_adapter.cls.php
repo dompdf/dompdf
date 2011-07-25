@@ -560,33 +560,20 @@ class GD_Adapter implements Canvas {
    * @param int $w width (in pixels)
    * @param int $h height (in pixels)
    */
-  function image($img_url, $img_type, $x, $y, $w, $h, $resolution = "normal") {
+  function image($img_url, $x, $y, $w, $h, $resolution = "normal") {
+    $img_type = Image_Cache::detect_type($img_url);
+    $img_ext  = Image_Cache::type_to_ext($img_type);
 
-    switch ($img_type) {
-    case "png":
-      $src = @imagecreatefrompng($img_url);
-      break;
-      
-    case "gif":
-      $src = @imagecreatefromgif($img_url);
-      break;
-      
-    case "bmp":
-      $src = @imagecreatefrombmp($img_url);
-      break;
-      
-    case "jpg":
-    case "jpeg":
-      $src = @imagecreatefromjpeg($img_url);
-      break;
-
-    default:
-      break;
-      
+    if ( !$img_ext ) {
+      return;
     }
+    
+    $func = "imagecreatefrom$img_ext";
+    $src = @$func($img_url);
 
-    if ( !$src )
+    if ( !$src ) {
       return; // Probably should add to $_dompdf_errors or whatever here
+    }
     
     // Scale by the AA factor
     $x *= $this->_aa_factor;
@@ -597,7 +584,6 @@ class GD_Adapter implements Canvas {
     
     $img_w = imagesx($src);
     $img_h = imagesy($src);
-
     
     imagecopyresampled($this->_img, $src, $x, $y, 0, 0, $w, $h, $img_w, $img_h);
     
