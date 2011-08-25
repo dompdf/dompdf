@@ -1,5 +1,7 @@
 <?php 
 
+session_start();
+
 $cmd = isset($_GET["cmd"]) ? $_GET["cmd"] : null;
 
 include "../dompdf_config.inc.php";
