@@ -313,7 +313,7 @@ class Font_Metrics {
   }
   
   static function register_font($style, $remote_file) {
-    $fontname = $style["family"];
+    $fontname = mb_strtolower($style["family"]);
     $families = Font_Metrics::get_font_families();
     
     $entry = array();
