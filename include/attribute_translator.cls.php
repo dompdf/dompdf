@@ -75,7 +75,7 @@ class Attribute_Translator {
       ),
       'bgcolor' => 'background-color: %s;',
       'border' => '!set_table_border',
-      'cellpadding' => '!set_table_cellpadding',
+      'cellpadding' => '!set_table_cellpadding',//'border-spacing: %0.2F; border-collapse: separate;',
       'cellspacing' => '!set_table_cellspacing',
       'frame' => array(
         'void'   => 'border-style: none;',
@@ -317,7 +317,7 @@ class Attribute_Translator {
     $cell_list = self::get_cell_list($node);
     
     foreach ($cell_list as $cell) {
-      self::append_style($cell, "; padding: $value" . "px;");
+      self::append_style($cell, "; padding: {$value}px;");
     }
     
     return null;
@@ -345,7 +345,7 @@ class Attribute_Translator {
       $style .= "; border-collapse: collapse;";
       
     else
-      $style = "; border-collapse: separate;";
+      $style .= "; border-spacing: {$value}px; border-collapse: separate;";
       
     return ltrim($style, ";");
   }

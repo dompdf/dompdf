@@ -262,10 +262,11 @@ switch ( $sapi ) {
   }
   
   $file_parts = explode_url($file);
+  
   /* Check to see if the input file is local and, if so, that the base path falls within that specified by DOMDPF_CHROOT */
   if(($file_parts['protocol'] == '' || $file_parts['protocol'] === 'file://')) {
     $file = realpath($file);
-    if (strpos($file, DOMPDF_CHROOT) !== 0) {
+    if ( strpos($file, DOMPDF_CHROOT) !== 0 ) {
       throw new DOMPDF_Exception("Permission denied on $file.");
     }
   }

@@ -13,9 +13,29 @@
 <body>
 <div id="content">
 <h2>Remote CSS &amp; Image Test</h2>
-<h3>CSS: <a href="http://dompdf.googlecode.com/svn/trunk/dompdf/www/style.css">http://dompdf.googlecode.com/svn/trunk/dompdf/www/style.css</a></h3>
-<p>Testing remote image: <img src="http://dompdf.googlecode.com/svn/trunk/dompdf/www/images/title.gif"/></p>
 <p>Note: DOMPDF_ENABLE_REMOTE must be enabled for this test to work.</p>
+
+<h3>CSS: <a href="http://dompdf.googlecode.com/svn/trunk/dompdf/www/style.css">http://dompdf.googlecode.com/svn/trunk/dompdf/www/style.css</a></h3>
+<p>
+	Remote image with extension: <br />
+	<img src="http://dompdf.googlecode.com/svn/trunk/dompdf/www/test/images/dompdf_simple.png"/>
+</p>
+<p>
+  Remote image without extension: <br />
+  <img src="http://dompdf.googlecode.com/svn/trunk/dompdf/www/test/images/no_extension"/>
+</p>
+<p>
+  Remote image with unknown extension: <br />
+  <img src="http://dompdf.googlecode.com/svn/trunk/dompdf/www/test/images/unknown_extension.foo"/>
+</p>
+<p>
+  Remote image with unknown extension and params: <br />
+  <img src="http://dompdf.googlecode.com/svn/trunk/dompdf/www/test/images/unknown_extension.foo?bar=baz"/>
+</p>
+<p>
+  Remote image with unknown extension and advances params: <br />
+  <img src="http://dompdf.googlecode.com/svn/trunk/dompdf/www/test/images/unknown_extension.foo?bar=baz&amp;test[]=test space&amp;test[]=test%20space"/>
+</p>
 </div>
 </body>
 </html>
