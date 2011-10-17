@@ -479,13 +479,20 @@ class DOMPDF {
     set_error_handler("record_warnings");
     
     if ( DOMPDF_ENABLE_HTML5PARSER ) {
-      $this->_xml = HTML5_Parser::parse($str);
+      // we could use directly the DOMDocument returned by HTML5_Parser::parse($str), 
+      // but it adds whitespace that we don't want to handle
+      $str = HTML5_Parser::parse($str)->saveXML();
+      
+      // Remove whitespace between </head> and <body>
+      /*$head = $this->_xml->getElementsByTagName("head")->item(0);
+      if ( $head && ($text = $head->nextSibling) && $text->nodeName === "#text" ) {
+        $text->parentNode->removeChild($text);
+      }*/
     }
-    else {
-      $this->_xml = new DOMDocument();
-      $this->_xml->preserveWhiteSpace = true;
-      $this->_xml->loadHTML($str);
-    }
+    
+    $this->_xml = new DOMDocument();
+    $this->_xml->preserveWhiteSpace = true;
+    $this->_xml->loadHTML($str);
     
     $this->_tree = new Frame_Tree($this->_xml);
     
