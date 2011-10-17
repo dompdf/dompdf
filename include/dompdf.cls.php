@@ -221,9 +221,6 @@ class DOMPDF {
     $this->save_locale();
     
     $this->_messages = array();
-    $this->_xml = new DOMDocument();
-    $this->_xml->preserveWhiteSpace = true;
-    $this->_tree = new Frame_Tree($this->_xml);
     $this->_css = new Stylesheet($this);
     $this->_pdf = null;
     $this->_paper_size = "letter";
@@ -431,6 +428,7 @@ class DOMPDF {
       $metatags = array(
         '@<meta\s+http-equiv="Content-Type"\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))?@i',
         '@<meta\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))"?\s+http-equiv="Content-Type"@i',
+        '@<meta [^>]*charset\s*=\s*["\']?\s*([^"\' ]+)@i',
       );
       
       foreach($metatags as $metatag) {
@@ -456,7 +454,7 @@ class DOMPDF {
       }
       
       if (isset($matches[1])) {
-        $str = preg_replace('/charset=([^\s"]+)/i','charset=UTF-8', $str);
+        $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
       } else {
         $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
       }
@@ -472,13 +470,25 @@ class DOMPDF {
     // if the document contains non utf-8 with a utf-8 meta tag chars and was 
     // detected as utf-8 by mbstring, problems could happen.
     // http://devzone.zend.com/article/8855
-    if ( $encoding === 'UTF-8' ) {
-      $str = preg_replace("/<meta([^>]+)>/", "", $str);
+    if ( $encoding !== 'UTF-8' ) {
+      $re = '/<meta ([^>]*)((?:charset=[^"\' ]+)([^>]*)|(?:charset=["\'][^"\' ]+["\']))([^>]*)>/i';
+      $str = preg_replace($re, "<meta $1$3>", $str);
     }
     
     // Store parsing warnings as messages
     set_error_handler("record_warnings");
-    $this->_xml->loadHTML($str);
+    
+    if ( DOMPDF_ENABLE_HTML5PARSER ) {
+      $this->_xml = HTML5_Parser::parse($str);
+    }
+    else {
+      $this->_xml = new DOMDocument();
+      $this->_xml->preserveWhiteSpace = true;
+      $this->_xml->loadHTML($str);
+    }
+    
+    $this->_tree = new Frame_Tree($this->_xml);
+    
     restore_error_handler();
     
     // @todo Take the quirksmode into account
@@ -487,14 +497,14 @@ class DOMPDF {
     $quirksmode = false;
     
     // HTML5 <!DOCTYPE html>
-    if ( !$this->_xml->doctype->publicId && !$this->_xml->doctype->systemId ) {
+    /*if ( !$this->_xml->doctype->publicId && !$this->_xml->doctype->systemId ) {
       $quirksmode = false;
     }
     
     // not XHTML
     if ( !preg_match("/xhtml/i", $this->_xml->doctype->publicId) ) {
       $quirksmode = true;
-    }
+    }*/
 
     $this->_quirksmode = $quirksmode;
     
@@ -682,7 +692,6 @@ class DOMPDF {
 
       // FIXME: handle generated content
       if ( $frame->get_style()->display === "list-item" ) {
-
         // Insert a list-bullet frame
         $node = $this->_xml->createElement("bullet"); // arbitrary choice
         $b_f = new Frame($node);
@@ -690,24 +699,20 @@ class DOMPDF {
         $parent_node = $frame->get_parent()->get_node();
 
         if ( !$parent_node->hasAttribute("dompdf-children-count") ) {
-          $count = 0;
-          foreach ($parent_node->childNodes as $_node) {
-            if ( $_node instanceof DOMElement )
-              $count++;
-          }
+          $xpath = new DOMXPath($this->_xml);
+          $count = $xpath->query("li", $parent_node)->length;
           $parent_node->setAttribute("dompdf-children-count", $count);
         }
 
-        $index = 0;
         if ( !$parent_node->hasAttribute("dompdf-counter") ) {
-          $index = 1;
-          $parent_node->setAttribute("dompdf-counter", 1);
+          $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start")-1 : 0);
         }
         else {
           $index = $parent_node->getAttribute("dompdf-counter");
-          $index++;
-          $parent_node->setAttribute("dompdf-counter", $index);
         }
+        
+        $index++;
+        $parent_node->setAttribute("dompdf-counter", $index);
         
         $node->setAttribute("dompdf-counter", $index);
         $style = $this->_css->create_style();
@@ -720,6 +725,7 @@ class DOMPDF {
 
     }
     
+    // @page style rules : size, margins
     $page_styles = $this->_css->get_page_styles();
     
     $base_page_style = $page_styles["base"];
