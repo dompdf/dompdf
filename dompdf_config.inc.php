@@ -370,6 +370,12 @@ def("DOMPDF_ENABLE_CSS_FLOAT", false);
  */
 def("DOMPDF_AUTOLOAD_PREPEND", false);
 
+/**
+ * Use the more-than-experimental HTML5 Lib parser
+ */
+def("DOMPDF_ENABLE_HTML5PARSER", false);
+require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
+
 // ### End of user-configurable options ###
 
 require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
