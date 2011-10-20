@@ -515,6 +515,10 @@ abstract class Abstract_Renderer {
     return;
   }
   
+  protected function _border_hidden($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+    return;
+  }
+  
   // Border rendering functions
   protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
     list($top, $right, $bottom, $left) = $widths;

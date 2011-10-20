@@ -63,6 +63,7 @@ class Cellmap {
                                                 "dashed" => 6,
                                                 "solid"  => 7,
                                                 "double" => 8,
+                                                "hidden" => 9,
                                                 "none"   => 0);
 
   /**
