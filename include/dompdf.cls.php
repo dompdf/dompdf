@@ -462,6 +462,12 @@ class DOMPDF {
       $encoding = 'UTF-8';
     }
     
+    // remove BOM mark from UTF-8, it's treated as document text by DOMDocument
+    // FIXME: roll this into the encoding detection using UTF-8/16/32 BOM (http://us2.php.net/manual/en/function.mb-detect-encoding.php#91051)?
+    if (substr($str, 0, 3) == chr(0xEF).chr(0xBB).chr(0xBF)) {
+      $str = substr($str, 3);
+    }
+    
     // Parse embedded php, first-pass
     if ( DOMPDF_ENABLE_PHP ) {
       ob_start();
