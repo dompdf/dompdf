@@ -458,8 +458,10 @@ class DOMPDF {
       } else {
         $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
       }
+    } else {
+      $encoding = 'UTF-8';
     }
-
+    
     // Parse embedded php, first-pass
     if ( DOMPDF_ENABLE_PHP ) {
       ob_start();
