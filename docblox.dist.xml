@@ -7,11 +7,10 @@
     <target>docs</target>
   </transformer>
   <files>
-    <directory>dompdf</directory>
-    <ignore>*.settings*</ignore>
+    <directory>.</directory>
     <ignore>*/lib/fonts/*</ignore>
-    <ignore>*\lib\fonts\*</ignore>
-    <ignore>*simpletest*</ignore>
+    <ignore>*simpletest/*</ignore>
+    <ignore>*www/*</ignore>
     <ignore>*ttf2ufm*</ignore>
     <ignore>*.svn*</ignore>
   </files>
