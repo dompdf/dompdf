@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<docblox>
+  <parser>
+    <target>docs</target>
+  </parser>
+  <transformer>
+    <target>docs</target>
+  </transformer>
+  <files>
+    <directory>dompdf</directory>
+    <ignore>*.settings*</ignore>
+    <ignore>*/lib/fonts/*</ignore>
+    <ignore>*\lib\fonts\*</ignore>
+    <ignore>*simpletest*</ignore>
+    <ignore>*ttf2ufm*</ignore>
+    <ignore>*.svn*</ignore>
+  </files>
+  <transformations>
+    <template name="default" />
+  </transformations>
+</docblox>
