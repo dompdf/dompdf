@@ -135,7 +135,7 @@ class Attribute_Translator {
     ),
     'td' => array(
       'align'   => 'text-align: %s;',
-      'bgcolor' => 'background-color: %s;',
+      'bgcolor' => '!set_background_color',
       'height'  => 'height: %s;',
       'nowrap'  => 'white-space: nowrap;',
       'valign'  => 'vertical-align: %s;',
@@ -147,7 +147,7 @@ class Attribute_Translator {
     ),
     'th' => array(
       'align'   => 'text-align: %s;',
-      'bgcolor' => 'background-color: %s;',
+      'bgcolor' => '!set_background_color',
       'height'  => 'height: %s;',
       'nowrap'  => 'white-space: nowrap;',
       'valign'  => 'vertical-align: %s;',
@@ -164,20 +164,20 @@ class Attribute_Translator {
     ),
     'body' => array(
       'background' => 'background-image: url(%s);',
-      'bgcolor'    => 'background-color: %s;',
+      'bgcolor'    => '!set_background_color',
       'link'       => '!set_body_link',
-      'text'       => 'color: %s;',
+      'text'       => '!set_color',
     ),
     'br' => array(
       'clear' => 'clear: %s;',
     ),
     'basefont' => array(
-      'color' => 'color: %s;',
+      'color' => '!set_color',
       'face'  => 'font-family: %s;',
       'size'  => '!set_basefont_size',
     ),
     'font' => array(
-      'color' => 'color: %s;',
+      'color' => '!set_color',
       'face'  => 'font-family: %s;',
       'size'  => '!set_font_size',
     ),
@@ -309,9 +309,27 @@ class Attribute_Translator {
     }
     
     return $xpath->query($query, $node);
-  }
+  } 
 
   //.....................................................................
+  
+  static protected function _get_valid_color($value) {
+    if ( preg_match('/^#?([0-9A-F]{6})$/i', $value, $matches) ) {
+      $value = "#$matches[1]";
+    }
+    
+    return $value;
+  }
+
+  static protected function _set_color($node, $value) {
+    $value = self::_get_valid_color($value);
+    return "color: $value;";
+  }
+
+  static protected function _set_background_color($node, $value) {
+    $value = self::_get_valid_color($value);
+    return "background-color: $value;";
+  }
 
   static protected function _set_table_cellpadding($node, $value) {
     $cell_list = self::get_cell_list($node);
@@ -447,6 +465,7 @@ class Attribute_Translator {
 
   static protected function _set_table_row_bgcolor($node, $value) {
     $cell_list = self::get_cell_list($node);
+    $value = self::_get_valid_color($value);
     
     foreach ($cell_list as $cell) {
       self::append_style($cell, "; background-color: $value;");
@@ -457,7 +476,8 @@ class Attribute_Translator {
 
   static protected function _set_body_link($node, $value) {
     $a_list = $node->getElementsByTagName("a");
-
+    $value = self::_get_valid_color($value);
+    
     foreach ($a_list as $a) {
       self::append_style($a, "; color: $value;");
     }
