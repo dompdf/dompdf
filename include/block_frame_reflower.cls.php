@@ -54,17 +54,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
    */
   protected $_frame;
   
-  protected $_floating_children;
-  
   function __construct(Block_Frame_Decorator $frame) { parent::__construct($frame); }
-  
-  public function get_floating_children() {
-    return $this->_floating_children;
-  }
-  
-  public function remove_floating_child($key) {
-    unset($this->_floating_children[$key]);
-  }
 
   /**
    *  Calculate the ideal used value for the width property as per:
@@ -627,9 +617,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $style = $this->_frame->get_style();
     $cb = $this->_frame->get_containing_block();
     
-    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
-      $this->_frame->increment_counter($increment);
-    
     if ( $style->position === "fixed" ) {
       $cb = $this->_frame->get_root()->get_containing_block();
     }
@@ -672,8 +659,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
     // Set the y position of the first line in this block
     $this->_frame->set_current_line($cb_y);
     
-    $this->_floating_children = array();
-    
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {
       
@@ -690,41 +675,52 @@ class Block_Frame_Reflower extends Frame_Reflower {
         
       $child_style = $child->get_style();
       
-      if ( DOMPDF_ENABLE_CSS_FLOAT && $child_style->float !== "none") {
-        array_unshift($this->_floating_children, $child);
+      if ( DOMPDF_ENABLE_CSS_FLOAT ) {
+        $root = $this->_frame->get_root();
         
-        // Remove next frame's beginning whitespace
-        $next = $child->get_next_sibling();
-        if ( $next && $next instanceof Text_Frame_Decorator) {
-          $next->set_text(ltrim($next->get_text()));
+        /*if ( $child_style->clear !== "none" ) {
+          $lowest_y = $root->remove_floating_frames($child_style->clear);
+          
+          $line_box = $this->_frame->get_current_line_box();
+          $line_box->y = $lowest_y;
+          $child->set_position(null, $y);
+        }*/
+        
+        if ( $child_style->float !== "none" ) {
+          $root->add_floating_frame($child);
+          
+          // Remove next frame's beginning whitespace
+          $next = $child->get_next_sibling();
+          if ( $next && $next instanceof Text_Frame_Decorator) {
+            $next->set_text(ltrim($next->get_text()));
+          }
+          
+          $line_box = $this->_frame->get_current_line_box();
+          list($old_x, $old_y) = $child->get_position();
+          
+          $float_x = $cb_x;
+          $float_y = $old_y;
+          $float_w = $child->get_margin_width();
+          
+          switch( $child_style->float ) {
+            case "left": 
+              $float_x += $line_box->left;
+              break;
+            case "right": 
+              $float_x += ($w - $line_box->right - $float_w);
+              break;
+          }
+          
+          $line_box->get_float_offsets();
+          
+          if ( $child->_float_next_line ) {
+            $float_y += $line_box->h;
+          }
+          
+          $child->set_position($float_x, $float_y);
+          $child->move($float_x - $old_x, $float_y - $old_y, true);
         }
-        
-        $line_box = $this->_frame->get_current_line_box();
-        list($old_x, $old_y) = $child->get_position();
-        
-        $float_x = $cb_x;
-        $float_y = $line_box->y;
-        $float_w = $child->get_margin_width();
-        
-        switch( $child_style->float ) {
-          case "left": 
-            $float_x += $line_box->left;
-            break;
-          case "right": 
-            $float_x += ($w - $line_box->right - $float_w);
-            break;
-        }
-        
-        $line_box->get_float_offsets();
-        
-        if ( $child->_float_next_line ) {
-          $float_y += $line_box->h;
-        }
-        
-        $child->set_position($float_x, $float_y);
-        $child->move($float_x - $old_x, $float_y - $old_y, true);
       }
-      
     }
 
     // Determine our height

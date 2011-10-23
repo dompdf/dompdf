@@ -46,10 +46,6 @@
  * @package dompdf
  */
 class Block_Frame_Decorator extends Frame_Decorator {
-
-  const DEFAULT_COUNTER = "-dompdf-default-counter";
-  
-  protected $_counters; // array([id] => counter_value) (for generated content)
   protected $_cl;    // current line index
   
   /**
@@ -65,8 +61,6 @@ class Block_Frame_Decorator extends Frame_Decorator {
     parent::__construct($frame, $dompdf);
     
     $this->_line_boxes = array(new Line_Box($this));
-    
-    $this->_counters = array(self::DEFAULT_COUNTER => 0);
     $this->_cl = 0;
   }
 
@@ -76,8 +70,6 @@ class Block_Frame_Decorator extends Frame_Decorator {
     parent::reset();
     
     $this->_line_boxes = array(new Line_Box($this));
-    
-    $this->_counters = array(self::DEFAULT_COUNTER => 0);
     $this->_cl = 0;
   }
 
@@ -302,61 +294,4 @@ class Block_Frame_Decorator extends Frame_Decorator {
   }
 
   //........................................................................
-
-  function reset_counter($id = self::DEFAULT_COUNTER, $value = 0) {
-    $this->_counters[$id] = $value;
-  }
-
-  function increment_counter($id = self::DEFAULT_COUNTER, $increment = 1) {
-    if ( !isset($this->_counters[$id]) )
-      $this->_counters[$id] = $increment;
-    else
-      $this->_counters[$id] += $increment;
-  }
-
-  // TODO: What version is the best : this one or the one in List_Bullet_Renderer ?
-  function counter_value($id = self::DEFAULT_COUNTER, $type = "decimal") {
-    $type = mb_strtolower($type);
-    
-    if ( $id === "page" ) {
-      $value = $this->get_dompdf()->get_canvas()->get_page_number();
-    }
-    elseif ( !isset($this->_counters[$id]) ) {
-      $this->_counters[$id] = 0;
-      $value = 0;
-    }
-    else {
-      $value = $this->_counters[$id];
-    }
-    
-    switch ($type) {
-
-    default:
-    case "decimal":
-      return $value;
-
-    case "decimal-leading-zero":
-      return str_pad($value, 2, "0");
-
-    case "lower-roman":
-      return dec2roman($value);
-
-    case "upper-roman":
-      return mb_strtoupper(dec2roman($value));
-
-    case "lower-latin":
-    case "lower-alpha":
-      return chr( ($value % 26) + ord('a') - 1);
-
-    case "upper-latin":
-    case "upper-alpha":
-      return chr( ($value % 26) + ord('A') - 1);
-
-    case "lower-greek":
-      return unichr($value + 944);
-
-    case "upper-greek":
-      return unichr($value + 912);
-    }
-  }
 }

@@ -115,36 +115,44 @@ class Line_Box {
   }
   
   function get_float_offsets() {
+    static $anti_infinite_loop;
+    
     $reflower = $this->_block_frame->get_reflower();
     
     if ( !$reflower ) return;
     
-    $floating_children = $reflower->get_floating_children();
     $cb_w = null;
     
-    if ( DOMPDF_ENABLE_CSS_FLOAT && !empty($floating_children) ) {
-      foreach ( $floating_children as $child_key => $floating_child ) {
-        $id = $floating_child->get_id();
+    if ( DOMPDF_ENABLE_CSS_FLOAT ) {
+      $block = $this->_block_frame;
+      $root = $block->get_root();
+      $floating_frames = $root->get_floating_frames();
+      
+      foreach ( $floating_frames as $child_key => $floating_frame ) {
+        $id = $floating_frame->get_id();
         
         if ( isset($this->floating_blocks[$id]) ) continue;
         
-        $float = $floating_child->get_style()->float;
+        $float = $floating_frame->get_style()->float;
         
-        $floating_width = $floating_child->get_margin_width();
+        $floating_width = $floating_frame->get_margin_width();
         
         if (!$cb_w) {
-          $cb_w = $floating_child->get_containing_block("w");
+          $cb_w = $floating_frame->get_containing_block("w");
         }
         
         $line_w = $this->get_width();
         
-        if (!$floating_child->_float_next_line && ($cb_w <= $line_w + $floating_width) && ($cb_w > $line_w) ) {
-          $floating_child->_float_next_line = true;
+        if (!$floating_frame->_float_next_line && ($cb_w <= $line_w + $floating_width) && ($cb_w > $line_w) ) {
+          $floating_frame->_float_next_line = true;
           continue;
         }
         
         // If the child is still shifted by the floating element
-        if ( $floating_child->get_position("y") + $floating_child->get_margin_height() > $this->y ) {
+        if ( $anti_infinite_loop++ < 1000 &&
+             $floating_frame->get_position("y") + $floating_frame->get_margin_height() > $this->y && 
+             $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
+             ) {
           if ( $float === "left" )
             $this->left  += $floating_width;
           else
@@ -155,7 +163,7 @@ class Line_Box {
         
         // else, the floating element won't shift anymore
         else {
-          $reflower->remove_floating_child($child_key);
+          $root->remove_floating_frame($child_key);
         }
       }
     }

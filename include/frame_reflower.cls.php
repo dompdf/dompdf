@@ -352,8 +352,8 @@ abstract class Frame_Reflower {
           else
             $type = null;
 
-          $p = $this->_frame->find_block_parent();
-
+          $p = $this->_frame->lookup_counter_frame($counter_id);
+          
           $text .= $p->counter_value($counter_id, $type);
 
         } else if ( $match[1][7] === "s" ) {
@@ -368,11 +368,11 @@ abstract class Frame_Reflower {
           else
             $type = null;
 
-          $p = $this->_frame->find_block_parent();
+          $p = $this->_frame->lookup_counter_frame($counter_id);
           $tmp = "";
           while ($p) {
             $tmp = $p->counter_value($counter_id, $type) . $string . $tmp;
-            $p = $p->find_block_parent();
+            $p = $p->lookup_counter_frame($counter_id);
           }
           $text .= $tmp;
 
@@ -437,5 +437,11 @@ abstract class Frame_Reflower {
       $new_frame->get_decorator()->set_root($frame->get_root());
       $frame->append_child($new_frame);
     }
+    
+    if ( $style->counter_reset && ($reset = $style->counter_reset) !== "none" )
+      $frame->reset_counter($reset);
+    
+    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
+      $frame->increment_counters($increment);
   }
 }

@@ -54,7 +54,7 @@
 
 html { 
   display: -dompdf-page;
-  counter-increment: page;
+  counter-reset: page;
 }
 
 /* blocks */
@@ -66,6 +66,7 @@ div, map, dt, isindex {
 body {
   page-break-before: avoid;
   display: block;
+  counter-increment: page;
 }
 
 p, dl, multicol {
@@ -321,7 +322,9 @@ li {
 }
 
 /*li:before {
-	display: -dompdf-list-bullet !important;
+  display: -dompdf-list-bullet !important;
+  content: counter(-dompdf-default-counter) ". ";
+  padding-right: 0.5em;
 }*/
 
 /* nested lists have no top/bottom margins */
@@ -358,16 +361,37 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
 }
 
 /* forms */
-
-/*
-input[type=text] {
-  border: 1pt solid black;
-  background-color: white;
+/* From http://dev.w3.org/csswg/css3-ui/#appearance */
+input {
+  -dompdf-appearance: textfield;
 }
 
-input[type=text]:before {
-  content: attr(value);
-}*/
+input[type=password] {
+  -dompdf-appearance: radio-button;
+}
+
+input[type=radio] {
+  -dompdf-appearance: password;
+}
+
+input[type=checkbox] {
+  -dompdf-appearance: checkbox;
+}
+
+input[type=button],
+input[type=submit],
+input[type=reset] {
+  -dompdf-appearance: button;
+}
+
+select {
+  -dompdf-appearance: pop-up-menu;
+}
+
+textarea {
+  -dompdf-appearance: field;
+  display: block;
+}
 
 fieldset {
   display: block;

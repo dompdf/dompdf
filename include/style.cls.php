@@ -84,6 +84,9 @@
  * @package dompdf
  */
 class Style {
+  
+  const CSS_IDENTIFIER = "-?[_a-zA-Z]+[_a-zA-Z0-9-]*";
+  const CSS_INTEGER    = "-?\d+";
 
   /**
    * Default font size, in points.
@@ -2214,6 +2217,26 @@ class Style {
 
     $this->_prop_cache["z_index"] = null;
     $this->_props["z_index"] = $val;
+  }
+  
+  function set_counter_increment($val) {
+    $val = trim($val);
+    $value = null;
+    
+    if ( in_array($val, array("none", "inherit")) ) {
+      $value = $val;
+    }
+    else {
+      if ( preg_match_all("/(".self::CSS_IDENTIFIER.")(?:\s+(".self::CSS_INTEGER."))?/", $val, $matches, PREG_SET_ORDER) ){
+        $value = array();
+        foreach($matches as $match) {
+          $value[$match[1]] = isset($match[2]) ? $match[2] : 1;
+        }
+      }
+    }
+
+    $this->_prop_cache["counter_increment"] = null;
+    $this->_props["counter_increment"] = $value;
   }
 
   /**

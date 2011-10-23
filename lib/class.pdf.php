@@ -1,168 +1,139 @@
 <?php
-  /**
-   * Cpdf
-   *
-   * http://www.ros.co.nz/pdf
-   *
-   * A PHP class to provide the basic functionality to create a pdf document without
-   * any requirement for additional modules.
-   *
-   * Note that the companion class CezPdf can be used to extend this class and dramatically
-   * simplify the creation of documents.
-   *
-   * Extended by Orion Richardson to support Unicode / UTF-8 characters using
-   * TCPDF and others as a guide.
-   *
-   * IMPORTANT NOTE
-   * there is no warranty, implied or otherwise with this software.
-   *
-   * LICENCE
-   * This code has been placed in the Public Domain for all to enjoy.
-   *
-   * @author       Wayne Munro <pdf@ros.co.nz>
-   * @contributor  Orion Richardson <orionr@yahoo.com>
-   * @contributor  Helmut Tischer <htischer@weihenstephan.org>
-   * @contributor  Ryan H. Masten <ryan.masten@gmail.com>
-   * @version  009
-   * @package  Cpdf
-   *
-   * Changes
-   * @contributor Helmut Tischer <htischer@weihenstephan.org>
-   * @version 0.5.1.htischer.20090507
-   * - On multiple identical png and jpg images, put only one copy into the pdf file and refer to it.
-   *   This reduces file size and rendering time.
-   * - Allow font metrics cache to be a different folder as the font metrics. This allows a read only installation.
-   * - Allow adding images directly from a gd object. This increases performance by avoiding temporary files.
-   * - On png image files remove alpa channel to allow display of typical png files in pdf.
-   * - On addImage avoid temporary file. Todo: Duplicate Image (currently not used)
-   * - Add a check function, whether image is already cached, This avoids double creation by caller which saves
-   *   CPU time and memory.
-   * @contributor Helmut Tischer <htischer@weihenstephan.org>
-   * @version dompdf_trunk_with_helmut_mods.20090524
-   * - Allow temp and fontcache folders to be passed in by class creator
-   * @version dompdf_trunk_with_helmut_mods.20090528
-   * - typo 'decent' instead of 'descent' at various locations made getFontDescender worthless
-   */
-
-/* $Id$ */
-
-class  Cpdf {
+/**
+ * A PHP class to provide the basic functionality to create a pdf document without
+ * any requirement for additional modules.
+ *
+ * Extended by Orion Richardson to support Unicode / UTF-8 characters using
+ * TCPDF and others as a guide.
+ *
+ * @author  Wayne Munro <pdf@ros.co.nz>
+ * @author  Orion Richardson <orionr@yahoo.com>
+ * @author  Helmut Tischer <htischer@weihenstephan.org>
+ * @author  Ryan H. Masten <ryan.masten@gmail.com>
+ * @author  Brian Sweeney <eclecticgeek@gmail.com>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @version $Id$
+ * @license Public Domain http://creativecommons.org/licenses/publicdomain/
+ * @package Cpdf
+ */
+class Cpdf {
   
   /**
-   * the current number of pdf objects in the document
+   * @var integer The current number of pdf objects in the document
    */
   public  $numObj = 0;
 
   /**
-   * this array contains all of the pdf objects, ready for final assembly
+   * @var array This array contains all of the pdf objects, ready for final assembly
    */
   public  $objects =  array();
 
   /**
-   * the objectId (number within the objects array) of the document catalog
+   * @var integer The objectId (number within the objects array) of the document catalog
    */
   public  $catalogId;
 
   /**
-   * array carrying information about the fonts that the system currently knows about
-   * used to ensure that a font is not loaded twice, among other things
+   * @var array Array carrying information about the fonts that the system currently knows about
+   * Used to ensure that a font is not loaded twice, among other things
    */
   public  $fonts = array();
   
   /**
-   * the default font metrics file to use if no other font has been loaded
-   * the path to the directory containing the font metrics should be included
+   * @var string The default font metrics file to use if no other font has been loaded.
+   * The path to the directory containing the font metrics should be included
    */
   public  $defaultFont = './fonts/Helvetica.afm';
   
   /**
-   * a record of the current font
+   * @string A record of the current font
    */
   public  $currentFont = '';
 
   /**
-   * the current base font
+   * @var string The current base font
    */
   public  $currentBaseFont = '';
 
   /**
-   * the number of the current font within the font array
+   * @var integer The number of the current font within the font array
    */
   public  $currentFontNum = 0;
 
   /**
-   *
+   * @var integer
    */
   public  $currentNode;
 
   /**
-   * object number of the current page
+   * @var integer Object number of the current page
    */
   public  $currentPage;
 
   /**
-   * object number of the currently active contents block
+   * @var integer Object number of the currently active contents block
    */
   public  $currentContents;
 
   /**
-   * number of fonts within the system
+   * @var integer Number of fonts within the system
    */
   public  $numFonts = 0;
 
   /**
-   * Number of graphic state resources used
+   * @var integer Number of graphic state resources used
    */
   private  $numStates =  0;
 
   /**
-   * current colour for fill operations, defaults to inactive value, all three components should be between 0 and 1 inclusive when active
+   * @var array Current colour for fill operations, defaults to inactive value, 
+   * all three components should be between 0 and 1 inclusive when active
    */
   public  $currentColour = null;
 
   /**
-   * current colour for stroke operations (lines etc.)
+   * @var array Current colour for stroke operations (lines etc.)
    */
   public  $currentStrokeColour = null;
 
   /**
-   * current style that lines are drawn in
+   * @var string Current style that lines are drawn in
    */
   public  $currentLineStyle = '';
 
   /**
-   * current line transparency (partial graphics state)
+   * @var array Current line transparency (partial graphics state)
    */
   public $currentLineTransparency = array("mode" => "Normal", "opacity" => 1.0);
   
   /**
-   * current fill transparency (partial graphics state)
+   * array Current fill transparency (partial graphics state)
    */
   public $currentFillTransparency = array("mode" => "Normal", "opacity" => 1.0);
   
   /**
-   * an array which is used to save the state of the document, mainly the colours and styles
+   * @var array An array which is used to save the state of the document, mainly the colours and styles
    * it is used to temporarily change to another state, the change back to what it was before
    */
   public  $stateStack =  array();
 
   /**
-   * number of elements within the state stack
+   * @var integer Number of elements within the state stack
    */
   public  $nStateStack =  0;
 
   /**
-   * number of page objects within the document
+   * @var integer Number of page objects within the document
    */
   public  $numPages = 0;
 
   /**
-   * object Id storage stack
+   * @var array Object Id storage stack
    */
   public  $stack = array();
 
   /**
-   * number of elements within the object Id storage stack
+   * @var integer Number of elements within the object Id storage stack
    */
   public  $nStack = 0;
 
@@ -178,53 +149,53 @@ class  Cpdf {
   public  $addLooseObjects = array();
 
   /**
-   * the objectId of the information object for the document
+   * @var integer The objectId of the information object for the document
    * this contains authorship, title etc.
    */
   public  $infoObject = 0;
 
   /**
-   * number of images being tracked within the document
+   * @var integer Number of images being tracked within the document
    */
   public  $numImages = 0;
 
   /**
-   * an array containing options about the document
+   * @var array An array containing options about the document
    * it defaults to turning on the compression of the objects
    */
   public  $options = array('compression'=>true);
 
   /**
-   * the objectId of the first page of the document
+   * @var integer The objectId of the first page of the document
    */
   public  $firstPageId;
 
   /**
-   * used to track the last used value of the inter-word spacing, this is so that it is known
+   * @var float Used to track the last used value of the inter-word spacing, this is so that it is known
    * when the spacing is changed.
    */
   public  $wordSpaceAdjust = 0;
 
   /**
-   * used to track the last used value of the inter-letter spacing, this is so that it is known
+   * @var float Used to track the last used value of the inter-letter spacing, this is so that it is known
    * when the spacing is changed.
    */
   public  $charSpaceAdjust = 0;
   
   /**
-   * the object Id of the procset object
+   * @var integer The object Id of the procset object
    */
   public  $procsetObjectId;
 
   /**
-   * store the information about the relationship between font families
+   * @var array Store the information about the relationship between font families
    * this used so that the code knows which font is the bold version of another font, etc.
    * the value of this array is initialised in the constuctor function.
    */
   public  $fontFamilies =  array();
  
   /**
-   * folder for php serialized formats of font metrics files.
+   * @var string Folder for php serialized formats of font metrics files.
    * If empty string, use same folder as original metrics files.
    * This can be passed in from class creator.
    * If this folder does not exist or is not writable, Cpdf will be **much** slower.
@@ -233,13 +204,13 @@ class  Cpdf {
   public  $fontcache = '';
   
   /**
-   * The version of the font metrics cache file.
+   * @var integer The version of the font metrics cache file.
    * This value must be manually incremented whenever the internal font data structure is modified.
    */
   public  $fontcacheVersion = 4;
 
   /**
-   * temporary folder.
+   * @var string Temporary folder.
    * If empty string, will attempty system tmp folder.
    * This can be passed in from class creator.
    * Only used for conversion of gd images to jpeg images.
@@ -247,71 +218,71 @@ class  Cpdf {
   public  $tmp = '';
 
   /**
-   * track if the current font is bolded or italicised
+   * @var string Track if the current font is bolded or italicised
    */
   public  $currentTextState =  '';
 
   /**
-   * messages are stored here during processing, these can be selected afterwards to give some useful debug information
+   * @var string Messages are stored here during processing, these can be selected afterwards to give some useful debug information
    */
   public  $messages = '';
 
   /**
-   * the ancryption array for the document encryption is stored here
+   * @var string The ancryption array for the document encryption is stored here
    */
   public  $arc4 = '';
 
   /**
-   * the object Id of the encryption information
+   * @var integer The object Id of the encryption information
    */
   public  $arc4_objnum = 0;
 
   /**
-   * the file identifier, used to uniquely identify a pdf document
+   * @var string The file identifier, used to uniquely identify a pdf document
    */
   public  $fileIdentifier = '';
 
   /**
-   * a flag to say if a document is to be encrypted or not
+   * @var boolean A flag to say if a document is to be encrypted or not
    */
-  public  $encrypted = 0;
+  public  $encrypted = false;
 
   /**
-   * the ancryption key for the encryption of all the document content (structure is not encrypted)
+   * @var string The encryption key for the encryption of all the document content (structure is not encrypted)
    */
   public  $encryptionKey = '';
 
   /**
-   * array which forms a stack to keep track of nested callback functions
+   * @var array Array which forms a stack to keep track of nested callback functions
    */
   public  $callback =  array();
 
   /**
-   * the number of callback functions in the callback array
+   * @var integer The number of callback functions in the callback array
    */
   public  $nCallback =  0;
 
   /**
-   * store label->id pairs for named destinations, these will be used to replace internal links
+   * @var array Store label->id pairs for named destinations, these will be used to replace internal links
    * done this way so that destinations can be defined after the location that links to them
    */
   public  $destinations =  array();
 
   /**
-   * store the stack for the transaction commands, each item in here is a record of the values of all the
+   * @var array Store the stack for the transaction commands, each item in here is a record of the values of all the
    * publiciables within the class, so that the user can rollback at will (from each 'start' command)
    * note that this includes the objects array, so these can be large.
    */
   public  $checkpoint =  '';
 
   /**
-   * Table of Image origin filenames and image labels which were already added with o_image().
+   * @var array Table of Image origin filenames and image labels which were already added with o_image().
    * Allows to merge identical images
    */
   public  $imagelist = array();
 
   /**
-   * whether the text passed in should be treated as Unicode or just local character set.
+   * @var boolean Whether the text passed in should be treated as Unicode or just local character set.
    */
   public  $isUnicode = false;
 
@@ -326,15 +297,18 @@ class  Cpdf {
   protected $compressionReady = false;
 
   /**
-   * @var array current page size
+   * @var array Current page size
    */
   protected $currentPageSize = array("width" => 0, "height" => 0);
   
   /**
-   * @var string the target internal encoding
+   * @var string The target internal encoding
    */
   static protected $targetEncoding = 'iso-8859-1';
   
+  /**
+   * @var array The list of the core fonts
+   */
   static protected $coreFonts = array(
     'courier', 'courier-bold', 'courier-oblique', 'courier-boldoblique',
     'helvetica', 'helvetica-bold', 'helvetica-oblique', 'helvetica-boldoblique',
@@ -345,8 +319,10 @@ class  Cpdf {
   /**
    * class constructor
    * this will start a new document
-   * @var array array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
-   * @var boolean whether text will be treated as Unicode or not.
+   * @var array   $pageSize  Array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
+   * @var boolean $isUnicode Whether text will be treated as Unicode or not.
+   * @var string  $fontcache The font cache folder
+   * @var string  $tmp The temporary folder
    */
   function __construct ($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
     $this->isUnicode = $isUnicode;
@@ -1690,7 +1666,7 @@ EOT;
       $ukey =  substr($tmp, 0, 5);
       $this->ARC4_init($ukey);
       $this->encryptionKey =  $ukey;
-      $this->encrypted = 1;
+      $this->encrypted = true;
       $uvalue = $this->ARC4($pad);
       $this->objects[$id]['info']['U'] = $uvalue;
       $this->encryptionKey = $ukey;

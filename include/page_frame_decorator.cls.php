@@ -74,6 +74,13 @@ class Page_Frame_Decorator extends Frame_Decorator {
    * @var Renderer
    */
   protected $_renderer;
+  
+  /**
+   * This page's floating frames
+   * 
+   * @var array
+   */
+  protected $_floating_frames = array();
 
   //........................................................................
 
@@ -135,6 +142,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
    * Start a new page by resetting the full flag.
    */
   function next_page() {
+    $this->_floating_frames = array();
     $this->_renderer->new_page();
     $this->_page_full = false;
   }
@@ -575,6 +583,39 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
   function split($frame = null, $force_pagebreak = false) {
     // Do nothing
+  }
+  
+  /**
+   * Add a floating frame
+   * 
+   * @param $child Frame
+   */
+  function add_floating_frame(Frame $frame) {
+    array_unshift($this->_floating_frames, $frame);
+  }
+  
+  /**
+   * @return array
+   */
+  function get_floating_frames() { 
+    return $this->_floating_frames; 
+  }
+
+  public function remove_floating_frame($key) {
+    unset($this->_floating_frames[$key]);
+  }
+
+  public function remove_floating_frames($side) {
+    $y = 0;
+    
+    foreach($this->_floating_frames as $key => $frame) {
+      if ( $side === "both" || $frame->get_style()->float === $side ) {
+        $y = max($y, $frame->get_position("y") + $frame->get_margin_height());
+        unset($this->_floating_frames[$key]);
+      }
+    }
+    
+    return $y;
   }
 
 }

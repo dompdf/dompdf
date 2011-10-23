@@ -189,7 +189,7 @@ def("DOMPDF_UNICODE_ENABLED", true);
  * @link http://ttf2pt1.sourceforge.net/
  */
 if ( strpos(PHP_OS, "WIN") === false )
-  def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/src/ttf2pt1");
+  def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/src/ttf2ufm");
 else 
   def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/bin/ttf2ufm.exe");
 

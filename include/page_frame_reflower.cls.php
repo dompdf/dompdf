@@ -62,32 +62,12 @@ class Page_Frame_Reflower extends Frame_Reflower {
   private $_canvas;
   
   /**
-   * This page's floating frames
-   * 
-   * @var array
-   */
-  private $_floating_frames;
-  
-  /**
-   * true if the page has floating frales
-   * Used to improve performances as it will
-   * be accesses everytime
-   * @var bool
-   */
-  private $_has_floating_frames;
-  
-  /**
    * The stacking context, containing all z-indexed frames
    * @var array
    */
   private $_stacking_context = array();
 
   function __construct(Page_Frame_Decorator $frame) { parent::__construct($frame); }
-  
-  /**
-   * @return array
-   */
-  function get_floating_frames() { return $this->_floating_frames; }
 
   /**
    * @param $frame Frame
@@ -95,25 +75,6 @@ class Page_Frame_Reflower extends Frame_Reflower {
    */
   function add_frame_to_stacking_context(Frame $frame, $z_index) {
     $this->_stacking_context[$z_index][] = $frame;
-  }
-  
-  /**
-   * Add a floating frame
-   * 
-   * @param $child Frame
-   */
-  function add_floating_frame(Frame $frame) {
-    $this->_floating_frames[] = $frame;
-    $this->_has_floating_frames = true;
-  }
-  
-  /**
-   * Tells if the page has floating frames
-   * 
-   * @return bool 
-   */
-  function has_floating_frames() {
-    return $this->_has_floating_frames;
   }
   
   function apply_page_style(Frame $frame, $page_number){

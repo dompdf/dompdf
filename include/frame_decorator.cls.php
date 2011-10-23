@@ -46,6 +46,9 @@
  * @package dompdf
  */
 abstract class Frame_Decorator extends Frame {
+  const DEFAULT_COUNTER = "-dompdf-default-counter";
+  
+  public $_counters = array(); // array([id] => counter_value) (for generated content)
   
   /**
    * The root node of the DOM tree
@@ -171,6 +174,8 @@ abstract class Frame_Decorator extends Frame {
    */
   function reset() {
     $this->_frame->reset();
+    
+    $this->_counters = array();
 
     // Reset all children
     foreach ($this->get_children() as $child)
@@ -482,6 +487,87 @@ abstract class Frame_Decorator extends Frame {
     }
 
     $this->get_parent()->split($split, $force_pagebreak);
+  }
+
+  function reset_counter($id = self::DEFAULT_COUNTER, $value = 0) {
+    $this->get_parent()->_counters[$id] = $value;
+  }
+  
+  function increment_counters($counters) {
+    foreach($counters as $id => $increment) {
+      $this->increment_counter($id, $increment);
+    }
+  }
+
+  function increment_counter($id = self::DEFAULT_COUNTER, $increment = 1) {
+    $counter_frame = $this->lookup_counter_frame($id);
+
+    if ( $counter_frame ) {
+      if ( !isset($counter_frame->_counters[$id]) ) {
+        $counter_frame->_counters[$id] = 0;
+      }
+      
+      $counter_frame->_counters[$id] += $increment;
+    }
+  }
+  
+  function lookup_counter_frame($id = self::DEFAULT_COUNTER) {
+    $f = $this->get_parent();
+    
+    while( $f ) {
+      if( isset($f->_counters[$id]) ) {
+        return $f;
+      }
+      $fp = $f->get_parent();
+      
+      if ( !$fp ) {
+        return $f;
+      }
+      
+      $f = $fp;
+    }
+  }
+
+  // TODO: What version is the best : this one or the one in List_Bullet_Renderer ?
+  function counter_value($id = self::DEFAULT_COUNTER, $type = "decimal") {
+    $type = mb_strtolower($type);
+    
+    if ( !isset($this->_counters[$id]) ) {
+      $value = $this->_counters[$id] = 0;
+    }
+    else {
+      $value = $this->_counters[$id];
+    }
+    
+    switch ($type) {
+
+    default:
+    case "decimal":
+      return $value;
+
+    case "decimal-leading-zero":
+      return str_pad($value, 2, "0");
+
+    case "lower-roman":
+      return dec2roman($value);
+
+    case "upper-roman":
+      return mb_strtoupper(dec2roman($value));
+
+    case "lower-latin":
+    case "lower-alpha":
+      return chr( ($value % 26) + ord('a') - 1);
+
+    case "upper-latin":
+    case "upper-alpha":
+      return chr( ($value % 26) + ord('A') - 1);
+
+    case "lower-greek":
+      return unichr($value + 944);
+
+    case "upper-greek":
+      return unichr($value + 912);
+    }
   }
 
   //........................................................................
