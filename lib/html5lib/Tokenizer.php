@@ -2094,6 +2094,13 @@ class HTML5_Tokenizer {
     public function save() {
         return $this->tree->save();
     }
+		
+		/**
+		 * @return HTML5_TreeBuilder The tree
+		 */
+		public function getTree() {
+			return $this->tree;
+		}
 
     /**
      * Returns the input stream.

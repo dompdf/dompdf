@@ -156,6 +156,12 @@ $constants = array(
     "desc" => "Allow remote stylesheets and images",
     "success" => "remote",
   ),
+  "DOMPDF_ENABLE_CSS_FLOAT" => array(
+    "desc" => "Enable CSS float support (experimental)",
+  ),
+  "DOMPDF_ENABLE_HTML5PARSER" => array(
+    "desc" => "Enable the HTML5 parser (experimental)",
+  ),
   "DEBUGPNG" => array(
     "desc" => "Debug PNG images",
   ),
@@ -187,8 +193,8 @@ $constants = array(
   "DOMPDF_FONT_HEIGHT_RATIO" => array(
     "desc" => "The line height ratio to apply to get a render like web browsers",
   ),
-  "DOMPDF_ENABLE_CSS_FLOAT" => array(
-    "desc" => "Enable CSS float support (experimental)",
+	"DOMPDF_AUTOLOAD_PREPEND" => array(
+    "desc" => "Prepend the dompdf autoload function to the SPL autoload functions already registered instead of appending it",
   ),
   "DOMPDF_ADMIN_USERNAME" => array(
     "desc" => "The username required to access restricted sections",

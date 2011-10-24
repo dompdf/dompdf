@@ -7,11 +7,11 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 <head>
   <title>dompdf debugger</title>
   <script type="text/javascript" src="jquery-1.4.2.js"></script>
-	
-	<script type="text/javascript">
-		function updateAddress(){
-			var addressbar = $('#addressbar'),
-			    preview = $('#preview'),
+  
+  <script type="text/javascript">
+    function updateAddress(){
+      var addressbar = $('#addressbar'),
+          preview = $('#preview'),
           preview_html = $('#preview_html'),
           address = encodeURI(addressbar.val()),
           addressHTML = address,
@@ -27,21 +27,21 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
       preview_html.attr("src", "about:blank");
       preview_html.attr("src", addressHTML);
 
-			// PDF file
+      // PDF file
       preview.attr("src", "about:blank");
 
       setTimeout(function(){
         address = "../dompdf.php?base_path="+basePath+"&options[Attachment]=0&input_file="+addressPDF+"#toolbar=0&view=FitH&statusbar=0&messages=0&navpanes=0";
-  			preview.attr('src', address);
+        preview.attr('src', address);
       }, 0.1);
-		}
-		
-		function log(str){
-			var console = $("#console");
-			str = str || "(nothing)";
-			console.html(console.html() + str + "<hr />");
-			console.scrollTop(console[0].scrollHeight);
-		}
+    }
+    
+    function log(str){
+      var console = $("#console");
+      str = str || "(nothing)";
+      console.html(console.html() + str + "<hr />");
+      console.scrollTop(console[0].scrollHeight);
+    }
     
     function resizePage(){
       var page = $("#page");
@@ -65,14 +65,15 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
     $(function(){
       resizePage();
       $(window).resize(resizePage);
-		
+    
       $('#preview').load(function(){
-			  if (this.src == "about:blank") return;
-				
-				$.ajax({
-				  url: '../lib/fonts/log.htm',
-				  success: log
-				});
+        if (this.src == "about:blank") return;
+        
+        $.ajax({
+          url: '../lib/fonts/log.htm',
+          success: log,
+          cache: false
+        });
       });
 
       $('#addressbar').val($("#examples").val());
@@ -84,54 +85,54 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
           updateAddress();
         }
       });
-		});
-	</script>
-	
-	<style type="text/css">
-		html, body {
-			margin: 0;
-			padding: 0;
-		}
-		
-		td {
+    });
+  </script>
+  
+  <style type="text/css">
+    html, body {
+      margin: 0;
       padding: 0;
-		}
-		
-		#page {
-			width: 100%;
-			border: none;
+    }
+    
+    td {
+      padding: 0;
+    }
+    
+    #page {
+      width: 100%;
+      border: none;
       border-spacing: 0;
       border-collapse: collapse;
-		}
+    }
     
     iframe {
       width: 100%;
     }
-		
-		#output td {
-			border: 1px solid #999;
-		}
+    
+    #output td {
+      border: 1px solid #999;
+    }
     
     #console-container {
       vertical-align: top;
     }
-		
-		#console {
+    
+    #console {
       background: #eee; 
-			overflow: scroll; 
+      overflow: scroll; 
       padding: 4px;
-		}
-		
-		#console pre {
-			margin: 2px 0;
-		}
+    }
+    
+    #console pre {
+      margin: 2px 0;
+    }
     
     #console, #console pre {
       font-size: 11px; 
       font-family: Courier, "Courier new", monospace;
       white-space: pre-wrap;
     }
-	</style>
+  </style>
 </head>
 
 <body>
@@ -142,18 +143,18 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
       <button onclick="$('#console').html('')" style="float: right;">Reset</button>
       
       <button onclick="navigateExamples('previous')">&lt;</button>
-			<select onchange="$('#addressbar').val($(this).val()); updateAddress()" id="examples">
-				<?php foreach($files as $file) { ?>
-				  <option value="<?php echo basename($file); ?>"><?php echo basename($file); ?></option>
-			  <?php } ?>
-		  </select>
+      <select onchange="$('#addressbar').val($(this).val()); updateAddress()" id="examples">
+        <?php foreach($files as $file) { ?>
+          <option value="<?php echo basename($file); ?>"><?php echo basename($file); ?></option>
+        <?php } ?>
+      </select>
       <button onclick="navigateExamples('next')">&gt;</button>
       
       <input id="addressbar" type="text" size="100" value="" />
-			<button onclick="updateAddress()">Go</button>
+      <button onclick="updateAddress()">Go</button>
     </td>
   </tr>
-	<tr id="output">
+  <tr id="output">
     <td style="width: 40%;">
       <iframe id="preview_html" name="preview_html" src="about:blank" frameborder="0" marginheight="0" marginwidth="0"></iframe>
     </td>
@@ -161,7 +162,7 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
       <iframe id="preview" name="preview" src="about:blank" frameborder="0" marginheight="0" marginwidth="0"></iframe>
     </td>
     <td style="min-width: 400px; width: 20%;" id="console-container">
-		  <div id="console"></div>
-		</td>
-	</tr>
+      <div id="console"></div>
+    </td>
+  </tr>
 </table>

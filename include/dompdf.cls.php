@@ -480,50 +480,72 @@ class DOMPDF {
     // http://devzone.zend.com/article/8855
     if ( $encoding !== 'UTF-8' ) {
       $re = '/<meta ([^>]*)((?:charset=[^"\' ]+)([^>]*)|(?:charset=["\'][^"\' ]+["\']))([^>]*)>/i';
-      $str = preg_replace($re, "<meta $1$3>", $str);
+      $str = preg_replace($re, '<meta $1$3>', $str);
     }
     
     // Store parsing warnings as messages
     set_error_handler("record_warnings");
-    
-    if ( DOMPDF_ENABLE_HTML5PARSER ) {
-      // we could use directly the DOMDocument returned by HTML5_Parser::parse($str), 
-      // but it adds whitespace that we don't want to handle
-      $str = HTML5_Parser::parse($str)->saveXML();
-      
-      // Remove whitespace between </head> and <body>
-      /*$head = $this->_xml->getElementsByTagName("head")->item(0);
-      if ( $head && ($text = $head->nextSibling) && $text->nodeName === "#text" ) {
-        $text->parentNode->removeChild($text);
-      }*/
-    }
-    
-    $this->_xml = new DOMDocument();
-    $this->_xml->preserveWhiteSpace = true;
-    $this->_xml->loadHTML($str);
-    
-    $this->_tree = new Frame_Tree($this->_xml);
-    
-    restore_error_handler();
     
     // @todo Take the quirksmode into account
     // http://hsivonen.iki.fi/doctype/
     // https://developer.mozilla.org/en/mozilla's_quirks_mode
     $quirksmode = false;
     
-    // HTML5 <!DOCTYPE html>
-    /*if ( !$this->_xml->doctype->publicId && !$this->_xml->doctype->systemId ) {
-      $quirksmode = false;
+    if ( DOMPDF_ENABLE_HTML5PARSER ) {
+      $tokenizer = new HTML5_Tokenizer($str);
+      $tokenizer->parse();
+      $doc = $tokenizer->save();
+      
+      // Remove #text children nodes in nodes that shouldn't have
+      $tag_names = array("html", "table", "tbody", "thead", "tfoot", "tr");
+      foreach($tag_names as $tag_name) {
+        $nodes = $doc->getElementsByTagName($tag_name);
+        
+        foreach($nodes as $node) {
+          self::remove_text_nodes($node);
+        }
+      }
+      
+      $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
+    }
+    else {
+      $doc = new DOMDocument();
+      $doc->preserveWhiteSpace = true;
+      $doc->loadHTML($str);
+    
+      // HTML5 <!DOCTYPE html>
+      if ( !$doc->doctype->publicId && !$doc->doctype->systemId ) {
+        $quirksmode = false;
+      }
+      
+      // not XHTML
+      if ( !preg_match("/xhtml/i", $doc->doctype->publicId) ) {
+        $quirksmode = true;
+      }
     }
     
-    // not XHTML
-    if ( !preg_match("/xhtml/i", $this->_xml->doctype->publicId) ) {
-      $quirksmode = true;
-    }*/
-
+    $this->_xml = $doc;
     $this->_quirksmode = $quirksmode;
     
+    $this->_tree = new Frame_Tree($this->_xml);
+    
+    restore_error_handler();
+    
     $this->restore_locale();
+  }
+  
+  static function remove_text_nodes(DOMNode $node) {
+    $children = array();
+    for ($i = 0; $i < $node->childNodes->length; $i++) {
+      $child = $node->childNodes->item($i);
+      if ( $child->nodeName === "#text" ) {
+        $children[] = $child;
+      }
+    }
+      
+    foreach($children as $child) {
+      $node->removeChild($child);
+    }
   }
 
   /**

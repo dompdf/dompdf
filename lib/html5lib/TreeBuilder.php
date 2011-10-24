@@ -154,6 +154,10 @@ class HTML5_TreeBuilder {
         $this->dom->substituteEntities = true;
         $this->dom->strictErrorChecking = false;
     }
+		
+		public function getQuirksMode(){
+			return $this->quirks_mode;
+		}
 
     // Process tag tokens
     public function emitToken($token, $mode = null) {
