@@ -2023,6 +2023,7 @@ EOT;
           case  'FontName':
           case  'FullName':
           case  'FamilyName':
+          case  'PostScriptName':
           case  'Weight':
           case  'ItalicAngle':
           case  'IsFixedPitch':
@@ -2239,7 +2240,7 @@ EOT;
         // OAR - I don't understand this old check
         // if  (substr($fontName, -4) ===  '.afm' &&  strlen($fbtype)) {
         if  ($fbtype) {
-          $adobeFontName =  $font['FontName'];
+          $adobeFontName =  isset($font['PostScriptName']) ? $font['PostScriptName'] : $font['FontName'];
           //        $fontObj = $this->numObj;
           $this->addMessage("selectFont: adding font file - $fbfile - $adobeFontName");
 
