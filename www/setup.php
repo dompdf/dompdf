@@ -126,10 +126,6 @@ $constants = array(
   "DOMPDF_UNICODE_ENABLED" => array(
     "desc" => "Unicode support (thanks to additionnal fonts)",
   ),
-  "TTF2AFM" => array(
-    "desc" => "Path to the ttf2afm executable",
-    "success" => "read",
-  ),
   "DOMPDF_PDF_BACKEND" => array(
     "desc" => "Backend library that makes the outputted file (PDF, image)",
     "success" => "backend",

@@ -56,7 +56,7 @@ require_once DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php";
  * with save_font_families() after adding the .afm file references of a new font family
  * with Font_Metrics::save_font_families().
  * This is typically done only from command line with load_font.php on converting
- * ttf fonts to afm with an external tool referenced in the define _TTF2AFM
+ * ttf fonts to ufm with php-font-lib.
  *
  * Declared here because PHP5 prevents constants from being declared with expressions
  */
@@ -267,10 +267,9 @@ class Font_Metrics {
     
     foreach($files as $file) {
       $font = Font::load($file);
-      $name = $font->getData("name");
-      $info = $name["nameRecord"];
-      $type = self::get_type($info[2]);
-      $names[mb_strtolower($info[1])][$type] = $file;
+      $records = $font->getData("name", "records");
+      $type = self::get_type($records[2]);
+      $names[mb_strtolower($records[1])][$type] = $file;
     }
     
     return $names;

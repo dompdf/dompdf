@@ -109,7 +109,6 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
  *
  * Notes regarding fonts:
  * Additional .afm font metrics can be added by executing load_font.php from command line.
- * Converting ttf fonts to afm requires the external tool referenced by TTF2AFM
  *
  * Only the original "Base 14 fonts" are present on all pdf viewers. Additional fonts must
  * be embedded in the pdf file or the PDF may not display correctly. This can significantly
@@ -167,31 +166,12 @@ def("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
  * Whether to use Unicode fonts or not.
  *
  * When set to true the PDF backend must be set to "CPDF" and fonts must be
- * loaded via the modified ttf2ufm tool included with dompdf (see below).
- * Unicode font metric files (with .ufm extensions) must be created with
- * ttf2ufm.  load_font.php should do this for you if the TTF2AFM define below
- * points to the modified ttf2ufm tool included with dompdf.
+ * loaded via load_font.php.
  *
  * When enabled, dompdf can support all Unicode glyphs.  Any glyphs used in a
  * document must be present in your fonts, however.
  */
 def("DOMPDF_UNICODE_ENABLED", true);
-
-/**
- * The path to the tt2pt1 utility (used to convert ttf to afm)
- *
- * Not strictly necessary, but useful if you would like to install
- * additional fonts using the {@link load_font.php} utility.
- *
- * Windows users should use something like this:
- * define("TTF2AFM", "C:\\Program Files\\Ttf2Pt1\\bin\\ttf2pt1.exe");
- *
- * @link http://ttf2pt1.sourceforge.net/
- */
-if ( strpos(PHP_OS, "WIN") === false )
-  def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/src/ttf2ufm");
-else 
-  def("TTF2AFM", DOMPDF_LIB_DIR ."/ttf2ufm/bin/ttf2ufm.exe");
 
 /**
  * The PDF rendering backend to use
