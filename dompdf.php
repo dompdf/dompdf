@@ -1,94 +1,51 @@
 <?php
 /**
- * DOMPDF - PHP5 HTML to PDF renderer
- *
- * File: $RCSfile: dompdf.php,v $
- * Created on: 2004-06-22
- *
- * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library in the file LICENSE.LGPL; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- * 02111-1307 USA
- *
- * Alternatively, you may distribute this software under the terms of the
- * PHP License, version 3.0 or later.  A copy of this license should have
- * been distributed with this file in the file LICENSE.PHP .  If this is not
- * the case, you can obtain a copy at http://www.php.net/license/3_0.txt.
- *
- * The latest version of DOMPDF might be available at:
- * http://www.dompdf.com/
- *
- * dompdf.php is a simple script to drive DOMPDF.  It can be executed from
- * a browser or from the command line.
- *
- * @link http://www.dompdf.com/
- * @copyright 2004 Benj Carson
- * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * Command line utility to use dompdf.
+ * Can also be used with HTTP GET parameters
+ * 
  * @package dompdf
-
+ * @link    http://www.dompdf.com/
+ * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @version $Id$
  */
-
-/* $Id$ */
 
 /**
- * Display command line usage:
- *
- * Usage: ./dompdf.php [options] html_file
- *
- * html_file can be a filename, a url if fopen_wrappers are enabled, or the '-'
- * character to read from standard input.
- *
- * Options:
- *  -h             Show this message
- *  -l             list available paper sizes
- *  -p size        paper size; something like 'letter', 'A4', 'legal', etc.  The default is
- *                 'letter'
- *  -o orientation either 'portrait' or 'landscape'.  Default is 'portrait'.
- *  -b path        set the 'document root' of the html_file.  Relative urls (for
- *                 stylesheets) are resolved using this directory.  Default is the
- *                 directory of html_file.
- *  -f file        the output filename.  Default is the input [html_file].pdf.
- *  -v             verbose: display html parsing warnings and file not found errors.
- *  -d             very verbose: display oodles of debugging output: every frame in the
- *                 tree is printed to stdout.
- *  -t             comma separated list of debugging types (page-break,reflow,split)
- *  -r             write the render time to the log file
- *
- *
+ * Display command line usage
  */
 function dompdf_usage() {
-  echo
-    "\nUsage: {$_SERVER["argv"][0]} [options] html_file\n\n".
-    "html_file can be a filename, a url if fopen_wrappers are enabled, or the '-' \n".
-    "character to read from standard input.\n\n".
-    "Options:\n".
-    " -h\t\tShow this message\n".
-    " -l\t\tlist available paper sizes\n".
-    " -p size\tpaper size; something like 'letter', 'A4', 'legal', etc.  The default is\n".
-    "   \t\t'" . DOMPDF_DEFAULT_PAPER_SIZE . "'\n".
-    " -o orientation\teither 'portrait' or 'landscape'.  Default is 'portrait'.\n".
-    " -b path\tset the 'document root' of the html_file.  Relative urls (for \n".
-    "        \tstylesheets) are resolved using this directory.  Default is the \n".
-    "        \tdirectory of html_file.\n".
-    " -f file\tthe output filename.  Default is the input [html_file].pdf.\n".
-    " -v     \tverbose: display html parsing warnings and file not found errors.\n".
-    " -d     \tvery verbose:  display oodles of debugging output: every frame\n".
-    "        \tin the tree printed to stdout.\n".
-    " -t             comma separated list of debugging types (page-break,reflow,split)\n\n";
+  $default_paper_size = DOMPDF_DEFAULT_PAPER_SIZE;
+  
+  echo <<<EOD
+  
+Usage: {$_SERVER["argv"][0]} [options] html_file
+
+html_file can be a filename, a url if fopen_wrappers are enabled, or the '-' character to read from standard input.
+
+Options:
+ -h             Show this message
+ -l             List available paper sizes
+ -p size        Paper size; something like 'letter', 'A4', 'legal', etc.  
+                  The default is '$default_paper_size'
+ -o orientation Either 'portrait' or 'landscape'.  Default is 'portrait'
+ -b path        Set the 'document root' of the html_file.  
+                  Relative urls (for stylesheets) are resolved using this directory.  
+                  Default is the directory of html_file.
+ -f file        The output filename.  Default is the input [html_file].pdf
+ -v             Verbose: display html parsing warnings and file not found errors.
+ -d             Very verbose: display oodles of debugging output: every frame 
+                  in the tree printed to stdout.
+ -t             Comma separated list of debugging types (page-break,reflow,split)
+ 
+EOD;
+exit;
 }
 
+/**
+ * Parses command line options
+ * 
+ * @return array The command line options
+ */
 function getoptions() {
 
   $opts = array();

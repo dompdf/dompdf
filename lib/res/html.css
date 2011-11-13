@@ -1,52 +1,20 @@
 /**
- * DOMPDF - PHP5 HTML to PDF renderer
- *
- * File: $RCSfile: html.css,v $
- * Created on: 2004-08-04
- *
- * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
- *               1998 - Netscape Communications Corporation
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library in the file LICENSE.LGPL; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- * 02111-1307 USA
- *
- * Originally from mozilla (http://www.mozilla.org).  Original code was
- * licensed under the NPL, with the option of release under the GPL or LGPL.
- * This file is hence released under the LGPL.
- *
+ * dompdf default stylesheet.
+ * 
  * The Original Code is mozilla.org code.
  *
- * The Initial Developer of the Original Code is 
- * Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *      Blake Ross <BlakeR1234@aol.com>
- *
- * The latest version of DOMPDF might be available at:
- * http://www.dompdf.com/
- *
- * @link http://www.dompdf.com/
- * @copyright 2004 Benj Carson
- * @author Benj Carson <benjcarson@digitaljunkies.ca>
+ * The Initial Developer of the Original Code is Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998 the Initial Developer. 
+ * All Rights Reserved.
+ * 
  * @package dompdf
- * @version 0.3
+ * @link    http://www.dompdf.com/
+ * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @author  Blake Ross <BlakeR1234@aol.com>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @version $Id$
  */
-
-/* $Id: html.css,v 1.4 2006-04-05 20:09:00 benjcarson Exp $ */
 
 @page {
   margin: 1.2cm;
@@ -150,6 +118,13 @@ plaintext, xmp, pre {
   font-family: fixed;
   white-space: pre;
   margin: 1em 0;
+}
+
+article, aside, details,
+figcaption, figure,
+footer, header, hgroup,
+nav, section {
+  display: block;
 }
 
 /* tables */

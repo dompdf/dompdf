@@ -16,7 +16,6 @@ require_once "lib/php-font-lib/classes/font.cls.php";
  * Display command line usage
  */
 function usage() {
-
   echo <<<EOD
 
 Usage: {$_SERVER["argv"][0]} font_family [n_file [b_file] [i_file] [bi_file]]
@@ -44,7 +43,7 @@ Examples:
 ./load_font.php 'Times New Roman' /mnt/c_drive/WINDOWS/Fonts/times.ttf
 
 EOD;
-  exit(0);
+exit;
 }
 
 if ( $_SERVER["argc"] < 3 && @$_SERVER["argv"][1] != "system_fonts" ) {

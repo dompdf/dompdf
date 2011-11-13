@@ -1,76 +1,13 @@
 <?php
 /**
- * DOMPDF - PHP5 HTML to PDF renderer
- *
- * File: $RCSfile: style.cls.php,v $
- * Created on: 2004-06-01
- *
- * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library in the file LICENSE.LGPL; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- * 02111-1307 USA
- *
- * Alternatively, you may distribute this software under the terms of the
- * PHP License, version 3.0 or later.  A copy of this license should have
- * been distributed with this file in the file LICENSE.PHP .  If this is not
- * the case, you can obtain a copy at http://www.php.net/license/3_0.txt.
- *
- * The latest version of DOMPDF might be available at:
- * http://www.dompdf.com/
- *
- * @link http://www.dompdf.com/
- * @copyright 2004 Benj Carson
- * @author Benj Carson <benjcarson@digitaljunkies.ca>
- * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
- *
- * Changes
- * @contributor Helmut Tischer <htischer@weihenstephan.org>
- * @version 0.5.1.htischer.20090507
- * - Fix px to pt conversion according to DOMPDF_DPI
- * - Recognize css styles with !important attribute, and store !important attribute within style
- * - Propagate !important by inherit and sequences of styles with merge.
- * - Add missing style property cache flushes for consistent rendering, e.g. on explicte assignments
- * - Add important set/get for access from outside of class
- * - Fix font_family search path with multiple fonts list in css attribute:
- *   On missing font, do not immediately fall back to default font,
- *   but try subsequent fonts in search chain. Only when none found, explicitely
- *   refer to default font.
- * - Allow read of background individual properties
- * - Add support for individual styles background-position, background-attachment, background-repeat
- * - Complete style components of list-style
- * - Add support for combined styles in addition to individual styles
- *   like {border: red 1px solid;}, { border-width: 1px;}, { border-right-color: red; } ...
- *   for font, background
- * - Propagate attributes including !important from combined style to individual component
- *   for border, background, padding, margin, font, list_style
- * - Refactor common code of border, background, padding, margin, font, list_style
- * - Refactor common code of list-style-image and background-image
- * - special treatment of css images "none" instead of url(...), otherwise would prepend string "none" with path name
- * - Added comments
- * - Added debug output
- * @contributor Helmut Tischer <htischer@weihenstephan.org>
- * @version dompdf_trunk_with_helmut_mods.20090524
- * - Allow superflous white space and string delimiter in font search path.
- * - Restore lost change of default font of above
- * @version 20090610
- * - Allow absolute path from web server root as html image reference
- * - More accurate handling of css property cache consistency
+ * @link    http://www.dompdf.com/
+ * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @author  Helmut Tischer <htischer@weihenstephan.org>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @version $Id$
  */
-
-/* $Id$ */
 
 /**
  * Represents CSS properties.
@@ -777,7 +714,7 @@ class Style {
   }
 
   function get_font_family_raw(){
-  	return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
+    return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
   }
 
   /**

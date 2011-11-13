@@ -1,50 +1,13 @@
 <?php
 /**
- * DOMPDF - PHP5 HTML to PDF renderer
- *
- * File: $RCSfile: font_metrics.cls.php,v $
- * Created on: 2004-06-02
- *
- * Copyright (c) 2004 - Benj Carson <benjcarson@digitaljunkies.ca>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library in the file LICENSE.LGPL; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- * 02111-1307 USA
- *
- * Alternatively, you may distribute this software under the terms of the
- * PHP License, version 3.0 or later.  A copy of this license should have
- * been distributed with this file in the file LICENSE.PHP .  If this is not
- * the case, you can obtain a copy at http://www.php.net/license/3_0.txt.
- *
- * The latest version of DOMPDF might be available at:
- * http://www.dompdf.com/
- *
- * @link http://www.dompdf.com/
- * @copyright 2004 Benj Carson
- * @author Benj Carson <benjcarson@digitaljunkies.ca>
- * @contributor Helmut Tischer <htischer@weihenstephan.org>
  * @package dompdf
- *
- * Changes
- * @contributor Helmut Tischer <htischer@weihenstephan.org>
- * @version 0.5.1.htischer.20090507
- * - On missing font on explicite font selection don't change subtype and don't return default font.
- * - On requesting default font and missing subtype, check similar subtypes, then any subtype, then normal. The last must exist.
- * - Add comments
+ * @link    http://www.dompdf.com/
+ * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @author  Helmut Tischer <htischer@weihenstephan.org>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @version $Id$
  */
-
-/* $Id$ */
 
 require_once DOMPDF_LIB_DIR . "/class.pdf.php";
 require_once DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php";
@@ -244,14 +207,14 @@ class Font_Metrics {
   }
   
   static function get_type($type) {
-  	if (preg_match("/bold/i", $type)) {
+    if (preg_match("/bold/i", $type)) {
       if (preg_match("/italic|oblique/i", $type)) {
         $type = "bold_italic";
       }
       else {
         $type = "bold";
       }
-		}
+    }
     elseif (preg_match("/italic|oblique/i", $type)) {
       $type = "italic";
     }
@@ -282,18 +245,6 @@ class Font_Metrics {
              glob("C:\\Windows\\fonts\\*.ttf") + 
              glob("C:\\WinNT\\fonts\\*.ttf") + 
              glob("/mnt/c_drive/WINDOWS/Fonts/");
-    
-    /*$keys = array_keys($names);
-    
-    $matches = array_intersect(array("times", "times new roman"), $keys);
-    $names["serif"] = $names[reset($matches)];
-          
-    $matches = array_intersect(array("helvetica", "arial", "verdana"), $keys);
-    $names["sans-serif"] = $names[reset($matches)];   
-    
-    $matches = array_intersect(array("courier", "courier new"), $keys);
-    $names["monospace"] = $names[reset($matches)];
-    $names["fixed"] = $names[reset($matches)];*/
     
     return self::install_fonts($files);
   }
