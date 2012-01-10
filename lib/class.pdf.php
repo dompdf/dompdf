@@ -4171,11 +4171,24 @@ EOT;
       return;
     }
     
+    // FIXME The pixel transformation doesn't work well with 8bit PNGs
+    $eight_bit = ($byte & 4) !== 4;
+    
     $wpx = imagesx($img);
     $hpx = imagesy($img);
-    
+      
     imagesavealpha($img, false);
     
+    // create temp alpha file
+    $tempfile_alpha = tempnam($this->tmp, "cpdf_img_");
+    @unlink($tempfile_alpha);
+    $tempfile_alpha = "$tempfile_alpha.png";
+    
+    // create temp plain file
+    $tempfile_plain = tempnam($this->tmp, "cpdf_img_");
+    @unlink($tempfile_plain);
+    $tempfile_plain = "$tempfile_plain.png";
+      
     $imgalpha = imagecreate($wpx, $hpx);
     imagesavealpha($imgalpha, false);
     
@@ -4183,63 +4196,85 @@ EOT;
     for ($c = 0; $c < 256; ++$c) {
       imagecolorallocate($imgalpha, $c, $c, $c);
     }
-   
-    // FIXME The pixel transformation doesn't work well with 8bit PNGs
-    $eight_bit = ($byte & 4) !== 4;
     
-    // allocated colors cache
-    $allocated_colors = array();
-    
-    // extract alpha channel
-    for ($xpx = 0; $xpx < $wpx; ++$xpx) {
-      for ($ypx = 0; $ypx < $hpx; ++$ypx) {
-        $color = imagecolorat($img, $xpx, $ypx);
-        $col = imagecolorsforindex($img, $color);
-        $alpha = $col['alpha'];
-        
-        if ($eight_bit) {
-          // with gamma correction
-          $gammacorr = 2.2;
-          $pixel = pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255;
-        }
-        
-        else {
-          // without gamma correction
-          $pixel = (127 - $alpha) * 2;
-          
-          $key = implode("-", array($col['red'], $col['green'], $col['blue']));
-          
-          if (!isset($allocated_colors[$key])) {
-            $pixel_img = imagecolorallocate($img, $col['red'], $col['green'], $col['blue']);
-            $allocated_colors[$key] = $pixel_img;
-          }
-          else {
-            $pixel_img = $allocated_colors[$key]; 
-          }
-          
-          imagesetpixel($img, $xpx, $ypx, $pixel_img);
-        }
-        
-        imagesetpixel($imgalpha, $xpx, $ypx, $pixel);
-      }
-    }
+    // Use PECL gmagick + Graphics Magic to process transparent PNG images
+    if (extension_loaded("gmagick")) {
+      $gmagick = new Gmagick($file);
+      $gmagick->setimageformat('png');
       
-    // create temp alpha file
-    $tempfile_alpha = tempnam($this->tmp, "cpdf_img_");
-    @unlink($tempfile_alpha);
-    $tempfile_alpha = "$tempfile_alpha.png";
-    imagepng($imgalpha, $tempfile_alpha);
-    
-    // extract image without alpha channel
-    $imgplain = imagecreatetruecolor($wpx, $hpx);
-    imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
-    imagedestroy($img);
-    
-    // create temp image file
-    $tempfile_plain = tempnam($this->tmp, "cpdf_img_");
-    @unlink($tempfile_plain);
-    $tempfile_plain = "$tempfile_plain.png";
-    imagepng($imgplain, $tempfile_plain);
+      // Get opacity channel (negative of alpha channel)
+      $alpha_channel_neg = clone $gmagick;
+      $alpha_channel_neg->separateimagechannel(Gmagick::CHANNEL_OPACITY);
+      
+      // Negate opacity channel
+      $alpha_channel = new Gmagick();
+      $alpha_channel->newimage($wpx, $hpx, "#FFFFFF", "png");
+      $alpha_channel->compositeimage($alpha_channel_neg, Gmagick::COMPOSITE_DIFFERENCE, 0, 0);
+      $alpha_channel->separateimagechannel(Gmagick::CHANNEL_RED);
+      $alpha_channel->writeimage($tempfile_alpha);
+      
+      // Cast to 8bit+palette
+      $imgalpha_ = imagecreatefrompng($tempfile_alpha);
+      imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
+      imagedestroy($imgalpha_);
+      imagepng($imgalpha, $tempfile_alpha);
+      
+      // Make opaque image
+      $color_channels = new Gmagick();
+      $color_channels->newimage($wpx, $hpx, "#FFFFFF", "png");
+      $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYRED, 0, 0);
+      $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYGREEN, 0, 0);
+      $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYBLUE, 0, 0);
+      $color_channels->writeimage($tempfile_plain);
+      
+      $imgplain = imagecreatefrompng($tempfile_plain);
+    }
+    else {
+      // allocated colors cache
+      $allocated_colors = array();
+      
+      // extract alpha channel
+      for ($xpx = 0; $xpx < $wpx; ++$xpx) {
+        for ($ypx = 0; $ypx < $hpx; ++$ypx) {
+          $color = imagecolorat($img, $xpx, $ypx);
+          $col = imagecolorsforindex($img, $color);
+          $alpha = $col['alpha'];
+          
+          if ($eight_bit) {
+            // with gamma correction
+            $gammacorr = 2.2;
+            $pixel = pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255;
+          }
+          
+          else {
+            // without gamma correction
+            $pixel = (127 - $alpha) * 2;
+            
+            $key = $col['red'].$col['green'].$col['blue'];
+            
+            if (!isset($allocated_colors[$key])) {
+              $pixel_img = imagecolorallocate($img, $col['red'], $col['green'], $col['blue']);
+              $allocated_colors[$key] = $pixel_img;
+            }
+            else {
+              $pixel_img = $allocated_colors[$key]; 
+            }
+            
+            imagesetpixel($img, $xpx, $ypx, $pixel_img);
+          }
+          
+          imagesetpixel($imgalpha, $xpx, $ypx, $pixel);
+        }
+      }
+      
+      // extract image without alpha channel
+      $imgplain = imagecreatetruecolor($wpx, $hpx);
+      imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
+      imagedestroy($img);
+        
+      imagepng($imgalpha, $tempfile_alpha);
+      imagepng($imgplain, $tempfile_plain);
+    }
     
     // embed mask image
     $this->addImagePng($tempfile_alpha, $x, $y, $w, $h, $imgalpha, true);
@@ -4265,13 +4300,16 @@ EOT;
     } 
     
     else {
-      $color_type = ord (file_get_contents ($file, false, null, 25, 1));
+      $info = file_get_contents ($file, false, null, 24, 5);
+      $meta = unpack("CbitDepth/CcolorType/CcompressionMethod/CfilterMethod/CinterlaceMethod", $info);
+      $bit_depth = $meta["bitDepth"];
+      $color_type = $meta["colorType"];
       
       // http://www.w3.org/TR/PNG/#11IHDR
       // 3 => indexed
       // 4 => greyscale with alpha
       // 6 => fullcolor with alpha
-      $is_alpha = in_array($color_type, array(3, 4, 6));
+      $is_alpha = in_array($color_type, array(4, 6)) || ($color_type == 3 && $bit_depth != 4);
 
       if ($is_alpha) { // exclude grayscale alpha
         return $this->addImagePngAlpha($file, $x, $y, $w, $h, $color_type);

@@ -161,7 +161,7 @@ class Frame {
    *
    * @param DOMNode $node the DOMNode this frame represents
    */
-  function __construct(DomNode $node) {
+  function __construct(DOMNode $node) {
     $this->_node = $node;
       
     $this->_parent = null;

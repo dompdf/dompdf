@@ -49,9 +49,15 @@ $server_configs = array(
     "fallback" => "Required if you have images in your documents",
   ),
   "APC" => array(
-    "required" => true,
+    "required" => "For better performances",
     "value"    => phpversion("apc"),
     "result"   => function_exists("apc_fetch"),
+    "fallback" => "Recommended for better performances",
+  ),
+  "GMagick" => array(
+    "required" => "Better with transparent PNG images",
+    "value"    => phpversion("gmagick"),
+    "result"   => extension_loaded("gmagick"),
     "fallback" => "Recommended for better performances",
   ),
 );
