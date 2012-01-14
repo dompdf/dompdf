@@ -977,12 +977,17 @@ class Stylesheet {
 
         case "media":
           $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
+          
           if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
             $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
-          } else {
+          } 
+          else {
             $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE;
           }
-          if ( in_array(mb_strtolower(trim($match[3])), $acceptedmedia ) ) {
+          
+          $media = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
+          
+          if ( count(array_intersect($acceptedmedia, $media)) ) {
             $this->_parse_sections($match[5]);
           }
           break;
