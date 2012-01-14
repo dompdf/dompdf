@@ -524,45 +524,44 @@ class Block_Frame_Reflower extends Frame_Reflower {
           $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
           
         $frame_h = $frame->get_margin_height();
-        $y = $line->y;
         
         if ( !isset($canvas) ) {
           $canvas = $frame->get_root()->get_dompdf()->get_canvas();
         }
         
         $baseline = $canvas->get_font_baseline($style->font_family, $style->font_size);
+        $y_offset = 0;
         
         switch ($align) {
-
-        case "baseline":
-          $y += $height*0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
-          break;
-
-        case "middle":
-          $y += ($height*0.8 - $baseline) / 2;
-          break;
-
-        case "sub":
-          $y += 0.3 * $height;
-          break;
-
-        case "super":
-          $y += -0.2 * $height;
-          break;
-
-        case "text-top":
-        case "top": // Not strictly accurate, but good enough for now
-          break;
-
-        case "text-bottom":
-        case "bottom":
-          $y += $height*0.8 - $baseline;
-          break;
+          case "baseline":
+            $y_offset = $height*0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
+            break;
+    
+          case "middle":
+            $y_offset = ($height*0.8 - $baseline) / 2;
+            break;
+    
+          case "sub":
+            $y_offset = 0.3 * $height;
+            break;
+    
+          case "super":
+            $y_offset = -0.2 * $height;
+            break;
+    
+          case "text-top":
+          case "top": // Not strictly accurate, but good enough for now
+            break;
+    
+          case "text-bottom":
+          case "bottom":
+            $y_offset = $height*0.8 - $baseline;
+            break;
         }
-
-        $x = $frame->get_position("x");
-        $frame->set_position($x, $y);
-
+         
+        if ( $y_offset ) {
+          $frame->move(0, $y_offset);
+        }
       }
     }
   }

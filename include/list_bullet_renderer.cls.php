@@ -133,22 +133,31 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "i":
       case "A":
       case "I":
-        list($x,$y) = $frame->get_position();
+        $li = $frame->get_parent();
         
         $pad = null;
         if ( $bullet_style === "decimal-leading-zero" ) {
-          $pad = strlen($frame->get_parent()->get_parent()->get_node()->getAttribute("dompdf-children-count"));
+          $pad = strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
         }
         
         $index = $frame->get_node()->getAttribute("dompdf-counter");
         $text = $this->make_counter($index, $bullet_style, $pad);
-        $font_family = $style->font_family;
-        $spacing = 0; //$frame->get_text_spacing() + $style->word_spacing;
         
-        if ( trim($text) == "" )
+        if ( trim($text) == "" ) {
           return;
+        }
+        
+        $spacing = 0;
+        $font_family = $style->font_family;
+        
+        $line = $li->get_containing_line();
+        list($x, $y) = array($frame->get_position("x"), $line->y);
 
         $x -= Font_Metrics::get_text_width($text, $font_family, $font_size, $spacing);
+        
+        // Take line-height into account
+        $line_height = $style->line_height;
+        $y += ($line_height - $font_size) / 4; // FIXME I thought it should be 2, but 4 gives better results
         
         $this->_canvas->text($x, $y, $text,
                              $font_family, $font_size,

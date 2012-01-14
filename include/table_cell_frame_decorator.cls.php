@@ -57,33 +57,33 @@ class Table_Cell_Frame_Decorator extends Block_Frame_Decorator {
     $style->height = $new_height;
 
     if ( $new_height > $this->_content_height ) {
+      $y_offset = 0;
+      
       // Adjust our vertical alignment
-      $valign = $style->vertical_align;
-
-      switch ($valign) {
-
-      default:
-      case "baseline":
-        // FIXME: this isn't right
-        
-      case "top":
-        // Don't need to do anything
-        return;
-
-      case "middle":
-        $delta = ($new_height - $this->_content_height) / 2;
-        break;
-
-      case "bottom":
-        $delta = $new_height - $this->_content_height;
-        break;
-
+      switch ($style->vertical_align) {
+        default:
+        case "baseline":
+          // FIXME: this isn't right
+          
+        case "top":
+          // Don't need to do anything
+          return;
+  
+        case "middle":
+          $y_offset = ($new_height - $this->_content_height) / 2;
+          break;
+  
+        case "bottom":
+          $y_offset = $new_height - $this->_content_height;
+          break;
       }
    
-      // Move our children
-      foreach ( $this->get_line_boxes() as $i => $line ) {
-        foreach ( $line->get_frames() as $frame )
-          $frame->set_position( null, $frame->get_position("y") + $delta );
+      if ( $y_offset ) {
+        // Move our children
+        foreach ( $this->get_line_boxes() as $i => $line ) {
+          foreach ( $line->get_frames() as $frame )
+            $frame->move( 0, $y_offset );
+        }
       }
    }
         
