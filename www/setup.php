@@ -54,13 +54,17 @@ $server_configs = array(
     "result"   => function_exists("apc_fetch"),
     "fallback" => "Recommended for better performances",
   ),
-  "GMagick" => array(
+  "GMagick or IMagick" => array(
     "required" => "Better with transparent PNG images",
-    "value"    => phpversion("gmagick"),
-    "result"   => extension_loaded("gmagick"),
+    "value"    => null,
+    "result"   => extension_loaded("gmagick") || extension_loaded("imagick"),
     "fallback" => "Recommended for better performances",
   ),
 );
+
+if (($gm = extension_loaded("gmagick")) || ($im = extension_loaded("imagick"))) {
+  $server_configs["GMagick or IMagick"]["value"] = ($im ? "IMagick ".phpversion("imagick") : "GMagick ".phpversion("gmagick"));
+}
 
 ?>
 

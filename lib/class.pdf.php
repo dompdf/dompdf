@@ -4229,6 +4229,34 @@ EOT;
       
       $imgplain = imagecreatefrompng($tempfile_plain);
     }
+    
+    // Use PECL imagick + ImageMagic to process transparent PNG images
+    elseif (extension_loaded("imagick")) {
+      $imagick = new Imagick($file);
+      $imagick->setFormat('png');
+      
+      // Get opacity channel (negative of alpha channel)
+      $alpha_channel = clone $imagick;
+      $alpha_channel->separateImageChannel(Imagick::CHANNEL_ALPHA);
+      $alpha_channel->negateImage(true);
+      $alpha_channel->writeImage($tempfile_alpha);
+      
+      // Cast to 8bit+palette
+      $imgalpha_ = imagecreatefrompng($tempfile_alpha);
+      imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
+      imagedestroy($imgalpha_);
+      imagepng($imgalpha, $tempfile_alpha);
+      
+      // Make opaque image
+      $color_channels = new Imagick();
+      $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
+      $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYRED, 0, 0);
+      $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYGREEN, 0, 0);
+      $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYBLUE, 0, 0);
+      $color_channels->writeImage($tempfile_plain);
+      
+      $imgplain = imagecreatefrompng($tempfile_plain);
+    }
     else {
       // allocated colors cache
       $allocated_colors = array();
