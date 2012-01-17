@@ -565,6 +565,11 @@ class DOMPDF {
       }
 
     }
+    
+    // Set the base path of the Stylesheet to that of the file being processed
+    $this->_css->set_protocol($this->_protocol);
+    $this->_css->set_host($this->_base_host);
+    $this->_css->set_base_path($this->_base_path);
 
     // load <style> tags
     $styles = $this->_xml->getElementsByTagName("style");
@@ -590,11 +595,6 @@ class DOMPDF {
 
       } else
         $css = $style->nodeValue;
-      
-      // Set the base path of the Stylesheet to that of the file being processed
-      $this->_css->set_protocol($this->_protocol);
-      $this->_css->set_host($this->_base_host);
-      $this->_css->set_base_path($this->_base_path);
 
       $this->_css->load_css($css);
     }
