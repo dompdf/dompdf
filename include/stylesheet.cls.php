@@ -281,10 +281,26 @@ class Stylesheet {
 
     set_error_handler("record_warnings");
     $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
+    
+    $good_mime_type = true;
+    
+    if ( !$this->_dompdf->get_quirksmode() ) {
+      // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
+      if ( isset($http_response_header) ) {
+        foreach($http_response_header as $_header) {
+          if ( preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) ) {
+            if ( $matches[1] !== "text/css" ) {
+              $good_mime_type = false;
+            }
+          }
+        }
+      }
+    }
+    
     restore_error_handler();
 
-    if ( $css == "" ) {
-      record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);;
+    if ( !$good_mime_type || $css == "" ) {
+      record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
       return;
     }
 

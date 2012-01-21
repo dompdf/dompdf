@@ -158,7 +158,7 @@ td, th, tr {
    
 /* caption inherits from table not table-outer */  
 caption {
-  display: table-caption;
+  display: block;
   text-align: center;
 }
 

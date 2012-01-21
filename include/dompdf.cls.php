@@ -174,7 +174,7 @@ class DOMPDF {
   /**
    * @var bool Tells wether the DOM document is in quirksmode (experimental)
    */
-  private $_quirskmode = false;
+  private $_quirksmode = false;
   
   public static $native_fonts = array("courier", "courier-bold", "courier-oblique", "courier-boldoblique",
                           "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
@@ -481,15 +481,21 @@ class DOMPDF {
       $doc = new DOMDocument();
       $doc->preserveWhiteSpace = true;
       $doc->loadHTML($str);
-    
-      // HTML5 <!DOCTYPE html>
-      if ( !$doc->doctype->publicId && !$doc->doctype->systemId ) {
-        $quirksmode = false;
-      }
       
-      // not XHTML
-      if ( !preg_match("/xhtml/i", $doc->doctype->publicId) ) {
+      // If some text is before the doctype of before the <html> tag, we are in quirksmode
+      if ( preg_match("/^(.+)<(!doctype|html)/i", ltrim($str), $matches) ) {
         $quirksmode = true;
+      }
+      else {
+        // HTML5 <!DOCTYPE html>
+        if ( !$doc->doctype->publicId && !$doc->doctype->systemId ) {
+          $quirksmode = false;
+        }
+        
+        // not XHTML
+        if ( !preg_match("/xhtml/i", $doc->doctype->publicId) ) {
+          $quirksmode = true;
+        }
       }
     }
     
@@ -645,6 +651,15 @@ class DOMPDF {
         }
       }
     }
+  }
+  
+  /**
+   * Get the quirks mode
+   * 
+   * @return boolean true if quirks mode is active
+   */
+  function get_quirksmode(){
+    return $this->_quirksmode;
   }
   
   function parse_default_view($value) {
