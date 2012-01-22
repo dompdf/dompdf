@@ -84,56 +84,67 @@ class Line_Box {
   }
   
   function get_float_offsets() {
-    static $anti_infinite_loop;
+    if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
+      return;
+    }
+      
+    static $anti_infinite_loop = 1000; // FIXME smelly hack
     
     $reflower = $this->_block_frame->get_reflower();
     
     if ( !$reflower ) return;
     
     $cb_w = null;
+  
+    $block = $this->_block_frame;
+    $root = $block->get_root();
+    $floating_frames = $root->get_floating_frames();
     
-    if ( DOMPDF_ENABLE_CSS_FLOAT ) {
-      $block = $this->_block_frame;
-      $root = $block->get_root();
-      $floating_frames = $root->get_floating_frames();
+    foreach ( $floating_frames as $child_key => $floating_frame ) {
+      $id = $floating_frame->get_id();
       
-      foreach ( $floating_frames as $child_key => $floating_frame ) {
-        $id = $floating_frame->get_id();
+      if ( isset($this->floating_blocks[$id]) ) {
+        continue;
+      }
+      
+      $floating_style = $floating_frame->get_style();
+      
+      $clear = $floating_style->clear;
+      $float = $floating_style->float;
+      
+      if ( $clear !== "none" && $float === "none" ) {
+        continue;
+      }
+      
+      $floating_width = $floating_frame->get_margin_width();
+      
+      if (!$cb_w) {
+        $cb_w = $floating_frame->get_containing_block("w");
+      }
+      
+      $line_w = $this->get_width();
+      
+      if (!$floating_frame->_float_next_line && ($cb_w <= $line_w + $floating_width) && ($cb_w > $line_w) ) {
+        $floating_frame->_float_next_line = true;
+        continue;
+      }
+      
+      // If the child is still shifted by the floating element
+      if ( $anti_infinite_loop-- &&
+           $floating_frame->get_position("y") + $floating_frame->get_margin_height() > $this->y && 
+           $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
+           ) {
+        if ( $float === "left" )
+          $this->left  += $floating_width;
+        else
+          $this->right += $floating_width;
         
-        if ( isset($this->floating_blocks[$id]) ) continue;
-        
-        $float = $floating_frame->get_style()->float;
-        
-        $floating_width = $floating_frame->get_margin_width();
-        
-        if (!$cb_w) {
-          $cb_w = $floating_frame->get_containing_block("w");
-        }
-        
-        $line_w = $this->get_width();
-        
-        if (!$floating_frame->_float_next_line && ($cb_w <= $line_w + $floating_width) && ($cb_w > $line_w) ) {
-          $floating_frame->_float_next_line = true;
-          continue;
-        }
-        
-        // If the child is still shifted by the floating element
-        if ( $anti_infinite_loop++ < 1000 &&
-             $floating_frame->get_position("y") + $floating_frame->get_margin_height() > $this->y && 
-             $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
-             ) {
-          if ( $float === "left" )
-            $this->left  += $floating_width;
-          else
-            $this->right += $floating_width;
-            
-          $this->floating_blocks[$id] = true;
-        }
-        
-        // else, the floating element won't shift anymore
-        else {
-          $root->remove_floating_frame($child_key);
-        }
+        $this->floating_blocks[$id] = true;
+      }
+      
+      // else, the floating element won't shift anymore
+      else {
+        $root->remove_floating_frame($child_key);
       }
     }
   }

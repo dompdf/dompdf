@@ -199,16 +199,17 @@ class Block_Frame_Reflower extends Frame_Reflower {
   
   /** 
    * Determine the unrestricted height of content within the block
-   * by adding each line's height
+   * not by adding each line's height, but by getting the last line's position. 
+   * This because lines could have been pushed lower by a clearing element.
    * @return float
    */
   protected function _calculate_content_height() {
-    $height = 0;
+    $lines = $this->_frame->get_line_boxes();
     
-    foreach ($this->_frame->get_line_boxes() as $line) {
-      $height += $line->h;
-    }
-
+    $first_line = reset($lines);
+    $last_line  = end($lines);
+    $height = $last_line->y + $last_line->h - $first_line->y;
+    
     return $height;
   }
 
@@ -565,6 +566,75 @@ class Block_Frame_Reflower extends Frame_Reflower {
       }
     }
   }
+  
+  function process_float(Frame $child, $cb_x, $cb_w){
+    if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
+      return;
+    }
+    
+    $child_style = $child->get_style();
+    $root = $this->_frame->get_root();
+    
+    // Handle "clear"
+    if ( $child_style->clear !== "none" ) {
+      $lowest_y = $root->get_lowest_float_offset($child);
+      
+      // If a float is still applying, we handle it
+      if ( $lowest_y ) {
+        if ( $child->is_in_flow() ) {
+          $line_box = $this->_frame->get_current_line_box();
+          $line_box->y = $lowest_y + $child->get_margin_height();
+          $line_box->left = 0;
+          $line_box->right = 0;
+        }
+        
+        $child->move(0, $lowest_y - $child->get_position("y"));
+      }
+    }
+    
+    // Handle "float"
+    if ( $child_style->float !== "none" ) {
+      $root->add_floating_frame($child);
+      
+      // Remove next frame's beginning whitespace
+      $next = $child->get_next_sibling();
+      if ( $next && $next instanceof Text_Frame_Decorator) {
+        $next->set_text(ltrim($next->get_text()));
+      }
+      
+      $line_box = $this->_frame->get_current_line_box();
+      list($old_x, $old_y) = $child->get_position();
+      
+      $float_x = $cb_x;
+      $float_y = $old_y;
+      $float_w = $child->get_margin_width();
+      
+      if ( $child_style->clear === "none" ) {
+        switch( $child_style->float ) {
+          case "left": 
+            $float_x += $line_box->left;
+            break;
+          case "right": 
+            $float_x += ($cb_w - $line_box->right - $float_w);
+            break;
+        }
+      }
+      else {
+        if ( $child_style->float === "right" ) {
+          $float_x += ($cb_w - $float_w);
+        }
+      }
+      
+      $line_box->get_float_offsets();
+      
+      if ( $child->_float_next_line ) {
+        $float_y += $line_box->h;
+      }
+      
+      $child->set_position($float_x, $float_y);
+      $child->move($float_x - $old_x, $float_y - $old_y, true);
+    }
+  }
 
   function reflow(Frame_Decorator $block = null) {
 
@@ -640,55 +710,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
       // Don't add the child to the line if a page break has occurred
       if ( $page->check_page_break($child) )
         break;
-        
-      $child_style = $child->get_style();
       
-      if ( DOMPDF_ENABLE_CSS_FLOAT ) {
-        $root = $this->_frame->get_root();
-        
-        /*if ( $child_style->clear !== "none" ) {
-          $lowest_y = $root->remove_floating_frames($child_style->clear);
-          
-          $line_box = $this->_frame->get_current_line_box();
-          $line_box->y = $lowest_y;
-          $child->set_position(null, $y);
-        }*/
-        
-        if ( $child_style->float !== "none" ) {
-          $root->add_floating_frame($child);
-          
-          // Remove next frame's beginning whitespace
-          $next = $child->get_next_sibling();
-          if ( $next && $next instanceof Text_Frame_Decorator) {
-            $next->set_text(ltrim($next->get_text()));
-          }
-          
-          $line_box = $this->_frame->get_current_line_box();
-          list($old_x, $old_y) = $child->get_position();
-          
-          $float_x = $cb_x;
-          $float_y = $old_y;
-          $float_w = $child->get_margin_width();
-          
-          switch( $child_style->float ) {
-            case "left": 
-              $float_x += $line_box->left;
-              break;
-            case "right": 
-              $float_x += ($w - $line_box->right - $float_w);
-              break;
-          }
-          
-          $line_box->get_float_offsets();
-          
-          if ( $child->_float_next_line ) {
-            $float_y += $line_box->h;
-          }
-          
-          $child->set_position($float_x, $float_y);
-          $child->move($float_x - $old_x, $float_y - $old_y, true);
-        }
-      }
+      $this->process_float($child, $cb_x, $w);
     }
 
     // Determine our height
@@ -727,7 +750,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       $this->_frame->move($new_x-$x, $new_y-$y, true);
     }
     
-    if ( $block ) {
+    if ( $block && $this->_frame->is_in_flow() ) {
       $block->add_frame_to_line($this->_frame);
       
       // May be inline-block
