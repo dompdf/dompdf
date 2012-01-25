@@ -73,7 +73,7 @@ class Line_Box {
   /**
    * Class constructor
    *
-   * @param Block_Frame_Decorator $frale the Block_Frame_Decorator containing this line
+   * @param Block_Frame_Decorator $frame the Block_Frame_Decorator containing this line
    */
   function __construct(Block_Frame_Decorator $frame, $y = 0) {
     $this->_block_frame = $frame;
@@ -88,7 +88,7 @@ class Line_Box {
       return;
     }
       
-    static $anti_infinite_loop = 1000; // FIXME smelly hack
+    static $anti_infinite_loop = 500; // FIXME smelly hack
     
     $reflower = $this->_block_frame->get_reflower();
     
@@ -112,10 +112,6 @@ class Line_Box {
       $clear = $floating_style->clear;
       $float = $floating_style->float;
       
-      if ( $clear !== "none" && $float === "none" ) {
-        continue;
-      }
-      
       $floating_width = $floating_frame->get_margin_width();
       
       if (!$cb_w) {
@@ -130,7 +126,7 @@ class Line_Box {
       }
       
       // If the child is still shifted by the floating element
-      if ( $anti_infinite_loop-- &&
+      if ( $anti_infinite_loop-- > 0 &&
            $floating_frame->get_position("y") + $floating_frame->get_margin_height() > $this->y && 
            $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
            ) {

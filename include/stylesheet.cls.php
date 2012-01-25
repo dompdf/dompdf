@@ -1038,6 +1038,8 @@ class Stylesheet {
               
             case ":left":
             case ":right":
+            case ":odd":
+            case ":even":
             case ":first":
               $key = $page_selector;
               

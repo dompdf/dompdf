@@ -150,8 +150,6 @@ class Text_Frame_Decorator extends Frame_Decorator {
 
     $p = $this->get_parent();
     $p->insert_child_after($deco, $this, false);
-    
-    //$this->find_block_parent()->get_reflower()->get_float_offsets($deco, 200);
 
     if ( $p instanceof Inline_Frame_Decorator )
       $p->split($deco);

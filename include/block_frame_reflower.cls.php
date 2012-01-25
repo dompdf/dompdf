@@ -696,6 +696,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     // Set the y position of the first line in this block
     $this->_frame->set_current_line($cb_y);
+        
+    $this->_frame->get_current_line_box()->get_float_offsets();
     
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {

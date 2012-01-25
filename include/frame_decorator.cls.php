@@ -391,7 +391,7 @@ abstract class Frame_Decorator extends Frame {
     }
     
     if ( !$p ) {
-      $p = $this->_root;
+      $p = $this->_root->get_first_child(); // <body>
     }
 
     return $this->_positionned_parent = $p;
