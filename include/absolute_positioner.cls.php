@@ -70,10 +70,8 @@ class Absolute_Positioner extends Positioner {
     }
     else {
       if ( $right === "auto" ) {
-        if ( $orig_width === "auto" ) {
-          // B or F
-          $x += $left;
-        }
+        // B or F
+        $x += $left;
       }
       else {
         if ( $orig_width === "auto" ) {
@@ -106,10 +104,8 @@ class Absolute_Positioner extends Positioner {
     }
     else {
       if ( $bottom === "auto" ) {
-        if ( $orig_height === "auto" ) {
-          // B or F
-          $y += $top;
-        }
+        // B or F
+        $y += $top;
       }
       else {
         if ( $orig_height === "auto" ) {
