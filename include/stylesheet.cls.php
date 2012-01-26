@@ -780,6 +780,11 @@ class Stylesheet {
       
       foreach ($nodes as $i => $node) {
         foreach ($query["pseudo_elements"] as $pos) {
+          // Do not add a new pseudo element if another one already matched
+          if ( $node->hasAttribute("dompdf_{$pos}_frame_id") ) {
+            continue;
+          }
+          
           if (($src = $this->_image($style->content)) !== "none") {
             $new_node = $node->ownerDocument->createElement("img_generated");
             $new_node->setAttribute("src", $src);
@@ -787,9 +792,12 @@ class Stylesheet {
           else {
             $new_node = $node->ownerDocument->createElement("dompdf_generated");
           }
+          
           $new_node->setAttribute($pos, $pos);
           
-          $tree->insert_node($node, $new_node, $pos);
+          $new_frame_id = $tree->insert_node($node, $new_node, $pos);
+          
+          $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
         }
       }
     }

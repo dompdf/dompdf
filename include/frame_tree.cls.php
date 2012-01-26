@@ -218,5 +218,7 @@ class Frame_Tree {
       $parent->prepend_child($frame, false);
     else 
       $parent->append_child($frame, false);
+      
+    return $frame_id;
   }
 }
