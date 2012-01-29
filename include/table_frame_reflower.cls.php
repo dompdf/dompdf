@@ -114,6 +114,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
     $style->width = $width;
 
     $cellmap = $this->_frame->get_cellmap();
+    
+    if ( $cellmap->is_columns_locked() ) {
+      return;
+    }
 
     // If the whole table fits on the page, then assign each column it's max width
     if ( $width == $max_width ) {

@@ -145,6 +145,22 @@ class Table_Frame_Decorator extends Frame_Decorator {
   }
 
   /**
+   * Return a copy of this frame with $node as its node
+   * 
+   * @param DomNode $node 
+   * @return Frame
+   */ 
+  function copy(DomNode $node) {
+    $deco = parent::copy($node);
+    
+    // In order to keep columns' widths through pages
+    $deco->_cellmap->set_columns($this->_cellmap->get_columns());
+    $deco->_cellmap->lock_columns();
+
+    return $deco;
+  }
+
+  /**
    * Static function to locate the parent table of a frame
    *
    * @param Frame $frame

@@ -163,8 +163,6 @@ class Text_Frame_Reflower extends Frame_Reflower {
     $text = $frame->get_text();
     $size = $style->font_size;
     $font = $style->font_family;
-    $word_spacing = $style->length_in_pt($style->word_spacing);
-    $char_spacing = $style->length_in_pt($style->letter_spacing);
 
     // Determine the text height
     $style->height = Font_Metrics::get_font_height( $font, $size );
