@@ -414,20 +414,26 @@ class Table_Frame_Reflower extends Frame_Reflower {
 
     $diff = $cb["w"] - $width;
 
-    if ( $left === "auto" && $right === "auto" && $diff > 0 ) {
-      $left = $right = $diff / 2;
+    if ( $left === "auto" && $right === "auto" ) {
+      if ( $diff < 0 ) {
+        $left = 0;
+        $right = $diff;
+      }
+      else {
+        $left = $right = $diff / 2;
+      }
+      
       $style->margin_left = "$left pt";
       $style->margin_right = "$right pt";
 
     } else {
-        if ( $left === "auto" ) {
-          $left = $style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
-        }
-        if ( $right === "auto" ) {
-          $left = $style->length_in_pt($left, $cb["w"]);
-        }
+      if ( $left === "auto" ) {
+        $left = $style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
+      }
+      if ( $right === "auto" ) {
+        $left = $style->length_in_pt($left, $cb["w"]);
+      }
     }
-
 
     list($x, $y) = $frame->get_position();
 
@@ -442,7 +448,6 @@ class Table_Frame_Reflower extends Frame_Reflower {
       $h = $cb["h"];
     else
       $h = null;
-
 
     $cellmap = $frame->get_cellmap();
     $col =& $cellmap->get_column(0);
