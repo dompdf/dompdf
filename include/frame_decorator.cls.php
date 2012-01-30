@@ -352,6 +352,9 @@ abstract class Frame_Decorator extends Frame {
         $this->_frame->set_root($root);
   }
   
+  /**
+   * @return Page_Frame_Decorator
+   */
   function get_root() { return $this->_root; }
   
   //........................................................................

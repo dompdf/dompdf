@@ -299,8 +299,10 @@ class Cellmap {
 
   function set_row_height($i, $height) {
     $row =& $this->get_row($i);
-    if ( $height <= $row["height"] )
+    
+    if ( $row["height"] !== null && $height <= $row["height"] ) {
       return;
+    }
 
     $row["height"] = $height;
     $next_row =& $this->get_row($i+1);
