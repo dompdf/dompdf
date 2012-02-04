@@ -65,7 +65,8 @@ if ( $_SERVER["argc"] < 3 && @$_SERVER["argv"][1] != "system_fonts" ) {
  * @param string $bold_italic the filename of the bold italic face font subtype
  */
 function install_font_family($fontname, $normal, $bold = null, $italic = null, $bold_italic = null) {
-
+  Font_Metrics::init();
+  
   // Check if the base filename is readable
   if ( !is_readable($normal) )
     throw new DOMPDF_Exception("Unable to read '$normal'.");

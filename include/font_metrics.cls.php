@@ -75,7 +75,6 @@ class Font_Metrics {
         $canvas = Canvas_Factory::get_instance();
       }
       
-      self::load_font_families();
       self::$_pdf = $canvas;
     }
   }
@@ -332,3 +331,5 @@ class Font_Metrics {
     return true;
   }
 }
+
+Font_Metrics::load_font_families();
