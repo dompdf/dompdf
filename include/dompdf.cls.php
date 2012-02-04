@@ -697,6 +697,31 @@ class DOMPDF {
     
     $this->_css->apply_styles($this->_tree);
     
+    // @page style rules : size, margins
+    $page_styles = $this->_css->get_page_styles();
+    
+    $base_page_style = $page_styles["base"];
+    unset($page_styles["base"]);
+    
+    foreach($page_styles as $_page_style) {
+      $_page_style->inherit($base_page_style);
+    }
+    
+    if ( is_array($base_page_style->size) ) {
+      $this->set_paper(array(0, 0, $base_page_style->size[0], $base_page_style->size[1]));
+    }
+    
+    $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
+    Font_Metrics::init($this->_pdf);
+    
+    /*if ($this->_pdf instanceof CPDF_Adapter) {
+      foreach ($this->_tree->get_frames() as $frame) {
+        if ($frame->is_text_node()) {
+          $this->_pdf->register_string_subset($frame->get_style()->font_family, $frame->get_node()->nodeValue);
+        }
+      }
+    }*/
+    
     $root = null;
 
     foreach ($this->_tree->get_frames() as $frame) {
@@ -745,22 +770,6 @@ class DOMPDF {
       }
 
     }
-    
-    // @page style rules : size, margins
-    $page_styles = $this->_css->get_page_styles();
-    
-    $base_page_style = $page_styles["base"];
-    unset($page_styles["base"]);
-    
-    foreach($page_styles as $_page_style) {
-      $_page_style->inherit($base_page_style);
-    }
-    
-    if ( is_array($base_page_style->size) ) {
-      $this->set_paper(array(0, 0, $base_page_style->size[0], $base_page_style->size[1]));
-    }
-    
-    $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
 
     // Add meta information
     $title = $this->_xml->getElementsByTagName("title");

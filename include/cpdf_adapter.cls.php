@@ -692,6 +692,10 @@ class CPDF_Adapter implements Canvas {
     }
     return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
   }
+  
+  function register_string_subset($font, $string) {
+    return $this->_pdf->registerText($font, $string);
+  }
 
   //........................................................................
 

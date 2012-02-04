@@ -69,10 +69,14 @@ class Font_Metrics {
    * Class initialization
    *
    */
-  static function init() {
+  static function init(Canvas $canvas = null) {
     if (!self::$_pdf) {
+      if (!$canvas) {
+        $canvas = Canvas_Factory::get_instance();
+      }
+      
       self::load_font_families();
-      self::$_pdf = Canvas_Factory::get_instance();
+      self::$_pdf = $canvas;
     }
   }
 
@@ -328,5 +332,3 @@ class Font_Metrics {
     return true;
   }
 }
-
-Font_Metrics::init();

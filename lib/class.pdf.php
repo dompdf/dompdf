@@ -302,6 +302,11 @@ class Cpdf {
   protected $currentPageSize = array("width" => 0, "height" => 0);
   
   /**
+   * @var array All the chars that will be required in the font subsets
+   */
+  protected $stringSubsets = array();
+  
+  /**
    * @var string The target internal encoding
    */
   static protected $targetEncoding = 'iso-8859-1';
@@ -2327,11 +2332,26 @@ EOT;
           } elseif (isset($font['Weight']) && preg_match('!(bold|black)!i', $font['Weight'])) {
             $stemV = 120;
           }
-
+          
           // load the pfb file, and put that into an object too.
           // note that pdf supports only binary format type 1 font files, though there is a
           // simple utility to convert them from pfa to pfb.
-          $data =  file_get_contents($fbfile);
+          if (!$this->isUnicode || $fbtype !== 'ttf' || empty($this->stringSubsets)) {
+            $data = file_get_contents($fbfile);
+          }
+          else {
+            require_once dirname(__FILE__)."/php-font-lib/classes/font.cls.php";
+            
+            $font_obj = Font::load($fbfile);
+            $font_obj->parse();
+            
+            $font_obj->setSubset($this->stringSubsets[$fontName]);
+            $font_obj->reduce();
+            
+            $font_obj->open("$fbfile.tmp", Font_Binary_Stream::modeWrite);
+            $font_obj->encode(array("OS/2"));
+            $data = file_get_contents("$fbfile.tmp");
+          }
 
           // create the font descriptor
           $this->numObj++;
@@ -3448,6 +3468,21 @@ EOT;
       $str .= $match[0];
     }
     return $str;
+  }
+
+  /**
+   * add text to the document, at a specified location, size and angle on the page
+   */
+  function registerText($font, $text) {
+    if ( !$this->isUnicode || in_array(mb_strtolower(basename($font)), self::$coreFonts) ) {
+      return;
+    }
+    
+    if ( !isset($this->stringSubsets[$font]) ) {
+      $this->stringSubsets[$font] = array();
+    }
+    
+    $this->stringSubsets[$font] = array_unique(array_merge($this->stringSubsets[$font], $this->utf8toCodePointsArray($text)));
   }
 
   /**
