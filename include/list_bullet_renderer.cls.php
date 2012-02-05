@@ -15,6 +15,53 @@
  * @package dompdf
  */
 class List_Bullet_Renderer extends Abstract_Renderer {
+  static function get_counter_chars($type) {
+    static $cache = array();
+    
+    if ( isset($cache[$type]) ) {
+      return $cache[$type];
+    }
+    
+    $uppercase = false;
+    $text = "";
+    
+    switch ($type) {
+      case "decimal-leading-zero":
+      case "decimal":
+      case "1":
+        return "0123456789";
+      
+      case "upper-alpha":
+      case "upper-latin":
+      case "A":
+        $uppercase = true;
+      case "lower-alpha":
+      case "lower-latin":
+      case "a":
+        $text = "abcdefghijklmnopqrstuvwxyz";
+        break;
+        
+      case "upper-roman":
+      case "I":
+        $uppercase = true;
+      case "lower-roman":
+      case "i":
+        $text = "ivxlcdm";
+        break;
+      
+      case "lower-greek":
+        for($i = 0; $i < 24; $i++) {
+          $text .= unichr($i+944);
+        }
+        break;
+    }
+    
+    if ( $uppercase ) {
+      $text = strtoupper($text);
+    }
+    
+    return $cache[$type] = "$text.";
+  }
 
   //........................................................................
   private function make_counter($n, $type, $pad = null){
@@ -55,10 +102,11 @@ class List_Bullet_Renderer extends Abstract_Renderer {
         break;
     }
     
-    if ($uppercase) 
+    if ( $uppercase ) {
       $text = strtoupper($text);
-      
-    return $text.".";
+    }
+    
+    return "$text.";
   }
   
   function render(Frame $frame) {

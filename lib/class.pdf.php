@@ -2342,15 +2342,67 @@ EOT;
           else {
             require_once dirname(__FILE__)."/php-font-lib/classes/font.cls.php";
             
+            $this->stringSubsets[$fontName][] = 32; // Force space if not in yet
+            
+            $subset = $this->stringSubsets[$fontName];
+            sort($subset);
+            
+            // Load font
             $font_obj = Font::load($fbfile);
             $font_obj->parse();
             
-            $font_obj->setSubset($this->stringSubsets[$fontName]);
+            // Define subset
+            $font_obj->setSubset($subset);
             $font_obj->reduce();
             
-            $font_obj->open("$fbfile.tmp", Font_Binary_Stream::modeWrite);
+            // Write new font
+            $tmp_name = "$fbfile.tmp.".sprintf("%u", crc32(implode($subset)));
+            $font_obj->open($tmp_name, Font_Binary_Stream::modeWrite);
             $font_obj->encode(array("OS/2"));
-            $data = file_get_contents("$fbfile.tmp");
+            $font_obj->close();
+            
+            // Parse the new font to get cid2gid and widths
+            $font_obj = Font::load($tmp_name);
+            $font_obj->parse();
+            $font_obj->close();
+            
+            // Find Unicode char map table
+            $subtable = null;
+            foreach($font_obj->getData("cmap", "subtables") as $_subtable) {
+              if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
+                $subtable = $_subtable;
+                break;
+              }
+            }
+            
+            if ($subtable) {
+              $glyphIndexArray = $subtable["glyphIndexArray"];
+              $hmtx = $font_obj->getData("hmtx");
+              
+              unset($glyphIndexArray[0xFFFF]);
+              
+              $cidtogid = str_pad('', max(array_keys($glyphIndexArray))*2+1, "\x00");
+              $font['CIDWidths'] = array();
+              
+              foreach($glyphIndexArray as $cid => $gid) {
+                if ($cid >= 0 && $cid < 0xFFFF && $gid) {
+                  $cidtogid[$cid*2] = chr($gid >> 8);
+                  $cidtogid[$cid*2 + 1] = chr($gid & 0xFF);
+                }
+                
+                $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
+                $font['CIDWidths'][$cid] = $width;
+              }
+              
+              $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
+              $font['CIDtoGID_Compressed'] = true;
+              
+              $data = file_get_contents($tmp_name);
+              unlink($tmp_name);
+            }
+            else {
+              $data = file_get_contents($fbfile);
+            }
           }
 
           // create the font descriptor

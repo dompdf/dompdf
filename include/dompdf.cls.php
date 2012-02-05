@@ -714,19 +714,32 @@ class DOMPDF {
     $this->_pdf = Canvas_Factory::get_instance($this->_paper_size, $this->_paper_orientation);
     Font_Metrics::init($this->_pdf);
     
-    /*if ($this->_pdf instanceof CPDF_Adapter) {
+    if (DOMPDF_ENABLE_FONTSUBSETTING && $this->_pdf instanceof CPDF_Adapter) {
       foreach ($this->_tree->get_frames() as $frame) {
-        if ($frame->is_text_node()) {
-          $this->_pdf->register_string_subset($frame->get_style()->font_family, $frame->get_node()->nodeValue);
+        $style = $frame->get_style();
+        $node  = $frame->get_node();
+        
+        // Handle text nodes
+        if ( $node->nodeName === "#text" ) {
+          $this->_pdf->register_string_subset($style->font_family, $node->nodeValue);
+          continue;
         }
+        
+        // Handle generated content (list items)
+        if ( $style->display === "list-item" ) {
+          $chars = List_Bullet_Renderer::get_counter_chars($style->list_style_type);
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          continue;
+        }
+        
+        // TODO Handle other generated content (pseudo elements)
       }
-    }*/
+    }
     
     $root = null;
 
     foreach ($this->_tree->get_frames() as $frame) {
       // Set up the root frame
-
       if ( is_null($root) ) {
         $root = Frame_Factory::decorate_root( $this->_tree->get_root(), $this );
         continue;

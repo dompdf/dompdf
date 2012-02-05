@@ -132,6 +132,11 @@ def("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
 def("DOMPDF_UNICODE_ENABLED", true);
 
 /**
+ * Whether to make font subsetting or not.
+ */
+def("DOMPDF_ENABLE_FONTSUBSETTING", false);
+
+/**
  * The PDF rendering backend to use
  *
  * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class), 'GD' and
