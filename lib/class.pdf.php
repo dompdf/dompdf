@@ -2363,8 +2363,6 @@ EOT;
             
             // Parse the new font to get cid2gid and widths
             $font_obj = Font::load($tmp_name);
-            $font_obj->parse();
-            $font_obj->close();
             
             // Find Unicode char map table
             $subtable = null;
@@ -2398,11 +2396,13 @@ EOT;
               $font['CIDtoGID_Compressed'] = true;
               
               $data = file_get_contents($tmp_name);
-              unlink($tmp_name);
             }
             else {
               $data = file_get_contents($fbfile);
             }
+            
+            $font_obj->close();
+            unlink($tmp_name);
           }
 
           // create the font descriptor
@@ -3683,6 +3683,8 @@ EOT;
    * this can be called externally, but is alse used by the other class functions
    */
   function getTextWidth($size, $text, $word_spacing =  0, $char_spacing =  0) {
+    static $ord_cache = array();
+    
     // this function should not change any of the settings, though it will need to
     // track any directives which change during calculation, so copy them at the start
     // and put them back at the end.
@@ -3744,7 +3746,8 @@ EOT;
       $len = mb_strlen($text, 'Windows-1252');
 
       for ($i = 0; $i < $len; $i++) {
-        $char = ord($text[$i]);
+        $c = $text[$i];
+        $char = isset($ord_cache[$c]) ? $ord_cache[$c] : ($ord_cache[$c] = ord($c));
         
         // check if we have to replace character
         if ( isset($current_font['differences'][$char])) {

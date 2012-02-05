@@ -89,10 +89,10 @@ class Font_Metrics {
    * @return float
    */
   static function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
-    return self::$_pdf->get_text_width($text, $font, $size, $word_spacing, $char_spacing);
+    //return self::$_pdf->get_text_width($text, $font, $size, $word_spacing, $char_spacing);
     
     // @todo Make sure this cache is efficient before enabling it
-    /*static $cache = array();
+    static $cache = array();
     
     if ( $text === "" ) {
       return 0;
@@ -113,7 +113,7 @@ class Font_Metrics {
       $cache[$key][$text] = $width;
     }
     
-    return $width;*/
+    return $width;
   }
 
   /**

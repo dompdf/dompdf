@@ -413,12 +413,19 @@ class Style {
    * @return float
    */
   function length_in_pt($length, $ref_size = null) {
-
+    static $cache = array();
+    
     if ( !is_array($length) )
       $length = array($length);
 
     if ( !isset($ref_size) )
       $ref_size = self::$default_font_size;
+      
+    $key = implode("@", $length)."/$ref_size";
+    
+    if ( isset($cache[$key]) ) {
+      return $cache[$key];
+    }
 
     $ret = 0;
     foreach ($length as $l) {
@@ -511,7 +518,7 @@ class Style {
       $ret += $ref_size;
     }
 
-    return $ret;
+    return $cache[$key] = $ret;
   }
 
   
