@@ -9,12 +9,12 @@
   <files>
     <directory>.</directory>
     <ignore>*/lib/fonts/*</ignore>
-    <ignore>*simpletest/*</ignore>
+    <ignore>*/lib/html5lib/*</ignore>
+    <ignore>*/lib/php-font-lib/*</ignore>
     <ignore>*www/*</ignore>
-    <ignore>*ttf2ufm*</ignore>
     <ignore>*.svn*</ignore>
   </files>
   <transformations>
-    <template name="default" />
+    <template name="new_black" />
   </transformations>
 </docblox>

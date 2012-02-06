@@ -136,6 +136,9 @@ $constants = array(
   "DOMPDF_UNICODE_ENABLED" => array(
     "desc" => "Unicode support (thanks to additionnal fonts)",
   ),
+  "DOMPDF_ENABLE_FONTSUBSETTING" => array(
+    "desc" => "Enable font subsetting, will make smaller documents when using Unicode fonts",
+  ),
   "DOMPDF_PDF_BACKEND" => array(
     "desc" => "Backend library that makes the outputted file (PDF, image)",
     "success" => "backend",
