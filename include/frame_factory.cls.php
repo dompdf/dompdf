@@ -153,6 +153,7 @@ class Frame_Factory {
       break;
     }
 
+    // Handle CSS position
     $position = $style->position;
     
     if ( $position === "absolute" )
@@ -160,6 +161,15 @@ class Frame_Factory {
 
     else if ( $position === "fixed" )
       $positioner = "Fixed";
+      
+    // Handle nodeName
+    $node_name = $frame->get_node()->nodeName;
+    
+    if ( $node_name === "img" ) {
+      $style->display = "-dompdf-image";
+      $decorator = "Image";
+      $reflower = "Image";
+    }
   
     $positioner .= "_Positioner";
     $decorator .= "_Frame_Decorator";
