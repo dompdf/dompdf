@@ -83,6 +83,47 @@ class Line_Box {
     $this->get_float_offsets();
   }
   
+  /**
+   * Returns the floating elements inside the first floating parent
+   * @param $root
+   */
+  function get_floats_inside($root) {
+    // Find nearest floating element
+    $p = $this->_block_frame;
+    while( $p->get_style()->float === "none" ) {
+      $parent = $p->get_parent();
+      
+      if (!$parent) {
+        break;
+      }
+      
+      $p = $parent;
+    }
+    
+    $floating_frames = $root->get_floating_frames();  
+    
+    if ( $p == $root ) {
+      return $floating_frames;
+    }
+    
+    $parent = $p;
+    
+    $childs = array();
+    
+    foreach ($floating_frames as $_floating) {
+      $p = $_floating->get_parent();
+      
+      while(($p = $p->get_parent()) && $p !== $parent);
+      
+      if ($p) {
+        $childs[] = $p;
+      }
+    }
+    
+    return $childs;
+    
+  }
+  
   function get_float_offsets() {
     if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
       return;
@@ -98,7 +139,7 @@ class Line_Box {
   
     $block = $this->_block_frame;
     $root = $block->get_root();
-    $floating_frames = $root->get_floating_frames();
+    $floating_frames = $this->get_floats_inside($root);
     
     foreach ( $floating_frames as $child_key => $floating_frame ) {
       $id = $floating_frame->get_id();

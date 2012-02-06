@@ -567,7 +567,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
   }
   
-  function process_float(Frame $child, $cb_x, $cb_w){
+  function process_clear(Frame $child){
     if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
       return;
     }
@@ -591,6 +591,15 @@ class Block_Frame_Reflower extends Frame_Reflower {
         $child->move(0, $lowest_y - $child->get_position("y"));
       }
     }
+  }
+  
+  function process_float(Frame $child, $cb_x, $cb_w){
+    if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
+      return;
+    }
+    
+    $child_style = $child->get_style();
+    $root = $this->_frame->get_root();
     
     // Handle "float"
     if ( $child_style->float !== "none" ) {
@@ -707,6 +716,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
         break;
       
       $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+      
+      $this->process_clear($child);
+      
       $child->reflow($this->_frame);
       
       // Don't add the child to the line if a page break has occurred

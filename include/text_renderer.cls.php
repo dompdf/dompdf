@@ -108,7 +108,7 @@ class Text_Renderer extends Abstract_Renderer {
     while ( $p = $p->get_parent() )
       $stack[] = $p;
     
-    while ( count($stack) > 0 ) {
+    while ( isset($stack[0]) ) {
       $f = array_pop($stack);
 
       if ( ($text_deco = $f->get_style()->text_decoration) === "none" )
