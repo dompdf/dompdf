@@ -68,50 +68,10 @@ class Block_Frame_Decorator extends Frame_Decorator {
 
   //........................................................................
 
-  // Set methods
-  function set_current_line($y = null, $w = null, $h = null, $tallest_frame = null, $left = null, $right = null) {
-    $this->set_line($this->_cl, $y, $w, $h, $tallest_frame, $left, $right);
-  }
-
   function clear_line($i) {
     if ( isset($this->_line_boxes[$i]) )
       unset($this->_line_boxes[$i]);
   }
-
-  /**
-   * @todo change this this to better use the Line_Box object
-   * @param $lineno
-   * @param $y
-   * @param $w
-   * @param $h
-   * @param $tallest_frame
-   * @param $left
-   * @param $right
-   */
-  function set_line($lineno, $y = null, $w = null, $h = null, $tallest_frame = null, $left = null, $right = null) {
-
-    if ( is_array($y) )
-      extract($y);
-
-    if (is_numeric($y))
-      $this->_line_boxes[$lineno]->y = $y;
-
-    if (is_numeric($w))
-      $this->_line_boxes[$lineno]->w = $w;
-
-    if (is_numeric($h))
-      $this->_line_boxes[$lineno]->h = $h;
-
-    if ($tallest_frame && $tallest_frame instanceof Frame)
-      $this->_line_boxes[$lineno]->tallest_frame = $tallest_frame;
-
-    if (is_numeric($left))
-      $this->_line_boxes[$lineno]->left = $left;
-
-    if (is_numeric($right))
-      $this->_line_boxes[$lineno]->right = $right;
-  }
-
 
   function add_frame_to_line(Frame $frame) {
     if ( !$frame->is_in_flow() ) {

@@ -114,9 +114,8 @@ abstract class Frame_Decorator extends Frame {
   function copy(DomNode $node) {
     $frame = new Frame($node);
     $frame->set_style(clone $this->_frame->get_original_style());
-    $deco = Frame_Factory::decorate_frame($frame, $this->_dompdf);
-    $deco->set_root($this->_root);
-    return $deco;
+    
+    return Frame_Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
   }
 
   /**
@@ -127,8 +126,8 @@ abstract class Frame_Decorator extends Frame {
   function deep_copy() {
     $frame = new Frame($this->get_node()->cloneNode());
     $frame->set_style(clone $this->_frame->get_original_style());
-    $deco = Frame_Factory::decorate_frame($frame, $this->_dompdf);
-    $deco->set_root($this->_root);
+    
+    $deco = Frame_Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
 
     foreach ($this->get_children() as $child)
       $deco->append_child($child->deep_copy());
@@ -248,7 +247,7 @@ abstract class Frame_Decorator extends Frame {
     $p = $this->_frame->get_parent();
     if ( $p && $deco = $p->get_decorator() ) {
       while ( $tmp = $deco->get_decorator() )
-        $deco = $tmp;      
+        $deco = $tmp;
       return $deco;
     } else if ( $p )
       return $p;
@@ -348,8 +347,10 @@ abstract class Frame_Decorator extends Frame {
   
   function set_root(Frame $root) {
     $this->_root = $root;
-      if ( $this->_frame instanceof Frame_Decorator )
-        $this->_frame->set_root($root);
+    
+    if ( $this->_frame instanceof Frame_Decorator ) {
+      $this->_frame->set_root($root);
+    }
   }
   
   /**

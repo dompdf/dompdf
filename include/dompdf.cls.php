@@ -326,6 +326,13 @@ class DOMPDF {
   function get_css() { return $this->_css; }
 
   /**
+   * @return DOMDocument
+   */
+  function get_dom(){
+    return $this->_xml;
+  }
+  
+  /**
    * Loads an HTML file
    *
    * Parse errors are stored in the global array _dompdf_warnings.
@@ -746,42 +753,7 @@ class DOMPDF {
       }
 
       // Create the appropriate decorators, reflowers & positioners.
-      $deco = Frame_Factory::decorate_frame($frame, $this);
-      $deco->set_root($root);
-
-      // FIXME: handle generated content
-      if ( $frame->get_style()->display === "list-item" ) {
-        // Insert a list-bullet frame
-        $node = $this->_xml->createElement("bullet"); // arbitrary choice
-        $b_f = new Frame($node);
-
-        $parent_node = $frame->get_parent()->get_node();
-
-        if ( !$parent_node->hasAttribute("dompdf-children-count") ) {
-          $xpath = new DOMXPath($this->_xml);
-          $count = $xpath->query("li", $parent_node)->length;
-          $parent_node->setAttribute("dompdf-children-count", $count);
-        }
-
-        if ( !$parent_node->hasAttribute("dompdf-counter") ) {
-          $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start")-1 : 0);
-        }
-        else {
-          $index = $parent_node->getAttribute("dompdf-counter");
-        }
-        
-        $index++;
-        $parent_node->setAttribute("dompdf-counter", $index);
-        
-        $node->setAttribute("dompdf-counter", $index);
-        $style = $this->_css->create_style();
-        $style->display = "-dompdf-list-bullet";
-        $style->inherit($frame->get_style());
-        $b_f->set_style($style);
-
-        $deco->prepend_child( Frame_Factory::decorate_frame($b_f, $this) );
-      }
-
+      $deco = Frame_Factory::decorate_frame($frame, $this, $root);
     }
 
     // Add meta information

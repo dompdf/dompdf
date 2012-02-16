@@ -477,7 +477,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
           }
 
           // The line (should) now occupy the entire width
-          $this->_frame->set_line($i, null, $width);
+          $line->w = $width;
 
         //}
       }
@@ -634,6 +634,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
         }
       }
       
+      if ( $cb_w < $float_x + $float_w - $old_x ) {
+        // TODO handle when floating elements don't fit
+      }
+      
       $line_box->get_float_offsets();
       
       if ( $child->_float_next_line ) {
@@ -704,9 +708,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
     $cb_h = ($cb["h"] + $cb["y"]) - $bottom - $cb_y;
 
     // Set the y position of the first line in this block
-    $this->_frame->set_current_line($cb_y);
-        
-    $this->_frame->get_current_line_box()->get_float_offsets();
+    $line_box = $this->_frame->get_current_line_box();
+    $line_box->y = $cb_y;
+    $line_box->get_float_offsets();
     
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {

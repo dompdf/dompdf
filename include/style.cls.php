@@ -148,6 +148,8 @@ class Style {
    */
   protected $_parent_font_size; // Font size of parent element
   
+  protected $_font_family;
+  
   /**
    * @var Frame
    */
@@ -549,8 +551,8 @@ class Style {
       }
     }
       
-    foreach (array_keys($this->_props) as $prop) {
-      if ( $this->_props[$prop] === "inherit" ) {
+    foreach ($this->_props as $prop => $value) {
+      if ( $value === "inherit" ) {
         if ( isset($parent->_important_props[$prop]) ) {
           $this->_important_props[$prop] = true;
         }
@@ -565,7 +567,7 @@ class Style {
         //props_set for more obvious explicite assignment not implemented, because
         //too many implicite uses.
         // $this->props_set($prop, $parent->$prop);
-        $this->$prop = $parent->$prop;
+        $this->__set($prop, $parent->__get($prop));
       }
     }
           
@@ -734,7 +736,10 @@ class Style {
    * @return string
    */
   function get_font_family() {
-  
+    if ( isset($this->_font_family) ) {
+      return $this->_font_family;
+    }
+    
     $DEBUGCSS=DEBUGCSS; //=DEBUGCSS; Allow override of global setting for ad hoc debug
 
     // Select the appropriate font.  First determine the subtype, then check
@@ -775,13 +780,11 @@ class Style {
       print "<pre>[get_font_family:";
       print '('.$this->_props["font_family"].'.'.$font_style.'.'.$this->__get("font_weight").'.'.$weight.'.'.$subtype.')';
     }
-    $families = explode(",", $this->_props["font_family"]);
-    $families = array_map('trim',$families);
-    reset($families);
+    
+    $families = preg_split("/\s*,\s*/", $this->_props["font_family"]);
 
     $font = null;
-    while ( current($families) ) {
-      list(,$family) = each($families);
+    foreach($families as $family) {
       //remove leading and trailing string delimiters, e.g. on font names with spaces;
       //remove leading and trailing whitespace
       $family = trim($family, " \t\n\r\x0B\"'");
@@ -790,7 +793,7 @@ class Style {
 
       if ( $font ) {
         if ($DEBUGCSS)  print '('.$font.")get_font_family]\n</pre>";
-        return $font;
+        return $this->_font_family = $font;
       }
     }
 
@@ -800,8 +803,9 @@ class Style {
 
     if ( $font ) {
       if ($DEBUGCSS) print '('.$font.")get_font_family]\n</pre>";
-      return $font;
+      return$this->_font_family = $font;
     }
+    
     throw new DOMPDF_Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] ."'");
     
   }

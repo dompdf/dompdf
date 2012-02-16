@@ -139,8 +139,13 @@ class Font_Metrics {
    * @param string $subtype
    * @return string
    */
-  static function get_font($family, $subtype = "normal") {
-
+  static function get_font($family_raw, $subtype_raw = "normal") {
+    static $cache = array();
+    
+    if ( isset($cache[$family_raw][$subtype_raw]) ) {
+      return $cache[$family_raw][$subtype_raw];
+    }
+    
     /* Allow calling for various fonts in search path. Therefore not immediately
      * return replacement on non match.
      * Only when called with NULL try replacement.
@@ -148,42 +153,51 @@ class Font_Metrics {
      * If only the subtype fails, nevertheless return failure.
      * Only on checking the fallback font, check various subtypes on same font.
      */
-
-    if ( $family ) {
-      $family = str_replace( array("'", '"'), "", mb_strtolower($family));
-      $subtype = mb_strtolower($subtype);
-
+    
+    $subtype = strtolower($subtype_raw);
+    
+    if ( $family_raw ) {
+      $family = str_replace( array("'", '"'), "", strtolower($family_raw));
+      
       if ( isset(self::$_font_lookup[$family][$subtype]) ) {
-        return self::$_font_lookup[$family][$subtype];
+        return $cache[$family_raw][$subtype_raw] = self::$_font_lookup[$family][$subtype];
       }
+      
       return null;
     }
 
     $family = DOMPDF_DEFAULT_FONT;
 
     if ( isset(self::$_font_lookup[$family][$subtype]) ) {
-      return self::$_font_lookup[$family][$subtype];
+      return $cache[$family_raw][$subtype_raw] = self::$_font_lookup[$family][$subtype];
     }
+    
+    if ( !isset(self::$_font_lookup[$family]) ) {
+      return null;
+    }
+    
+    $family = self::$_font_lookup[$family];
 
-    foreach ( self::$_font_lookup[$family] as $sub => $font ) {
+    foreach ( $family as $sub => $font ) {
       if (strpos($subtype, $sub) !== false) {
-        return $font;
+        return $cache[$family_raw][$subtype_raw] = $font;
       }
     }
 
     if ($subtype !== "normal") {
-      foreach ( self::$_font_lookup[$family] as $sub => $font ) {
+      foreach ( $family as $sub => $font ) {
         if ($sub !== "normal") {
-          return $font;
+          return $cache[$family_raw][$subtype_raw] = $font;
         }
       }
     }
 
     $subtype = "normal";
 
-    if ( isset(self::$_font_lookup[$family][$subtype]) ) {
-      return self::$_font_lookup[$family][$subtype];
+    if ( isset($family[$subtype]) ) {
+      return $cache[$family_raw][$subtype_raw] = $family[$subtype];
     }
+    
     return null;
   }
   

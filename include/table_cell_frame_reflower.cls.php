@@ -72,9 +72,11 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
     $indent = $style->length_in_pt($style->text_indent, $w);
     $this->_frame->increase_line_width($indent);
 
-    // Set the y position of the first line in the cell
     $page = $this->_frame->get_root();
-    $this->_frame->set_current_line($line_y);
+    
+    // Set the y position of the first line in the cell
+    $line_box = $this->_frame->get_current_line_box();
+    $line_box->y = $line_y;
     
     // Set the containing blocks and reflow each child
     foreach ( $this->_frame->get_children() as $child ) {

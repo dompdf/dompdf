@@ -194,13 +194,12 @@ class Cellmap {
   }
 
   function get_border_properties($i, $j) {
-
-    $left = $this->get_border($i, $j, "vertical");
-    $right = $this->get_border($i, $j+1, "vertical");
-    $top = $this->get_border($i, $j, "horizontal");
-    $bottom = $this->get_border($i+1, $j, "horizontal");
-
-    return compact("top", "bottom", "left", "right");
+    return array(
+      "top"    => $this->get_border($i,   $j,   "horizontal"), 
+      "right"  => $this->get_border($i,   $j+1, "vertical"),
+      "bottom" => $this->get_border($i+1, $j,   "horizontal"), 
+      "left"   => $this->get_border($i,   $j,   "vertical"),
+    );
   }
 
   //........................................................................

@@ -42,13 +42,14 @@ class Frame_Factory {
    * @return Frame_Decorator
    * FIXME: this is admittedly a little smelly...
    */ 
-  static function decorate_frame(Frame $frame, DOMPDF $dompdf) {
+  static function decorate_frame(Frame $frame, DOMPDF $dompdf, Frame $root = null) {
     if ( is_null($dompdf) )
       throw new Exception("foo");
       
     $style = $frame->get_style();
+    $display = $style->display;
     
-    switch ($style->display) {
+    switch ($display) {
       
     case "block":
       $positioner = "Block";        
@@ -176,10 +177,49 @@ class Frame_Factory {
     $reflower .= "_Frame_Reflower";
 
     $deco = new $decorator($frame, $dompdf);
-    $deco->set_positioner( new $positioner($deco) );
-    $reflow = new $reflower($deco);
     
-    $deco->set_reflower( $reflow );
+    $deco->set_positioner( new $positioner($deco) );
+    $deco->set_reflower( new $reflower($deco) );
+    
+    if ( $root ) {
+      $deco->set_root($root);
+    }
+    
+    if ( $display === "list-item" ) {
+      // Insert a list-bullet frame
+      $xml = $dompdf->get_dom();
+      $node = $xml->createElement("bullet"); // arbitrary choice
+      $b_f = new Frame($node);
+
+      $parent_node = $frame->get_node()->parentNode;
+      
+      if ( $parent_node ) {
+        if ( !$parent_node->hasAttribute("dompdf-children-count") ) {
+          $xpath = new DOMXPath($xml);
+          $count = $xpath->query("li", $parent_node)->length;
+          $parent_node->setAttribute("dompdf-children-count", $count);
+        }
+  
+        if ( !$parent_node->hasAttribute("dompdf-counter") ) {
+          $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start")-1 : 0);
+        }
+        else {
+          $index = $parent_node->getAttribute("dompdf-counter");
+        }
+        
+        $index++;
+        $parent_node->setAttribute("dompdf-counter", $index);
+        
+        $node->setAttribute("dompdf-counter", $index);
+      }
+      
+      $new_style = $dompdf->get_css()->create_style();
+      $new_style->display = "-dompdf-list-bullet";
+      $new_style->inherit($style);
+      $b_f->set_style($new_style);
+      
+      $deco->prepend_child( Frame_Factory::decorate_frame($b_f, $dompdf, $root) );
+    }
     
     return $deco;
   }

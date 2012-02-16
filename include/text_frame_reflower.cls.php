@@ -53,10 +53,6 @@ class Text_Frame_Reflower extends Frame_Reflower {
     
     $available_width = $line_width - $current_line_width;
 
-    // split the text into words
-    $words = preg_split('/([\s-]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-    $wc = count($words);
-
     // Account for word-spacing
     $word_spacing = $style->length_in_pt($style->word_spacing);
     $char_spacing = $style->length_in_pt($style->letter_spacing);
@@ -86,6 +82,10 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     if ( $frame_width <= $available_width )
       return false;
+
+    // split the text into words
+    $words = preg_split('/([\s-]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+    $wc = count($words);
 
     // Determine the split point
     $width = 0;
@@ -370,6 +370,9 @@ class Text_Frame_Reflower extends Frame_Reflower {
       // faster than doing a single-pass character by character scan.  Heh,
       // yes I took the time to bench it ;)
       $words = array_flip(preg_split("/[\s-]+/u",$str, -1, PREG_SPLIT_DELIM_CAPTURE));
+      /*foreach($words as &$word) {
+        $word = Font_Metrics::get_text_width($word, $font, $size, $word_spacing, $char_spacing);
+      }*/
       array_walk($words, create_function('&$val,$str',
                                          '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$word_spacing.', '.$char_spacing.');'));
       arsort($words);
@@ -378,6 +381,9 @@ class Text_Frame_Reflower extends Frame_Reflower {
 
     case "pre":
       $lines = array_flip(preg_split("/\n/u", $str));
+      /*foreach($words as &$word) {
+        $word = Font_Metrics::get_text_width($word, $font, $size, $word_spacing, $char_spacing);
+      }*/
       array_walk($lines, create_function('&$val,$str',
                                          '$val = Font_Metrics::get_text_width($str, "'.addslashes($font).'", '.$size.', '.$word_spacing.', '.$char_spacing.');'));
 
@@ -406,6 +412,9 @@ class Text_Frame_Reflower extends Frame_Reflower {
     case "pre-wrap":
       // Find the longest word (i.e. minimum length)
       $lines = array_flip(preg_split("/\n/", $text));
+      /*foreach($words as &$word) {
+        $word = Font_Metrics::get_text_width($word, $font, $size, $word_spacing, $char_spacing);
+      }*/
       array_walk($lines, create_function('&$val,$str',
                                          '$val = Font_Metrics::get_text_width($str, "'.$font.'", '.$size.', '.$word_spacing.', '.$char_spacing.');'));
       arsort($lines);

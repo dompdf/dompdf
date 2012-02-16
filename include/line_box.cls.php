@@ -88,6 +88,12 @@ class Line_Box {
    * @param $root
    */
   function get_floats_inside($root) {
+    $floating_frames = $root->get_floating_frames();
+    
+    if ( count($floating_frames) == 0 ) {
+      return $floating_frames;
+    }
+    
     // Find nearest floating element
     $p = $this->_block_frame;
     while( $p->get_style()->float === "none" ) {
@@ -99,8 +105,6 @@ class Line_Box {
       
       $p = $parent;
     }
-    
-    $floating_frames = $root->get_floating_frames();  
     
     if ( $p == $root ) {
       return $floating_frames;
@@ -139,6 +143,11 @@ class Line_Box {
   
     $block = $this->_block_frame;
     $root = $block->get_root();
+    
+    if (!$root) {
+      return;
+    }
+    
     $floating_frames = $this->get_floats_inside($root);
     
     foreach ( $floating_frames as $child_key => $floating_frame ) {

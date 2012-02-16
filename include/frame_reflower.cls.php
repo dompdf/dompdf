@@ -390,6 +390,12 @@ abstract class Frame_Reflower {
   protected function _set_content(){
     $frame = $this->_frame;
     $style = $frame->get_style();
+    
+    if ( $style->counter_reset && ($reset = $style->counter_reset) !== "none" )
+      $frame->reset_counter($reset);
+    
+    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
+      $frame->increment_counters($increment);
   
     if ( $style->content && !$frame->get_first_child() && $frame->get_node()->nodeName === "dompdf_generated" ) {
       $content = $this->_parse_content();
@@ -401,15 +407,8 @@ abstract class Frame_Reflower {
       $new_frame = new Frame($node);
       $new_frame->set_style($new_style);
       
-      Frame_Factory::decorate_frame($new_frame, $frame->get_dompdf());
-      $new_frame->get_decorator()->set_root($frame->get_root());
+      Frame_Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
       $frame->append_child($new_frame);
     }
-    
-    if ( $style->counter_reset && ($reset = $style->counter_reset) !== "none" )
-      $frame->reset_counter($reset);
-    
-    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
-      $frame->increment_counters($increment);
   }
 }
