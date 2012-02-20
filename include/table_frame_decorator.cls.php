@@ -285,8 +285,9 @@ class Table_Frame_Decorator extends Frame_Decorator {
 
         // Normalise other table parts (i.e. row groups)
         foreach ($child->get_children() as $grandchild) {
-          if ( $grandchild->get_style()->display === "table-row" )
+          if ( $grandchild->get_style()->display === "table-row" ) {
             $grandchild->normalise();
+          }
         }
 
         // Add headers and footers

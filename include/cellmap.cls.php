@@ -474,21 +474,22 @@ class Cellmap {
       $style->margin = "none";
     }
 
-    // Resolve the frame's width
-    list($frame_min, $frame_max) = $frame->get_min_max_width();
-
-    $width = $style->width;
-
-    if ( is_percent($width) ) {
-      $var = "percent";
-      $val = (float)rtrim($width, "% ") / $colspan;
-
-    } else if ( $width !== "auto" ) {
-      $var = "absolute";
-      $val = $style->length_in_pt($frame_min) / $colspan;
-    }
-
     if (!$this->_columns_locked) {
+  
+      // Resolve the frame's width
+      list($frame_min, $frame_max) = $frame->get_min_max_width();
+  
+      $width = $style->width;
+  
+      if ( is_percent($width) ) {
+        $var = "percent";
+        $val = (float)rtrim($width, "% ") / $colspan;
+  
+      } else if ( $width !== "auto" ) {
+        $var = "absolute";
+        $val = $style->length_in_pt($frame_min) / $colspan;
+      }
+      
       $min = 0;
       $max = 0;
       for ( $cs = 0; $cs < $colspan; $cs++ ) {

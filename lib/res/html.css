@@ -338,6 +338,7 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
 /* forms */
 /* From http://dev.w3.org/csswg/css3-ui/#appearance */
 input {
+  display: inline-block;
   -dompdf-appearance: textfield;
 }
 
@@ -359,6 +360,14 @@ input[type=reset] {
   -dompdf-appearance: button;
 }
 
+input[type=text]:before,
+input[type=password]:before,
+input[type=button]:before,
+input[type=submit]:before,
+input[type=reset]:before {
+  content: attr(value);
+}
+
 select {
   -dompdf-appearance: pop-up-menu;
 }
@@ -370,19 +379,17 @@ textarea {
 
 fieldset {
   display: block;
-  margin-left: 2px;
-  margin-right: 2px;
-  padding: 0.35em 0.625em 0.75em;
+  margin: 0.6em 2px 2px;
+  padding: 0.75em;
   border: 1pt groove #666;
   position: relative;
 }
 
 fieldset > legend {
   position: absolute;
-  top: -1em;
-  white-space: nowrap;
-  padding-left: 4px;
-  padding-right: 2px;
+  top: -0.6em;
+  left: 0.75em;
+  padding: 0 0.3em;
   background: white;
 }
 

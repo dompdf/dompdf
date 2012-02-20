@@ -41,6 +41,7 @@ if ( DOMPDF_ENABLE_PHP ) {
 
 $test_files = glob("test/*.{".implode(",", $extensions)."}", GLOB_BRACE);
 $sections = array(
+  "print"    => array(), 
   "css"      => array(), 
   "dom"      => array(), 
   "image"    => array(), 
