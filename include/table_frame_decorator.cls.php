@@ -73,6 +73,11 @@ class Table_Frame_Decorator extends Frame_Decorator {
   function __construct(Frame $frame, DOMPDF $dompdf) {
     parent::__construct($frame, $dompdf);
     $this->_cellmap = new Cellmap($this);
+    
+    if ( $frame->get_style()->table_layout === "fixed" ) {
+      $this->_cellmap->set_layout_fixed(true);
+    }
+    
     $this->_min_width = null;
     $this->_max_width = null;
     $this->_headers = array();

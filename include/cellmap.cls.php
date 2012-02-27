@@ -105,6 +105,11 @@ class Cellmap {
    * @var bool Tells wether the columns' width can be modified
    */
   private $_columns_locked = false;
+  
+  /**
+   * @var bool Tells wether the table has table-layout:fixed
+   */
+  private $_fixed_layout = false;
 
   //........................................................................
 
@@ -144,6 +149,14 @@ class Cellmap {
 
   function is_columns_locked() {
     return $this->_columns_locked;
+  }
+  
+  function set_layout_fixed($fixed) { 
+    $this->_fixed_layout = $fixed; 
+  }
+
+  function is_layout_fixed() {
+    return $this->_fixed_layout;
   }
   
   function get_num_rows() { return $this->_num_rows; }
@@ -463,9 +476,8 @@ class Cellmap {
       $style->margin = "$v $h";
 
       // The additional 1/2 width gets added to the table proper
-
-    } else {
-
+    }
+    else {
       // Drop the frame's actual border
       $style->border_left_width = $max_left / 2;
       $style->border_right_width = $max_right / 2;
@@ -474,10 +486,14 @@ class Cellmap {
       $style->margin = "none";
     }
 
-    if (!$this->_columns_locked) {
-  
+    if ( !$this->_columns_locked ) {
       // Resolve the frame's width
-      list($frame_min, $frame_max) = $frame->get_min_max_width();
+			if ( $this->_fixed_layout ) {
+        list($frame_min, $frame_max) = array(0, 0.1);
+			}
+			else {
+        list($frame_min, $frame_max) = $frame->get_min_max_width();
+			}
   
       $width = $style->width;
   
@@ -508,7 +524,6 @@ class Cellmap {
         $min += $col["min-width"];
         $max += $col["max-width"];
       }
-  
   
       if ( $frame_min > $min ) {
         // The frame needs more space.  Expand each sub-column

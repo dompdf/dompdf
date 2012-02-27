@@ -205,10 +205,17 @@ class Block_Frame_Reflower extends Frame_Reflower {
    */
   protected function _calculate_content_height() {
     $lines = $this->_frame->get_line_boxes();
+    $height = 0;
+
+    foreach ($lines as $line) {
+      $height += $line->h;
+    }
     
+    /*
     $first_line = reset($lines);
     $last_line  = end($lines);
-    $height = $last_line->y + $last_line->h - $first_line->y;
+    $height2 = $last_line->y + $last_line->h - $first_line->y;
+    */
     
     return $height;
   }

@@ -151,8 +151,9 @@ class Table_Frame_Reflower extends Frame_Reflower {
       if ( $absolute_used == 0 && $percent_used == 0 ) {
         $increment = $width - $min_width;
 
-        foreach (array_keys($columns) as $i)
+        foreach (array_keys($columns) as $i) {
           $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment * ($columns[$i]["max-width"] / $max_width));
+        }
         return;
       }
 
