@@ -488,12 +488,12 @@ class Cellmap {
 
     if ( !$this->_columns_locked ) {
       // Resolve the frame's width
-			if ( $this->_fixed_layout ) {
-        list($frame_min, $frame_max) = array(0, 0.1);
-			}
-			else {
+      if ( $this->_fixed_layout ) {
+        list($frame_min, $frame_max) = array(0, 10e-10);
+      }
+      else {
         list($frame_min, $frame_max) = $frame->get_min_max_width();
-			}
+      }
   
       $width = $style->width;
   
@@ -527,7 +527,8 @@ class Cellmap {
   
       if ( $frame_min > $min ) {
         // The frame needs more space.  Expand each sub-column
-        $inc = ($frame_min - $min) / $colspan;
+        // FIXME try to avoid putting this dummy value when table-layout:fixed
+        $inc = ($this->is_layout_fixed() ? 10e-10 : ($frame_min - $min) / $colspan);
         for ($c = 0; $c < $colspan; $c++) {
           $col =& $this->get_column($this->__col + $c);
           $col["min-width"] += $inc;
@@ -535,7 +536,8 @@ class Cellmap {
       }
   
       if ( $frame_max > $max ) {
-        $inc = ($frame_max - $max) / $colspan;
+        // FIXME try to avoid putting this dummy value when table-layout:fixed
+        $inc = ($this->is_layout_fixed() ? 10e-10 : ($frame_max - $max) / $colspan);
         for ($c = 0; $c < $colspan; $c++) {
           $col =& $this->get_column($this->__col + $c);
           $col["max-width"] += $inc;
