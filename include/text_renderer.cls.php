@@ -82,13 +82,18 @@ class Text_Renderer extends Abstract_Renderer {
     if ( method_exists( $this->_canvas, "get_cpdf" ) ) {
       $cpdf = $this->_canvas->get_cpdf();
       
-      //$cpdf_font = $cpdf->fonts[$style->font_family];
-      //$base = ($cpdf_font["UnderlinePosition"]*$size)/1000;
-      //$descent = (($cpdf_font["Ascender"]-$cpdf_font["Descender"])*$size)/1000;
+      $cpdf_font = $cpdf->fonts[$style->font_family];
       
-      $fontBBox = $cpdf->fonts[$style->font_family]['FontBBox'];
-      $base = (($fontBBox[3]*$size)/1000) * 0.90;
-      $descent = ($fontBBox[1]*$size)/1000;
+      if (isset($cpdf_font["UnderlinePosition"])) {
+        $descent = ($cpdf_font["UnderlinePosition"]*$size)/1000;
+        $base    = (($cpdf_font["Ascender"]-$cpdf_font["Descender"])*$size)/1000;
+      }
+      else {
+        $fontBBox = $cpdf_font['FontBBox'];
+        $descent = ($fontBBox[1]*$size)/1000;
+        $base    = (($fontBBox[3]*$size)/1000) * 0.90;
+      }
+      
       //print '<pre>Text_Renderer cpdf:'.$base.' '.$descent.' '.$size.'</pre>';
     } else {
       //Descent is font part below baseline, typically negative. $height is about full height of font box.

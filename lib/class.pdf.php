@@ -207,7 +207,7 @@ class Cpdf {
    * @var integer The version of the font metrics cache file.
    * This value must be manually incremented whenever the internal font data structure is modified.
    */
-  public  $fontcacheVersion = 5;
+  public  $fontcacheVersion = 6;
 
   /**
    * @var string Temporary folder.
