@@ -4,7 +4,7 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien Mï¿½nager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */
@@ -166,7 +166,7 @@ class Font_Metrics {
       return null;
     }
 
-    $family = DOMPDF_DEFAULT_FONT;
+    $family = "serif";
 
     if ( isset(self::$_font_lookup[$family][$subtype]) ) {
       return $cache[$family_raw][$subtype_raw] = self::$_font_lookup[$family][$subtype];

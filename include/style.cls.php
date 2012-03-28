@@ -4,7 +4,7 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien Mï¿½nager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */
@@ -237,7 +237,7 @@ class Style {
       $d["elevation"] = "level";
       $d["empty_cells"] = "show";
       $d["float"] = "none";
-      $d["font_family"] = "serif";
+      $d["font_family"] = DOMPDF_DEFAULT_FONT;
       $d["font_size"] = "medium";
       $d["font_style"] = "normal";
       $d["font_variant"] = "normal";
