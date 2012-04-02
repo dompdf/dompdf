@@ -854,13 +854,13 @@ class PDFLib_Adapter implements Canvas {
    * @param string $font the font file to use
    * @param float $size the font size, in points
    * @param array $color
-   * @param float $adjust word spacing adjustment
+   * @param float $word_space word spacing adjustment
+   * @param float $char_space char spacing adjustment
    * @param float $angle angle to write the text at, measured CW starting from the x-axis
    */
-  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0),
-                     $adjust = 0, $angle = 0) {
+  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0, $angle = 0) {
     $_t = "text";
-    $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "adjust", "angle");
+    $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "word_space", "char_space", "angle");
   }
 
   //........................................................................
@@ -917,7 +917,7 @@ class PDFLib_Adapter implements Canvas {
         case "text":
           $text = str_replace(array("{PAGE_NUM}","{PAGE_COUNT}"),
                               array($p, $this->_page_count), $text);
-          $this->text($x, $y, $text, $font, $size, $color, $adjust, $angle);
+          $this->text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
           break;
 
         case "script":

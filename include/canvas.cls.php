@@ -3,7 +3,7 @@
  * @package dompdf
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien Mï¿½nager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */
@@ -211,7 +211,7 @@ interface Canvas {
    * @param float $size the font size, in points
    * @param array $color
    * @param float $word_space word spacing adjustment
-   * @param float $char_space whar spacing adjustment
+   * @param float $char_space char spacing adjustment
    * @param float $angle angle
    */
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0, $angle = 0);
