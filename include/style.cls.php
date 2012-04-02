@@ -4,7 +4,7 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Fabien M�nager <fabien.menager@gmail.com>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */
@@ -905,7 +905,7 @@ class Style {
     if ( is_numeric($line_height) )
       return $this->length_in_pt( $line_height . "em", $this->get_font_size());
     
-    return $this->length_in_pt( $line_height, $this->get_font_size() );
+    return $this->length_in_pt( $line_height, $this->_parent_font_size );
   }
 
   /**
@@ -1430,8 +1430,11 @@ class Style {
    */
   function set_background_color($colour) {
     $col = $this->munge_colour($colour);
-    if ( is_null($col) )
-      $col = self::$_defaults["background_color"];
+    
+    if ( is_null($col) ) {
+      return;
+      //$col = self::$_defaults["background_color"];
+    }
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["background_color"] = null;
@@ -1502,29 +1505,41 @@ class Style {
    * @param string $val
    */
   function set_background($val) {
-    $col = null;
-    $pos = array();
-    $tmp = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
-    $tmp = explode(" ", $tmp);
+    $val = trim($val);
     $important = isset($this->_important_props["background"]);
     
-    foreach($tmp as $attr) {
-      if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
-        $this->_set_style("background_image", $this->_image($attr), $important);
-      } else if ($attr === "fixed" || $attr === "scroll") {
-        $this->_set_style("background_attachment", $attr, $important);
-      } else if ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
-        $this->_set_style("background_repeat", $attr, $important);
-      } else if (($col = $this->munge_color($attr)) != null ) {
-        $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
-      } else {
-        $pos[] = $attr;
+    if ( $val === "none" ) {
+      $this->_set_style("background_image", "none", $important);
+      $this->_set_style("background_color", "transparent", $important);
+    }
+    else {
+      $pos = array();
+      $tmp = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
+      $tmp = preg_split("/\s+/", $tmp);
+      
+      foreach($tmp as $attr) {
+        if ( mb_substr($attr, 0, 3) === "url" || $attr === "none" ) {
+          $this->_set_style("background_image", $this->_image($attr), $important);
+        } 
+        elseif ($attr === "fixed" || $attr === "scroll") {
+          $this->_set_style("background_attachment", $attr, $important);
+        } 
+        elseif ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
+          $this->_set_style("background_repeat", $attr, $important);
+        } 
+        elseif (($col = $this->munge_color($attr)) != null ) {
+          $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
+        } 
+        else {
+          $pos[] = $attr;
+        }
+      }
+      
+      if (count($pos)) {
+        $this->_set_style("background_position", implode(" ", $pos), $important);
       }
     }
     
-    if (count($pos)) {
-      $this->_set_style("background_position",implode(' ',$pos), $important);
-    }
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["background"] = null;
     $this->_props["background"] = $val;

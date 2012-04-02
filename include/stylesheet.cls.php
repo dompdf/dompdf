@@ -4,7 +4,7 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */
@@ -267,41 +267,44 @@ class Stylesheet {
     // Prevent circular references
     if ( isset($this->_loaded_files[$file]) )
       return;
-
+    
     $this->_loaded_files[$file] = true;
-    $parsed_url = explode_url($file);
 
-    list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
-
-    // Fix submitted by Nick Oostveen for aliased directory support:
-    if ( $this->_protocol == "" )
-      $file = $this->_base_path . $filename;
-    else
-      $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
-
-    set_error_handler("record_warnings");
-    $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
+    if ( strpos($file, "data:") === 0) {
+      $parsed = parse_data_uri($file);
+      $css = $parsed["data"];
+    }
+    else {
+      $parsed_url = explode_url($file);
+  
+      list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
+  
+      // Fix submitted by Nick Oostveen for aliased directory support:
+      if ( $this->_protocol == "" )
+        $file = $this->_base_path . $filename;
+      else
+        $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
+  
+      set_error_handler("record_warnings");
+      $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
+      restore_error_handler();
     
-    $good_mime_type = true;
-    
-    if ( !$this->_dompdf->get_quirksmode() ) {
+      $good_mime_type = true;
+      
       // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
-      if ( isset($http_response_header) ) {
+      if ( isset($http_response_header) && !$this->_dompdf->get_quirksmode() ) {
         foreach($http_response_header as $_header) {
-          if ( preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) ) {
-            if ( $matches[1] !== "text/css" ) {
-              $good_mime_type = false;
-            }
+          if ( preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) && 
+              ($matches[1] !== "text/css") ) {
+            $good_mime_type = false;
           }
         }
       }
-    }
-    
-    restore_error_handler();
-
-    if ( !$good_mime_type || $css == "" ) {
-      record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
-      return;
+  
+      if ( !$good_mime_type || $css == "" ) {
+        record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
+        return;
+      }
     }
 
     $this->_parse_css($css);

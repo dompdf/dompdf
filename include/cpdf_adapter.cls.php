@@ -5,7 +5,7 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Orion Richardson <orionr@yahoo.com>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Fabien M�nager <fabien.menager@gmail.com>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */

@@ -3,7 +3,7 @@
  * @package dompdf
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  * @version $Id$
  */
@@ -547,69 +547,80 @@ class DOMPDF {
     } else {
       $acceptedmedia[] = Stylesheet::$ACCEPTED_DEFAULT_MEDIA_TYPE;
     }
-          
-    // load <link rel="STYLESHEET" ... /> tags
-    $links = $this->_xml->getElementsByTagName("link");
-    foreach ($links as $link) {
-      if ( mb_strtolower($link->getAttribute("rel")) === "stylesheet" ||
-           mb_strtolower($link->getAttribute("type")) === "text/css" ) {
-        //Check if the css file is for an accepted media type
-        //media not given then always valid
-        $formedialist = preg_split("/[\s\n,]/", $link->getAttribute("media"),-1, PREG_SPLIT_NO_EMPTY);
-        if ( count($formedialist) > 0 ) {
-          $accept = false;
-          foreach ( $formedialist as $type ) {
-            if ( in_array(mb_strtolower(trim($type)), $acceptedmedia) ) {
-              $accept = true;
-              break;
-            }
-          }
-          if (!$accept) {
-            //found at least one mediatype, but none of the accepted ones
-            //Skip this css file.
-            continue;
-          }
-        }
-           
-        $url = $link->getAttribute("href");
-        $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
-
-        $this->_css->load_css_file($url, Stylesheet::ORIG_AUTHOR);
-      }
-
-    }
     
+    // Set the base path of the Stylesheet to that of the file being processed
+    //$this->_css->set_protocol($this->_protocol);
+    //$this->_css->set_host($this->_base_host);
+    //$this->_css->set_base_path($this->_base_path);
+    
+    // Get all the stylesheets so that they are processed in document order
+    $xpath = new DOMXPath($this->_xml);
+    $stylesheets = $xpath->query("//*[name() = 'link' or name() = 'style']");
+    
+
     // Set the base path of the Stylesheet to that of the file being processed
     $this->_css->set_protocol($this->_protocol);
     $this->_css->set_host($this->_base_host);
     $this->_css->set_base_path($this->_base_path);
-
-    // load <style> tags
-    $styles = $this->_xml->getElementsByTagName("style");
-    foreach ($styles as $style) {
-
-      // Accept all <style> tags by default (note this is contrary to W3C
-      // HTML 4.0 spec:
-      // http://www.w3.org/TR/REC-html40/present/styles.html#adef-media
-      // which states that the default media type is 'screen'
-      if ( $style->hasAttributes() &&
-           ($media = $style->getAttribute("media")) &&
-           !in_array($media, $acceptedmedia) )
-        continue;
-
-      $css = "";
-      if ( $style->hasChildNodes() ) {
-
-        $child = $style->firstChild;
-        while ( $child ) {
-          $css .= $child->nodeValue; // Handle <style><!-- blah --></style>
-          $child = $child->nextSibling;
-        }
-
-      } else
-        $css = $style->nodeValue;
-
-      $this->_css->load_css($css);
+    
+    foreach($stylesheets as $tag) {
+      switch (strtolower($tag->nodeName)) {
+        // load <link rel="STYLESHEET" ... /> tags
+        case "link":
+          if ( mb_strtolower(stripos($tag->getAttribute("rel"), "stylesheet") !== false) || // may be "appendix stylesheet"
+               mb_strtolower($tag->getAttribute("type")) === "text/css" ) {
+            //Check if the css file is for an accepted media type
+            //media not given then always valid
+            $formedialist = preg_split("/[\s\n,]/", $tag->getAttribute("media"),-1, PREG_SPLIT_NO_EMPTY);
+            if ( count($formedialist) > 0 ) {
+              $accept = false;
+              foreach ( $formedialist as $type ) {
+                if ( in_array(mb_strtolower(trim($type)), $acceptedmedia) ) {
+                  $accept = true;
+                  break;
+                }
+              }
+              if (!$accept) {
+                //found at least one mediatype, but none of the accepted ones
+                //Skip this css file.
+                continue;
+              }
+            }
+               
+            $url = $tag->getAttribute("href");
+            $url = build_url($this->_protocol, $this->_base_host, $this->_base_path, $url);
+    
+            $this->_css->load_css_file($url, Stylesheet::ORIG_AUTHOR);
+          }
+        break;
+        
+        // load <style> tags
+        case "style":
+          // Accept all <style> tags by default (note this is contrary to W3C
+          // HTML 4.0 spec:
+          // http://www.w3.org/TR/REC-html40/present/styles.html#adef-media
+          // which states that the default media type is 'screen'
+          if ( $tag->hasAttributes() &&
+               ($media = $tag->getAttribute("media")) &&
+               !in_array($media, $acceptedmedia) ) {
+            continue;
+          }
+    
+          $css = "";
+          if ( $tag->hasChildNodes() ) {
+            $child = $tag->firstChild;
+            while ( $child ) {
+              $css .= $child->nodeValue; // Handle <style><!-- blah --></style>
+              $child = $child->nextSibling;
+            }
+          } 
+          else {
+            $css = $tag->nodeValue;
+          }
+          
+          $this->_css->load_css($css);
+        break;
+      }
     }
     
     $this->restore_locale();
@@ -820,17 +831,16 @@ class DOMPDF {
     if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) return;
     
     $frames = Frame::$ID_COUNTER;
-    $memory = DOMPDF_memory_usage();
-    $memory = number_format($memory/1024);
-    $time = number_format((microtime(true) - $this->_start_time) * 1000, 2);
+    $memory = DOMPDF_memory_usage() / 1024;
+    $time = (microtime(true) - $this->_start_time) * 1000;
     
-    $out = 
-      "<span style='color: #000'>{$frames} frames</span>\t".
-      "<span style='color: #900'>{$memory} KB</span>\t".
-      "<span style='color: #090'>{$time} ms</span>\t".
-      "<span style='color: #009' title='Quirksmode'>".
-        ($this->_quirksmode ? "<span style='color: #c00'>ON</span>" : "<span style='color: #0c0'>OFF</span>").
-      "</span><br />";
+    $out = sprintf(
+      "<span style='color: #000' title='Frames'>%6d</span>".
+      "<span style='color: #009' title='Memory'>%10.2f KB</span>".
+      "<span style='color: #900' title='Time'>%10.2f ms</span>".
+      "<span  title='Quirksmode'>  ".
+        ($this->_quirksmode ? "<span style='color: #d00'> ON</span>" : "<span style='color: #0d0'>OFF</span>").
+      "</span><br />", $frames, $memory, $time);
     
     $out .= ob_get_clean();
     file_put_contents(DOMPDF_LOG_OUTPUT_FILE, $out);

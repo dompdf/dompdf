@@ -11,7 +11,7 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @author  Ryan H. Masten <ryan.masten@gmail.com>
  * @author  Brian Sweeney <eclecticgeek@gmail.com>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
  * @version $Id$
  * @license Public Domain http://creativecommons.org/licenses/publicdomain/
  * @package Cpdf
