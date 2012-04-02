@@ -522,14 +522,11 @@ class Block_Frame_Reflower extends Frame_Reflower {
       foreach ( $line->get_frames() as $frame ) {
         $style = $frame->get_style();
 
-        if ( $style->display !== "inline" && $style->display !== "text" )
+        if ( $style->display !== "inline" ) {
           continue;
+        }
 
-        // FIXME?
-        if ( $this instanceof Table_Cell_Frame_Reflower )
-          $align = $frame->get_frame()->get_style()->vertical_align;
-        else 
-          $align = $frame->get_frame()->get_parent()->get_style()->vertical_align;
+        $align = $frame->get_parent()->get_style()->vertical_align;
           
         $frame_h = $frame->get_margin_height();
         
