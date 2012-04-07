@@ -548,6 +548,12 @@ class DOMPDF {
       $acceptedmedia[] = Stylesheet::$ACCEPTED_DEFAULT_MEDIA_TYPE;
     }
     
+    // <base href="" />
+    $base_nodes = $this->_xml->getElementsByTagName("base");
+    if ( $base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href")) ) {
+      list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($href);
+    }
+    
     // Set the base path of the Stylesheet to that of the file being processed
     //$this->_css->set_protocol($this->_protocol);
     //$this->_css->set_host($this->_base_host);

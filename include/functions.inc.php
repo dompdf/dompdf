@@ -178,9 +178,9 @@ function explode_url($url) {
       $host .= $arr["user"];
 
       if ( isset($arr["pass"]) )
-        $host .= "@" . $arr["pass"];
+        $host .= ":" . $arr["pass"];
 
-      $host .= ":";
+      $host .= "@";
     }
 
     if ( isset($arr["host"]) )
