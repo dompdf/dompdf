@@ -553,21 +553,15 @@ class DOMPDF {
     if ( $base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href")) ) {
       list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($href);
     }
-    
-    // Set the base path of the Stylesheet to that of the file being processed
-    //$this->_css->set_protocol($this->_protocol);
-    //$this->_css->set_host($this->_base_host);
-    //$this->_css->set_base_path($this->_base_path);
-    
-    // Get all the stylesheets so that they are processed in document order
-    $xpath = new DOMXPath($this->_xml);
-    $stylesheets = $xpath->query("//*[name() = 'link' or name() = 'style']");
-    
 
     // Set the base path of the Stylesheet to that of the file being processed
     $this->_css->set_protocol($this->_protocol);
     $this->_css->set_host($this->_base_host);
     $this->_css->set_base_path($this->_base_path);
+    
+    // Get all the stylesheets so that they are processed in document order
+    $xpath = new DOMXPath($this->_xml);
+    $stylesheets = $xpath->query("//*[name() = 'link' or name() = 'style']");
     
     foreach($stylesheets as $tag) {
       switch (strtolower($tag->nodeName)) {
