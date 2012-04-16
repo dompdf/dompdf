@@ -343,11 +343,11 @@ input {
 }
 
 input[type=password] {
-  -dompdf-appearance: radio-button;
+  -dompdf-appearance: password;
 }
 
 input[type=radio] {
-  -dompdf-appearance: password;
+  -dompdf-appearance: radio-button;
 }
 
 input[type=checkbox] {
