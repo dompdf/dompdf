@@ -163,10 +163,10 @@ class Frame_Factory {
     else if ( $position === "fixed" )
       $positioner = "Fixed";
       
-    // Handle nodeName
-    $node_name = $frame->get_node()->nodeName;
+    $node = $frame->get_node();
     
-    if ( $node_name === "img" ) {
+    // Handle nodeName
+    if ( $node->nodeName === "img" ) {
       $style->display = "-dompdf-image";
       $decorator = "Image";
       $reflower = "Image";
@@ -188,10 +188,11 @@ class Frame_Factory {
     if ( $display === "list-item" ) {
       // Insert a list-bullet frame
       $xml = $dompdf->get_dom();
-      $node = $xml->createElement("bullet"); // arbitrary choice
-      $b_f = new Frame($node);
+      $bullet_node = $xml->createElement("bullet"); // arbitrary choice
+      $b_f = new Frame($bullet_node);
 
-      $parent_node = $frame->get_node()->parentNode;
+      $node = $frame->get_node();
+      $parent_node = $node->parentNode;
       
       if ( $parent_node ) {
         if ( !$parent_node->hasAttribute("dompdf-children-count") ) {
@@ -199,18 +200,23 @@ class Frame_Factory {
           $count = $xpath->query("li", $parent_node)->length;
           $parent_node->setAttribute("dompdf-children-count", $count);
         }
-  
-        if ( !$parent_node->hasAttribute("dompdf-counter") ) {
-          $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start")-1 : 0);
+        
+        if ( is_numeric($node->getAttribute("value")) ) {
+          $index = intval($node->getAttribute("value"));
         }
         else {
-          $index = $parent_node->getAttribute("dompdf-counter");
+          if ( !$parent_node->hasAttribute("dompdf-counter") ) {
+            $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start") : 1);
+          }
+          else {
+            $index = $parent_node->getAttribute("dompdf-counter")+1;
+          }
         }
         
-        $index++;
         $parent_node->setAttribute("dompdf-counter", $index);
+        $bullet_node->setAttribute("dompdf-counter", $index);
         
-        $node->setAttribute("dompdf-counter", $index);
+        $index++;
       }
       
       $new_style = $dompdf->get_css()->create_style();

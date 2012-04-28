@@ -83,33 +83,22 @@ class Text_Renderer extends Abstract_Renderer {
     $underline_offset    = $size * self::UNDERLINE_OFFSET;
     $overline_offset     = $size * self::OVERLINE_OFFSET;
     $linethrough_offset  = $size * self::LINETHROUGH_OFFSET;
+    $underline_position  = -0.08;
     
     if ( method_exists( $this->_canvas, "get_cpdf" ) ) {
       $cpdf_font = $this->_canvas->get_cpdf()->fonts[$style->font_family];
       
       if (isset($cpdf_font["UnderlinePosition"])) {
-        $descent = $size * ($cpdf_font["UnderlinePosition"]/1000);
-        $base    = $size * ($cpdf_font["Ascender"]-$cpdf_font["Descender"])/1000;
-      }
-      else {
-        $fontBBox = $cpdf_font["FontBBox"];
-        $descent = $size * ($fontBBox[1]/1000);
-        $base    = $size * ($fontBBox[3]/1000) * 0.90;
+        $underline_position = $cpdf_font["UnderlinePosition"]/1000;
       }
       
       if (isset($cpdf_font["UnderlineThickness"])) {
-        $underline_thickness = $size * ($cpdf_font["UnderlineThickness"]/1000);
+        $line_thickness = $size * ($cpdf_font["UnderlineThickness"]/1000);
       }
-      
-      //print '<pre>Text_Renderer cpdf:'.$base.' '.$descent.' '.$size.'</pre>';
-    } else {
-      //Descent is font part below baseline, typically negative. $height is about full height of font box.
-      //$descent = -$size/6; is less accurate, depends on font family.
-      // @todo Could we get font info for PDFlib adapter and others ?
-      $descent = $size-$height;
-      $base = $size*1.08;
-      //print '<pre>Text_Renderer other than cpdf:'.$base.' '.$descent.' '.$size.'</pre>';
     }
+      
+    $descent = $size * $underline_position;
+    $base    = $size;
     
     // Handle text decoration:
     // http://www.w3.org/TR/CSS21/text.html#propdef-text-decoration
