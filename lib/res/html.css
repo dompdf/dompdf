@@ -337,6 +337,10 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
 
 /* forms */
 /* From http://dev.w3.org/csswg/css3-ui/#appearance */
+form {
+  display: block;
+}
+
 input {
   display: inline-block;
   -dompdf-appearance: textfield;
