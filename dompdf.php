@@ -224,7 +224,7 @@ switch ( $sapi ) {
   if(($file_parts['protocol'] == '' || $file_parts['protocol'] === 'file://')) {
     $file = realpath($file);
     if ( strpos($file, DOMPDF_CHROOT) !== 0 ) {
-      throw new DOMPDF_Exception("Permission denied on $file.");
+      throw new DOMPDF_Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
     }
   }
   

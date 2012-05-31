@@ -359,7 +359,7 @@ class DOMPDF {
         throw new DOMPDF_Exception("File '$file' not found.");
 
       if ( strpos($realfile, DOMPDF_CHROOT) !== 0 )
-        throw new DOMPDF_Exception("Permission denied on $file.");
+        throw new DOMPDF_Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
 
       // Exclude dot files (e.g. .htaccess)
       if ( substr(basename($realfile),0,1) === "." )
