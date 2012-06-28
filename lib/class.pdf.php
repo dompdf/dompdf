@@ -2381,7 +2381,6 @@ EOT;
               
               $cidtogid = str_pad('', max(array_keys($glyphIndexArray))*2+1, "\x00");
               $font['CIDWidths'] = array();
-              
               foreach($glyphIndexArray as $cid => $gid) {
                 if ($cid >= 0 && $cid < 0xFFFF && $gid) {
                   $cidtogid[$cid*2] = chr($gid >> 8);
