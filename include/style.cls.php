@@ -171,6 +171,10 @@ class Style {
   private $__font_size_calculated; // Cache flag
   
   /**
+   * The computed border radius
+   */
+  private $_computed_border_radius = null;
+  /**
    * Class constructor
    *
    * @param Stylesheet $stylesheet the stylesheet this Style is associated with.
@@ -219,6 +223,11 @@ class Style {
       $d["border_bottom_width"] = "medium";
       $d["border_left_width"] = "medium";
       $d["border_width"] = "medium";
+      $d["border_bottom_left_radius"] = "";
+      $d["border_bottom_right_radius"] = "";
+      $d["border_top_left_radius"] = "";
+      $d["border_top_right_radius"] = "";
+      $d["border_radius"] = "";
       $d["border"] = "";
       $d["bottom"] = "auto";
       $d["caption_side"] = "top";
@@ -700,24 +709,28 @@ class Style {
    * @return mixed
    */
   function __get($prop) {
-    if ( !isset(self::$_defaults[$prop]) )
+    if ( !isset(self::$_defaults[$prop]) ) {
       throw new DOMPDF_Exception("'$prop' is not a valid CSS2 property.");
+    }
 
-    if ( isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null )
+    if ( isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null ) {
       return $this->_prop_cache[$prop];
+    }
     
     $method = "get_$prop";
 
     // Fall back on defaults if property is not set
-    if ( !isset($this->_props[$prop]) )
+    if ( !isset($this->_props[$prop]) ) {
       $this->_props[$prop] = self::$_defaults[$prop];
+    }
 
     if ( !isset(self::$_methods_cache[$method]) ) {
       self::$_methods_cache[$method] = method_exists($this, $method);
     }
     
-    if ( self::$_methods_cache[$method] )
+    if ( self::$_methods_cache[$method] ) {
       return $this->_prop_cache[$prop] = $this->$method();
+    }
 
     return $this->_prop_cache[$prop] = $this->_props[$prop];
   }
@@ -1148,18 +1161,28 @@ class Style {
    * @return array
    */
   function get_border_properties() {
-    return array("top" => array("width" => $this->__get("border_top_width"),
-                                "style" => $this->__get("border_top_style"),
-                                "color" => $this->__get("border_top_color")),
-                 "bottom" => array("width" => $this->__get("border_bottom_width"),
-                                   "style" => $this->__get("border_bottom_style"),
-                                   "color" => $this->__get("border_bottom_color")),
-                 "right" => array("width" => $this->__get("border_right_width"),
-                                  "style" => $this->__get("border_right_style"),
-                                  "color" => $this->__get("border_right_color")),
-                 "left" => array("width" => $this->__get("border_left_width"),
-                                 "style" => $this->__get("border_left_style"),
-                                 "color" => $this->__get("border_left_color")));
+    return array(
+      "top" => array(
+        "width" => $this->__get("border_top_width"),
+        "style" => $this->__get("border_top_style"),
+        "color" => $this->__get("border_top_color"),
+      ),
+      "bottom" => array(
+        "width" => $this->__get("border_bottom_width"),
+        "style" => $this->__get("border_bottom_style"),
+        "color" => $this->__get("border_bottom_color"),
+      ),
+      "right" => array(
+        "width" => $this->__get("border_right_width"),
+        "style" => $this->__get("border_right_style"),
+        "color" => $this->__get("border_right_color"),
+      ),
+      "left" => array(
+        "width" => $this->__get("border_left_width"),
+        "style" => $this->__get("border_left_style"),
+        "color" => $this->__get("border_left_color"),
+      ),
+    );
   }
 
   /**
@@ -1184,12 +1207,64 @@ class Style {
    * @link http://www.w3.org/TR/CSS21/box.html#border-shorthand-properties
    * @return string
    */
-  function get_border_top() { return $this->_get_border("top"); }
-  function get_border_right() { return $this->_get_border("right"); }
-  function get_border_bottom() { return $this->_get_border("bottom"); }
-  function get_border_left() { return $this->_get_border("left"); }
+  function get_border_top() {
+    return $this->_get_border("top");
+  }
+  
+  function get_border_right() {
+    return $this->_get_border("right");
+  }
+  
+  function get_border_bottom() {
+    return $this->_get_border("bottom");
+  }
+  
+  function get_border_left() {
+    return $this->_get_border("left");
+  }
   /**#@-*/
   
+  function get_computed_border_radius($w, $h) {
+    if ( !empty($this->_computed_border_radius) ) {
+      return $this->_computed_border_radius;
+    }
+    
+    $rTL = $this->__get("border_top_left_radius");
+    $rTR = $this->__get("border_top_right_radius");
+    $rBL = $this->__get("border_bottom_left_radius");
+    $rBR = $this->__get("border_bottom_right_radius");
+    
+    if ( $rTL + $rTR + $rBL + $rBR == 0 ) {
+      return $this->_computed_border_radius = array(
+        0, 0, 0, 0,
+        "top-left"     => 0, 
+        "top-right"    => 0, 
+        "bottom-right" => 0, 
+        "bottom-left"  => 0, 
+      );
+    }
+    
+    $t = $this->__get("border_top_width");
+    $r = $this->__get("border_right_width");
+    $b = $this->__get("border_bottom_width");
+    $l = $this->__get("border_left_width");
+    
+    $rTL = min($rTL, $h - $rBL - $t/2 - $b/2, $w - $rTR - $l/2 - $r/2);
+    $rTR = min($rTR, $h - $rBR - $t/2 - $b/2, $w - $rTL - $l/2 - $r/2);
+    $rBL = min($rBL, $h - $rTL - $t/2 - $b/2, $w - $rBR - $l/2 - $r/2);
+    $rBR = min($rBR, $h - $rTR - $t/2 - $b/2, $w - $rBL - $l/2 - $r/2);
+    
+    return $this->_computed_border_radius = array(
+      $rTL, $rTR, $rBR, $rBL,
+      "top-left"     => $rTL, 
+      "top-right"    => $rTR, 
+      "bottom-right" => $rBR, 
+      "bottom-left"  => $rBL, 
+    );
+  }
+  /**#@-*/
+
+
   /**
    * Returns the outline colour as an array
    *
@@ -1275,9 +1350,9 @@ class Style {
    Special treatment:
    At individual property like border-top-width need to check whether overriding value is also !important.
    Also store the !important condition for later overrides.
-   Since not known who is initiating the override, need to get passed !importan as parameter.
+   Since not known who is initiating the override, need to get passed !important as parameter.
    !important Paramter taken as in the original style in the css file.
-   When poperty border !important given, do not mark subsets like border_style as important. Only
+   When property border !important given, do not mark subsets like border_style as important. Only
    individual properties.
 
    Note:
@@ -1296,7 +1371,7 @@ class Style {
    * Applicable for background, border, padding, margin, font, list_style
    * Note: $type has a leading underscore (or is empty), the others not.
    */
-  protected function _set_style_side_type($style,$side,$type,$val,$important) {
+  protected function _set_style_side_type($style, $side, $type, $val, $important) {
     $prop = $style.'_'.$side.$type;
     
     if ( !isset($this->_important_props[$prop]) || $important) {
@@ -1321,21 +1396,12 @@ class Style {
     $arr = explode(" ", $val);
     
     switch (count($arr)) {
-    case 1:
-      $this->_set_style_sides_type($style,$arr[0],$arr[0],$arr[0],$arr[0],$type,$important);
-      break;
-    case 2:
-      $this->_set_style_sides_type($style,$arr[0],$arr[1],$arr[0],$arr[1],$type,$important);
-      break;
-    case 3:
-      $this->_set_style_sides_type($style,$arr[0],$arr[1],$arr[2],$arr[1],$type,$important);
-      break;
-    case 4:
-      $this->_set_style_sides_type($style,$arr[0],$arr[1],$arr[2],$arr[3],$type,$important);
-      break;
-    default:
-      break;
+      case 1: $this->_set_style_sides_type($style,$arr[0],$arr[0],$arr[0],$arr[0],$type,$important); break;
+      case 2: $this->_set_style_sides_type($style,$arr[0],$arr[1],$arr[0],$arr[1],$type,$important); break;
+      case 3: $this->_set_style_sides_type($style,$arr[0],$arr[1],$arr[2],$arr[1],$type,$important); break;
+      case 4: $this->_set_style_sides_type($style,$arr[0],$arr[1],$arr[2],$arr[3],$type,$important); break;
     }
+    
     //see __set and __get, on all assignments clear cache!
     $this->_prop_cache[$style.$type] = null;
     $this->_props[$style.$type] = $val;
@@ -1758,16 +1824,27 @@ class Style {
     $this->_props['border_'.$side] = $border_spec;
   }
 
-  /**#@+
+  /**
    * Sets the border styles
    *
    * @link http://www.w3.org/TR/CSS21/box.html#border-properties
    * @param string $val
    */
-  function set_border_top($val) { $this->_set_border("top", $val, isset($this->_important_props['border_top'])); }
-  function set_border_right($val) { $this->_set_border("right", $val, isset($this->_important_props['border_right'])); }
-  function set_border_bottom($val) { $this->_set_border("bottom", $val, isset($this->_important_props['border_bottom'])); }
-  function set_border_left($val) { $this->_set_border("left", $val, isset($this->_important_props['border_left'])); }
+  function set_border_top($val) {
+    $this->_set_border("top", $val, isset($this->_important_props['border_top'])); 
+  }
+
+  function set_border_right($val) {
+    $this->_set_border("right", $val, isset($this->_important_props['border_right']));
+  }
+  
+  function set_border_bottom($val) {
+    $this->_set_border("bottom", $val, isset($this->_important_props['border_bottom']));
+  }
+  
+  function set_border_left($val) {
+    $this->_set_border("left", $val, isset($this->_important_props['border_left']));
+  }
 
   function set_border($val) {
     $important = isset($this->_important_props["border"]);
@@ -1792,7 +1869,56 @@ class Style {
     $this->_set_style_type_important('border','_style',$val);
   }
 
-  /**#@+
+  /**
+   * Sets the border radius size
+   * 
+   * http://www.w3.org/TR/css3-background/#corners
+   */
+  function set_border_top_left_radius($val) {
+    $this->_set_border_radius_corner($val, "top_left");
+  }
+  
+  function set_border_top_right_radius($val) {
+    $this->_set_border_radius_corner($val, "top_right");
+  }
+  
+  function set_border_bottom_left_radius($val) {
+    $this->_set_border_radius_corner($val, "bottom_left");
+  }
+  
+  function set_border_bottom_right_radius($val) {
+    $this->_set_border_radius_corner($val, "bottom_right");
+  }
+  
+  function set_border_radius($val) {
+    $val = preg_replace("/\s*\,\s*/", ",", $val); // when border-radius has spaces
+    $arr = explode(" ", $val);
+    
+    switch (count($arr)) {
+      case 1: $this->_set_border_radii($arr[0],$arr[0],$arr[0],$arr[0]); break;
+      case 2: $this->_set_border_radii($arr[0],$arr[1],$arr[0],$arr[1]); break;
+      case 3: $this->_set_border_radii($arr[0],$arr[1],$arr[2],$arr[1]); break;
+      case 4: $this->_set_border_radii($arr[0],$arr[1],$arr[2],$arr[3]); break;
+    }
+  }
+
+  protected function _set_border_radii($val1, $val2, $val3, $val4) {
+    $this->_set_border_radius_corner($val1, "top_left");
+    $this->_set_border_radius_corner($val2, "top_right");
+    $this->_set_border_radius_corner($val3, "bottom_right");
+    $this->_set_border_radius_corner($val4, "bottom_left");
+  }
+  
+  protected function _set_border_radius_corner($val, $corner) {
+    $this->_has_border_radius = true;
+    
+    //see __set and __get, on all assignments clear cache!
+    $this->_prop_cache["border_" . $corner . "_radius"] = null;
+    
+    $this->_props["border_" . $corner . "_radius"] = $this->length_in_pt($val);
+  }
+
+  /**
    * Sets the outline styles
    *
    * @link http://www.w3.org/TR/CSS21/ui.html#dynamic-outlines
@@ -1824,11 +1950,14 @@ class Style {
     $arr = explode(" ", $val);
     foreach ($arr as $value) {
       $value = trim($value);
+      
       if ( in_array($value, self::$BORDER_STYLES) ) {
         $this->set_outline_style($value);
-      } else if ( preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value ) ) {
+      }
+      else if ( preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value ) ) {
         $this->set_outline_width($value);
-      } else {
+      }
+      else {
         // must be colour
         $this->set_outline_color($value);
       }
@@ -1850,8 +1979,6 @@ class Style {
   function set_outline_style($val) {
     $this->_set_style_type_important('outline','_style',$val);
   }
-  /**#@-*/
-
 
   /**
    * Sets the border spacing

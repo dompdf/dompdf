@@ -468,382 +468,207 @@ abstract class Abstract_Renderer {
     return $pattern;
   }
 
-  protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+  protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
     return;
   }
   
-  protected function _border_hidden($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+  protected function _border_hidden($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
     return;
   }
   
   // Border rendering functions
-  protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
-    list($top, $right, $bottom, $left) = $widths;
 
-    $pattern = $this->_get_dash_pattern("dotted", $$side);
-    
-    switch ($side) {
-
-    case "top":
-      $delta = $top / 2;
-    case "bottom":
-      $delta = isset($delta) ? $delta : -$bottom / 2;
-      $this->_canvas->line($x, $y + $delta, $x + $length, $y + $delta, $color, $$side, $pattern);
-      break;
-
-    case "left":
-      $delta = $left / 2;
-    case "right":
-      $delta = isset($delta) ? $delta : - $right / 2;
-      $this->_canvas->line($x + $delta, $y, $x + $delta, $y + $length, $color, $$side, $pattern);
-      break;
-
-    default:
-      return;
-
-    }
+  protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
+    $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "dotted", $r1, $r2);
   }
 
-  
-  protected function _border_dashed($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
-    list($top, $right, $bottom, $left) = $widths;
 
-    $pattern = $this->_get_dash_pattern("dashed", $$side);
-    
-    switch ($side) {
-
-    case "top":
-      $delta = $top / 2;
-    case "bottom":
-      $delta = isset($delta) ? $delta : -$bottom / 2;
-      $this->_canvas->line($x, $y + $delta, $x + $length, $y + $delta, $color, $$side, $pattern);
-      break;
-
-    case "left":
-      $delta = $left / 2;
-    case "right":
-      $delta = isset($delta) ? $delta : - $right / 2;
-      $this->_canvas->line($x + $delta, $y, $x + $delta, $y + $length, $color, $$side, $pattern);
-      break;
-
-    default:
-      return;
-    }
-    
+  protected function _border_dashed($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
+    $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "dashed", $r1, $r2);
   }
 
-  
-  protected function _border_solid($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+
+  protected function _border_solid($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
+    // TODO: Solve rendering where one corner is beveled (radius == 0), one corner isn't.
+    if ( $corner_style !== "bevel" || $r1 > 0 || $r2 > 0 ) {
+      // do it the simple way
+      $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "solid", $r1, $r2);
+      return;
+    }
+
     list($top, $right, $bottom, $left) = $widths;
 
     // All this polygon business is for beveled corners...
     switch ($side) {
-
     case "top":
-      if ( $corner_style === "bevel" ) {
-        
         $points = array($x, $y,
                         $x + $length, $y,
                         $x + $length - $right, $y + $top,
                         $x + $left, $y + $top);
         $this->_canvas->polygon($points, $color, null, null, true);
-      } else
-        $this->_canvas->filled_rectangle($x, $y, $length, $top, $color);
-      
       break;
-      
+
     case "bottom":
-      if ( $corner_style === "bevel" ) {
         $points = array($x, $y,
                         $x + $length, $y,
                         $x + $length - $right, $y - $bottom,
                         $x + $left, $y - $bottom);
         $this->_canvas->polygon($points, $color, null, null, true);
-      } else
-        $this->_canvas->filled_rectangle($x, $y - $bottom, $length, $bottom, $color);
-      
       break;
-      
+
     case "left":
-      if ( $corner_style === "bevel" ) {
         $points = array($x, $y,
                         $x, $y + $length,
                         $x + $left, $y + $length - $bottom,
                         $x + $left, $y + $top);
         $this->_canvas->polygon($points, $color, null, null, true);
-      } else
-        $this->_canvas->filled_rectangle($x, $y, $left, $length, $color);
-      
       break;
-      
+
     case "right":
-      if ( $corner_style === "bevel" ) {
         $points = array($x, $y,
                         $x, $y + $length,
                         $x - $right, $y + $length - $bottom,
                         $x - $right, $y + $top);
         $this->_canvas->polygon($points, $color, null, null, true);
-      } else
-        $this->_canvas->filled_rectangle($x - $right, $y, $right, $length, $color);
-
       break;
 
     default:
       return;
 
     }
-        
+
   }
 
-
-  protected function _border_double($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
-    list($top, $right, $bottom, $left) = $widths;
-    
-    $line_width = $$side / 3;
-    
-    // We draw the outermost edge first. Points are ordered: outer left,
-    // outer right, inner right, inner left, or outer top, outer bottom,
-    // inner bottom, inner top.
+  protected function _apply_ratio($side, $ratio, $top, $right, $bottom, $left, &$x, &$y, &$length, &$r1, &$r2) {
     switch ($side) {
 
     case "top":
-      if ( $corner_style === "bevel" ) {
-        $left_line_width = $left / 3;
-        $right_line_width = $right / 3;
-        
-        $points = array($x, $y,
-                        $x + $length, $y,
-                        $x + $length - $right_line_width, $y + $line_width,
-                        $x + $left_line_width, $y + $line_width,);
-        $this->_canvas->polygon($points, $color, null, null, true);
-        
-        $points = array($x + $left - $left_line_width, $y + $top - $line_width,
-                        $x + $length - $right + $right_line_width, $y + $top - $line_width,
-                        $x + $length - $right, $y + $top,
-                        $x + $left, $y + $top);
-        $this->_canvas->polygon($points, $color, null, null, true);
-
-      } else {
-        $this->_canvas->filled_rectangle($x, $y, $length, $line_width, $color);
-        $this->_canvas->filled_rectangle($x, $y + $top - $line_width, $length, $line_width, $color);
-
-      }
+      $r1 -= $left * $ratio;
+      $r2 -= $right * $ratio;
+      $x += $left * $ratio;
+      $y += $top * $ratio;
+      $length -= $left * $ratio + $right * $ratio;
       break;
-      
-    case "bottom":
-      if ( $corner_style === "bevel" ) {
-        $left_line_width = $left / 3;
-        $right_line_width = $right / 3;
-        
-        $points = array($x, $y,
-                        $x + $length, $y,
-                        $x + $length - $right_line_width, $y - $line_width,
-                        $x + $left_line_width, $y - $line_width);
-        $this->_canvas->polygon($points, $color, null, null, true);
-        
-        $points = array($x + $left - $left_line_width, $y - $bottom + $line_width,
-                        $x + $length - $right + $right_line_width, $y - $bottom + $line_width,
-                        $x + $length - $right, $y - $bottom,
-                        $x + $left, $y - $bottom);
-        $this->_canvas->polygon($points, $color, null, null, true);
 
-      } else {
-        $this->_canvas->filled_rectangle($x, $y - $line_width, $length, $line_width, $color);
-        $this->_canvas->filled_rectangle($x, $y - $bottom, $length, $line_width, $color);
-      }
-          
+    case "bottom":
+      $r1 -= $right * $ratio;
+      $r2 -= $left * $ratio;
+      $x += $left * $ratio;
+      $y -= $bottom * $ratio;
+      $length -= $left * $ratio + $right * $ratio;
       break;
 
     case "left":
-      if ( $corner_style === "bevel" ) {
-        $top_line_width = $top / 3;
-        $bottom_line_width = $bottom / 3;
-        
-        $points = array($x, $y,
-                        $x, $y + $length,
-                        $x + $line_width, $y + $length - $bottom_line_width,
-                        $x + $line_width, $y + $top_line_width);
-        $this->_canvas->polygon($points, $color, null, null, true);
-
-        $points = array($x + $left - $line_width, $y + $top - $top_line_width,
-                        $x + $left - $line_width, $y + $length - $bottom + $bottom_line_width,
-                        $x + $left, $y + $length - $bottom,
-                        $x + $left, $y + $top);
-        $this->_canvas->polygon($points, $color, null, null, true);
-
-      } else {
-        $this->_canvas->filled_rectangle($x, $y, $line_width, $length, $color);
-        $this->_canvas->filled_rectangle($x + $left - $line_width, $y, $line_width, $length, $color);
-      }
-      
+      $r1 -= $top * $ratio;
+      $r2 -= $bottom * $ratio;
+      $x += $left * $ratio;
+      $y += $top * $ratio;
+      $length -= $top * $ratio + $bottom * $ratio;
       break;
-                      
-    case "right":
-      if ( $corner_style === "bevel" ) {
-        $top_line_width = $top / 3;
-        $bottom_line_width = $bottom / 3;
-        
-      
-        $points = array($x, $y,
-                      $x, $y + $length,
-                        $x - $line_width, $y + $length - $bottom_line_width,
-                        $x - $line_width, $y + $top_line_width);
-        $this->_canvas->polygon($points, $color, null, null, true);
-        
-        $points = array($x - $right + $line_width, $y + $top - $top_line_width,
-                        $x - $right + $line_width, $y + $length - $bottom + $bottom_line_width,
-                        $x - $right, $y + $length - $bottom,
-                        $x - $right, $y + $top);
-        $this->_canvas->polygon($points, $color, null, null, true);
 
-      } else {
-        $this->_canvas->filled_rectangle($x - $line_width, $y, $line_width, $length, $color);
-        $this->_canvas->filled_rectangle($x - $right, $y, $line_width, $length, $color);
-      }
-      
+    case "right":
+      $r1 -= $bottom * $ratio;
+      $r2 -= $top * $ratio;
+      $x -= $right * $ratio;
+      $y += $top * $ratio;
+      $length -= $top * $ratio + $bottom * $ratio;
       break;
 
     default:
       return;
 
     }
-        
   }
 
-  protected function _border_groove($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+  protected function _border_double($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
     list($top, $right, $bottom, $left) = $widths;
-      
+
+    $third_widths = array($top / 3, $right / 3, $bottom / 3, $left / 3);
+
+    // draw the outer border
+    $this->_border_solid($x, $y, $length, $color, $third_widths, $side, $corner_style, $r1, $r2);
+
+    $this->_apply_ratio($side, 2/3, $top, $right, $bottom, $left, $x, $y, $length, $r1, $r2);
+
+    $this->_border_solid($x, $y, $length, $color, $third_widths, $side, $corner_style, $r1, $r2);
+  }
+
+  protected function _border_groove($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
+    list($top, $right, $bottom, $left) = $widths;
+
     $half_widths = array($top / 2, $right / 2, $bottom / 2, $left / 2);
+
+    $this->_border_inset($x, $y, $length, $color, $half_widths, $side, $corner_style, $r1, $r2);
     
-    $this->_border_inset($x, $y, $length, $color, $half_widths, $side);
+    $this->_apply_ratio($side, 0.5, $top, $right, $bottom, $left, $x, $y, $length, $r1, $r2);
 
-    switch ($side) {
+    $this->_border_outset($x, $y, $length, $color, $half_widths, $side, $corner_style, $r1, $r2);
 
-    case "top":
-      $x += $left / 2;
-      $y += $top / 2;
-      $length -= $left / 2 + $right / 2;
-      break;
-
-    case "bottom":
-      $x += $left / 2;
-      $y -= $bottom / 2;
-      $length -= $left / 2 + $right / 2;
-      break;
-
-    case "left":
-      $x += $left / 2;
-      $y += $top / 2;
-      $length -= $top / 2 + $bottom / 2;
-      break;
-
-    case "right":
-      $x -= $right / 2;
-      $y += $top / 2;
-      $length -= $top / 2 + $bottom / 2;
-      break;
-
-    default:
-      return;
-
-    }
-
-    $this->_border_outset($x, $y, $length, $color, $half_widths, $side);
-    
   }
-  
-  protected function _border_ridge($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+
+  protected function _border_ridge($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
     list($top, $right, $bottom, $left) = $widths;
-     
+
     $half_widths = array($top / 2, $right / 2, $bottom / 2, $left / 2);
+
+    $this->_border_outset($x, $y, $length, $color, $half_widths, $side, $corner_style, $r1, $r2);
     
-    $this->_border_outset($x, $y, $length, $color, $half_widths, $side);
+    $this->_apply_ratio($side, 0.5, $top, $right, $bottom, $left, $x, $y, $length, $r1, $r2);
 
-    switch ($side) {
-
-    case "top":
-      $x += $left / 2;
-      $y += $top / 2;
-      $length -= $left / 2 + $right / 2;
-      break;
-
-    case "bottom":
-      $x += $left / 2;
-      $y -= $bottom / 2;
-      $length -= $left / 2 + $right / 2;
-      break;
-
-    case "left":
-      $x += $left / 2;
-      $y += $top / 2;
-      $length -= $top / 2 + $bottom / 2;
-      break;
-
-    case "right":
-      $x -= $right / 2;
-      $y += $top / 2;
-      $length -= $top / 2 + $bottom / 2;
-      break;
-
-    default:
-      return;
-
-    }
-
-    $this->_border_inset($x, $y, $length, $color, $half_widths, $side);
+    $this->_border_inset($x, $y, $length, $color, $half_widths, $side, $corner_style, $r1, $r2);
 
   }
 
   protected function _tint($c) {
     if ( !is_numeric($c) )
       return $c;
-    
+
     return min(1, $c + 0.16);
   }
 
   protected function _shade($c) {
     if ( !is_numeric($c) )
       return $c;
-    
+
     return max(0, $c - 0.33);
   }
 
-  protected function _border_inset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+  protected function _border_inset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
     list($top, $right, $bottom, $left) = $widths;
-    
+
     switch ($side) {
 
     case "top":
     case "left":
       $shade = array_map(array($this, "_shade"), $color);
-      $this->_border_solid($x, $y, $length, $shade, $widths, $side);
+      $this->_border_solid($x, $y, $length, $shade, $widths, $side, $corner_style, $r1, $r2);
       break;
 
     case "bottom":
     case "right":
       $tint = array_map(array($this, "_tint"), $color);
-      $this->_border_solid($x, $y, $length, $tint, $widths, $side);
+      $this->_border_solid($x, $y, $length, $tint, $widths, $side, $corner_style, $r1, $r2);
       break;
 
     default:
       return;
     }
   }
-  
-  protected function _border_outset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel") {
+
+  protected function _border_outset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
     list($top, $right, $bottom, $left) = $widths;
-    
+
     switch ($side) {
     case "top":
     case "left":
       $tint = array_map(array($this, "_tint"), $color);
-      $this->_border_solid($x, $y, $length, $tint, $widths, $side);
+      $this->_border_solid($x, $y, $length, $tint, $widths, $side, $corner_style, $r1, $r2);
       break;
 
     case "bottom":
     case "right":
       $shade = array_map(array($this, "_shade"), $color);
-      $this->_border_solid($x, $y, $length, $shade, $widths, $side);
+      $this->_border_solid($x, $y, $length, $shade, $widths, $side, $corner_style, $r1, $r2);
       break;
 
     default:
@@ -851,13 +676,85 @@ abstract class Abstract_Renderer {
 
     }
   }
-  
+  // Draws a solid, dotted, or dashed line, observing the border radius
+  protected function _border_line($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $pattern_name, $r1 = 0, $r2 = 0) {
+    list($top, $right, $bottom, $left) = $widths;
+    $width = $$side;
+    $pattern = $this->_get_dash_pattern($pattern_name, $width);
+
+    switch ($side) {
+    case "top":
+      $x += $width/2; 
+      $length -= $width; 
+      $y += $width/2;
+
+      if ( $r1 > 0 ) {
+        $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 90-1, 135+1, $color, $width, $pattern);
+      }
+
+      $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+
+      if ( $r2 > 0 ) {
+        $this->_canvas->arc($x + $length - $r2, $y + $r2, $r2, $r2, 45, 90, $color, $width, $pattern);
+      }
+      break;
+      
+    case "bottom":
+      $x += $width/2; 
+      $length -= $width; 
+      $y -= $width/2;
+      
+      if ( $r1 > 0 ) {
+        $this->_canvas->arc($x + $r1, $y - $r1, $r1, $r1, 225-1, 270+1, $color, $width, $pattern);
+      }
+      
+      $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+      
+      if ( $r2 > 0 ) {
+        $this->_canvas->arc($x + $length - $r2, $y - $r2, $r2, $r2, 270, 315, $color, $width, $pattern);
+      }
+      break;
+      
+    case "left":
+      $y += $width/2; 
+      $length -= $width; 
+      $x += $width/2;
+      
+      if ( $r1 > 0 ) {
+        $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 135-1, 180+1, $color, $width, $pattern);
+      }
+      
+      $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+      
+      if ( $r2 > 0 ) {
+        $this->_canvas->arc($x + $r2, $y + $length - $r2, $r2, $r2, 180, 225, $color, $width, $pattern);
+      }
+      break;
+      
+    case "right":
+      $y += $width/2; 
+      $length -= $width; 
+      $x -= $width/2;
+      
+      if ($r1 > 0) {
+        $this->_canvas->arc($x - $r1, $y + $r1, $r1, $r1, 0-1, 45+1, $color, $width, $pattern);
+      }
+      
+      $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+      
+      if ( $r2 > 0 ) {
+        $this->_canvas->arc($x - $r2, $y + $length - $r2, $r2, $r2, 315, 360, $color, $width, $pattern);
+      }
+      break;
+    }
+  }
+
   protected function _set_opacity($opacity) {
     if ( is_numeric($opacity) && $opacity <= 1.0 && $opacity >= 0.0 ) {
       $this->_canvas->set_opacity( $opacity );
     }
   }
-  
+
   protected function _debug_layout($box, $color = "red", $style = array()) {
     $this->_canvas->rectangle($box[0], $box[1], $box[2], $box[3], CSS_Color::parse($color), 0.1, $style);
   }

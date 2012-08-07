@@ -35,12 +35,23 @@ class Block_Renderer extends Abstract_Renderer {
     }
     
     // Draw our background, border and content
+    list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
+    
+    if ( $tl + $tr + $br + $bl > 0 ) {
+      $this->_canvas->clipping_roundrectangle( $x, $y, $w, $h, $tl, $tr, $br, $bl );
+    }
+      
     if ( ($bg = $style->background_color) !== "transparent" ) {
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $bg );
     }
 
-    if ( ($url = $style->background_image) && $url !== "none" )
+    if ( ($url = $style->background_image) && $url !== "none" ) {
       $this->_background_image($url, $x, $y, $w, $h, $style);
+    }
+    
+    if ( $tl + $tr + $br + $bl > 0 ) {
+      $this->_canvas->clipping_end();
+    }
 
     $this->_render_border($frame);
     $this->_render_outline($frame);
@@ -63,13 +74,17 @@ class Block_Renderer extends Abstract_Renderer {
     $style = $frame->get_style();
     $bbox = $frame->get_border_box();
     $bp = $style->get_border_properties();
+    
+    // find the radius
+    $radius = $style->get_computed_border_radius($bbox["w"], $bbox["h"]);
 
-    // If all the borders are "solid" with the same color and style, we'd better draw a rectangle
+    // Short-cut: If all the borders are "solid" with the same color and style, and no radius, we'd better draw a rectangle
     if (
-      in_array($bp["top"]["style"], array("solid", "dashed", "dotted")) && 
-      $bp["top"]    == $bp["right"] &&
-      $bp["right"]  == $bp["bottom"] &&
-      $bp["bottom"] == $bp["left"]
+        in_array($bp["top"]["style"], array("solid", "dashed", "dotted")) && 
+        $bp["top"]    == $bp["right"] &&
+        $bp["right"]  == $bp["bottom"] &&
+        $bp["bottom"] == $bp["left"] &&
+        array_sum($radius) == 0
     ) {
       $props = $bp["top"];
       if ( $props["color"] === "transparent" || $props["width"] <= 0 ) return;
@@ -81,6 +96,7 @@ class Block_Renderer extends Abstract_Renderer {
       return;
     }
 
+    // Do it the long way
     $widths = array($style->length_in_pt($bp["top"]["width"]),
                     $style->length_in_pt($bp["right"]["width"]),
                     $style->length_in_pt($bp["bottom"]["width"]),
@@ -98,27 +114,36 @@ class Block_Renderer extends Abstract_Renderer {
       switch($side) {
       case "top":
         $length = $w;
+        $r1 = $radius["top-left"];
+        $r2 = $radius["top-right"];
         break;
 
       case "bottom":
         $length = $w;
         $y += $h;
+        $r1 = $radius["bottom-left"];
+        $r2 = $radius["bottom-right"];
         break;
 
       case "left":
         $length = $h;
+        $r1 = $radius["top-left"];
+        $r2 = $radius["bottom-left"];
         break;
 
       case "right":
         $length = $h;
         $x += $w;
+        $r1 = $radius["top-right"];
+        $r2 = $radius["bottom-right"];
         break;
       default:
         break;
       }
       $method = "_border_" . $props["style"];
-
-      $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style);
+    
+      // draw rounded corners
+      $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style, $r1, $r2);
     }
   }
 

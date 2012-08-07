@@ -587,8 +587,18 @@ class PDFLib_Adapter implements Canvas {
     $y1 = $this->y($y1);
     $y2 = $this->y($y2);
 
-    $this->_pdf->moveto($x1,$y1);
+    $this->_pdf->moveto($x1, $y1);
     $this->_pdf->lineto($x2, $y2);
+    $this->_pdf->stroke();
+  }
+  
+  function arc($x1, $y1, $r1, $r2, $astart, $aend, $color, $width, $style = array()) {
+    $this->_set_line_style($width, "butt", "", $style);
+    $this->_set_stroke_color($color);
+
+    $y1 = $this->y($y1);
+    
+    $this->_pdf->arc($x1, $y1, $r1, $astart, $aend);
     $this->_pdf->stroke();
   }
 
@@ -622,6 +632,11 @@ class PDFLib_Adapter implements Canvas {
     
     $this->_pdf->rect(floatval($x1), floatval($y1), floatval($w), floatval($h));
     $this->_pdf->clip();
+  }
+  
+  function clipping_roundrectangle($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL) {
+    // @todo
+    $this->clipping_rectangle($x1, $y1, $w, $h);
   }
   
   function clipping_end() {
@@ -725,11 +740,11 @@ class PDFLib_Adapter implements Canvas {
       $img = $this->_imgs[$img_url];
     }
     else {
-      $img = $this->_imgs[$img_url] = $this->_pdf->load_image($img_type, $img_url, "");
+      $img = $this->_imgs[$img_url] = $this->_pdf->load_image($img_ext, $img_url, "");
     }
 
     $y = $this->y($y) - $h;
-    $this->_pdf->fit_image($img, $x, $y, "boxsize=\{$w $h\} fitmethod=entire");
+    $this->_pdf->fit_image($img, $x, $y, 'boxsize={'."$w $h".'} fitmethod=entire');
   }
 
   //........................................................................

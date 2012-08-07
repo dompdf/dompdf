@@ -147,13 +147,20 @@ class Renderer extends Abstract_Renderer {
 
     }
 
-    // Check for begin frame callback
-    $this->_check_callbacks("begin_frame", $frame);
-    
     // Starts the overflow: hidden box
     if ( $style->overflow === "hidden" ) {
       list($x, $y, $w, $h) = $frame->get_padding_box();
-      $this->_canvas->clipping_rectangle($x, $y, $w, $h);
+      
+      // get border radii
+      $style = $frame->get_style();
+      list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
+      
+      if ( $tl + $tr + $br + $bl > 0 ) {
+        $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
+      }
+      else {
+        $this->_canvas->clipping_rectangle($x, $y, $w, $h);
+      }
     }
 
     $stack = array();

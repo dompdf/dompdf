@@ -2356,7 +2356,7 @@ EOT;
             $font_obj->reduce();
             
             // Write new font
-            $tmp_name = "$fbfile.tmp.".sprintf("%u", crc32(implode($subset)));
+            $tmp_name = "$fbfile.tmp.".uniqid();
             $font_obj->open($tmp_name, Font_Binary_Stream::modeWrite);
             $font_obj->encode(array("OS/2"));
             $font_obj->close();
@@ -2689,8 +2689,12 @@ EOT;
   /**
    * draw a line from one set of coordinates to another
    */
-  function line($x1, $y1, $x2, $y2) {
-    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m %.3F %.3F l S", $x1, $y1, $x2, $y2);
+  function line($x1, $y1, $x2, $y2, $stroke = true) {
+    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m %.3F %.3F l", $x1, $y1, $x2, $y2);
+    
+    if ($stroke) {
+      $this->objects[$this->currentContents]['c'].=  ' S';
+    }
   }
 
   /**
@@ -2724,10 +2728,11 @@ EOT;
    * draws an ellipse in the current line style
    * centered at $x0,$y0, radii $r1,$r2
    * if $r2 is not set, then a circle is drawn
+   * from $astart to $afinish, measured in degrees, running anti-clockwise from the right hand side of the ellipse.
    * nSeg is not allowed to be less than 2, as this will simply draw a line (and will even draw a
    * pretty crappy shape at 2, as we are approximating with bezier curves.
    */
-  function ellipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360, $close =  true, $fill =  false) {
+  function ellipse($x0, $y0, $r1, $r2 =  0, $angle =  0, $nSeg =  8, $astart =  0, $afinish =  360, $close =  true, $fill =  false, $stroke = true, $incomplete = false) {
     if  ($r1 ==  0) {
       return;
     }
@@ -2763,8 +2768,10 @@ EOT;
     $c0 =  -$r1 * sin($t1);
     $d0 =  $r2 * cos($t1);
 
-    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m ", $a0, $b0);
-
+    if (!$incomplete) {
+      $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m ", $a0, $b0);
+    }
+  
     for  ($i = 1; $i <=  $nSeg; $i++) {
       // draw this bit of the total curve
       $t1 =  $i * $dt + $astart;
@@ -2782,15 +2789,19 @@ EOT;
       $d0 =  $d1;
     }
 
-    if  ($fill) {
-      $this->objects[$this->currentContents]['c'].=  ' f';
-    } else if ($close) {
-      $this->objects[$this->currentContents]['c'].=  ' s'; // small 's' signifies closing the path as well
-    } else {
-      $this->objects[$this->currentContents]['c'].=  ' S';
+    if (!$incomplete) {
+      if ($fill) {
+        $this->objects[$this->currentContents]['c'].=  ' f';
+      }
+      else if ($close) {
+        $this->objects[$this->currentContents]['c'].=  ' s'; // small 's' signifies closing the path as well
+      }
+      else if ($stroke) {
+        $this->objects[$this->currentContents]['c'].=  ' S';
+      }
     }
 
-    if  ($angle !=  0) {
+    if ($angle !=  0) {
       $this->objects[$this->currentContents]['c'].=  ' Q';
     }
   }
@@ -2892,6 +2903,43 @@ EOT;
   function clippingRectangle($x1, $y1, $width, $height) {
     $this->save();
     $this->objects[$this->currentContents]['c'].=  sprintf("\n%.3F %.3F %.3F %.3F re W n", $x1, $y1, $width, $height);
+  }
+  
+  /**
+   * draw a clipping rounded rectangle, all the elements added after this will be clipped
+   */
+  function clippingRectangleRounded($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL) {
+    $this->save();
+    
+    // start: top edge, left end
+    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F m ", $x1, $y1 - $rTL + $h);
+    
+    // curve: bottom-left corner
+    $this->ellipse($x1 + $rBL, $y1 + $rBL, $rBL, 0, 0, 8, 180, 270, false, false, false, true);
+    
+    // line:  right edge, bottom end
+    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F l ", $x1 + $w - $rBR, $y1);
+    
+    // curve: bottom-right corner
+    $this->ellipse($x1 + $w - $rBR, $y1 + $rBR, $rBR, 0, 0, 8, 270, 360, false, false, false, true);
+    
+    // line: right edge, top end
+    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F l ", $x1 + $w, $y1 + $h - $rTR);
+    
+    // curve: bottom-right corner
+    $this->ellipse($x1 + $w - $rTR, $y1 + $h - $rTR, $rTR, 0, 0, 8, 0, 90, false, false, false, true);
+    
+    // line: bottom edge, right end
+    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F l ", $x1 + $rTL, $y1 + $h);
+    
+    // curve: top-right corner
+    $this->ellipse($x1 + $rTL, $y1 + $h - $rTL, $rTL, 0, 0, 8, 90, 180, false, false, false, true);
+    
+    // line: top edge, left end
+    $this->objects[$this->currentContents]['c'] .= sprintf("\n%.3F %.3F l ", $x1 + $rBL, $y1);
+    
+    // Close & clip
+    $this->objects[$this->currentContents]['c'] .= " W n";
   }
 
   /**

@@ -447,12 +447,18 @@ class CPDF_Adapter implements Canvas {
   // Canvas implementation
 
   function line($x1, $y1, $x2, $y2, $color, $width, $style = array()) {
-    //pre_r(compact("x1", "y1", "x2", "y2", "color", "width", "style"));
-
     $this->_set_stroke_color($color);
     $this->_set_line_style($width, "butt", "", $style);
+    
     $this->_pdf->line($x1, $this->y($y1),
                       $x2, $this->y($y2));
+  }
+  
+  function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = array()) {
+    $this->_set_stroke_color($color);
+    $this->_set_line_style($width, "butt", "", $style);
+    
+    $this->_pdf->ellipse($x, $this->y($y), $r1, $r2, 0, 8, $astart, $aend, false, false, true, false);
   }
                               
   //........................................................................
@@ -508,6 +514,10 @@ class CPDF_Adapter implements Canvas {
   
   function clipping_rectangle($x1, $y1, $w, $h) {
     $this->_pdf->clippingRectangle($x1, $this->y($y1) - $h, $w, $h);
+  }
+  
+  function clipping_roundrectangle($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL) {
+    $this->_pdf->clippingRectangleRounded($x1, $this->y($y1) - $h, $w, $h, $rTL, $rTR, $rBR, $rBL);
   }
   
   function clipping_end() {

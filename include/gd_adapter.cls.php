@@ -297,6 +297,10 @@ class GD_Adapter implements Canvas {
     
   }
 
+  function arc($x1, $y1, $r1, $r2, $astart, $aend, $color, $width, $style = array()) {
+    // @todo
+  }
+
   /**
    * Draws a rectangle at x1,y1 with width w and height h
    *
@@ -374,8 +378,12 @@ class GD_Adapter implements Canvas {
    * @param float $y1
    * @param float $w
    * @param float $h
-   */   
+   */
   function clipping_rectangle($x1, $y1, $w, $h) {
+    // @todo
+  }
+  
+  function clipping_roundrectangle($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL) {
     // @todo
   }
   
