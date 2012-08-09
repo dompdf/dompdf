@@ -85,6 +85,9 @@ class Table_Cell_Frame_Reflower extends Block_Frame_Reflower {
         break;
     
       $child->set_containing_block($content_x, $content_y, $cb_w, $h);
+      
+      $this->process_clear($child);
+      
       $child->reflow($this->_frame);
     
       $this->process_float($child, $x + $left_space, $w - $right_space - $left_space);

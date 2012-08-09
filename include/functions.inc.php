@@ -135,7 +135,7 @@ function build_url($protocol, $host, $base_path, $url) {
       $ret .= realpath($base_path).'/';
     }
     $ret .= $url;
-    $ret = preg_replace("/\?(.*)$/", "", $ret);
+    $ret = preg_replace('/\?(.*)$/', "", $ret);
     return $ret;
   }
 

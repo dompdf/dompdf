@@ -682,68 +682,70 @@ abstract class Abstract_Renderer {
     $width = $$side;
     $pattern = $this->_get_dash_pattern($pattern_name, $width);
 
+    $half_width = $width/2;
+    $r1 -= $half_width;
+    $r2 -= $half_width;
+    $adjust = $r1/80;
+    $length -= $width; 
+    
     switch ($side) {
     case "top":
-      $x += $width/2; 
-      $length -= $width; 
-      $y += $width/2;
+      $x += $half_width; 
+      $y += $half_width;
 
       if ( $r1 > 0 ) {
-        $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 90-1, 135+1, $color, $width, $pattern);
+        $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 90-$adjust, 135+$adjust, $color, $width, $pattern);
       }
 
       $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
 
       if ( $r2 > 0 ) {
-        $this->_canvas->arc($x + $length - $r2, $y + $r2, $r2, $r2, 45, 90, $color, $width, $pattern);
+        $this->_canvas->arc($x + $length - $r2, $y + $r2, $r2, $r2, 45-$adjust, 90+$adjust, $color, $width, $pattern);
       }
       break;
       
     case "bottom":
-      $x += $width/2; 
-      $length -= $width; 
-      $y -= $width/2;
+      $x += $half_width; 
+      $y -= $half_width;
       
       if ( $r1 > 0 ) {
-        $this->_canvas->arc($x + $r1, $y - $r1, $r1, $r1, 225-1, 270+1, $color, $width, $pattern);
+        $this->_canvas->arc($x + $r1, $y - $r1, $r1, $r1, 225-$adjust, 270+$adjust, $color, $width, $pattern);
       }
       
       $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
       
       if ( $r2 > 0 ) {
-        $this->_canvas->arc($x + $length - $r2, $y - $r2, $r2, $r2, 270, 315, $color, $width, $pattern);
+        $this->_canvas->arc($x + $length - $r2, $y - $r2, $r2, $r2, 270-$adjust, 315+$adjust, $color, $width, $pattern);
       }
       break;
       
     case "left":
-      $y += $width/2; 
-      $length -= $width; 
-      $x += $width/2;
+      $y += $half_width; 
+      $x += $half_width;
       
       if ( $r1 > 0 ) {
-        $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 135-1, 180+1, $color, $width, $pattern);
+        $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 135-$adjust, 180+$adjust, $color, $width, $pattern);
       }
       
       $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
       
       if ( $r2 > 0 ) {
-        $this->_canvas->arc($x + $r2, $y + $length - $r2, $r2, $r2, 180, 225, $color, $width, $pattern);
+        $this->_canvas->arc($x + $r2, $y + $length - $r2, $r2, $r2, 180-$adjust, 225+$adjust, $color, $width, $pattern);
       }
       break;
       
     case "right":
-      $y += $width/2; 
-      $length -= $width; 
-      $x -= $width/2;
+      $y += $half_width; 
+      $x -= $half_width;
       
-      if ($r1 > 0) {
-        $this->_canvas->arc($x - $r1, $y + $r1, $r1, $r1, 0-1, 45+1, $color, $width, $pattern);
+      if ( $r1 > 0 ) {
+        $this->_canvas->arc($x - $r1, $y + $r1, $r1, $r1, 0-$adjust, 45+$adjust, $color, $width, $pattern);
       }
       
       $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
       
       if ( $r2 > 0 ) {
-        $this->_canvas->arc($x - $r2, $y + $length - $r2, $r2, $r2, 315, 360, $color, $width, $pattern);
+        $this->_canvas->arc($x - $r2, $y + $length - $r2, $r2, $r2, 315-$adjust, 360+$adjust, $color, $width, $pattern);
       }
       break;
     }

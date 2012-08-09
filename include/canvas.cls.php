@@ -191,11 +191,11 @@ interface Canvas {
    * given width and height.
    *
    * @param string $img_url the path to the image
-   * @param string $img_type the type (e.g. extension) of the image
    * @param float $x x position
    * @param float $y y position
    * @param int $w width (in pixels)
    * @param int $h height (in pixels)
+   * @param string $resolution The resolution of the image
    */
   function image($img_url, $x, $y, $w, $h, $resolution = "normal");
   

@@ -23,22 +23,62 @@ class Image_Renderer extends Block_Renderer {
     list($x, $y, $w, $h) = $frame->get_border_box();
   
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
+    
+    list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
+    
+    $has_border_radius = $tl + $tr + $br + $bl > 0;
+    
+    if ( $has_border_radius ) {
+      $this->_canvas->clipping_roundrectangle( $x, $y, $w, $h, $tl, $tr, $br, $bl );
+    }
 
-    if ( ($bg = $style->background_color) !== "transparent" )
+    if ( ($bg = $style->background_color) !== "transparent" ) {
       $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
+    }
 
-    if ( ($url = $style->background_image) && $url !== "none" )
+    if ( ($url = $style->background_image) && $url !== "none" ) {
       $this->_background_image($url, $x, $y, $w, $h, $style);
+    }
+    
+    if ( $has_border_radius ) {
+      $this->_canvas->clipping_end();
+    }
          
     $this->_render_border($frame);
     $this->_render_outline($frame);
     
     list($x, $y) = $frame->get_padding_box();
+    
     $x += $style->length_in_pt($style->padding_left, $cb["w"]);
     $y += $style->length_in_pt($style->padding_top, $cb["h"]);
     
     $w = $style->length_in_pt($style->width, $cb["w"]);
     $h = $style->length_in_pt($style->height, $cb["h"]);
+    
+    if ( $has_border_radius ) {
+      list($wt, $wr, $wb, $wl) = array(
+        $style->border_top_width,
+        $style->border_right_width,
+        $style->border_bottom_width,
+        $style->border_left_width,
+      );
+      
+      // we have to get the "inner" radius
+      if ( $tl > 0 ) {
+        $tl -= ($wt + $wl) / 2;
+      }
+      if ( $tr > 0 ) {
+        $tr -= ($wt + $wr) / 2;
+      }
+      if ( $br > 0 ) {
+        $br -= ($wb + $wr) / 2;
+      }
+      if ( $bl > 0 ) {
+        $bl -= ($wb + $wl) / 2;
+      }
+      
+      $this->_canvas->clipping_roundrectangle( $x, $y, $w, $h, $tl, $tr, $br, $bl );
+    }
     
     $src = $frame->get_image_url();
 
@@ -53,6 +93,10 @@ class Image_Renderer extends Block_Renderer {
     }
     else {
       $this->_canvas->image( $src, $x, $y, $w, $h, $style->image_resolution);
+    }
+    
+    if ( $has_border_radius ) {
+      $this->_canvas->clipping_end();
     }
     
     if ( $msg = $frame->get_image_msg() ) {

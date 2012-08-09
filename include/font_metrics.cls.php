@@ -312,7 +312,6 @@ class Font_Metrics {
       $entry = $families[$fontname];
     }
     
-    $remote_file = $remote_file;
     $local_file = DOMPDF_FONT_DIR . md5($remote_file);
     $cache_entry = $local_file;
     $local_file .= ".ttf";
