@@ -43,10 +43,18 @@ class Frame_Factory {
    * FIXME: this is admittedly a little smelly...
    */ 
   static function decorate_frame(Frame $frame, DOMPDF $dompdf, Frame $root = null) {
-    if ( is_null($dompdf) )
-      throw new Exception("foo");
-      
+    if ( is_null($dompdf) ) {
+      throw new DOMPDF_Exception("The DOMPDF argument is required");
+    }
+    
     $style = $frame->get_style();
+    
+    // Floating (and more generally out-of-flow) elements are blocks 
+    // http://coding.smashingmagazine.com/2007/05/01/css-float-theory-things-you-should-know/
+    if ( !$frame->is_in_flow() ) {
+      $style->display = "block";
+    }
+      
     $display = $style->display;
     
     switch ($display) {
