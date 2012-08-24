@@ -147,7 +147,7 @@ abstract class Frame_Reflower {
       return $this->_min_max_cache = array(
         $delta, $delta,
         "min" => $delta, 
-        "max" => $deltan
+        "max" => $delta,
       );
     }
 

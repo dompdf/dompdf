@@ -51,7 +51,7 @@ class Frame_Factory {
     
     // Floating (and more generally out-of-flow) elements are blocks 
     // http://coding.smashingmagazine.com/2007/05/01/css-float-theory-things-you-should-know/
-    if ( !$frame->is_in_flow() ) {
+    if ( !$frame->is_in_flow() && in_array($style->display, Style::$INLINE_TYPES)) {
       $style->display = "block";
     }
       
