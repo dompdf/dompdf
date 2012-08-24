@@ -216,7 +216,9 @@ class DOMPDF {
    * set the right value for numeric formatting
    */
   private function save_locale() {
-    if ( $this->_locale_standard ) return;
+    if ( $this->_locale_standard ) {
+      return;
+    }
     
     $this->_system_locale = setlocale(LC_NUMERIC, "C");
   }
@@ -225,7 +227,9 @@ class DOMPDF {
    * Restore the system's locale configuration
    */
   private function restore_locale() {
-    if ( $this->_locale_standard ) return;
+    if ( $this->_locale_standard ) {
+      return;
+    }
     
     setlocale(LC_NUMERIC, $this->_system_locale);
   }
@@ -345,25 +349,29 @@ class DOMPDF {
     // Store parsing warnings as messages (this is to prevent output to the
     // browser if the html is ugly and the dom extension complains,
     // preventing the pdf from being streamed.)
-    if ( !$this->_protocol && !$this->_base_host && !$this->_base_path )
+    if ( !$this->_protocol && !$this->_base_host && !$this->_base_path ) {
       list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
+    }
 
-    if ( !DOMPDF_ENABLE_REMOTE &&
-         ($this->_protocol != "" && $this->_protocol !== "file://" ) )
+    if ( !DOMPDF_ENABLE_REMOTE && ($this->_protocol != "" && $this->_protocol !== "file://" ) ) {
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
-
+    }
+         
     if ($this->_protocol == "" || $this->_protocol === "file://") {
 
       $realfile = realpath($file);
-      if ( !$file )
+      if ( !$file ) {
         throw new DOMPDF_Exception("File '$file' not found.");
-
-      if ( strpos($realfile, DOMPDF_CHROOT) !== 0 )
+      }
+      
+      if ( strpos($realfile, DOMPDF_CHROOT) !== 0 ) {
         throw new DOMPDF_Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
+      }
 
       // Exclude dot files (e.g. .htaccess)
-      if ( substr(basename($realfile),0,1) === "." )
+      if ( substr(basename($realfile), 0, 1) === "." ) {
         throw new DOMPDF_Exception("Permission denied on $file.");
+      }
 
       $file = $realfile;
     }
@@ -414,13 +422,16 @@ class DOMPDF {
       if (mb_detect_encoding($str) == '') {
         if (isset($matches[1])) {
           $encoding = strtoupper($matches[1]);
-        } else {
+        }
+        else {
           $encoding = 'UTF-8';
         }
-      } else {
+      }
+      else {
         if (isset($matches[1])) {
           $encoding = strtoupper($matches[1]);
-        } else {
+        }
+        else {
           $encoding = 'auto';
         }
       }
@@ -431,16 +442,18 @@ class DOMPDF {
       
       if (isset($matches[1])) {
         $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
-      } else {
+      }
+      else {
         $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
       }
-    } else {
+    }
+    else {
       $encoding = 'UTF-8';
     }
     
     // remove BOM mark from UTF-8, it's treated as document text by DOMDocument
     // FIXME: roll this into the encoding detection using UTF-8/16/32 BOM (http://us2.php.net/manual/en/function.mb-detect-encoding.php#91051)?
-    if (substr($str, 0, 3) == chr(0xEF).chr(0xBB).chr(0xBF)) {
+    if ( substr($str, 0, 3) == chr(0xEF).chr(0xBB).chr(0xBF) ) {
       $str = substr($str, 3);
     }
     
@@ -544,7 +557,8 @@ class DOMPDF {
     $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
     if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
       $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
-    } else {
+    }
+    else {
       $acceptedmedia[] = Stylesheet::$ACCEPTED_DEFAULT_MEDIA_TYPE;
     }
     
@@ -580,6 +594,7 @@ class DOMPDF {
                   break;
                 }
               }
+              
               if (!$accept) {
                 //found at least one mediatype, but none of the accepted ones
                 //Skip this css file.
@@ -805,8 +820,9 @@ class DOMPDF {
     global $_dompdf_warnings, $_dompdf_show_warnings;
     if ( $_dompdf_show_warnings ) {
       echo '<b>DOMPDF Warnings</b><br><pre>';
-      foreach ($_dompdf_warnings as $msg)
+      foreach ($_dompdf_warnings as $msg) {
         echo $msg . "\n";
+      }
       echo $this->get_canvas()->get_cpdf()->messages;
       echo '</pre>';
       flush();
@@ -819,8 +835,9 @@ class DOMPDF {
    * Add meta information to the PDF after rendering
    */
   function add_info($label, $value) {
-    if (!is_null($this->_pdf))
+    if ( !is_null($this->_pdf) ) {
       $this->_pdf->add_info($label, $value);
+    }
   }
 
   /**
@@ -828,7 +845,9 @@ class DOMPDF {
    * @return void
    */
   private function write_log() {
-    if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) return;
+    if ( !DOMPDF_LOG_OUTPUT_FILE || !is_writable(DOMPDF_LOG_OUTPUT_FILE) ) {
+      return;
+    }
     
     $frames = Frame::$ID_COUNTER;
     $memory = DOMPDF_memory_usage() / 1024;
@@ -871,8 +890,9 @@ class DOMPDF {
     
     $this->write_log();
     
-    if (!is_null($this->_pdf))
+    if ( !is_null($this->_pdf) ) {
       $this->_pdf->stream($filename, $options);
+    }
       
     $this->restore_locale();
   }
@@ -896,8 +916,9 @@ class DOMPDF {
     
     $this->write_log();
 
-    if ( is_null($this->_pdf) )
+    if ( is_null($this->_pdf) ) {
       return null;
+    }
 
     $output = $this->_pdf->output( $options );
     

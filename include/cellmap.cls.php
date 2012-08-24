@@ -171,15 +171,18 @@ class Cellmap {
   }
 
   function &get_column($i) {
-    if ( !isset($this->_columns[$i]) )
-      $this->_columns[$i] = array("x" => 0,
-                                  "min-width" => 0,
-                                  "max-width" => 0,
-                                  "used-width" => null,
-                                  "absolute" => 0,
-                                  "percent" => 0,
-                                  "auto" => true);
-
+    if ( !isset($this->_columns[$i]) ) {
+      $this->_columns[$i] = array(
+        "x" => 0,
+        "min-width" => 0,
+        "max-width" => 0,
+        "used-width" => null,
+        "absolute" => 0,
+        "percent" => 0,
+        "auto" => true,
+      );
+    }
+    
     return $this->_columns[$i];
   }
 
@@ -188,21 +191,30 @@ class Cellmap {
   }
 
   function &get_row($j) {
-    if ( !isset($this->_rows[$j]) )
-      $this->_rows[$j] = array("y" => 0,
-                               "first-column" => 0,
-                               "height" => null);
+    if ( !isset($this->_rows[$j]) ) {
+      $this->_rows[$j] = array(
+        "y" => 0,
+        "first-column" => 0,
+        "height" => null,
+      );
+    }
+    
     return $this->_rows[$j];
   }
 
   function get_border($i, $j, $h_v, $prop = null) {
-    if ( !isset($this->_borders[$i][$j][$h_v]) )
-      $this->_borders[$i][$j][$h_v] = array("width" => 0,
-                                           "style" => "solid",
-                                           "color" => "black");
-    if ( isset($prop) )
+    if ( !isset($this->_borders[$i][$j][$h_v]) ) {
+      $this->_borders[$i][$j][$h_v] = array(
+        "width" => 0,
+        "style" => "solid",
+        "color" => "black",
+      );
+    }
+    
+    if ( isset($prop) ) {
       return $this->_borders[$i][$j][$h_v][$prop];
-
+    }
+    
     return $this->_borders[$i][$j][$h_v];
   }
 
@@ -248,14 +260,18 @@ class Cellmap {
     if ( !isset($this->_columns[$col])) {
       $_dompdf_warnings[] = "Frame not found in columns array.  Check your table layout for missing or extra TDs.";
       $x = 0;
-    } else
+    }
+    else {
       $x = $this->_columns[$col]["x"];
+    }
 
     if ( !isset($this->_rows[$row])) {
       $_dompdf_warnings[] = "Frame not found in row array.  Check your table layout for missing or extra TDs.";
       $y = 0;
-    } else
+    }
+    else {
       $y = $this->_rows[$row]["y"];
+    }
 
     return array($x, $y, "x" => $x, "y" => $y);
   }
@@ -269,9 +285,10 @@ class Cellmap {
 
     $cols = $this->_frames[$key]["columns"];
     $w = 0;
-    foreach ($cols as $i)
+    foreach ($cols as $i) {
       $w += $this->_columns[$i]["used-width"];
-
+    }
+    
     return $w;
 
   }
@@ -287,10 +304,12 @@ class Cellmap {
     $h = 0;
     foreach ($rows as $i) {
       if ( !isset($this->_rows[$i]) )  {
-        throw new Exception("foo");
+        throw new Exception("The row #$i could not be found, please file an issue in the tracker with the HTML code");
       }
+      
       $h += $this->_rows[$i]["height"];
     }
+    
     return $h;
 
   }
@@ -349,8 +368,9 @@ class Cellmap {
 
          ($o_width == $n_width &&
           in_array($n_style, self::$_BORDER_STYLE_SCORE) &&
-          self::$_BORDER_STYLE_SCORE[ $n_style ] > self::$_BORDER_STYLE_SCORE[ $o_style ]) )
+          self::$_BORDER_STYLE_SCORE[ $n_style ] > self::$_BORDER_STYLE_SCORE[ $o_style ]) ) {
       $border = $border_spec;
+    }
 
     return $border["width"];
   }
@@ -371,11 +391,13 @@ class Cellmap {
          in_array($display, Table_Frame_Decorator::$ROW_GROUPS) ) {
 
       $start_row = $this->__row;
-      foreach ( $frame->get_children() as $child )
+      foreach ( $frame->get_children() as $child ) {
         $this->add_frame( $child );
+      }
 
-      if ( $display === "table-row" )
+      if ( $display === "table-row" ) {
         $this->add_row();
+      }
 
       $num_rows = $this->__row - $start_row - 1;
       $key = $frame->get_id();
@@ -430,8 +452,10 @@ class Cellmap {
 
     // Find the next available column (fix by Ciro Mondueri)
     $ac = $this->__col;
-    while ( isset($this->_cells[$this->__row][$ac]) )
+    while ( isset($this->_cells[$this->__row][$ac]) ) {
        $ac++;
+    }
+    
     $this->__col = $ac;
 
     // Rows:
@@ -440,8 +464,9 @@ class Cellmap {
 
       $this->_frames[$key]["rows"][] = $row;
 
-      for ( $j = 0; $j < $colspan; $j++)
+      for ( $j = 0; $j < $colspan; $j++) {
         $this->_cells[$row][$this->__col + $j] = $frame;
+      }
 
       if ( $collapse ) {
         // Resolve vertical borders
@@ -500,8 +525,8 @@ class Cellmap {
       if ( is_percent($width) ) {
         $var = "percent";
         $val = (float)rtrim($width, "% ") / $colspan;
-  
-      } else if ( $width !== "auto" ) {
+      }
+      else if ( $width !== "auto" ) {
         $var = "absolute";
         $val = $style->length_in_pt($frame_min) / $colspan;
       }
@@ -560,8 +585,9 @@ class Cellmap {
 
     // Find the next available column
     $i = 0;
-    while ( isset($this->_cells[$this->__row][$i]) )
+    while ( isset($this->_cells[$this->__row][$i]) ) {
       $i++;
+    }
 
     $this->__col = $i;
 
@@ -577,8 +603,9 @@ class Cellmap {
   function remove_row(Frame $row) {
 
     $key = $row->get_id();
-    if ( !isset($this->_frames[$key]) )
+    if ( !isset($this->_frames[$key]) ) {
       return;  // Presumably this row has alredy been removed
+    }
 
     $this->_row = $this->_num_rows--;
 
@@ -598,6 +625,7 @@ class Cellmap {
           unset($this->_cells[$r][$c]);
         }
       }
+      
       $this->_rows[$r] = null;
       unset($this->_rows[$r]);
     }
@@ -615,9 +643,10 @@ class Cellmap {
   function remove_row_group(Frame $group) {
 
     $key = $group->get_id();
-    if ( !isset($this->_frames[$key]) )
+    if ( !isset($this->_frames[$key]) ) {
       return;  // Presumably this row has alredy been removed
-
+    }
+    
     $iter = $group->get_first_child();
     while ($iter) {
       $this->remove_row($iter);
@@ -658,7 +687,6 @@ class Cellmap {
     foreach ( array_keys($this->_columns) as $j ) {
       $this->_columns[$j]["x"] = $x;
       $x += $this->_columns[$j]["used-width"];
-
     }
 
   }
@@ -672,16 +700,20 @@ class Cellmap {
 
       $h = 0;
       foreach( $arr["rows"] as $row ) {
-        if ( !isset($this->_rows[$row]) )
+        if ( !isset($this->_rows[$row]) ) {
           // The row has been removed because of a page split, so skip it.
           continue;
+        }
+        
         $h += $this->_rows[$row]["height"];
       }
 
-      if ( $frame instanceof Table_Cell_Frame_Decorator )
+      if ( $frame instanceof Table_Cell_Frame_Decorator ) {
         $frame->set_cell_height($h);
-      else
+      }
+      else {
         $frame->get_style()->height = $h;
+      }
     }
 
   }
@@ -700,21 +732,26 @@ class Cellmap {
 
       $h = 0;
       foreach ($arr["rows"] as $row ) {
-        if ( !isset($this->_rows[$row]) )
+        if ( !isset($this->_rows[$row]) ) {
           continue;
+        }
 
         $h += $this->_rows[$row]["height"];
       }
       
-      if ( $content_height > 0 )
+      if ( $content_height > 0 ) {
         $new_height = ($h / $content_height) * $table_height;
-      else
+      }
+      else {
         $new_height = 0;
+      }
 
-      if ( $frame instanceof Table_Cell_Frame_Decorator )
+      if ( $frame instanceof Table_Cell_Frame_Decorator ) {
         $frame->set_cell_height($new_height);
-      else
+      }
+      else {
         $frame->get_style()->height = $new_height;
+      }
     }
 
   }
@@ -731,15 +768,18 @@ class Cellmap {
 
     $str .=  "Frames:<br/>";
     $arr = array();
-    foreach ( $this->_frames as $key => $val )
+    foreach ( $this->_frames as $key => $val ) {
       $arr[$key] = array("columns" => $val["columns"], "rows" => $val["rows"]);
-
+    }
+    
     $str .= pre_r($arr, true);
 
-    if ( php_sapi_name() == "cli" )
+    if ( php_sapi_name() == "cli" ) {
       $str = strip_tags(str_replace(array("<br/>","<b>","</b>"),
                                     array("\n",chr(27)."[01;33m", chr(27)."[0m"),
                                     $str));
+    }
+    
     return $str;
   }
 }

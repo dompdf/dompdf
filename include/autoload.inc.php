@@ -19,8 +19,9 @@
 function DOMPDF_autoload($class) {
   $filename = DOMPDF_INC_DIR . "/" . mb_strtolower($class) . ".cls.php";
   
-  if ( is_file($filename) )
+  if ( is_file($filename) ) {
     require_once($filename);
+  }
 }
 
 // If SPL autoload functions are available (PHP >= 5.1.2)

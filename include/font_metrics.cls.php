@@ -26,7 +26,8 @@ require_once DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php";
 if (!defined("__DOMPDF_FONT_CACHE_FILE")) {
   if (file_exists(DOMPDF_FONT_DIR . "dompdf_font_family_cache")) {
     define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache");
-  } else {
+  }
+  else {
     define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.dist.php");
   }
 }
@@ -234,8 +235,9 @@ class Font_Metrics {
    * @see save_font_families()
    */
   static function load_font_families() {
-    if ( !is_readable(self::CACHE_FILE) )
+    if ( !is_readable(self::CACHE_FILE) ) {
       return;
+    }
 
     self::$_font_lookup = require_once(self::CACHE_FILE);
     

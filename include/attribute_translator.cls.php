@@ -205,18 +205,21 @@ class Attribute_Translator {
     $node = $frame->get_node();
     $tag = $node->tagName;
 
-    if ( !isset(self::$__ATTRIBUTE_LOOKUP[$tag]) )
+    if ( !isset(self::$__ATTRIBUTE_LOOKUP[$tag]) ) {
       return;
+    }
 
     $valid_attrs = self::$__ATTRIBUTE_LOOKUP[$tag];
     $attrs = $node->attributes;
     $style = rtrim($node->getAttribute(self::$_style_attr), "; ");
-    if ( $style != "" )
+    if ( $style != "" ) {
       $style .= ";";
+    }
 
     foreach ($attrs as $attr => $attr_node ) {
-      if ( !isset($valid_attrs[$attr]) )
+      if ( !isset($valid_attrs[$attr]) ) {
         continue;
+      }
 
       $value = $attr_node->value;
 
@@ -224,11 +227,11 @@ class Attribute_Translator {
       
       // Look up $value in $target, if $target is an array:
       if ( is_array($target) ) {
-
-        if ( isset($target[$value]) )
+        if ( isset($target[$value]) ) {
           $style .= " " . self::_resolve_target($node, $target[$value], $value);
-
-      } else {
+        }
+      }
+      else {
         // otherwise use target directly
         $style .= " " . self::_resolve_target($node, $target, $value);
       }
@@ -328,17 +331,19 @@ class Attribute_Translator {
   static protected function _set_table_cellspacing($node, $value) {
     $style = rtrim($node->getAttribute(self::$_style_attr), ";");
 
-    if ( $value == 0 )
+    if ( $value == 0 ) {
       $style .= "; border-collapse: collapse;";
-      
-    else
+    }
+    else {
       $style .= "; border-spacing: {$value}px; border-collapse: separate;";
-      
+    }
+    
     return ltrim($style, ";");
   }
   
   static protected function _set_table_rules($node, $value) {
     $new_style = "; border-collapse: collapse;";
+    
     switch ($value) {
     case "none":
       $new_style .= "border-style: none;";
@@ -388,27 +393,30 @@ class Attribute_Translator {
   static protected function _set_hr_align($node, $value) {
     $style = rtrim($node->getAttribute(self::$_style_attr),";");
     $width = $node->getAttribute("width");
-    if ( $width == "" )
+    
+    if ( $width == "" ) {
       $width = "100%";
+    }
 
     $remainder = 100 - (double)rtrim($width, "% ");
     
     switch ($value) {
-    case "left":
-      $style .= "; margin-right: $remainder %;";
-      break;
-
-    case "right":
-      $style .= "; margin-left: $remainder %;";
-      break;
-
-    case "center":
-      $style .= "; margin-left: auto; margin-right: auto;";
-      break;
-
-    default:
-      return null;
+      case "left":
+        $style .= "; margin-right: $remainder %;";
+        break;
+  
+      case "right":
+        $style .= "; margin-left: $remainder %;";
+        break;
+  
+      case "center":
+        $style .= "; margin-left: auto; margin-right: auto;";
+        break;
+  
+      default:
+        return null;
     }
+    
     return ltrim($style, "; ");
   }
 
@@ -464,14 +472,17 @@ class Attribute_Translator {
   static protected function _set_font_size($node, $value) {
     $style = $node->getAttribute(self::$_style_attr);
 
-    if ( $value[0] === "-" || $value[0] === "+" )
+    if ( $value[0] === "-" || $value[0] === "+" ) {
       $value = self::$_last_basefont_size + (int)$value;
-
-    if ( isset(self::$_font_size_lookup[$value]) )
+    }
+    
+    if ( isset(self::$_font_size_lookup[$value]) ) {
       $style .= "; font-size: " . self::$_font_size_lookup[$value] . ";";
-    else
+    }
+    else {
       $style .= "; font-size: $value;";
-
+    }
+    
     return ltrim($style, "; ");
   }
 }

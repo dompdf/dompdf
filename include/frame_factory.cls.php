@@ -128,15 +128,19 @@ class Frame_Factory {
       break;
 
     case "-dompdf-list-bullet":
-      if ( $style->list_style_position === "inside" )
+      if ( $style->list_style_position === "inside" ) {
         $positioner = "Inline";
-      else        
+      }
+      else {        
         $positioner = "List_Bullet";
+      }
 
-      if ( $style->list_style_image !== "none" )
+      if ( $style->list_style_image !== "none" ) {
         $decorator = "List_Bullet_Image";
-      else
+      }
+      else {
         $decorator = "List_Bullet";
+      }
       
       $reflower = "List_Bullet";
       break;
@@ -165,11 +169,12 @@ class Frame_Factory {
     // Handle CSS position
     $position = $style->position;
     
-    if ( $position === "absolute" )
+    if ( $position === "absolute" ) {
       $positioner = "Absolute";
-
-    else if ( $position === "fixed" )
+    }
+    else if ( $position === "fixed" ) {
       $positioner = "Fixed";
+    }
       
     $node = $frame->get_node();
     

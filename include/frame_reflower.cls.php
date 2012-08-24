@@ -213,8 +213,8 @@ abstract class Frame_Reflower {
    */
   protected function _parse_string($string, $single_trim = false) {
     if ($single_trim) {
-      $string = preg_replace("/^[\"\']/", "", $string);
-      $string = preg_replace("/[\"\']$/", "", $string);
+      $string = preg_replace('/^[\"\']/', "", $string);
+      $string = preg_replace('/[\"\']$/', "", $string);
     }
     else {
       $string = trim($string, "'\"");
@@ -239,7 +239,7 @@ abstract class Frame_Reflower {
   protected function _parse_quotes() {
     
     // Matches quote types
-    $re = "/(\'[^\']*\')|(\"[^\"]*\")/";
+    $re = '/(\'[^\']*\')|(\"[^\"]*\")/';
     
     $quotes = $this->_frame->get_style()->quotes;
       
@@ -391,11 +391,14 @@ abstract class Frame_Reflower {
     $frame = $this->_frame;
     $style = $frame->get_style();
     
-    if ( $style->counter_reset && ($reset = $style->counter_reset) !== "none" )
-      $frame->reset_counter($reset);
+    if ( $style->counter_reset && ($reset = $style->counter_reset) !== "none" ) {
+      $vars = preg_split('/\s+/', trim($reset), 2);
+      $frame->reset_counter($vars[0], isset($vars[1]) ? $vars[1] : 0);
+    }
     
-    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" )
+    if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" ) {
       $frame->increment_counters($increment);
+    }
   
     if ( $style->content && !$frame->get_first_child() && $frame->get_node()->nodeName === "dompdf_generated" ) {
       $content = $this->_parse_content();

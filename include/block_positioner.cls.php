@@ -33,8 +33,10 @@ class Block_Positioner extends Positioner {
       }
       $y = $p->get_current_line_box()->y;
       
-    } else
+    }
+    else {
       $y = $cb["y"];
+    }
 
     $x = $cb["x"];
 

@@ -53,7 +53,8 @@ class Fixed_Positioner extends Positioner {
           $margin_height = $this->_frame->get_margin_height();
           if ( $margin_height !== "auto" ) {
             $y -= $margin_height;
-          } else {
+          }
+          else {
             $y -= $height;
           }
         }
@@ -70,7 +71,8 @@ class Fixed_Positioner extends Positioner {
           $margin_width = $this->_frame->get_margin_width();
           if ( $margin_width !== "auto" ) {
             $x -= $margin_width;
-          } else {
+          }
+          else {
             $x -= $width;
           }
         }
