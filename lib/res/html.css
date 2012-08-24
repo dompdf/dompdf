@@ -341,44 +341,114 @@ form {
   display: block;
 }
 
-input {
+input, button, select {
   display: inline-block;
-  -dompdf-appearance: textfield;
+  font-family: sans-serif;
 }
 
-input[type=password] {
-  -dompdf-appearance: password;
+input[type=text],
+input[type=password],
+select {
+  width: 12em;
 }
 
-input[type=radio] {
-  -dompdf-appearance: radio-button;
-}
-
-input[type=checkbox] {
-  -dompdf-appearance: checkbox;
+input[type=text],
+input[type=password],
+input[type=button],
+input[type=submit],
+input[type=reset],
+input[type=file],
+button,
+textarea,
+select {
+  background: #FFF;
+  border: 1px solid #999;
+  padding: 2px;
+  margin: 2px;
 }
 
 input[type=button],
 input[type=submit],
-input[type=reset] {
-  -dompdf-appearance: button;
+input[type=reset],
+input[type=file],
+button {
+  background: #CCC;
+  width: 8em;
+  text-align: center;
 }
 
 input[type=text]:before,
-input[type=password]:before,
 input[type=button]:before,
 input[type=submit]:before,
 input[type=reset]:before {
   content: attr(value);
 }
 
-select {
-  -dompdf-appearance: pop-up-menu;
+input[type=file]:before {
+  content: "Chose a file";
+}
+
+input[type=password][value]:before {
+  font-family: "DejaVu Sans";
+  content: "\2022\2022\2022\2022\2022\2022\2022\2022";
+  line-height: 1em;
+}
+
+input[type=checkbox],
+input[type=radio],
+select:after {
+  font-family: "DejaVu Sans";
+  font-size: 18px;
+  line-height: 1;
+}
+
+input[type=checkbox]:before {
+  content: "\2610";
+}
+
+input[type=checkbox][checked]:before {
+  content: "\2611";
+}
+
+input[type=radio]:before {
+  content: "\25CB";
+}
+
+input[type=radio][checked]:before {
+  content: "\25C9";
 }
 
 textarea {
-  -dompdf-appearance: field;
   display: block;
+  height: 3em;
+  overflow: hidden;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+select {
+  position: relative!important;
+  overflow: hidden!important;
+}
+
+select:after {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 5em;
+  width: 1.4em;
+  text-align: center;
+  background: #CCC;
+  content: "\25BE";
+}
+
+select option {
+  display: none;
+}
+
+select option[selected] {
+  display: inline;
 }
 
 fieldset {

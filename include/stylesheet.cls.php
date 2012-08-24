@@ -429,6 +429,11 @@ class Stylesheet {
         }
         
         $tok .= $selector[$i++];
+        
+        if ( $in_attr && $c === "]" ) {
+          $in_attr = false;
+          break;
+        }
       }
 
       switch ($s) {
@@ -823,7 +828,6 @@ class Stylesheet {
           $new_node->setAttribute($pos, $pos);
           
           $new_frame_id = $tree->insert_node($node, $new_node, $pos);
-          
           $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
         }
       }

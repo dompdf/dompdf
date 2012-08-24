@@ -143,8 +143,13 @@ abstract class Frame_Reflower {
     $delta = $style->length_in_pt($dims, $cb_w);
 
     // Handle degenerate case
-    if ( !$this->_frame->get_first_child() )
-      return $this->_min_max_cache = array($delta, $delta,"min" => $delta, "max" => $delta);
+    if ( !$this->_frame->get_first_child() ) {
+      return $this->_min_max_cache = array(
+        $delta, $delta,
+        "min" => $delta, 
+        "max" => $deltan
+      );
+    }
 
     $low = array();
     $high = array();
@@ -163,21 +168,20 @@ abstract class Frame_Reflower {
 
         $minmax = $child->get_min_max_width();
 
-        if ( in_array( $iter->current()->get_style()->white_space, array("pre", "nowrap") ) )
+        if ( in_array( $iter->current()->get_style()->white_space, array("pre", "nowrap") ) ) {
           $inline_min += $minmax["min"];
-        else
+        }
+        else {
           $low[] = $minmax["min"];
+        }
 
         $inline_max += $minmax["max"];
         $iter->next();
 
       }
 
-      if ( $inline_max > 0 )
-        $high[] = $inline_max;
-
-      if ( $inline_min > 0 )
-        $low[] = $inline_min;
+      if ( $inline_max > 0 ) $high[] = $inline_max;
+      if ( $inline_min > 0 ) $low[]  = $inline_min;
 
       if ( $iter->valid() ) {
         list($low[], $high[]) = $iter->current()->get_min_max_width();
@@ -193,10 +197,8 @@ abstract class Frame_Reflower {
     $width = $style->width;
     if ( $width !== "auto" && !is_percent($width) ) {
       $width = $style->length_in_pt($width, $cb_w);
-      if ( $min < $width )
-        $min = $width;
-      if ( $max < $width )
-        $max = $width;
+      if ( $min < $width ) $min = $width;
+      if ( $max < $width ) $max = $width;
     }
 
     $min += $delta;
@@ -212,7 +214,7 @@ abstract class Frame_Reflower {
    * @return string
    */
   protected function _parse_string($string, $single_trim = false) {
-    if ($single_trim) {
+    if ( $single_trim ) {
       $string = preg_replace('/^[\"\']/', "", $string);
       $string = preg_replace('/[\"\']$/', "", $string);
     }
@@ -224,9 +226,9 @@ abstract class Frame_Reflower {
                           array("",'"',"'"), $string);
 
     // Convert escaped hex characters into ascii characters (e.g. \A => newline)
-    $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})(\s)?(?(2)|(?=[^0-9a-fA-F]))/",
+    $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
                                     create_function('$matches',
-                                                    'return chr(hexdec($matches[1]));'),
+                                                    'return unichr(hexdec($matches[1]));'),
                                     $string);
     return $string;
   }
@@ -244,8 +246,9 @@ abstract class Frame_Reflower {
     $quotes = $this->_frame->get_style()->quotes;
       
     // split on spaces, except within quotes
-    if (!preg_match_all($re, "$quotes", $matches, PREG_SET_ORDER))
+    if ( !preg_match_all($re, "$quotes", $matches, PREG_SET_ORDER) ) {
       return;
+    }
       
     $quotes_array = array();
     foreach($matches as &$_quote){
@@ -281,21 +284,25 @@ abstract class Frame_Reflower {
     $quotes = $this->_parse_quotes();
     
     // split on spaces, except within quotes
-    if (!preg_match_all($re, $content, $matches, PREG_SET_ORDER))
+    if ( !preg_match_all($re, $content, $matches, PREG_SET_ORDER) ) {
       return;
+    }
       
     $text = "";
 
     foreach ($matches as $match) {
       
-      if ( isset($match[2]) && $match[2] !== "" )
+      if ( isset($match[2]) && $match[2] !== "" ) {
         $match[1] = $match[2];
-
-      if ( isset($match[6]) && $match[6] !== "" )
+      }
+      
+      if ( isset($match[6]) && $match[6] !== "" ) {
         $match[4] = $match[6];
+      }
 
-      if ( isset($match[8]) && $match[8] !== "" )
+      if ( isset($match[8]) && $match[8] !== "" ) {
         $match[7] = $match[8];
+      }
 
       if ( isset($match[1]) && $match[1] !== "" ) {
         
@@ -306,8 +313,9 @@ abstract class Frame_Reflower {
         // http://www.w3.org/TR/CSS21/generate.html#content
 
         $i = mb_strpos($match[1], ")");
-        if ( $i === false )
+        if ( $i === false ) {
           continue;
+        }
 
         $args = explode(",", mb_substr($match[1], 8, $i - 8));
         $counter_id = $args[0];
@@ -315,26 +323,33 @@ abstract class Frame_Reflower {
         if ( $match[1][7] === "(" ) {
           // counter(name [,style])
 
-          if ( isset($args[1]) )
+          if ( isset($args[1]) ) {
             $type = trim($args[1]);
-          else
+          }
+          else {
             $type = null;
+          }
 
           $p = $this->_frame->lookup_counter_frame($counter_id);
           
           $text .= $p->counter_value($counter_id, $type);
 
-        } else if ( $match[1][7] === "s" ) {
+        }
+        else if ( $match[1][7] === "s" ) {
           // counters(name, string [,style])
-          if ( isset($args[1]) )
+          if ( isset($args[1]) ) {
             $string = $this->_parse_string(trim($args[1]));
-          else
+          }
+          else {
             $string = "";
+          }
 
-          if ( isset($args[2]) )
+          if ( isset($args[2]) ) {
             $type = $args[2];
-          else
+          }
+          else {
             $type = null;
+          }
 
           $p = $this->_frame->lookup_counter_frame($counter_id);
           $tmp = "";
@@ -344,40 +359,51 @@ abstract class Frame_Reflower {
           }
           $text .= $tmp;
 
-        } else
+        }
+        else {
           // countertops?
           continue;
+        }
 
-      } else if ( isset($match[4]) && $match[4] !== "" ) {
+      }
+      else if ( isset($match[4]) && $match[4] !== "" ) {
         // String match
         $text .= $this->_parse_string($match[4]);
-
-      } else if ( isset($match[7]) && $match[7] !== "" ) {
+      }
+      else if ( isset($match[7]) && $match[7] !== "" ) {
         // Directive match
 
         if ( $match[7] === "open-quote" ) {
           // FIXME: do something here
           $text .= $quotes[0][0];
-        } else if ( $match[7] === "close-quote" ) {
+        }
+        else if ( $match[7] === "close-quote" ) {
           // FIXME: do something else here
           $text .= $quotes[0][1];
-        } else if ( $match[7] === "no-open-quote" ) {
+        }
+        else if ( $match[7] === "no-open-quote" ) {
           // FIXME:
-        } else if ( $match[7] === "no-close-quote" ) {
+        }
+        else if ( $match[7] === "no-close-quote" ) {
           // FIXME:
-        } else if ( mb_strpos($match[7],"attr(") === 0 ) {
+        }
+        else if ( mb_strpos($match[7],"attr(") === 0 ) {
 
           $i = mb_strpos($match[7],")");
-          if ( $i === false )
+          if ( $i === false ) {
             continue;
+          }
 
           $attr = mb_substr($match[7], 5, $i - 5);
-          if ( $attr == "" )
+          if ( $attr == "" ) {
             continue;
+          }
             
           $text .= $this->_frame->get_parent()->get_node()->getAttribute($attr);
-        } else
+        }
+        else {
           continue;
+        }
       }
     }
 
