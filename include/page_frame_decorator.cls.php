@@ -502,6 +502,11 @@ class Page_Frame_Decorator extends Frame_Decorator {
         else if ( !$next->is_table() && $iter->is_table() )
           $this->_in_table--;
 
+        // Avoid bug with whitespace after blocks
+        while ( $next = $iter->get_last_child() ) {
+          // Already selected last child, do nothing more
+        }
+
         $iter = $next;
         $flg = false;
         continue;
