@@ -35,13 +35,16 @@ class Frame_Factory {
   }
 
   /**
-   * Decorate a Frame 
-   * 
-   * @param $root Frame The frame to decorate
-   * @param $dompdf DOMPDF The dompdf instance
+   * Decorate a Frame
+   *
+   * @param Frame  $frame  The frame to decorate
+   * @param DOMPDF $dompdf The dompdf instance
+   * @param Frame  $root   The frame to decorate
+   *
+   * @throws DOMPDF_Exception
    * @return Frame_Decorator
    * FIXME: this is admittedly a little smelly...
-   */ 
+   */
   static function decorate_frame(Frame $frame, DOMPDF $dompdf, Frame $root = null) {
     if ( is_null($dompdf) ) {
       throw new DOMPDF_Exception("The DOMPDF argument is required");
@@ -228,8 +231,6 @@ class Frame_Factory {
         
         $parent_node->setAttribute("dompdf-counter", $index);
         $bullet_node->setAttribute("dompdf-counter", $index);
-        
-        $index++;
       }
       
       $new_style = $dompdf->get_css()->create_style();

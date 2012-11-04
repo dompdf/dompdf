@@ -104,6 +104,9 @@ class Block_Renderer extends Abstract_Renderer {
     
     foreach ($bp as $side => $props) {
       list($x, $y, $w, $h) = $bbox;
+      $length = 0;
+      $r1 = 0;
+      $r2 = 0;
 
       if ( !$props["style"] || 
             $props["style"] === "none" || 
@@ -183,6 +186,7 @@ class Block_Renderer extends Abstract_Renderer {
     $method = "_border_" . $props["style"];
     $widths = array_fill(0, 4, $props["width"]);
     $sides = array("top", "right", "left", "bottom");
+    $length = 0;
     
     foreach ($sides as $side) {
       list($x, $y, $w, $h) = $bbox;

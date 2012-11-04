@@ -131,7 +131,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
   // text is added a sibling frame following this one and is returned.
   function split_text($offset) {
     if ( $offset == 0 )
-      return;
+      return null;
 
     if ( self::$_buggy_splittext ) {
       // workaround to solve DOMText::spliText() bug parsing multibyte strings

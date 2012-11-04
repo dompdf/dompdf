@@ -11,7 +11,6 @@
 /**
  * Translates HTML 4.0 attributes into CSS rules
  *
- * @access private
  * @package dompdf
  */
 class Attribute_Translator {
@@ -199,11 +198,13 @@ class Attribute_Translator {
     10 => "52pt", 
     11 => "60pt", 
   );
-  
-  
+
+  /**
+   * @param Frame $frame
+   */
   static function translate_attributes(Frame $frame) {
     $node = $frame->get_node();
-    $tag = $node->tagName;
+    $tag = $node->nodeName;
 
     if ( !isset(self::$__ATTRIBUTE_LOOKUP[$tag]) ) {
       return;
@@ -244,7 +245,14 @@ class Attribute_Translator {
     
   }
 
-  static protected function _resolve_target($node, $target, $value) {
+  /**
+   * @param DOMNode $node
+   * @param string  $target
+   * @param string      $value
+   *
+   * @return string
+   */
+  static protected function _resolve_target(DOMNode $node, $target, $value) {
     if ( $target[0] === "!" ) {
       // Function call
       $func = "_" . mb_substr($target, 1);
@@ -253,18 +261,28 @@ class Attribute_Translator {
     
     return $value ? sprintf($target, $value) : "";
   }
-  
-  static function append_style(DOMNode $node, $new_style) {
+
+  /**
+   * @param DOMElement $node
+   * @param string     $new_style
+   */
+  static function append_style(DOMElement $node, $new_style) {
     $style = rtrim($node->getAttribute(self::$_style_attr), ";");
     $style .= $new_style;
     $style = ltrim($style, ";");
     $node->setAttribute(self::$_style_attr, $style);
   }
-  
-  static protected function get_cell_list($node) {
+
+  /**
+   * @param DOMNode $node
+   *
+   * @return DOMNodeList|DOMElement[]
+   */
+  static protected function get_cell_list(DOMNode $node) {
     $xpath = new DOMXpath($node->ownerDocument);
     
     switch($node->nodeName) {
+      default:
       case "table":
         $query = "tr/td | thead/tr/td | tbody/tr/td | tfoot/tr/td | tr/th | thead/tr/th | tbody/tr/th | tfoot/tr/th";
         break;
@@ -281,10 +299,13 @@ class Attribute_Translator {
     }
     
     return $xpath->query($query, $node);
-  } 
+  }
 
-  //.....................................................................
-  
+  /**
+   * @param string $value
+   *
+   * @return string
+   */
   static protected function _get_valid_color($value) {
     if ( preg_match('/^#?([0-9A-F]{6})$/i', $value, $matches) ) {
       $value = "#$matches[1]";
@@ -293,17 +314,35 @@ class Attribute_Translator {
     return $value;
   }
 
-  static protected function _set_color($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return string
+   */
+  static protected function _set_color(DOMElement $node, $value) {
     $value = self::_get_valid_color($value);
     return "color: $value;";
   }
 
-  static protected function _set_background_color($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return string
+   */
+  static protected function _set_background_color(DOMElement $node, $value) {
     $value = self::_get_valid_color($value);
     return "background-color: $value;";
   }
 
-  static protected function _set_table_cellpadding($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null
+   */
+  static protected function _set_table_cellpadding(DOMElement $node, $value) {
     $cell_list = self::get_cell_list($node);
     
     foreach ($cell_list as $cell) {
@@ -313,7 +352,13 @@ class Attribute_Translator {
     return null;
   }
 
-  static protected function _set_table_border($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return string
+   */
+  static protected function _set_table_border(DOMElement $node, $value) {
     $cell_list = self::get_cell_list($node);
 
     foreach ($cell_list as $cell) {
@@ -328,7 +373,13 @@ class Attribute_Translator {
     return ltrim($style, "; ");
   }
 
-  static protected function _set_table_cellspacing($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return string
+   */
+  static protected function _set_table_cellspacing(DOMElement $node, $value) {
     $style = rtrim($node->getAttribute(self::$_style_attr), ";");
 
     if ( $value == 0 ) {
@@ -340,8 +391,14 @@ class Attribute_Translator {
     
     return ltrim($style, ";");
   }
-  
-  static protected function _set_table_rules($node, $value) {
+
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null|string
+   */
+  static protected function _set_table_rules(DOMElement $node, $value) {
     $new_style = "; border-collapse: collapse;";
     
     switch ($value) {
@@ -351,7 +408,7 @@ class Attribute_Translator {
 
     case "groups":
       // FIXME: unsupported
-      return;
+      return null;
 
     case "rows":
       $new_style .= "border-style: solid none solid none; border-width: 1px; ";
@@ -384,13 +441,25 @@ class Attribute_Translator {
     return ltrim($style, "; ");
   }
 
-  static protected function _set_hr_size($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return string
+   */
+  static protected function _set_hr_size(DOMElement $node, $value) {
     $style = rtrim($node->getAttribute(self::$_style_attr), ";");
     $style .= "; border-width: ".max(0, $value-2)."; ";
     return ltrim($style, "; ");
   }
 
-  static protected function _set_hr_align($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null|string
+   */
+  static protected function _set_hr_align(DOMElement $node, $value) {
     $style = rtrim($node->getAttribute(self::$_style_attr),";");
     $width = $node->getAttribute("width");
     
@@ -420,7 +489,13 @@ class Attribute_Translator {
     return ltrim($style, "; ");
   }
 
-  static protected function _set_table_row_align($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null
+   */
+  static protected function _set_table_row_align(DOMElement $node, $value) {
     $cell_list = self::get_cell_list($node);
 
     foreach ($cell_list as $cell) {
@@ -430,7 +505,13 @@ class Attribute_Translator {
     return null;
   }
 
-  static protected function _set_table_row_valign($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null
+   */
+  static protected function _set_table_row_valign(DOMElement $node, $value) {
     $cell_list = self::get_cell_list($node);
 
     foreach ($cell_list as $cell) {
@@ -440,7 +521,13 @@ class Attribute_Translator {
     return null;
   }
 
-  static protected function _set_table_row_bgcolor($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null
+   */
+  static protected function _set_table_row_bgcolor(DOMElement $node, $value) {
     $cell_list = self::get_cell_list($node);
     $value = self::_get_valid_color($value);
     
@@ -451,7 +538,13 @@ class Attribute_Translator {
     return null;
   }
 
-  static protected function _set_body_link($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null
+   */
+  static protected function _set_body_link(DOMElement $node, $value) {
     $a_list = $node->getElementsByTagName("a");
     $value = self::_get_valid_color($value);
     
@@ -462,14 +555,26 @@ class Attribute_Translator {
     return null;
   }
 
-  static protected function _set_basefont_size($node, $value) {
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return null
+   */
+  static protected function _set_basefont_size(DOMElement $node, $value) {
     // FIXME: ? we don't actually set the font size of anything here, just
     // the base size for later modification by <font> tags.
     self::$_last_basefont_size = $value;
     return null;
   }
-  
-  static protected function _set_font_size($node, $value) {
+
+  /**
+   * @param DOMElement $node
+   * @param string     $value
+   *
+   * @return string
+   */
+  static protected function _set_font_size(DOMElement $node, $value) {
     $style = $node->getAttribute(self::$_style_attr);
 
     if ( $value[0] === "-" || $value[0] === "+" ) {

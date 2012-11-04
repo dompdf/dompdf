@@ -42,7 +42,7 @@ class PHP_Evaluator {
     eval($code); 
   }
 
-  function render($frame) {
+  function render(Frame $frame) {
     $this->evaluate($frame->get_node()->nodeValue);
   }
 }

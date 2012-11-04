@@ -63,7 +63,13 @@ class List_Bullet_Renderer extends Abstract_Renderer {
     return $cache[$type] = "$text.";
   }
 
-  //........................................................................
+  /**
+   * @param integer $n
+   * @param string  $type
+   * @param integer $pad
+   *
+   * @return string
+   */
   private function make_counter($n, $type, $pad = null){
     $n = intval($n);
     $text = "";

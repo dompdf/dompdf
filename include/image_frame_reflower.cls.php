@@ -20,7 +20,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
     parent::__construct($frame);
   }
 
-  function reflow(Frame_Decorator $block = null) {
+  function reflow(Block_Frame_Decorator $block = null) {
     $this->_frame->position();
     
     //FLOAT
@@ -128,7 +128,7 @@ class Image_Frame_Reflower extends Frame_Reflower {
          $style->min_height !== "none" || 
          $style->max_height !== "none" ) {
            
-      list($x, $y, $w, $h) = $this->_frame->get_containing_block();
+      list(/*$x*/, /*$y*/, $w, $h) = $this->_frame->get_containing_block();
       
       $min_width = $style->length_in_pt($style->min_width, $w);
       $max_width = $style->length_in_pt($style->max_width, $w);

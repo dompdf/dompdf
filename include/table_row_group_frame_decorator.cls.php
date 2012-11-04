@@ -31,14 +31,16 @@ class Table_Row_Group_Frame_Decorator extends Frame_Decorator {
    * Override split() to remove all child rows and this element from the cellmap
    *
    * @param Frame $child
+   * @param bool  $force_pagebreak
+   *
+   * @return void
    */
-  function split($child = null, $force_pagebreak = false) {
+  function split(Frame $child = null, $force_pagebreak = false) {
 
     if ( is_null($child) ) {
       parent::split();
       return;
     }
-
 
     // Remove child & all subsequent rows from the cellmap
     $cellmap = $this->get_parent()->get_cellmap();

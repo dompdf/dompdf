@@ -174,10 +174,17 @@ class Style {
    * The computed border radius
    */
   private $_computed_border_radius = null;
+
+  /**
+   * @var bool
+   */
+  public $_has_border_radius = false;
+
   /**
    * Class constructor
    *
    * @param Stylesheet $stylesheet the stylesheet this Style is associated with.
+   * @param int        $origin
    */
   function __construct(Stylesheet $stylesheet, $origin = Stylesheet::ORIG_AUTHOR) {
     $this->_props = array();
@@ -484,22 +491,22 @@ class Style {
       }
       
       if ( ($i = mb_strpos($l, "pt"))  !== false ) {
-        $ret += mb_substr($l, 0, $i);
+        $ret += (float)mb_substr($l, 0, $i);
         continue;
       }
       
       if ( ($i = mb_strpos($l, "%"))  !== false ) {
-        $ret += mb_substr($l, 0, $i)/100 * $ref_size;
+        $ret += (float)mb_substr($l, 0, $i)/100 * $ref_size;
         continue;
       }
 
       if ( ($i = mb_strpos($l, "rem"))  !== false ) {
-        $ret += mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->get_tree()->get_root()->get_style()->font_size;
+        $ret += (float)mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->get_tree()->get_root()->get_style()->font_size;
         continue;
       }
 
       if ( ($i = mb_strpos($l, "em"))  !== false ) {
-        $ret += mb_substr($l, 0, $i) * $this->__get("font_size");
+        $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size");
         continue;
       }
           
@@ -520,12 +527,12 @@ class Style {
       }
       
       if ( ($i = mb_strpos($l, "in")) !== false ) {
-        $ret += mb_substr($l, 0, $i) * 72;
+        $ret += (float)mb_substr($l, 0, $i) * 72;
         continue;
       }
           
       if ( ($i = mb_strpos($l, "pc")) !== false ) {
-        $ret += mb_substr($l, 0, $i) * 12;
+        $ret += (float)mb_substr($l, 0, $i) * 12;
         continue;
       }
           
@@ -541,6 +548,8 @@ class Style {
    * Set inherited properties in this style using values in $parent
    *
    * @param Style $parent
+   *
+   * @return Style
    */
   function inherit(Style $parent) {
 
@@ -644,7 +653,7 @@ class Style {
   }
 
   function important_get($prop) {
-    isset($this->_important_props[$prop]);
+    return isset($this->_important_props[$prop]);
   }
 
   /**
@@ -705,15 +714,15 @@ class Style {
 
   /**
    * PHP5 overloaded getter
-   *
    * Along with {@link Style::__set()} __get() provides access to all CSS
    * properties directly.  Typically __get() is not called directly outside
    * of this class.
-   *
    * On each modification clear cache to return accurate setting.
    * Also affects direct settings not using __set
    *
    * @param string $prop
+   *
+   * @throws DOMPDF_Exception
    * @return mixed
    */
   function __get($prop) {
@@ -749,11 +758,12 @@ class Style {
 
   /**
    * Getter for the 'font-family' CSS property.
-   *
    * Uses the {@link Font_Metrics} class to resolve the font family into an
    * actual font file.
    *
    * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-family
+   * @throws DOMPDF_Exception
+   *
    * @return string
    */
   function get_font_family() {
@@ -1223,6 +1233,8 @@ class Style {
   /**
    * Return a single border property
    *
+   * @param string $side
+   *
    * @return mixed
    */
   protected function _get_border($side) {
@@ -1469,6 +1481,7 @@ class Style {
 
   protected function _image($val) {
     $DEBUGCSS=DEBUGCSS;
+    $parsed_url = "none";
     
     if ( mb_strpos($val, "url") === false ) {
       $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
@@ -1552,9 +1565,9 @@ class Style {
 
   /**
    * Set the background image url
+   * @link     http://www.w3.org/TR/CSS21/colors.html#background-properties
    *
-   * @link http://www.w3.org/TR/CSS21/colors.html#background-properties
-   * @param string $url
+   * @param string $val
    */
   function set_background_image($val) {
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
@@ -1843,8 +1856,9 @@ class Style {
   /**
    * Sets a single border
    *
-   * @param string $side
-   * @param string $border_spec  ([width] [style] [color])
+   * @param string  $side
+   * @param string  $border_spec ([width] [style] [color])
+   * @param boolean $important
    */
   protected function _set_border($side, $border_spec, $important) {
     $border_spec = preg_replace("/\s*\,\s*/", ",", $border_spec);
@@ -2286,11 +2300,11 @@ class Style {
   }
   
   function set__webkit_transform($val) {
-    return $this->set_transform($val);
+    $this->set_transform($val);
   }
   
   function set__webkit_transform_origin($val) {
-    return $this->set_transform_origin($val);
+    $this->set_transform_origin($val);
   }
   
   /**
@@ -2355,11 +2369,11 @@ class Style {
   }
   
   function set__dompdf_background_image_resolution($val) {
-    return $this->set_background_image_resolution($val);
+    $this->set_background_image_resolution($val);
   }
   
   function set__dompdf_image_resolution($val) {
-    return $this->set_image_resolution($val);
+    $this->set_image_resolution($val);
   }
 
   function set_z_index($val) {

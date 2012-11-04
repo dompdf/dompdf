@@ -320,14 +320,15 @@ class Cpdf {
     'times-roman', 'times-bold', 'times-italic', 'times-bolditalic',
     'symbol', 'zapfdingbats'
   );
-  
+
   /**
-   * class constructor
-   * this will start a new document
-   * @var array   $pageSize  Array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
-   * @var boolean $isUnicode Whether text will be treated as Unicode or not.
-   * @var string  $fontcache The font cache folder
-   * @var string  $tmp The temporary folder
+   * Class constructor
+   * This will start a new document
+   *
+   * @param array   $pageSize  Array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
+   * @param boolean $isUnicode Whether text will be treated as Unicode or not.
+   * @param string  $fontcache The font cache folder
+   * @param string  $tmp       The temporary folder
    */
   function __construct ($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
     $this->isUnicode = $isUnicode;
@@ -362,7 +363,7 @@ class Cpdf {
    */
 
   /**
-   *destination object, used to specify the location for the user to jump to, presently on opening
+   * Destination object, used to specify the location for the user to jump to, presently on opening
    */
   protected function  o_destination($id, $action, $options = '') {
     if  ($action !== 'new') {

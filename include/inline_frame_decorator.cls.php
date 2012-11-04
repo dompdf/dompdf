@@ -18,7 +18,7 @@ class Inline_Frame_Decorator extends Frame_Decorator {
   
   function __construct(Frame $frame, DOMPDF $dompdf) { parent::__construct($frame, $dompdf); }
 
-  function split($frame = null, $force_pagebreak = false) {
+  function split(Frame $frame = null, $force_pagebreak = false) {
 
     if ( is_null($frame) ) {
       $this->get_parent()->split($this, $force_pagebreak);

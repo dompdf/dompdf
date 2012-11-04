@@ -14,6 +14,12 @@
  * @package dompdf
  */
 class Table_Frame_Reflower extends Frame_Reflower {
+  /**
+   * Frame for this reflower
+   *
+   * @var Table_Frame_Decorator
+   */
+  protected $_frame;
 
   /**
    * Cache of results between call to get_min_max_width and assign_widths
@@ -146,6 +152,8 @@ class Table_Frame_Reflower extends Frame_Reflower {
       // of the table width.
       //
       // 4. Both absolute and percentage widths have been specified.
+
+      $increment = 0;
 
       // Case 1:
       if ( $absolute_used == 0 && $percent_used == 0 ) {
@@ -356,7 +364,10 @@ class Table_Frame_Reflower extends Frame_Reflower {
   }
   //........................................................................
 
-  function reflow(Frame_Decorator $block = null) {
+  /**
+   * @param Block_Frame_Decorator $block
+   */
+  function reflow(Block_Frame_Decorator $block = null) {
     /**
      * @var Table_Frame_Decorator
      */

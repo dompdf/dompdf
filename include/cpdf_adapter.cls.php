@@ -409,10 +409,10 @@ class CPDF_Adapter implements Canvas {
    *
    * @see Cpdf::setLineStyle()
    *
-   * @param float width
-   * @param string cap
-   * @param string join
-   * @param array dash
+   * @param float  $width
+   * @param string $cap
+   * @param string $join
+   * @param array  $dash
    */
   protected function _set_line_style($width, $cap, $join, $dash) {
     $this->_pdf->setLineStyle($width, $cap, $join, $dash);
@@ -431,23 +431,20 @@ class CPDF_Adapter implements Canvas {
   
   function set_default_view($view, $options = array()) {
     array_unshift($options, $view);
-    $currentPage = $this->_pdf->currentPage;
     call_user_func_array(array($this->_pdf, "openHere"), $options);
   }
-  
-  //........................................................................
 
-  
   /**
    * Remaps y coords from 4th to 1st quadrant
    *
    * @param float $y
    * @return float
    */
-  protected function y($y) { return $this->_height - $y; }
+  protected function y($y) {
+    return $this->_height - $y;
+  }
 
   // Canvas implementation
-
   function line($x1, $y1, $x2, $y2, $color, $width, $style = array()) {
     $this->_set_stroke_color($color);
     $this->_set_line_style($width, "butt", "", $style);
@@ -468,6 +465,10 @@ class CPDF_Adapter implements Canvas {
   /**
    * Convert a GIF or BMP image to a PNG image
    *
+   * @param string  $image_url
+   * @param integer $type
+   *
+   * @throws DOMPDF_Exception
    * @return string The url of the newly converted image
    */
   protected function _convert_gif_bmp_to_png($image_url, $type) {
@@ -506,8 +507,6 @@ class CPDF_Adapter implements Canvas {
     $this->_set_line_style($width, "butt", "", $style);
     $this->_pdf->rectangle($x1, $this->y($y1) - $h, $w, $h);
   }
-
-  //........................................................................
   
   function filled_rectangle($x1, $y1, $w, $h, $color) {
     $this->_set_fill_color($color);
@@ -554,8 +553,6 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->transform(array($a, $b, $c, $d, $e, $f));
   }
 
-  //........................................................................
-
   function polygon($points, $color, $width = null, $style = array(), $fill = false) {
     $this->_set_fill_color($color);
     $this->_set_stroke_color($color);
@@ -568,8 +565,6 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->polygon($points, count($points) / 2, $fill);
   }
 
-  //........................................................................
-
   function circle($x, $y, $r1, $color, $width = null, $style = null, $fill = false) {
     $this->_set_fill_color($color);
     $this->_set_stroke_color($color);
@@ -580,8 +575,6 @@ class CPDF_Adapter implements Canvas {
 
     $this->_pdf->ellipse($x, $this->y($y), $r1, 0, 0, 8, 0, 360, 1, $fill);
   }
-  
-  //........................................................................
 
   function image($img, $x, $y, $w, $h, $resolution = "normal") {
     list($width, $height, $type) = dompdf_getimagesize($img);
@@ -612,9 +605,7 @@ class CPDF_Adapter implements Canvas {
     }
   }
 
-  //........................................................................
-
-  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0, $angle = 0) {
+  function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0.0, $char_space = 0.0, $angle = 0.0) {
     $pdf = $this->_pdf;
     
     $pdf->setColor($color);
@@ -699,8 +690,6 @@ class CPDF_Adapter implements Canvas {
     }
   }
 
-  //........................................................................
-
   function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
     $this->_pdf->selectFont($font);
     if (!DOMPDF_UNICODE_ENABLED) {
@@ -710,10 +699,8 @@ class CPDF_Adapter implements Canvas {
   }
   
   function register_string_subset($font, $string) {
-    return $this->_pdf->registerText($font, $string);
+    $this->_pdf->registerText($font, $string);
   }
-
-  //........................................................................
 
   function get_font_height($font, $size) {
     $this->_pdf->selectFont($font);
@@ -728,8 +715,6 @@ class CPDF_Adapter implements Canvas {
   function get_font_baseline($font, $size) {
     return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO;
   }
-
-  //........................................................................
   
   /**
    * Writes text at the specified x and y coordinates on every page
@@ -749,12 +734,10 @@ class CPDF_Adapter implements Canvas {
    * @param float $char_space char spacing adjustment
    * @param float $angle angle to write the text at, measured CW starting from the x-axis
    */
-  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0, $char_space = 0, $angle = 0) {
+  function page_text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0.0, $char_space = 0.0, $angle = 0.0) {
     $_t = "text";
     $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "word_space", "char_space", "angle");
   }
-
-  //........................................................................
     
   /**
    * Processes a script on every page
@@ -771,8 +754,6 @@ class CPDF_Adapter implements Canvas {
     $_t = "script";
     $this->_page_text[] = compact("_t", "code", "type");
   }
-  
-  //........................................................................
 
   function new_page() {
     $this->_page_number++;
@@ -782,8 +763,6 @@ class CPDF_Adapter implements Canvas {
     $this->_pages[] = $ret;
     return $ret;
   }
-  
-  //........................................................................
 
   /**
    * Add text to each page after rendering is complete
@@ -838,8 +817,6 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->stream($options);
   }
 
-  //........................................................................
-
   /**
    * Returns the PDF as a string
    * 
@@ -847,21 +824,19 @@ class CPDF_Adapter implements Canvas {
    * @return string
    */
   function output($options = null) {
-    // Add page text
     $this->_add_page_text();
 
     $debug = isset($options["compress"]) && $options["compress"] != 1;
     
     return $this->_pdf->output($debug);
   }
-  
-  //........................................................................
 
   /**
    * Returns logging messages generated by the Cpdf class
    *
    * @return string
    */
-  function get_messages() { return $this->_pdf->messages; }
-  
+  function get_messages() {
+    return $this->_pdf->messages;
+  }
 }

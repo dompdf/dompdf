@@ -20,7 +20,7 @@ function DOMPDF_autoload($class) {
   $filename = DOMPDF_INC_DIR . "/" . mb_strtolower($class) . ".cls.php";
   
   if ( is_file($filename) ) {
-    require_once($filename);
+    include_once $filename;
   }
 }
 

@@ -60,7 +60,7 @@ class DOMPDF {
   /**
    * DomDocument representing the HTML document
    *
-   * @var DomDocument
+   * @var DOMDocument
    */
   protected $_xml;
 
@@ -152,30 +152,45 @@ class DOMPDF {
   private $_start_time = null;
   
   /**
-   * @var string The system's locale
+   * The system's locale
+   *
+   * @var string
    */
   private $_system_locale = null;
   
   /**
-   * @var bool Tells if the system's locale is the C standard one
+   * Tells if the system's locale is the C standard one
+   *
+   * @var bool
    */
   private $_locale_standard = false;
   
   /**
-   * @var string The default view of the PDF in the viewer
+   * The default view of the PDF in the viewer
+   *
+   * @var string
    */
   private $_default_view = "Fit";
   
   /**
-   * @var array The default view options of the PDF in the viewer
+   * The default view options of the PDF in the viewer
+   *
+   * @var array
    */
   private $_default_view_options = array();
 
   /**
-   * @var bool Tells wether the DOM document is in quirksmode (experimental)
+   * Tells wether the DOM document is in quirksmode (experimental)
+   *
+   * @var bool
    */
   private $_quirksmode = false;
-  
+
+  /**
+   * The list of built-in fonts
+   *
+   * @var array
+   */
   public static $native_fonts = array("courier", "courier-bold", "courier-oblique", "courier-boldoblique",
                           "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
                           "times-roman", "times-bold", "times-italic", "times-bolditalic",
@@ -269,11 +284,12 @@ class DOMPDF {
    * @param resource $http_context
    */
   function set_http_context($http_context) { $this->_http_context = $http_context; }
-  
+
   /**
    * Sets the default view
    *
-   * @param string $default_view
+   * @param string $default_view The default document view
+   * @param array  $options      The view's options
    */
   function set_default_view($default_view, $options) { 
     $this->_default_view = $default_view;
@@ -285,63 +301,78 @@ class DOMPDF {
    *
    * @return string
    */
-  function get_protocol() { return $this->_protocol; }
+  function get_protocol() {
+    return $this->_protocol;
+  }
 
   /**
    * Returns the base hostname
    *
    * @return string
    */
-  function get_host() { return $this->_base_host; }
+  function get_host() {
+    return $this->_base_host;
+  }
 
   /**
    * Returns the base path
    *
    * @return string
    */
-  function get_base_path() { return $this->_base_path; }
+  function get_base_path() {
+    return $this->_base_path;
+  }
   
   /**
    * Returns the HTTP context
    *
    * @return resource
    */
-  function get_http_context() { return $this->_http_context; }
+  function get_http_context() {
+    return $this->_http_context;
+  }
 
   /**
    * Return the underlying Canvas instance (e.g. CPDF_Adapter, GD_Adapter)
    *
    * @return Canvas
    */
-  function get_canvas() { return $this->_pdf; }
+  function get_canvas() {
+    return $this->_pdf;
+  }
 
   /**
    * Returns the callbacks array
    *
    * @return array
    */
-  function get_callbacks() { return $this->_callbacks; }
+  function get_callbacks() {
+    return $this->_callbacks;
+  }
 
   /**
    * Returns the stylesheet
    *
    * @return Stylesheet
    */
-  function get_css() { return $this->_css; }
+  function get_css() {
+    return $this->_css;
+  }
 
   /**
    * @return DOMDocument
    */
-  function get_dom(){
+  function get_dom() {
     return $this->_xml;
   }
-  
+
   /**
    * Loads an HTML file
-   *
    * Parse errors are stored in the global array _dompdf_warnings.
    *
    * @param string $file a filename or url to load
+   *
+   * @throws DOMPDF_Exception
    */
   function load_html_file($file) {
     $this->save_locale();
@@ -396,11 +427,11 @@ class DOMPDF {
 
   /**
    * Loads an HTML string
-   *
    * Parse errors are stored in the global array _dompdf_warnings.
-   *
    * @todo use the $encoding variable
-   * @param string $str HTML text to load
+   *
+   * @param string $str      HTML text to load
+   * @param string $encoding Not used yet
    */
   function load_html($str, $encoding = null) {
     $this->save_locale();
@@ -428,7 +459,7 @@ class DOMPDF {
         }
       }
       else {
-        if (isset($matches[1])) {
+        if ( isset($matches[1]) ) {
           $encoding = strtoupper($matches[1]);
         }
         else {
@@ -436,11 +467,11 @@ class DOMPDF {
         }
       }
       
-      if ($encoding !== 'UTF-8') { 
+      if ( $encoding !== 'UTF-8' ) {
         $str = mb_convert_encoding($str, 'UTF-8', $encoding); 
       }
       
-      if (isset($matches[1])) {
+      if ( isset($matches[1]) ) {
         $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
       }
       else {
@@ -768,7 +799,7 @@ class DOMPDF {
         // TODO Handle other generated content (pseudo elements)
       }
     }
-    
+
     $root = null;
 
     foreach ($this->_tree->get_frames() as $frame) {
@@ -779,7 +810,7 @@ class DOMPDF {
       }
 
       // Create the appropriate decorators, reflowers & positioners.
-      $deco = Frame_Factory::decorate_frame($frame, $this, $root);
+      Frame_Factory::decorate_frame($frame, $this, $root);
     }
 
     // Add meta information
@@ -842,6 +873,7 @@ class DOMPDF {
 
   /**
    * Writes the output buffer in the log file
+   *
    * @return void
    */
   private function write_log() {
@@ -909,6 +941,7 @@ class DOMPDF {
    *
    *
    * @param array  $options options (see above)
+   *
    * @return string
    */
   function output($options = null) {

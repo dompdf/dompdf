@@ -55,7 +55,7 @@ abstract class Abstract_Renderer {
   /**
    * Render a background image over a rectangular area
    *
-   * @param string $img      The background image to load
+   * @param string $url      The background image to load
    * @param float  $x        The left edge of the rectangular area
    * @param float  $y        The top edge of the rectangular area
    * @param float  $width    The width of the rectangular area
@@ -76,7 +76,7 @@ abstract class Abstract_Renderer {
     //debugpng
     if (DEBUGPNG) print '[_background_image '.$url.']';
 
-    list($img, $type, $msg) = Image_Cache::resolve_url($url,
+    list($img, $type, /*$msg*/) = Image_Cache::resolve_url($url,
                                                 $sheet->get_protocol(),
                                                 $sheet->get_host(),
                                                 $sheet->get_base_path());
@@ -98,7 +98,6 @@ abstract class Abstract_Renderer {
     }
 
     $repeat = $style->background_repeat;
-    $bg_color = $style->background_color;
 
     //Increase background resolution and dependent box size according to image resolution to be placed in
     //Then image can be copied in without resize
@@ -260,9 +259,7 @@ abstract class Abstract_Renderer {
     //Optimization to avoid multiple times rendering the same image.
     //If check functions are existing and identical image already cached,
     //then skip creation of duplicate, because it is not needed by addImagePng
-    if ( method_exists( $this->_canvas, "get_cpdf" ) &&
-         method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) &&
-         method_exists( $this->_canvas->get_cpdf(), "image_iscached" ) &&
+    if ( $this->_canvas instanceof CPDF_Adapter &&
          $this->_canvas->get_cpdf()->image_iscached($filedummy) ) {
        $bg = null;
 
@@ -435,8 +432,7 @@ abstract class Abstract_Renderer {
     //$src: GD object of original image
     //When using cpdf and optimization to direct png creation from gd object is available,
     //don't create temp file, but place gd object directly into the pdf
-    if ( !$is_png && method_exists( $this->_canvas, "get_cpdf" ) && 
-         method_exists( $this->_canvas->get_cpdf(), "addImagePng" ) ) {
+    if ( !$is_png && $this->_canvas instanceof CPDF_Adapter ) {
       // Note: CPDF_Adapter image converts y position
       $this->_canvas->get_cpdf()->addImagePng($filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
     } 
@@ -656,8 +652,6 @@ abstract class Abstract_Renderer {
   }
 
   protected function _border_inset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
-    list($top, $right, $bottom, $left) = $widths;
-
     switch ($side) {
       case "top":
       case "left":
@@ -677,8 +671,6 @@ abstract class Abstract_Renderer {
   }
 
   protected function _border_outset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0) {
-    list($top, $right, $bottom, $left) = $widths;
-
     switch ($side) {
       case "top":
       case "left":
@@ -781,5 +773,4 @@ abstract class Abstract_Renderer {
   protected function _debug_layout($box, $color = "red", $style = array()) {
     $this->_canvas->rectangle($box[0], $box[1], $box[2], $box[3], CSS_Color::parse($color), 0.1, $style);
   }
-  //........................................................................
 }

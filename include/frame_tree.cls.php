@@ -11,7 +11,7 @@
  * Represents an entire document as a tree of frames
  *
  * The Frame_Tree consists of {@link Frame} objects each tied to specific
- * DomNode objects in a specific DomDocument.  The Frame_Tree has the same
+ * DOMNode objects in a specific DomDocument.  The Frame_Tree has the same
  * structure as the DomDocument, but adds additional capabalities for
  * styling and layout.
  *
@@ -51,7 +51,7 @@ class Frame_Tree {
   protected $_absolute_frames;
 
   /**
-   * A mapping of {@link Frame} objects to DomNode objects
+   * A mapping of {@link Frame} objects to DOMNode objects
    *
    * @var array
    */
@@ -76,16 +76,20 @@ class Frame_Tree {
   /**
    * Returns the DomDocument object representing the curent html document
    *
-   * @return DomDocument
+   * @return DOMDocument
    */
-  function get_dom() { return $this->_dom; }
+  function get_dom() {
+    return $this->_dom;
+  }
 
   /**
    * Returns the root frame of the tree
    * 
    * @return Page_Frame_Decorator
    */
-  function get_root() { return $this->_root; }
+  function get_root() {
+    return $this->_root;
+  }
 
   /**
    * Returns a specific frame given its id
@@ -93,14 +97,18 @@ class Frame_Tree {
    * @param string $id
    * @return Frame
    */
-  function get_frame($id) { return isset($this->_registry[$id]) ? $this->_registry[$id] : null; }
+  function get_frame($id) {
+    return isset($this->_registry[$id]) ? $this->_registry[$id] : null;
+  }
 
   /**
    * Returns a post-order iterator for all frames in the tree
    *
-   * @return FrameTreeList
+   * @return FrameTreeList|Frame[]
    */
-  function get_frames() { return new FrameTreeList($this->_root); }
+  function get_frames() {
+    return new FrameTreeList($this->_root);
+  }
       
   /**
    * Builds the tree
@@ -118,7 +126,6 @@ class Frame_Tree {
     $this->fix_tables();
     
     $this->_root = $this->_build_tree_r($html);
-
   }
   
   /**
@@ -151,10 +158,10 @@ class Frame_Tree {
    * tree may be adjusted (i.e. nodes and frames for generated content
    * and images may be created).
    *
-   * @param DomNode $node the current DomNode being considered
+   * @param DOMNode $node the current DOMNode being considered
    * @return Frame
    */
-  protected function _build_tree_r(DomNode $node) {
+  protected function _build_tree_r(DOMNode $node) {
     
     $frame = new Frame($node);
     $id = $frame->get_id();

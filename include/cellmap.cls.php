@@ -23,16 +23,18 @@ class Cellmap {
    *
    * @var array
    */
-  static protected $_BORDER_STYLE_SCORE = array("inset"  => 1,
-                                                "groove" => 2,
-                                                "outset" => 3,
-                                                "ridge"  => 4,
-                                                "dotted" => 5,
-                                                "dashed" => 6,
-                                                "solid"  => 7,
-                                                "double" => 8,
-                                                "hidden" => 9,
-                                                "none"   => 0);
+  static protected $_BORDER_STYLE_SCORE = array(
+    "inset"  => 1,
+    "groove" => 2,
+    "outset" => 3,
+    "ridge"  => 4,
+    "dotted" => 5,
+    "dashed" => 6,
+    "solid"  => 7,
+    "double" => 8,
+    "hidden" => 9,
+    "none"   => 0,
+   );
 
   /**
    * The table object this cellmap is attached to.
@@ -58,7 +60,7 @@ class Cellmap {
   /**
    * 2D array mapping <row,column> to frames
    *
-   * @var array
+   * @var Frame[][]
    */
   protected $_cells;
 
@@ -84,30 +86,37 @@ class Cellmap {
   protected $_borders;
 
   /**
-   * 1D Array mapping frames to (multiple) <row, col> pairs, keyed on
-   * frame_id.
+   * 1D Array mapping frames to (multiple) <row, col> pairs, keyed on frame_id.
    *
-   * @var array
+   * @var Frame[]
    */
   protected $_frames;
 
   /**
-   * @var int Current column when adding cells, 0-based
+   * Current column when adding cells, 0-based
+   *
+   * @var int
    */
   private $__col;
 
   /**
-   * @var int Current row when adding cells, 0-based
+   * Current row when adding cells, 0-based
+   *
+   * @var int
    */
   private $__row;
   
   /**
-   * @var bool Tells wether the columns' width can be modified
+   * Tells wether the columns' width can be modified
+   *
+   * @var bool
    */
   private $_columns_locked = false;
   
   /**
-   * @var bool Tells wether the table has table-layout:fixed
+   * Tells wether the table has table-layout:fixed
+   *
+   * @var bool
    */
   private $_fixed_layout = false;
 
@@ -229,7 +238,7 @@ class Cellmap {
 
   //........................................................................
 
-  function get_spanned_cells($frame) {
+  function get_spanned_cells(Frame $frame) {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
@@ -240,12 +249,12 @@ class Cellmap {
 
   }
 
-  function frame_exists_in_cellmap($frame) {
+  function frame_exists_in_cellmap(Frame $frame) {
     $key = $frame->get_id();
     return isset($this->_frames[$key]);
   }
   
-  function get_frame_position($frame) {
+  function get_frame_position(Frame $frame) {
     global $_dompdf_warnings;
 
     $key = $frame->get_id();
@@ -276,7 +285,7 @@ class Cellmap {
     return array($x, $y, "x" => $x, "y" => $y);
   }
 
-  function get_frame_width($frame) {
+  function get_frame_width(Frame $frame) {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
@@ -290,10 +299,9 @@ class Cellmap {
     }
     
     return $w;
-
   }
 
-  function get_frame_height($frame) {
+  function get_frame_height(Frame $frame) {
     $key = $frame->get_id();
 
     if ( !isset($this->_frames[$key]) ) {
@@ -311,7 +319,6 @@ class Cellmap {
     }
     
     return $h;
-
   }
 
 
@@ -347,7 +354,6 @@ class Cellmap {
   protected function _resolve_border($i, $j, $h_v, $border_spec) {
     $n_width = $border_spec["width"];
     $n_style = $border_spec["style"];
-    $n_color = $border_spec["color"];
 
     if ( !isset($this->_borders[$i][$j][$h_v]) ) {
       $this->_borders[$i][$j][$h_v] = $border_spec;
@@ -358,7 +364,6 @@ class Cellmap {
     
     $o_width = $border["width"];
     $o_style = $border["style"];
-    $o_color = $border["color"];
 
     if ( ($n_style === "hidden" ||
           $n_width  >  $o_width ||
@@ -521,7 +526,8 @@ class Cellmap {
       }
   
       $width = $style->width;
-  
+
+      $val = null;
       if ( is_percent($width) ) {
         $var = "percent";
         $val = (float)rtrim($width, "% ") / $colspan;

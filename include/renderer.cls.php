@@ -21,7 +21,7 @@ class Renderer extends Abstract_Renderer {
   /**
    * Array of renderers for specific frame types
    *
-   * @var array
+   * @var Abstract_Renderer[]
    */
   protected $_renderers;
     
@@ -70,7 +70,7 @@ class Renderer extends Abstract_Renderer {
     // Starts the CSS transformation
     if ( $style->transform && is_array($style->transform) ) {
       $this->_canvas->save();
-      list($x, $y, $w, $h) = $frame->get_padding_box();
+      list($x, $y) = $frame->get_padding_box();
       $origin = $style->transform_origin;
       
       foreach($style->transform as $transform) {

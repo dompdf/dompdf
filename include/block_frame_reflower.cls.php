@@ -141,11 +141,19 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
     }
 
-    return array("width"=> $width, "margin_left" => $lm, "margin_right" => $rm, "left" => $left, "right" => $right);
+    return array(
+      "width"        => $width,
+      "margin_left"  => $lm,
+      "margin_right" => $rm,
+      "left"         => $left,
+      "right"        => $right,
+    );
   }
 
-  /** 
+  /**
    * Call the above function, but resolve max/min widths
+   *
+   * @throws DOMPDF_Exception
    * @return array
    */
   protected function _calculate_restricted_width() {
@@ -191,13 +199,13 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
 
     return array($width, $margin_left, $margin_right, $left, $right);
-
   }
   
   /** 
    * Determine the unrestricted height of content within the block
    * not by adding each line's height, but by getting the last line's position. 
    * This because lines could have been pushed lower by a clearing element.
+   *
    * @return float
    */
   protected function _calculate_content_height() {
@@ -219,6 +227,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
 
   /** 
    * Determine the frame's restricted height
+   *
    * @return array
    */
   protected function _calculate_restricted_height() {
@@ -428,7 +437,7 @@ class Block_Frame_Reflower extends Frame_Reflower {
       case "justify":
         // We justify all lines except the last one
         $lines = $this->_frame->get_line_boxes(); // needs to be a variable (strict standards)
-        $lines = array_splice($lines, 0, -1);
+        array_pop($lines);
         
         foreach($lines as $i => $line) {
           if ( $line->br ) {
@@ -439,9 +448,9 @@ class Block_Frame_Reflower extends Frame_Reflower {
         // One space character's width. Will be used to get a more accurate spacing
         $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
         
-        foreach ($lines as $i => $line) {
+        foreach ($lines as $line) {
           if ( $line->left ) {
-            foreach($line->get_frames() as $frame) {
+            foreach ( $line->get_frames() as $frame ) {
               if ( !$frame instanceof Text_Frame_Decorator ) {
                 continue;
               }
@@ -526,8 +535,6 @@ class Block_Frame_Reflower extends Frame_Reflower {
         }
 
         $align = $frame->get_parent()->get_style()->vertical_align;
-          
-        $frame_h = $frame->get_margin_height();
         
         if ( !isset($canvas) ) {
           $canvas = $frame->get_root()->get_dompdf()->get_canvas();
@@ -569,7 +576,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
       }
     }
   }
-  
+
+  /**
+   * @param Frame $child
+   */
   function process_clear(Frame $child){
     if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
       return;
@@ -595,7 +605,12 @@ class Block_Frame_Reflower extends Frame_Reflower {
       }
     }
   }
-  
+
+  /**
+   * @param Frame $child
+   * @param float $cb_x
+   * @param float $cb_w
+   */
   function process_float(Frame $child, $cb_x, $cb_w){
     if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
       return;
@@ -652,7 +667,10 @@ class Block_Frame_Reflower extends Frame_Reflower {
     }
   }
 
-  function reflow(Frame_Decorator $block = null) {
+  /**
+   * @param Frame_Decorator $block
+   */
+  function reflow(Block_Frame_Decorator $block = null) {
 
     // Check if a page break is forced
     $page = $this->_frame->get_root();

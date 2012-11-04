@@ -38,15 +38,13 @@ class Image_Frame_Decorator extends Frame_Decorator {
    * @param DOMPDF $dompdf the document's dompdf object (required to resolve relative & remote urls)
    */
   function __construct(Frame $frame, DOMPDF $dompdf) {
-    global $_dompdf_warnings;
-    
     parent::__construct($frame, $dompdf);
     $url = $frame->get_node()->getAttribute("src");
       
     //debugpng
     if (DEBUGPNG) print '[__construct '.$url.']';
 
-    list($this->_image_url, $type, $this->_image_msg) = Image_Cache::resolve_url($url,
+    list($this->_image_url, /*$type*/, $this->_image_msg) = Image_Cache::resolve_url($url,
                                                                           $dompdf->get_protocol(),
                                                                           $dompdf->get_host(),
                                                                           $dompdf->get_base_path());

@@ -110,6 +110,13 @@ class Inline_Renderer extends Abstract_Renderer {
         $w += $child_w;
       
       $h = max($h, $child_h);
+
+      if (DEBUG_LAYOUT && DEBUG_LAYOUT_INLINE) {
+        $this->_debug_layout($child->get_border_box(), "blue");
+        if (DEBUG_LAYOUT_PADDINGBOX) {
+          $this->_debug_layout($child->get_padding_box(), "blue", array(0.5, 0.5));
+        }
+      }
     }
 
     
@@ -179,13 +186,6 @@ class Inline_Renderer extends Abstract_Renderer {
     if ( $link_node ) {
       if ( $href = $link_node->getAttribute("href") )
         $this->_canvas->add_link($href, $x, $y, $w, $h);
-    }
-    
-    if (DEBUG_LAYOUT && DEBUG_LAYOUT_INLINE) {
-      $this->_debug_layout($child->get_border_box(), "blue");
-      if (DEBUG_LAYOUT_PADDINGBOX) {
-        $this->_debug_layout($child->get_padding_box(), "blue", array(0.5, 0.5));
-      }
     }
   }
 }

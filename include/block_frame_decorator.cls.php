@@ -14,16 +14,19 @@
  * @package dompdf
  */
 class Block_Frame_Decorator extends Frame_Decorator {
-  protected $_cl;    // current line index
+  /**
+   * Current line index
+   *
+   * @var int
+   */
+  protected $_cl;
   
   /**
    * The block's line boxes
    * 
-   * @var array
+   * @var Line_Box[]
    */
   protected $_line_boxes;
-
-  //........................................................................
 
   function __construct(Frame $frame, DOMPDF $dompdf) {
     parent::__construct($frame, $dompdf);
@@ -32,18 +35,12 @@ class Block_Frame_Decorator extends Frame_Decorator {
     $this->_cl = 0;
   }
 
-  //........................................................................
-
   function reset() {
     parent::reset();
     
     $this->_line_boxes = array(new Line_Box($this));
     $this->_cl = 0;
   }
-
-  //........................................................................
-
-  // Accessor methods
 
   /**
    * @return Line_Box
@@ -60,20 +57,24 @@ class Block_Frame_Decorator extends Frame_Decorator {
   }
 
   /**
-   * @return array
+   * @return Line_Box[]
    */
   function get_line_boxes() { 
     return $this->_line_boxes; 
   }
 
-  //........................................................................
-
+  /**
+   * @param integer $i
+   */
   function clear_line($i) {
     if ( isset($this->_line_boxes[$i]) ) {
       unset($this->_line_boxes[$i]);
     }
   }
 
+  /**
+   * @param Frame $frame
+   */
   function add_frame_to_line(Frame $frame) {
     if ( !$frame->is_in_flow() ) {
       return;
@@ -166,6 +167,7 @@ class Block_Frame_Decorator extends Frame_Decorator {
   function remove_frames_from_line(Frame $frame) {
     // Search backwards through the lines for $frame
     $i = $this->_cl;
+    $j = null;
 
     while ($i >= 0) {
       if ( ($j = in_array($frame, $this->_line_boxes[$i]->get_frames(), true)) !== false ) {

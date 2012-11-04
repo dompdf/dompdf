@@ -40,6 +40,8 @@ class Image_Cache {
    * @param string $proto      Default protocol if none specified in $url
    * @param string $host       Default host if none specified in $url
    * @param string $base_path  Default path if none specified in $url
+   *
+   * @throws DOMPDF_Image_Exception
    * @return array             An array with two elements: The local path to the image and the image extension
    */
   static function resolve_url($url, $proto, $host, $base_path) {
@@ -49,6 +51,7 @@ class Image_Cache {
     $remote = ($proto && $proto !== "file://") || ($parsed_url['protocol'] != "");
     
     $datauri = strpos($parsed_url['protocol'], "data:") === 0;
+    $full_url = null;
 
     try {
       
@@ -70,14 +73,15 @@ class Image_Cache {
         // From remote
         else {
           $resolved_url = tempnam(DOMPDF_TEMP_DIR, "ca_dompdf_img_");
-  
+          $image = "";
+
           if ($datauri) {
             if ($parsed_data_uri = parse_data_uri($url)) {
               $image = $parsed_data_uri['data'];
             }
           }
           else {
-            $old_err = set_error_handler("record_warnings");
+            set_error_handler("record_warnings");
             $image = file_get_contents($full_url);
             restore_error_handler();
           }
@@ -127,7 +131,6 @@ class Image_Cache {
         // Unknown image type
         else {
           throw new DOMPDF_Image_Exception("Image type unknown");
-          unlink($resolved_url);
         }
       }
     }
@@ -156,7 +159,7 @@ class Image_Cache {
   }
   
   static function detect_type($file) {
-    list($width, $height, $type) = dompdf_getimagesize($file);
+    list(, , $type) = dompdf_getimagesize($file);
     return $type;
   }
   

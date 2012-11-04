@@ -81,6 +81,7 @@ class Image_Renderer extends Block_Renderer {
     }
     
     $src = $frame->get_image_url();
+    $alt = null;
 
     if ( Image_Cache::is_broken($src) &&
       $alt = $frame->get_node()->getAttribute("alt") ) {

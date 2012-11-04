@@ -24,7 +24,7 @@ class Page_Cache {
   
   static private $__connection = null;
   
-  function init() {
+  static function init() {
     if ( is_null(self::$__connection) ) {
       $con_str = "host=" . DB_HOST .
         " dbname=" . self::DB_NAME .

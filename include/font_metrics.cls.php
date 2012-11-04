@@ -86,10 +86,13 @@ class Font_Metrics {
    * @param string $text the text to be sized
    * @param string $font the desired font
    * @param float  $size the desired font size
-   * @param float  $spacing word spacing, if any
+   * @param float  $word_spacing
+   * @param float  $char_spacing
+   *
+   * @internal param float $spacing word spacing, if any
    * @return float
    */
-  static function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
+  static function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0) {
     //return self::$_pdf->get_text_width($text, $font, $size, $word_spacing, $char_spacing);
     
     // @todo Make sure this cache is efficient before enabling it
@@ -130,14 +133,14 @@ class Font_Metrics {
 
   /**
    * Resolves a font family & subtype into an actual font file
-   *
    * Subtype can be one of 'normal', 'bold', 'italic' or 'bold_italic'.  If
    * the particular font family has no suitable font file, the default font
    * ({@link DOMPDF_DEFAULT_FONT}) is used.  The font file returned
    * is the absolute pathname to the font file on the system.
    *
-   * @param string $family
-   * @param string $subtype
+   * @param string $family_raw
+   * @param string $subtype_raw
+   *
    * @return string
    */
   static function get_font($family_raw, $subtype_raw = "normal") {
@@ -239,13 +242,13 @@ class Font_Metrics {
       return;
     }
 
-    self::$_font_lookup = require_once(self::CACHE_FILE);
+    self::$_font_lookup = require_once self::CACHE_FILE;
     
     // If the font family cache is still in the old format
     if ( self::$_font_lookup === 1 ) {
       $cache_data = file_get_contents(self::CACHE_FILE);
       file_put_contents(self::CACHE_FILE, "<"."?php return $cache_data ?".">");
-      self::$_font_lookup = require_once(self::CACHE_FILE);
+      self::$_font_lookup = require_once self::CACHE_FILE;
     }
   }
   

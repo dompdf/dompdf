@@ -52,17 +52,18 @@ if ( $_SERVER["argc"] < 3 && @$_SERVER["argv"][1] != "system_fonts" ) {
 
 /**
  * Installs a new font family
- *
  * This function maps a font-family name to a font.  It tries to locate the
  * bold, italic, and bold italic versions of the font as well.  Once the
  * files are located, ttf versions of the font are copied to the fonts
  * directory.  Changes to the font lookup table are saved to the cache.
  *
- * @param string $fontname the font-family name
- * @param string $normal the filename of the normal face font subtype
- * @param string $bold   the filename of the bold face font subtype
- * @param string $italic the filename of the italic face font subtype
+ * @param string $fontname    the font-family name
+ * @param string $normal      the filename of the normal face font subtype
+ * @param string $bold        the filename of the bold face font subtype
+ * @param string $italic      the filename of the italic face font subtype
  * @param string $bold_italic the filename of the bold italic face font subtype
+ *
+ * @throws DOMPDF_Exception
  */
 function install_font_family($fontname, $normal, $bold = null, $italic = null, $bold_italic = null) {
   Font_Metrics::init();

@@ -75,7 +75,7 @@ class Page_Frame_Reflower extends Frame_Reflower {
    * Paged layout:
    * http://www.w3.org/TR/CSS21/page.html
    */
-  function reflow(Frame_Decorator $block = null) {
+  function reflow(Block_Frame_Decorator $block = null) {
     $fixed_children = array();
     $prev_child = null;
     $child = $this->_frame->get_first_child();

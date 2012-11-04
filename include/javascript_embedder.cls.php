@@ -24,11 +24,11 @@ class Javascript_Embedder {
     $this->_dompdf = $dompdf;
   }
 
-  function insert($code) {
-    $this->_dompdf->get_canvas()->javascript($code);
+  function insert($script) {
+    $this->_dompdf->get_canvas()->javascript($script);
   }
 
-  function render($frame) {
+  function render(Frame $frame) {
     if ( !DOMPDF_ENABLE_JAVASCRIPT )
       return;
       
