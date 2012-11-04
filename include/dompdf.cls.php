@@ -532,9 +532,13 @@ class DOMPDF {
       $doc = new DOMDocument();
       $doc->preserveWhiteSpace = true;
       $doc->loadHTML($str);
-      
-      // If some text is before the doctype of before the <html> tag, we are in quirksmode
-      if ( preg_match("/^(.+)<(!doctype|html)/i", ltrim($str), $matches) ) {
+
+      // If some text is before the doctype, we are in quirksmode
+      if ( preg_match("/^(.+)<!doctype/i", ltrim($str), $matches) ) {
+        $quirksmode = true;
+      }
+      // If no doctype is provided, we are in quirksmode
+      elseif ( !preg_match("/^<!doctype/i", ltrim($str), $matches) ) {
         $quirksmode = true;
       }
       else {
