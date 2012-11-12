@@ -1,0 +1,3 @@
+[submodule "lib/php-font-lib"]
+	path = lib/php-font-lib
+	url = https://github.com/PhenX/php-font-lib.git
