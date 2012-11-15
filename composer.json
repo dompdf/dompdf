@@ -13,5 +13,11 @@
             "name": "Brian Sweeney",
             "email": "eclecticgeek@gmail.com"
         }
-    ]
+    ],
+    "autoload": {
+        "classmap": ["include/"]
+    },
+    "require": {
+        "phenx/php-font-lib": "0.1.*"
+    }
 }

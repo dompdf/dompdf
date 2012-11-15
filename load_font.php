@@ -10,7 +10,6 @@
  */
 
 require_once "dompdf_config.inc.php";
-require_once "lib/php-font-lib/classes/font.cls.php";
 
 /**
  * Display command line usage
