@@ -2341,8 +2341,6 @@ EOT;
             $data = file_get_contents($fbfile);
           }
           else {
-            require_once dirname(__FILE__)."/php-font-lib/classes/font.cls.php";
-            
             $this->stringSubsets[$fontName][] = 32; // Force space if not in yet
             
             $subset = $this->stringSubsets[$fontName];

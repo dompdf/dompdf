@@ -321,7 +321,25 @@ require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
 
 // ### End of user-configurable options ###
 
-require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
+// is composer running?
+if (!class_exists("ComposerAutoloaderInit")) {
+  if (file_exists(DOMPDF_DIR . "/vendor/autoload.php")) {
+    // development mode - composer is installed locally
+    require_once(DOMPDF_DIR . "/vendor/autoload.php");
+  } else {
+    // composer is not installed - use our custom autoloader
+    require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
+  }
+}
+
+// check for php-font-lib
+if (!class_exists('Font')) {
+  if (file_exists(DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php")) {
+    require_once(DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php");
+  } else {
+    exit("PHP-font-lib must either be installed via composer or copied to lib/php-font-lib\n");
+  }
+}
 
 /**
  * Ensure that PHP is working with text internally using UTF8 character encoding.
