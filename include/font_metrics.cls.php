@@ -6,7 +6,6 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 require_once DOMPDF_LIB_DIR . "/class.pdf.php";
@@ -72,7 +71,7 @@ class Font_Metrics {
   static function init(Canvas $canvas = null) {
     if (!self::$_pdf) {
       if (!$canvas) {
-        $canvas = Canvas_Factory::get_instance();
+        $canvas = Canvas_Factory::get_instance(new DOMPDF());
       }
       
       self::$_pdf = $canvas;

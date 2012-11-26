@@ -5,7 +5,6 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -136,8 +135,9 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       //$w = $frame->get_width();
       //$h = $frame->get_height();
       list($width, $height) = dompdf_getimagesize($img);
-      $w = (((float)rtrim($width, "px")) * 72) / DOMPDF_DPI;
-      $h = (((float)rtrim($height, "px")) * 72) / DOMPDF_DPI;
+      $dpi = $this->_dompdf->get_option("dpi");
+      $w = ((float)rtrim($width, "px") * 72) / $dpi;
+      $h = ((float)rtrim($height, "px") * 72) / $dpi;
       
       $x -= $w;
       $y -= ($line_height - $font_size)/2; //Reverse hinting of list_bullet_positioner

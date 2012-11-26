@@ -5,7 +5,6 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -581,7 +580,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
    * @param Frame $child
    */
   function process_clear(Frame $child){
-    if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
+    $enable_css_float = $this->get_dompdf()->get_option("enable_css_float");
+    if ( !$enable_css_float ) {
       return;
     }
     
@@ -612,7 +612,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
    * @param float $cb_w
    */
   function process_float(Frame $child, $cb_x, $cb_w){
-    if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
+    $enable_css_float = $this->_frame->get_dompdf()->get_option("enable_css_float");
+    if ( !$enable_css_float ) {
       return;
     }
     

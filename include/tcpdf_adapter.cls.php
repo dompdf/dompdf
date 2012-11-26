@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 require_once DOMPDF_LIB_DIR . '/tcpdf/tcpdf.php';
@@ -31,6 +30,11 @@ class TCPDF_Adapter implements Canvas {
    * @var array;
    */
   static public $PAPER_SIZES = array(); // Set to CPDF_Adapter::$PAPER_SIZES below.
+
+  /**
+   * @var DOMPDF
+   */
+  private $_dompdf;
 
   /**
    * Instance of the TCPDF class
@@ -98,11 +102,12 @@ class TCPDF_Adapter implements Canvas {
   /**
    * Class constructor
    *
-   * @param mixed $paper The size of paper to use either a string (see {@link CPDF_Adapter::$PAPER_SIZES}) or
-   *                     an array(xmin,ymin,xmax,ymax)
+   * @param mixed  $paper       The size of paper to use either a string (see {@link CPDF_Adapter::$PAPER_SIZES}) or
+   *                            an array(xmin,ymin,xmax,ymax)
    * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
+   * @param DOMPDF $dompdf
    */
-  function __construct($paper = "letter", $orientation = "portrait") {
+  function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf) {
    
     if ( is_array($paper) )
       $size = $paper;
@@ -115,8 +120,10 @@ class TCPDF_Adapter implements Canvas {
       list($size[2], $size[3]) = array($size[3], $size[2]);
     }
 
-    $this->_width = $size[2] - $size[0];
+    $this->_width  = $size[2] - $size[0];
     $this->_height = $size[3] - $size[1];
+
+    $this->_dompdf = $dompdf;
 
     $this->_pdf = new TCPDF("P", "pt", array($this->_width, $this->_height));
     $this->_pdf->Setcreator("DOMPDF Converter");
@@ -126,11 +133,14 @@ class TCPDF_Adapter implements Canvas {
     $this->_page_number = $this->_page_count = 1;
     $this->_page_text = array();
 
-    $this->_last_fill_color     =
-      $this->_last_stroke_color =
-      $this->_last_line_width   = null;
+    $this->_last_fill_color   = null;
+    $this->_last_stroke_color = null;
+    $this->_last_line_width   = null;
+  }
 
-  }  
+  function get_dompdf(){
+    return $this->_dompdf;
+  }
   
   /**
    * Remaps y coords from 4th to 1st quadrant

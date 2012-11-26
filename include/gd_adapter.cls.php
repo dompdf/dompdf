@@ -5,7 +5,6 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -17,9 +16,13 @@
  * @package dompdf
  */
 class GD_Adapter implements Canvas {
+  /**
+   * @var DOMPDF
+   */
+  private $_dompdf;
 
   /**
-   * Resoure handle for the image
+   * Resource handle for the image
    *
    * @var resource
    */
@@ -79,26 +82,32 @@ class GD_Adapter implements Canvas {
    *
    * @param mixed  $size         The size of image to create: array(x1,y1,x2,y2) or "letter", "legal", etc.
    * @param string $orientation  The orientation of the document (either 'landscape' or 'portrait')
+   * @param DOMPDF $dompdf
    * @param float  $aa_factor    Anti-aliasing factor, 1 for no AA
    * @param array  $bg_color     Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
    */
-  function __construct($size, $orientation = "portrait", $aa_factor = 1.0, $bg_color = array(1,1,1,0) ) {
+  function __construct($size, $orientation = "portrait", DOMPDF $dompdf, $aa_factor = 1.0, $bg_color = array(1,1,1,0) ) {
 
     if ( !is_array($size) ) {
       $size = strtolower($size);
       
-      if ( isset(CPDF_Adapter::$PAPER_SIZES[$size]) ) 
+      if ( isset(CPDF_Adapter::$PAPER_SIZES[$size]) ) {
         $size = CPDF_Adapter::$PAPER_SIZES[$size];
-      else
+      }
+      else {
         $size = CPDF_Adapter::$PAPER_SIZES["letter"];
+      }
     }
 
     if ( strtolower($orientation) === "landscape" ) {
       list($size[2],$size[3]) = array($size[3],$size[2]);
     }
 
-    if ( $aa_factor < 1 )
+    $this->_dompdf = $dompdf;
+
+    if ( $aa_factor < 1 ) {
       $aa_factor = 1;
+    }
 
     $this->_aa_factor = $aa_factor;
     
@@ -120,6 +129,10 @@ class GD_Adapter implements Canvas {
     imagesavealpha($this->_img, true);
     imagefill($this->_img, 0, 0, $this->_bg_color);
     
+  }
+
+  function get_dompdf(){
+    return $this->_dompdf;
   }
 
   /**
@@ -686,14 +699,16 @@ class GD_Adapter implements Canvas {
    */
   function get_font_height($font, $size) {
     $font = $this->get_ttf_file($font);
-      
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+
     // FIXME: word spacing
     list(,$y2,,,,$y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl");  // Test string with ascenders, descenders and caps
-    return ($y2 - $y1) * DOMPDF_FONT_HEIGHT_RATIO;
+    return ($y2 - $y1) * $ratio;
   }
   
   function get_font_baseline($font, $size) {
-    return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO;
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+    return $this->get_font_height($font, $size) / $ratio;
   }
   
   /**

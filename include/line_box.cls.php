@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -134,7 +133,8 @@ class Line_Box {
   }
   
   function get_float_offsets() {
-    if ( !DOMPDF_ENABLE_CSS_FLOAT ) {
+    $enable_css_float = $this->_block_frame->get_dompdf()->get_option("enable_css_float");
+    if ( !$enable_css_float ) {
       return;
     }
       

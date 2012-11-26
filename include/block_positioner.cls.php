@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -28,7 +27,9 @@ class Block_Positioner extends Positioner {
     
     if ( $p ) {
       $float = $style->float;
-      if ( !DOMPDF_ENABLE_CSS_FLOAT || !$float || $float === "none" ) {
+
+      $enable_css_float = $frame->get_dompdf()->get_option("enable_css_float");
+      if ( !$enable_css_float || !$float || $float === "none" ) {
         $p->add_line(true);
       }
       $y = $p->get_current_line_box()->y;

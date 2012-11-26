@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -29,8 +28,9 @@ class Javascript_Embedder {
   }
 
   function render(Frame $frame) {
-    if ( !DOMPDF_ENABLE_JAVASCRIPT )
+    if ( !$this->_dompdf->get_option("enable_javascript") ) {
       return;
+    }
       
     $this->insert($frame->get_node()->nodeValue);
   }

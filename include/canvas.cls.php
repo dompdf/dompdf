@@ -5,7 +5,6 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -22,6 +21,12 @@
  * @package dompdf
  */
 interface Canvas {
+  function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf);
+
+  /**
+   * @return DOMPDF
+   */
+  function get_dompdf();
 
   /**
    * Returns the current page number

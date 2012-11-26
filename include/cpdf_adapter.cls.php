@@ -7,7 +7,6 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 // FIXME: Need to sanity check inputs to this class
@@ -94,6 +93,12 @@ class CPDF_Adapter implements Canvas {
     "11x17"  => array(0,0,792.00, 1224.00),
   );
 
+  /**
+   * The DOMPDF object
+   *
+   * @var DOMPDF
+   */
+  private $_dompdf;
 
   /**
    * Instance of Cpdf class
@@ -150,15 +155,15 @@ class CPDF_Adapter implements Canvas {
    * @var array
    */
   private $_image_cache;
-  
+
   /**
    * Class constructor
    *
-   * @param mixed  $paper  The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
-   * @param string $orientation The orienation of the document (either 'landscape' or 'portrait')
+   * @param mixed  $paper       The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
+   * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
+   * @param DOMPDF $dompdf      The DOMPDF instance
    */
-  function __construct($paper = "letter", $orientation = "portrait") {
-
+  function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf) {
     if ( is_array($paper) ) {
       $size = $paper;
     }
@@ -172,8 +177,16 @@ class CPDF_Adapter implements Canvas {
     if ( mb_strtolower($orientation) === "landscape" ) {
       list($size[2], $size[3]) = array($size[3], $size[2]);
     }
+
+    $this->_dompdf = $dompdf;
     
-    $this->_pdf = new Cpdf($size, DOMPDF_UNICODE_ENABLED, DOMPDF_FONT_CACHE, DOMPDF_TEMP_DIR);
+    $this->_pdf = new Cpdf(
+      $size,
+      $dompdf->get_option("enable_unicode"),
+      $dompdf->get_option("font_cache"),
+      $dompdf->get_option("temp_dir")
+    );
+
     $this->_pdf->addInfo("Creator", "DOMPDF");
     $time = substr_replace(date('YmdHisO'), '\'', -2, 0).'\'';
     $this->_pdf->addInfo("CreationDate", "D:$time");
@@ -190,6 +203,10 @@ class CPDF_Adapter implements Canvas {
     $this->_image_cache = array();
   }
 
+  function get_dompdf(){
+    return $this->_dompdf;
+  }
+
   /**
    * Class destructor
    *
@@ -197,7 +214,6 @@ class CPDF_Adapter implements Canvas {
    */
   function __destruct() {
     foreach ($this->_image_cache as $img) {
-      //debugpng
       if (DEBUGPNG) print '[__destruct unlink '.$img.']';
       if (!DEBUGKEEPTEMP) unlink($img);
     }
@@ -208,7 +224,9 @@ class CPDF_Adapter implements Canvas {
    *
    * @return Cpdf
    */
-  function get_cpdf() { return $this->_pdf; }
+  function get_cpdf() {
+    return $this->_pdf;
+  }
 
   /**
    * Add meta information to the PDF
@@ -485,9 +503,10 @@ class CPDF_Adapter implements Canvas {
     if ( $im ) {
       imageinterlace($im, false);
 
-      $tempname = tempnam(DOMPDF_TEMP_DIR, "{$image_type}dompdf_img_");
-      @unlink($tempname);
-      $filename = "$tempname.png";
+      $tmp_dir = $this->_dompdf->get_option("temp_dir");
+      $tmp_name = tempnam($tmp_dir, "{$image_type}dompdf_img_");
+      @unlink($tmp_name);
+      $filename = "$tmp_name.png";
       $this->_image_cache[] = $filename;
 
       imagepng($im, $filename);
@@ -579,29 +598,30 @@ class CPDF_Adapter implements Canvas {
   function image($img, $x, $y, $w, $h, $resolution = "normal") {
     list($width, $height, $type) = dompdf_getimagesize($img);
     
-    //debugpng
-    if (DEBUGPNG) print "[image:$img|$width|$height|$type]";
+    $debug_png = $this->_dompdf->get_option("debug_png");
+
+    if ($debug_png) print "[image:$img|$width|$height|$type]";
 
     switch ($type) {
     case IMAGETYPE_JPEG:
-      if (DEBUGPNG) print '!!!jpg!!!';
+      if ($debug_png) print '!!!jpg!!!';
       $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
       break;
       
     case IMAGETYPE_GIF:
     case IMAGETYPE_BMP:
-      if (DEBUGPNG) print '!!!bmp or gif!!!';
+      if ($debug_png) print '!!!bmp or gif!!!';
       // @todo use cache for BMP and GIF
       $img = $this->_convert_gif_bmp_to_png($img, $type);
 
     case IMAGETYPE_PNG:
-      if (DEBUGPNG) print '!!!png!!!';
+      if ($debug_png) print '!!!png!!!';
 
       $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
       break;
 
     default:
-      if (DEBUGPNG) print '!!!unknown!!!';
+      if ($debug_png) print '!!!unknown!!!';
     }
   }
 
@@ -692,9 +712,12 @@ class CPDF_Adapter implements Canvas {
 
   function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0) {
     $this->_pdf->selectFont($font);
-    if (!DOMPDF_UNICODE_ENABLED) {
+
+    $unicode = $this->_dompdf->get_option("enable_unicode");
+    if (!$unicode) {
       $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
     }
+
     return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
   }
   
@@ -704,16 +727,20 @@ class CPDF_Adapter implements Canvas {
 
   function get_font_height($font, $size) {
     $this->_pdf->selectFont($font);
-    return $this->_pdf->getFontHeight($size) * DOMPDF_FONT_HEIGHT_RATIO;
+
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+    return $this->_pdf->getFontHeight($size) * $ratio;
   }
   
   /*function get_font_x_height($font, $size) {
     $this->_pdf->selectFont($font);
-    return $this->_pdf->getFontXHeight($size) * DOMPDF_FONT_HEIGHT_RATIO;
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+    return $this->_pdf->getFontXHeight($size) * $ratio;
   }*/
   
   function get_font_baseline($font, $size) {
-    return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO;
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+    return $this->get_font_height($font, $size) / $ratio;
   }
   
   /**

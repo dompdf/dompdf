@@ -5,7 +5,6 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -30,8 +29,7 @@ class PDFLib_Adapter implements Canvas {
    *
    * @var array;
    */
-  static public $PAPER_SIZES = array(); // Set to
-                                        // CPDF_Adapter::$PAPER_SIZES below.
+  static public $PAPER_SIZES = array(); // Set to CPDF_Adapter::$PAPER_SIZES below.
 
   /**
    * Whether to create PDFs in memory or on disk
@@ -39,6 +37,11 @@ class PDFLib_Adapter implements Canvas {
    * @var bool
    */
   static $IN_MEMORY = true;
+
+  /**
+   * @var DOMPDF
+   */
+  private $_dompdf;
 
   /**
    * Instance of PDFLib class
@@ -134,17 +137,21 @@ class PDFLib_Adapter implements Canvas {
   /**
    * Class constructor
    *
-   * @param mixed $paper The size of paper to use either a string (see {@link CPDF_Adapter::$PAPER_SIZES}) or
-   *                     an array(xmin,ymin,xmax,ymax)
+   * @param mixed  $paper       The size of paper to use either a string (see {@link CPDF_Adapter::$PAPER_SIZES}) or
+   *                            an array(xmin,ymin,xmax,ymax)
    * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
+   * @param DOMPDF $dompdf
    */
-  function __construct($paper = "letter", $orientation = "portrait") {
-    if ( is_array($paper) )
+  function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf) {
+    if ( is_array($paper) ) {
       $size = $paper;
-    else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) )
+    }
+    else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) ) {
       $size = self::$PAPER_SIZES[mb_strtolower($paper)];
-    else
+    }
+    else {
       $size = self::$PAPER_SIZES["letter"];
+    }
 
     if ( mb_strtolower($orientation) === "landscape" ) {
       list($size[2], $size[3]) = array($size[3], $size[2]);
@@ -152,6 +159,8 @@ class PDFLib_Adapter implements Canvas {
     
     $this->_width = $size[2] - $size[0];
     $this->_height= $size[3] - $size[1];
+
+    $this->_dompdf = $dompdf;
 
     $this->_pdf = new PDFLib();
 
@@ -172,9 +181,10 @@ class PDFLib_Adapter implements Canvas {
     if ( self::$IN_MEMORY )
       $this->_pdf->begin_document("","");
     else {
-      $tempname = tempnam(DOMPDF_TEMP_DIR, "libdompdf_pdf_");
-      @unlink($tempname);
-      $this->_file = "$tempname.pdf";
+      $tmp_dir = $this->_dompdf->get_options("temp_dir");
+      $tmp_name = tempnam($tmp_dir, "libdompdf_pdf_");
+      @unlink($tmp_name);
+      $this->_file = "$tmp_name.pdf";
       $this->_pdf->begin_document($this->_file,"");
     }
 
@@ -226,6 +236,10 @@ class PDFLib_Adapter implements Canvas {
     }
   }
 
+  function get_dompdf(){
+    return $this->_dompdf;
+  }
+
   /**
    * Close the pdf
    */
@@ -248,7 +262,9 @@ class PDFLib_Adapter implements Canvas {
    *
    * @return PDFLib
    */
-  function get_pdflib() { return $this->_pdf; }
+  function get_pdflib() {
+    return $this->_pdf;
+  }
 
   /**
    * Add meta information to the PDF
@@ -353,8 +369,9 @@ class PDFLib_Adapter implements Canvas {
     if ( $this->_page_number >= $start &&
          (($this->_page_number % 2 == 0 && $where === "even") ||
           ($this->_page_number % 2 == 1 && $where === "odd") ||
-          ($where === "all")) )
-      $this->_pdf->fit_image($object,0,0,"");
+          ($where === "all")) ) {
+      $this->_pdf->fit_image($object, 0, 0, "");
+    }
 
     $this->_objs[$object] = null;
     unset($this->_objs[$object]);
@@ -865,11 +882,13 @@ class PDFLib_Adapter implements Canvas {
     $desc = $this->_pdf->get_value("descender", $fh);
 
     // $desc is usually < 0,
-    return $size * ($asc - $desc) * DOMPDF_FONT_HEIGHT_RATIO;
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+    return $size * ($asc - $desc) * $ratio;
   }
   
   function get_font_baseline($font, $size) {
-    return $this->get_font_height($font, $size) / DOMPDF_FONT_HEIGHT_RATIO * 1.1;
+    $ratio = $this->_dompdf->get_option("font_height_ratio");
+    return $this->get_font_height($font, $size) / $ratio * 1.1;
   }
 
   //........................................................................

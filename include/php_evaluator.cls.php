@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -25,7 +24,7 @@ class PHP_Evaluator {
   }
 
   function evaluate($code, $vars = array()) {
-    if ( !DOMPDF_ENABLE_PHP )
+    if ( !$this->_canvas->_dompdf->get_option("enable_php") )
       return;
     
     // Set up some variables for the inline code

@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -23,13 +22,14 @@ class Canvas_Factory {
   private function __construct() { }
 
   /**
+   * @param DOMPDF       $dompdf
    * @param string|array $paper
-   * @param string $orientation
-   * @param string $class
-   * 
+   * @param string       $orientation
+   * @param string       $class
+   *
    * @return Canvas
    */
-  static function get_instance($paper = null, $orientation = null,  $class = null) {
+  static function get_instance(DOMPDF $dompdf, $paper = null, $orientation = null, $class = null) {
 
     $backend = strtolower(DOMPDF_PDF_BACKEND);
     
@@ -46,7 +46,7 @@ class Canvas_Factory {
     //else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
     //  $class = "CPDF_Adapter";
 
-    else if ( $backend === "tcpdf") {
+    else if ( $backend === "tcpdf" ) {
       $class = "TCPDF_Adapter";
     }
       
@@ -58,7 +58,6 @@ class Canvas_Factory {
       $class = "CPDF_Adapter";
     }
 
-    return new $class($paper, $orientation);
-        
+    return new $class($paper, $orientation, $dompdf);
   }
 }

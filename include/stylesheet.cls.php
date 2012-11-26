@@ -6,7 +6,6 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -159,9 +158,9 @@ class Stylesheet {
   /**
    * Set the base protocol
    *
-   * @param string $proto
+   * @param string $protocol
    */
-  function set_protocol($proto) { $this->_protocol = $proto; }
+  function set_protocol($protocol) { $this->_protocol = $protocol; }
 
   /**
    * Set the base host
@@ -1056,13 +1055,7 @@ class Stylesheet {
 
         case "media":
           $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-          
-          if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
-            $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
-          } 
-          else {
-            $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE;
-          }
+          $acceptedmedia[] = $this->_dompdf->get_option("default_media_type");
           
           $media = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
           
@@ -1195,13 +1188,7 @@ class Stylesheet {
 
     if ( count($arr) > 0 ) {
       $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-      
-      if ( defined("DOMPDF_DEFAULT_MEDIA_TYPE") ) {
-        $acceptedmedia[] = DOMPDF_DEFAULT_MEDIA_TYPE;
-      }
-      else {
-        $acceptedmedia[] = self::$ACCEPTED_DEFAULT_MEDIA_TYPE;
-      }
+      $acceptedmedia[] = $this->_dompdf->get_option("default_media_type");
               
       // @import url media_type [media_type...]
       foreach ( $arr as $type ) {

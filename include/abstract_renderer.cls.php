@@ -6,7 +6,6 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -76,10 +75,13 @@ abstract class Abstract_Renderer {
     //debugpng
     if (DEBUGPNG) print '[_background_image '.$url.']';
 
-    list($img, $type, /*$msg*/) = Image_Cache::resolve_url($url,
-                                                $sheet->get_protocol(),
-                                                $sheet->get_host(),
-                                                $sheet->get_base_path());
+    list($img, $type, /*$msg*/) = Image_Cache::resolve_url(
+      $url,
+      $sheet->get_protocol(),
+      $sheet->get_host(),
+      $sheet->get_base_path(),
+      $this->_dompdf
+    );
 
     // Bail if the image is no good
     if ( Image_Cache::is_broken($img) ) {
@@ -88,7 +90,7 @@ abstract class Abstract_Renderer {
 
     //Try to optimize away reading and composing of same background multiple times
     //Postponing read with imagecreatefrom   ...()
-    //final composition paramters and name not known yet
+    //final composition parameters and name not known yet
     //Therefore read dimension directly from file, instead of creating gd object first.
     //$img_w = imagesx($src); $img_h = imagesy($src);
 
@@ -98,11 +100,12 @@ abstract class Abstract_Renderer {
     }
 
     $repeat = $style->background_repeat;
+    $dpi = $this->_dompdf->get_option("dpi");
 
     //Increase background resolution and dependent box size according to image resolution to be placed in
     //Then image can be copied in without resize
-    $bg_width = round((float)($width * DOMPDF_DPI) / 72);
-    $bg_height = round((float)($height * DOMPDF_DPI) / 72);
+    $bg_width = round((float)($width * $dpi) / 72);
+    $bg_height = round((float)($height * $dpi) / 72);
 
     //Need %bg_x, $bg_y as background pos, where img starts, converted to pixel
 
@@ -118,10 +121,10 @@ abstract class Abstract_Renderer {
       $bg_x = $x2 - $x1;
     }
     else {
-      $bg_x = (float)($style->length_in_pt($bg_x)*DOMPDF_DPI) / 72;
+      $bg_x = (float)($style->length_in_pt($bg_x)*$dpi) / 72;
     }
     
-    $bg_x = round($bg_x + $style->length_in_pt($style->border_left_width)*DOMPDF_DPI / 72);
+    $bg_x = round($bg_x + $style->length_in_pt($style->border_left_width)*$dpi / 72);
 
     if ( is_percent($bg_y) ) {
       // The point $bg_y % from the left edge of the image is placed
@@ -133,10 +136,10 @@ abstract class Abstract_Renderer {
       $bg_y = $y2 - $y1;
     }
     else {
-      $bg_y = (float)($style->length_in_pt($bg_y)*DOMPDF_DPI) / 72;
+      $bg_y = (float)($style->length_in_pt($bg_y)*$dpi) / 72;
     }
     
-    $bg_y = round($bg_y + $style->length_in_pt($style->border_top_width)*DOMPDF_DPI / 72);
+    $bg_y = round($bg_y + $style->length_in_pt($style->border_top_width)*$dpi / 72);
 
     //clip background to the image area on partial repeat. Nothing to do if img off area
     //On repeat, normalize start position to the tile at immediate left/top or 0/0 of area
@@ -149,7 +152,7 @@ abstract class Abstract_Renderer {
         $bg_width = $img_w + $bg_x;
       }
       else {
-        $x += ($bg_x * 72)/DOMPDF_DPI;
+        $x += ($bg_x * 72)/$dpi;
         $bg_width = $bg_width - $bg_x;
         if ($bg_width > $img_w) {
           $bg_width = $img_w;
@@ -161,7 +164,7 @@ abstract class Abstract_Renderer {
         return;
       }
       
-      $width = (float)($bg_width * 72)/DOMPDF_DPI;
+      $width = (float)($bg_width * 72)/$dpi;
     }
     else {
       //repeat x
@@ -182,7 +185,7 @@ abstract class Abstract_Renderer {
         $bg_height = $img_h + $bg_y;
       }
       else {
-        $y += ($bg_y * 72)/DOMPDF_DPI;
+        $y += ($bg_y * 72)/$dpi;
         $bg_height = $bg_height - $bg_y;
         if ($bg_height > $img_h) {
           $bg_height = $img_h;
@@ -192,7 +195,7 @@ abstract class Abstract_Renderer {
       if ($bg_height <= 0) {
         return;
       }
-      $height = (float)($bg_height * 72)/DOMPDF_DPI;
+      $height = (float)($bg_height * 72)/$dpi;
     }
     else {
       //repeat y
@@ -227,45 +230,17 @@ abstract class Abstract_Renderer {
     //Note: Here, bg_* are the start values, not end values after going through the tile loops!
 
     $filedummy = $img;
-
-    /* 
-    //Make shorter strings with limited characters for cache associative array index - needed?    
-    //Strip common base path - server root, explicite temp, default temp; remove unwanted characters;
-    $filedummy = strtr($filedummy,"\\:","//");
-    $p = strtr($_SERVER["DOCUMENT_ROOT"],"\\:","//");
-    $l = strlen($p);
-    if ( substr($filedummy,0,$l) == $p) {
-      $filedummy = substr($filedummy,$l);
-    } else {
-      $p = strtr(DOMPDF_TEMP_DIR,"\\:","//");
-      $l = strlen($p);
-      if ( substr($filedummy,0,$l) == $p) {
-        $filedummy = substr($filedummy,$l);
-      } else {
-        $p = strtr(sys_get_temp_dir(),"\\:","//");
-        $l = strlen($p);
-        if ( substr($filedummy,0,$l) == $p) {
-          $filedummy = substr($filedummy,$l);
-        }
-      }
-    }
-    */
     
     $is_png = false;
     $filedummy .= '_'.$bg_width.'_'.$bg_height.'_'.$bg_x.'_'.$bg_y.'_'.$repeat;
-    //debugpng
-    //if (DEBUGPNG) print '<pre>[_background_image name '.$filedummy.']</pre>';
 
     //Optimization to avoid multiple times rendering the same image.
     //If check functions are existing and identical image already cached,
     //then skip creation of duplicate, because it is not needed by addImagePng
     if ( $this->_canvas instanceof CPDF_Adapter &&
          $this->_canvas->get_cpdf()->image_iscached($filedummy) ) {
-       $bg = null;
-
-      //debugpng
-      //if (DEBUGPNG) print '[_background_image skip]';
-    } 
+      $bg = null;
+    }
     
     else {
   
@@ -292,7 +267,8 @@ abstract class Abstract_Renderer {
           $src = imagecreatefrombmp($img);
           break;
     
-        default: return; // Unsupported image type
+        default:
+          return; // Unsupported image type
       }
   
       if ( $src == null ) {
@@ -302,14 +278,14 @@ abstract class Abstract_Renderer {
       //Background color if box is not relevant here
       //Non transparent image: box clipped to real size. Background non relevant.
       //Transparent image: The image controls the transparency and lets shine through whatever background.
-      //However on transparent imaage preset the composed image with the transparency color,
+      //However on transparent image preset the composed image with the transparency color,
       //to keep the transparency when copying over the non transparent parts of the tiles.
       $ti = imagecolortransparent($src);
       
       if ( $ti >= 0 ) {
-        $tc = imagecolorsforindex($src,$ti);
-        $ti = imagecolorallocate($bg,$tc['red'],$tc['green'],$tc['blue']);
-        imagefill($bg,0,0,$ti);
+        $tc = imagecolorsforindex($src, $ti);
+        $ti = imagecolorallocate($bg, $tc['red'], $tc['green'], $tc['blue']);
+        imagefill($bg, 0, 0, $ti);
         imagecolortransparent($bg, $ti);
       }
   
@@ -426,7 +402,7 @@ abstract class Abstract_Renderer {
     //width, height: box size in pt
     //bg_width, bg_height: box size in px
     //x, y: left/top edge of box on page in pt
-    //start_x, start_y: placement of image relativ to pattern
+    //start_x, start_y: placement of image relative to pattern
     //$repeat: repeat mode
     //$bg: GD object of result image
     //$src: GD object of original image
@@ -438,7 +414,8 @@ abstract class Abstract_Renderer {
     } 
     
     else {
-      $tmp_name = tempnam(DOMPDF_TEMP_DIR, "bg_dompdf_img_");
+      $tmp_dir = $this->_dompdf->get_option("temp_dir");
+      $tmp_name = tempnam($tmp_dir, "bg_dompdf_img_");
       @unlink($tmp_name);
       $tmp_file = "$tmp_name.png";
       
@@ -450,7 +427,7 @@ abstract class Abstract_Renderer {
       imagedestroy($bg);
 
       //debugpng
-      DEBUGPNG && print '[_background_image unlink '.$tmp_file.']';
+      if (DEBUGPNG) print '[_background_image unlink '.$tmp_file.']';
 
       if (!DEBUGKEEPTEMP) {
         unlink($tmp_file);

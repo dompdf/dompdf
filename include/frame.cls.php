@@ -4,7 +4,6 @@
  * @link    http://www.dompdf.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
@@ -691,7 +690,8 @@ class Frame {
       return $this->_is_cache["in_flow"];
     }
 
-    return $this->_is_cache["in_flow"] = !(DOMPDF_ENABLE_CSS_FLOAT && $this->get_style()->float !== "none" || $this->is_absolute());
+    $enable_css_float = $this->get_style()->get_stylesheet()->get_dompdf()->get_option("enable_css_float");
+    return $this->_is_cache["in_flow"] = !($enable_css_float && $this->get_style()->float !== "none" || $this->is_absolute());
   }
 
   function is_pre(){

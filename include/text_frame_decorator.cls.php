@@ -6,7 +6,6 @@
  * @author  Brian Sweeney <eclecticgeek@gmail.com>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
  */
 
 /**
