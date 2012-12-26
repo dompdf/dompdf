@@ -82,7 +82,7 @@ def('DOMPDF_ADMIN_PASSWORD', 'password');
  * Symbol,
  * ZapfDingbats,
  *
- * *Please note the trailing slash.*
+ * Please note the trailing slash.
  */
 def('DOMPDF_FONT_DIR', DOMPDF_DIR . '/lib/fonts/');
 
