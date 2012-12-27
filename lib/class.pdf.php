@@ -162,7 +162,7 @@ class Cpdf {
 	 * @var array An array containing options about the document
 	 * it defaults to turning on the compression of the objects
 	 */
-	public $options = array('compression' => true);
+	public $options = array('compression' => TRUE);
 
 	/**
 	 * @var integer The objectId of the first page of the document
@@ -360,143 +360,143 @@ class Cpdf {
    * within the pdf 'file'.
    */
 
-  /**
-   * Destination object, used to specify the location for the user to jump to, presently on opening
-   */
-  protected function  o_destination($id, $action, $options = '') {
-    if  ($action !== 'new') {
+	/**
+	 * Destination object, used to specify the location for the user to jump to, presently on opening
+	 */
+	protected function o_destination($id, $action, $options = '') {
+		if ($action !== 'new') {
+			$o = & $this->objects[$id];
+		}
+
+		switch ($action) {
+			case 'new':
+				$this->objects[$id] = array('t' => 'destination', 'info' => array());
+				$tmp = '';
+				switch ($options['type']) {
+					case 'XYZ':
+					case 'FitR':
+						$tmp = ' '.$options['p3'].$tmp;
+					case 'FitH':
+					case 'FitV':
+					case 'FitBH':
+					case 'FitBV':
+						$tmp = ' '.$options['p1'].' '.$options['p2'].$tmp;
+					case 'Fit':
+					case 'FitB':
+						$tmp = $options['type'].$tmp;
+						$this->objects[$id]['info']['string'] = $tmp;
+						$this->objects[$id]['info']['page'] = $options['page'];
+				}
+				break;
+
+			case 'out':
+				$tmp = $o['info'];
+				$res = "\n$id 0 obj\n".'['.$tmp['page'].' 0 R /'.$tmp['string']."]\nendobj";
+				return $res;
+		}
+	}
+
+	/**
+	 * Set the viewer preferences
+	 */
+	protected function o_viewerPreferences($id, $action, $options = '') {
+		if ($action !== 'new') {
+			$o = & $this->objects[$id];
+		}
+
+		switch ($action) {
+			case 'new':
+				$this->objects[$id] = array('t' => 'viewerPreferences', 'info' => array());
+				break;
+
+			case 'add':
+				foreach ($options as $k => $v) {
+					switch ($k) {
+						case 'HideToolbar':
+						case 'HideMenubar':
+						case 'HideWindowUI':
+						case 'FitWindow':
+						case 'CenterWindow':
+						case 'NonFullScreenPageMode':
+						case 'Direction':
+							$o['info'][$k] = $v;
+							break;
+					}
+				}
+				break;
+
+			case 'out':
+				$res = "\n$id 0 obj\n<< ";
+				foreach ($o['info'] as $k => $v) {
+					$res.= "\n/$k $v";
+				}
+				$res.= "\n>>\n";
+				return $res;
+		}
+	}
+
+	/**
+	 * Define the document catalog, the overall controller for the document
+	 */
+	protected function o_catalog($id, $action, $options = '') {
+    if ($action !== 'new') {
       $o = & $this->objects[$id];
     }
 
     switch ($action) {
-    case  'new':
-      $this->objects[$id] = array('t'=>'destination', 'info'=>array());
-      $tmp =  '';
-      switch  ($options['type']) {
-      case  'XYZ':
-      case  'FitR':
-        $tmp =   ' '.$options['p3'].$tmp;
-      case  'FitH':
-      case  'FitV':
-      case  'FitBH':
-      case  'FitBV':
-        $tmp =   ' '.$options['p1'].' '.$options['p2'].$tmp;
-      case  'Fit':
-      case  'FitB':
-        $tmp =   $options['type'].$tmp;
-        $this->objects[$id]['info']['string'] = $tmp;
-        $this->objects[$id]['info']['page'] = $options['page'];
-      }
-      break;
-
-    case  'out':
-      $tmp =  $o['info'];
-      $res = "\n$id 0 obj\n".'['.$tmp['page'].' 0 R /'.$tmp['string']."]\nendobj";
-      return  $res;
-    }
-  }
-
-  /**
-   * set the viewer preferences
-   */
-  protected function  o_viewerPreferences($id, $action, $options = '') {
-    if  ($action !== 'new') {
-      $o = & $this->objects[$id];
-    }
-
-    switch  ($action) {
-    case  'new':
-      $this->objects[$id] = array('t'=>'viewerPreferences', 'info'=>array());
-      break;
-
-    case  'add':
-      foreach($options as  $k=>$v) {
-        switch  ($k) {
-        case  'HideToolbar':
-        case  'HideMenubar':
-        case  'HideWindowUI':
-        case  'FitWindow':
-        case  'CenterWindow':
-        case  'NonFullScreenPageMode':
-        case  'Direction':
-          $o['info'][$k] = $v;
-          break;
-        }
-      }
-      break;
-
-    case  'out':
-      $res = "\n$id 0 obj\n<< ";
-      foreach($o['info'] as  $k=>$v) {
-        $res.= "\n/$k $v";
-      }
-      $res.= "\n>>\n";
-      return  $res;
-    }
-  }
-
-  /**
-   * define the document catalog, the overall controller for the document
-   */
-  protected function  o_catalog($id, $action, $options = '') {
-    if  ($action !== 'new') {
-      $o = & $this->objects[$id];
-    }
-
-    switch  ($action) {
-    case  'new':
-      $this->objects[$id] = array('t'=>'catalog', 'info'=>array());
+    case 'new':
+      $this->objects[$id] = array('t' => 'catalog', 'info' => array());
       $this->catalogId = $id;
       break;
 
-    case  'outlines':
-    case  'pages':
-    case  'openHere':
-    case  'javascript':
+    case 'outlines':
+    case 'pages':
+    case 'openHere':
+    case 'javascript':
       $o['info'][$action] = $options;
       break;
 
-    case  'viewerPreferences':
-      if  (!isset($o['info']['viewerPreferences'])) {
+    case 'viewerPreferences':
+      if ( ! isset($o['info']['viewerPreferences'])) {
         $this->numObj++;
         $this->o_viewerPreferences($this->numObj, 'new');
         $o['info']['viewerPreferences'] = $this->numObj;
       }
 
-      $vp =  $o['info']['viewerPreferences'];
+      $vp = $o['info']['viewerPreferences'];
       $this->o_viewerPreferences($vp, 'add', $options);
 
       break;
 
-    case  'out':
+    case 'out':
       $res = "\n$id 0 obj\n<< /Type /Catalog";
 
-      foreach($o['info'] as  $k=>$v) {
+      foreach ($o['info'] as $k => $v) {
         switch ($k) {
-        case  'outlines':
+        case 'outlines':
           $res.= "\n/Outlines $v 0 R";
           break;
-          
-        case  'pages':
+
+        case 'pages':
           $res.= "\n/Pages $v 0 R";
           break;
 
-        case  'viewerPreferences':
+        case 'viewerPreferences':
           $res.= "\n/ViewerPreferences $v 0 R";
           break;
 
-        case  'openHere':
+        case 'openHere':
           $res.= "\n/OpenAction $v 0 R";
           break;
 
-        case  'javascript':
+        case 'javascript':
           $res.= "\n/Names <</JavaScript $v 0 R>>";
           break;
         }
       }
 
       $res.= " >>\nendobj";
-      return  $res;
+      return $res;
     }
   }
 
