@@ -16,336 +16,335 @@
  * @package Cpdf
  */
 class Cpdf {
-  
-  /**
-   * @var integer The current number of pdf objects in the document
-   */
-  public  $numObj = 0;
 
-  /**
-   * @var array This array contains all of the pdf objects, ready for final assembly
-   */
-  public  $objects =  array();
+	/**
+	 * @var integer The current number of pdf objects in the document
+	 */
+	public $numObj = 0;
 
-  /**
-   * @var integer The objectId (number within the objects array) of the document catalog
-   */
-  public  $catalogId;
+	/**
+	 * @var array This array contains all of the pdf objects, ready for final assembly
+	 */
+	public $objects = array();
 
-  /**
-   * @var array Array carrying information about the fonts that the system currently knows about
-   * Used to ensure that a font is not loaded twice, among other things
-   */
-  public  $fonts = array();
-  
-  /**
-   * @var string The default font metrics file to use if no other font has been loaded.
-   * The path to the directory containing the font metrics should be included
-   */
-  public  $defaultFont = './fonts/Helvetica.afm';
-  
-  /**
-   * @string A record of the current font
-   */
-  public  $currentFont = '';
+	/**
+	 * @var integer The objectId (number within the objects array) of the document catalog
+	 */
+	public $catalogId;
 
-  /**
-   * @var string The current base font
-   */
-  public  $currentBaseFont = '';
+	/**
+	 * @var array Array carrying information about the fonts that the system currently knows about
+	 * Used to ensure that a font is not loaded twice, among other things
+	 */
+	public $fonts = array();
 
-  /**
-   * @var integer The number of the current font within the font array
-   */
-  public  $currentFontNum = 0;
+	/**
+	 * @var string The default font metrics file to use if no other font has been loaded.
+	 * The path to the directory containing the font metrics should be included
+	 */
+	public $defaultFont = './fonts/Helvetica.afm';
 
-  /**
-   * @var integer
-   */
-  public  $currentNode;
+	/**
+	 * @string A record of the current font
+	 */
+	public $currentFont = '';
 
-  /**
-   * @var integer Object number of the current page
-   */
-  public  $currentPage;
+	/**
+	 * @var string The current base font
+	 */
+	public $currentBaseFont = '';
 
-  /**
-   * @var integer Object number of the currently active contents block
-   */
-  public  $currentContents;
+	/**
+	 * @var integer The number of the current font within the font array
+	 */
+	public $currentFontNum = 0;
 
-  /**
-   * @var integer Number of fonts within the system
-   */
-  public  $numFonts = 0;
+	/**
+	 * @var integer
+	 */
+	public $currentNode;
 
-  /**
-   * @var integer Number of graphic state resources used
-   */
-  private  $numStates =  0;
+	/**
+	 * @var integer Object number of the current page
+	 */
+	public $currentPage;
 
-  /**
-   * @var array Current colour for fill operations, defaults to inactive value, 
-   * all three components should be between 0 and 1 inclusive when active
-   */
-  public  $currentColour = null;
+	/**
+	 * @var integer Object number of the currently active contents block
+	 */
+	public $currentContents;
 
-  /**
-   * @var array Current colour for stroke operations (lines etc.)
-   */
-  public  $currentStrokeColour = null;
+	/**
+	 * @var integer Number of fonts within the system
+	 */
+	public $numFonts = 0;
 
-  /**
-   * @var string Current style that lines are drawn in
-   */
-  public  $currentLineStyle = '';
+	/**
+	 * @var integer Number of graphic state resources used
+	 */
+	private $numStates = 0;
 
-  /**
-   * @var array Current line transparency (partial graphics state)
-   */
-  public $currentLineTransparency = array("mode" => "Normal", "opacity" => 1.0);
-  
-  /**
-   * array Current fill transparency (partial graphics state)
-   */
-  public $currentFillTransparency = array("mode" => "Normal", "opacity" => 1.0);
-  
-  /**
-   * @var array An array which is used to save the state of the document, mainly the colours and styles
-   * it is used to temporarily change to another state, the change back to what it was before
-   */
-  public  $stateStack =  array();
+	/**
+	 * @var array Current colour for fill operations, defaults to inactive value, 
+	 * all three components should be between 0 and 1 inclusive when active
+	 */
+	public $currentColour = NULL;
 
-  /**
-   * @var integer Number of elements within the state stack
-   */
-  public  $nStateStack =  0;
+	/**
+	 * @var array Current colour for stroke operations (lines etc.)
+	 */
+	public $currentStrokeColour = NULL;
 
-  /**
-   * @var integer Number of page objects within the document
-   */
-  public  $numPages = 0;
+	/**
+	 * @var string Current style that lines are drawn in
+	 */
+	public $currentLineStyle = '';
 
-  /**
-   * @var array Object Id storage stack
-   */
-  public  $stack = array();
+	/**
+	 * @var array Current line transparency (partial graphics state)
+	 */
+	public $currentLineTransparency = array('mode' => 'Normal', 'opacity' => 1.0);
 
-  /**
-   * @var integer Number of elements within the object Id storage stack
-   */
-  public  $nStack = 0;
+	/**
+	 * @var array Current fill transparency (partial graphics state)
+	 */
+	public $currentFillTransparency = array('mode' => 'Normal', 'opacity' => 1.0);
 
-  /**
-   * an array which contains information about the objects which are not firmly attached to pages
-   * these have been added with the addObject function
-   */
-  public  $looseObjects = array();
+	/**
+	 * @var array An array which is used to save the state of the document, mainly the colours and styles
+	 * it is used to temporarily change to another state, the change back to what it was before
+	 */
+	public $stateStack = array();
 
-  /**
-   * array contains infomation about how the loose objects are to be added to the document
-   */
-  public  $addLooseObjects = array();
+	/**
+	 * @var integer Number of elements within the state stack
+	 */
+	public $nStateStack = 0;
 
-  /**
-   * @var integer The objectId of the information object for the document
-   * this contains authorship, title etc.
-   */
-  public  $infoObject = 0;
+	/**
+	 * @var integer Number of page objects within the document
+	 */
+	public $numPages = 0;
 
-  /**
-   * @var integer Number of images being tracked within the document
-   */
-  public  $numImages = 0;
+	/**
+	 * @var array Object Id storage stack
+	 */
+	public $stack = array();
 
-  /**
-   * @var array An array containing options about the document
-   * it defaults to turning on the compression of the objects
-   */
-  public  $options = array('compression'=>true);
+	/**
+	 * @var integer Number of elements within the object Id storage stack
+	 */
+	public $nStack = 0;
 
-  /**
-   * @var integer The objectId of the first page of the document
-   */
-  public  $firstPageId;
+	/**
+	 * an array which contains information about the objects which are not firmly attached to pages
+	 * these have been added with the addObject function
+	 */
+	public $looseObjects = array();
 
-  /**
-   * @var float Used to track the last used value of the inter-word spacing, this is so that it is known
-   * when the spacing is changed.
-   */
-  public  $wordSpaceAdjust = 0;
+	/**
+	 * an array which contains infomation about how the loose objects are to be added to the document
+	 */
+	public $addLooseObjects = array();
 
-  /**
-   * @var float Used to track the last used value of the inter-letter spacing, this is so that it is known
-   * when the spacing is changed.
-   */
-  public  $charSpaceAdjust = 0;
-  
-  /**
-   * @var integer The object Id of the procset object
-   */
-  public  $procsetObjectId;
+	/**
+	 * @var integer The objectId of the information object for the document
+	 * this contains authorship, title etc.
+	 */
+	public $infoObject = 0;
 
-  /**
-   * @var array Store the information about the relationship between font families
-   * this used so that the code knows which font is the bold version of another font, etc.
-   * the value of this array is initialised in the constuctor function.
-   */
-  public  $fontFamilies =  array();
- 
-  /**
-   * @var string Folder for php serialized formats of font metrics files.
-   * If empty string, use same folder as original metrics files.
-   * This can be passed in from class creator.
-   * If this folder does not exist or is not writable, Cpdf will be **much** slower.
-   * Because of potential trouble with php safe mode, folder cannot be created at runtime.
-   */
-  public  $fontcache = '';
-  
-  /**
-   * @var integer The version of the font metrics cache file.
-   * This value must be manually incremented whenever the internal font data structure is modified.
-   */
-  public  $fontcacheVersion = 6;
+	/**
+	 * @var integer Number of images being tracked within the document
+	 */
+	public $numImages = 0;
 
-  /**
-   * @var string Temporary folder.
-   * If empty string, will attempty system tmp folder.
-   * This can be passed in from class creator.
-   * Only used for conversion of gd images to jpeg images.
-   */
-  public  $tmp = '';
+	/**
+	 * @var array An array containing options about the document
+	 * it defaults to turning on the compression of the objects
+	 */
+	public $options = array('compression' => true);
 
-  /**
-   * @var string Track if the current font is bolded or italicised
-   */
-  public  $currentTextState =  '';
+	/**
+	 * @var integer The objectId of the first page of the document
+	 */
+	public $firstPageId;
 
-  /**
-   * @var string Messages are stored here during processing, these can be selected afterwards to give some useful debug information
-   */
-  public  $messages = '';
+	/**
+	 * @var float Used to track the last used value of the inter-word spacing, this is so that it is known
+	 * when the spacing is changed.
+	 */
+	public $wordSpaceAdjust = 0;
 
-  /**
-   * @var string The ancryption array for the document encryption is stored here
-   */
-  public  $arc4 = '';
+	/**
+	 * @var float Used to track the last used value of the inter-letter spacing, this is so that it is known
+	 * when the spacing is changed.
+	 */
+	public $charSpaceAdjust = 0;
 
-  /**
-   * @var integer The object Id of the encryption information
-   */
-  public  $arc4_objnum = 0;
+	/**
+	 * @var integer The object Id of the procset object
+	 */
+	public $procsetObjectId;
 
-  /**
-   * @var string The file identifier, used to uniquely identify a pdf document
-   */
-  public  $fileIdentifier = '';
+	/**
+	 * @var array Store the information about the relationship between font families
+	 * this used so that the code knows which font is the bold version of another font, etc.
+	 * the value of this array is initialised in the constuctor function.
+	 */
+	public $fontFamilies = array();
 
-  /**
-   * @var boolean A flag to say if a document is to be encrypted or not
-   */
-  public  $encrypted = false;
+	/**
+	 * @var string Folder for php serialized formats of font metrics files.
+	 * If empty string, use same folder as original metrics files.
+	 * This can be passed in from class creator.
+	 * If this folder does not exist or is not writable, Cpdf will be **much** slower.
+	 * Because of potential trouble with php safe mode, folder cannot be created at runtime.
+	 */
+	public $fontcache = '';
 
-  /**
-   * @var string The encryption key for the encryption of all the document content (structure is not encrypted)
-   */
-  public  $encryptionKey = '';
+	/**
+	 * @var integer The version of the font metrics cache file.
+	 * This value must be manually incremented whenever the internal font data structure is modified.
+	 */
+	public $fontcacheVersion = 6;
 
-  /**
-   * @var array Array which forms a stack to keep track of nested callback functions
-   */
-  public  $callback =  array();
+	/**
+	 * @var string Temporary folder.
+	 * If empty string, will attempty system tmp folder.
+	 * This can be passed in from class creator.
+	 * Only used for conversion of gd images to jpeg images.
+	 */
+	public $tmp = '';
 
-  /**
-   * @var integer The number of callback functions in the callback array
-   */
-  public  $nCallback =  0;
+	/**
+	 * @var string Track if the current font is bolded or italicised
+	 */
+	public $currentTextState = '';
 
-  /**
-   * @var array Store label->id pairs for named destinations, these will be used to replace internal links
-   * done this way so that destinations can be defined after the location that links to them
-   */
-  public  $destinations =  array();
+	/**
+	 * @var string Messages are stored here during processing, these can be selected afterwards to give some useful debug information
+	 */
+	public $messages = '';
 
-  /**
-   * @var array Store the stack for the transaction commands, each item in here is a record of the values of all the
-   * publiciables within the class, so that the user can rollback at will (from each 'start' command)
-   * note that this includes the objects array, so these can be large.
-   */
-  public  $checkpoint =  '';
+	/**
+	 * @var string The ancryption array for the document encryption is stored here
+	 */
+	public $arc4 = '';
 
-  /**
-   * @var array Table of Image origin filenames and image labels which were already added with o_image().
-   * Allows to merge identical images
-   */
-  public  $imagelist = array();
+	/**
+	 * @var integer The object Id of the encryption information
+	 */
+	public $arc4_objnum = 0;
 
-  /**
-   * @var boolean Whether the text passed in should be treated as Unicode or just local character set.
-   */
-  public  $isUnicode = false;
+	/**
+	 * @var string The file identifier, used to uniquely identify a pdf document
+	 */
+	public $fileIdentifier = '';
 
-  /**
-   * @var string the JavaScript code of the document
-   */
-  public  $javascript = '';
+	/**
+	 * @var boolean A flag to say if a document is to be encrypted or not
+	 */
+	public $encrypted = FALSE;
 
-  /**
-   * @var boolean whether the compression is possible
-   */
-  protected $compressionReady = false;
+	/**
+	 * @var string The encryption key for the encryption of all the document content (structure is not encrypted)
+	 */
+	public $encryptionKey = '';
 
-  /**
-   * @var array Current page size
-   */
-  protected $currentPageSize = array("width" => 0, "height" => 0);
-  
-  /**
-   * @var array All the chars that will be required in the font subsets
-   */
-  protected $stringSubsets = array();
-  
-  /**
-   * @var string The target internal encoding
-   */
-  static protected $targetEncoding = 'iso-8859-1';
-  
-  /**
-   * @var array The list of the core fonts
-   */
-  static protected $coreFonts = array(
-    'courier', 'courier-bold', 'courier-oblique', 'courier-boldoblique',
-    'helvetica', 'helvetica-bold', 'helvetica-oblique', 'helvetica-boldoblique',
-    'times-roman', 'times-bold', 'times-italic', 'times-bolditalic',
-    'symbol', 'zapfdingbats'
-  );
+	/**
+	 * @var array Array which forms a stack to keep track of nested callback functions
+	 */
+	public $callback = array();
 
-  /**
-   * Class constructor
-   * This will start a new document
-   *
-   * @param array   $pageSize  Array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
-   * @param boolean $isUnicode Whether text will be treated as Unicode or not.
-   * @param string  $fontcache The font cache folder
-   * @param string  $tmp       The temporary folder
-   */
-  function __construct ($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
-    $this->isUnicode = $isUnicode;
-    $this->fontcache = $fontcache;
-    $this->tmp = $tmp;
-    $this->newDocument($pageSize);
-    
-    $this->compressionReady = function_exists('gzcompress');
-    
-    if ( in_array('Windows-1252', mb_list_encodings()) ) {
-      self::$targetEncoding = 'Windows-1252';
-    }
+	/**
+	 * @var integer The number of callback functions in the callback array
+	 */
+	public $nCallback = 0;
 
-    // also initialize the font families that are known about already
-    $this->setFontFamily('init');
-    //  $this->fileIdentifier = md5('xxxxxxxx'.time());
-  }
-  
+	/**
+	 * @var array Store label->id pairs for named destinations, these will be used to replace internal links
+	 * done this way so that destinations can be defined after the location that links to them
+	 */
+	public $destinations = array();
+
+	/**
+	 * @var array Store the stack for the transaction commands, each item in here is a record of the values of all the
+	 * publiciables within the class, so that the user can rollback at will (from each 'start' command)
+	 * note that this includes the objects array, so these can be large.
+	 */
+	public $checkpoint = '';
+
+	/**
+	 * @var array Table of Image origin filenames and image labels which were already added with o_image().
+	 * Allows to merge identical images
+	 */
+	public $imagelist = array();
+
+	/**
+	 * @var boolean Whether the text passed in should be treated as Unicode or just local character set.
+	 */
+	public $isUnicode = FALSE;
+
+	/**
+	 * @var string the JavaScript code of the document
+	 */
+	public $javascript = '';
+
+	/**
+	 * @var boolean whether the compression is possible
+	 */
+	protected $compressionReady = FALSE;
+
+	/**
+	 * @var array Current page size
+	 */
+	protected $currentPageSize = array('width' => 0, 'height' => 0);
+
+	/**
+	 * @var array All the chars that will be required in the font subsets
+	 */
+	protected $stringSubsets = array();
+
+	/**
+	 * @var string The target internal encoding
+	 */
+	static protected $targetEncoding = 'iso-8859-1';
+
+	/**
+	 * @var array The list of the core fonts
+	 */
+	static protected $coreFonts = array(
+		'courier', 'courier-bold', 'courier-oblique', 'courier-boldoblique',
+		'helvetica', 'helvetica-bold', 'helvetica-oblique', 'helvetica-boldoblique',
+		'times-roman', 'times-bold', 'times-italic', 'times-bolditalic',
+		'symbol', 'zapfdingbats'
+	);
+
+	/**
+	 * Class constructor
+	 * This will start a new document
+	 *
+	 * @param array   $pageSize  Array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
+	 * @param boolean $isUnicode Whether text will be treated as Unicode or not.
+	 * @param string  $fontcache The font cache folder
+	 * @param string  $tmp       The temporary folder
+	 */
+	function __construct ($pageSize = array(0, 0, 612, 792), $isUnicode = FALSE, $fontcache = '', $tmp = '') {
+		$this->isUnicode = $isUnicode;
+		$this->fontcache = $fontcache;
+		$this->tmp = $tmp;
+		$this->newDocument($pageSize);
+
+		$this->compressionReady = function_exists('gzcompress');
+
+		if (in_array('Windows-1252', mb_list_encodings())) {
+			self::$targetEncoding = 'Windows-1252';
+		}
+
+		// Also initialize the font families that are known about already
+		$this->setFontFamily('init');
+	}
+
   /**
    * Document object methods (internal use only)
    *
