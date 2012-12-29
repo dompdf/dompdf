@@ -20,16 +20,27 @@
  * @package dompdf
  */
 class Cached_PDF_Decorator extends CPDF_Adapter implements Canvas {
+  /**
+   * @var CPDF_Adapter
+   */
   protected $_pdf;
   protected $_cache_id;
   protected $_current_page_id;
   protected $_fonts;  // fonts used in this document
   
-  function __construct($cache_id, CPDF_Adapter $pdf) {
-    $this->_pdf = $pdf;
-    $this->_cache_id = $cache_id;
+  function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf) {
     $this->_fonts = array();
-    
+  }
+
+  /**
+   * Must be called after constructor
+   *
+   * @param int          $cache_id
+   * @param CPDF_Adapter $pdf
+   */
+  function init($cache_id, CPDF_Adapter $pdf) {
+    $this->_cache_id = $cache_id;
+    $this->_pdf = $pdf;
     $this->_current_page_id = $this->_pdf->open_object();
   }
 
