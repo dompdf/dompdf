@@ -1530,28 +1530,31 @@ class Style {
    * The colour parameter can be any valid CSS colour value
    *
    * @link http://www.w3.org/TR/CSS21/colors.html#propdef-color
-   * @param string $colour
+   * @param string $color
    */
-  function set_color($colour) {
-    $col = $this->munge_colour($colour);
+  function set_color($color) {
+    $col = $this->munge_colour($color);
 
-    if ( is_null($col) ) {
-      $col = self::$_defaults["color"];
+    if ( is_null($col) || !isset($col["hex"]) ) {
+      $color = "inherit";
+    }
+    else {
+      $color = $col["hex"];
     }
 
     //see __set and __get, on all assignments clear cache, not needed on direct set through __set
     $this->_prop_cache["color"] = null;
-    $this->_props["color"] = $col["hex"];
+    $this->_props["color"] = $color;
   }
 
   /**
    * Sets the background colour
    *
    * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background-color
-   * @param string $colour
+   * @param string $color
    */
-  function set_background_color($colour) {
-    $col = $this->munge_colour($colour);
+  function set_background_color($color) {
+    $col = $this->munge_colour($color);
     
     if ( is_null($col) ) {
       return;
