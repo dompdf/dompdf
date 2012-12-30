@@ -124,7 +124,7 @@ class Image_Cache {
         if ( $width && $height && in_array($type, array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_BMP)) ) {
           //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
           //Only execute on successful caching of remote image.
-          if ( $enable_remote && $remote ) {
+          if ( $enable_remote && $remote || $data_uri ) {
             self::$_cache[$full_url] = $resolved_url;
           }
         }
