@@ -13,6 +13,12 @@ if ( !defined('PHP_VERSION_ID') ) {
   define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
 }
 
+/**
+ * Defined a constant if not already defined
+ *
+ * @param string $name  The constant name
+ * @param mixed  $value The value
+ */
 function def($name, $value = true) {
   if ( !defined($name) ) {
     define($name, $value);

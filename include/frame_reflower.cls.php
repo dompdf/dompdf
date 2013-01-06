@@ -242,7 +242,7 @@ abstract class Frame_Reflower {
   /**
    * Parses a CSS "quotes" property
    * 
-   * @return array An array of pairs of quotes
+   * @return array|null An array of pairs of quotes
    */
   protected function _parse_quotes() {
     
@@ -253,7 +253,7 @@ abstract class Frame_Reflower {
       
     // split on spaces, except within quotes
     if ( !preg_match_all($re, "$quotes", $matches, PREG_SET_ORDER) ) {
-      return;
+      return null;
     }
       
     $quotes_array = array();
@@ -271,7 +271,7 @@ abstract class Frame_Reflower {
   /**
    * Parses the CSS "content" property
    * 
-   * @return string The resulting string
+   * @return string|null The resulting string
    */
   protected function _parse_content() {
 
@@ -291,7 +291,7 @@ abstract class Frame_Reflower {
     
     // split on spaces, except within quotes
     if ( !preg_match_all($re, $content, $matches, PREG_SET_ORDER) ) {
-      return;
+      return null;
     }
       
     $text = "";

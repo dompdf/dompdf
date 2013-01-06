@@ -2632,7 +2632,7 @@ class HTML5_TreeBuilder {
             // parse error
 
         } elseif($token['type'] === HTML5_Tokenizer::STARTTAG && $token['name'] === 'html') {
-            $this->processWithRulesFor($token, self::INBODY);
+            $this->processWithRulesFor($token, self::IN_BODY);
 
         /* A start tag token whose tag name is "option" */
         } elseif($token['type'] === HTML5_Tokenizer::STARTTAG &&

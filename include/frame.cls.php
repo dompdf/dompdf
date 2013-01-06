@@ -621,7 +621,7 @@ class Frame {
 
   function set_position($x = null, $y = null) {
     if ( is_array($x) ) {
-      extract($x);
+      list($x, $y) = array($x["x"], $x["y"]);
     }
 
     if ( is_numeric($x) ) {
