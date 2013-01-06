@@ -85,15 +85,15 @@ class Cpdf {
   private $numStates = 0;
 
   /**
-   * @var array Current color for fill operations, defaults to inactive value,
+   * @var array Current colour for fill operations, defaults to inactive value, 
    * all three components should be between 0 and 1 inclusive when active
    */
-  public $currentColor = null;
+  public $currentColour = null;
 
   /**
-   * @var array Current Color for stroke operations (lines etc.)
+   * @var array Current colour for stroke operations (lines etc.)
    */
-  public $currentStrokeColor = null;
+  public $currentStrokeColour = null;
 
   /**
    * @var string Current style that lines are drawn in
@@ -111,7 +111,7 @@ class Cpdf {
   public $currentFillTransparency = array("mode" => "Normal", "opacity" => 1.0);
 
   /**
-   * @var array An array which is used to save the state of the document, mainly the Colors and styles
+   * @var array An array which is used to save the state of the document, mainly the colours and styles
    * it is used to temporarily change to another state, the change back to what it was before
    */
   public $stateStack = array();
@@ -2560,42 +2560,42 @@ EOT;
   }
 
   /**
-   * sets the Color for fill operations
+   * sets the colour for fill operations
    */
   function setColor($color, $force = false) {
     $new_color = array($color[0], $color[1], $color[2], isset($color[3]) ? $color[3] : null);
 
-    if (!$force && $this->currentColor == $new_color) {
+    if (!$force && $this->currentColour == $new_color) {
       return;
     }
 
     if (isset($new_color[3])) {
-      $this->currentColor = $new_color;
-      $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F k", $this->currentColor));
+      $this->currentColour = $new_color;
+      $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F k", $this->currentColour));
     }
 
     else if (isset($new_color[2])) {
-      $this->currentColor = $new_color;
-      $this->addContent(vsprintf("\n%.3F %.3F %.3F rg", $this->currentColor));
+      $this->currentColour = $new_color;
+      $this->addContent(vsprintf("\n%.3F %.3F %.3F rg", $this->currentColour));
     }
   }
 
   /**
-   * sets the Color for stroke operations
+   * sets the colour for stroke operations
    */
   function setStrokeColor($color, $force = false) {
     $new_color = array($color[0], $color[1], $color[2], isset($color[3]) ? $color[3] : null);
 
-    if (!$force && $this->currentStrokeColor == $new_color) return;
+    if (!$force && $this->currentStrokeColour == $new_color) return;
 
     if (isset($new_color[3])) {
-      $this->currentStrokeColor = $new_color;
-      $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F K", $this->currentStrokeColor));
+      $this->currentStrokeColour = $new_color;
+      $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F K", $this->currentStrokeColour));
     }
 
     else if (isset($new_color[2])) {
-      $this->currentStrokeColor = $new_color;
-      $this->addContent(vsprintf("\n%.3F %.3F %.3F RG", $this->currentStrokeColor));
+      $this->currentStrokeColour = $new_color;
+      $this->addContent(vsprintf("\n%.3F %.3F %.3F RG", $this->currentStrokeColour));
     }
   }
 
@@ -2878,9 +2878,9 @@ EOT;
    * save the current graphic state
    */
   function save() {
-    // we must reset the Color cache or it will keep bad Colors after clipping
-    $this->currentColor = null;
-    $this->currentStrokeColor = null;
+    // we must reset the colour cache or it will keep bad colours after clipping
+    $this->currentColour = null;
+    $this->currentStrokeColour = null;
     $this->addContent("\nq");
   }
 
@@ -3062,13 +3062,13 @@ EOT;
       }
     }
 
-    // and if there has been a stroke or fill Color set, then transfer them
-    if (isset($this->currentColor)) {
-      $this->setColor($this->currentColor, true);
+    // and if there has been a stroke or fill colour set, then transfer them
+    if (isset($this->currentColour)) {
+      $this->setColor($this->currentColour, true);
     }
 
-    if (isset($this->currentStrokeColor)) {
-      $this->setStrokeColor($this->currentStrokeColor, true);
+    if (isset($this->currentStrokeColour)) {
+      $this->setStrokeColor($this->currentStrokeColour, true);
     }
 
     // if there is a line style set, then put this in too
@@ -3600,8 +3600,8 @@ EOT;
     } else {
       $this->nStateStack++;
       $this->stateStack[$this->nStateStack] = array(
-        'col' => $this->currentColor,
-        'str' => $this->currentStrokeColor,
+        'col' => $this->currentColour,
+        'str' => $this->currentStrokeColour,
         'lin' => $this->currentLineStyle
       );
     }
@@ -3615,8 +3615,8 @@ EOT;
   function restoreState($pageEnd = 0) {
     if (!$pageEnd) {
       $n = $this->nStateStack;
-      $this->currentColor =       $this->stateStack[$n]['col'];
-      $this->currentStrokeColor = $this->stateStack[$n]['str'];
+      $this->currentColour =       $this->stateStack[$n]['col'];
+      $this->currentStrokeColour = $this->stateStack[$n]['str'];
       $this->addContent("\n".$this->stateStack[$n]['lin']);
       $this->currentLineStyle =    $this->stateStack[$n]['lin'];
       $this->stateStack[$n] = null;
