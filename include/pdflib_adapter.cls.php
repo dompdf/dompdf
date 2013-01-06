@@ -72,14 +72,14 @@ class PDFLib_Adapter implements Canvas {
   private $_height;
 
   /**
-   * Last fill colour used
+   * Last fill color used
    *
    * @var array
    */
   private $_last_fill_color;
 
   /**
-   * Last stroke colour used
+   * Last stroke color used
    *
    * @var array
    */
@@ -899,7 +899,7 @@ class PDFLib_Adapter implements Canvas {
    * The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are automatically replaced
    * with their current values.
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float $x
    * @param float $y

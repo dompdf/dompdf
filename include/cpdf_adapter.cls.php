@@ -369,9 +369,9 @@ class CPDF_Adapter implements Canvas {
   function set_page_count($count) {  $this->_page_count = $count; }
     
   /**
-   * Sets the stroke colour
+   * Sets the stroke color
    *
-   * See {@link Style::set_colour()} for the format of the color array.
+   * See {@link Style::set_color()} for the format of the color array.
    * @param array $color
    */
   protected function _set_stroke_color($color) {
@@ -381,7 +381,7 @@ class CPDF_Adapter implements Canvas {
   /**
    * Sets the fill colour
    *
-   * See {@link Style::set_colour()} for the format of the colour array.
+   * See {@link Style::set_color()} for the format of the colour array.
    * @param array $color
    */
   protected function _set_fill_color($color) {
@@ -749,7 +749,7 @@ class CPDF_Adapter implements Canvas {
    * The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are automatically replaced
    * with their current values.
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the colour array.
    *
    * @param float $x
    * @param float $y

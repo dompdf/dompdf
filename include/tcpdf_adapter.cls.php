@@ -58,14 +58,14 @@ class TCPDF_Adapter implements Canvas {
   private $_height;
 
   /**
-   * Last fill colour used
+   * Last fill color used
    *
    * @var array
    */
   private $_last_fill_color;
 
   /**
-   * Last stroke colour used
+   * Last stroke color used
    *
    * @var array
    */
@@ -151,13 +151,13 @@ class TCPDF_Adapter implements Canvas {
   protected function y($y) { return $this->_height - $y; }
 
   /**
-   * Sets the stroke colour
+   * Sets the stroke color
    *
    * @param array $color
    *
    * @return void
    */
-  protected function _set_stroke_colour($color) {
+  protected function _set_stroke_color($color) {
     $color[0] = round(255 * $color[0]);
     $color[1] = round(255 * $color[1]);
     $color[2] = round(255 * $color[2]);
@@ -170,11 +170,11 @@ class TCPDF_Adapter implements Canvas {
   }
 
   /**
-   * Sets the fill colour
+   * Sets the fill color
    *
    * @param array $color
    */
-  protected function _set_fill_colour($color) {
+  protected function _set_fill_color($color) {
     $color[0] = round(255 * $color[0]);
     $color[1] = round(255 * $color[1]);
     $color[2] = round(255 * $color[2]);
@@ -223,7 +223,7 @@ class TCPDF_Adapter implements Canvas {
   /**
    * Draws a line from x1,y1 to x2,y2
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the format of the
    * $style parameter (aka dash).
    *
@@ -242,7 +242,7 @@ class TCPDF_Adapter implements Canvas {
       $this->_last_line_width = $width;
     }
 
-    $this->_set_stroke_colour($color);
+    $this->_set_stroke_color($color);
 
     // FIXME: ugh, need to handle different styles here
     $this->_pdf->line($x1, $y1, $x2, $y2);
@@ -251,7 +251,7 @@ class TCPDF_Adapter implements Canvas {
   /**
    * Draws a rectangle at x1,y1 with width w and height h
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)
    *
@@ -270,7 +270,7 @@ class TCPDF_Adapter implements Canvas {
       $this->_last_line_width = $width;
     }
 
-    $this->_set_stroke_colour($color);
+    $this->_set_stroke_color($color);
     
     // FIXME: ugh, need to handle styles here
     $this->_pdf->rect($x1, $y1, $w, $h);
@@ -280,7 +280,7 @@ class TCPDF_Adapter implements Canvas {
   /**
    * Draws a filled rectangle at x1,y1 with width w and height h
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float $x1
    * @param float $y1
@@ -290,7 +290,7 @@ class TCPDF_Adapter implements Canvas {
    */   
   function filled_rectangle($x1, $y1, $w, $h, $color) {
 
-    $this->_set_fill_colour($color);
+    $this->_set_fill_color($color);
     
     // FIXME: ugh, need to handle styles here
     $this->_pdf->rect($x1, $y1, $w, $h, "F");
@@ -310,7 +310,7 @@ class TCPDF_Adapter implements Canvas {
    *       );
    * </code>
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)   
    *
@@ -327,7 +327,7 @@ class TCPDF_Adapter implements Canvas {
   /**
    * Draws a circle at $x,$y with radius $r
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)
    *
@@ -363,7 +363,7 @@ class TCPDF_Adapter implements Canvas {
 
   /**
    * Writes text at the specified x and y coordinates
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float  $x
    * @param float  $y
@@ -564,7 +564,7 @@ class TCPDF_Adapter implements Canvas {
 
   /**
    * Add an arc to the PDF
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float $x      X coordinate of the arc
    * @param float $y      Y coordinate of the arc

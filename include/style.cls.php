@@ -12,7 +12,7 @@
  * Represents CSS properties.
  *
  * The Style class is responsible for handling and storing CSS properties.
- * It includes methods to resolve colours and lengths, as well as getters &
+ * It includes methods to resolve colors and lengths, as well as getters &
  * setters for many CSS properites.
  *
  * Actual CSS parsing is performed in the {@link Stylesheet} class.
@@ -623,23 +623,17 @@ class Style {
       $this->__font_size_calculated = false;
     }
   }
-  
+
   /**
    * Returns an array(r, g, b, "r"=> r, "g"=>g, "b"=>b, "hex"=>"#rrggbb")
-   * based on the provided CSS colour value.
-   *
-   * @param string $colour
-   * @return array
-   */
-  function munge_colour($colour) { return CSS_Color::parse($colour); }
-  
-  /**
-   * Alias for {@link Style::munge_colour()}
+   * based on the provided CSS color value.
    *
    * @param string $color
    * @return array
    */
-  function munge_color($color) { return CSS_Color::parse($color); }
+  function munge_color($color) {
+    return CSS_Color::parse($color);
+  }
 
   /* direct access to _important_props array from outside would work only when declared as
    * 'var $_important_props;' instead of 'protected $_important_props;'
@@ -957,7 +951,7 @@ class Style {
   }
 
   /**
-   * Returns the colour as an array
+   * Returns the color as an array
    *
    * The array has the following format:
    * <code>array(r,g,b, "r" => r, "g" => g, "b" => b, "hex" => "#rrggbb")</code>
@@ -970,7 +964,7 @@ class Style {
   }
 
   /**
-   * Returns the background colour as an array
+   * Returns the background color as an array
    *
    * The returned array has the same format as {@link Style::get_color()}
    *
@@ -1116,7 +1110,7 @@ class Style {
 
 
   /**#@+
-   * Returns the border colour as an array
+   * Returns the border color as an array
    *
    * See {@link Style::get_color()}
    *
@@ -1313,7 +1307,7 @@ class Style {
 
 
   /**
-   * Returns the outline colour as an array
+   * Returns the outline color as an array
    *
    * See {@link Style::get_color()}
    *
@@ -1525,15 +1519,15 @@ class Style {
 /*======================*/
 
   /**
-   * Sets colour
+   * Sets color
    *
-   * The colour parameter can be any valid CSS colour value
+   * The color parameter can be any valid CSS color value
    *
    * @link http://www.w3.org/TR/CSS21/colors.html#propdef-color
    * @param string $color
    */
   function set_color($color) {
-    $col = $this->munge_colour($color);
+    $col = $this->munge_color($color);
 
     if ( is_null($col) || !isset($col["hex"]) ) {
       $color = "inherit";
@@ -1548,13 +1542,13 @@ class Style {
   }
 
   /**
-   * Sets the background colour
+   * Sets the background color
    *
    * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background-color
    * @param string $color
    */
   function set_background_color($color) {
-    $col = $this->munge_colour($color);
+    $col = $this->munge_color($color);
     
     if ( is_null($col) ) {
       return;
@@ -1885,7 +1879,7 @@ class Style {
         $this->_set_style_side_type('border',$side,'_width',$value,$important);
       }
       else {
-        // must be colour
+        // must be color
         $this->_set_style_side_type('border',$side,'_color',$value,$important);
       }
     }
@@ -2029,7 +2023,7 @@ class Style {
         $this->set_outline_width($value);
       }
       else {
-        // must be colour
+        // must be color
         $this->set_outline_color($value);
       }
     }

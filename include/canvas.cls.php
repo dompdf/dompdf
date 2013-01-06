@@ -52,7 +52,7 @@ interface Canvas {
   /**
    * Draws a line from x1,y1 to x2,y2
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the format of the
    * $style parameter (aka dash).
    *
@@ -69,7 +69,7 @@ interface Canvas {
   /**
    * Draws a rectangle at x1,y1 with width w and height h
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)
    *
@@ -86,7 +86,7 @@ interface Canvas {
   /**
    * Draws a filled rectangle at x1,y1 with width w and height h
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float $x1
    * @param float $y1
@@ -176,7 +176,7 @@ interface Canvas {
    *       );
    * </code>
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)   
    *
@@ -191,7 +191,7 @@ interface Canvas {
   /**
    * Draws a circle at $x,$y with radius $r
    *
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    * See {@link Cpdf::setLineStyle()} for a description of the $style
    * parameter (aka dash)
    *
@@ -222,7 +222,7 @@ interface Canvas {
 
   /**
    * Add an arc to the PDF
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float $x      X coordinate of the arc
    * @param float $y      Y coordinate of the arc
@@ -240,7 +240,7 @@ interface Canvas {
 
   /**
    * Writes text at the specified x and y coordinates
-   * See {@link Style::munge_colour()} for the format of the colour array.
+   * See {@link Style::munge_color()} for the format of the color array.
    *
    * @param float  $x
    * @param float  $y

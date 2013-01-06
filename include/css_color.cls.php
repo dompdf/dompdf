@@ -158,52 +158,52 @@ class CSS_Color {
     "yellowgreen" => "9ACD32",
   );
 
-  static function parse($colour) {
-    if ( is_array($colour) ) {
+  static function parse($color) {
+    if ( is_array($color) ) {
       // Assume the array has the right format...
       // FIXME: should/could verify this.
-      return $colour;
+      return $color;
     }
     
     static $cache = array();
     
-    $colour = strtolower($colour);
+    $color = strtolower($color);
     
-    if ( isset($cache[$colour]) ) {
-      return $cache[$colour];
+    if ( isset($cache[$color]) ) {
+      return $cache[$color];
     }
       
-    if ( in_array($colour, array("transparent", "inherit")) ) {
-      return $cache[$colour] = $colour;
+    if ( in_array($color, array("transparent", "inherit")) ) {
+      return $cache[$color] = $color;
     }
     
-    if ( isset(self::$cssColorNames[$colour]) ) {
-      return $cache[$colour] = self::getArray(self::$cssColorNames[$colour]);
+    if ( isset(self::$cssColorNames[$color]) ) {
+      return $cache[$color] = self::getArray(self::$cssColorNames[$color]);
     }
     
-    $length = mb_strlen($colour);
+    $length = mb_strlen($color);
     
     // #rgb format
-    if ( $length == 4 && $colour[0] === "#" ) {
-      return $cache[$colour] = self::getArray($colour[1].$colour[1].$colour[2].$colour[2].$colour[3].$colour[3]);
+    if ( $length == 4 && $color[0] === "#" ) {
+      return $cache[$color] = self::getArray($color[1].$color[1].$color[2].$color[2].$color[3].$color[3]);
     }
 
     // #rrggbb format
-    else if ( $length == 7 && $colour[0] === "#" ) {
-      return $cache[$colour] = self::getArray(mb_substr($colour, 1, 6));
+    else if ( $length == 7 && $color[0] === "#" ) {
+      return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
     }
     
     // rgb( r,g,b ) format
-    else if ( mb_strpos($colour, "rgb") !== false ) {
-      $i = mb_strpos($colour, "(");
-      $j = mb_strpos($colour, ")");
+    else if ( mb_strpos($color, "rgb") !== false ) {
+      $i = mb_strpos($color, "(");
+      $j = mb_strpos($color, ")");
       
-      // Bad colour value
+      // Bad color value
       if ( $i === false || $j === false ) {
         return null;
       }
       
-      $triplet = explode(",", mb_substr($colour, $i+1, $j-$i-1));
+      $triplet = explode(",", mb_substr($color, $i+1, $j-$i-1));
 
       if ( count($triplet) != 3 ) {
         return null;
@@ -217,22 +217,22 @@ class CSS_Color {
         }
       }
       
-      return $cache[$colour] = self::getArray(vsprintf("%02X%02X%02X", $triplet));
+      return $cache[$color] = self::getArray(vsprintf("%02X%02X%02X", $triplet));
     
     }
     
     // cmyk( c,m,y,k ) format
     // http://www.w3.org/TR/css3-gcpm/#cmyk-colors
-    else if ( mb_strpos($colour, "cmyk") !== false ) {
-      $i = mb_strpos($colour, "(");
-      $j = mb_strpos($colour, ")");
+    else if ( mb_strpos($color, "cmyk") !== false ) {
+      $i = mb_strpos($color, "(");
+      $j = mb_strpos($color, ")");
       
-      // Bad colour value
+      // Bad color value
       if ( $i === false || $j === false ) {
         return null;
       }
 
-      $values = explode(",", mb_substr($colour, $i+1, $j-$i-1));
+      $values = explode(",", mb_substr($color, $i+1, $j-$i-1));
 
       if ( count($values) != 4 ) {
         return null;
@@ -244,15 +244,17 @@ class CSS_Color {
         if ($c < 0.0) $c = 0.0;
       }
       
-      return $cache[$colour] = self::getArray($values);
+      return $cache[$color] = self::getArray($values);
     }
+
+    return null;
   }
   
-  static function getArray($colour) {
+  static function getArray($color) {
     $c = array(null, null, null, null, "hex" => null);
     
-    if (is_array($colour)) {
-      $c = $colour;
+    if (is_array($color)) {
+      $c = $color;
       $c["c"] = $c[0];
       $c["m"] = $c[1];
       $c["y"] = $c[2];
@@ -260,13 +262,13 @@ class CSS_Color {
       $c["hex"] = "cmyk($c[0],$c[1],$c[2],$c[3])";
     }
     else {
-      $c[0] = hexdec(mb_substr($colour, 0, 2)) / 0xff;
-      $c[1] = hexdec(mb_substr($colour, 2, 2)) / 0xff;
-      $c[2] = hexdec(mb_substr($colour, 4, 2)) / 0xff;
+      $c[0] = hexdec(mb_substr($color, 0, 2)) / 0xff;
+      $c[1] = hexdec(mb_substr($color, 2, 2)) / 0xff;
+      $c[2] = hexdec(mb_substr($color, 4, 2)) / 0xff;
       $c["r"] = $c[0];
       $c["g"] = $c[1];
       $c["b"] = $c[2];
-      $c["hex"] = "#$colour";
+      $c["hex"] = "#$color";
     }
     
     return $c;
