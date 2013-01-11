@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * @package dompdf
  * @link    http://dompdf.github.com/
@@ -289,8 +289,8 @@ class Text_Frame_Reflower extends Frame_Reflower {
       $parent = $frame->get_parent();
       $is_inline_frame = get_class($parent) === 'Inline_Frame_Decorator';
       
-      if ((!$is_inline_frame && !$frame->get_next_sibling()) || 
-          ( $is_inline_frame && !$parent->get_next_sibling())) {
+      if ((!$is_inline_frame && !$frame->get_next_sibling())/* ||
+          ( $is_inline_frame && !$parent->get_next_sibling())*/) { // fails <b>BOLD <u>UNDERLINED</u></b> becomes <b>BOLD<u>UNDERLINED</u></b>
         $t = rtrim($t);
       }
       
