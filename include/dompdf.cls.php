@@ -479,8 +479,9 @@ class DOMPDF {
 
     if ($this->_protocol == "" || $this->_protocol === "file://") {
 
+      // Get the full path to $file, returns false if the file doesn't exist
       $realfile = realpath($file);
-      if ( !$file ) {
+      if ( !$realfile ) {
         throw new DOMPDF_Exception("File '$file' not found.");
       }
 
