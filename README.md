@@ -1,6 +1,16 @@
-**dompdf is an HTML to PDF converter**. At its heart, dompdf is (mostly) [CSS 2.1](https://github.com/HNygard/dompdf/tree/master/dompdf/lib) compliant HTML layout and rendering engine written in PHP. It is a style-driven renderer: it will download and read external stylesheets, inline style tags, and the style attributes of individual HTML elements. It also supports most presentational HTML attributes.
+**dompdf is an HTML to PDF converter**. At its heart, dompdf is (mostly) 
+[CSS 2.1](https://github.com/HNygard/dompdf/tree/master/dompdf/lib) compliant HTML 
+layout and rendering engine written in PHP. It is a style-driven renderer: it will 
+download and read external stylesheets, inline style tags, and the style attributes 
+of individual HTML elements. It also supports most presentational HTML attributes.
 
-PDF rendering is currently provided either by [PDFLib](http://www.pdflib.com/) or by a bundled version the R&OS CPDF class written by Wayne Munro. (Some important changes have been made to the R&OS class, however). In order to use PDFLib with dompdf, the [PDFLib PECL extension](http://pecl.php.net/package/pdflib) is required. Using PDFLib improves performance and reduces the memory requirements of dompdf somewhat, while the R&OS CPDF class, though slightly slower, eliminates any dependencies on external PDF libraries.
+----
+
+**Check ou the [Demo](http://pxd.me/dompdf/www/examples.php) and ask any question on 
+[StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or on the
+[Google Groups](http://groups.google.com/group/dompdf)**
+
+----
 
 [![Follow us on Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf)
 [![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-32.png)](https://plus.google.com/108710008521858993320?prsrc=3)
