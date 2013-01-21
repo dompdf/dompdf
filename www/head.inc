@@ -37,7 +37,7 @@ auth_check();
   <a href="index.php"><img id="logo" src="images/title.gif" alt="dompdf"/></a>
   <a href="http://dompdf.github.com/" target="_blank">dompdf.github.com</a>
   &mdash; 
-  Send bug reports to <a href="http://code.google.com/p/dompdf/issues/list">the bug tracker</a> 
+  Send bug reports to <a href="https://github.com/dompdf/dompdf/issues">the bug tracker</a> 
   &amp; support questions to <a href="http://groups.google.com/group/dompdf">Google Groups</a>.
 </div>
 
