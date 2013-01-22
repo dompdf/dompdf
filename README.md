@@ -1,12 +1,12 @@
 **dompdf is an HTML to PDF converter**. At its heart, dompdf is (mostly) 
-[CSS 2.1](https://github.com/HNygard/dompdf/tree/master/dompdf/lib) compliant HTML 
+[CSS 2.1](http://www.w3.org/TR/CSS2/) compliant HTML 
 layout and rendering engine written in PHP. It is a style-driven renderer: it will 
 download and read external stylesheets, inline style tags, and the style attributes 
 of individual HTML elements. It also supports most presentational HTML attributes.
 
 ----
 
-**Check ou the [Demo](http://pxd.me/dompdf/www/examples.php) and ask any question on 
+**Check out the [Demo](http://pxd.me/dompdf/www/examples.php) and ask any question on 
 [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or on the
 [Google Groups](http://groups.google.com/group/dompdf)**
 
