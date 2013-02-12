@@ -3116,8 +3116,14 @@ EOT;
       $options["Attachment"] = true;
 
     $attachment = $options["Attachment"] ? "attachment" : "inline";
+    
+    // detect the character encoding of the incoming file
+    $encoding = mb_detect_encoding($fileName);
+    $fallbackfilename = mb_convert_encoding($fileName, "ISO-8859-1", $encoding); 
+    $encodedfallbackfilename = rawurlencode($fallbackfilename);
     $encodedfilename = rawurlencode($fileName);
-    header("Content-Disposition: $attachment; filename=". $encodedfilename ."; filename*=UTF-8''$encodedfilename");
+
+    header("Content-Disposition: $attachment; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
 
     if (isset($options['Accept-Ranges']) && $options['Accept-Ranges'] == 1) {
       //FIXME: Is this the correct value ... spec says 1#range-unit
