@@ -3939,11 +3939,18 @@ EOT;
 
     // Use PECL imagick + ImageMagic to process transparent PNG images
     elseif (extension_loaded("imagick")) {
+      // Native cloning was added to pecl-imagick in svn commit 263814
+      // the first version containing it was 3.0.1RC1
+      static $imagickClonable = null;
+      if($imagickClonable === null) {
+        $imagickClonable = version_compare(phpversion('imagick'), '3.0.1rc1') > 0;
+      }
+
       $imagick = new Imagick($file);
       $imagick->setFormat('png');
 
       // Get opacity channel (negative of alpha channel)
-      $alpha_channel = clone $imagick;
+      $alpha_channel = $imagickClonable ? clone $imagick : $imagick->clone();
       $alpha_channel->separateImageChannel(Imagick::CHANNEL_ALPHA);
       $alpha_channel->negateImage(true);
       $alpha_channel->writeImage($tempfile_alpha);
