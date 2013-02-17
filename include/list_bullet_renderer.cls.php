@@ -193,10 +193,16 @@ class List_Bullet_Renderer extends Abstract_Renderer {
         if ( $bullet_style === "decimal-leading-zero" ) {
           $pad = strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
         }
-        
-        $index = $frame->get_node()->getAttribute("dompdf-counter");
+
+        $node = $frame->get_node();
+
+        if ( !$node->hasAttribute("dompdf-counter") ) {
+          return;
+        }
+
+        $index = $node->getAttribute("dompdf-counter");
         $text = $this->make_counter($index, $bullet_style, $pad);
-        
+
         if ( trim($text) == "" ) {
           return;
         }
