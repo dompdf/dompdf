@@ -17,12 +17,14 @@ class Block_Renderer extends Abstract_Renderer {
   //........................................................................
 
   function render(Frame $frame) {
-    $style = $frame->get_style(); 
+    $style = $frame->get_style();
+    $node = $frame->get_node();
+
     list($x, $y, $w, $h) = $frame->get_border_box();
     
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
 
-    if ( $frame->get_node()->nodeName === "body" ) {
+    if ( $node->nodeName === "body" ) {
       $h = $frame->get_containing_block("h") - $style->length_in_pt(array(
         $style->margin_top,
         $style->padding_top,
@@ -31,6 +33,11 @@ class Block_Renderer extends Abstract_Renderer {
         $style->padding_bottom,
         $style->margin_bottom),
       $style->width);
+    }
+
+    // Handle anchors & links
+    if ( $node->nodeName === "a" && $href = $node->getAttribute("href") ) {
+      $this->_canvas->add_link($href, $x, $y, $w, $h);
     }
     
     // Draw our background, border and content
