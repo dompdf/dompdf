@@ -163,10 +163,9 @@ class Frame_Factory {
     default:
       // FIXME: should throw some sort of warning or something?
     case "none":
-      $positioner = "Null";
-      $decorator = "Null";
-      $reflower = "Null";
-      break;
+      // Remove the node and the frame
+      $frame->get_parent()->remove_child($frame);
+      return;
     }
 
     // Handle CSS position
