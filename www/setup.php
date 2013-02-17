@@ -10,7 +10,7 @@
 
 <h3 id="system">System Configuration</h3>
 
-<?php 
+<?php
 require_once("../dompdf_config.inc.php");
 
 $server_configs = array(
@@ -74,7 +74,7 @@ if (($gm = extension_loaded("gmagick")) || ($im = extension_loaded("imagick"))) 
     <th>Required</th>
     <th>Present</th>
   </tr>
-  
+
   <?php foreach($server_configs as $label => $server_config) { ?>
     <tr>
       <td class="title"><?php echo $label; ?></td>
@@ -95,12 +95,12 @@ if (($gm = extension_loaded("gmagick")) || ($im = extension_loaded("imagick"))) 
       </td>
     </tr>
   <?php } ?>
-  
+
 </table>
 
 <h3 id="dompdf-config">DOMPDF Configuration</h3>
 
-<?php 
+<?php
 $dompdf_constants = array();
 $defined_constants = get_defined_constants(true);
 
@@ -202,6 +202,9 @@ $constants = array(
   "DOMPDF_FONT_HEIGHT_RATIO" => array(
     "desc" => "The line height ratio to apply to get a render like web browsers",
   ),
+  "DOMPDF_ENABLE_AUTOLOAD" => array(
+    "desc" => "Enable the DOMPDF autoloader",
+  ),
 	"DOMPDF_AUTOLOAD_PREPEND" => array(
     "desc" => "Prepend the dompdf autoload function to the SPL autoload functions already registered instead of appending it",
   ),
@@ -224,40 +227,40 @@ $constants = array(
     <th>Description</th>
     <th>Status</th>
   </tr>
-  
+
   <?php foreach($defined_constants["user"] as $const => $value) { ?>
     <tr>
       <td class="title"><?php echo $const; ?></td>
       <td>
-      <?php 
+      <?php
         if (isset($constants[$const]["secret"])) {
           echo "******";
         }
         else {
-          var_export($value); 
+          var_export($value);
         }
       ?>
       </td>
       <td><?php if (isset($constants[$const]["desc"])) echo $constants[$const]["desc"]; ?></td>
-      <td <?php 
+      <td <?php
         $message = "";
         if (isset($constants[$const]["success"])) {
           switch($constants[$const]["success"]) {
-            case "read":  
+            case "read":
               $success = is_readable($value);
               $message = ($success ? "Readable" : "Not readable");
             break;
-            case "write": 
+            case "write":
               $success = is_writable($value);
               $message = ($success ? "Writable" : "Not writable");
             break;
-            case "remote": 
+            case "remote":
               $success = ini_get("allow_url_fopen");
               $message = ($success ? "allow_url_fopen enabled" : "allow_url_fopen disabled");
             break;
-            case "backend": 
+            case "backend":
               switch (strtolower($value)) {
-                case "cpdf": 
+                case "cpdf":
                   $success = true;
                 break;
                 case "pdflib":
@@ -270,7 +273,7 @@ $constants = array(
                 break;
               }
             break;
-            case "auth": 
+            case "auth":
               $success = !in_array($value, array("admin", "password"));
               $message = ($success ? "OK" : "Password should be changed");
             break;
