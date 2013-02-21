@@ -163,9 +163,16 @@ class Frame_Factory {
     default:
       // FIXME: should throw some sort of warning or something?
     case "none":
-      // Remove the node and the frame
-      $frame->get_parent()->remove_child($frame);
-      return;
+      if ( $style->_dompdf_keep !== "yes" ) {
+        // Remove the node and the frame
+        $frame->get_parent()->remove_child($frame);
+        return;
+      }
+
+      $positioner = "Null";
+      $decorator = "Null";
+      $reflower = "Null";
+      break;
     }
 
     // Handle CSS position

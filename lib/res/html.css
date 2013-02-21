@@ -504,4 +504,5 @@ dompdf_generated {
 area, base, basefont, head, meta, script, style, title,
 noembed, noscript, param {
   display: none;
+  -dompdf-keep: yes;
 }
