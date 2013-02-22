@@ -2888,6 +2888,9 @@ EOT;
    * restore the last graphic state
    */
   function restore() {
+    // we must reset the color cache or it will keep bad colors after clipping
+    $this->currentColor = null;
+    $this->currentStrokeColor = null;
     $this->addContent("\nQ");
   }
 
