@@ -80,7 +80,15 @@ if ( DOMPDF_ENABLE_PHP ) {
   $extensions[] = "php";
 }
 
-$test_files = glob("test/*.{".implode(",", $extensions)."}", GLOB_BRACE);
+// To be compatible with non-GNU systems
+if (!defined("GLOB_BRACE")) {
+  $test_files = glob("test/*");
+  $test_files = preg_grep("/(" . implode("|",$extensions) . ")/i", $test_files);
+}
+else {
+  $test_files = glob("test/*.{".implode(",", $extensions)."}", GLOB_BRACE);
+}
+
 $sections = array(
   "print"    => array(), 
   "css"      => array(), 
