@@ -33,7 +33,7 @@ the directory containing normal font file (n_file) for additional files that
 it thinks might be the correct ones (e.g. that end in _Bold or b or B).  If
 it finds the files they will also be processed.  All files will be
 automatically copied to the DOMPDF font directory, and afm files will be
-generated using php-font-lib (http://code.google.com/p/php-font-lib/).
+generated using php-font-lib (https://github.com/PhenX/php-font-lib).
 
 Examples:
 
