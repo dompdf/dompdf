@@ -1145,15 +1145,17 @@ EOT;
         $res = "\n$id 0 obj\n<<\n";
         foreach ($o['info'] as $k => $v) {
           $res.= "/$k (";
-          // dates must be outputted as-is, without Unicode transformations
-          $raw = ($k === 'CreationDate' || $k === 'ModDate');
-          $c = $v;
 
           if ($this->encrypted) {
-            $c = $this->ARC4($c);
+            $v = $this->ARC4($v);
           }
 
-          $res.= ($raw) ? $c : $this->filterText($c);
+          // dates must be outputted as-is, without Unicode transformations
+          elseif (!in_array($k, array('CreationDate', 'ModDate'))){
+            $v = $this->filterText($v);
+          }
+
+          $res.= $v;
           $res.= ")\n";
         }
 
