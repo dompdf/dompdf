@@ -64,10 +64,11 @@ switch ($cmd) {
       Font_Metrics::init();
       
       if (!Font_Metrics::register_font($style_arr, $data["tmp_name"][$name])) {
-        echo $data["name"][$name]." is not a valid font file";
+        echo htmlentities($data["name"][$name])." is not a valid font file";
       }
       else {
-        echo "The <strong>$family $weight $style</strong> font was successfully installed !<br />";
+        $font_view = htmlentities("$family $weight $style");
+        echo "The <strong>$font_view</strong> font was successfully installed !<br />";
       }
     }
   break;

@@ -58,8 +58,10 @@ $extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
     <tr>
       <td class="title" rowspan="<?php echo count($variants); ?>">
         <?php 
-          echo $family; 
-          if ($family == DOMPDF_DEFAULT_FONT) echo ' <strong>(default)</strong>';
+          echo htmlentities($family);
+          if ($family == DOMPDF_DEFAULT_FONT) {
+            echo ' <strong>(default)</strong>';
+          }
         ?>
       </td>
       <?php 
@@ -71,7 +73,7 @@ $extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
         
         echo "
         <td>
-          <strong style='width: 10em;'>$name</strong> : $path<br />
+          <strong style='width: 10em;'>".htmlentities($name)."</strong> : ".htmlentities($path)."<br />
         </td>";
         
         foreach ($extensions as $ext) {
@@ -94,7 +96,7 @@ $extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
               }
               else {
                 ob_start();
-                $d = include("$path.$ext");
+                $d = include "$path.$ext";
                 ob_end_clean();
                 
                 if ($d == 1)
@@ -122,7 +124,12 @@ $extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
 
 <script type="text/javascript">
 function checkFileName(form) {
-  var fields = {normal: "Normal", bold: "Bold", bold_italic: "Bold italic", italic: "Italic"};
+  var fields = {
+    normal: "Normal",
+    bold: "Bold",
+    bold_italic: "Bold italic",
+    italic: "Italic"
+  };
   var pattern = /\.[ot]tf$/i;
   var ok = true;
 
