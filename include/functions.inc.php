@@ -561,6 +561,11 @@ if ( !function_exists("imagecreatefrombmp") ) {
  * Modified by Fabien Menager to support RGB555 BMP format
  */
 function imagecreatefrombmp($filename) {
+  if (!function_exists("imagecreatetruecolor")) {
+    trigger_error("The PHP GD extension is required, but is not installed.", E_ERROR);
+    return false;
+  }
+
   // version 1.00
   if (!($fh = fopen($filename, 'rb'))) {
     trigger_error('imagecreatefrombmp: Can not open ' . $filename, E_USER_WARNING);

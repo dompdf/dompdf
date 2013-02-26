@@ -3830,6 +3830,10 @@ EOT;
    * @param bool     $mask    true if the image is masked
    */
   function addImagePng($file, $x, $y, $w = 0.0, $h = 0.0, &$img, $is_mask = false, $mask = null) {
+    if (!function_exists("imagepng")) {
+      throw new Exception("The PHP GD extension is required, but is not installed.");
+    }
+
     //if already cached, need not to read again
     if ( isset($this->imagelist[$file]) ) {
       $data = null;
@@ -4041,6 +4045,10 @@ EOT;
    * this should work with remote files
    */
   function addPngFromFile($file, $x, $y, $w = 0, $h = 0) {
+    if (!function_exists("imagecreatefrompng")) {
+      throw new Exception("The PHP GD extension is required, but is not installed.");
+    }
+
     //if already cached, need not to read again
     if ( isset($this->imagelist[$file]) ) {
       $img = null;

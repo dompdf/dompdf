@@ -60,8 +60,14 @@ abstract class Abstract_Renderer {
    * @param float  $width    The width of the rectangular area
    * @param float  $height   The height of the rectangular area
    * @param Style  $style    The associated Style object
+   *
+   * @throws Exception
    */
   protected function _background_image($url, $x, $y, $width, $height, $style) {
+    if ( !function_exists("imagecreatetruecolor") ) {
+      throw new Exception("The PHP GD extension is required, but is not installed.");
+    }
+
     $sheet = $style->get_stylesheet();
 
     // Skip degenerate cases
