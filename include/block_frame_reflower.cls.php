@@ -780,6 +780,8 @@ class Block_Frame_Reflower extends Frame_Reflower {
       
       $style->left = $orig_style->left;
       $style->right = $orig_style->right;
+      $style->top = $orig_style->top; // added by GB to set proper height of block element
+      $style->bottom = $orig_style->bottom; // added by GB to set proper height of block element
     }
 
     $this->_text_align();
