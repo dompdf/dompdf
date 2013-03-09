@@ -1363,7 +1363,11 @@ class Style {
    * @return array
    */
   function get_border_spacing() {
-    return explode(" ", $this->_props["border_spacing"]);
+    $arr = explode(" ", $this->_props["border_spacing"]);
+    if ( count($arr) == 1 ) {
+      $arr[1] = $arr[0];
+    }
+    return $arr;
   }
 
 /*==============================*/
