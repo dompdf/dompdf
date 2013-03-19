@@ -466,7 +466,7 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
     dompdf_debug("page-break","Starting search");
     while ( $iter ) {
-//       echo "\nbacktrack: " .$iter->get_node()->nodeName ." ".spl_object_hash($iter->get_node()). "";
+      // echo "\nbacktrack: " .$iter->get_node()->nodeName ." ".spl_object_hash($iter->get_node()). "";
       if ( $iter === $this ) {
          dompdf_debug("page-break", "reached root.");
         // We've reached the root in our search.  Just split at $frame.
@@ -495,16 +495,11 @@ class Page_Frame_Decorator extends Frame_Decorator {
       if ( $next = $iter->get_prev_sibling() ) {
          dompdf_debug("page-break", "following prev sibling.");
 
-             if ( $next->is_table() && !$iter->is_table() )
+        if ( $next->is_table() && !$iter->is_table() )
           $this->_in_table++;
 
         else if ( !$next->is_table() && $iter->is_table() )
           $this->_in_table--;
-
-        // Avoid bug with whitespace after blocks
-        while ( $next = $iter->get_last_child() ) {
-          // Already selected last child, do nothing more
-        }
 
         $iter = $next;
         $flg = false;
@@ -529,27 +524,21 @@ class Page_Frame_Decorator extends Frame_Decorator {
 
     // No valid page break found.  Just break at $frame.
     dompdf_debug("page-break", "no valid break found, just splitting.");
-
+    
     // If we are in a table, backtrack to the nearest top-level table row
     if ( $this->_in_table ) {
-      $num_tables = $this->_in_table - 1;
-
       $iter = $frame;
-      while ( $iter && $num_tables && $iter->get_style()->display !== "table" ) {
+      while ($iter && $iter->get_style()->display !== "table-row")
         $iter = $iter->get_parent();
-        $num_tables--;
-      }
-
-      $iter = $frame;
-      while ($iter && $iter->get_style()->display !== "table-row" )
-        $iter = $iter->get_parent();
+      
+      $iter->split(null, true);
+    } else {
+      $frame->split(null, true);
     }
-
-    $frame->split(null, true);
+    
     $this->_page_full = true;
     $frame->_already_pushed = true;
     return true;
-    
   }
 
   //........................................................................
