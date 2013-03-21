@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * @package dompdf
  * @link    http://dompdf.github.com/
