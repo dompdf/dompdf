@@ -306,7 +306,37 @@ class Font_Metrics {
     self::$_font_lookup[mb_strtolower($fontname)] = $entry;
   }
   
-  static function register_font($style, $remote_file) {
+  
+  /**
+   * Returns the font name in a clean forma
+   * 
+   * @return string
+   */ 
+  static function set_name($text) {
+    // remove extension
+    $text = pathinfo($text, PATHINFO_FILENAME);
+    
+    // replace non letter or digits by -
+    $text = preg_replace('~[^\\pL\d]+~u', '-', $text);
+  
+    // trim
+    $text = trim($text, '-');
+  
+    // transliterate
+    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+  
+    // remove unwanted characters
+    $text = preg_replace('~[^-\w]+~', '', $text);
+  
+    if (empty($text))
+    {
+      return 'n-a';
+    }
+  
+    return $text;
+  }
+  
+  static function register_font($style, $remote_file, $local_name='') {
     $fontname = mb_strtolower($style["family"]);
     $families = Font_Metrics::get_font_families();
     
@@ -315,7 +345,11 @@ class Font_Metrics {
       $entry = $families[$fontname];
     }
     
-    $local_file = DOMPDF_FONT_DIR . md5($remote_file);
+    if(!empty($remote_name)){
+      $local_file = DOMPDF_FONT_DIR . Font_Metrics::set_name($local_name);
+    } else{
+      $local_file = DOMPDF_FONT_DIR . md5($remote_file);
+    }
     $cache_entry = $local_file;
     $local_file .= ".ttf";
     
