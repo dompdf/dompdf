@@ -32,6 +32,39 @@ Requirements
  * DOM extension (bundled with PHP 5)
  * Some fonts. PDFs internally support Helvetica, Times-Roman, Courier & Zapf-Dingbats, but if you wish to use other fonts you will need to install some fonts. dompdf supports the same fonts as the underlying R&OS PDF class: Type 1 (.pfb with the corresponding .afm) and TrueType (.ttf). At the minimum, you should probably have the Microsoft core fonts. See the font installation instructions.
 
+Installation
+============
+
+DOMPDF can be installed manually, or using [Composer](http://getcomposer.org/).
+
+To install with Composer, simply add the requirement to your `composer.json` file:
+
+```json
+{
+    "require": {
+        "dompdf/dompdf": "dev-master"
+    }
+}
+```
+
+And run Composer to update your dependencies:
+
+    $ curl -s http://getcomposer.org/installer | php
+    $ php composer.phar update
+    
+Before you can use DOMPDF in your application, you must manually include its configuration file, like so:
+
+```php
+// disable DOMPDF's internal autoloader if you are using Composer
+define('DOMPDF_ENABLE_AUTOLOAD', false);
+
+// set any other configuration variables you need here
+define('DOMPDF_LOG_OUTPUT_FILE', false);
+
+// include DOMPDF's default configuration
+require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
+```
+
 Limitations (Known Issues)
 ==========================
  * not particularly tolerant to poorly-formed HTML input (using Tidy first may help).
