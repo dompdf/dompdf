@@ -314,7 +314,8 @@ class DOMPDF {
       return;
     }
 
-    $this->_system_locale = setlocale(LC_NUMERIC, "C");
+    $this->_system_locale = setlocale(LC_NUMERIC, "0");
+    setlocale(LC_NUMERIC, "C");
   }
 
   /**
