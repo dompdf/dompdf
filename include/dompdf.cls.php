@@ -675,8 +675,6 @@ class DOMPDF {
    * the {@link Frame_Tree}
    */
   protected function _process_html() {
-    $this->save_locale();
-
     $this->_tree->build_tree();
 
     $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET, Stylesheet::ORIG_UA);
@@ -759,8 +757,6 @@ class DOMPDF {
           break;
       }
     }
-
-    $this->restore_locale();
   }
 
   /**
