@@ -1,0 +1,37 @@
+# Compile PCRE - Perl Compatible Regular Expressions
+cd /usr/local/src
+sudo curl -OL http://downloads.sourceforge.net/project/pcre/pcre/8.32/pcre-8.32.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fpcre%2Ffiles%2Fpcre%2F8.32%2F&ts=1369337501&use_mirror=ufpr
+tar -xvzf pcre-8.31.tar.gz
+cd pcre-8.31
+./configure
+make
+sudo make install
+ 
+# Compile Autoconf
+cd /usr/local/src
+sudo curl -OL http://gnu.mirrors.hoobly.com/gnu/autoconf/autoconf-2.69.tar.gz
+tar xzf autoconf-2.69.tar.gz
+cd autoconf-2.69
+sudo ./configure --prefix=/usr/local
+sudo make
+sudo make install
+ 
+# Compile PHP APC
+cd /usr/local/src
+sudo curl -OL http://pecl.php.net/get/APC-3.1.9.tgz
+tar xzf APC-3.1.9.tgz
+cd APC-3.1.9
+/usr/bin/phpize
+sudo ./configure --with-php-config=/usr/bin/php-config
+sudo make
+sudo make install
+sudo cp modules/*.so /usr/lib/php/extensions/no-debug-non-zts-20090626
+
+# Compile ImageMagick
+cd /usr/local/src
+sudo curl -OL http://www.imagemagick.org/download/ImageMagick.tar.gz
+tar xzf ImageMagick.tar.gz
+cd ImageMagick.tar.gz
+sudo ./configure
+sudo make
+sudo make install
