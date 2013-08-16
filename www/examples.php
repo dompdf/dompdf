@@ -43,7 +43,7 @@ foreach ( $test_files as $file ) {
   $arrow = "images/arrow_0" . rand(1, 6) . ".gif";  
   echo "<li style=\"list-style-image: url('$arrow');\">\n";
   echo $file;
-  echo " [<a class=\"button\" target=\"blank\" href=\"test/$file\">HTML</a>] [<a class=\"button\" href=\"$dompdf&input_file=" . rawurlencode("www/test/$file") .  "\">PDF</a>]\n";
+  echo " [<a class=\"button\" target=\"blank\" href=\"test/$file\">HTML</a>] [<a class=\"button\" href=\"$dompdf&input_file=" . rawurlencode($file) .  "\">PDF</a>]\n";
   echo "</li>\n";
 }
 ?>

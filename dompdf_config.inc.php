@@ -37,7 +37,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf_config.inc.php,v 1.19 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: dompdf_config.inc.php,v 1.19 2006/07/07 21:31:02 benjcarson Exp $ */
 
 error_reporting(E_STRICT | E_ALL);
 
@@ -71,6 +71,20 @@ define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
  * It is used to download remote images.
  */
 define("DOMPDF_TEMP_DIR", "/tmp");
+
+/**
+ * ==== IMPORTANT ====
+ *
+ * dompdf's "chroot": Prevents dompdf from accessing system files or other
+ * files on the webserver.  All local files opened by dompdf must be in a
+ * subdirectory of this directory.  DO NOT set it to '/' since this could
+ * allow an attacker to use dompdf to read any files on the server.  This
+ * should be an absolute path.
+ * This is only checked on command line call by dompdf.php, but not by
+ * direct class use like:
+ * $dompdf = new DOMPDF();	$dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
+ */
+define("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
 
 /**
  * The path to the tt2pt1 utility (used to convert ttf to afm)
@@ -168,7 +182,7 @@ define("DOMPDF_DPI", "150");
  *
  * @var bool
  */
-define("DOMPDF_ENABLE_PHP", true);
+define("DOMPDF_ENABLE_PHP", false);
 
 
 /**
@@ -231,5 +245,3 @@ $_dompdf_show_warnings = false;
 $_dompdf_debug = false;
 
 require_once(DOMPDF_INC_DIR . "/functions.inc.php");
-
-?>

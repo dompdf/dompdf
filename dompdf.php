@@ -40,7 +40,7 @@
  * @version 0.5.1
  */
 
-/* $Id: dompdf.php,v 1.17 2006-07-07 21:31:02 benjcarson Exp $ */
+/* $Id: dompdf.php,v 1.17 2006/07/07 21:31:02 benjcarson Exp $ */
 
 /**
  * Display command line usage:
@@ -163,8 +163,6 @@ require_once("dompdf_config.inc.php");
 global $_dompdf_show_warnings;
 global $_dompdf_debug;
 
-$old_limit = ini_set("memory_limit", "80M");
-
 $sapi = php_sapi_name();
 
 switch ( $sapi ) {
@@ -238,18 +236,26 @@ switch ( $sapi ) {
    else
      $orientation = "portrait";
 
-   if ( isset($_GET["base_path"]) )
+  if ( isset($_GET["base_path"]) ) {
      $base_path = rawurldecode($_GET["base_path"]);
+    $file = $base_path . $file; # Set the input file
+  }  
 
-   if ( isset($_GET["output_file"]) )
-     $outfile = rawurldecode($_GET["output_file"]);
-   else
-     $outfile = "dompdf_out.pdf";
+  if ( isset($_GET["options"]) ) {
+    $options = $_GET["options"];
+  }
+  
+  $file_parts = explode_url($file);
+  /* Check to see if the input file is local and, if so, that the base path falls within that specified by DOMDPF_CHROOT */
+  if(($file_parts['protocol'] == '' || $file_parts['protocol'] === 'file://')) {
+    $file = realpath($file);
+    if (strpos($file, DOMPDF_CHROOT) !== 0) {
+      throw new DOMPDF_Exception("Permission denied on $file.");
+    }
+  }
 
-   if ( isset($_GET["save_file"]) )
-     $save_file = true;
-   else
-     $save_file = false;
+  $outfile = "dompdf_out.pdf"; # Don't allow them to set the output file
+  $save_file = false; # Don't save the file
 
    break;
 }
@@ -286,7 +292,16 @@ if ( $save_file ) {
   if ( strtolower(DOMPDF_PDF_BACKEND) == "gd" ) 
     $outfile = str_replace(".pdf", ".png", $outfile);
     
-  file_put_contents($outfile, $dompdf->output());
+  list($proto, $host, $path, $file) = explode_url($outfile);
+  if ( $proto != "" ) // i.e. not file://
+    $outfile = $file; // just save it locally, FIXME? could save it like wget: ./host/basepath/file
+
+  $outfile = realpath(dirname($outfile)) . DIRECTORY_SEPARATOR . basename($outfile);
+
+  if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
+    throw new DOMPDF_Exception("Permission denied.");
+
+  file_put_contents($outfile, $dompdf->output( array("compress" => 0) ));
   exit(0);
 }
 
