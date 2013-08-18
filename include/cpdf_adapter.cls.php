@@ -214,6 +214,14 @@ class CPDF_Adapter implements Canvas {
    */
   function __destruct() {
     foreach ($this->_image_cache as $img) {
+      // The file might be already deleted by 3rd party tmp cleaner,
+      // the file might not have been created at all
+      // (if image outputting commands failed)
+      // or because the destructor was called twice accidentally.
+      if (!file_exists($img)) {
+        continue;
+      }
+
       if (DEBUGPNG) print '[__destruct unlink '.$img.']';
       if (!DEBUGKEEPTEMP) unlink($img);
     }
