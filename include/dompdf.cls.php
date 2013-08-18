@@ -247,7 +247,7 @@ class DOMPDF {
     $this->_messages = array();
     $this->_css = new Stylesheet($this);
     $this->_pdf = null;
-    $this->_paper_size = "letter";
+    $this->_paper_size = DOMPDF_DEFAULT_PAPER_SIZE;
     $this->_paper_orientation = "portrait";
     $this->_base_protocol = "";
     $this->_base_host = "";
