@@ -145,6 +145,13 @@ class Frame {
 
   public $_float_next_line = false;
 
+  /**
+   * Tells wether the frame was split
+   *
+   * @var bool
+   */
+  public $_splitted;
+
   static $_ws_state = self::WS_SPACE;
 
   const WS_TEXT = 1;
