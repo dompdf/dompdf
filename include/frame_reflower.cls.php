@@ -358,12 +358,14 @@ abstract class Frame_Reflower {
           $p = $this->_frame->lookup_counter_frame($counter_id);
           $tmp = array();
           while ($p) {
-            // We only want to use the counter values when they actually increment the counter
-            // Elements that reset the counter, but do not increment it, are skipped
-            if ( $p->counter_value($counter_id) > 0 ) {
+            // We only want to use the counter values when they actually increment the counter,
+            // elements that reset the counter, but do not increment it, are skipped.
+            // FIXME: Is this the best method of determining that an element's counter value should be displayed?
+            if ( array_key_exists( $counter_id , $p->_counters ) && $p->get_frame()->get_style()->counter_reset == 'none' ) {
               array_unshift( $tmp , $p->counter_value($counter_id, $type) );
             }
             $p = $p->lookup_counter_frame($counter_id);
+            
           }
           $text .= implode( $string , $tmp );
 
