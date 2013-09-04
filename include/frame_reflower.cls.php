@@ -323,47 +323,49 @@ abstract class Frame_Reflower {
           continue;
         }
 
-        $args = explode(",", mb_substr($match[1], 8, $i - 8));
-        $counter_id = $args[0];
-
-        if ( $match[1][7] === "(" ) {
+        preg_match( '/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]+)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i' , $match[1] , $args );
+        $counter_id = $args[3];
+        if ( strtolower( $args[1] ) == 'counter' ) {
           // counter(name [,style])
-
-          if ( isset($args[1]) ) {
-            $type = trim($args[1]);
+          if ( isset( $args[5] ) ) {
+            $type = trim( $args[1] );
           }
           else {
             $type = null;
           }
 
-          $p = $this->_frame->lookup_counter_frame($counter_id);
+          $p = $this->_frame->lookup_counter_frame( $counter_id );
           
           $text .= $p->counter_value($counter_id, $type);
 
         }
-        else if ( $match[1][7] === "s" ) {
+        else if ( strtolower( $args[1] ) == 'counters' ) {
           // counters(name, string [,style])
-          if ( isset($args[1]) ) {
-            $string = $this->_parse_string(trim($args[1]));
+          if ( isset($args[5]) ) {
+            $string = $this->_parse_string( $args[5] );
           }
           else {
             $string = "";
           }
 
-          if ( isset($args[2]) ) {
-            $type = $args[2];
+          if ( isset( $args[7] ) ) {
+            $type = trim( $args[7] );
           }
           else {
             $type = null;
           }
 
           $p = $this->_frame->lookup_counter_frame($counter_id);
-          $tmp = "";
+          $tmp = array();
           while ($p) {
-            $tmp = $p->counter_value($counter_id, $type) . $string . $tmp;
+            // We only want to use the counter values when they actually increment the counter
+            // Elements that reset the counter, but do not increment it, are skipped
+            if ( $p->counter_value($counter_id) > 0 ) {
+              array_unshift( $tmp , $p->counter_value($counter_id, $type) );
+            }
             $p = $p->lookup_counter_frame($counter_id);
           }
-          $text .= $tmp;
+          $text .= implode( $string , $tmp );
 
         }
         else {
