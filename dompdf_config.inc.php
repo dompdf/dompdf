@@ -332,7 +332,12 @@ require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
  */
 if (DOMPDF_ENABLE_AUTOLOAD) {
   require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
-  require_once(DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php");
+  if (file_exists(DOMPDF_DIR.'/../../autoload.php')) {
+    require_once(DOMPDF_DIR.'/../../autoload.php');
+  }
+  else {
+    require_once(DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php");
+  }
 }
 
 /**

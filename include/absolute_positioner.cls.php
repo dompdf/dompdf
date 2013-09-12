@@ -88,7 +88,7 @@ class Absolute_Positioner extends Positioner {
     if ( $top === "auto" ) {
       if ( $bottom === "auto" ) {
         // A or E - Keep the frame at the same position
-        $y = $frame->get_parent()->get_current_line_box()->y;
+        $y = $frame->get_current_line_box()->y;
       }
       else {
         if ( $orig_height === "auto" ) {
