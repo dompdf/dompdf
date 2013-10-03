@@ -55,6 +55,11 @@ class Absolute_Positioner extends Positioner {
     if ( $left === "auto" ) {
       if ( $right === "auto" ) {
         // A or E - Keep the frame at the same position
+        if ( in_array( $frame->get_parent()->get_style()->display , Style::$BLOCK_TYPES ) === true ) {
+          $x = $x + $frame->get_parent()->get_current_line_box()->w;
+        } else {
+          $x = $x + $frame->find_block_parent()->get_current_line_box()->w;
+        }
       }
       else {
         if ( $orig_width === "auto" ) {
@@ -88,7 +93,11 @@ class Absolute_Positioner extends Positioner {
     if ( $top === "auto" ) {
       if ( $bottom === "auto" ) {
         // A or E - Keep the frame at the same position
-        $y = $frame->get_parent()->get_current_line_box()->y;
+        if ( in_array( $frame->get_parent()->get_style()->display , Style::$BLOCK_TYPES ) === true ) {
+          $y = $frame->get_parent()->get_current_line_box()->y;
+        } else {
+          $y = $frame->find_block_parent()->get_current_line_box()->y;
+        }
       }
       else {
         if ( $orig_height === "auto" ) {
