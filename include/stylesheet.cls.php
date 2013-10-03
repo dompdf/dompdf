@@ -1014,13 +1014,13 @@ class Stylesheet {
     // Something more legible:
     $re =
       "/\s*                                   # Skip leading whitespace                             \n".
-      "( @([^\s]+)\s+([^{;]*) (?:;|({)) )?    # Match @rules followed by ';' or '{'                 \n".
+      "( @([^\s{]+)\s*([^{;]*) (?:;|({)) )?   # Match @rules followed by ';' or '{'                 \n".
       "(?(1)                                  # Only parse sub-sections if we're in an @rule...     \n".
       "  (?(4)                                # ...and if there was a leading '{'                   \n".
       "    \s*( (?:(?>[^{}]+) ({)?            # Parse rulesets and individual @page rules           \n".
-      "            (?(6) (?>[^}]*) }) \s*)+?  \n".
-      "       )                               \n".
-      "   })                                  # Balancing '}'                                \n".
+      "            (?(6) (?>[^}]*) }) \s*)+?                                                        \n".
+      "       )                                                                                     \n".
+      "   })                                  # Balancing '}'                                       \n".
       "|                                      # Branch to match regular rules (not preceeded by '@')\n".
       "([^{]*{[^}]*}))                        # Parse normal rulesets\n".
       "/xs";
