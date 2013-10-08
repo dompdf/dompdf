@@ -30,7 +30,7 @@ Requirements
  * PHP 5.0+ (5.3 recommended)
  * MBString extension
  * DOM extension (bundled with PHP 5)
- * Some fonts. PDFs internally support Helvetica, Times-Roman, Courier & Zapf-Dingbats, but if you wish to use other fonts you will need to install some fonts. dompdf supports the same fonts as the underlying R&OS PDF class: Type 1 (.pfb with the corresponding .afm) and TrueType (.ttf). At the minimum, you should probably have the Microsoft core fonts. See the font installation instructions.
+ * Some fonts. PDFs internally support Helvetica, Times-Roman, Courier & Zapf-Dingbats, but if you wish to use other fonts you will need to install some fonts. dompdf supports the same fonts as the underlying R&OS PDF class: Type 1 (.pfb with the corresponding .afm) and TrueType (.ttf). The [DejaVu TrueType fonts](http://dejavu-fonts.org) are already installed for you and provide decent Unicode support. See the font installation instructions for more information on how to use fonts.
 
 Easy Installation
 ============
@@ -45,20 +45,37 @@ git submodule update
 
 Install with composer
 ---
-Add dompdf to composer.json
-```js
+To install with Composer, simply add the requirement to your `composer.json` file:
+
+```json
 {
   "require" : {
-  		"dompdf/dompdf" : "dev-master"
-	 }
+    "dompdf/dompdf" : "dev-master"
+  }
 }
 ```
-From the command line run `composer update` to install dompdf to the vendor directory.
+
+And run Composer to update your dependencies:
+
+```bash
+$ curl -sS http://getcomposer.org/installer | php
+$ php composer.phar update
+```
+    
+Before you can use the Composer installation of DOMPDF in your application you must disable the default auto-loader and include the configuration file:
+
+```php
+// disable DOMPDF's internal autoloader if you are using Composer
+define('DOMPDF_ENABLE_AUTOLOAD', false);
+
+// include DOMPDF's default configuration
+require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
+```
 
 Download and install
 ---
 Download an archive of dompdf and extract it into the directory where dompdf will reside
-* You can download stable copies of dompdf from https://code.google.com/p/dompdf/downloads/list
+* You can download stable copies of dompdf from https://github.com/dompdf/dompdf/tags
 * Or download a nightly (the latest, unreleased code) from http://eclecticgeek.com/dompdf
 
 Limitations (Known Issues)
