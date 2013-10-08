@@ -65,6 +65,10 @@ $ php composer.phar update
 Before you can use the Composer installation of DOMPDF in your application you must disable the default auto-loader and include the configuration file:
 
 ```php
+// somewhere early in your project's loading, require the Composer autoloader
+// see: http://getcomposer.org/doc/00-intro.md
+require 'vendor/autoload.php';
+
 // disable DOMPDF's internal autoloader if you are using Composer
 define('DOMPDF_ENABLE_AUTOLOAD', false);
 
