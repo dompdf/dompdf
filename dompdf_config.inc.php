@@ -60,8 +60,7 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
 /**
  * The location of the DOMPDF font directory
  *
- * If DOMPDF_FONT_DIR identical to DOMPDF_FONT_CACHE or user executing DOMPDF from the CLI,
- * this directory must be writable by the webserver process ().
+ * It contains the fonts provided with DOMPDF.
  * *Please note the trailing slash.*
  *
  * Notes regarding fonts:
@@ -91,7 +90,7 @@ def("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
  *
  * Note this directory must be writable by the webserver process
  * This folder must already exist!
- * It contains the .afm files, on demand parsed, converted to php syntax and cached
+ * It contains remote fonts and the .afm files, on demand parsed, converted to php syntax and cached
  * This folder can be the same as DOMPDF_FONT_DIR
  */
 def("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
