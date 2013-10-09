@@ -15,7 +15,8 @@
         }
     ],
     "autoload": {
-        "classmap": ["include/"]
+        "classmap": ["include/"],
+        "files": ["dompdf_composer.inc.php"]
     },
     "require": {
         "phenx/php-font-lib": "0.2.*"
