@@ -60,7 +60,8 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
 /**
  * The location of the DOMPDF font directory
  *
- * It contains the fonts provided with DOMPDF.
+ * The location of the directory where DOMPDF will store fonts and font metrics
+ * Note: This directory must exist and be writable by the webserver process.
  * *Please note the trailing slash.*
  *
  * Notes regarding fonts:
@@ -68,8 +69,8 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
  *
  * Only the original "Base 14 fonts" are present on all pdf viewers. Additional fonts must
  * be embedded in the pdf file or the PDF may not display correctly. This can significantly
- * increase file size and could violate copyright provisions of a font. Font subsetting is
- * not currently supported.
+ * increase file size unless font subsetting is enabled. Before embedding a font please
+ * review your rights under the font license.
  *
  * Any font specification in the source HTML is translated to the closest font available
  * in the font directory.
@@ -78,20 +79,17 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
  * Courier, Courier-Bold, Courier-BoldOblique, Courier-Oblique,
  * Helvetica, Helvetica-Bold, Helvetica-BoldOblique, Helvetica-Oblique,
  * Times-Roman, Times-Bold, Times-BoldItalic, Times-Italic,
- * Symbol,
- * ZapfDingbats,
- *
- * *Please note the trailing slash.*
+ * Symbol, ZapfDingbats.
  */
 def("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
 
 /**
  * The location of the DOMPDF font cache directory
  *
- * Note this directory must be writable by the webserver process
- * This folder must already exist!
- * It contains remote fonts and the .afm files, on demand parsed, converted to php syntax and cached
- * This folder can be the same as DOMPDF_FONT_DIR
+ * This directory contains the cached font metrics for the fonts used by DOMPDF.
+ * This directory can be the same as DOMPDF_FONT_DIR
+ * 
+ * Note: This directory must exist and be writable by the webserver process.
  */
 def("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
 

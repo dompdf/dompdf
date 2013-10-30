@@ -9,7 +9,7 @@ include "functions.inc.php";
 
 switch ($cmd) {
   case "clear-font-cache":
-    $files = glob(DOMPDF_FONT_DIR."*.{UFM,AFM,ufm,afm}.php", GLOB_BRACE);
+    $files = glob(DOMPDF_FONT_CACHE."*.{UFM,AFM,ufm,afm}.php", GLOB_BRACE);
     foreach($files as $file) {
       unlink($file);
     }
