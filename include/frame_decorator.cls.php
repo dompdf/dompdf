@@ -587,7 +587,10 @@ abstract class Frame_Decorator extends Frame {
   }
 
   function reset_counter($id = self::DEFAULT_COUNTER, $value = 0) {
-    $this->get_parent()->_counters[$id] = intval($value);
+	$counter_frame = $this->lookup_counter_frame($id);
+	if ( $counter_frame ) {
+		$counter_frame->_counters[$id] = intval($value);
+	}
   }
   
   function increment_counters($counters) {
