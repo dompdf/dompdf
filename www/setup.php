@@ -118,11 +118,11 @@ $constants = array(
     "success" => "read",
   ),
   "DOMPDF_FONT_DIR" => array(
-    "desc" => "Additional fonts directory",
-    "success" => "read",
+    "desc" => "Directory containing fonts loaded into DOMPDF",
+    "success" => "write",
   ),
   "DOMPDF_FONT_CACHE" => array(
-    "desc" => "Font metrics cache",
+    "desc" => "Font metrics cache (used mainly by CPDF)",
     "success" => "write",
   ),
   "DOMPDF_TEMP_DIR" => array(
