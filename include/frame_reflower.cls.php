@@ -328,16 +328,15 @@ abstract class Frame_Reflower {
         if ( strtolower( $args[1] ) == 'counter' ) {
           // counter(name [,style])
           if ( isset( $args[5] ) ) {
-            $type = trim( $args[1] );
+            $type = trim( $args[5] );
           }
           else {
             $type = null;
           }
-
           $p = $this->_frame->lookup_counter_frame( $counter_id );
           
           $text .= $p->counter_value($counter_id, $type);
-
+          
         }
         else if ( strtolower( $args[1] ) == 'counters' ) {
           // counters(name, string [,style])
@@ -347,14 +346,14 @@ abstract class Frame_Reflower {
           else {
             $string = "";
           }
-
+          
           if ( isset( $args[7] ) ) {
             $type = trim( $args[7] );
           }
           else {
             $type = null;
           }
-
+          
           $p = $this->_frame->lookup_counter_frame($counter_id);
           $tmp = array();
           while ($p) {
@@ -366,13 +365,13 @@ abstract class Frame_Reflower {
             
           }
           $text .= implode( $string , $tmp );
-
+          
         }
         else {
           // countertops?
           continue;
         }
-
+        
       }
       else if ( isset($match[4]) && $match[4] !== "" ) {
         // String match
