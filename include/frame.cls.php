@@ -845,7 +845,7 @@ class Frame {
       $this->append_child($new_child, $update_node);
       return;
     }
-
+    
     if ( is_null($ref) ) {
       $this->prepend_child($new_child, $update_node);
       return;

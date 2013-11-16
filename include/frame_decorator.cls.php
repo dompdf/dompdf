@@ -129,11 +129,11 @@ abstract class Frame_Decorator extends Frame {
     $frame->set_style(clone $this->_frame->get_original_style());
     
     $deco = Frame_Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
-
+    
     foreach ($this->get_children() as $child) {
       $deco->append_child($child->deep_copy());
     }
-
+    
     return $deco;
   }
   
@@ -144,7 +144,7 @@ abstract class Frame_Decorator extends Frame {
     $this->_frame->reset();
     
     $this->_counters = array();
-
+    
     // Reset all children
     foreach ($this->get_children() as $child) {
       $child->reset();
@@ -540,15 +540,34 @@ abstract class Frame_Decorator extends Frame {
    * @return void
    */
   function split(Frame $child = null, $force_pagebreak = false) {
+    // decrement any counters that were incremented on the current node
+    $style = $this->_frame->get_style();
+    if ( $style->counter_increment && ($decrement = $style->counter_increment) !== "none" ) {
+      $this->decrement_counters($decrement);
+    }
+    
     if ( is_null( $child ) ) {
+      // check for counter increment on :before content (always a child of the selected element @link Frame_Reflower::_set_content)
+      // this can push the current node to the next page before counter rules have bubbled up (but only if
+      // it's been rendered, thus the position check)
+      if ( !$this->is_text_node() && $this->get_node()->hasAttribute("dompdf_before_frame_id") ) {
+        foreach($this->_frame->get_children() as $child) {
+          if ( $this->get_node()->getAttribute("dompdf_before_frame_id") == $child->get_id() && $child->get_position('x') !== NULL ) {
+            $style = $child->get_style();
+            if ( $style->counter_increment && ($decrement = $style->counter_increment) !== "none" ) {
+              $this->decrement_counters($decrement);
+            }
+          }
+        }
+      }
       $this->get_parent()->split($this, $force_pagebreak);
       return;
     }
-
+    
     if ( $child->get_parent() !== $this ) {
       throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
     }
-
+    
     $node = $this->_frame->get_node();
     
     $split = $this->copy( $node->cloneNode() );
@@ -573,21 +592,33 @@ abstract class Frame_Decorator extends Frame {
     }
     
     $this->get_parent()->insert_child_after($split, $this);
-
+    
     // Add $frame and all following siblings to the new split node
     $iter = $child;
     while ($iter) {
-      $frame = $iter;      
+      $frame = $iter;
       $iter = $iter->get_next_sibling();
       $frame->reset();
       $split->append_child($frame);
     }
-
+    
     $this->get_parent()->split($split, $force_pagebreak);
+    
+    // If this node resets a counter save the current value to use when rendering on the next page
+    if ( $style->counter_reset && ( $reset = $style->counter_reset ) !== "none" ) {
+      $vars = preg_split( '/\s+/' , trim( $reset ) , 2 );
+      $split->_counters[ '__' . $vars[0] ] = $this->lookup_counter_frame( $vars[0] )->_counters[$vars[0]];
+    }
   }
 
   function reset_counter($id = self::DEFAULT_COUNTER, $value = 0) {
     $this->get_parent()->_counters[$id] = intval($value);
+  }
+  
+  function decrement_counters($counters) {
+    foreach($counters as $id => $increment) {
+      $this->increment_counter($id, intval($increment) * -1);
+    }
   }
   
   function increment_counters($counters) {
