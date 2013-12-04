@@ -3491,7 +3491,7 @@ EOT;
 
   /**
    * calculate how wide a given text string will be on a page, at a given size.
-   * this can be called externally, but is alse used by the other class functions
+   * this can be called externally, but is also used by the other class functions
    */
   function getTextWidth($size, $text, $word_spacing = 0, $char_spacing = 0) {
     static $ord_cache = array();
@@ -3515,7 +3515,7 @@ EOT;
     $w = 0;
     $cf = $this->currentFont;
     $current_font = $this->fonts[$cf];
-    $space_scale = 1000 / $size;
+    $space_scale = 1000 / ( $size > 0 ? $size : 1 );
     $n_spaces = 0;
 
     if ( $current_font['isUnicode']) {
