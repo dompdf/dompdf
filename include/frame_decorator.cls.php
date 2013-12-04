@@ -540,9 +540,9 @@ abstract class Frame_Decorator extends Frame {
    * @return void
    */
   function split(Frame $child = null, $force_pagebreak = false) {
-    // decrement any counters that were incremented on the current node
+    // decrement any counters that were incremented on the current node, unless that node is the body
     $style = $this->_frame->get_style();
-    if ( $style->counter_increment && ($decrement = $style->counter_increment) !== "none" ) {
+    if ( $this->_frame->get_node()->nodeName !== "body" && $style->counter_increment && ($decrement = $style->counter_increment) !== "none" ) {
       $this->decrement_counters($decrement);
     }
     
