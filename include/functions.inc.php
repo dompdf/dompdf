@@ -362,7 +362,7 @@ if (!extension_loaded('mbstring')) {
     }
   }
   
-  if (!function_exists('mb_convert_encoding')) {
+  if (!function_exists('mb_detect_encoding')) {
     function mb_detect_encoding($data, $encoding_list = array('iso-8859-1'), $strict = false) {
       return 'iso-8859-1';
     }
