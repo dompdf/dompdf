@@ -2335,6 +2335,7 @@ EOT;
           // load the pfb file, and put that into an object too.
           // note that pdf supports only binary format type 1 font files, though there is a
           // simple utility to convert them from pfa to pfb.
+          // FIXME: should we move font subset creation to CPDF::output? See notes in issue #750.
           if (!$this->isUnicode || $fbtype !== 'ttf' || empty($this->stringSubsets)) {
             $data = file_get_contents($fbfile);
           }

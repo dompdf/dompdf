@@ -413,7 +413,7 @@ abstract class Frame_Reflower {
         }
       }
     }
-
+    
     return $text;
   }
   
@@ -436,6 +436,13 @@ abstract class Frame_Reflower {
   
     if ( $style->content && !$frame->get_first_child() && $frame->get_node()->nodeName === "dompdf_generated" ) {
       $content = $this->_parse_content();
+      // add generated content to the font subset
+      // FIXME: This is currently too late because the font subset has already been generated.
+      //        See notes in issue #750.
+      if ( $frame->get_dompdf()->get_option("enable_font_subsetting") && $frame->get_dompdf()->get_canvas() instanceof CPDF_Adapter ) {
+        $frame->get_dompdf()->get_canvas()->register_string_subset($style->font_family, $content);
+      }
+      
       $node = $frame->get_node()->ownerDocument->createTextNode($content);
       
       $new_style = $style->get_stylesheet()->create_style();

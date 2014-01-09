@@ -883,8 +883,25 @@ class DOMPDF {
           $this->_pdf->register_string_subset($style->font_family, $chars);
           continue;
         }
-
-        // TODO Handle other generated content (pseudo elements)
+        
+        // Handle other generated content (pseudo elements)
+        // FIXME: This only captures the text of the stylesheet declaration,
+        //        not the actual generated content, and forces all possible counter
+        //        values. See notes in issue #750.
+        if ( $frame->get_node()->nodeName == "dompdf_generated" ) {
+          // all possible counter values
+          $chars = List_Bullet_Renderer::get_counter_chars('decimal');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          $chars = List_Bullet_Renderer::get_counter_chars('upper-alpha');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          $chars = List_Bullet_Renderer::get_counter_chars('lower-alpha');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          $chars = List_Bullet_Renderer::get_counter_chars('lower-greek');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          // the text of the stylesheet declaration
+          $this->_pdf->register_string_subset($style->font_family, $style->content);
+          continue;
+        }
       }
     }
 
