@@ -816,8 +816,8 @@ class Stylesheet {
       
       $query = $this->_css_selector_to_xpath($selector, true);
       
-      // Retrieve the nodes
-      $nodes = @$xp->query($query["query"]);
+      // Retrieve the nodes, limit to body for generated content
+      $nodes = @$xp->query( '.'.$query["query"] );
       if ( $nodes == null ) {
         record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
         continue;
@@ -839,7 +839,6 @@ class Stylesheet {
           }
           
           $new_node->setAttribute($pos, $pos);
-          
           $new_frame_id = $tree->insert_node($node, $new_node, $pos);
           $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
         }

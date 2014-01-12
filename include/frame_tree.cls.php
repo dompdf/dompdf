@@ -227,13 +227,15 @@ class Frame_Tree {
     $parent_id = $node->getAttribute("frame_id");
     $parent = $this->get_frame($parent_id);
     
-    if ( $pos === "before" ) {
-      $parent->prepend_child($frame, false);
+    if ( $parent ) {
+      if ( $pos === "before" ) {
+        $parent->prepend_child($frame, false);
+      }
+      else {
+        $parent->append_child($frame, false);
+      }
     }
-    else {
-      $parent->append_child($frame, false);
-    }
-      
+    
     return $frame_id;
   }
 }
