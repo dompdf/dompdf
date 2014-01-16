@@ -8,6 +8,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+if ( class_exists( 'DOMPDF' ) ) { return; }
+
 //error_reporting(E_STRICT | E_ALL | E_DEPRECATED);
 //ini_set("display_errors", 1);
 
