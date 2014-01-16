@@ -18,17 +18,23 @@ PHP_VERSION >= 5.0 or die("DOMPDF requires PHP 5.0+");
 /**
  * The root of your DOMPDF installation
  */
-define("DOMPDF_DIR", str_replace(DIRECTORY_SEPARATOR, '/', realpath(dirname(__FILE__))));
+if (!defined('DOMPDF_DIR')) {
+  define("DOMPDF_DIR", str_replace(DIRECTORY_SEPARATOR, '/', realpath(dirname(__FILE__))));
+}
 
 /**
  * The location of the DOMPDF include directory
  */
-define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
+if (!defined('DOMPDF_INC_DIR')) {
+  define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
+}
 
 /**
  * The location of the DOMPDF lib directory
  */
-define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
+if (!defined('DOMPDF_LIB_DIR')) {
+  define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
+}
 
 /**
  * Some installations don't have $_SERVER['DOCUMENT_ROOT']
