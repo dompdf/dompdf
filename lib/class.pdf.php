@@ -1896,6 +1896,9 @@ EOT;
       $content.= "/ID[<$this->fileIdentifier><$this->fileIdentifier>]\n";
     }
 
+    // account for \n added at start of xref table
+    $pos++;
+
     $content.= ">>\nstartxref\n$pos\n%%EOF\n";
 
     return $content;
