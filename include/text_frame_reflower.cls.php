@@ -25,7 +25,7 @@ class Text_Frame_Reflower extends Frame_Reflower {
    */
   protected $_frame;
   
-  public static $_whitespace_pattern = "/[ \t\r\n\f]+/u";
+  public static $_whitespace_pattern = "/\s\s+/";
 
   function __construct(Text_Frame_Decorator $frame) { parent::__construct($frame); }
 
