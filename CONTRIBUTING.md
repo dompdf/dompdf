@@ -7,12 +7,14 @@
 ## Getting help
 
 Community discussion, questions, and informal bug reporting is done on the
-[dompdf Google group](http://groups.google.com/group/dompdf).
+[dompdf Google group](http://groups.google.com/group/dompdf). You may also 
+seek help on
+[StackOverflow](http://stackoverflow.com/questions/tagged/dompdf).
 
 ## Submitting bug reports
 
 The preferred way to report bugs is to use the
-[GitHub issue tracker](http://github.com/dompdf/dompdf/issues). Before
+[GitHub issue tracker](http://github.com/dompdf/dompdf/issues). Before 
 reporting a bug, read these pointers.
 
 **Please search inside the bug tracker to see if the bug you found is not already reported.**
@@ -55,7 +57,8 @@ Questions should be asked on the
 - Make sure you have a [GitHub Account](https://github.com/signup/free)
 - Fork [dompdf](https://github.com/dompdf/dompdf/)
   ([how to fork a repo](https://help.github.com/articles/fork-a-repo))
-- Make your changes
+- *Make your changes on the dev branch* or the most appropriate feature branch. Please only patch 
+  the master branch if you are attempting to address an urgent bug in the released code.
 - Add a simple test file in `www/test/`, with a comprehensive name.
 - Submit a pull request
 ([how to create a pull request](https://help.github.com/articles/fork-a-repo))
