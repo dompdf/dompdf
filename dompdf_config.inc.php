@@ -44,8 +44,10 @@ if( !isset($_SERVER['DOCUMENT_ROOT']) ) {
 }
 
 /** Include the custom config file if it exists */
-if ( file_exists(DOMPDF_DIR . "/dompdf_config.custom.inc.php") ){
-  require_once(DOMPDF_DIR . "/dompdf_config.custom.inc.php");
+if (defined('DOMPDF_CUSTOM_CONFIG_FILE')) {
+  if ( file_exists(DOMPDF_CUSTOM_CONFIG_FILE) ){
+    require_once(DOMPDF_CUSTOM_CONFIG_FILE);
+  }
 }
 
 //FIXME: Some function definitions rely on the constants defined by DOMPDF. However, might this location prove problematic?
