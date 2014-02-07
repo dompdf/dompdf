@@ -48,10 +48,10 @@ $server_configs = array(
     "result"   => function_exists("imagecreate"),
     "fallback" => "Required if you have images in your documents",
   ),
-  "APC" => array(
+  "opcache" => array(
     "required" => "For better performances",
-    "value"    => phpversion("apc"),
-    "result"   => function_exists("apc_fetch"),
+    "value"    => null,
+    "result"   => false,
     "fallback" => "Recommended for better performances",
   ),
   "GMagick or IMagick" => array(
@@ -62,6 +62,16 @@ $server_configs = array(
   ),
 );
 
+if (($xc = extension_loaded("xcache")) || ($apc = extension_loaded("apc")) || ($zop = extension_loaded("Zend OPcache")) || ($op = extension_loaded("opcache"))) {
+  $server_configs["opcache"]["result"] = true;
+  $server_configs["opcache"]["value"] = (
+    $xc ? "XCache ".phpversion("xcache") : (
+      $apc ? "APC ".phpversion("apc") : (
+        $zop ? "Zend OPCache ".phpversion("Zend OPcache") : "PHP OPCache ".phpversion("opcache")
+      )
+    )
+  );
+}
 if (($gm = extension_loaded("gmagick")) || ($im = extension_loaded("imagick"))) {
   $server_configs["GMagick or IMagick"]["value"] = ($im ? "IMagick ".phpversion("imagick") : "GMagick ".phpversion("gmagick"));
 }
@@ -134,13 +144,13 @@ $constants = array(
     "success" => "read",
   ),
   "DOMPDF_UNICODE_ENABLED" => array(
-    "desc" => "Unicode support (thanks to additional fonts)",
+    "desc" => "Unicode support (with supporting fonts)",
   ),
   "DOMPDF_ENABLE_FONTSUBSETTING" => array(
     "desc" => "Enable font subsetting, will make smaller documents when using Unicode fonts",
   ),
   "DOMPDF_PDF_BACKEND" => array(
-    "desc" => "Backend library that makes the outputted file (PDF, image)",
+    "desc" => "Backend library that renders the output (PDF, image)",
     "success" => "backend",
   ),
   "DOMPDF_DEFAULT_MEDIA_TYPE" => array(
@@ -205,7 +215,7 @@ $constants = array(
   "DOMPDF_ENABLE_AUTOLOAD" => array(
     "desc" => "Enable the DOMPDF autoloader",
   ),
-	"DOMPDF_AUTOLOAD_PREPEND" => array(
+  "DOMPDF_AUTOLOAD_PREPEND" => array(
     "desc" => "Prepend the dompdf autoload function to the SPL autoload functions already registered instead of appending it",
   ),
   "DOMPDF_ADMIN_USERNAME" => array(
