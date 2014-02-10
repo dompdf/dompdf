@@ -71,6 +71,17 @@ git submodule init
 git submodule update
 ```
 
+To use DOMPDF in your project, you must include the configuration file
+and class autoloader:
+
+```php
+// include DOMPDF's default configuration
+require_once '/path/to/dompdf/dompdf_config.inc.php';
+
+// include DOMPDF autoloader
+require_once '/path/to/dompdf/autoload.inc.php';
+```
+
 Install with composer
 ---
 To install with Composer, simply add the requirement to your `composer.json`
@@ -99,9 +110,6 @@ load the dompdf configuration file:
 // somewhere early in your project's loading, require the Composer autoloader
 // see: http://getcomposer.org/doc/00-intro.md
 require 'vendor/autoload.php';
-
-// disable DOMPDF's internal autoloader if you are using Composer
-define('DOMPDF_ENABLE_AUTOLOAD', false);
 
 // include DOMPDF's default configuration
 require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
