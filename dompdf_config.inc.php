@@ -322,6 +322,19 @@ def("DOMPDF_AUTOLOAD_PREPEND", false);
 def("DOMPDF_ENABLE_HTML5PARSER", false);
 require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
 
+/**
+ * Name of the font cache file
+ *
+ * This file must be writable by the webserver process only to update it
+ * with save_font_families() after adding the .afm file references of a new font family
+ * with Font_Metrics::save_font_families().
+ * This is typically done only from command line with load_font.php on converting
+ * ttf fonts to ufm with php-font-lib.
+ *
+ * Declared here because PHP5 prevents constants from being declared with expressions
+ */
+define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.php");
+
 // ### End of user-configurable options ###
 
 /**
