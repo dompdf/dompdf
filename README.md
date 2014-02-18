@@ -67,8 +67,8 @@ the following commands:
 
 ```sh
 git clone https://github.com/dompdf/dompdf.git
-git submodule init
-git submodule update
+cd dompdf
+git submodule update --init
 ```
 
 Install with composer
