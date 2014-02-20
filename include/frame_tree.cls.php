@@ -27,7 +27,7 @@ class Frame_Tree
      *
      * @var array
      */
-    protected static $_HIDDEN_TAGS = array(
+    protected static $HIDDEN_TAGS = array(
         "area", "base", "basefont", "head", "style",
         "meta", "title", "colgroup",
         "noembed", "noscript", "param", "#comment"
@@ -175,7 +175,6 @@ class Frame_Tree
      */
     protected function _build_tree_r(DOMNode $node)
     {
-
         $frame = new Frame($node);
         $id = $frame->get_id();
         $this->_registry[$id] = $frame;
@@ -184,42 +183,20 @@ class Frame_Tree
             return $frame;
         }
 
-        // Fixes 'cannot access undefined property for object with
-        // overloaded access', fix by Stefan radulian
-        // <stefan.radulian@symbion.at>
-        //foreach ($node->childNodes as $child) {
-
-        // Store the children in an array so that the tree can be modified
-        $children = array();
         for ($i = 0; $i < $node->childNodes->length; $i++) {
-            $children[] = $node->childNodes->item($i);
-        }
+            $child = $node->childNodes->item($i);
 
-        foreach ($children as $child) {
-            $node_name = mb_strtolower($child->nodeName);
-
-            // Skip non-displaying nodes
-            if (in_array($node_name, self::$_HIDDEN_TAGS)) {
-                if ($node_name !== "head" && $node_name !== "style") {
+            if (in_array($child->nodeName, self::$HIDDEN_TAGS)) {
+                if (($child->nodeName !== "head" && $child->nodeName !== "HEAD") && ($child->nodeName !== "style" && $child->nodeName !== "STYLE")) {
                     $child->parentNode->removeChild($child);
                 }
-
-                continue;
-            }
-
-            // Skip empty text nodes
-            if ($node_name === "#text" && $child->nodeValue == "") {
+            } elseif (($child->nodeName === "#text" || $child->nodeName === "#TEXT") && $child->nodeValue == "") {
                 $child->parentNode->removeChild($child);
-                continue;
-            }
-
-            // Skip empty image nodes
-            if ($node_name === "img" && $child->getAttribute("src") == "") {
+            } elseif (($child->nodeName === "img" || $child->nodeName === "IMG") && $child->getAttribute("src") == "") {
                 $child->parentNode->removeChild($child);
-                continue;
+            } elseif (is_object($child)) {
+                $frame->append_child($this->_build_tree_r($child), false);
             }
-
-            $frame->append_child($this->_build_tree_r($child), false);
         }
 
         return $frame;
