@@ -56,7 +56,6 @@
  */
 class DOMPDF
 {
-
     /**
      * DomDocument representing the HTML document
      *
@@ -240,7 +239,7 @@ class DOMPDF
     /**
      * Class constructor
      */
-    function __construct()
+    public function __construct()
     {
         $this->_locale_standard = sprintf('%.1f', 1.0) == '1.0';
 
@@ -264,7 +263,7 @@ class DOMPDF
     /**
      * Class destructor
      */
-    function __destruct()
+    public function __destruct()
     {
         clear_object($this);
     }
@@ -273,11 +272,10 @@ class DOMPDF
      * Get the dompdf option value
      *
      * @param string $key
-     *
-     * @return mixed
      * @throws DOMPDF_Exception
+     * @return mixed
      */
-    function get_option($key)
+    public function get_option($key)
     {
         if (!array_key_exists($key, $this->_options)) {
             throw new DOMPDF_Exception("Option '$key' doesn't exist");
@@ -289,10 +287,9 @@ class DOMPDF
     /**
      * @param string $key
      * @param mixed $value
-     *
      * @throws DOMPDF_Exception
      */
-    function set_option($key, $value)
+    public function set_option($key, $value)
     {
         if (!array_key_exists($key, $this->_options)) {
             throw new DOMPDF_Exception("Option '$key' doesn't exist");
@@ -304,7 +301,7 @@ class DOMPDF
     /**
      * @param array $options
      */
-    function set_options(array $options)
+    public function set_options(array $options)
     {
         foreach ($options as $key => $value) {
             $this->set_option($key, $value);
@@ -342,7 +339,7 @@ class DOMPDF
      *
      * @return Frame_Tree
      */
-    function get_tree()
+    public function get_tree()
     {
         return $this->_tree;
     }
@@ -353,7 +350,7 @@ class DOMPDF
      *
      * @param string $proto
      */
-    function set_protocol($proto)
+    public function set_protocol($proto)
     {
         $this->_protocol = $proto;
     }
@@ -363,7 +360,7 @@ class DOMPDF
      *
      * @param string $host
      */
-    function set_host($host)
+    public function set_host($host)
     {
         $this->_base_host = $host;
     }
@@ -373,7 +370,7 @@ class DOMPDF
      *
      * @param string $path
      */
-    function set_base_path($path)
+    public function set_base_path($path)
     {
         $this->_base_path = $path;
     }
@@ -383,7 +380,7 @@ class DOMPDF
      *
      * @param resource $http_context
      */
-    function set_http_context($http_context)
+    public function set_http_context($http_context)
     {
         $this->_http_context = $http_context;
     }
@@ -394,7 +391,7 @@ class DOMPDF
      * @param string $default_view The default document view
      * @param array $options The view's options
      */
-    function set_default_view($default_view, $options)
+    public function set_default_view($default_view, $options)
     {
         $this->_default_view = $default_view;
         $this->_default_view_options = $options;
@@ -405,7 +402,7 @@ class DOMPDF
      *
      * @return string
      */
-    function get_protocol()
+    public function get_protocol()
     {
         return $this->_protocol;
     }
@@ -415,7 +412,7 @@ class DOMPDF
      *
      * @return string
      */
-    function get_host()
+    public function get_host()
     {
         return $this->_base_host;
     }
@@ -425,7 +422,7 @@ class DOMPDF
      *
      * @return string
      */
-    function get_base_path()
+    public function get_base_path()
     {
         return $this->_base_path;
     }
@@ -435,7 +432,7 @@ class DOMPDF
      *
      * @return resource
      */
-    function get_http_context()
+    public function get_http_context()
     {
         return $this->_http_context;
     }
@@ -445,7 +442,7 @@ class DOMPDF
      *
      * @return Canvas
      */
-    function get_canvas()
+    public function get_canvas()
     {
         return $this->_pdf;
     }
@@ -455,7 +452,7 @@ class DOMPDF
      *
      * @return array
      */
-    function get_callbacks()
+    public function get_callbacks()
     {
         return $this->_callbacks;
     }
@@ -465,7 +462,7 @@ class DOMPDF
      *
      * @return Stylesheet
      */
-    function get_css()
+    public function get_css()
     {
         return $this->_css;
     }
@@ -473,7 +470,7 @@ class DOMPDF
     /**
      * @return DOMDocument
      */
-    function get_dom()
+    public function get_dom()
     {
         return $this->_xml;
     }
@@ -486,7 +483,7 @@ class DOMPDF
      *
      * @throws DOMPDF_Exception
      */
-    function load_html_file($file)
+    public function load_html_file($file)
     {
         $this->save_locale();
 
@@ -548,7 +545,7 @@ class DOMPDF
      * @param string $str HTML text to load
      * @param string $encoding Not used yet
      */
-    function load_html($str, $encoding = null)
+    public function load_html($str, $encoding = null)
     {
         $this->save_locale();
 
@@ -677,7 +674,10 @@ class DOMPDF
         $this->restore_locale();
     }
 
-    static function remove_text_nodes(DOMNode $node)
+    /**
+     * @param DOMNode $node
+     */
+    public static function remove_text_nodes(DOMNode $node)
     {
         $children = array();
         for ($i = 0; $i < $node->childNodes->length; $i++) {
@@ -789,7 +789,7 @@ class DOMPDF
      * @param string $size 'letter', 'legal', 'A4', etc. {@link CPDF_Adapter::$PAPER_SIZES}
      * @param string $orientation 'portrait' or 'landscape'
      */
-    function set_paper($size, $orientation = "portrait")
+    public function set_paper($size, $orientation = "portrait")
     {
         $this->_paper_size = $size;
         $this->_paper_orientation = $orientation;
@@ -799,7 +799,7 @@ class DOMPDF
      * Enable experimental caching capability
      * @access private
      */
-    function enable_caching($cache_id)
+    public function enable_caching($cache_id)
     {
         $this->_cache_id = $cache_id;
     }
@@ -815,7 +815,7 @@ class DOMPDF
      *
      * @param array $callbacks the set of callbacks to set
      */
-    function set_callbacks($callbacks)
+    public function set_callbacks($callbacks)
     {
         if (is_array($callbacks)) {
             $this->_callbacks = array();
@@ -836,12 +836,16 @@ class DOMPDF
      *
      * @return boolean true if quirks mode is active
      */
-    function get_quirksmode()
+    public function get_quirksmode()
     {
         return $this->_quirksmode;
     }
 
-    function parse_default_view($value)
+    /**
+     * @param string $value
+     * @return bool
+     */
+    public function parse_default_view($value)
     {
         $valid = array("XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV");
 
@@ -859,7 +863,7 @@ class DOMPDF
     /**
      * Renders the HTML to PDF
      */
-    function render()
+    public function render()
     {
         $this->save_locale();
 
@@ -1000,7 +1004,7 @@ class DOMPDF
     /**
      * Add meta information to the PDF after rendering
      */
-    function add_info($label, $value)
+    public function add_info($label, $value)
     {
         if (!is_null($this->_pdf)) {
             $this->_pdf->add_info($label, $value);
@@ -1057,7 +1061,7 @@ class DOMPDF
      * @param string $filename the name of the streamed file
      * @param array $options header options (see above)
      */
-    function stream($filename, $options = null)
+    public function stream($filename, $options = null)
     {
         $this->save_locale();
 
@@ -1085,7 +1089,7 @@ class DOMPDF
      *
      * @return string
      */
-    function output($options = null)
+    public function output($options = null)
     {
         $this->save_locale();
 
@@ -1107,7 +1111,7 @@ class DOMPDF
      *
      * @return string
      */
-    function output_html()
+    public function output_html()
     {
         return $this->_xml->saveHTML();
     }
