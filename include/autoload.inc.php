@@ -15,6 +15,16 @@
  *
  * @param string $class
  */
+
+/*
+ * New PHP 5.3.0 namespaced autoloader
+ */
+require_once __DIR__ . "/Autoloader.php";
+DomPdf\Autoloader::register();
+
+/*
+ * Old autoloader
+ */
 function DOMPDF_autoload($class)
 {
     $filename = DOMPDF_INC_DIR . "/" . mb_strtolower($class) . ".cls.php";
@@ -30,10 +40,10 @@ if (function_exists("spl_autoload_register")) {
     $funcs = spl_autoload_functions();
 
     // No functions currently in the stack.
-    if (!DOMPDF_AUTOLOAD_PREPEND || $funcs === false) {
+    if (defined('DOMPDF_AUTOLOAD_PREPEND') && !DOMPDF_AUTOLOAD_PREPEND || $funcs === false) {
         spl_autoload_register($autoload);
     } // If PHP >= 5.3 the $prepend argument is available
-    else if (PHP_VERSION_ID >= 50300) {
+    elseif (PHP_VERSION_ID >= 50300) {
         spl_autoload_register($autoload, true, true);
     } else {
         // Unregister existing autoloaders...
@@ -42,7 +52,7 @@ if (function_exists("spl_autoload_register")) {
         foreach ($funcs as $func) {
             if (is_array($func)) {
                 // :TRICKY: There are some compatibility issues and some
-                // places where we need to error out 
+                // places where we need to error out
                 $reflector = new ReflectionMethod($func[0], $func[1]);
                 if (!$reflector->isStatic()) {
                     throw new Exception('This function is not compatible with non-static object methods due to PHP Bug #44144.');
@@ -69,7 +79,7 @@ if (function_exists("spl_autoload_register")) {
             spl_autoload_register("__autoload");
         }
     }
-} else if (!function_exists("__autoload")) {
+} elseif (!function_exists("__autoload")) {
     /**
      * Default __autoload() function
      *
