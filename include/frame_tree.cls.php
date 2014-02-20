@@ -27,7 +27,7 @@ class Frame_Tree
      *
      * @var array
      */
-    static protected $_HIDDEN_TAGS = array(
+    protected static $_HIDDEN_TAGS = array(
         "area", "base", "basefont", "head", "style",
         "meta", "title", "colgroup",
         "noembed", "noscript", "param", "#comment"
@@ -62,20 +62,19 @@ class Frame_Tree
      */
     protected $_registry;
 
-
     /**
      * Class constructor
      *
      * @param DomDocument $dom the main DomDocument object representing the current html document
      */
-    function __construct(DomDocument $dom)
+    public function __construct(DomDocument $dom)
     {
         $this->_dom = $dom;
         $this->_root = null;
         $this->_registry = array();
     }
 
-    function __destruct()
+    public function __destruct()
     {
         clear_object($this);
     }
@@ -85,7 +84,7 @@ class Frame_Tree
      *
      * @return DOMDocument
      */
-    function get_dom()
+    public function get_dom()
     {
         return $this->_dom;
     }
@@ -95,7 +94,7 @@ class Frame_Tree
      *
      * @return Page_Frame_Decorator
      */
-    function get_root()
+    public function get_root()
     {
         return $this->_root;
     }
@@ -106,7 +105,7 @@ class Frame_Tree
      * @param string $id
      * @return Frame
      */
-    function get_frame($id)
+    public function get_frame($id)
     {
         return isset($this->_registry[$id]) ? $this->_registry[$id] : null;
     }
@@ -116,7 +115,7 @@ class Frame_Tree
      *
      * @return FrameTreeList|Frame[]
      */
-    function get_frames()
+    public function get_frames()
     {
         return new FrameTreeList($this->_root);
     }
@@ -124,7 +123,7 @@ class Frame_Tree
     /**
      * Builds the tree
      */
-    function build_tree()
+    public function build_tree()
     {
         $html = $this->_dom->getElementsByTagName("html")->item(0);
         if (is_null($html)) {
@@ -226,6 +225,12 @@ class Frame_Tree
         return $frame;
     }
 
+    /**
+     * @param DOMNode $node
+     * @param DOMNode $new_node
+     * @param string $pos
+     * @return mixed
+     */
     public function insert_node(DOMNode $node, DOMNode $new_node, $pos)
     {
         if ($pos === "after" || !$node->firstChild) {
