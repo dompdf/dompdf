@@ -1031,24 +1031,4 @@ else {
   }
 }
 
-/**
- * Affect null to the unused objects
- * @param mixed $object
- */
-if ( PHP_VERSION_ID < 50300 ) {
-  function clear_object(&$object) {
-    if ( is_object($object) ) {
-      foreach ($object as &$value) {
-        clear_object($value);
-      }
-    }
-    
-    $object = null;
-    unset($object);
-  }
-}
-else {
-  function clear_object(&$object) {
-    // void
-  } 
-}
+function clear_object() {}

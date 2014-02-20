@@ -170,14 +170,6 @@ class Frame
     public static $_ws_state = self::WS_SPACE;
 
     /**
-     * Class destructor
-     */
-    public function __destruct()
-    {
-        clear_object($this);
-    }
-
-    /**
      * Class constructor
      *
      * @param DOMNode $node the DOMNode this frame represents
@@ -229,33 +221,13 @@ class Frame
             return;
         }
 
-        switch (self::$_ws_state) {
-            case self::WS_SPACE:
-                $node = $this->_node;
+        if (self::$_ws_state === self::WS_SPACE) {
+            $node = $this->_node;
 
-                if ($node->nodeName === "#text") {
-                    $node->nodeValue = preg_replace("/[ \t\r\n\f]+/u", " ", $node->nodeValue);
-
-                    // starts with a whitespace
-                    if (isset($node->nodeValue[0]) && $node->nodeValue[0] === " ") {
-                        $node->nodeValue = ltrim($node->nodeValue);
-                    }
-
-                    // if not empty
-                    if ($node->nodeValue !== "") {
-                        // change the current state (text)
-                        self::$_ws_state = self::WS_TEXT;
-
-                        // ends with a whitespace
-                        if (preg_match("/[ \t\r\n\f]+$/u", $node->nodeValue)) {
-                            $node->nodeValue = ltrim($node->nodeValue);
-                        }
-                    }
-                }
-                break;
-
-            case self::WS_TEXT:
-                break;
+            if ($node->nodeName === "#text" && !empty($node->nodeValue)) {
+                $node->nodeValue = preg_replace("/[ \t\r\n\f]+/u", " ", trim($node->nodeValue));
+                self::$_ws_state = self::WS_TEXT;
+            }
         }
     }
 
@@ -297,7 +269,6 @@ class Frame
      */
     public function dispose($recursive = false)
     {
-
         if ($recursive) {
             while ($child = $this->_first_child) {
                 $child->dispose(true);
@@ -990,7 +961,6 @@ class Frame
 
         $ref->_next_sibling = $new_child;
     }
-
 
     /**
      * Remove a child frame
