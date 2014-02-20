@@ -1,4 +1,7 @@
 <?php
+
+use DomPdf\Frame\FrameTreeList;
+
 /**
  * @package dompdf
  * @link    http://dompdf.github.com/
