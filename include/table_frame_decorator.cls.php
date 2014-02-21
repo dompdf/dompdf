@@ -332,7 +332,7 @@ class Table_Frame_Decorator extends Frame_Decorator
             }
         }
 
-        if ($anon_row) {
+        if ($anon_row && $table_row instanceof DOMNode) {
             // Add the row to the table
             $this->_frame->append_child($table_row);
             $table_row->normalise();
