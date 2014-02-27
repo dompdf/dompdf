@@ -12,37 +12,41 @@
  * @access private
  * @package dompdf
  */
-class PHP_Evaluator {
-  
-  /**
-   * @var Canvas
-   */
-  protected $_canvas;
+class PHP_Evaluator
+{
 
-  function __construct(Canvas $canvas) {
-    $this->_canvas = $canvas;
-  }
+    /**
+     * @var Canvas
+     */
+    protected $_canvas;
 
-  function evaluate($code, $vars = array()) {
-    if ( !$this->_canvas->get_dompdf()->get_option("enable_php") ) {
-      return;
-    }
-    
-    // Set up some variables for the inline code
-    $pdf = $this->_canvas;
-    $PAGE_NUM = $pdf->get_page_number();
-    $PAGE_COUNT = $pdf->get_page_count();
-    
-    // Override those variables if passed in
-    foreach ($vars as $k => $v) {
-      $$k = $v;
+    function __construct(Canvas $canvas)
+    {
+        $this->_canvas = $canvas;
     }
 
-    //$code = html_entity_decode($code); // @todo uncomment this when tested
-    eval($code); 
-  }
+    function evaluate($code, $vars = array())
+    {
+        if (!$this->_canvas->get_dompdf()->get_option("enable_php")) {
+            return;
+        }
 
-  function render(Frame $frame) {
-    $this->evaluate($frame->get_node()->nodeValue);
-  }
+        // Set up some variables for the inline code
+        $pdf = $this->_canvas;
+        $PAGE_NUM = $pdf->get_page_number();
+        $PAGE_COUNT = $pdf->get_page_count();
+
+        // Override those variables if passed in
+        foreach ($vars as $k => $v) {
+            $$k = $v;
+        }
+
+        //$code = html_entity_decode($code); // @todo uncomment this when tested
+        eval($code);
+    }
+
+    function render(Frame $frame)
+    {
+        $this->evaluate($frame->get_node()->nodeValue);
+    }
 }
