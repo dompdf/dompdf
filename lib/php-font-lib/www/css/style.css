@@ -1,0 +1,121 @@
+body {
+	font-size: 12px;
+	font-family: tahoma, verdana, arial, sans-serif;
+	margin: 0.5em;
+}
+
+ul {
+	list-style-position: inside;
+	padding-left: 0.4em;
+}
+
+pre {
+	font-size: 11px;
+}
+
+h2 {
+	border-bottom: 1px solid #ccc;
+}
+
+hr {
+	clear: both;
+}
+
+.unicode-map {
+  line-height: 0px;
+	font-size: 3px;
+	width: 768px;
+	border: 1px solid #333;
+	font-family: unicode-map;
+}
+
+.unicode-map i, .unicode-map b {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  position: relative;
+}
+
+.unicode-map i .info {
+	font-family: tahoma, verdana, arial, sans-serif;
+  font-size: 12px;
+	line-height: 14px;
+}
+
+.unicode-map i s, .unicode-map b s {
+  text-decoration: none;
+  font-style: normal;
+	text-align: center;
+  display: none;
+  position: absolute;
+	border: 1px solid #999;
+	font-size: 32px;
+	background: #fff;
+  padding: 3px;
+	line-height: 1.2;
+	z-index: 5000;
+  bottom: 5px;
+  left: -12px;
+}
+
+.unicode-map i:hover s, .unicode-map b:hover s {
+	display: inline-block;
+}
+
+.unicode-map i {
+	background: #0f0;
+}
+
+.unicode-map b {
+  background: #999;
+}
+
+.glyph-view {
+  display: inline-block;
+  background: #ddd;
+  padding: 3px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.glyph-view.composite {
+  background: #bbe;
+}
+
+.glyph-view span {
+  display: inline-block;
+  padding: 1px;
+  min-width: 1em;
+  margin-bottom: 2px;
+  white-space: pre;
+}
+  
+.glyph-view .char {
+  background: #bbb;
+  float: left;
+}
+
+.glyph-view .glyph-id {
+  float: right;
+}
+
+.glyph-view .char:empty {
+  display: none;
+}
+
+.glyph-view canvas {
+  background: #fff;
+}
+
+.glyph-view:target {
+  outline: 2px dotted red;
+}
+.glyph-view:target canvas {
+  background: #ddffdd;
+}
+
+.glyph-view a.glyph-component-id {
+  font-size: 0.8em;
+}
