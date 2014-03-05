@@ -340,6 +340,13 @@ class Font_Metrics {
       
       // Download the remote file
       if ( !is_file($local_file) ) {
+        // Prepend the base path to the remote file path
+        // Useful when the $remote_file is a relative URL like '/assets/my_font.woff'
+        if (self::$_pdf && self::$_pdf->get_dompdf() && is_file(self::$_pdf->get_dompdf()->get_base_path().$remote_file)) {
+          $base_path = self::$_pdf->get_dompdf()->get_base_path();
+          $remote_file = $base_path.$remote_file;
+        }
+        
         file_put_contents($local_file, file_get_contents($remote_file));
       }
       
