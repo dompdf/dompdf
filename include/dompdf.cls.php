@@ -623,8 +623,8 @@ class DOMPDF {
       $doc->preserveWhiteSpace = true;
       
       //Check if string is not UTF-8 and convert it.
-      if(mb_detect_encoding($str) != 'UTF-8')
-        $doc->loadHTML( mb_convert_encoding( $str , 'HTML-ENTITIES' , 'UTF-8' ) );
+      if($encoding !== 'UTF-8')
+        $doc->loadHTML( mb_convert_encoding( $str , 'HTML-ENTITIES' , $encoding ) );
       else
         $doc->loadHTML( $str );
 
