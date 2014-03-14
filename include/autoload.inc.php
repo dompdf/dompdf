@@ -20,7 +20,7 @@
  * New PHP 5.3.0 namespaced autoloader
  */
 require_once __DIR__ . "/Autoloader.php";
-DomPdf\Autoloader::register();
+Dompdf\Autoloader::register();
 
 /*
  * Old autoloader

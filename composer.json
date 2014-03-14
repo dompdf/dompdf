@@ -21,7 +21,7 @@
     "autoload": {
         "classmap": ["include/"],
         "psr-0" : {
-            "DomPdf" : "include/"
+            "Dompdf" : "include/"
         }
     },
     "require": {

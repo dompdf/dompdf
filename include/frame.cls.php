@@ -1,6 +1,6 @@
 <?php
 
-use DomPdf\Frame\FrameList;
+use Dompdf\Frame\FrameList;
 
 /**
  * @package dompdf

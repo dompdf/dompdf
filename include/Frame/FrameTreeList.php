@@ -1,5 +1,5 @@
 <?php
-namespace DomPdf\Frame;
+namespace Dompdf\Frame;
 
 use IteratorAggregate;
 use Frame;

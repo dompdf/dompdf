@@ -9,8 +9,8 @@
          stopOnFailure="false"
          syntaxCheck="false">
     <testsuites>
-        <testsuite name="DomPdf Test Suite">
-            <directory>./test/DomPdf/</directory>
+        <testsuite name="Dompdf Test Suite">
+            <directory>./test/Dompdf/</directory>
         </testsuite>
     </testsuites>
 </phpunit>

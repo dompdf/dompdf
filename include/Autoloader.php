@@ -1,21 +1,21 @@
 <?php
-namespace DomPdf;
+namespace Dompdf;
 
 /**
- * Autoloads DomPdf classes
+ * Autoloads Dompdf classes
  *
- * @package DomPdf
+ * @package Dompdf
  */
 class Autoloader
 {
-    const PREFIX = 'DomPdf';
+    const PREFIX = 'Dompdf';
 
     /**
      * Register the autoloader
      */
     public static function register()
     {
-        spl_autoload_register([new self, 'autoload']);
+        spl_autoload_register(array(new self, 'autoload'));
     }
 
     /**
