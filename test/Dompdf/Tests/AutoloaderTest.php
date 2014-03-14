@@ -1,0 +1,18 @@
+<?php
+namespace Dompdf\Tests;
+
+use PHPUnit_Framework_TestCase;
+use Dompdf\Autoloader;
+
+class AutoloaderTest extends PHPUnit_Framework_TestCase
+{
+    public function testAutoload()
+    {
+        $declared = get_declared_classes();
+        $declaredCount = count($declared);
+        Autoloader::autoload('Foo');
+        $this->assertEquals($declaredCount, count(get_declared_classes()), 'Dompdf\\Autoloader::autoload() is trying to load classes outside of the Dompdf namespace');
+        Autoloader::autoload('Dompdf\Frame\FrameList'); // TODO change this class to the main Dompdf class when it is namespaced
+        $this->assertTrue(in_array('Dompdf\Frame\FrameList', get_declared_classes()), 'Dompdf\\Autoloader::autoload() failed to autoload the Dompdf\Frame\FrameList class');
+    }
+}
