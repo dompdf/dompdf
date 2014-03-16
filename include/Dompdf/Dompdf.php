@@ -276,14 +276,6 @@ class Dompdf
     }
 
     /**
-     * Class destructor
-     */
-    public function __destruct()
-    {
-        clear_object($this);
-    }
-
-    /**
      * Get the dompdf option value
      *
      * @param string $key

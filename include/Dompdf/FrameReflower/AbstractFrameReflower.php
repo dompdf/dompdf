@@ -47,7 +47,6 @@ abstract class AbstractFrameReflower
 
     function dispose()
     {
-        clear_object($this);
     }
 
     /**

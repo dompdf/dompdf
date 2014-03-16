@@ -159,14 +159,6 @@ class Stylesheet
     }
 
     /**
-     * Class destructor
-     */
-    function __destruct()
-    {
-        clear_object($this);
-    }
-
-    /**
      * Set the base protocol
      *
      * @param string $protocol

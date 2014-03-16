@@ -1086,7 +1086,3 @@ if (function_exists("curl_init")) {
         return $data;
     }
 }
-
-function clear_object()
-{
-}

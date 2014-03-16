@@ -400,7 +400,6 @@ class Style
      */
     function dispose()
     {
-        clear_object($this);
     }
 
     function set_frame(Frame $frame)

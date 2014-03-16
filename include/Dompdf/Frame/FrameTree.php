@@ -90,11 +90,6 @@ class FrameTree
         $this->_registry = array();
     }
 
-    public function __destruct()
-    {
-        clear_object($this);
-    }
-
     /**
      * Returns the DOMDocument object representing the curent html document
      *
