@@ -7,6 +7,12 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\Css;
+
+use Dompdf\Adapter\CPDF;
+use Dompdf\Exception;
+use Dompdf\FontMetrics;
+use Dompdf\Frame;
 
 /**
  * Represents CSS properties.
@@ -647,7 +653,7 @@ class Style
      */
     function munge_color($color)
     {
-        return CSS_Color::parse($color);
+        return Color::parse($color);
     }
 
     /* direct access to _important_props array from outside would work only when declared as
@@ -684,9 +690,9 @@ class Style
      * On each modification clear cache to return accurate setting.
      * Also affects direct settings not using __set
      * For easier finding all assignments, attempted to allowing only explicite assignment:
-     * Very many uses, e.g. frame_reflower.cls.php -> for now leave as it is
+     * Very many uses, e.g. AbstractFrameReflower.php -> for now leave as it is
      * function __set($prop, $val) {
-     *   throw new DOMPDF_Exception("Implicite replacement of assignment by __set.  Not good.");
+     *   throw new Exception("Implicite replacement of assignment by __set.  Not good.");
      * }
      * function props_set($prop, $val) { ... }
      *
@@ -733,13 +739,13 @@ class Style
      *
      * @param string $prop
      *
-     * @throws DOMPDF_Exception
+     * @throws Exception
      * @return mixed
      */
     function __get($prop)
     {
         if (!isset(self::$_defaults[$prop])) {
-            throw new DOMPDF_Exception("'$prop' is not a valid CSS2 property.");
+            throw new Exception("'$prop' is not a valid CSS2 property.");
         }
 
         if (isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null) {
@@ -771,11 +777,11 @@ class Style
 
     /**
      * Getter for the 'font-family' CSS property.
-     * Uses the {@link Font_Metrics} class to resolve the font family into an
+     * Uses the {@link FontMetrics} class to resolve the font family into an
      * actual font file.
      *
      * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-family
-     * @throws DOMPDF_Exception
+     * @throws Exception
      *
      * @return string
      */
@@ -834,7 +840,7 @@ class Style
             if ($DEBUGCSS) {
                 print '(' . $family . ')';
             }
-            $font = Font_Metrics::get_font($family, $subtype);
+            $font = FontMetrics::get_font($family, $subtype);
 
             if ($font) {
                 if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
@@ -846,14 +852,14 @@ class Style
         if ($DEBUGCSS) {
             print '(default)';
         }
-        $font = Font_Metrics::get_font($family, $subtype);
+        $font = FontMetrics::get_font($family, $subtype);
 
         if ($font) {
             if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
             return $this->_font_family = $font;
         }
 
-        throw new DOMPDF_Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] . "'");
+        throw new Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] . "'");
 
     }
 
@@ -2243,8 +2249,8 @@ class Style
             } else {
                 $computed[] = $computed[0];
             }
-        } elseif (isset(CPDF_Adapter::$PAPER_SIZES[$parts[0]])) {
-            $computed = array_slice(CPDF_Adapter::$PAPER_SIZES[$parts[0]], 2, 2);
+        } elseif (isset(CPDF::$PAPER_SIZES[$parts[0]])) {
+            $computed = array_slice(CPDF::$PAPER_SIZES[$parts[0]], 2, 2);
 
             if (isset($parts[1]) && $parts[1] === "landscape") {
                 $computed = array_reverse($computed);

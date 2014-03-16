@@ -7,7 +7,10 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
-class CSS_Color
+
+namespace Dompdf\Css;
+
+class Color
 {
     static $cssColorNames = array(
         "aliceblue" => "F0F8FF",

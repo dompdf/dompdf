@@ -5,51 +5,63 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\Frame;
+
+use Dompdf\Css\Style;
+use Dompdf\Dompdf;
+use Dompdf\Exception;
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\AbstractFrameDecorator;
+use DOMXPath;
+use Dompdf\FrameDecorator\Page as PageFrameDecorator;
+use Dompdf\FrameReflower\Page as PageFrameReflower;
 
 /**
  * Contains frame decorating logic
  *
- * This class is responsible for assigning the correct {@link Frame_Decorator},
- * {@link Positioner}, and {@link Frame_Reflower} objects to {@link Frame}
+ * This class is responsible for assigning the correct {@link AbstractFrameDecorator},
+ * {@link AbstractPositioner}, and {@link AbstractFrameReflower} objects to {@link Frame}
  * objects.  This is determined primarily by the Frame's display type, but
  * also by the Frame's node's type (e.g. DomElement vs. #text)
  *
- * @access private
+ * @access  private
  * @package dompdf
  */
-class Frame_Factory
+class Factory
 {
 
     /**
      * Decorate the root Frame
      *
-     * @param $root Frame The frame to decorate
-     * @param $dompdf DOMPDF The dompdf instance
-     * @return Page_Frame_Decorator
+     * @param $root   Frame The frame to decorate
+     * @param $dompdf Dompdf The dompdf instance
+     *
+     * @return PageFrameDecorator
      */
-    static function decorate_root(Frame $root, DOMPDF $dompdf)
+    static function decorate_root(Frame $root, Dompdf $dompdf)
     {
-        $frame = new Page_Frame_Decorator($root, $dompdf);
-        $frame->set_reflower(new Page_Frame_Reflower($frame));
+        $frame = new PageFrameDecorator($root, $dompdf);
+        $frame->set_reflower(new PageFrameReflower($frame));
         $root->set_decorator($frame);
+
         return $frame;
     }
 
     /**
      * Decorate a Frame
      *
-     * @param Frame $frame The frame to decorate
-     * @param DOMPDF $dompdf The dompdf instance
-     * @param Frame $root The frame to decorate
+     * @param Frame $frame   The frame to decorate
+     * @param Dompdf $dompdf The dompdf instance
+     * @param Frame $root    The frame to decorate
      *
-     * @throws DOMPDF_Exception
-     * @return Frame_Decorator
+     * @throws Exception
+     * @return AbstractFrameDecorator
      * FIXME: this is admittedly a little smelly...
      */
-    static function decorate_frame(Frame $frame, DOMPDF $dompdf, Frame $root = null)
+    static function decorate_frame(Frame $frame, Dompdf $dompdf, Frame $root = null)
     {
         if (is_null($dompdf)) {
-            throw new DOMPDF_Exception("The DOMPDF argument is required");
+            throw new Exception("The DOMPDF argument is required");
         }
 
         $style = $frame->get_style();
@@ -109,20 +121,20 @@ class Frame_Factory
             case "table-header-group":
             case "table-footer-group":
                 $positioner = "Null";
-                $decorator = "Table_Row_Group";
-                $reflower = "Table_Row_Group";
+                $decorator = "TableRowGroup";
+                $reflower = "TableRowGroup";
                 break;
 
             case "table-row":
                 $positioner = "Null";
-                $decorator = "Table_Row";
-                $reflower = "Table_Row";
+                $decorator = "TableRow";
+                $reflower = "TableRow";
                 break;
 
             case "table-cell":
-                $positioner = "Table_Cell";
-                $decorator = "Table_Cell";
-                $reflower = "Table_Cell";
+                $positioner = "TableCell";
+                $decorator = "TableCell";
+                $reflower = "TableCell";
                 break;
 
             case "list-item":
@@ -135,16 +147,16 @@ class Frame_Factory
                 if ($style->list_style_position === "inside") {
                     $positioner = "Inline";
                 } else {
-                    $positioner = "List_Bullet";
+                    $positioner = "ListBullet";
                 }
 
                 if ($style->list_style_image !== "none") {
-                    $decorator = "List_Bullet_Image";
+                    $decorator = "ListBulletImage";
                 } else {
-                    $decorator = "List_Bullet";
+                    $decorator = "ListBullet";
                 }
 
-                $reflower = "List_Bullet";
+                $reflower = "ListBullet";
                 break;
 
             case "-dompdf-image":
@@ -179,8 +191,10 @@ class Frame_Factory
 
         if ($position === "absolute") {
             $positioner = "Absolute";
-        } else if ($position === "fixed") {
-            $positioner = "Fixed";
+        } else {
+            if ($position === "fixed") {
+                $positioner = "Fixed";
+            }
         }
 
         $node = $frame->get_node();
@@ -192,10 +206,11 @@ class Frame_Factory
             $reflower = "Image";
         }
 
-        $positioner .= "_Positioner";
-        $decorator .= "_Frame_Decorator";
-        $reflower .= "_Frame_Reflower";
+        $positioner = "Dompdf\\Positioner\\$positioner";
+        $decorator  = "Dompdf\\FrameDecorator\\$decorator";
+        $reflower   = "Dompdf\\FrameReflower\\$reflower";
 
+        /** @var AbstractFrameDecorator $deco */
         $deco = new $decorator($frame, $dompdf);
 
         $deco->set_positioner(new $positioner($deco));
@@ -240,7 +255,7 @@ class Frame_Factory
             $new_style->inherit($style);
             $b_f->set_style($new_style);
 
-            $deco->prepend_child(Frame_Factory::decorate_frame($b_f, $dompdf, $root));
+            $deco->prepend_child(Factory::decorate_frame($b_f, $dompdf, $root));
         }
 
         return $deco;

@@ -6,17 +6,22 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameDecorator;
+
+use Dompdf\Dompdf;
+use Dompdf\Frame;
+use Dompdf\Exception;
 
 /**
  * Decorates frames for inline layout
  *
- * @access private
+ * @access  private
  * @package dompdf
  */
-class Inline_Frame_Decorator extends Frame_Decorator
+class Inline extends AbstractFrameDecorator
 {
 
-    function __construct(Frame $frame, DOMPDF $dompdf)
+    function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }
@@ -29,8 +34,9 @@ class Inline_Frame_Decorator extends Frame_Decorator
             return;
         }
 
-        if ($frame->get_parent() !== $this)
-            throw new DOMPDF_Exception("Unable to split: frame is not a child of this one.");
+        if ($frame->get_parent() !== $this) {
+            throw new Exception("Unable to split: frame is not a child of this one.");
+        }
 
         $split = $this->copy($this->_frame->get_node()->cloneNode());
         $this->get_parent()->insert_child_after($split, $this);
@@ -77,4 +83,4 @@ class Inline_Frame_Decorator extends Frame_Decorator
         }
     }
 
-} 
+}

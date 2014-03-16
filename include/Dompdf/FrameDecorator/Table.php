@@ -5,14 +5,20 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameDecorator;
+
+use Dompdf\Cellmap;
+use DOMNode;
+use Dompdf\Dompdf;
+use Dompdf\Frame;
+use Dompdf\Frame\Factory;
 
 /**
  * Decorates Frames for table layout
  *
- * @access private
  * @package dompdf
  */
-class Table_Frame_Decorator extends Frame_Decorator
+class Table extends AbstractFrameDecorator
 {
     public static $VALID_CHILDREN = array(
         "table-row-group",
@@ -35,7 +41,7 @@ class Table_Frame_Decorator extends Frame_Decorator
      * The Cellmap object for this table.  The cellmap maps table cells
      * to rows and columns, and aids in calculating column widths.
      *
-     * @var Cellmap
+     * @var \Dompdf\Cellmap
      */
     protected $_cellmap;
 
@@ -73,9 +79,9 @@ class Table_Frame_Decorator extends Frame_Decorator
      * Class constructor
      *
      * @param Frame $frame the frame to decorate
-     * @param DOMPDF $dompdf
+     * @param Dompdf $dompdf
      */
-    public function __construct(Frame $frame, DOMPDF $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
         $this->_cellmap = new Cellmap($this);
@@ -118,6 +124,7 @@ class Table_Frame_Decorator extends Frame_Decorator
     {
         if (is_null($child)) {
             parent::split();
+
             return;
         }
 
@@ -134,8 +141,9 @@ class Table_Frame_Decorator extends Frame_Decorator
 
                 $new_header = $header->deep_copy();
 
-                if (is_null($first_header))
+                if (is_null($first_header)) {
                     $first_header = $new_header;
+                }
 
                 $this->insert_child_before($new_header, $child);
             }
@@ -164,6 +172,7 @@ class Table_Frame_Decorator extends Frame_Decorator
      * Return a copy of this frame with $node as its node
      *
      * @param DOMNode $node
+     *
      * @return Frame
      */
     public function copy(DOMNode $node)
@@ -181,7 +190,8 @@ class Table_Frame_Decorator extends Frame_Decorator
      * Static function to locate the parent table of a frame
      *
      * @param Frame $frame
-     * @return Table_Frame_Decorator the table that is an ancestor of $frame
+     *
+     * @return Table the table that is an ancestor of $frame
      */
     public static function find_parent_table(Frame $frame)
     {
@@ -196,7 +206,7 @@ class Table_Frame_Decorator extends Frame_Decorator
     /**
      * Return this table's Cellmap
      *
-     * @return Cellmap
+     * @return \Dompdf\Cellmap
      */
     public function get_cellmap()
     {
@@ -296,13 +306,14 @@ class Table_Frame_Decorator extends Frame_Decorator
                     // Lookup styles for tr tags.  If the user wants styles to work
                     // better, they should make the tr explicit... I'm not going to
                     // try to guess what they intended.
-                    if ($tr_style = $css->lookup("tr"))
+                    if ($tr_style = $css->lookup("tr")) {
                         $style->merge($tr_style);
+                    }
 
                     // Okay, I have absolutely no idea why I need this clone here, but
                     // if it's omitted, php (as of 2004-07-28) segfaults.
                     $frame->set_style(clone $style);
-                    $table_row = Frame_Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
+                    $table_row = Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
 
                     // Add the cell to the row
                     $table_row->append_child($child);

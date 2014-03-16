@@ -2,7 +2,7 @@
 namespace Dompdf\Frame;
 
 use IteratorAggregate;
-use Frame;
+use Dompdf\Frame;
 
 /**
  * Pre-order IteratorAggregate
@@ -13,12 +13,12 @@ use Frame;
 class FrameTreeList implements IteratorAggregate
 {
     /**
-     * @var Frame
+     * @var \Dompdf\Frame
      */
     protected $_root;
 
     /**
-     * @param Frame $root
+     * @param \Dompdf\Frame $root
      */
     public function __construct(Frame $root)
     {

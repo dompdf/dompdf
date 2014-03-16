@@ -6,14 +6,17 @@
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameDecorator;
+
+use Dompdf\Dompdf;
+use Dompdf\Frame;
 
 /**
  * Decorates frames for list bullet rendering
  *
- * @access private
  * @package dompdf
  */
-class List_Bullet_Frame_Decorator extends Frame_Decorator
+class ListBullet extends AbstractFrameDecorator
 {
 
     const BULLET_PADDING = 1; // Distance from bullet to text in pt
@@ -26,7 +29,7 @@ class List_Bullet_Frame_Decorator extends Frame_Decorator
 
     //........................................................................
 
-    function __construct(Frame $frame, DOMPDF $dompdf)
+    function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }

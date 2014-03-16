@@ -7,6 +7,14 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\Css;
+
+use DOMXPath;
+
+use Dompdf\Dompdf;
+use Dompdf\Exception;
+use Dompdf\FontMetrics;
+use Dompdf\Frame\FrameTree;
 
 /**
  * The location of the default built-in CSS file.
@@ -63,7 +71,7 @@ class Stylesheet
     /**
      * Current dompdf instance
      *
-     * @var DOMPDF
+     * @var Dompdf
      */
     private $_dompdf;
 
@@ -141,7 +149,7 @@ class Stylesheet
      * The base protocol, host & path are initialized to those of
      * the current script.
      */
-    function __construct(DOMPDF $dompdf)
+    function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
         $this->_styles = array();
@@ -189,9 +197,9 @@ class Stylesheet
     }
 
     /**
-     * Return the DOMPDF object
+     * Return the Dompdf object
      *
-     * @return DOMPDF
+     * @return Dompdf
      */
     function get_dompdf()
     {
@@ -246,12 +254,12 @@ class Stylesheet
      * @param string $key the Style's selector
      * @param Style $style the Style to be added
      *
-     * @throws DOMPDF_Exception
+     * @throws \Dompdf\Exception
      */
     function add_style($key, Style $style)
     {
         if (!is_string($key)) {
-            throw new DOMPDF_Exception("CSS rule must be keyed by a string.");
+            throw new Exception("CSS rule must be keyed by a string.");
         }
 
         if (isset($this->_styles[$key])) {
@@ -421,7 +429,7 @@ class Stylesheet
      * @param string $selector
      * @param bool $first_pass
      *
-     * @throws DOMPDF_Exception
+     * @throws Exception
      * @return string
      */
     private function _css_selector_to_xpath($selector, $first_pass = false)
@@ -678,7 +686,7 @@ class Stylesheet
                             $op .= $tok[$j++];
 
                             if ($tok[$j] !== "=") {
-                                throw new DOMPDF_Exception("Invalid CSS selector syntax: invalid attribute selector: $selector");
+                                throw new Exception("Invalid CSS selector syntax: invalid attribute selector: $selector");
                             }
 
                             $op .= $tok[$j];
@@ -702,7 +710,7 @@ class Stylesheet
                     }
 
                     if ($attr == "") {
-                        throw new DOMPDF_Exception("Invalid CSS selector syntax: missing attribute name");
+                        throw new Exception("Invalid CSS selector syntax: missing attribute name");
                     }
 
                     $value = trim($value, "\"'");
@@ -817,18 +825,18 @@ class Stylesheet
      * applies all current styles to a particular document tree
      *
      * apply_styles() applies all currently loaded styles to the provided
-     * {@link Frame_Tree}.  Aside from parsing CSS, this is the main purpose
+     * {@link FrameTree}.  Aside from parsing CSS, this is the main purpose
      * of this class.
      *
-     * @param Frame_Tree $tree
+     * @param \Dompdf\Frame\FrameTree $tree
      */
-    function apply_styles(Frame_Tree $tree)
+    function apply_styles(FrameTree $tree)
     {
         // Use XPath to select nodes.  This would be easier if we could attach
         // Frame objects directly to DOMNodes using the setUserData() method, but
         // we can't do that just yet.  Instead, we set a _node attribute_ in
         // Frame->set_id() and use that as a handle on the Frame object via
-        // Frame_Tree::$_registry.
+        // FrameTree::$_registry.
 
         // We create a scratch array of styles indexed by frame id.  Once all
         // styles have been assigned, we order the cached styles by specificity
@@ -902,7 +910,7 @@ class Stylesheet
         }
 
         // Now create the styles and assign them to the appropriate frames.  (We
-        // iterate over the tree using an implicit Frame_Tree iterator.)
+        // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
         foreach ($tree->get_frames() as $frame) {
             // pre_r($frame->get_node()->nodeName . ":");
@@ -935,8 +943,8 @@ class Stylesheet
             $id = $frame->get_id();
 
             // Handle HTML 4.0 attributes
-            Attribute_Translator::translate_attributes($frame);
-            if (($str = $frame->get_node()->getAttribute(Attribute_Translator::$_style_attr)) !== "") {
+            AttributeTranslator::translate_attributes($frame);
+            if (($str = $frame->get_node()->getAttribute(AttributeTranslator::$_style_attr)) !== "") {
                 // Lowest specificity
                 $styles[$id][1][] = $this->_parse_properties($str);
             }
@@ -1024,7 +1032,7 @@ class Stylesheet
      *
      * @param string $str
      *
-     * @throws DOMPDF_Exception
+     * @throws Exception
      */
     private function _parse_css($str)
     {
@@ -1056,7 +1064,7 @@ class Stylesheet
 
         if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
             // An error occured
-            throw new DOMPDF_Exception("Error parsing css file: preg_match_all() failed.");
+            throw new Exception("Error parsing css file: preg_match_all() failed.");
         }
 
         // After matching, the array indicies are set as follows:
@@ -1299,7 +1307,7 @@ class Stylesheet
             "style" => $descriptors->font_style,
         );
 
-        Font_Metrics::register_font($style, $valid_sources[0]["path"]);
+        FontMetrics::register_font($style, $valid_sources[0]["path"]);
     }
 
     /**

@@ -5,14 +5,19 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameDecorator;
+
+use Dompdf\Dompdf;
+use Dompdf\Frame;
+use Dompdf\LineBox;
 
 /**
  * Decorates frames for block layout
  *
- * @access private
+ * @access  private
  * @package dompdf
  */
-class Block_Frame_Decorator extends Frame_Decorator
+class Block extends AbstractFrameDecorator
 {
     /**
      * Current line index
@@ -24,15 +29,15 @@ class Block_Frame_Decorator extends Frame_Decorator
     /**
      * The block's line boxes
      *
-     * @var Line_Box[]
+     * @var LineBox[]
      */
     protected $_line_boxes;
 
-    function __construct(Frame $frame, DOMPDF $dompdf)
+    function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
 
-        $this->_line_boxes = array(new Line_Box($this));
+        $this->_line_boxes = array(new LineBox($this));
         $this->_cl = 0;
     }
 
@@ -40,12 +45,12 @@ class Block_Frame_Decorator extends Frame_Decorator
     {
         parent::reset();
 
-        $this->_line_boxes = array(new Line_Box($this));
+        $this->_line_boxes = array(new LineBox($this));
         $this->_cl = 0;
     }
 
     /**
-     * @return Line_Box
+     * @return LineBox
      */
     function get_current_line_box()
     {
@@ -61,7 +66,7 @@ class Block_Frame_Decorator extends Frame_Decorator
     }
 
     /**
-     * @return Line_Box[]
+     * @return LineBox[]
      */
     function get_line_boxes()
     {
@@ -93,8 +98,8 @@ class Block_Frame_Decorator extends Frame_Decorator
 
         /*
         // Adds a new line after a block, only if certain conditions are met
-        if ((($frame instanceof Inline_Frame_Decorator && $frame->get_node()->nodeName !== "br") ||
-              $frame instanceof Text_Frame_Decorator && trim($frame->get_text())) &&
+        if ((($frame instanceof Inline && $frame->get_node()->nodeName !== "br") ||
+              $frame instanceof Text && trim($frame->get_text())) &&
             ($frame->get_prev_sibling() && $frame->get_prev_sibling()->get_style()->display === "block" &&
              $this->_line_boxes[$this->_cl]->w > 0 )) {
 
@@ -108,7 +113,7 @@ class Block_Frame_Decorator extends Frame_Decorator
         else*/
 
         // Handle inline frames (which are effectively wrappers)
-        if ($frame instanceof Inline_Frame_Decorator) {
+        if ($frame instanceof Inline) {
 
             // Handle line breaks
             if ($frame->get_node()->nodeName === "br") {
@@ -238,7 +243,7 @@ class Block_Frame_Decorator extends Frame_Decorator
         $this->_line_boxes[$this->_cl]->br = $br;
         $y = $this->_line_boxes[$this->_cl]->y + $this->_line_boxes[$this->_cl]->h;
 
-        $new_line = new Line_Box($this, $y);
+        $new_line = new LineBox($this, $y);
 
         $this->_line_boxes[++$this->_cl] = $new_line;
     }

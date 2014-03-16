@@ -5,25 +5,28 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameDecorator;
+
+use Dompdf\Dompdf;
+use Dompdf\Frame;
 
 /**
  * Table row group decorator
  *
  * Overrides split() method for tbody, thead & tfoot elements
  *
- * @access private
  * @package dompdf
  */
-class Table_Row_Group_Frame_Decorator extends Frame_Decorator
+class TableRowGroup extends AbstractFrameDecorator
 {
 
     /**
      * Class constructor
      *
-     * @param Frame $frame Frame to decorate
-     * @param DOMPDF $dompdf Current dompdf instance
+     * @param Frame $frame   Frame to decorate
+     * @param Dompdf $dompdf Current dompdf instance
      */
-    function __construct(Frame $frame, DOMPDF $dompdf)
+    function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }

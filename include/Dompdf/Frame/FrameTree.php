@@ -1,6 +1,14 @@
 <?php
 
-use Dompdf\Frame\FrameTreeList;
+namespace Dompdf\Frame;
+
+use DOMDocument;
+use DOMNode;
+use DOMXPath;
+
+use Dompdf\Exception;
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\Page;
 
 /**
  * @package dompdf
@@ -12,15 +20,14 @@ use Dompdf\Frame\FrameTreeList;
 /**
  * Represents an entire document as a tree of frames
  *
- * The Frame_Tree consists of {@link Frame} objects each tied to specific
- * DOMNode objects in a specific DomDocument.  The Frame_Tree has the same
+ * The FrameTree consists of {@link Frame} objects each tied to specific
+ * DOMNode objects in a specific DomDocument.  The FrameTree has the same
  * structure as the DomDocument, but adds additional capabalities for
  * styling and layout.
  *
  * @package dompdf
- * @access protected
  */
-class Frame_Tree
+class FrameTree
 {
     /**
      * Tags to ignore while parsing the tree
@@ -28,16 +35,25 @@ class Frame_Tree
      * @var array
      */
     protected static $HIDDEN_TAGS = array(
-        "area", "base", "basefont", "head", "style",
-        "meta", "title", "colgroup",
-        "noembed", "noscript", "param", "#comment"
+        "area",
+        "base",
+        "basefont",
+        "head",
+        "style",
+        "meta",
+        "title",
+        "colgroup",
+        "noembed",
+        "noscript",
+        "param",
+        "#comment"
     );
 
     /**
      * The main DomDocument
      *
      * @see http://ca2.php.net/manual/en/ref.dom.php
-     * @var DomDocument
+     * @var DOMDocument
      */
     protected $_dom;
 
@@ -65,7 +81,7 @@ class Frame_Tree
     /**
      * Class constructor
      *
-     * @param DomDocument $dom the main DomDocument object representing the current html document
+     * @param DOMDocument $dom the main DomDocument object representing the current html document
      */
     public function __construct(DomDocument $dom)
     {
@@ -80,7 +96,7 @@ class Frame_Tree
     }
 
     /**
-     * Returns the DomDocument object representing the curent html document
+     * Returns the DOMDocument object representing the curent html document
      *
      * @return DOMDocument
      */
@@ -92,7 +108,7 @@ class Frame_Tree
     /**
      * Returns the root frame of the tree
      *
-     * @return Page_Frame_Decorator
+     * @return \Dompdf\FrameDecorator\Page
      */
     public function get_root()
     {
@@ -103,6 +119,7 @@ class Frame_Tree
      * Returns a specific frame given its id
      *
      * @param string $id
+     *
      * @return Frame
      */
     public function get_frame($id)
@@ -131,7 +148,7 @@ class Frame_Tree
         }
 
         if (is_null($html)) {
-            throw new DOMPDF_Exception("Requested HTML document contains no data.");
+            throw new Exception("Requested HTML document contains no data.");
         }
 
         $this->fix_tables();
@@ -171,6 +188,7 @@ class Frame_Tree
      * and images may be created).
      *
      * @param DOMNode $node the current DOMNode being considered
+     *
      * @return Frame
      */
     protected function _build_tree_r(DOMNode $node)
@@ -206,6 +224,7 @@ class Frame_Tree
      * @param DOMNode $node
      * @param DOMNode $new_node
      * @param string $pos
+     *
      * @return mixed
      */
     public function insert_node(DOMNode $node, DOMNode $new_node, $pos)

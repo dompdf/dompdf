@@ -2,7 +2,7 @@
 namespace Dompdf\Frame;
 
 use Iterator;
-use Frame;
+use Dompdf\Frame;
 
 /**
  * Pre-order Iterator
