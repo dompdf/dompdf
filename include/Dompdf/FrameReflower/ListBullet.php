@@ -5,24 +5,27 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\AbstractFrameDecorator;
 
 /**
  * Reflows list bullets
  *
- * @access private
  * @package dompdf
  */
-class List_Bullet_Frame_Reflower extends Frame_Reflower
+class ListBullet extends AbstractFrameReflower
 {
 
-    function __construct(Frame_Decorator $frame)
+    function __construct(AbstractFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
     //........................................................................
 
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
         $style = $this->_frame->get_style();
 
