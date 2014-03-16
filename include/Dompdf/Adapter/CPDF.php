@@ -10,12 +10,20 @@
  */
 
 // FIXME: Need to sanity check inputs to this class
+namespace Dompdf\Adapter;
+
+use Dompdf\Canvas;
+use Dompdf\Dompdf;
+use Dompdf\Exception;
+use Dompdf\Image\Cache;
+use Dompdf\PhpEvaluator;
+
 require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
 
 /**
  * PDF rendering interface
  *
- * CPDF_Adapter provides a simple stateless interface to the stateful one
+ * Dompdf\Adapter\CPDF provides a simple stateless interface to the stateful one
  * provided by the Cpdf class.
  *
  * Unless otherwise mentioned, all dimensions are in points (1/72 in).  The
@@ -27,7 +35,7 @@ require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
  *
  * @package dompdf
  */
-class CPDF_Adapter implements Canvas
+class CPDF implements Canvas
 {
 
     /**
@@ -95,9 +103,9 @@ class CPDF_Adapter implements Canvas
     );
 
     /**
-     * The DOMPDF object
+     * The Dompdf object
      *
-     * @var DOMPDF
+     * @var Dompdf
      */
     private $_dompdf;
 
@@ -160,11 +168,11 @@ class CPDF_Adapter implements Canvas
     /**
      * Class constructor
      *
-     * @param mixed $paper The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
+     * @param mixed $paper The size of paper to use in this PDF ({@link CPDF::$PAPER_SIZES})
      * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
-     * @param DOMPDF $dompdf The DOMPDF instance
+     * @param Dompdf $dompdf The Dompdf instance
      */
-    function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf)
+    function __construct($paper = "letter", $orientation = "portrait", Dompdf $dompdf)
     {
         if (is_array($paper)) {
             $size = $paper;
@@ -180,7 +188,7 @@ class CPDF_Adapter implements Canvas
 
         $this->_dompdf = $dompdf;
 
-        $this->_pdf = new Cpdf(
+        $this->_pdf = new \Cpdf(
             $size,
             $dompdf->get_option("enable_unicode"),
             $dompdf->get_option("font_cache"),
@@ -232,7 +240,7 @@ class CPDF_Adapter implements Canvas
     /**
      * Returns the Cpdf instance
      *
-     * @return Cpdf
+     * @return \Cpdf
      */
     function get_cpdf()
     {
@@ -298,7 +306,7 @@ class CPDF_Adapter implements Canvas
      * Adds a specified 'object' to the document
      *
      * $object int specifying an object created with {@link
-     * CPDF_Adapter::open_object()}.  $where can be one of:
+     * CPDF::open_object()}.  $where can be one of:
      * - 'add' add to current page only
      * - 'all' add to every page from the current one onwards
      * - 'odd' add to all odd numbered pages from now on
@@ -533,16 +541,16 @@ class CPDF_Adapter implements Canvas
      * @param string $image_url
      * @param integer $type
      *
-     * @throws DOMPDF_Exception
+     * @throws Exception
      * @return string The url of the newly converted image
      */
     protected function _convert_gif_bmp_to_png($image_url, $type)
     {
-        $image_type = Image_Cache::type_to_ext($type);
+        $image_type = Cache::type_to_ext($type);
         $func_name = "imagecreatefrom$image_type";
 
         if (!function_exists($func_name)) {
-            throw new DOMPDF_Exception("Function $func_name() not found.  Cannot convert $image_type image: $image_url.  Please install the image PHP extension.");
+            throw new Exception("Function $func_name() not found.  Cannot convert $image_type image: $image_url.  Please install the image PHP extension.");
         }
 
         set_error_handler("record_warnings");
@@ -560,7 +568,7 @@ class CPDF_Adapter implements Canvas
             imagepng($im, $filename);
             imagedestroy($im);
         } else {
-            $filename = Image_Cache::$broken_image;
+            $filename = Cache::$broken_image;
         }
 
         restore_error_handler();
@@ -696,7 +704,7 @@ class CPDF_Adapter implements Canvas
         $font .= ".afm";
         $pdf->selectFont($font);
 
-        //Font_Metrics::get_font_height($font, $size) ==
+        //FontMetrics::get_font_height($font, $size) ==
         //$this->get_font_height($font, $size) ==
         //$this->_pdf->selectFont($font),$this->_pdf->getFontHeight($size)
         //- FontBBoxheight+FontHeightOffset, scaled to $size, in pt
@@ -891,7 +899,7 @@ class CPDF_Adapter implements Canvas
 
                     case "script":
                         if (!$eval) {
-                            $eval = new PHP_Evaluator($this);
+                            $eval = new PhpEvaluator($this);
                         }
                         $eval->evaluate($code, array('PAGE_NUM' => $page_number, 'PAGE_COUNT' => $this->_page_count));
                         break;

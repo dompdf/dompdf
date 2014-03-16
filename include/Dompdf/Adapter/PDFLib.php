@@ -7,10 +7,19 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+namespace Dompdf\Adapter;
+
+use Dompdf\Canvas;
+use Dompdf\Dompdf;
+use Dompdf\Exception;
+use Dompdf\FontMetrics;
+use Dompdf\Image\Cache;
+use Dompdf\PHPEvaluator;
+
 /**
  * PDF rendering interface
  *
- * PDFLib_Adapter provides a simple, stateless interface to the one
+ * Dompdf\Adapter\PDFLib provides a simple, stateless interface to the one
  * provided by PDFLib.
  *
  * Unless otherwise mentioned, all dimensions are in points (1/72 in).
@@ -22,7 +31,7 @@
  *
  * @package dompdf
  */
-class PDFLib_Adapter implements Canvas
+class PDFLib implements Canvas
 {
 
     /**
@@ -30,7 +39,7 @@ class PDFLib_Adapter implements Canvas
      *
      * @var array;
      */
-    static public $PAPER_SIZES = array(); // Set to CPDF_Adapter::$PAPER_SIZES below.
+    static public $PAPER_SIZES = array(); // Set to Dompdf\Adapter\CPDF::$PAPER_SIZES below.
 
     /**
      * Whether to create PDFs in memory or on disk
@@ -40,14 +49,14 @@ class PDFLib_Adapter implements Canvas
     static $IN_MEMORY = true;
 
     /**
-     * @var DOMPDF
+     * @var Dompdf
      */
     private $_dompdf;
 
     /**
      * Instance of PDFLib class
      *
-     * @var PDFlib
+     * @var \PDFlib
      */
     private $_pdf;
 
@@ -138,12 +147,12 @@ class PDFLib_Adapter implements Canvas
     /**
      * Class constructor
      *
-     * @param mixed $paper The size of paper to use either a string (see {@link CPDF_Adapter::$PAPER_SIZES}) or
+     * @param mixed $paper The size of paper to use either a string (see {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}) or
      *                            an array(xmin,ymin,xmax,ymax)
      * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
-     * @param DOMPDF $dompdf
+     * @param Dompdf $dompdf
      */
-    function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf)
+    function __construct($paper = "letter", $orientation = "portrait", Dompdf $dompdf)
     {
         if (is_array($paper)) {
             $size = $paper;
@@ -162,7 +171,7 @@ class PDFLib_Adapter implements Canvas
 
         $this->_dompdf = $dompdf;
 
-        $this->_pdf = new PDFLib();
+        $this->_pdf = new \PDFLib();
 
         if (defined("DOMPDF_PDFLIB_LICENSE"))
             $this->_pdf->set_parameter("license", DOMPDF_PDFLIB_LICENSE);
@@ -198,7 +207,7 @@ class PDFLib_Adapter implements Canvas
         $this->_objs = array();
 
         // Set up font paths
-        $families = Font_Metrics::get_font_families();
+        $families = FontMetrics::get_font_families();
         foreach ($families as $files) {
             foreach ($files as $file) {
                 $face = basename($file);
@@ -309,12 +318,12 @@ class PDFLib_Adapter implements Canvas
      *
      * @param int $object the ID of a previously opened object
      *
-     * @throws DOMPDF_Exception
+     * @throws Exception
      * @return void
      */
     function reopen_object($object)
     {
-        throw new DOMPDF_Exception("PDFLib does not support reopening objects.");
+        throw new Exception("PDFLib does not support reopening objects.");
     }
 
     /**
@@ -822,8 +831,8 @@ class PDFLib_Adapter implements Canvas
         $w = (int)$w;
         $h = (int)$h;
 
-        $img_type = Image_Cache::detect_type($img_url);
-        $img_ext = Image_Cache::type_to_ext($img_type);
+        $img_type = Cache::detect_type($img_url);
+        $img_ext = Cache::type_to_ext($img_type);
 
         if (!isset($this->_imgs[$img_url])) {
             $this->_imgs[$img_url] = $this->_pdf->load_image($img_ext, $img_url, "");
@@ -844,7 +853,7 @@ class PDFLib_Adapter implements Canvas
         $this->_pdf->setfont($fh, $size);
         $this->_set_fill_color($color);
 
-        $y = $this->y($y) - Font_Metrics::get_font_height($font, $size);
+        $y = $this->y($y) - FontMetrics::get_font_height($font, $size);
 
         $word_spacing = (float)$word_spacing;
         $char_spacing = (float)$char_spacing;
@@ -1038,7 +1047,7 @@ class PDFLib_Adapter implements Canvas
 
                     case "script":
                         if (!$eval) {
-                            $eval = new PHP_Evaluator($this);
+                            $eval = new PHPEvaluator($this);
                         }
                         $eval->evaluate($code, array('PAGE_NUM' => $p, 'PAGE_COUNT' => $this->_page_count));
                         break;
@@ -1094,7 +1103,7 @@ class PDFLib_Adapter implements Canvas
             $chunk = (1 << 21); // 2 MB
             $fh = fopen($this->_file, "rb");
             if (!$fh)
-                throw new DOMPDF_Exception("Unable to load temporary PDF file: " . $this->_file);
+                throw new Exception("Unable to load temporary PDF file: " . $this->_file);
 
             while (!feof($fh))
                 echo fread($fh, $chunk);
@@ -1147,4 +1156,4 @@ class PDFLib_Adapter implements Canvas
 }
 
 // Workaround for idiotic limitation on statics...
-PDFLib_Adapter::$PAPER_SIZES = CPDF_Adapter::$PAPER_SIZES;
+PDFLib::$PAPER_SIZES = CPDF::$PAPER_SIZES;

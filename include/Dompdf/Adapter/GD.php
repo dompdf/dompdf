@@ -6,6 +6,11 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\Adapter;
+
+use Dompdf\Canvas;
+use Dompdf\Dompdf;
+use Dompdf\Image\Cache;
 
 /**
  * Image rendering interface
@@ -15,10 +20,10 @@
  *
  * @package dompdf
  */
-class GD_Adapter implements Canvas
+class GD implements Canvas
 {
     /**
-     * @var DOMPDF
+     * @var Dompdf
      */
     private $_dompdf;
 
@@ -83,20 +88,20 @@ class GD_Adapter implements Canvas
      *
      * @param mixed $size The size of image to create: array(x1,y1,x2,y2) or "letter", "legal", etc.
      * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
-     * @param DOMPDF $dompdf
+     * @param Dompdf $dompdf
      * @param float $aa_factor Anti-aliasing factor, 1 for no AA
      * @param array $bg_color Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
      */
-    function __construct($size, $orientation = "portrait", DOMPDF $dompdf, $aa_factor = 1.0, $bg_color = array(1, 1, 1, 0))
+    function __construct($size, $orientation = "portrait", Dompdf $dompdf, $aa_factor = 1.0, $bg_color = array(1, 1, 1, 0))
     {
 
         if (!is_array($size)) {
             $size = strtolower($size);
 
-            if (isset(CPDF_Adapter::$PAPER_SIZES[$size])) {
-                $size = CPDF_Adapter::$PAPER_SIZES[$size];
+            if (isset(CPDF::$PAPER_SIZES[$size])) {
+                $size = CPDF::$PAPER_SIZES[$size];
             } else {
-                $size = CPDF_Adapter::$PAPER_SIZES["letter"];
+                $size = CPDF::$PAPER_SIZES["letter"];
             }
         }
 
@@ -595,8 +600,8 @@ class GD_Adapter implements Canvas
      */
     function image($img_url, $x, $y, $w, $h, $resolution = "normal")
     {
-        $img_type = Image_Cache::detect_type($img_url);
-        $img_ext = Image_Cache::type_to_ext($img_type);
+        $img_type = Cache::detect_type($img_url);
+        $img_ext = Cache::type_to_ext($img_type);
 
         if (!$img_ext) {
             return;
@@ -733,7 +738,7 @@ class GD_Adapter implements Canvas
 
         /*$filename = substr(strtolower(basename($font)), 0, -4);
 
-        if ( in_array($filename, DOMPDF::$native_fonts) ) {
+        if ( in_array($filename, Dompdf::$native_fonts) ) {
           return "arial.ttf";
         }*/
 

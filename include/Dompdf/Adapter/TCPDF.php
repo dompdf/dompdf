@@ -6,12 +6,16 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+use Dompdf\Adapter\CPDF;
+use Dompdf\Dompdf;
+use Dompdf\Canvas;
+
 require_once DOMPDF_LIB_DIR . '/tcpdf/tcpdf.php';
 
 /**
  * TCPDF PDF Rendering interface
  *
- * TCPDF_Adapter provides a simple, stateless interface to TCPDF.
+ * TCPDF provides a simple, stateless interface to TCPDF.
  *
  * Unless otherwise mentioned, all dimensions are in points (1/72 in).
  * The coordinate origin is in the top left corner and y values
@@ -22,7 +26,7 @@ require_once DOMPDF_LIB_DIR . '/tcpdf/tcpdf.php';
  *
  * @package dompdf
  */
-class TCPDF_Adapter implements Canvas
+class TCPDF implements Canvas
 {
 
     /**
@@ -30,10 +34,10 @@ class TCPDF_Adapter implements Canvas
      *
      * @var array;
      */
-    static public $PAPER_SIZES = array(); // Set to CPDF_Adapter::$PAPER_SIZES below.
+    static public $PAPER_SIZES = array(); // Set to Dompdf\Adapter\CPDF::$PAPER_SIZES below.
 
     /**
-     * @var DOMPDF
+     * @var Dompdf
      */
     private $_dompdf;
 
@@ -103,12 +107,12 @@ class TCPDF_Adapter implements Canvas
     /**
      * Class constructor
      *
-     * @param mixed $paper The size of paper to use either a string (see {@link CPDF_Adapter::$PAPER_SIZES}) or
+     * @param mixed $paper The size of paper to use either a string (see {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}) or
      *                            an array(xmin,ymin,xmax,ymax)
      * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
-     * @param DOMPDF $dompdf
+     * @param Dompdf $dompdf
      */
-    function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf)
+    function __construct($paper = "letter", $orientation = "portrait", Dompdf $dompdf)
     {
 
         if (is_array($paper))
@@ -670,4 +674,4 @@ class TCPDF_Adapter implements Canvas
 }
 
 // Workaround for idiotic limitation on statics...
-TCPDF_Adapter::$PAPER_SIZES = CPDF_Adapter::$PAPER_SIZES;
+TCPDF::$PAPER_SIZES = CPDF::$PAPER_SIZES;
