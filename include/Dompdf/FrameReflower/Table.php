@@ -5,19 +5,23 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Table as TableFrameDecorator;
 
 /**
  * Reflows tables
  *
- * @access private
+ * @access  private
  * @package dompdf
  */
-class Table_Frame_Reflower extends Frame_Reflower
+class Table extends AbstractFrameReflower
 {
     /**
      * Frame for this reflower
      *
-     * @var Table_Frame_Decorator
+     * @var TableFrameDecorator
      */
     protected $_frame;
 
@@ -28,7 +32,7 @@ class Table_Frame_Reflower extends Frame_Reflower
      */
     protected $_state;
 
-    function __construct(Table_Frame_Decorator $frame)
+    function __construct(TableFrameDecorator $frame)
     {
         $this->_state = null;
         parent::__construct($frame);
@@ -370,13 +374,11 @@ class Table_Frame_Reflower extends Frame_Reflower
     //........................................................................
 
     /**
-     * @param Block_Frame_Decorator $block
+     * @param BlockFrameDecorator $block
      */
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
-        /**
-         * @var Table_Frame_Decorator
-         */
+        /** @var TableFrameDecorator */
         $frame = $this->_frame;
 
         // Check if a page break is forced

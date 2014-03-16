@@ -6,13 +6,17 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+namespace Dompdf\FrameReflower;
+
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+
 /**
  * Dummy reflower
  *
- * @access private
  * @package dompdf
  */
-class Null_Frame_Reflower extends Frame_Reflower
+class Null extends AbstractFrameReflower
 {
 
     function __construct(Frame $frame)
@@ -20,7 +24,7 @@ class Null_Frame_Reflower extends Frame_Reflower
         parent::__construct($frame);
     }
 
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
         return;
     }

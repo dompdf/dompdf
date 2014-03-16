@@ -6,24 +6,30 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\FontMetrics;
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Text as TextFrameDecorator;
+use Dompdf\Exception;
 
 /**
  * Reflows block frames
  *
- * @access private
  * @package dompdf
  */
-class Block_Frame_Reflower extends Frame_Reflower
+class Block extends AbstractFrameReflower
 {
     // Minimum line width to justify, as fraction of available width
     const MIN_JUSTIFY_WIDTH = 0.80;
 
     /**
-     * @var Block_Frame_Decorator
+     * @var BlockFrameDecorator
      */
     protected $_frame;
 
-    function __construct(Block_Frame_Decorator $frame)
+    function __construct(BlockFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -33,6 +39,7 @@ class Block_Frame_Reflower extends Frame_Reflower
      *  http://www.w3.org/TR/CSS21/visudet.html#Computing_widths_and_margins
      *
      * @param float $width
+     *
      * @return array
      */
     protected function _calculate_width($width)
@@ -148,7 +155,7 @@ class Block_Frame_Reflower extends Frame_Reflower
     /**
      * Call the above function, but resolve max/min widths
      *
-     * @throws DOMPDF_Exception
+     * @throws Exception
      * @return array
      */
     protected function _calculate_restricted_width()
@@ -165,7 +172,7 @@ class Block_Frame_Reflower extends Frame_Reflower
         //  $cb = $frame->find_positionned_parent()->get_containing_block();
 
         if (!isset($cb["w"])) {
-            throw new DOMPDF_Exception("Box property calculation requires containing block width");
+            throw new Exception("Box property calculation requires containing block width");
         }
 
         // Treat width 100% as auto
@@ -397,7 +404,7 @@ class Block_Frame_Reflower extends Frame_Reflower
                     }
 
                     foreach ($line->get_frames() as $frame) {
-                        if ($frame instanceof Block_Frame_Decorator) {
+                        if ($frame instanceof BlockFrameDecorator) {
                             continue;
                         }
                         $frame->set_position($frame->get_position("x") + $line->left);
@@ -412,7 +419,7 @@ class Block_Frame_Reflower extends Frame_Reflower
 
                     foreach ($line->get_frames() as $frame) {
                         // Block frames are not aligned by text-align
-                        if ($frame instanceof Block_Frame_Decorator) {
+                        if ($frame instanceof BlockFrameDecorator) {
                             continue;
                         }
 
@@ -434,12 +441,12 @@ class Block_Frame_Reflower extends Frame_Reflower
                 }
 
                 // One space character's width. Will be used to get a more accurate spacing
-                $space_width = Font_Metrics::get_text_width(" ", $style->font_family, $style->font_size);
+                $space_width = FontMetrics::get_text_width(" ", $style->font_family, $style->font_size);
 
                 foreach ($lines as $line) {
                     if ($line->left) {
                         foreach ($line->get_frames() as $frame) {
-                            if (!$frame instanceof Text_Frame_Decorator) {
+                            if (!$frame instanceof TextFrameDecorator) {
                                 continue;
                             }
 
@@ -460,7 +467,7 @@ class Block_Frame_Reflower extends Frame_Reflower
 
                     $dx = 0;
                     foreach ($line->get_frames() as $frame) {
-                        if (!$frame instanceof Text_Frame_Decorator) {
+                        if (!$frame instanceof TextFrameDecorator) {
                             continue;
                         }
 
@@ -491,7 +498,7 @@ class Block_Frame_Reflower extends Frame_Reflower
 
                     foreach ($line->get_frames() as $frame) {
                         // Block frames are not aligned by text-align
-                        if ($frame instanceof Block_Frame_Decorator) {
+                        if ($frame instanceof BlockFrameDecorator) {
                             continue;
                         }
 
@@ -617,7 +624,7 @@ class Block_Frame_Reflower extends Frame_Reflower
 
             // Remove next frame's beginning whitespace
             $next = $child->get_next_sibling();
-            if ($next && $next instanceof Text_Frame_Decorator) {
+            if ($next && $next instanceof TextFrameDecorator) {
                 $next->set_text(ltrim($next->get_text()));
             }
 
@@ -659,9 +666,9 @@ class Block_Frame_Reflower extends Frame_Reflower
     }
 
     /**
-     * @param Frame_Decorator $block
+     * @param BlockFrameDecorator $block
      */
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
 
         // Check if a page break is forced

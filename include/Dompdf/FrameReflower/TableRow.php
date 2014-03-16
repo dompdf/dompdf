@@ -5,25 +5,28 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Table as TableFrameDecorator;
+use Dompdf\FrameDecorator\TableRow as TableRowFrameDecorator;
+use Dompdf\Exception;
 
 /**
  * Reflows table rows
  *
- * @access private
  * @package dompdf
  */
-class Table_Row_Frame_Reflower extends Frame_Reflower
+class TableRow extends AbstractFrameReflower
 {
-
-
-    function __construct(Table_Row_Frame_Decorator $frame)
+    function __construct(TableRowFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
     //........................................................................
 
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
         $page = $this->_frame->get_root();
 
@@ -47,7 +50,7 @@ class Table_Row_Frame_Reflower extends Frame_Reflower
         if ($page->is_full())
             return;
 
-        $table = Table_Frame_Decorator::find_parent_table($this->_frame);
+        $table = TableFrameDecorator::find_parent_table($this->_frame);
         $cellmap = $table->get_cellmap();
         $style->width = $cellmap->get_frame_width($this->_frame);
         $style->height = $cellmap->get_frame_height($this->_frame);
@@ -60,6 +63,6 @@ class Table_Row_Frame_Reflower extends Frame_Reflower
 
     function get_min_max_width()
     {
-        throw new DOMPDF_Exception("Min/max width is undefined for table rows");
+        throw new Exception("Min/max width is undefined for table rows");
     }
 }

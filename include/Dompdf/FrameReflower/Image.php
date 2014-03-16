@@ -6,22 +6,25 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
 
 /**
  * Image reflower class
  *
- * @access private
  * @package dompdf
  */
-class Image_Frame_Reflower extends Frame_Reflower
+class Image extends AbstractFrameReflower
 {
 
-    function __construct(Image_Frame_Decorator $frame)
+    function __construct(ImageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
         $this->_frame->position();
 
@@ -83,7 +86,7 @@ class Image_Frame_Reflower extends Frame_Reflower
             // Don't set image original size if "%" branch was 0 or size not given.
             // Otherwise aspect changed on %/auto combination for width/height
             // Resample according to px per inch
-            // See also List_Bullet_Image_Frame_Decorator::__construct
+            // See also ListBulletImage::__construct
             $width = $style->length_in_pt($width);
         }
 
@@ -102,7 +105,7 @@ class Image_Frame_Reflower extends Frame_Reflower
             // Don't set image original size if "%" branch was 0 or size not given.
             // Otherwise aspect changed on %/auto combination for width/height
             // Resample according to px per inch
-            // See also List_Bullet_Image_Frame_Decorator::__construct
+            // See also ListBulletImage::__construct
             $height = $style->length_in_pt($height);
         }
 
@@ -112,7 +115,7 @@ class Image_Frame_Reflower extends Frame_Reflower
 
             // don't treat 0 as error. Can be downscaled or can be catched elsewhere if image not readable.
             // Resample according to px per inch
-            // See also List_Bullet_Image_Frame_Decorator::__construct
+            // See also ListBulletImage::__construct
             if ($width == 0 && $height == 0) {
                 $dpi = $this->_frame->get_dompdf()->get_option("dpi");
                 $width = (float)($img_width * 72) / $dpi;

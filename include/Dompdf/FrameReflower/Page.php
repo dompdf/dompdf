@@ -6,14 +6,18 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Page as PageFrameDecorator;
 
 /**
  * Reflows pages
  *
- * @access private
  * @package dompdf
  */
-class Page_Frame_Reflower extends Frame_Reflower
+class Page extends AbstractFrameReflower
 {
 
     /**
@@ -26,11 +30,11 @@ class Page_Frame_Reflower extends Frame_Reflower
     /**
      * Cache of the canvas
      *
-     * @var Canvas
+     * @var \Dompdf\Canvas
      */
     private $_canvas;
 
-    function __construct(Page_Frame_Decorator $frame)
+    function __construct(PageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -79,7 +83,7 @@ class Page_Frame_Reflower extends Frame_Reflower
      * Paged layout:
      * http://www.w3.org/TR/CSS21/page.html
      */
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
         $fixed_children = array();
         $prev_child = null;
@@ -165,7 +169,7 @@ class Page_Frame_Reflower extends Frame_Reflower
      * gets triggered on a page
      *
      * @param string $event the type of event
-     * @param Frame $frame the frame that event is triggered on
+     * @param Frame $frame  the frame that event is triggered on
      */
     protected function _check_callbacks($event, $frame)
     {
@@ -176,8 +180,10 @@ class Page_Frame_Reflower extends Frame_Reflower
         }
 
         if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {
-            $info = array(0 => $this->_canvas, "canvas" => $this->_canvas,
-                1 => $frame, "frame" => $frame);
+            $info = array(
+                0 => $this->_canvas, "canvas" => $this->_canvas,
+                1 => $frame,         "frame"  => $frame,
+            );
             $fs = $this->_callbacks[$event];
             foreach ($fs as $f) {
                 if (is_callable($f)) {

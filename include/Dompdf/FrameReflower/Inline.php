@@ -5,14 +5,18 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 
 /**
  * Reflows inline frames
  *
- * @access private
  * @package dompdf
  */
-class Inline_Frame_Reflower extends Frame_Reflower
+class Inline extends AbstractFrameReflower
 {
 
     function __construct(Frame $frame)
@@ -22,7 +26,7 @@ class Inline_Frame_Reflower extends Frame_Reflower
 
     //........................................................................
 
-    function reflow(Block_Frame_Decorator $block = null)
+    function reflow(BlockFrameDecorator $block = null)
     {
         $frame = $this->_frame;
 
@@ -30,8 +34,9 @@ class Inline_Frame_Reflower extends Frame_Reflower
         $page = $frame->get_root();
         $page->check_forced_page_break($frame);
 
-        if ($page->is_full())
+        if ($page->is_full()) {
             return;
+        }
 
         $style = $frame->get_style();
 
@@ -43,14 +48,14 @@ class Inline_Frame_Reflower extends Frame_Reflower
         $cb = $frame->get_containing_block();
 
         // Add our margin, padding & border to the first and last children
-        if (($f = $frame->get_first_child()) && $f instanceof Text_Frame_Decorator) {
+        if (($f = $frame->get_first_child()) && $f instanceof TextFrameDecorator) {
             $f_style = $f->get_style();
             $f_style->margin_left = $style->margin_left;
             $f_style->padding_left = $style->padding_left;
             $f_style->border_left = $style->border_left;
         }
 
-        if (($l = $frame->get_last_child()) && $l instanceof Text_Frame_Decorator) {
+        if (($l = $frame->get_last_child()) && $l instanceof TextFrameDecorator) {
             $l_style = $l->get_style();
             $l_style->margin_right = $style->margin_right;
             $l_style->padding_right = $style->padding_right;

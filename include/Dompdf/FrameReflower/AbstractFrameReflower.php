@@ -5,6 +5,14 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+namespace Dompdf\FrameReflower;
+
+use Dompdf\Adapter\CPDF;
+use Dompdf\Css\Style;
+use Dompdf\Dompdf;
+use Dompdf\Frame;
+use Dompdf\FrameDecorator\Block;
+use Dompdf\Frame\Factory;
 
 /**
  * Base reflower class
@@ -12,10 +20,9 @@
  * Reflower objects are responsible for determining the width and height of
  * individual frames.  They also create line and page breaks as necessary.
  *
- * @access private
  * @package dompdf
  */
-abstract class Frame_Reflower
+abstract class AbstractFrameReflower
 {
 
     /**
@@ -44,7 +51,7 @@ abstract class Frame_Reflower
     }
 
     /**
-     * @return DOMPDF
+     * @return Dompdf
      */
     function get_dompdf()
     {
@@ -127,7 +134,7 @@ abstract class Frame_Reflower
 
     //........................................................................
 
-    abstract function reflow(Block_Frame_Decorator $block = null);
+    abstract function reflow(Block $block = null);
 
     //........................................................................
 
@@ -435,7 +442,7 @@ abstract class Frame_Reflower
             // add generated content to the font subset
             // FIXME: This is currently too late because the font subset has already been generated.
             //        See notes in issue #750.
-            if ($frame->get_dompdf()->get_option("enable_font_subsetting") && $frame->get_dompdf()->get_canvas() instanceof CPDF_Adapter) {
+            if ($frame->get_dompdf()->get_option("enable_font_subsetting") && $frame->get_dompdf()->get_canvas() instanceof CPDF) {
                 $frame->get_dompdf()->get_canvas()->register_string_subset($style->font_family, $content);
             }
 
@@ -447,7 +454,7 @@ abstract class Frame_Reflower
             $new_frame = new Frame($node);
             $new_frame->set_style($new_style);
 
-            Frame_Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
+            Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
             $frame->append_child($new_frame);
         }
     }
