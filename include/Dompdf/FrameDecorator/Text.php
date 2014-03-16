@@ -27,9 +27,6 @@ class Text extends AbstractFrameDecorator
     // protected members
     protected $_text_spacing;
 
-    // buggy DOMText::splitText (PHP < 5.2.7)
-    public static $_buggy_splittext;
-
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         if (!$frame->is_text_node()) {
@@ -154,17 +151,7 @@ class Text extends AbstractFrameDecorator
             return null;
         }
 
-        if (self::$_buggy_splittext) {
-            // workaround to solve DOMText::spliText() bug parsing multibyte strings
-            $node = $this->_frame->get_node();
-            $txt0 = $node->substringData(0, $offset);
-            $txt1 = $node->substringData($offset, mb_strlen($node->textContent) - 1);
-
-            $node->replaceData(0, mb_strlen($node->textContent), $txt0);
-            $split = $node->parentNode->appendChild(new DOMText($txt1));
-        } else {
-            $split = $this->_frame->get_node()->splitText($offset);
-        }
+        $split = $this->_frame->get_node()->splitText($offset);
 
         $deco = $this->copy($split);
 
@@ -193,5 +180,3 @@ class Text extends AbstractFrameDecorator
     }
 
 }
-
-Text::$_buggy_splittext = PHP_VERSION_ID < 50207;
