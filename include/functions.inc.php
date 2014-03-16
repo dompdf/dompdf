@@ -8,10 +8,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-if (!defined('PHP_VERSION_ID')) {
-    $version = explode('.', PHP_VERSION);
-    define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
-}
+use Dompdf\Exception;
+use Dompdf\LineBox;
 
 /**
  * Defined a constant if not already defined
@@ -98,7 +96,7 @@ if (!function_exists("d")) {
         }
 
         // line
-        if ($mixed instanceof Line_Box) {
+        if ($mixed instanceof LineBox) {
             echo $mixed;
         } // other
         else {
@@ -273,7 +271,7 @@ function explode_url($url)
  *
  * @param int $num
  *
- * @throws DOMPDF_Exception
+ * @throws Exception
  * @return string
  */
 function dec2roman($num)
@@ -285,7 +283,7 @@ function dec2roman($num)
     static $thou = array("", "m", "mm", "mmm");
 
     if (!is_numeric($num)) {
-        throw new DOMPDF_Exception("dec2roman() requires a numeric argument.");
+        throw new Exception("dec2roman() requires a numeric argument.");
     }
 
     if ($num > 4000 || $num < 0) {
@@ -897,14 +895,14 @@ if (!function_exists("date_default_timezone_get")) {
  * @param string $errfile
  * @param string $errline
  *
- * @throws DOMPDF_Exception
+ * @throws Exception
  */
 function record_warnings($errno, $errstr, $errfile, $errline)
 {
 
     // Not a warning or notice
     if (!($errno & (E_WARNING | E_NOTICE | E_USER_NOTICE | E_USER_WARNING))) {
-        throw new DOMPDF_Exception($errstr . " $errno");
+        throw new Exception($errstr . " $errno");
     }
 
     global $_dompdf_warnings;

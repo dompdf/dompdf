@@ -8,6 +8,9 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+use Dompdf\Exception;
+use Dompdf\FontMetrics;
+
 require_once "dompdf_config.inc.php";
 
 /**
@@ -61,14 +64,14 @@ if ( $_SERVER["argc"] < 3 && @$_SERVER["argv"][1] != "system_fonts" ) {
  * @param string $italic      the filename of the italic face font subtype
  * @param string $bold_italic the filename of the bold italic face font subtype
  *
- * @throws DOMPDF_Exception
+ * @throws Exception
  */
 function install_font_family($fontname, $normal, $bold = null, $italic = null, $bold_italic = null) {
-  Font_Metrics::init();
+  FontMetrics::init();
   
   // Check if the base filename is readable
   if ( !is_readable($normal) )
-    throw new DOMPDF_Exception("Unable to read '$normal'.");
+    throw new Exception("Unable to read '$normal'.");
 
   $dir = dirname($normal);
   $basename = basename($normal);
@@ -82,7 +85,7 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   }
 
   if ( !in_array($ext, array(".ttf", ".otf")) ) {
-    throw new DOMPDF_Exception("Unable to process fonts of type '$ext'.");
+    throw new Exception("Unable to process fonts of type '$ext'.");
   }
 
   // Try $file_Bold.$ext etc.
@@ -120,17 +123,17 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
 
     // Verify that the fonts exist and are readable
     if ( !is_readable($src) )
-      throw new DOMPDF_Exception("Requested font '$src' is not readable");
+      throw new Exception("Requested font '$src' is not readable");
 
     $dest = DOMPDF_FONT_DIR . basename($src);
 
     if ( !is_writeable(dirname($dest)) )
-      throw new DOMPDF_Exception("Unable to write to destination '$dest'.");
+      throw new Exception("Unable to write to destination '$dest'.");
 
     echo "Copying $src to $dest...\n";
 
     if ( !copy($src, $dest) )
-      throw new DOMPDF_Exception("Unable to copy '$src' to '$dest'");
+      throw new Exception("Unable to copy '$src' to '$dest'");
     
     $entry_name = mb_substr($dest, 0, -4);
     
@@ -143,15 +146,15 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   }
 
   // Store the fonts in the lookup table
-  Font_Metrics::set_font_family($fontname, $entry);
+  FontMetrics::set_font_family($fontname, $entry);
 
   // Save the changes
-  Font_Metrics::save_font_families();
+  FontMetrics::save_font_families();
 }
 
 // If installing system fonts (may take a long time)
 if ( $_SERVER["argv"][1] === "system_fonts" ) {
-  $fonts = Font_Metrics::get_system_fonts();
+  $fonts = FontMetrics::get_system_fonts();
   
   foreach ( $fonts as $family => $files ) {
     echo " >> Installing '$family'... \n";

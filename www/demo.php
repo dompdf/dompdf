@@ -1,5 +1,8 @@
 <?php
 
+use Dompdf\Adapter\CPDF;
+use Dompdf\Dompdf;
+
 require_once("../dompdf_config.inc.php");
 
 // We check wether the user is accessing the demo locally
@@ -11,7 +14,7 @@ if ( isset( $_POST["html"] ) && $is_local ) {
   if ( get_magic_quotes_gpc() )
     $_POST["html"] = stripslashes($_POST["html"]);
   
-  $dompdf = new DOMPDF();
+  $dompdf = new Dompdf();
   $dompdf->load_html($_POST["html"]);
   $dompdf->set_paper($_POST["paper"], $_POST["orientation"]);
   $dompdf->render();
@@ -36,7 +39,7 @@ PDF: (Note by default, remote stylesheets, images &amp; inline PHP are disabled.
 <p>Paper size and orientation:
 <select name="paper">
 <?php
-foreach ( array_keys(CPDF_Adapter::$PAPER_SIZES) as $size )
+foreach ( array_keys(CPDF::$PAPER_SIZES) as $size )
   echo "<option ". ($size == "letter" ? "selected " : "" ) . "value=\"$size\">$size</option>\n";
 ?>
 </select>

@@ -9,6 +9,10 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+use Dompdf\Adapter\CPDF;
+use Dompdf\Dompdf;
+use Dompdf\Exception;
+
 /**
  * Display command line usage
  */
@@ -143,7 +147,7 @@ switch ( $sapi ) {
   if ( isset($opts["l"]) ) {
     echo "\nUnderstood paper sizes:\n";
 
-    foreach (array_keys(CPDF_Adapter::$PAPER_SIZES) as $size)
+    foreach (array_keys(CPDF::$PAPER_SIZES) as $size)
       echo "  " . mb_strtoupper($size) . "\n";
     exit;
   }
@@ -196,7 +200,7 @@ switch ( $sapi ) {
   if ( isset($_GET["input_file"]) )
     $file = rawurldecode($_GET["input_file"]);
   else
-    throw new DOMPDF_Exception("An input file is required (i.e. input_file _GET variable).");
+    throw new Exception("An input file is required (i.e. input_file _GET variable).");
   
   if ( isset($_GET["paper"]) )
     $paper = rawurldecode($_GET["paper"]);
@@ -223,12 +227,12 @@ switch ( $sapi ) {
   if(($file_parts['protocol'] == '' || $file_parts['protocol'] === 'file://')) {
     $file = realpath($file);
     if ( strpos($file, DOMPDF_CHROOT) !== 0 ) {
-      throw new DOMPDF_Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
+      throw new Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
     }
   }
   
   if($file_parts['protocol'] === 'php://') {
-    throw new DOMPDF_Exception("Permission denied on $file. This script does not allow PHP streams.");
+    throw new Exception("Permission denied on $file. This script does not allow PHP streams.");
   }
   
   $outfile = "dompdf_out.pdf"; # Don't allow them to set the output file
@@ -237,7 +241,7 @@ switch ( $sapi ) {
   break;
 }
 
-$dompdf = new DOMPDF();
+$dompdf = new Dompdf();
 
 if ( $file === "-" ) {
   $str = "";
@@ -267,7 +271,7 @@ if ( $_dompdf_show_warnings ) {
 
 if ( $save_file ) {
 //   if ( !is_writable($outfile) )
-//     throw new DOMPDF_Exception("'$outfile' is not writable.");
+//     throw new Exception("'$outfile' is not writable.");
   if ( strtolower(DOMPDF_PDF_BACKEND) === "gd" )
     $outfile = str_replace(".pdf", ".png", $outfile);
 
@@ -278,7 +282,7 @@ if ( $save_file ) {
   $outfile = realpath(dirname($outfile)) . DIRECTORY_SEPARATOR . basename($outfile);
 
   if ( strpos($outfile, DOMPDF_CHROOT) !== 0 )
-    throw new DOMPDF_Exception("Permission denied.");
+    throw new Exception("Permission denied.");
 
   file_put_contents($outfile, $dompdf->output( array("compress" => 0) ));
   exit(0);

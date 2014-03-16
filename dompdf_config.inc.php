@@ -9,9 +9,11 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-if ( class_exists( 'DOMPDF' , false ) ) { return; }
+if (class_exists('Dompdf\Dompdf', false)) {
+    return;
+}
 
-PHP_VERSION >= 5.0 or die("DOMPDF requires PHP 5.0+");
+PHP_VERSION >= 5.3 or die("DOMPDF requires PHP 5.3+");
 
 /**
  * The root of your DOMPDF installation
@@ -112,7 +114,7 @@ def("DOMPDF_TEMP_DIR", sys_get_temp_dir());
  * should be an absolute path.
  * This is only checked on command line call by dompdf.php, but not by
  * direct class use like:
- * $dompdf = new DOMPDF();	$dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
+ * $dompdf = new Dompdf();	$dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
  */
 def("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
 
@@ -138,14 +140,14 @@ def("DOMPDF_ENABLE_FONTSUBSETTING", false);
  * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class), 'GD' and
  * 'auto'. 'auto' will look for PDFLib and use it if found, or if not it will
  * fall back on CPDF. 'GD' renders PDFs to graphic files. {@link
- * Canvas_Factory} ultimately determines which rendering class to instantiate
+ * CanvasFactory} ultimately determines which rendering class to instantiate
  * based on this setting.
  *
  * Both PDFLib & CPDF rendering backends provide sufficient rendering
  * capabilities for dompdf, however additional features (e.g. object,
  * image and font support, etc.) differ between backends.  Please see
- * {@link PDFLib_Adapter} for more information on the PDFLib backend
- * and {@link CPDF_Adapter} and lib/class.pdf.php for more information
+ * {@link Dompdf\Adapter\PDFLib} for more information on the PDFLib backend
+ * and {@link Dompdf\Adapter\CPDF} and lib/class.pdf.php for more information
  * on CPDF. Also see the documentation for each backend at the links
  * below.
  *
@@ -153,7 +155,7 @@ def("DOMPDF_ENABLE_FONTSUBSETTING", false);
  * CPDF. Several features of CPDF and PDFLib are not supported or do
  * not make any sense when creating image files.  For example,
  * multiple pages are not supported, nor are PDF 'objects'.  Have a
- * look at {@link GD_Adapter} for more information.  GD support is
+ * look at {@link Dompdf\Adapter\GD} for more information.  GD support is
  * experimental, so use it at your own risk.
  *
  * @link http://www.pdflib.com
@@ -274,7 +276,7 @@ def("DOMPDF_ENABLE_JAVASCRIPT", true);
  * Attention!
  * This can be a security risk, in particular in combination with DOMPDF_ENABLE_PHP and
  * allowing remote access to dompdf.php or on allowing remote html code to be passed to
- * $dompdf = new DOMPDF(); $dompdf->load_html(...);
+ * $dompdf = new Dompdf(); $dompdf->load_html(...);
  * This allows anonymous users to download legally doubtful internet content which on
  * tracing back appears to being downloaded by your server, or allows malicious php code
  * in remote html pages to be executed by your server with your account privileges.

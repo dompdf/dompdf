@@ -1,5 +1,7 @@
-<?php 
-include "head.inc"; 
+<?php
+use Dompdf\FontMetrics;
+
+include "head.inc";
 require_once "../dompdf_config.inc.php"; 
 
 function to_bytes($string) {
@@ -33,8 +35,8 @@ function to_bytes($string) {
 <h3 id="installed-fonts">Installed fonts</h3>
 
 <?php 
-Font_Metrics::init();
-$fonts = Font_Metrics::get_font_families();
+FontMetrics::init();
+$fonts = FontMetrics::get_font_families();
 $extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
 ?>
 
