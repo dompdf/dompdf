@@ -18,18 +18,13 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class TableRow extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
-    {
-        parent::__construct($frame);
-    }
-
     //........................................................................
 
-    function position()
+    function position(AbstractFrameDecorator $frame)
     {
 
-        $cb = $this->_frame->get_containing_block();
-        $p = $this->_frame->get_prev_sibling();
+        $cb = $frame->get_containing_block();
+        $p = $frame->get_prev_sibling();
 
         if ($p)
             $y = $p->get_position("y") + $p->get_margin_height();
@@ -37,7 +32,7 @@ class TableRow extends AbstractPositioner
         else
             $y = $cb["y"];
 
-        $this->_frame->set_position($cb["x"], $y);
+        $frame->set_position($cb["x"], $y);
 
     }
 }

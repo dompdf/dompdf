@@ -793,12 +793,12 @@ abstract class AbstractFrameDecorator extends Frame
 
     final function position()
     {
-        $this->_positioner->position();
+        $this->_positioner->position($this);
     }
 
     final function move($offset_x, $offset_y, $ignore_self = false)
     {
-        $this->_positioner->move($offset_x, $offset_y, $ignore_self);
+        $this->_positioner->move($this, $offset_x, $offset_y, $ignore_self);
     }
 
     final function reflow(Block $block = null)
