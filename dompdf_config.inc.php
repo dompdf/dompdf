@@ -23,7 +23,7 @@ define("DOMPDF_DIR", str_replace(DIRECTORY_SEPARATOR, '/', realpath(dirname(__FI
 /**
  * The location of the DOMPDF include directory
  */
-define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
+define("DOMPDF_INC_DIR", DOMPDF_DIR . "/src");
 
 /**
  * The location of the DOMPDF lib directory

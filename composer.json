@@ -19,9 +19,8 @@
         }
     ],
     "autoload": {
-        "classmap": ["include/"],
         "psr-0" : {
-            "Dompdf" : "include/"
+            "Dompdf" : "src/"
         }
     },
     "require": {

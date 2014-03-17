@@ -84,7 +84,7 @@ file:
 ```json
 {
   "require" : {
-    "dompdf/dompdf" : "0.6.*"
+    "dompdf/dompdf" : "0.7.*"
   }
 }
 ```
