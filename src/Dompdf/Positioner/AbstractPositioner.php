@@ -21,31 +21,17 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 abstract class AbstractPositioner
 {
 
-    /**
-     * @var \Dompdf\FrameDecorator\AbstractFrameDecorator
-     */
-    protected $_frame;
+    abstract function position(AbstractFrameDecorator $frame);
 
-    //........................................................................
-
-    function __construct(AbstractFrameDecorator $frame)
+    function move(AbstractFrameDecorator $frame, $offset_x, $offset_y, $ignore_self = false)
     {
-        $this->_frame = $frame;
-    }
-
-    //........................................................................
-
-    abstract function position();
-
-    function move($offset_x, $offset_y, $ignore_self = false)
-    {
-        list($x, $y) = $this->_frame->get_position();
+        list($x, $y) = $frame->get_position();
 
         if (!$ignore_self) {
-            $this->_frame->set_position($x + $offset_x, $y + $offset_y);
+            $frame->set_position($x + $offset_x, $y + $offset_y);
         }
 
-        foreach ($this->_frame->get_children() as $child) {
+        foreach ($frame->get_children() as $child) {
             $child->move($offset_x, $offset_y);
         }
     }
