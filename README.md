@@ -57,7 +57,7 @@ for more information on how to use fonts.
 
 The [DejaVu TrueType fonts](http://dejavu-fonts.org) have been pre-installed to
 give dompdf decent Unicode character coverage by default. To use the DejaVu
-fonts reference the font in your stylesheet, e.g. `body { font-family: Deja Vu
+fonts reference the font in your stylesheet, e.g. `body { font-family: DejaVu
 Sans; }` (for DejaVu Sans).
 
 Easy Installation
