@@ -51,7 +51,7 @@ class Cache
      */
     static function resolve_url($url, $protocol, $host, $base_path, Dompdf $dompdf)
     {
-        $parsed_url = Helpers::explodeUrl($url);
+        $parsed_url = Helpers::explode_url($url);
         $message = null;
 
         $remote = ($protocol && $protocol !== "file://") || ($parsed_url['protocol'] != "");
@@ -69,7 +69,7 @@ class Cache
             else {
                 if ($enable_remote && $remote || $data_uri) {
                     // Download remote files to a temporary directory
-                    $full_url = build_url($protocol, $host, $base_path, $url);
+                    $full_url = Helpers::build_url($protocol, $host, $base_path, $url);
 
                     // From cache
                     if (isset(self::$_cache[$full_url])) {
@@ -81,11 +81,11 @@ class Cache
                         $image = "";
 
                         if ($data_uri) {
-                            if ($parsed_data_uri = parse_data_uri($url)) {
+                            if ($parsed_data_uri = Helpers::parse_data_uri($url)) {
                                 $image = $parsed_data_uri['data'];
                             }
                         } else {
-                            set_error_handler("record_warnings");
+                            set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
                             $image = file_get_contents($full_url);
                             restore_error_handler();
                         }
@@ -106,7 +106,7 @@ class Cache
                     }
                 } // Not remote, local image
                 else {
-                    $resolved_url = build_url($protocol, $host, $base_path, $url);
+                    $resolved_url = Helpers::build_url($protocol, $host, $base_path, $url);
                 }
             }
 
@@ -115,7 +115,7 @@ class Cache
                 throw new ImageException("Image not readable or empty");
             } // Check is the file is an image
             else {
-                list($width, $height, $type) = dompdf_getimagesize($resolved_url);
+                list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url);
 
                 // Known image type
                 if ($width && $height && in_array(
@@ -164,7 +164,7 @@ class Cache
 
     static function detect_type($file)
     {
-        list(, , $type) = dompdf_getimagesize($file);
+        list(, , $type) = Helpers::dompdf_getimagesize($file);
 
         return $type;
     }

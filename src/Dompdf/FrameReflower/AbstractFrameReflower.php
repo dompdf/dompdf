@@ -10,6 +10,7 @@ namespace Dompdf\FrameReflower;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Css\Style;
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block;
 use Dompdf\Frame\Factory;
@@ -212,7 +213,7 @@ abstract class AbstractFrameReflower
         // Use specified width if it is greater than the minimum defined by the
         // content.  If the width is a percentage ignore it for now.
         $width = $style->width;
-        if ($width !== "auto" && !is_percent($width)) {
+        if ($width !== "auto" && !Helpers::is_percent($width)) {
             $width = $style->length_in_pt($width, $cb_w);
             if ($min < $width) $min = $width;
             if ($max < $width) $max = $width;
@@ -245,7 +246,7 @@ abstract class AbstractFrameReflower
         // Convert escaped hex characters into ascii characters (e.g. \A => newline)
         $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
             create_function('$matches',
-                'return unichr(hexdec($matches[1]));'),
+                'return \\Dompdf\\Helpers::unichr(hexdec($matches[1]));'),
             $string);
         return $string;
     }

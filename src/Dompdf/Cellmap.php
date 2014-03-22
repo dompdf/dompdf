@@ -643,7 +643,7 @@ class Cellmap
             $width = $style->width;
 
             $val = null;
-            if (is_percent($width)) {
+            if (Helpers::is_percent($width)) {
                 $var = "percent";
                 $val = (float)rtrim($width, "% ") / $colspan;
             } else if ($width !== "auto") {

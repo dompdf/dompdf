@@ -5,7 +5,7 @@ namespace Dompdf\FrameDecorator;
 use DOMElement;
 use DOMNode;
 use DOMText;
-
+use Dompdf\Helpers;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\Frame\FrameTreeList;
@@ -749,10 +749,10 @@ abstract class AbstractFrameDecorator extends Frame
                 return str_pad($value, 2, "0");
 
             case "lower-roman":
-                return dec2roman($value);
+                return Helpers::dec2roman($value);
 
             case "upper-roman":
-                return mb_strtoupper(dec2roman($value));
+                return mb_strtoupper(Helpers::dec2roman($value));
 
             case "lower-latin":
             case "lower-alpha":
@@ -763,10 +763,10 @@ abstract class AbstractFrameDecorator extends Frame
                 return chr(($value % 26) + ord('A') - 1);
 
             case "lower-greek":
-                return unichr($value + 944);
+                return Helpers::unichr($value + 944);
 
             case "upper-greek":
-                return unichr($value + 912);
+                return Helpers::unichr($value + 912);
         }
     }
 

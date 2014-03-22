@@ -907,11 +907,11 @@ class PDFLib implements Canvas
                 $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} destname=" . substr($url, 1) . " linewidth=0");
         } else {
 
-            list($proto, $host, $path, $file) = Helpers::explodeUrl($url);
+            list($proto, $host, $path, $file) = Helpers::explode_url($url);
 
             if ($proto == "" || $proto === "file://")
                 return; // Local links are not allowed
-            $url = build_url($proto, $host, $path, $file);
+            $url = Helpers::build_url($proto, $host, $path, $file);
             $url = '{' . rawurldecode($url) . '}';
 
             $action = $this->_pdf->create_action("URI", "url=" . $url);

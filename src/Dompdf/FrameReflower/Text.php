@@ -144,7 +144,7 @@ class Text extends AbstractFrameReflower
         $offset = mb_strlen($str);
 
 // More debugging:
-//     pre_var_dump($str);
+//     Helpers::pre_var_dump($str);
 //     Helpers::pre_r("Width: ". $width);
 //     Helpers::pre_r("Offset: " . $offset);
 

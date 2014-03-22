@@ -1547,7 +1547,7 @@ class Style
             $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = Helpers::explodeUrl($val);
+            $parsed_url = Helpers::explode_url($val);
             if ($parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "") {
                 if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
                     $path = $_SERVER["DOCUMENT_ROOT"] . '/';
@@ -1562,7 +1562,7 @@ class Style
                     $path = 'none';
                 }
             } else {
-                $path = build_url($this->_stylesheet->get_protocol(),
+                $path = Helpers::build_url($this->_stylesheet->get_protocol(),
                     $this->_stylesheet->get_host(),
                     $this->_stylesheet->get_base_path(),
                     $val);

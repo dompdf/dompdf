@@ -276,7 +276,7 @@ if ( $save_file ) {
   if ( strtolower(DOMPDF_PDF_BACKEND) === "gd" )
     $outfile = str_replace(".pdf", ".png", $outfile);
 
-  list($proto, $host, $path, $file) = Helpers::explodeUrl($outfile);
+  list($proto, $host, $path, $file) = Helpers::explode_url($outfile);
   if ( $proto != "" ) // i.e. not file://
     $outfile = $file; // just save it locally, FIXME? could save it like wget: ./host/basepath/file
 

@@ -8,6 +8,7 @@
  */
 namespace Dompdf\Renderer;
 
+use Dompdf\Helpers;
 use Dompdf\FontMetrics;
 use Dompdf\Frame;
 use Dompdf\Image\Cache;
@@ -58,7 +59,7 @@ class ListBullet extends AbstractRenderer
 
             case "lower-greek":
                 for ($i = 0; $i < 24; $i++) {
-                    $text .= unichr($i + 944);
+                    $text .= Helpers::unichr($i + 944);
                 }
                 break;
         }
@@ -108,11 +109,11 @@ class ListBullet extends AbstractRenderer
                 $uppercase = true;
             case "lower-roman":
             case "i":
-                $text = dec2roman($n);
+                $text = Helpers::dec2roman($n);
                 break;
 
             case "lower-greek":
-                $text = unichr($n + 944);
+                $text = Helpers::unichr($n + 944);
                 break;
         }
 
@@ -152,7 +153,7 @@ class ListBullet extends AbstractRenderer
             // Tested php ver: value measured in px, suffix "px" not in value: rtrim unnecessary.
             //$w = $frame->get_width();
             //$h = $frame->get_height();
-            list($width, $height) = dompdf_getimagesize($img);
+            list($width, $height) = Helpers::dompdf_getimagesize($img);
             $dpi = $this->_dompdf->get_option("dpi");
             $w = ((float)rtrim($width, "px") * 72) / $dpi;
             $h = ((float)rtrim($height, "px") * 72) / $dpi;

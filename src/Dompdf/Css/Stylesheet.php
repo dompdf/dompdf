@@ -147,7 +147,7 @@ class Stylesheet
         $this->_dompdf = $dompdf;
         $this->_styles = array();
         $this->_loaded_files = array();
-        list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explodeUrl($_SERVER["SCRIPT_FILENAME"]);
+        list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explode_url($_SERVER["SCRIPT_FILENAME"]);
         $this->_page_styles = array("base" => null);
     }
 
@@ -316,10 +316,10 @@ class Stylesheet
         $this->_loaded_files[$file] = true;
 
         if (strpos($file, "data:") === 0) {
-            $parsed = parse_data_uri($file);
+            $parsed = Helpers::parse_data_uri($file);
             $css = $parsed["data"];
         } else {
-            $parsed_url = Helpers::explodeUrl($file);
+            $parsed_url = Helpers::explode_url($file);
 
             list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
@@ -327,10 +327,10 @@ class Stylesheet
             if ($this->_protocol == "") {
                 $file = $this->_base_path . $filename;
             } else {
-                $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
+                $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
             }
 
-            set_error_handler("record_warnings");
+            set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
             $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
             restore_error_handler();
 
@@ -348,7 +348,7 @@ class Stylesheet
             }
 
             if (!$good_mime_type || $css == "") {
-                record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
                 return;
             }
         }
@@ -843,7 +843,7 @@ class Stylesheet
             // Retrieve the nodes, limit to body for generated content
             $nodes = @$xp->query('.' . $query["query"]);
             if ($nodes == null) {
-                record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                 continue;
             }
 
@@ -875,7 +875,7 @@ class Stylesheet
             // Retrieve the nodes
             $nodes = @$xp->query($query["query"]);
             if ($nodes == null) {
-                record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                 continue;
             }
 
@@ -1165,7 +1165,7 @@ class Stylesheet
             $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = Helpers::explodeUrl($val);
+            $parsed_url = Helpers::explode_url($val);
             if ($parsed_url["protocol"] == "" && $this->get_protocol() == "") {
                 if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
                     $path = $_SERVER["DOCUMENT_ROOT"] . '/';
@@ -1181,7 +1181,7 @@ class Stylesheet
                     $path = 'none';
                 }
             } else {
-                $path = build_url($this->get_protocol(),
+                $path = Helpers::build_url($this->get_protocol(),
                     $this->get_host(),
                     $this->get_base_path(),
                     $val);
@@ -1234,7 +1234,7 @@ class Stylesheet
 
             // $url = str_replace(array('"',"url", "(", ")"), "", $url);
             // If the protocol is php, assume that we will import using file://
-            // $url = build_url($protocol == "php://" ? "file://" : $protocol, $host, $path, $url);
+            // $url = Helpers::build_url($protocol == "php://" ? "file://" : $protocol, $host, $path, $url);
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
@@ -1271,7 +1271,7 @@ class Stylesheet
                 "local" => strtolower($src[1][$i]) === "local",
                 "uri" => $src[2][$i],
                 "format" => $src[4][$i],
-                "path" => build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
+                "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
             );
 
             if (!$source["local"] && in_array($source["format"], array("", "woff", "opentype", "truetype"))) {

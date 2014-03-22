@@ -11,6 +11,7 @@ namespace Dompdf\Adapter;
 use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\Image\Cache;
+use Dompdf\Helpers;
 
 /**
  * Image rendering interface
@@ -232,7 +233,7 @@ class GD implements Canvas
     {
 
         if (isset($color["c"])) {
-            $color = cmyk_to_rgb($color);
+            $color = Helpers::cmyk_to_rgb($color);
         }
 
         // Full opacity if no alpha set
