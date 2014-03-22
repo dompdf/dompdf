@@ -877,9 +877,9 @@ class Cellmap
     {
         $str = "";
         $str .= "Columns:<br/>";
-        $str .= pre_r($this->_columns, true);
+        $str .= Helpers::pre_r($this->_columns, true);
         $str .= "Rows:<br/>";
-        $str .= pre_r($this->_rows, true);
+        $str .= Helpers::pre_r($this->_rows, true);
 
         $str .= "Frames:<br/>";
         $arr = array();
@@ -887,7 +887,7 @@ class Cellmap
             $arr[$key] = array("columns" => $val["columns"], "rows" => $val["rows"]);
         }
 
-        $str .= pre_r($arr, true);
+        $str .= Helpers::pre_r($arr, true);
 
         if (php_sapi_name() == "cli") {
             $str = strip_tags(str_replace(array("<br/>", "<b>", "</b>"),

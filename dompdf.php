@@ -11,6 +11,7 @@
 
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Exception;
 
 /**
@@ -275,7 +276,7 @@ if ( $save_file ) {
   if ( strtolower(DOMPDF_PDF_BACKEND) === "gd" )
     $outfile = str_replace(".pdf", ".png", $outfile);
 
-  list($proto, $host, $path, $file) = explode_url($outfile);
+  list($proto, $host, $path, $file) = Helpers::explodeUrl($outfile);
   if ( $proto != "" ) // i.e. not file://
     $outfile = $file; // just save it locally, FIXME? could save it like wget: ./host/basepath/file
 

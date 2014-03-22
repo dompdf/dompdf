@@ -212,50 +212,17 @@ class Dompdf
         "symbol", "zapfdinbats"
     );
 
-    private $_options = array(
-        // Directories
-        "temp_dir" => DOMPDF_TEMP_DIR,
-        "font_dir" => DOMPDF_FONT_DIR,
-        "font_cache" => DOMPDF_FONT_CACHE,
-        "chroot" => DOMPDF_CHROOT,
-        "log_output_file" => DOMPDF_LOG_OUTPUT_FILE,
-
-        // Rendering
-        "default_media_type" => DOMPDF_DEFAULT_MEDIA_TYPE,
-        "default_paper_size" => DOMPDF_DEFAULT_PAPER_SIZE,
-        "default_font" => DOMPDF_DEFAULT_FONT,
-        "dpi" => DOMPDF_DPI,
-        "font_height_ratio" => DOMPDF_FONT_HEIGHT_RATIO,
-
-        // Features
-        "enable_unicode" => DOMPDF_UNICODE_ENABLED,
-        "enable_php" => DOMPDF_ENABLE_PHP,
-        "enable_remote" => DOMPDF_ENABLE_REMOTE,
-        "enable_css_float" => DOMPDF_ENABLE_CSS_FLOAT,
-        "enable_javascript" => DOMPDF_ENABLE_JAVASCRIPT,
-        "enable_html5_parser" => DOMPDF_ENABLE_HTML5PARSER,
-        "enable_font_subsetting" => DOMPDF_ENABLE_FONTSUBSETTING,
-
-        // Debug
-        "debug_png" => DEBUGPNG,
-        "debug_keep_temp" => DEBUGKEEPTEMP,
-        "debug_css" => DEBUGCSS,
-        "debug_layout" => DEBUG_LAYOUT,
-        "debug_layout_lines" => DEBUG_LAYOUT_LINES,
-        "debug_layout_blocks" => DEBUG_LAYOUT_BLOCKS,
-        "debug_layout_inline" => DEBUG_LAYOUT_INLINE,
-        "debug_layout_padding_box" => DEBUG_LAYOUT_PADDINGBOX,
-
-        // Admin
-        "admin_username" => DOMPDF_ADMIN_USERNAME,
-        "admin_password" => DOMPDF_ADMIN_PASSWORD,
-    );
+    /**
+     * @var Options
+     */
+    private $options;
 
     /**
      * Class constructor
      */
     public function __construct()
     {
+        $this->setOptions(new Options);
         $this->_locale_standard = sprintf('%.1f', 1.0) == '1.0';
 
         $this->save_locale();
@@ -263,7 +230,7 @@ class Dompdf
         $this->_messages = array();
         $this->_css = new Stylesheet($this);
         $this->_pdf = null;
-        $this->_paper_size = DOMPDF_DEFAULT_PAPER_SIZE;
+        $this->_paper_size = $this->options->getDefaultPaperSize();
         $this->_paper_orientation = "portrait";
         $this->_base_protocol = "";
         $this->_base_host = "";
@@ -279,40 +246,30 @@ class Dompdf
      * Get the dompdf option value
      *
      * @param string $key
-     * @throws Exception
      * @return mixed
      */
     public function get_option($key)
     {
-        if (!array_key_exists($key, $this->_options)) {
-            throw new Exception("Option '$key' doesn't exist");
-        }
-
-        return $this->_options[$key];
+        return $this->options->get($key);
     }
 
     /**
      * @param string $key
      * @param mixed $value
-     * @throws Exception
+     * @return $this
      */
     public function set_option($key, $value)
     {
-        if (!array_key_exists($key, $this->_options)) {
-            throw new Exception("Option '$key' doesn't exist");
-        }
-
-        $this->_options[$key] = $value;
+        return $this->options->set($key, $value);
     }
 
     /**
      * @param array $options
+     * @return $this
      */
     public function set_options(array $options)
     {
-        foreach ($options as $key => $value) {
-            $this->set_option($key, $value);
-        }
+        return $this->options->set($options);
     }
 
     /**
@@ -483,6 +440,15 @@ class Dompdf
     }
 
     /**
+     * @param $file
+     * @deprecated
+     */
+    public function load_html_file($file)
+    {
+        $this->loadHtmlFile($file);
+    }
+
+    /**
      * Loads an HTML file
      * Parse errors are stored in the global array _dompdf_warnings.
      *
@@ -490,7 +456,7 @@ class Dompdf
      *
      * @throws Exception
      */
-    public function load_html_file($file)
+    public function loadHtmlFile($file)
     {
         $this->save_locale();
 
@@ -498,7 +464,7 @@ class Dompdf
         // browser if the html is ugly and the dom extension complains,
         // preventing the pdf from being streamed.)
         if (!$this->_protocol && !$this->_base_host && !$this->_base_path) {
-            list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
+            list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explodeUrl($file);
         }
 
         if (!$this->get_option("enable_remote") && ($this->_protocol != "" && $this->_protocol !== "file://")) {
@@ -541,7 +507,17 @@ class Dompdf
 
         $this->restore_locale();
 
-        $this->load_html($contents, $encoding);
+        $this->loadHtml($contents, $encoding);
+    }
+
+    /**
+     * @param $str
+     * @param null $encoding
+     * @deprecated
+     */
+    public function load_html($str, $encoding = null)
+    {
+        $this->loadHtml($str, $encoding);
     }
 
     /**
@@ -552,7 +528,7 @@ class Dompdf
      * @param string $str HTML text to load
      * @param string $encoding Not used yet
      */
-    public function load_html($str, $encoding = null)
+    public function loadHtml($str, $encoding = null)
     {
         $this->save_locale();
 
@@ -707,7 +683,7 @@ class Dompdf
     {
         $this->_tree->build_tree();
 
-        $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET, Stylesheet::ORIG_UA);
+        $this->_css->load_css_file(Stylesheet::getDefaultStylesheet(), Stylesheet::ORIG_UA);
 
         $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
         $acceptedmedia[] = $this->get_option("default_media_type");
@@ -715,7 +691,7 @@ class Dompdf
         // <base href="" />
         $base_nodes = $this->_xml->getElementsByTagName("base");
         if ($base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href"))) {
-            list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($href);
+            list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explodeUrl($href);
         }
 
         // Set the base path of the Stylesheet to that of the file being processed
@@ -1121,5 +1097,23 @@ class Dompdf
     public function output_html()
     {
         return $this->_xml->saveHTML();
+    }
+
+    /**
+     * @param Options $options
+     * @return $this
+     */
+    public function setOptions(Options $options)
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
+     * @return Options
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 }

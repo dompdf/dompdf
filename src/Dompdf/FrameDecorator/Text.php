@@ -61,13 +61,13 @@ class Text extends AbstractFrameDecorator
 //      $this->_frame->get_style()->content = "normal";
 //    }
 
-//      pre_r("---");
+//      Helpers::pre_r("---");
 //      $style = $this->_frame->get_style();
 //      var_dump($text = $this->_frame->get_node()->data);
 //      var_dump($asc = utf8_decode($text));
 //      for ($i = 0; $i < strlen($asc); $i++)
-//        pre_r("$i: " . $asc[$i] . " - " . ord($asc[$i]));
-//      pre_r("width: " . FontMetrics::get_text_width($text, $style->font_family, $style->font_size));
+//        Helpers::pre_r("$i: " . $asc[$i] . " - " . ord($asc[$i]));
+//      Helpers::pre_r("width: " . FontMetrics::get_text_width($text, $style->font_family, $style->font_size));
 
         return $this->_frame->get_node()->data;
     }
@@ -92,11 +92,11 @@ class Text extends AbstractFrameDecorator
         $size = $style->font_size;
 
         /*
-        pre_r('-----');
-        pre_r($style->line_height);
-        pre_r($style->font_size);
-        pre_r(FontMetrics::get_font_height($font, $size));
-        pre_r(($style->line_height / $size) * FontMetrics::get_font_height($font, $size));
+        Helpers::pre_r('-----');
+        Helpers::pre_r($style->line_height);
+        Helpers::pre_r($style->font_size);
+        Helpers::pre_r(FontMetrics::get_font_height($font, $size));
+        Helpers::pre_r(($style->line_height / $size) * FontMetrics::get_font_height($font, $size));
         */
 
         return ($style->line_height / ($size > 0 ? $size : 1)) * FontMetrics::get_font_height($font, $size);

@@ -1,15 +1,15 @@
 <?php
 namespace Dompdf\Tests;
 
-use Dompdf\Option;
+use Dompdf\Options;
 use PHPUnit_Framework_TestCase;
 
-class OptionTest extends PHPUnit_Framework_TestCase
+class OptionsTest extends PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
         $root = realpath(__DIR__ . "/../../..");
-        $option = new Option();
+        $option = new Options();
         $this->assertEquals(sys_get_temp_dir(), $option->getTempDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontCache());
@@ -38,13 +38,13 @@ class OptionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('user', $option->getAdminUsername());
         $this->assertEquals('password', $option->getAdminPassword());
 
-        $option = new Option(array('tempDir' => 'test1'));
+        $option = new Options(array('tempDir' => 'test1'));
         $this->assertEquals('test1', $option->getTempDir());
     }
 
     public function testSetters()
     {
-        $option = new Option();
+        $option = new Options();
         $option->set(array(
             'tempDir' => 'test1',
             'fontDir' => 'test2',

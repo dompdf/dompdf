@@ -10,4 +10,10 @@ class DompdfTest extends PHPUnit_Framework_TestCase
     {
         new Dompdf();
     }
+
+    public function testLoadHtml()
+    {
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml('<strong>Hello</strong>');
+    }
 }

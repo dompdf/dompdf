@@ -1,7 +1,7 @@
 <?php
 namespace Dompdf;
 
-class Option
+class Options
 {
     /**
      * @var string

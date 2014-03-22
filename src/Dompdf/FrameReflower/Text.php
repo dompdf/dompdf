@@ -79,15 +79,15 @@ class Text extends AbstractFrameReflower
         $frame_width = $text_width + $mbp_width;
 
 // Debugging:
-//    pre_r("Text: '" . htmlspecialchars($text). "'");
-//    pre_r("width: " .$frame_width);
-//    pre_r("textwidth + delta: $text_width + $mbp_width");
-//    pre_r("font-size: $size");
-//    pre_r("cb[w]: " .$line_width);
-//    pre_r("available width: " . $available_width);
-//    pre_r("current line width: " . $current_line_width);
+//    Helpers::pre_r("Text: '" . htmlspecialchars($text). "'");
+//    Helpers::pre_r("width: " .$frame_width);
+//    Helpers::pre_r("textwidth + delta: $text_width + $mbp_width");
+//    Helpers::pre_r("font-size: $size");
+//    Helpers::pre_r("cb[w]: " .$line_width);
+//    Helpers::pre_r("available width: " . $available_width);
+//    Helpers::pre_r("current line width: " . $current_line_width);
 
-//     pre_r($words);
+//     Helpers::pre_r($words);
 
         if ($frame_width <= $available_width)
             return false;
@@ -145,8 +145,8 @@ class Text extends AbstractFrameReflower
 
 // More debugging:
 //     pre_var_dump($str);
-//     pre_r("Width: ". $width);
-//     pre_r("Offset: " . $offset);
+//     Helpers::pre_r("Width: ". $width);
+//     Helpers::pre_r("Offset: " . $offset);
 
         return $offset;
 

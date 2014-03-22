@@ -10,6 +10,7 @@
 namespace Dompdf\Image;
 
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Exception\ImageException;
 
 /**
@@ -50,7 +51,7 @@ class Cache
      */
     static function resolve_url($url, $protocol, $host, $base_path, Dompdf $dompdf)
     {
-        $parsed_url = explode_url($url);
+        $parsed_url = Helpers::explodeUrl($url);
         $message = null;
 
         $remote = ($protocol && $protocol !== "file://") || ($parsed_url['protocol'] != "");

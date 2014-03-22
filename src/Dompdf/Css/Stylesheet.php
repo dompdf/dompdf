@@ -10,17 +10,11 @@
 namespace Dompdf\Css;
 
 use DOMXPath;
-
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Frame\FrameTree;
-
-/**
- * The location of the default built-in CSS file.
- * {@link Stylesheet::DEFAULT_STYLESHEET}
- */
-define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "html.css");
 
 /**
  * The master stylesheet class
@@ -35,11 +29,10 @@ define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . DIRECTORY_SEPARATOR . "res" . DI
  */
 class Stylesheet
 {
-
     /**
      * The location of the default built-in CSS file.
      */
-    const DEFAULT_STYLESHEET = __DEFAULT_STYLESHEET;
+    const DEFAULT_STYLESHEET = "/lib/res/html.css";
 
     /**
      * User agent stylesheet origin
@@ -154,7 +147,7 @@ class Stylesheet
         $this->_dompdf = $dompdf;
         $this->_styles = array();
         $this->_loaded_files = array();
-        list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($_SERVER["SCRIPT_FILENAME"]);
+        list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explodeUrl($_SERVER["SCRIPT_FILENAME"]);
         $this->_page_styles = array("base" => null);
     }
 
@@ -326,7 +319,7 @@ class Stylesheet
             $parsed = parse_data_uri($file);
             $css = $parsed["data"];
         } else {
-            $parsed_url = explode_url($file);
+            $parsed_url = Helpers::explodeUrl($file);
 
             list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
@@ -905,7 +898,7 @@ class Stylesheet
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
         foreach ($tree->get_frames() as $frame) {
-            // pre_r($frame->get_node()->nodeName . ":");
+            // Helpers::pre_r($frame->get_node()->nodeName . ":");
             if (!$root_flg && $this->_page_styles["base"]) {
                 $style = $this->_page_styles["base"];
                 $root_flg = true;
@@ -1001,7 +994,7 @@ class Stylesheet
             }
 
             /*DEBUGCSS print: see below different print debugging method
-            pre_r($frame->get_node()->nodeName . ":");
+            Helpers::pre_r($frame->get_node()->nodeName . ":");
             echo "<pre>";
             echo $style;
             echo "</pre>";*/
@@ -1070,7 +1063,7 @@ class Stylesheet
         // [6] => '{', within media rules
         // [7] => individual rules, outside of media rules
         //
-        //pre_r($matches);
+        //Helpers::pre_r($matches);
         foreach ($matches as $match) {
             $match[2] = trim($match[2]);
 
@@ -1172,7 +1165,7 @@ class Stylesheet
             $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = explode_url($val);
+            $parsed_url = Helpers::explodeUrl($val);
             if ($parsed_url["protocol"] == "" && $this->get_protocol() == "") {
                 if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
                     $path = $_SERVER["DOCUMENT_ROOT"] . '/';
@@ -1448,5 +1441,11 @@ class Stylesheet
         }
 
         return $str;
+    }
+
+    public static function getDefaultStylesheet()
+    {
+        $dir = realpath(__DIR__ . "/../../..");
+        return $dir . self::DEFAULT_STYLESHEET;
     }
 }

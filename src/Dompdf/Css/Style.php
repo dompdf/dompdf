@@ -11,6 +11,7 @@ namespace Dompdf\Css;
 
 use Dompdf\Adapter\CPDF;
 use Dompdf\Exception;
+use Dompdf\Helpers;
 use Dompdf\FontMetrics;
 use Dompdf\Frame;
 
@@ -1546,7 +1547,7 @@ class Style
             $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = explode_url($val);
+            $parsed_url = Helpers::explodeUrl($val);
             if ($parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "") {
                 if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
                     $path = $_SERVER["DOCUMENT_ROOT"] . '/';

@@ -143,18 +143,18 @@ class Block extends AbstractFrameDecorator
 
         // Debugging code:
         /*
-        pre_r("\n<h3>Adding frame to line:</h3>");
+        Helpers::pre_r("\n<h3>Adding frame to line:</h3>");
 
-        //    pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
-        //    pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
+        //    Helpers::pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
+        //    Helpers::pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
         if ( $frame->is_text_node() )
-          pre_r('"'.$frame->get_node()->nodeValue.'"');
+          Helpers::pre_r('"'.$frame->get_node()->nodeValue.'"');
 
-        pre_r("Line width: " . $this->_line_boxes[$this->_cl]->w);
-        pre_r("Frame: " . get_class($frame));
-        pre_r("Frame width: "  . $w);
-        pre_r("Frame height: " . $frame->get_margin_height());
-        pre_r("Containing block width: " . $this->get_containing_block("w"));
+        Helpers::pre_r("Line width: " . $this->_line_boxes[$this->_cl]->w);
+        Helpers::pre_r("Frame: " . get_class($frame));
+        Helpers::pre_r("Frame width: "  . $w);
+        Helpers::pre_r("Frame height: " . $frame->get_margin_height());
+        Helpers::pre_r("Containing block width: " . $this->get_containing_block("w"));
         */
         // End debugging
 
