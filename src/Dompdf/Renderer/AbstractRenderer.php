@@ -13,6 +13,7 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Css\Color;
 use Dompdf\Css\Style;
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Frame;
 use Dompdf\Image\Cache;
 
@@ -110,7 +111,7 @@ abstract class AbstractRenderer
         //Therefore read dimension directly from file, instead of creating gd object first.
         //$img_w = imagesx($src); $img_h = imagesy($src);
 
-        list($img_w, $img_h) = dompdf_getimagesize($img);
+        list($img_w, $img_h) = Helpers::dompdf_getimagesize($img);
         if (!isset($img_w) || $img_w == 0 || !isset($img_h) || $img_h == 0) {
             return;
         }
@@ -127,7 +128,7 @@ abstract class AbstractRenderer
 
         list($bg_x, $bg_y) = $style->background_position;
 
-        if (is_percent($bg_x)) {
+        if (Helpers::is_percent($bg_x)) {
             // The point $bg_x % from the left edge of the image is placed
             // $bg_x % from the left edge of the background rectangle
             $p = ((float)$bg_x) / 100.0;
@@ -141,7 +142,7 @@ abstract class AbstractRenderer
 
         $bg_x = round($bg_x + $style->length_in_pt($style->border_left_width) * $dpi / 72);
 
-        if (is_percent($bg_y)) {
+        if (Helpers::is_percent($bg_y)) {
             // The point $bg_y % from the left edge of the image is placed
             // $bg_y % from the left edge of the background rectangle
             $p = ((float)$bg_y) / 100.0;

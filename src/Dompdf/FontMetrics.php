@@ -12,8 +12,6 @@ namespace Dompdf;
 
 use Font;
 
-require_once DOMPDF_LIB_DIR . "/class.pdf.php";
-
 /**
  * Name of the font cache file
  *

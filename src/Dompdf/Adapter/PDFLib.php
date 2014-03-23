@@ -11,10 +11,11 @@ namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Image\Cache;
-use Dompdf\PHPEvaluator;
+use Dompdf\PhpEvaluator;
 
 /**
  * PDF rendering interface
@@ -906,11 +907,11 @@ class PDFLib implements Canvas
                 $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} destname=" . substr($url, 1) . " linewidth=0");
         } else {
 
-            list($proto, $host, $path, $file) = explode_url($url);
+            list($proto, $host, $path, $file) = Helpers::explode_url($url);
 
             if ($proto == "" || $proto === "file://")
                 return; // Local links are not allowed
-            $url = build_url($proto, $host, $path, $file);
+            $url = Helpers::build_url($proto, $host, $path, $file);
             $url = '{' . rawurldecode($url) . '}';
 
             $action = $this->_pdf->create_action("URI", "url=" . $url);

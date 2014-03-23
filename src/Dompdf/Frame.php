@@ -1070,10 +1070,10 @@ class Frame
             $d = $d->get_decorator();
         }
 
-        $str .= "Position: " . pre_r($this->_position, true);
-        $str .= "\nContaining block: " . pre_r($this->_containing_block, true);
-        $str .= "\nMargin width: " . pre_r($this->get_margin_width(), true);
-        $str .= "\nMargin height: " . pre_r($this->get_margin_height(), true);
+        $str .= "Position: " . Helpers::pre_r($this->_position, true);
+        $str .= "\nContaining block: " . Helpers::pre_r($this->_containing_block, true);
+        $str .= "\nMargin width: " . Helpers::pre_r($this->get_margin_width(), true);
+        $str .= "\nMargin height: " . Helpers::pre_r($this->get_margin_height(), true);
 
         $str .= "\nStyle: <pre>" . $this->_style->__toString() . "</pre>";
 

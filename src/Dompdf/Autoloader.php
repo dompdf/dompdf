@@ -25,6 +25,11 @@ class Autoloader
      */
     public static function autoload($class)
     {
+        if ($class === 'Cpdf') {
+            require_once __DIR__ . "/../../lib/Cpdf.php";
+            return;
+        }
+
         $prefixLength = strlen(self::PREFIX);
         if (0 === strncmp(self::PREFIX, $class, $prefixLength)) {
             $file = str_replace('\\', DIRECTORY_SEPARATOR, substr($class, $prefixLength));

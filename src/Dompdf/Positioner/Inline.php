@@ -31,9 +31,9 @@ class Inline extends AbstractPositioner
 
         // Debugging code:
 
-//     pre_r("\nPositioning:");
-//     pre_r("Me: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
-//     pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
+//     Helpers::pre_r("\nPositioning:");
+//     Helpers::pre_r("Me: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
+//     Helpers::pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
 
         // End debugging
 

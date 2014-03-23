@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('UTC');
+
 // Add composer autoloader
 if (!@include_once __DIR__ . '/../vendor/autoload.php') {
     if (!@include_once __DIR__ . '/../../../autoload.php') {

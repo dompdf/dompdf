@@ -10,6 +10,7 @@ namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
 use Dompdf\Frame;
+use Dompdf\Helpers;
 
 /**
  * Decorates frames for list bullets with custom images
@@ -53,7 +54,7 @@ class ListBulletImage extends AbstractFrameDecorator
         $frame->get_node()->setAttribute("src", $url);
         $this->_img = new Image($frame, $dompdf);
         parent::__construct($this->_img, $dompdf);
-        list($width, $height) = dompdf_getimagesize($this->_img->get_image_url());
+        list($width, $height) = Helpers::dompdf_getimagesize($this->_img->get_image_url());
 
         // Resample the bullet image to be consistent with 'auto' sized images
         // See also Image::get_min_max_width

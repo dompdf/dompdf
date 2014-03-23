@@ -10,17 +10,11 @@
 namespace Dompdf\Css;
 
 use DOMXPath;
-
 use Dompdf\Dompdf;
+use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Frame\FrameTree;
-
-/**
- * The location of the default built-in CSS file.
- * {@link Stylesheet::DEFAULT_STYLESHEET}
- */
-define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "html.css");
 
 /**
  * The master stylesheet class
@@ -35,11 +29,10 @@ define('__DEFAULT_STYLESHEET', DOMPDF_LIB_DIR . DIRECTORY_SEPARATOR . "res" . DI
  */
 class Stylesheet
 {
-
     /**
      * The location of the default built-in CSS file.
      */
-    const DEFAULT_STYLESHEET = __DEFAULT_STYLESHEET;
+    const DEFAULT_STYLESHEET = "/lib/res/html.css";
 
     /**
      * User agent stylesheet origin
@@ -154,7 +147,7 @@ class Stylesheet
         $this->_dompdf = $dompdf;
         $this->_styles = array();
         $this->_loaded_files = array();
-        list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($_SERVER["SCRIPT_FILENAME"]);
+        list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explode_url($_SERVER["SCRIPT_FILENAME"]);
         $this->_page_styles = array("base" => null);
     }
 
@@ -323,10 +316,10 @@ class Stylesheet
         $this->_loaded_files[$file] = true;
 
         if (strpos($file, "data:") === 0) {
-            $parsed = parse_data_uri($file);
+            $parsed = Helpers::parse_data_uri($file);
             $css = $parsed["data"];
         } else {
-            $parsed_url = explode_url($file);
+            $parsed_url = Helpers::explode_url($file);
 
             list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
@@ -334,10 +327,10 @@ class Stylesheet
             if ($this->_protocol == "") {
                 $file = $this->_base_path . $filename;
             } else {
-                $file = build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
+                $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
             }
 
-            set_error_handler("record_warnings");
+            set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
             $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
             restore_error_handler();
 
@@ -355,7 +348,7 @@ class Stylesheet
             }
 
             if (!$good_mime_type || $css == "") {
-                record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
                 return;
             }
         }
@@ -403,7 +396,7 @@ class Stylesheet
             $d++;
         }
 
-        if (DEBUGCSS) {
+        if (defined('DEBUGCSS') && DEBUGCSS) {
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
@@ -850,7 +843,7 @@ class Stylesheet
             // Retrieve the nodes, limit to body for generated content
             $nodes = @$xp->query('.' . $query["query"]);
             if ($nodes == null) {
-                record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                 continue;
             }
 
@@ -882,7 +875,7 @@ class Stylesheet
             // Retrieve the nodes
             $nodes = @$xp->query($query["query"]);
             if ($nodes == null) {
-                record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                 continue;
             }
 
@@ -905,7 +898,7 @@ class Stylesheet
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
         foreach ($tree->get_frames() as $frame) {
-            // pre_r($frame->get_node()->nodeName . ":");
+            // Helpers::pre_r($frame->get_node()->nodeName . ":");
             if (!$root_flg && $this->_page_styles["base"]) {
                 $style = $this->_page_styles["base"];
                 $root_flg = true;
@@ -958,7 +951,7 @@ class Stylesheet
                 // Sort by specificity
                 ksort($applied_styles);
 
-                if (DEBUGCSS) {
+                if (defined('DEBUGCSS') && DEBUGCSS) {
                     $debug_nodename = $frame->get_node()->nodeName;
                     print "<pre>\n[$debug_nodename\n";
                     foreach ($applied_styles as $spec => $arr) {
@@ -982,7 +975,7 @@ class Stylesheet
             // Inherit parent's styles if required
             if ($p) {
 
-                if (DEBUGCSS) {
+                if (defined('DEBUGCSS') && DEBUGCSS) {
                     print "inherit:\n";
                     print "[\n";
                     $p->get_style()->debug_print();
@@ -992,7 +985,7 @@ class Stylesheet
                 $style->inherit($p->get_style());
             }
 
-            if (DEBUGCSS) {
+            if (defined('DEBUGCSS') && DEBUGCSS) {
                 print "DomElementStyle:\n";
                 print "[\n";
                 $style->debug_print();
@@ -1001,7 +994,7 @@ class Stylesheet
             }
 
             /*DEBUGCSS print: see below different print debugging method
-            pre_r($frame->get_node()->nodeName . ":");
+            Helpers::pre_r($frame->get_node()->nodeName . ":");
             echo "<pre>";
             echo $style;
             echo "</pre>";*/
@@ -1070,7 +1063,7 @@ class Stylesheet
         // [6] => '{', within media rules
         // [7] => individual rules, outside of media rules
         //
-        //pre_r($matches);
+        //Helpers::pre_r($matches);
         foreach ($matches as $match) {
             $match[2] = trim($match[2]);
 
@@ -1163,7 +1156,7 @@ class Stylesheet
     /* See also style.cls Style::_image(), refactoring?, works also for imported css files */
     protected function _image($val)
     {
-        $DEBUGCSS = DEBUGCSS;
+        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false;
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
@@ -1172,7 +1165,7 @@ class Stylesheet
             $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = explode_url($val);
+            $parsed_url = Helpers::explode_url($val);
             if ($parsed_url["protocol"] == "" && $this->get_protocol() == "") {
                 if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
                     $path = $_SERVER["DOCUMENT_ROOT"] . '/';
@@ -1188,7 +1181,7 @@ class Stylesheet
                     $path = 'none';
                 }
             } else {
-                $path = build_url($this->get_protocol(),
+                $path = Helpers::build_url($this->get_protocol(),
                     $this->get_host(),
                     $this->get_base_path(),
                     $val);
@@ -1241,7 +1234,7 @@ class Stylesheet
 
             // $url = str_replace(array('"',"url", "(", ")"), "", $url);
             // If the protocol is php, assume that we will import using file://
-            // $url = build_url($protocol == "php://" ? "file://" : $protocol, $host, $path, $url);
+            // $url = Helpers::build_url($protocol == "php://" ? "file://" : $protocol, $host, $path, $url);
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
@@ -1278,7 +1271,7 @@ class Stylesheet
                 "local" => strtolower($src[1][$i]) === "local",
                 "uri" => $src[2][$i],
                 "format" => $src[4][$i],
-                "path" => build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
+                "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
             );
 
             if (!$source["local"] && in_array($source["format"], array("", "woff", "opentype", "truetype"))) {
@@ -1315,7 +1308,7 @@ class Stylesheet
     {
         $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
 
-        if (DEBUGCSS) print '[_parse_properties';
+        if (defined('DEBUGCSS') && DEBUGCSS) print '[_parse_properties';
 
         // Create the style
         $style = new Style($this);
@@ -1343,7 +1336,7 @@ class Stylesheet
             }
             $prop = trim($prop);
             */
-            if (DEBUGCSS) print '(';
+            if (defined('DEBUGCSS') && DEBUGCSS) print '(';
 
             $important = false;
             $prop = trim($prop);
@@ -1358,19 +1351,19 @@ class Stylesheet
             }
 
             if ($prop === "") {
-                if (DEBUGCSS) print 'empty)';
+                if (defined('DEBUGCSS') && DEBUGCSS) print 'empty)';
                 continue;
             }
 
             $i = mb_strpos($prop, ":");
             if ($i === false) {
-                if (DEBUGCSS) print 'novalue' . $prop . ')';
+                if (defined('DEBUGCSS') && DEBUGCSS) print 'novalue' . $prop . ')';
                 continue;
             }
 
             $prop_name = rtrim(mb_strtolower(mb_substr($prop, 0, $i)));
             $value = ltrim(mb_substr($prop, $i + 1));
-            if (DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
+            if (defined('DEBUGCSS') && DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
             //New style, anyway empty
             //if ($important || !$style->important_get($prop_name) ) {
             //$style->$prop_name = array($value,$important);
@@ -1384,7 +1377,7 @@ class Stylesheet
             $style->$prop_name = $value;
             //$style->props_set($prop_name, $value);
         }
-        if (DEBUGCSS) print '_parse_properties]';
+        if (defined('DEBUGCSS') && DEBUGCSS) print '_parse_properties]';
 
         return $style;
     }
@@ -1404,12 +1397,12 @@ class Stylesheet
         $str = preg_replace($patterns, $replacements, $str);
 
         $sections = explode("}", $str);
-        if (DEBUGCSS) print '[_parse_sections';
+        if (defined('DEBUGCSS') && DEBUGCSS) print '[_parse_sections';
         foreach ($sections as $sect) {
             $i = mb_strpos($sect, "{");
 
             $selectors = explode(",", mb_substr($sect, 0, $i));
-            if (DEBUGCSS) print '[section';
+            if (defined('DEBUGCSS') && DEBUGCSS) print '[section';
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
@@ -1417,19 +1410,19 @@ class Stylesheet
                 $selector = trim($selector);
 
                 if ($selector == "") {
-                    if (DEBUGCSS) print '#empty#';
+                    if (defined('DEBUGCSS') && DEBUGCSS) print '#empty#';
                     continue;
                 }
-                if (DEBUGCSS) print '#' . $selector . '#';
+                if (defined('DEBUGCSS') && DEBUGCSS) print '#' . $selector . '#';
                 //if (DEBUGCSS) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
 
                 $this->add_style($selector, $style);
             }
 
-            if (DEBUGCSS) print 'section]';
+            if (defined('DEBUGCSS') && DEBUGCSS) print 'section]';
         }
 
-        if (DEBUGCSS) print '_parse_sections]';
+        if (defined('DEBUGCSS') && DEBUGCSS) print '_parse_sections]';
     }
 
     /**
@@ -1448,5 +1441,11 @@ class Stylesheet
         }
 
         return $str;
+    }
+
+    public static function getDefaultStylesheet()
+    {
+        $dir = realpath(__DIR__ . "/../../..");
+        return $dir . self::DEFAULT_STYLESHEET;
     }
 }

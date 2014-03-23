@@ -11,6 +11,7 @@ namespace Dompdf\Css;
 
 use Dompdf\Adapter\CPDF;
 use Dompdf\Exception;
+use Dompdf\Helpers;
 use Dompdf\FontMetrics;
 use Dompdf\Frame;
 
@@ -790,7 +791,7 @@ class Style
             return $this->_font_family;
         }
 
-        $DEBUGCSS = DEBUGCSS; //=DEBUGCSS; Allow override of global setting for ad hoc debug
+        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false; //=DEBUGCSS; Allow override of global setting for ad hoc debug
 
         // Select the appropriate font.  First determine the subtype, then check
         // the specified font-families for a candidate.
@@ -1537,7 +1538,7 @@ class Style
 
     protected function _image($val)
     {
-        $DEBUGCSS = DEBUGCSS;
+        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false;
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
@@ -1546,7 +1547,7 @@ class Style
             $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = explode_url($val);
+            $parsed_url = Helpers::explode_url($val);
             if ($parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "") {
                 if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
                     $path = $_SERVER["DOCUMENT_ROOT"] . '/';
@@ -1561,7 +1562,7 @@ class Style
                     $path = 'none';
                 }
             } else {
-                $path = build_url($this->_stylesheet->get_protocol(),
+                $path = Helpers::build_url($this->_stylesheet->get_protocol(),
                     $this->_stylesheet->get_host(),
                     $this->_stylesheet->get_base_path(),
                     $val);

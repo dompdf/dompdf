@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Helpers;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
 
@@ -48,7 +49,7 @@ class Image extends AbstractFrameReflower
     {
         if (DEBUGPNG) {
             // Determine the image's size. Time consuming. Only when really needed?
-            list($img_width, $img_height) = dompdf_getimagesize($this->_frame->get_image_url());
+            list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url());
             print "get_min_max_width() " .
                 $this->_frame->get_style()->width . ' ' .
                 $this->_frame->get_style()->height . ';' .
@@ -72,7 +73,7 @@ class Image extends AbstractFrameReflower
         //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
 
         $width = ($style->width > 0 ? $style->width : 0);
-        if (is_percent($width)) {
+        if (Helpers::is_percent($width)) {
             $t = 0.0;
             for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
                 $f_style = $f->get_style();
@@ -91,7 +92,7 @@ class Image extends AbstractFrameReflower
         }
 
         $height = ($style->height > 0 ? $style->height : 0);
-        if (is_percent($height)) {
+        if (Helpers::is_percent($height)) {
             $t = 0.0;
             for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
                 $f_style = $f->get_style();
@@ -111,7 +112,7 @@ class Image extends AbstractFrameReflower
 
         if ($width == 0 || $height == 0) {
             // Determine the image's size. Time consuming. Only when really needed!
-            list($img_width, $img_height) = dompdf_getimagesize($this->_frame->get_image_url());
+            list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url());
 
             // don't treat 0 as error. Can be downscaled or can be catched elsewhere if image not readable.
             // Resample according to px per inch
