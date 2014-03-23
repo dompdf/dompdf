@@ -791,7 +791,7 @@ class Style
             return $this->_font_family;
         }
 
-        $DEBUGCSS = DEBUGCSS; //=DEBUGCSS; Allow override of global setting for ad hoc debug
+        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false; //=DEBUGCSS; Allow override of global setting for ad hoc debug
 
         // Select the appropriate font.  First determine the subtype, then check
         // the specified font-families for a candidate.
@@ -1538,7 +1538,7 @@ class Style
 
     protected function _image($val)
     {
-        $DEBUGCSS = DEBUGCSS;
+        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false;
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
