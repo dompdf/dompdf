@@ -10,8 +10,6 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Canvas;
 
-require_once DOMPDF_LIB_DIR . '/tcpdf/tcpdf.php';
-
 /**
  * TCPDF PDF Rendering interface
  *

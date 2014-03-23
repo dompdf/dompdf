@@ -19,8 +19,6 @@ use Dompdf\Exception;
 use Dompdf\Image\Cache;
 use Dompdf\PhpEvaluator;
 
-require_once(DOMPDF_LIB_DIR . "/class.pdf.php");
-
 /**
  * PDF rendering interface
  *

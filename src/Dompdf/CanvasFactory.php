@@ -17,7 +17,6 @@ namespace Dompdf;
  */
 class CanvasFactory
 {
-
     /**
      * Constructor is private: this is a static class
      */
@@ -35,13 +34,13 @@ class CanvasFactory
      */
     static function get_instance(Dompdf $dompdf, $paper = null, $orientation = null, $class = null)
     {
-
-        $backend = strtolower(DOMPDF_PDF_BACKEND);
+        $DOMPDF_PDF_BACKEND = defined('DOMPDF_PDF_BACKEND') ? DOMPDF_PDF_BACKEND : 'CPDF';
+        $backend = strtolower($DOMPDF_PDF_BACKEND);
 
         if (isset($class) && class_exists($class, false)) {
             $class .= "_Adapter";
         } else {
-            if ((DOMPDF_PDF_BACKEND === "auto" || $backend === "pdflib") &&
+            if (($DOMPDF_PDF_BACKEND === "auto" || $backend === "pdflib") &&
                 class_exists("PDFLib", false)
             ) {
                 $class = "Dompdf\\Adapter\\PDFLib";

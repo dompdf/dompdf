@@ -21,7 +21,6 @@ use Dompdf\Exception\ImageException;
  */
 class Cache
 {
-
     /**
      * Array of downloaded images.  Cached so that identical images are
      * not needlessly downloaded.
@@ -35,7 +34,7 @@ class Cache
      *
      * @var string
      */
-    public static $broken_image;
+    public static $broken_image = "/../../res/broken_image.png";
 
     /**
      * Resolve and fetch an image for use.
@@ -186,5 +185,3 @@ class Cache
         return $url === self::$broken_image;
     }
 }
-
-Cache::$broken_image = DOMPDF_LIB_DIR . "/res/broken_image.png";
