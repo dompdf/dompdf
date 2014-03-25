@@ -8,10 +8,10 @@
   ),
   'times' => 
   array (
-    'normal' => DOMPDF_DIR . '/lib/fonts/Times-Roman',
-    'bold' => DOMPDF_DIR . '/lib/fonts/Times-Bold',
-    'italic' => DOMPDF_DIR . '/lib/fonts/Times-Italic',
-    'bold_italic' => DOMPDF_DIR . '/lib/fonts/Times-BoldItalic',
+    'normal' => DOMPDF_DIR . '/lib/fonts/times',
+    'bold' => DOMPDF_DIR . '/lib/fonts/timesbd',
+    'italic' => DOMPDF_DIR . '/lib/fonts/timesi',
+    'bold_italic' => DOMPDF_DIR . '/lib/fonts/timesbi',
   ),
   'times-roman' => 
   array (
