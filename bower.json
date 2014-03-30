@@ -7,7 +7,7 @@
   },
   "keywords": [
     "pdf",
-	"conversion"
+    "conversion"
   ],
   "homepage": "https://github.com/dompdf/dompdf.git",
   "_release": "0.6.1",
