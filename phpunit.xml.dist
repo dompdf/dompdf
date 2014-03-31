@@ -1,6 +1,6 @@
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
-         bootstrap="test/bootstrap.php"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -10,7 +10,7 @@
          syntaxCheck="false">
     <testsuites>
         <testsuite name="Dompdf Test Suite">
-            <directory>./test/Dompdf/</directory>
+            <directory>./tests/Dompdf/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
