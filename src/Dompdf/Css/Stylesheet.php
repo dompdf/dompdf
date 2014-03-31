@@ -137,6 +137,11 @@ class Stylesheet
     static $ACCEPTED_GENERIC_MEDIA_TYPES = array("all", "static", "visual", "bitmap", "paged", "dompdf");
 
     /**
+     * @var FontMetrics
+     */
+    private $fontMetrics;
+
+    /**
      * The class constructor.
      *
      * The base protocol, host & path are initialized to those of
@@ -145,6 +150,7 @@ class Stylesheet
     function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
+        $this->setFontMetrics($dompdf->getFontMetrics());
         $this->_styles = array();
         $this->_loaded_files = array();
         list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explode_url($_SERVER["SCRIPT_FILENAME"]);
@@ -1311,7 +1317,7 @@ class Stylesheet
         if (defined('DEBUGCSS') && DEBUGCSS) print '[_parse_properties';
 
         // Create the style
-        $style = new Style($this);
+        $style = new Style($this, Stylesheet::ORIG_AUTHOR);
 
         foreach ($properties as $prop) {
             // If the $prop contains an url, the regex may be wrong
@@ -1425,6 +1431,30 @@ class Stylesheet
         if (defined('DEBUGCSS') && DEBUGCSS) print '_parse_sections]';
     }
 
+    public static function getDefaultStylesheet()
+    {
+        $dir = realpath(__DIR__ . "/../../..");
+        return $dir . self::DEFAULT_STYLESHEET;
+    }
+
+    /**
+     * @param FontMetrics $fontMetrics
+     * @return $this
+     */
+    public function setFontMetrics(FontMetrics $fontMetrics)
+    {
+        $this->fontMetrics = $fontMetrics;
+        return $this;
+    }
+
+    /**
+     * @return FontMetrics
+     */
+    public function getFontMetrics()
+    {
+        return $this->fontMetrics;
+    }
+
     /**
      * dumps the entire stylesheet as a string
      *
@@ -1441,11 +1471,5 @@ class Stylesheet
         }
 
         return $str;
-    }
-
-    public static function getDefaultStylesheet()
-    {
-        $dir = realpath(__DIR__ . "/../../..");
-        return $dir . self::DEFAULT_STYLESHEET;
     }
 }

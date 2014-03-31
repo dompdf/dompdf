@@ -32,9 +32,19 @@ class Text extends AbstractFrameReflower
 
     public static $_whitespace_pattern = "/[ \t\r\n\f]+/u";
 
-    function __construct(TextFrameDecorator $frame)
+    /**
+     * @var FontMetrics
+     */
+    private $fontMetrics;
+
+    /**
+     * @param TextFrameDecorator $frame
+     * @param FontMetrics $fontMetrics
+     */
+    public function __construct(TextFrameDecorator $frame, FontMetrics $fontMetrics)
     {
         parent::__construct($frame);
+        $this->setFontMetrics($fontMetrics);
     }
 
     //........................................................................
@@ -67,7 +77,7 @@ class Text extends AbstractFrameReflower
         $char_spacing = $style->length_in_pt($style->letter_spacing);
 
         // Determine the frame width including margin, padding & border
-        $text_width = FontMetrics::get_text_width($text, $font, $size, $word_spacing, $char_spacing);
+        $text_width = $this->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
         $mbp_width =
             $style->length_in_pt(array($style->margin_left,
                 $style->border_left_width,
@@ -104,7 +114,7 @@ class Text extends AbstractFrameReflower
         // @todo support <shy>, <wbr>
         for ($i = 0; $i < $wc; $i += 2) {
             $word = $words[$i] . (isset($words[$i + 1]) ? $words[$i + 1] : "");
-            $word_width = FontMetrics::get_text_width($word, $font, $size, $word_spacing, $char_spacing);
+            $word_width = $this->getFontMetrics()->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
             if ($width + $word_width + $mbp_width > $available_width)
                 break;
 
@@ -123,7 +133,7 @@ class Text extends AbstractFrameReflower
             if ($break_word) {
                 for ($j = 0; $j < strlen($word); $j++) {
                     $s .= $word[$j];
-                    $_width = FontMetrics::get_text_width($s, $font, $size, $word_spacing, $char_spacing);
+                    $_width = $this->getFontMetrics()->getTextWidth($s, $font, $size, $word_spacing, $char_spacing);
                     if ($_width > $available_width) {
                         break;
                     }
@@ -175,7 +185,7 @@ class Text extends AbstractFrameReflower
         $font = $style->font_family;
 
         // Determine the text height
-        $style->height = FontMetrics::get_font_height($font, $size);
+        $style->height = $this->getFontMetrics()->getFontHeight($font, $size);
 
         $split = false;
         $add_line = false;
@@ -390,8 +400,9 @@ class Text extends AbstractFrameReflower
                 // faster than doing a single-pass character by character scan.  Heh,
                 // yes I took the time to bench it ;)
                 $words = array_flip(preg_split("/[\s-]+/u", $str, -1, PREG_SPLIT_DELIM_CAPTURE));
-                array_walk($words, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing) {
-                    $val = FontMetrics::get_text_width($str, addslashes($font), $size, $word_spacing, $char_spacing);
+                $root = $this;
+                array_walk($words, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
+                    $val = $root->getFontMetrics()->getTextWidth($str, addslashes($font), $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($words);
@@ -400,8 +411,9 @@ class Text extends AbstractFrameReflower
 
             case "pre":
                 $lines = array_flip(preg_split("/\n/u", $str));
-                array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing) {
-                    $val = FontMetrics::get_text_width($str, addslashes($font), $size, $word_spacing, $char_spacing);
+                $root = $this;
+                array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
+                    $val = $root->getFontMetrics()->getTextWidth($str, addslashes($font), $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($lines);
@@ -409,7 +421,7 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "nowrap":
-                $min = FontMetrics::get_text_width($this->_collapse_white_space($str), $font, $size, $word_spacing, $char_spacing);
+                $min = $this->getFontMetrics()->getTextWidth($this->_collapse_white_space($str), $font, $size, $word_spacing, $char_spacing);
                 break;
 
         }
@@ -446,7 +458,7 @@ class Text extends AbstractFrameReflower
 
         }
 
-        $max = FontMetrics::get_text_width($str, $font, $size, $word_spacing, $char_spacing);
+        $max = $this->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
 
         $delta = $style->length_in_pt(array($style->margin_left,
             $style->border_left_width,
@@ -461,4 +473,21 @@ class Text extends AbstractFrameReflower
 
     }
 
+    /**
+     * @param FontMetrics $fontMetrics
+     * @return $this
+     */
+    public function setFontMetrics(FontMetrics $fontMetrics)
+    {
+        $this->fontMetrics = $fontMetrics;
+        return $this;
+    }
+
+    /**
+     * @return FontMetrics
+     */
+    public function getFontMetrics()
+    {
+        return $this->fontMetrics;
+    }
 }

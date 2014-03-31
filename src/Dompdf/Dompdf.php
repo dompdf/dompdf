@@ -93,11 +93,17 @@ class Dompdf
     private $css;
 
     /**
+     * @var Canvas
+     * @deprecated
+     */
+    private $pdf;
+
+    /**
      * Actual PDF renderer
      *
      * @var Canvas
      */
-    private $pdf;
+    private $canvas;
 
     /**
      * Desired paper size ('letter', 'legal', 'A4', etc.)
@@ -211,6 +217,11 @@ class Dompdf
     private $options;
 
     /**
+     * @var FontMetrics
+     */
+    private $fontMetrics;
+
+    /**
      * The list of built-in fonts
      *
      * @var array
@@ -241,10 +252,15 @@ class Dompdf
     public function __construct()
     {
         $this->setOptions(new Options);
+
         $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
         $this->saveLocale();
-        $this->css = new Stylesheet($this);
         $this->paperSize = $this->options->getDefaultPaperSize();
+
+        $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
+        $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
+        $this->css = new Stylesheet($this);
+
         $this->restoreLocale();
     }
 
@@ -695,8 +711,8 @@ class Dompdf
             $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
         }
 
-        $this->pdf = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
-        FontMetrics::init($this->pdf);
+        //$this->pdf = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+        $this->setFontMetrics(new FontMetrics($this->pdf, $this->getOptions()));
 
         if ($this->options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
             foreach ($this->tree->get_frames() as $frame) {
@@ -705,14 +721,14 @@ class Dompdf
 
                 // Handle text nodes
                 if ($node->nodeName === "#text") {
-                    $this->pdf->register_string_subset($style->font_family, $node->nodeValue);
+                    $this->getCanvas()->register_string_subset($style->font_family, $node->nodeValue);
                     continue;
                 }
 
                 // Handle generated content (list items)
                 if ($style->display === "list-item") {
                     $chars = ListBullet::get_counter_chars($style->list_style_type);
-                    $this->pdf->register_string_subset($style->font_family, $chars);
+                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
                     continue;
                 }
 
@@ -723,15 +739,15 @@ class Dompdf
                 if ($frame->get_node()->nodeName == "dompdf_generated") {
                     // all possible counter values
                     $chars = ListBullet::get_counter_chars('decimal');
-                    $this->pdf->register_string_subset($style->font_family, $chars);
+                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('upper-alpha');
-                    $this->pdf->register_string_subset($style->font_family, $chars);
+                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('lower-alpha');
-                    $this->pdf->register_string_subset($style->font_family, $chars);
+                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('lower-greek');
-                    $this->pdf->register_string_subset($style->font_family, $chars);
+                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
                     // the text of the stylesheet declaration
-                    $this->pdf->register_string_subset($style->font_family, $style->content);
+                    $this->getCanvas()->register_string_subset($style->font_family, $style->content);
                     continue;
                 }
             }
@@ -753,7 +769,7 @@ class Dompdf
         // Add meta information
         $title = $this->dom->getElementsByTagName("title");
         if ($title->length) {
-            $this->pdf->add_info("Title", trim($title->item(0)->nodeValue));
+            $this->getCanvas()->add_info("Title", trim($title->item(0)->nodeValue));
         }
 
         $metas = $this->dom->getElementsByTagName("meta");
@@ -772,11 +788,11 @@ class Dompdf
             }
 
             if ($name === "dompdf.view" && $this->parseDefaultView($value)) {
-                $this->pdf->set_default_view($this->defaultView, $this->defaultViewOptions);
+                $this->getCanvas()->set_default_view($this->defaultView, $this->defaultViewOptions);
             }
         }
 
-        $root->set_containing_block(0, 0, $this->pdf->get_width(), $this->pdf->get_height());
+        $root->set_containing_block(0, 0, $this->getCanvas()->get_width(), $this->getCanvas()->get_height());
         $root->set_renderer(new Renderer($this));
 
         // This is where the magic happens:
@@ -1202,12 +1218,23 @@ class Dompdf
     }
 
     /**
+     * @param Canvas $canvas
+     * @return $this
+     */
+    public function setCanvas(Canvas $canvas)
+    {
+        $this->pdf = $canvas;
+        $this->canvas = $canvas;
+        return $this;
+    }
+
+    /**
      * @return Canvas
      * @deprecated
      */
     public function get_canvas()
     {
-        return $this->pdf;
+        return $this->getCanvas();
     }
 
     /**
@@ -1217,7 +1244,10 @@ class Dompdf
      */
     public function getCanvas()
     {
-        return $this->pdf;
+        if (null === $this->canvas && null !== $this->pdf) {
+            return $this->pdf;
+        }
+        return $this->canvas;
     }
 
     /**
@@ -1366,5 +1396,23 @@ class Dompdf
     public function getQuirksmode()
     {
         return $this->quirksmode;
+    }
+
+    /**
+     * @param FontMetrics $fontMetrics
+     * @return $this
+     */
+    public function setFontMetrics(FontMetrics $fontMetrics)
+    {
+        $this->fontMetrics = $fontMetrics;
+        return $this;
+    }
+
+    /**
+     * @return FontMetrics
+     */
+    public function getFontMetrics()
+    {
+        return $this->fontMetrics;
     }
 }

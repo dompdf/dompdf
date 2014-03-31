@@ -6,6 +6,11 @@ class Options
     /**
      * @var string
      */
+    private $rootDir;
+
+    /**
+     * @var string
+     */
     private $tempDir;
 
     /**
@@ -144,6 +149,7 @@ class Options
     public function __construct(array $attributes = null)
     {
         $this->setChroot(realpath(__DIR__ . "/../../"));
+        $this->setRootDir($this->getChroot());
         $this->setTempDir(sys_get_temp_dir());
         $this->setFontDir($this->chroot . "/lib/fonts");
         $this->setFontCache($this->getFontDir());
@@ -828,5 +834,23 @@ class Options
     public function getTempDir()
     {
         return $this->tempDir;
+    }
+
+    /**
+     * @param string $rootDir
+     * @return $this
+     */
+    public function setRootDir($rootDir)
+    {
+        $this->rootDir = $rootDir;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootDir()
+    {
+        return $this->rootDir;
     }
 }

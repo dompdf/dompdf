@@ -188,13 +188,20 @@ class Style
     public $_has_border_radius = false;
 
     /**
+     * @var FontMetrics
+     */
+    private $fontMetrics;
+
+    /**
      * Class constructor
      *
      * @param Stylesheet $stylesheet the stylesheet this Style is associated with.
      * @param int $origin
      */
-    function __construct(Stylesheet $stylesheet, $origin = Stylesheet::ORIG_AUTHOR)
+    public function __construct(Stylesheet $stylesheet, $origin = Stylesheet::ORIG_AUTHOR)
     {
+        $this->setFontMetrics($stylesheet->getFontMetrics());
+
         $this->_props = array();
         $this->_important_props = array();
         $this->_stylesheet = $stylesheet;
@@ -840,7 +847,7 @@ class Style
             if ($DEBUGCSS) {
                 print '(' . $family . ')';
             }
-            $font = FontMetrics::get_font($family, $subtype);
+            $font = $this->getFontMetrics()->getFont($family, $subtype);
 
             if ($font) {
                 if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
@@ -852,7 +859,7 @@ class Style
         if ($DEBUGCSS) {
             print '(default)';
         }
-        $font = FontMetrics::get_font($family, $subtype);
+        $font = $this->getFontMetrics()->getFont($family, $subtype);
 
         if ($font) {
             if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
@@ -2502,6 +2509,24 @@ class Style
 
         $this->_prop_cache["counter_increment"] = null;
         $this->_props["counter_increment"] = $value;
+    }
+
+    /**
+     * @param FontMetrics $fontMetrics
+     * @return $this
+     */
+    public function setFontMetrics(FontMetrics $fontMetrics)
+    {
+        $this->fontMetrics = $fontMetrics;
+        return $this;
+    }
+
+    /**
+     * @return FontMetrics
+     */
+    public function getFontMetrics()
+    {
+        return $this->fontMetrics;
     }
 
     /**
