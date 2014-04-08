@@ -21,7 +21,7 @@ require_once DOMPDF_LIB_DIR . "/class.pdf.php";
  *
  * Declared here because PHP5 prevents constants from being declared with expressions
  */
-define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.php");
+define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_CACHE . "dompdf_font_family_cache.php");
 
 /**
  * The font metrics class
