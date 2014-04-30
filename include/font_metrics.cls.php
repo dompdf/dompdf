@@ -259,7 +259,11 @@ class Font_Metrics {
     }
     
     // Merge provided fonts
-    self::$_font_lookup += $dist_fonts;
+    if (is_array(self::$_font_lookup)) {
+        self::$_font_lookup = array_merge(self::$_font_lookup, $dist_fonts);
+    } else {
+        self::$_font_lookup = $dist_fonts;
+    }
   }
   
   static function get_type($type) {
