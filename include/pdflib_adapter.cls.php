@@ -1017,7 +1017,14 @@ class PDFLib_Adapter implements Canvas {
 
     header("Cache-Control: private");
     header("Content-type: application/pdf");
-    header("Content-Disposition: $attach; filename=\"$filename\"");
+
+    // detect the character encoding of the incoming file
+    $encoding = mb_detect_encoding($fileName);
+    $fallbackfilename = mb_convert_encoding($fileName, "ISO-8859-1", $encoding);
+    $encodedfallbackfilename = rawurlencode($fallbackfilename);
+    $encodedfilename = rawurlencode($fileName);
+
+    header("Content-Disposition: $attach; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
 
     //header("Content-length: " . $size);
 
