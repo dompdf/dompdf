@@ -725,7 +725,7 @@ class Cellmap
             return; // Presumably this row has alredy been removed
         }
 
-        $this->_row = $this->_num_rows--;
+        $this->__row = $this->_num_rows--;
 
         $rows = $this->_frames[$key]["rows"];
         $columns = $this->_frames[$key]["columns"];
@@ -736,11 +736,20 @@ class Cellmap
                 if (isset($this->_cells[$r][$c])) {
                     $id = $this->_cells[$r][$c]->get_id();
 
-                    $this->_frames[$id] = null;
-                    unset($this->_frames[$id]);
-
                     $this->_cells[$r][$c] = null;
                     unset($this->_cells[$r][$c]);
+                    
+                    // has multiple rows?
+                    if (isset($this->_frames[$id]) && count($this->_frames[$id]["rows"]) > 1) {
+                        // remove just the desired row, but leave the frame
+                        if (($row_key = array_search($r, $this->_frames[$id]["rows"])) !== false) {
+                            unset($this->_frames[$id]["rows"][$row_key]);
+                        }
+                        continue;
+                    }
+
+                    $this->_frames[$id] = null;
+                    unset($this->_frames[$id]);
                 }
             }
 
