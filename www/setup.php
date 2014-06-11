@@ -11,7 +11,6 @@
 <h3 id="system">System Configuration</h3>
 
 <?php
-require_once("../dompdf_config.inc.php");
 
 $server_configs = array(
   "PHP Version" => array(
