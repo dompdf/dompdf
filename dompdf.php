@@ -124,6 +124,7 @@ function getoptions() {
 }
 
 require_once("dompdf_config.inc.php");
+require_once("autoload.inc.php");
 global $_dompdf_show_warnings, $_dompdf_debug, $_DOMPDF_DEBUG_TYPES;
 
 $sapi = php_sapi_name();

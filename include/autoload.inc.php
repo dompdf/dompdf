@@ -16,10 +16,15 @@
  * @param string $class
  */
 function DOMPDF_autoload($class) {
-  $filename = DOMPDF_INC_DIR . "/" . mb_strtolower($class) . ".cls.php";
-  
-  if ( is_file($filename) ) {
-    include_once $filename;
+  $filenames = array(
+    DOMPDF_INC_DIR . "/" . mb_strtolower($class) . ".cls.php",
+    DOMPDF_LIB_DIR . "/php-font-lib/" . $class . ".php",
+  );
+
+  foreach ($filenames as $file) {
+    if ( is_file($file) ) {
+      return include_once($file);
+    }
   }
 }
 
