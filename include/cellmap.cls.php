@@ -612,7 +612,8 @@ class Cellmap {
       return;  // Presumably this row has alredy been removed
     }
 
-    $this->_row = $this->_num_rows--;
+  // there was a typo here before, not sure if fixing it will cause any issues
+    $this->__row = $this->_num_rows--;
 
     $rows = $this->_frames[$key]["rows"];
     $columns = $this->_frames[$key]["columns"];
@@ -622,12 +623,23 @@ class Cellmap {
       foreach ( $columns as $c ) {
         if ( isset($this->_cells[$r][$c]) ) {
           $id = $this->_cells[$r][$c]->get_id();
+
+	      // remove cell
+          $this->_cells[$r][$c] = null;
+          unset($this->_cells[$r][$c]);
+
+	      // has multiple rows?
+	      if ( isset( $this->_frames[$id] ) && count( $this->_frames[$id]["rows"] ) > 1 ) {
+		      // remove just the desired row
+		      if ( ( $row_key = array_search($r,$this->_frames[$id]["rows"] ) ) !== false ) {
+			      unset($this->_frames[$id]["rows"][$row_key] );
+			      //$this->_frames[$id]["rows"] = array_values($this->_frames[$id]["rows"][$key]);
+		      }
+		      continue;
+	      }
           
           $this->_frames[$id] = null;
           unset($this->_frames[$id]);
-          
-          $this->_cells[$r][$c] = null;
-          unset($this->_cells[$r][$c]);
         }
       }
       
