@@ -421,7 +421,7 @@ abstract class Abstract_Renderer {
     
     else {
       $tmp_dir = $this->_dompdf->get_option("temp_dir");
-      $tmp_name = tempnam($tmp_dir, "bg_dompdf_img_");
+      $tmp_name = dompdf_tempnam($tmp_dir, "bg_dompdf_img_");
       @unlink($tmp_name);
       $tmp_file = "$tmp_name.png";
       

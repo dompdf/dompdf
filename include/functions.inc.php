@@ -25,6 +25,12 @@ function def($name, $value = true) {
   }
 }
 
+function dompdf_tempnam($dir, $prefix) {
+    require_once "memory_stream.php";
+    $stream = "memory://" . rand(0,100000) . $dir . $prefix;
+    return $stream;
+}
+
 if ( !function_exists("pre_r") ) {
 /**
  * print_r wrapper for html/cli output
@@ -981,7 +987,7 @@ function sys_get_temp_dir() {
     return realpath( $_ENV['TEMP']);
   }
   
-  $tempfile=tempnam(uniqid(rand(), true), '');
+  $tempfile=dompdf_tempnam(uniqid(rand(), true), '');
   if (file_exists($tempfile)) {
     unlink($tempfile);
     return realpath(dirname($tempfile));
