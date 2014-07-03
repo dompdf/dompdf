@@ -323,13 +323,13 @@ def("DOMPDF_ENABLE_HTML5PARSER", false);
 require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
 
 /**
- * Array of protocols that will be handled as local
+ * List of protocols separated by comma that will be handled as local
  * This is useful when having custom file wrapper or want to use php 5.1 data:// wrapper
- * Defaults to file://
+ * Defaults to file
  *
- * @var array
+ * @var string
  */
-def("DOMPDF_LOCAL_PROTOCOLS", ["file"]);
+def("DOMPDF_LOCAL_PROTOCOLS", "file");
 // ### End of user-configurable options ###
 
 /**

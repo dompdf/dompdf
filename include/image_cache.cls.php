@@ -49,7 +49,7 @@ class Image_Cache {
     $message = null;
 
     // check if protocol is white-listed as local protocol
-    $local_protocols = $dompdf->get_option("local_protocols");
+    $local_protocols = explode(",", $dompdf->get_option("local_protocols"));
 
     $remote = ($protocol && !in_array(rtrim($protocol, ":/"), $local_protocols)) ||
       ($parsed_url['protocol'] != ""  && !in_array(rtrim($parsed_url['protocol'], ":/"), $local_protocols));

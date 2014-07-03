@@ -25,7 +25,7 @@
 //define("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR."log.htm");
 //define("DOMPDF_ENABLE_HTML5PARSER", true);
 //define("DOMPDF_ENABLE_FONTSUBSETTING", true);
-//define("DOMPDF_LOCAL_PROTOCOLS", ["file"]);
+//define("DOMPDF_LOCAL_PROTOCOLS", "file");
 
 // DOMPDF authentication
 //define("DOMPDF_ADMIN_USERNAME", "user");
