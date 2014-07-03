@@ -48,8 +48,12 @@ class Image_Cache {
     $parsed_url = explode_url($url);
     $message = null;
 
-    $remote = ($protocol && $protocol !== "file://") || ($parsed_url['protocol'] != "");
-    
+    // check if protocol is white-listed as local protocol
+    $local_protocols = $dompdf->get_option("local_protocols");
+
+    $remote = ($protocol && !in_array(rtrim($protocol, ":/"), $local_protocols)) ||
+      ($parsed_url['protocol'] != ""  && !in_array(rtrim($parsed_url['protocol'], ":/"), $local_protocols));
+
     $data_uri = strpos($parsed_url['protocol'], "data:") === 0;
     $full_url = null;
     $enable_remote = $dompdf->get_option("enable_remote");

@@ -234,6 +234,9 @@ class DOMPDF {
     // Admin
     "admin_username"           => DOMPDF_ADMIN_USERNAME,
     "admin_password"           => DOMPDF_ADMIN_PASSWORD,
+
+    // Other
+    "local_protocols"          => DOMPDF_LOCAL_PROTOCOLS,
   );
 
   /**
