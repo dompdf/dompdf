@@ -12,6 +12,18 @@ use Dompdf\Exception;
 use Dompdf\Helpers;
 
 /**
+ * Defined a constant if not already defined
+ *
+ * @param string $name  The constant name
+ * @param mixed  $value The value
+ */
+function def($name, $value = true) {
+  if ( !defined($name) ) {
+    define($name, $value);
+  }
+}
+
+/**
  * mb_string compatibility
  */
 if (!extension_loaded('mbstring')) {
