@@ -749,7 +749,7 @@ end
 EOT;
 
         $res = "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
-        $res .= "stream\n" . $stream . "endstream";
+        $res .= "stream\n" . $stream . "\nendstream";
 
         $this->objects[$toUnicodeId]['c'] = $res;
 
@@ -1875,7 +1875,7 @@ EOT;
       $tmp = 'o_'.$v['t'];
       $cont = $this->$tmp($k, 'out');
       $content.= $cont;
-      $xref[] = $pos;
+      $xref[] = $pos+1; //+1 to account for \n at the start of each object
       $pos+= mb_strlen($cont, '8bit');
     }
 
@@ -2426,7 +2426,7 @@ EOT;
           $flags+= pow(2, 5); // assume non-sybolic
           $list = array(
             'Ascent' => 'Ascender',
-            'CapHeight' => 'CapHeight',
+            'CapHeight' => 'Ascender', //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
             'MissingWidth' => 'MissingWidth',
             'Descent' => 'Descender',
             'FontBBox' => 'FontBBox',
