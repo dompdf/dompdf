@@ -13,7 +13,7 @@ class DompdfTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $dompdf = new Dompdf();
-        $this->assertNull($dompdf->getCanvas());
+        $this->assertInstanceOf('Dompdf\Adapter\Cpdf', $dompdf->getCanvas());
         $this->assertEquals('', $dompdf->getBaseHost());
         $this->assertEquals('', $dompdf->getBasePath());
         $this->assertInternalType('array', $dompdf->getCallbacks());
