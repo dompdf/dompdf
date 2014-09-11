@@ -65,6 +65,6 @@ class DompdfTest extends PHPUnit_Framework_TestCase
         $dompdf->render();
 
         $dom = $dompdf->getDom();
-        $this->assertEquals('Hello', $dom->textContent);
+        $this->assertEquals('', $dom->textContent);
     }
 }
