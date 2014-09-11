@@ -90,7 +90,7 @@ abstract class AbstractRenderer
         $box_height = $height;
 
         //debugpng
-        if (DEBUGPNG) print '[_background_image ' . $url . ']';
+        if ($this->_dompdf->get_option("debugPng")) print '[_background_image ' . $url . ']';
 
         list($img, $type, /*$msg*/) = Cache::resolve_url(
             $url,
@@ -416,16 +416,16 @@ abstract class AbstractRenderer
             $tmp_file = "$tmp_name.png";
 
             //debugpng
-            if (DEBUGPNG) print '[_background_image ' . $tmp_file . ']';
+            if ($this->_dompdf->get_option("debugPng")) print '[_background_image ' . $tmp_file . ']';
 
             imagepng($bg, $tmp_file);
             $this->_canvas->image($tmp_file, $x, $y, $width, $height);
             imagedestroy($bg);
 
             //debugpng
-            if (DEBUGPNG) print '[_background_image unlink ' . $tmp_file . ']';
+            if ($this->_dompdf->get_option("debugPng")) print '[_background_image unlink ' . $tmp_file . ']';
 
-            if (!DEBUGKEEPTEMP) {
+            if (!$this->_dompdf->get_option("debugKeepTemp")) {
                 unlink($tmp_file);
             }
         }

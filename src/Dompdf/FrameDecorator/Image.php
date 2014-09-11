@@ -23,7 +23,7 @@ class Image extends AbstractFrameDecorator
 
     /**
      * The path to the image file (note that remote images are
-     * downloaded locally to DOMPDF_TEMP_DIR).
+     * downloaded locally to Options:tempDir).
      *
      * @var string
      */

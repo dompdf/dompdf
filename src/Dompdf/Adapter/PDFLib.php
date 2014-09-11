@@ -1111,8 +1111,8 @@ class PDFLib implements Canvas
             fclose($fh);
 
             //debugpng
-            if (DEBUGPNG) print '[pdflib stream unlink ' . $this->_file . ']';
-            if (!DEBUGKEEPTEMP)
+            if ($this->_dompdf->get_option("debugPng")) print '[pdflib stream unlink ' . $this->_file . ']';
+            if (!$this->_dompdf->get_option("debugKeepTemp"))
 
                 unlink($this->_file);
             $this->_file = null;
@@ -1144,8 +1144,8 @@ class PDFLib implements Canvas
             $data = file_get_contents($this->_file);
 
             //debugpng
-            if (DEBUGPNG) print '[pdflib output unlink ' . $this->_file . ']';
-            if (!DEBUGKEEPTEMP)
+            if ($this->_dompdf->get_option("debugPng")) print '[pdflib output unlink ' . $this->_file . ']';
+            if (!$this->_dompdf->get_option("debugKeepTemp"))
 
                 unlink($this->_file);
             $this->_file = null;

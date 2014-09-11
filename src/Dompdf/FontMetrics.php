@@ -334,7 +334,7 @@ class FontMetrics
      * Resolves a font family & subtype into an actual font file
      * Subtype can be one of 'normal', 'bold', 'italic' or 'bold_italic'.  If
      * the particular font family has no suitable font file, the default font
-     * ({@link DOMPDF_DEFAULT_FONT}) is used.  The font file returned
+     * ({@link Options::defaultFont}) is used.  The font file returned
      * is the absolute pathname to the font file on the system.
      *
      * @param string $familyRaw

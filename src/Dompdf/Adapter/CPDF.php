@@ -231,8 +231,8 @@ class CPDF implements Canvas
                 continue;
             }
 
-            if (DEBUGPNG) print '[__destruct unlink ' . $img . ']';
-            if (!DEBUGKEEPTEMP) unlink($img);
+            if ($this->_dompdf->get_option("debugPng")) print '[__destruct unlink ' . $img . ']';
+            if (!$this->_dompdf->get_option("debugKeepTemp")) unlink($img);
         }
     }
 

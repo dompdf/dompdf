@@ -47,7 +47,7 @@ class CanvasFactory
             }
 
             // FIXME The TCPDF adapter is not ready yet
-            //else if ( (DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
+            //else if ( ($DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
             //  $class = "Dompdf\\Adapter\\CPDF";
 
             else {

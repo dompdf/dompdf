@@ -798,7 +798,7 @@ class Style
             return $this->_font_family;
         }
 
-        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false; //=DEBUGCSS; Allow override of global setting for ad hoc debug
+        $DEBUGCSS = $this->_stylesheet->get_dompdf()->get_option("debugCss");
 
         // Select the appropriate font.  First determine the subtype, then check
         // the specified font-families for a candidate.
@@ -1545,7 +1545,7 @@ class Style
 
     protected function _image($val)
     {
-        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false;
+        $DEBUGCSS = $this->_stylesheet->get_dompdf()->get_option("debugCss");
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {

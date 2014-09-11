@@ -129,8 +129,8 @@ class Stylesheet
      *   static, visual, bitmap, paged, dompdf
      * Note, even though the generated pdf file is intended for print output,
      * the desired content might be different (e.g. screen or projection view of html file).
-     * Therefore allow specification of content by dompdf setting DOMPDF_DEFAULT_MEDIA_TYPE.
-     * If given, replace media "print" by DOMPDF_DEFAULT_MEDIA_TYPE.
+     * Therefore allow specification of content by dompdf setting Options::defaultMediaType.
+     * If given, replace media "print" by Options::defaultMediaType.
      * (Previous version $ACCEPTED_MEDIA_TYPES = $ACCEPTED_GENERIC_MEDIA_TYPES + $ACCEPTED_DEFAULT_MEDIA_TYPE)
      */
     static $ACCEPTED_DEFAULT_MEDIA_TYPE = "print";
@@ -402,7 +402,7 @@ class Stylesheet
             $d++;
         }
 
-        if (defined('DEBUGCSS') && DEBUGCSS) {
+        if ($this->_dompdf->get_option('debugCss')) {
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
@@ -957,7 +957,7 @@ class Stylesheet
                 // Sort by specificity
                 ksort($applied_styles);
 
-                if (defined('DEBUGCSS') && DEBUGCSS) {
+                if ($this->_dompdf->get_option('debugCss')) {
                     $debug_nodename = $frame->get_node()->nodeName;
                     print "<pre>\n[$debug_nodename\n";
                     foreach ($applied_styles as $spec => $arr) {
@@ -981,7 +981,7 @@ class Stylesheet
             // Inherit parent's styles if required
             if ($p) {
 
-                if (defined('DEBUGCSS') && DEBUGCSS) {
+                if ($this->_dompdf->get_option('debugCss')) {
                     print "inherit:\n";
                     print "[\n";
                     $p->get_style()->debug_print();
@@ -991,7 +991,7 @@ class Stylesheet
                 $style->inherit($p->get_style());
             }
 
-            if (defined('DEBUGCSS') && DEBUGCSS) {
+            if ($this->_dompdf->get_option('debugCss')) {
                 print "DomElementStyle:\n";
                 print "[\n";
                 $style->debug_print();
@@ -1162,7 +1162,7 @@ class Stylesheet
     /* See also style.cls Style::_image(), refactoring?, works also for imported css files */
     protected function _image($val)
     {
-        $DEBUGCSS = defined('DEBUGCSS') ? DEBUGCSS : false;
+        $DEBUGCSS = $this->_dompdf->get_option('debugCss');
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
@@ -1314,7 +1314,7 @@ class Stylesheet
     {
         $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
 
-        if (defined('DEBUGCSS') && DEBUGCSS) print '[_parse_properties';
+        if ($this->_dompdf->get_option('debugCss')) print '[_parse_properties';
 
         // Create the style
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
@@ -1342,7 +1342,7 @@ class Stylesheet
             }
             $prop = trim($prop);
             */
-            if (defined('DEBUGCSS') && DEBUGCSS) print '(';
+            if ($this->_dompdf->get_option('debugCss')) print '(';
 
             $important = false;
             $prop = trim($prop);
@@ -1357,19 +1357,19 @@ class Stylesheet
             }
 
             if ($prop === "") {
-                if (defined('DEBUGCSS') && DEBUGCSS) print 'empty)';
+                if ($this->_dompdf->get_option('debugCss')) print 'empty)';
                 continue;
             }
 
             $i = mb_strpos($prop, ":");
             if ($i === false) {
-                if (defined('DEBUGCSS') && DEBUGCSS) print 'novalue' . $prop . ')';
+                if ($this->_dompdf->get_option('debugCss')) print 'novalue' . $prop . ')';
                 continue;
             }
 
             $prop_name = rtrim(mb_strtolower(mb_substr($prop, 0, $i)));
             $value = ltrim(mb_substr($prop, $i + 1));
-            if (defined('DEBUGCSS') && DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
+            if ($this->_dompdf->get_option('debugCss')) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
             //New style, anyway empty
             //if ($important || !$style->important_get($prop_name) ) {
             //$style->$prop_name = array($value,$important);
@@ -1383,7 +1383,7 @@ class Stylesheet
             $style->$prop_name = $value;
             //$style->props_set($prop_name, $value);
         }
-        if (defined('DEBUGCSS') && DEBUGCSS) print '_parse_properties]';
+        if ($this->_dompdf->get_option('debugCss')) print '_parse_properties]';
 
         return $style;
     }
@@ -1403,12 +1403,12 @@ class Stylesheet
         $str = preg_replace($patterns, $replacements, $str);
 
         $sections = explode("}", $str);
-        if (defined('DEBUGCSS') && DEBUGCSS) print '[_parse_sections';
+        if ($this->_dompdf->get_option('debugCss')) print '[_parse_sections';
         foreach ($sections as $sect) {
             $i = mb_strpos($sect, "{");
 
             $selectors = explode(",", mb_substr($sect, 0, $i));
-            if (defined('DEBUGCSS') && DEBUGCSS) print '[section';
+            if ($this->_dompdf->get_option('debugCss')) print '[section';
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
@@ -1416,19 +1416,19 @@ class Stylesheet
                 $selector = trim($selector);
 
                 if ($selector == "") {
-                    if (defined('DEBUGCSS') && DEBUGCSS) print '#empty#';
+                    if ($this->_dompdf->get_option('debugCss')) print '#empty#';
                     continue;
                 }
-                if (defined('DEBUGCSS') && DEBUGCSS) print '#' . $selector . '#';
-                //if (DEBUGCSS) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
+                if ($this->_dompdf->get_option('debugCss')) print '#' . $selector . '#';
+                //if ($this->_dompdf->get_option('debugCss')) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
 
                 $this->add_style($selector, $style);
             }
 
-            if (defined('DEBUGCSS') && DEBUGCSS) print 'section]';
+            if ($this->_dompdf->get_option('debugCss')) print 'section]';
         }
 
-        if (defined('DEBUGCSS') && DEBUGCSS) print '_parse_sections]';
+        if ($this->_dompdf->get_option('debugCss')) print '_parse_sections]';
     }
 
     public static function getDefaultStylesheet()

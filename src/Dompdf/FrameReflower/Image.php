@@ -47,7 +47,7 @@ class Image extends AbstractFrameReflower
 
     function get_min_max_width()
     {
-        if (DEBUGPNG) {
+        if ($this->get_dompdf()->get_option("debugPng")) {
             // Determine the image's size. Time consuming. Only when really needed?
             list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url());
             print "get_min_max_width() " .
@@ -179,7 +179,7 @@ class Image extends AbstractFrameReflower
             }
         }
 
-        if (DEBUGPNG) print $width . ' ' . $height . ';';
+        if ($this->get_dompdf()->get_option("debugPng")) print $width . ' ' . $height . ';';
 
         $style->width = $width . "pt";
         $style->height = $height . "pt";

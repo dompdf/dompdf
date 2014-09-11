@@ -319,7 +319,7 @@ class Dompdf
         }
 
         if (!$this->options->isRemoteEnabled() && ($this->protocol != "" && $this->protocol !== "file://")) {
-            throw new Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
+            throw new Exception("Remote file requested, but remote file download is disabled.");
         }
 
         if ($this->protocol == "" || $this->protocol === "file://") {
@@ -332,7 +332,7 @@ class Dompdf
 
             $chroot = $this->options->getChroot();
             if (strpos($realfile, $chroot) !== 0) {
-                throw new Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
+                throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
             }
 
             // Exclude dot files (e.g. .htaccess)

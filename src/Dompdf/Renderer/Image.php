@@ -115,9 +115,9 @@ class Image extends Block
             }
         }
 
-        if (DEBUG_LAYOUT && DEBUG_LAYOUT_BLOCKS) {
+        if ($this->_dompdf->get_option("debugLayout") && $this->_dompdf->get_option("debugLayoutBlocks")) {
             $this->_debug_layout($frame->get_border_box(), "blue");
-            if (DEBUG_LAYOUT_PADDINGBOX) {
+            if ($this->_dompdf->get_option("debugLayoutPaddingBox")) {
                 $this->_debug_layout($frame->get_padding_box(), "blue", array(0.5, 0.5));
             }
         }

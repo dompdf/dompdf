@@ -35,6 +35,13 @@ class Cache
      * @var string
      */
     public static $broken_image = "/../../res/broken_image.png";
+    
+    /**
+     * Current dompdf instance
+     *
+     * @var Dompdf
+     */
+    protected $_dompdf;
 
     /**
      * Resolve and fetch an image for use.
@@ -50,6 +57,8 @@ class Cache
      */
     static function resolve_url($url, $protocol, $host, $base_path, Dompdf $dompdf)
     {
+        $this->_dompdf = $dompdf;
+        
         $parsed_url = Helpers::explode_url($url);
         $message = null;
 
@@ -63,7 +72,7 @@ class Cache
 
             // Remote not allowed and is not DataURI
             if (!$enable_remote && $remote && !$data_uri) {
-                throw new ImageException("DOMPDF_ENABLE_REMOTE is set to FALSE");
+                throw new ImageException("Remote file access is disabled.");
             } // Remote allowed or DataURI
             else {
                 if ($enable_remote && $remote || $data_uri) {
@@ -147,12 +156,12 @@ class Cache
      */
     static function clear()
     {
-        if (empty(self::$_cache) || DEBUGKEEPTEMP) {
+        if (empty(self::$_cache) || $this->_dompdf->get_option("debugKeepTemp")) {
             return;
         }
 
         foreach (self::$_cache as $file) {
-            if (DEBUGPNG) {
+            if ($this->_dompdf->get_option("debugPng")) {
                 print "[clear unlink $file]";
             }
             unlink($file);

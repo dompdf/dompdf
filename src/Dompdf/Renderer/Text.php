@@ -150,7 +150,7 @@ class Text extends AbstractRenderer
             $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $line_thickness);
         }
 
-        if (DEBUG_LAYOUT && DEBUG_LAYOUT_LINES) {
+        if ($this->_dompdf->get_option("debugLayout") && $this->_dompdf->get_option("debugLayoutLines")) {
             $text_width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $frame_font_size);
             $this->_debug_layout(array($x, $y, $text_width + ($line->wc - 1) * $word_spacing, $frame_font_size), "orange", array(0.5, 0.5));
         }
