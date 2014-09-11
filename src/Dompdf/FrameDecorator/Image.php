@@ -62,8 +62,8 @@ class Image extends AbstractFrameDecorator
             $alt = $frame->get_node()->getAttribute("alt")
         ) {
             $style = $frame->get_style();
-            $style->width = (4 / 3) * FontMetrics::get_text_width($alt, $style->font_family, $style->font_size, $style->word_spacing);
-            $style->height = FontMetrics::get_font_height($style->font_family, $style->font_size);
+            $style->width = (4 / 3) * $dompdf->getFontMetrics()->getTextWidth($alt, $style->font_family, $style->font_size, $style->word_spacing);
+            $style->height = $dompdf->getFontMetrics()->getFontHeight($style->font_family, $style->font_size);
         }
     }
 

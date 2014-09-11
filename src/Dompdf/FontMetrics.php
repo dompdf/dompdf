@@ -10,7 +10,7 @@
 
 namespace Dompdf;
 
-use Font;
+use FontLib\Font;
 
 /**
  * The font metrics class
@@ -29,7 +29,7 @@ class FontMetrics
      *
      * This file must be writable by the webserver process only to update it
      * with save_font_families() after adding the .afm file references of a new font family
-     * with FontMetrics::save_font_families().
+     * with FontMetrics::saveFontFamilies().
      * This is typically done only from command line with load_font.php on converting
      * ttf fonts to ufm with php-font-lib.
      */
@@ -122,8 +122,8 @@ class FontMetrics
             define('DOMPDF_DIR', $this->getOptions()->getRootDir());
         }
         $file = $this->getOptions()->getRootDir() . "/lib/fonts/dompdf_font_family_cache.dist.php";
-        $distFonts = require_once $file;
-
+        $distFonts = require $file;
+        
         // FIXME: temporary step for font cache created before the font cache fix
         if (is_readable($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache")) {
             $old_fonts = require_once $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
@@ -135,21 +135,21 @@ class FontMetrics
             }
             $distFonts += $old_fonts;
         }
-
-        if (!is_readable(self::CACHE_FILE)) {
+        
+        if (!is_readable($this->getCacheFile())) {
             $this->fontLookup = $distFonts;
             return;
         }
-
+        
         $this->fontLookup = require_once $this->getCacheFile();
-
+        
         // If the font family cache is still in the old format
         if ($this->fontLookup === 1) {
             $cache_data = file_get_contents($this->getCacheFile());
             file_put_contents($this->getCacheFile(), "<" . "?php return $cache_data ?" . ">");
             $this->fontLookup = require_once $this->getCacheFile();
         }
-
+        
         // Merge provided fonts
         $this->fontLookup += $distFonts;
     }

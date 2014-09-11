@@ -441,7 +441,7 @@ class Block extends AbstractFrameReflower
                 }
 
                 // One space character's width. Will be used to get a more accurate spacing
-                $space_width = FontMetrics::get_text_width(" ", $style->font_family, $style->font_size);
+                $space_width = $this->get_dompdf()->getFontMetrics()->getTextWidth(" ", $style->font_family, $style->font_size);
 
                 foreach ($lines as $line) {
                     if ($line->left) {

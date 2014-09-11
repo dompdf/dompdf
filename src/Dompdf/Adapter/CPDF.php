@@ -703,8 +703,8 @@ class CPDF implements Canvas
         $font .= ".afm";
         $pdf->selectFont($font);
 
-        //FontMetrics::get_font_height($font, $size) ==
-        //$this->get_font_height($font, $size) ==
+        //FontMetrics::getFontHeight($font, $size) ==
+        //$this->getFontHeight($font, $size) ==
         //$this->_pdf->selectFont($font),$this->_pdf->getFontHeight($size)
         //- FontBBoxheight+FontHeightOffset, scaled to $size, in pt
         //$this->_pdf->getFontDescender($size)

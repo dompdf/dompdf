@@ -208,7 +208,7 @@ class PDFLib implements Canvas
         $this->_objs = array();
 
         // Set up font paths
-        $families = FontMetrics::get_font_families();
+        $families = $dompdf->getFontMetrics->getFontFamilies();
         foreach ($families as $files) {
             foreach ($files as $file) {
                 $face = basename($file);
@@ -854,7 +854,7 @@ class PDFLib implements Canvas
         $this->_pdf->setfont($fh, $size);
         $this->_set_fill_color($color);
 
-        $y = $this->y($y) - FontMetrics::get_font_height($font, $size);
+        $y = $this->y($y) - $this->get_font_height($font, $size);
 
         $word_spacing = (float)$word_spacing;
         $char_spacing = (float)$char_spacing;

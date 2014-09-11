@@ -35,8 +35,8 @@ function to_bytes($string) {
 <h3 id="installed-fonts">Installed fonts</h3>
 
 <?php 
-FontMetrics::init();
-$fonts = FontMetrics::get_font_families();
+$fontMetrics = new FontMetrics(CanvasFactory::get_instance(new DOMPDF()), new Options());
+$fonts = $fontMetrics->getFontFamilies();
 $extensions = array("ttf", "afm", "afm.php", "ufm", "ufm.php");
 ?>
 

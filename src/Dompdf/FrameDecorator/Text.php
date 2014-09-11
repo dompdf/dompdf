@@ -67,7 +67,7 @@ class Text extends AbstractFrameDecorator
 //      var_dump($asc = utf8_decode($text));
 //      for ($i = 0; $i < strlen($asc); $i++)
 //        Helpers::pre_r("$i: " . $asc[$i] . " - " . ord($asc[$i]));
-//      Helpers::pre_r("width: " . FontMetrics::get_text_width($text, $style->font_family, $style->font_size));
+//      Helpers::pre_r("width: " . $this->_dompdf->getFontMetrics()->getTextWidth($text, $style->font_family, $style->font_size));
 
         return $this->_frame->get_node()->data;
     }
@@ -95,11 +95,11 @@ class Text extends AbstractFrameDecorator
         Helpers::pre_r('-----');
         Helpers::pre_r($style->line_height);
         Helpers::pre_r($style->font_size);
-        Helpers::pre_r(FontMetrics::get_font_height($font, $size));
-        Helpers::pre_r(($style->line_height / $size) * FontMetrics::get_font_height($font, $size));
+        Helpers::pre_r($this->_dompdf->getFontMetrics()->getFontHeight($font, $size));
+        Helpers::pre_r(($style->line_height / $size) * $this->_dompdf->getFontMetrics()->getFontHeight($font, $size));
         */
 
-        return ($style->line_height / ($size > 0 ? $size : 1)) * FontMetrics::get_font_height($font, $size);
+        return ($style->line_height / ($size > 0 ? $size : 1)) * $this->_dompdf->getFontMetrics()->getFontHeight($font, $size);
 
     }
 
@@ -121,7 +121,7 @@ class Text extends AbstractFrameDecorator
         $char_spacing = $style->length_in_pt($style->letter_spacing);
 
         // Re-adjust our width to account for the change in spacing
-        $style->width = FontMetrics::get_text_width($this->get_text(), $style->font_family, $style->font_size, $spacing, $char_spacing);
+        $style->width = $this->_dompdf->getFontMetrics()->getTextWidth($this->get_text(), $style->font_family, $style->font_size, $spacing, $char_spacing);
     }
 
     //........................................................................
@@ -136,7 +136,7 @@ class Text extends AbstractFrameDecorator
         $word_spacing = $style->length_in_pt($style->word_spacing);
         $char_spacing = $style->length_in_pt($style->letter_spacing);
 
-        return $style->width = FontMetrics::get_text_width($text, $font, $size, $word_spacing, $char_spacing);
+        return $style->width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
     }
 
     //........................................................................

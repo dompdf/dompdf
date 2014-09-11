@@ -1,6 +1,12 @@
 <?php
 
+use Dompdf\Dompdf;
+use Dompdf\CanvasFactory;
+use Dompdf\Exception;
 use Dompdf\FontMetrics;
+use Dompdf\Options;
+
+use FontLib\Font;
 
 session_start();
 
@@ -11,6 +17,7 @@ include "functions.inc.php";
 
 switch ($cmd) {
   case "clear-font-cache":
+    // TODO: we're no longer relying on the constants, should read from settings object
     $files = glob(DOMPDF_FONT_CACHE."*.{UFM,AFM,ufm,afm}.php", GLOB_BRACE);
     foreach($files as $file) {
       unlink($file);
@@ -63,9 +70,9 @@ switch ($cmd) {
         "style"  => $style,
       );
       
-      FontMetrics::init();
+      $fontMetrics = new FontMetrics(CanvasFactory::get_instance(new DOMPDF()), new Options());
       
-      if (!FontMetrics::register_font($style_arr, $data["tmp_name"][$name])) {
+      if (!$fontMetrics->registerFont($style_arr, $data["tmp_name"][$name])) {
         echo htmlentities($data["name"][$name])." is not a valid font file";
       }
       else {

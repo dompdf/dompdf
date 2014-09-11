@@ -214,7 +214,7 @@ class Factory
         $deco = new $decorator($frame, $dompdf);
 
         $deco->set_positioner(new $positioner($deco));
-        $deco->set_reflower(new $reflower($deco));
+        $deco->set_reflower(new $reflower($deco, $dompdf->getFontMetrics()));
 
         if ($root) {
             $deco->set_root($root);

@@ -1298,7 +1298,7 @@ class Stylesheet
             "style" => $descriptors->font_style,
         );
 
-        FontMetrics::register_font($style, $valid_sources[0]["path"]);
+        $this->getFontMetrics()->registerFont($style, $valid_sources[0]["path"]);
     }
 
     /**

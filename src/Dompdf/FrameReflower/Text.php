@@ -442,13 +442,13 @@ class Text extends AbstractFrameReflower
                 // Find the longest word (i.e. minimum length)
                 $lines = array_flip(preg_split("/\n/", $text));
                 /*foreach($words as &$word) {
-                  $word = FontMetrics::get_text_width($word, $font, $size, $word_spacing, $char_spacing);
+                  $word = $this->getFontMetrics()->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
                 }*/
                 array_walk(
                     $lines,
                     create_function(
                         '&$val,$str',
-                        '$val = FontMetrics::get_text_width($str, "' . $font . '", ' . $size . ', ' . $word_spacing . ', ' . $char_spacing . ');'
+                        '$val = $this->getFontMetrics()->getTextWidth($str, "' . $font . '", ' . $size . ', ' . $word_spacing . ', ' . $char_spacing . ');'
                     )
                 );
                 arsort($lines);

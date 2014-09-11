@@ -8,10 +8,17 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-use Dompdf\Exception;
-use Dompdf\FontMetrics;
+// TODO: allow user to set options (chiefly fontDir and fontCache)
 
 require_once "dompdf_config.inc.php";
+
+use Dompdf\Dompdf;
+use Dompdf\CanvasFactory;
+use Dompdf\Exception;
+use Dompdf\FontMetrics;
+use Dompdf\Options;
+
+use FontLib\Font;
 
 /**
  * Display command line usage
@@ -67,7 +74,7 @@ if ( $_SERVER["argc"] < 3 && @$_SERVER["argv"][1] != "system_fonts" ) {
  * @throws Exception
  */
 function install_font_family($fontname, $normal, $bold = null, $italic = null, $bold_italic = null) {
-  FontMetrics::init();
+  $fontMetrics = new FontMetrics(CanvasFactory::get_instance(new DOMPDF()), new Options());
   
   // Check if the base filename is readable
   if ( !is_readable($normal) )
@@ -146,15 +153,16 @@ function install_font_family($fontname, $normal, $bold = null, $italic = null, $
   }
 
   // Store the fonts in the lookup table
-  FontMetrics::set_font_family($fontname, $entry);
+  $fontMetrics->setFontFamily($fontname, $entry);
 
   // Save the changes
-  FontMetrics::save_font_families();
+  $fontMetrics->saveFontFamilies();
 }
 
 // If installing system fonts (may take a long time)
 if ( $_SERVER["argv"][1] === "system_fonts" ) {
-  $fonts = FontMetrics::get_system_fonts();
+  $fontMetrics = new FontMetrics(CanvasFactory::get_instance(new DOMPDF()), new Options());
+  $fonts = $fontMetrics->getSystemFonts();
   
   foreach ( $fonts as $family => $files ) {
     echo " >> Installing '$family'... \n";
