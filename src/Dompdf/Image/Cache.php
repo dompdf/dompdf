@@ -27,7 +27,7 @@ class Cache
      *
      * @var array
      */
-    static protected $_cache = array();
+    protected static $_cache = array();
 
     /**
      * The url to the "broken image" used when images can't be loade
@@ -41,7 +41,7 @@ class Cache
      *
      * @var Dompdf
      */
-    protected $_dompdf;
+    protected static $_dompdf;
 
     /**
      * Resolve and fetch an image for use.
@@ -57,7 +57,7 @@ class Cache
      */
     static function resolve_url($url, $protocol, $host, $base_path, Dompdf $dompdf)
     {
-        $this->_dompdf = $dompdf;
+        self::$_dompdf = $dompdf;
         
         $parsed_url = Helpers::explode_url($url);
         $message = null;
@@ -156,12 +156,12 @@ class Cache
      */
     static function clear()
     {
-        if (empty(self::$_cache) || $this->_dompdf->get_option("debugKeepTemp")) {
+        if (empty(self::$_cache) || self::$_dompdf->get_option("debugKeepTemp")) {
             return;
         }
 
         foreach (self::$_cache as $file) {
-            if ($this->_dompdf->get_option("debugPng")) {
+            if (self::$_dompdf->get_option("debugPng")) {
                 print "[clear unlink $file]";
             }
             unlink($file);
