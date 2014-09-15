@@ -126,12 +126,12 @@ class FontMetrics
         
         // FIXME: temporary step for font cache created before the font cache fix
         if (is_readable($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache")) {
-            $old_fonts = require_once $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
+            $old_fonts = require $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
             // If the font family cache is still in the old format
             if ($old_fonts === 1) {
                 $cache_data = file_get_contents($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache");
                 file_put_contents($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache", "<" . "?php return $cache_data ?" . ">");
-                $old_fonts = require_once $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
+                $old_fonts = require $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
             }
             $distFonts += $old_fonts;
         }
@@ -139,15 +139,15 @@ class FontMetrics
         if (!is_readable($this->getCacheFile())) {
             $this->fontLookup = $distFonts;
             return;
+        } else {
+            $this->fontLookup = require $this->getCacheFile();
         }
-        
-        $this->fontLookup = require_once $this->getCacheFile();
         
         // If the font family cache is still in the old format
         if ($this->fontLookup === 1) {
             $cache_data = file_get_contents($this->getCacheFile());
             file_put_contents($this->getCacheFile(), "<" . "?php return $cache_data ?" . ">");
-            $this->fontLookup = require_once $this->getCacheFile();
+            $this->fontLookup = require $this->getCacheFile();
         }
         
         // Merge provided fonts
