@@ -15,6 +15,9 @@
  * @license Public Domain http://creativecommons.org/licenses/publicdomain/
  * @package Cpdf
  */
+use FontLib\Font;
+use FontLib\Binary_Stream;
+
 class Cpdf {
 
   /**
@@ -2358,7 +2361,7 @@ EOT;
 
             // Write new font
             $tmp_name = "$fbfile.tmp.".uniqid();
-            $font_obj->open($tmp_name, Font_Binary_Stream::modeWrite);
+            $font_obj->open($tmp_name, Binary_Stream::modeWrite);
             $font_obj->encode(array("OS/2"));
             $font_obj->close();
 
