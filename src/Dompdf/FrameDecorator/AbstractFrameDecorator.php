@@ -746,7 +746,7 @@ abstract class AbstractFrameDecorator extends Frame
                 return $value;
 
             case "decimal-leading-zero":
-                return str_pad($value, 2, "0");
+                return str_pad($value, 2, "0", STR_PAD_LEFT);
 
             case "lower-roman":
                 return Helpers::dec2roman($value);
