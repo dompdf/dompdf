@@ -117,7 +117,7 @@ require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
 Download an archive of dompdf and extract it into the directory where dompdf
 will reside
  * You can download stable copies of dompdf from
-   https://github.com/dompdf/dompdf/tags
+   https://github.com/dompdf/dompdf/releases
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
 
