@@ -165,10 +165,10 @@ class PDFLib_Adapter implements Canvas {
     $this->_pdf = new PDFLib();
 
     if ( defined("DOMPDF_PDFLIB_LICENSE") )
-      $this->_pdf->set_parameter( "license", DOMPDF_PDFLIB_LICENSE);
+      $this->_pdf->set_option( "license=".DOMPDF_PDFLIB_LICENSE);
 
-    $this->_pdf->set_parameter("textformat", "utf8");
-    $this->_pdf->set_parameter("fontwarning", "false");
+    $this->_pdf->set_option("textformat=utf8");
+    //$this->_pdf->set_option("fontwarning=false");
 
     $this->_pdf->set_info("Creator", "DOMPDF");
 
@@ -181,7 +181,7 @@ class PDFLib_Adapter implements Canvas {
     if ( self::$IN_MEMORY )
       $this->_pdf->begin_document("","");
     else {
-      $tmp_dir = $this->_dompdf->get_options("temp_dir");
+      $tmp_dir = DOMPDF_TEMP_DIR;
       $tmp_name = tempnam($tmp_dir, "libdompdf_pdf_");
       @unlink($tmp_name);
       $this->_file = "$tmp_name.pdf";
@@ -227,10 +227,10 @@ class PDFLib_Adapter implements Canvas {
           continue;
         }
 
-        $this->_pdf->set_parameter("FontOutline", "\{$face\}=\{$outline\}");
+        $this->_pdf->set_option("FontOutline={".$face."=".$outline."}");
 
         if ( !is_null($afm) ) {
-          $this->_pdf->set_parameter("FontAFM", "\{$face\}=\{$afm\}");
+          $this->_pdf->set_option("FontAFM={".$face."=".$afm."}");
         }
       }
     }
@@ -548,7 +548,7 @@ class PDFLib_Adapter implements Canvas {
      * fitwindow Fit the complete page to the window.
      * fixed
      */
-    //$this->_pdf->set_parameter("openaction", $view);
+    //$this->_pdf->set_option("openaction=".$view);
   }
 
   /**
@@ -591,7 +591,8 @@ class PDFLib_Adapter implements Canvas {
 
     else {
 
-      $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
+      $this->_pdf->set_option("searchpath={" . dirname($font) . "}");
+      $this->_fonts[$key] = $this->_pdf->load_font(basename($font), $encoding, $options);
       return $this->_fonts[$key];
 
     }
@@ -996,9 +997,9 @@ class PDFLib_Adapter implements Canvas {
     $this->_add_page_text();
 
     if ( isset($options["compress"]) && $options["compress"] != 1 )
-      $this->_pdf->set_value("compress", 0);
+      $this->_pdf->set_option("compress=0");
     else
-      $this->_pdf->set_value("compress", 6);
+      $this->_pdf->set_option("compress=6");
 
     $this->_close();
 
@@ -1056,9 +1057,9 @@ class PDFLib_Adapter implements Canvas {
     $this->_add_page_text();
 
     if ( isset($options["compress"]) && $options["compress"] != 1 )
-      $this->_pdf->set_value("compress", 0);
+      $this->_pdf->set_option("compress=0");
     else
-      $this->_pdf->set_value("compress", 6);
+      $this->_pdf->set_option("compress=6");
 
     $this->_close();
 
