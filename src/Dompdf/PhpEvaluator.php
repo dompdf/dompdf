@@ -35,6 +35,7 @@ class PhpEvaluator
 
         // Set up some variables for the inline code
         $pdf = $this->_canvas;
+        $fontMetrics = $pdf->get_dompdf()->getFontMetrics();
         $PAGE_NUM = $pdf->get_page_number();
         $PAGE_COUNT = $pdf->get_page_count();
 
