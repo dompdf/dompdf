@@ -711,7 +711,7 @@ class Dompdf
             $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
         }
 
-        //$this->pdf = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+        $this->pdf = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
         $this->setFontMetrics(new FontMetrics($this->pdf, $this->getOptions()));
 
         if ($this->options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
