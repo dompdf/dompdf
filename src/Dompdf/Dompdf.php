@@ -710,8 +710,9 @@ class Dompdf
         if (is_array($basePageStyle->size)) {
             $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
         }
-
-        $this->pdf = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+        
+        //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion.
+        $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
         $this->setFontMetrics(new FontMetrics($this->pdf, $this->getOptions()));
 
         if ($this->options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
