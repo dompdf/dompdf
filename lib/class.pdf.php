@@ -143,7 +143,7 @@ class Cpdf {
   public $looseObjects = array();
 
   /**
-   * array contains infomation about how the loose objects are to be added to the document
+   * array contains information about how the loose objects are to be added to the document
    */
   public $addLooseObjects = array();
 
@@ -189,7 +189,7 @@ class Cpdf {
   /**
    * @var array Store the information about the relationship between font families
    * this used so that the code knows which font is the bold version of another font, etc.
-   * the value of this array is initialised in the constuctor function.
+   * the value of this array is initialised in the constructor function.
    */
   public $fontFamilies = array();
 
@@ -210,7 +210,7 @@ class Cpdf {
 
   /**
    * @var string Temporary folder.
-   * If empty string, will attempty system tmp folder.
+   * If empty string, will attempt system tmp folder.
    * This can be passed in from class creator.
    * Only used for conversion of gd images to jpeg images.
    */
@@ -227,7 +227,7 @@ class Cpdf {
   public $messages = '';
 
   /**
-   * @var string The ancryption array for the document encryption is stored here
+   * @var string The encryption array for the document encryption is stored here
    */
   public $arc4 = '';
 
@@ -716,7 +716,7 @@ class Cpdf {
         // For Unicode fonts, we need to incorporate font data into
         // sub-sections that are linked from the primary font section.
         // Look at o_fontGIDtoCID and o_fontDescendentCID functions
-        // for more informaiton.
+        // for more information.
         //
         // All of this code is adapted from the excellent changes made to
         // transform FPDF to TCPDF (http://tcpdf.sourceforge.net/)
@@ -1091,7 +1091,7 @@ EOT;
 
       case 'add':
         // this is to add new items to the procset list, despite the fact that this is considered
-        // obselete, the items are required for printing to some postscript printers
+        // obsolete, the items are required for printing to some postscript printers
         switch ($options) {
         case 'ImageB':
         case 'ImageC':
@@ -1375,7 +1375,7 @@ EOT;
       break;
 
     case 'add':
-      // add more options to the decleration
+      // add more options to the declaration
       foreach ($options as $k => $v) {
         $o['info'][$k] = $v;
       }
@@ -1640,7 +1640,7 @@ EOT;
       $this->objects[$id] = array('t' => 'encryption', 'info' => $options);
       $this->arc4_objnum = $id;
 
-      // figure out the additional paramaters required
+      // figure out the additional parameters required
       $pad = chr(0x28) .chr(0xBF) .chr(0x4E) .chr(0x5E) .chr(0x4E) .chr(0x75) .chr(0x8A) .chr(0x41)
              .chr(0x64) .chr(0x00) .chr(0x4E) .chr(0x56) .chr(0xFF) .chr(0xFA) .chr(0x01) .chr(0x08)
              .chr(0x2E) .chr(0x2E) .chr(0x00) .chr(0xB6) .chr(0xD0) .chr(0x68) .chr(0x3E) .chr(0x80)
@@ -1905,7 +1905,7 @@ EOT;
   }
 
   /**
-   * intialize a new document
+   * initialize a new document
    * if this is called on an existing document results may be unpredictable, but the existing document would be lost at minimum
    * this function is called automatically by the constructor function
    */
@@ -2521,7 +2521,7 @@ EOT;
    * note that this system is quite flexible, a bold-italic font can be completely different to a
    * italic-bold font, and even bold-bold will have to be defined within the family to have meaning
    * This function is to be called whenever the currentTextState is changed, it will update
-   * the currentFont setting to whatever the appropriatte family one is.
+   * the currentFont setting to whatever the appropriate family one is.
    * If the user calls selectFont themselves then that will reset the currentBaseFont, and the currentFont
    * This function will change the currentFont to whatever it should be, but will not change the
    * currentBaseFont.
@@ -2865,7 +2865,7 @@ EOT;
   }
 
   /**
-   * a filled rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
+   * a filled rectangle, note that it is the width and height of the rectangle which are the secondary parameters, not
    * the coordinates of the upper-right corner
    */
   function filledRectangle($x1, $y1, $width, $height) {
@@ -2873,7 +2873,7 @@ EOT;
   }
 
   /**
-   * draw a rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
+   * draw a rectangle, note that it is the width and height of the rectangle which are the secondary parameters, not
    * the coordinates of the upper-right corner
    */
   function rectangle($x1, $y1, $width, $height) {
@@ -2956,7 +2956,7 @@ EOT;
    * scale
    * @param float $s_x scaling factor for width as percent
    * @param float $s_y scaling factor for height as percent
-   * @param float $x Origin abscisse
+   * @param float $x Origin abscissa
    * @param float $y Origin ordinate
    */
   function scale($s_x, $s_y, $x, $y) {
@@ -2989,7 +2989,7 @@ EOT;
   /**
    * rotate
    * @param float $angle angle in degrees for counter-clockwise rotation
-   * @param float $x Origin abscisse
+   * @param float $x Origin abscissa
    * @param float $y Origin ordinate
    */
   function rotate($angle, $x, $y) {
@@ -3012,7 +3012,7 @@ EOT;
    * skew
    * @param float $angle_x
    * @param float $angle_y
-   * @param float $x Origin abscisse
+   * @param float $x Origin abscissa
    * @param float $y Origin ordinate
    */
   function skew($angle_x, $angle_y, $x, $y) {
@@ -3255,7 +3255,7 @@ EOT;
     $length = mb_strlen($text, '8bit'); // http://www.php.net/manual/en/function.mb-strlen.php#77040
     $unicode = array(); // array containing unicode values
     $bytes = array(); // array containing single character byte sequences
-    $numbytes = 1; // number of octetc needed to represent the UTF-8 character
+    $numbytes = 1; // number of octets needed to represent the UTF-8 character
 
     for ($i = 0; $i < $length; $i++) {
       $c = ord($text[$i]); // get one string character at time
@@ -3547,7 +3547,7 @@ EOT;
         }
       }
 
-      // add additionnal char spacing
+      // add additional char spacing
       if ( $char_spacing != 0 ) {
         $w += $char_spacing * $space_scale * (count($unicode) + $n_spaces);
       }
@@ -3583,7 +3583,7 @@ EOT;
         }
       }
 
-      // add additionnal char spacing
+      // add additional char spacing
       if ( $char_spacing != 0 )  {
         $w += $char_spacing * $space_scale * ($len + $n_spaces);
       }
@@ -3694,7 +3694,7 @@ EOT;
    */
   function stopObject($id) {
     // if an object has been appearing on pages up to now, then stop it, this page will
-    // be the last one that could contian it.
+    // be the last one that could contain it.
     if (isset($this->addLooseObjects[$id])) {
       $this->addLooseObjects[$id] = '';
     }
@@ -4327,7 +4327,7 @@ EOT;
           //debugpng
           if (DEBUGPNG) print '[addPngFromFile alpha channel not supported: '.$info['colorType'].' '.$file.']';
 
-          $errormsg = 'transparancey alpha channel not supported, transparency only supported for palette images.';
+          $errormsg = 'transparency alpha channel not supported, transparency only supported for palette images.';
         }
       }
 
@@ -4473,7 +4473,7 @@ EOT;
    */
   function openHere($style, $a = 0, $b = 0, $c = 0) {
     // this function will open the document at a specified page, in a specified style
-    // the values for style, and the required paramters are:
+    // the values for style, and the required parameters are:
     // 'XYZ'  left, top, zoom
     // 'Fit'
     // 'FitH' top
