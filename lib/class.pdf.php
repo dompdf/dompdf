@@ -4048,7 +4048,7 @@ EOT;
       }
 
       // embed image, masked with previously embedded mask
-      $this->addImagePng($tempfile_plain, $x, $y, $w, $h, $imgplain, false, true);
+      $this->addImagePng($tempfile_plain, $x, $y, $w, $h, $imgplain, false, null !== $tempfile_alpha);
       imagedestroy($imgplain);
 
       // remove temp files
