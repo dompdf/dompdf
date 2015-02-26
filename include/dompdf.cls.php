@@ -596,6 +596,12 @@ class DOMPDF {
     // https://developer.mozilla.org/en/mozilla's_quirks_mode
     $quirksmode = false;
 
+    // begin new line on &shy; or &#173;
+    $re = ["/(&shy)/i","/(&#173)/i"];
+    $subst = ["-<br/>","-<br/>"];
+    $str = preg_replace($re, $subst, $str);
+    // end new line on &shy; or &#173;
+
     if ( $this->get_option("enable_html5_parser") ) {
       $tokenizer = new HTML5_Tokenizer($str);
       $tokenizer->parse();
