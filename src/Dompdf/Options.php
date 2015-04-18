@@ -136,6 +136,16 @@ class Options
     /**
      * @var string
      */
+    private $pdfBackend = "CPDF";
+    
+    /**
+     * @var string
+     */
+    private $pdflibLicense = "";
+    
+    /**
+     * @var string
+     */
     private $adminUsername = "user";
 
     /**
@@ -221,6 +231,10 @@ class Options
                 $this->setDebugLayoutInline($value);
             } elseif ($key === 'debugLayoutPaddingBox' || $key === 'debug_layout_padding_box') {
                 $this->setDebugLayoutPaddingBox($value);
+            } elseif ($key === 'pdfBackend' || $key === 'pdf_backend') {
+                $this->setPdfBackend($value);
+            } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
+                $this->setPdflibLicense($value);
             } elseif ($key === 'adminUsername' || $key === 'admin_username') {
                 $this->setAdminUsername($value);
             } elseif ($key === 'adminPassword' || $key === 'admin_password') {
@@ -286,7 +300,9 @@ class Options
             return $this->getDebugLayoutInline();
         } elseif ($key === 'debugLayoutPaddingBox' || $key === 'debug_layout_padding_box') {
             return $this->getDebugLayoutPaddingBox();
-        } elseif ($key === 'adminUsername' || $key === 'admin_username') {
+        } elseif ($key === 'pdfBackend' || $key === 'pdf_backend') {
+            return $this->getPdflibLicense();
+        } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
             return $this->getAdminUsername();
         } elseif ($key === 'adminPassword' || $key === 'admin_password') {
             return $this->getAdminPassword();
@@ -330,6 +346,42 @@ class Options
         return $this->adminUsername;
     }
 
+    /**
+     * @param string $pdfBackend
+     * @return $this
+     */
+    public function setPdfBackend($pdfBackend)
+    {
+        $this->pdfBackend = $pdfBackend;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPdfBackend()
+    {
+        return $this->pdfBackend;
+    }
+    
+    /**
+     * @param string $pdflibLicense
+     * @return $this
+     */
+    public function setPdflibLicense($pdflibLicense)
+    {
+        $this->pdflibLicense = $pdflibLicense;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPdflibLicense()
+    {
+        return $this->pdflibLicense;
+    }
+    
     /**
      * @param string $chroot
      * @return $this

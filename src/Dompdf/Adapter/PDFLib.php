@@ -173,9 +173,10 @@ class PDFLib implements Canvas
         $this->_dompdf = $dompdf;
 
         $this->_pdf = new \PDFLib();
-
-        if (defined("DOMPDF_PDFLIB_LICENSE"))
-            $this->_pdf->set_parameter("license", DOMPDF_PDFLIB_LICENSE);
+        
+        $license = $dompdf->get_option('pdflibLicense');
+        if (strlen($license) > 0)
+            $this->_pdf->set_parameter("license", $license);
 
         $this->_pdf->set_parameter("textformat", "utf8");
         $this->_pdf->set_parameter("fontwarning", "false");
@@ -619,7 +620,7 @@ class PDFLib implements Canvas
 
             // Unicode encoding is only available for the commerical
             // version of PDFlib and not PDFlib-Lite
-            if (defined("DOMPDF_PDFLIB_LICENSE"))
+            if (strlen($dompdf->get_option('pdflibLicense')) > 0)
                 $encoding = "unicode";
             else
                 $encoding = "auto";
@@ -868,7 +869,7 @@ class PDFLib implements Canvas
 
     function javascript($code)
     {
-        if (defined("DOMPDF_PDFLIB_LICENSE")) {
+        if (strlen($dompdf->get_option('pdflibLicense')) > 0) {
             $this->_pdf->create_action("JavaScript", $code);
         }
     }

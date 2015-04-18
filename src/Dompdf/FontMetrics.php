@@ -95,8 +95,8 @@ class FontMetrics
         $cache_data = var_export($this->fontLookup, true);
         $fontDir = $this->getOptions()->getFontDir();
         $rootDir = $this->getOptions()->getRootDir();
-        $cache_data = str_replace('\'' . $fontDir, 'DOMPDF_FONT_DIR . \'', $cache_data);
-        $cache_data = str_replace('\'' . $rootDir, 'DOMPDF_DIR . \'', $cache_data);
+        $cache_data = str_replace('\'' . $fontDir, '$fontDir . \'', $cache_data);
+        $cache_data = str_replace('\'' . $rootDir, '$rootDir . \'', $cache_data);
         $cache_data = "<" . "?php return $cache_data ?" . ">";
         file_put_contents($this->getCacheFile(), $cache_data);
     }
@@ -117,11 +117,13 @@ class FontMetrics
     public function loadFontFamilies()
     {
         $fontDir = $this->getOptions()->getFontDir();
-        // TODO: remove need for CONSTANT
-        if (!defined('DOMPDF_DIR')) {
-            define('DOMPDF_DIR', $this->getOptions()->getRootDir());
-        }
-        $file = $this->getOptions()->getRootDir() . "/lib/fonts/dompdf_font_family_cache.dist.php";
+        $rootDir = $this->getOptions()->getRootDir();
+        
+        // FIXME: tempoarary define constants for cache files <= v0.6.1
+        def('DOMPDF_DIR', $rootDir);
+        def('DOMPDF_FONT_DIR', $fontDir);
+        
+        $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
         $distFonts = require $file;
         
         // FIXME: temporary step for font cache created before the font cache fix

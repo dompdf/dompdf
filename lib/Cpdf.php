@@ -334,7 +334,7 @@ class Cpdf {
    */
   function __construct($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '') {
     $this->isUnicode = $isUnicode;
-    $this->fontcache = $fontcache;
+    $this->fontcache = rtrim($fontcache, "/");
     $this->tmp = $tmp;
     $this->newDocument($pageSize);
 
@@ -1963,7 +1963,7 @@ EOT;
 
     $fontcache = $this->fontcache;
     if ($fontcache == '') {
-      $fontcache = $dir;
+      $fontcache = rtrim($dir, "/");
     }
 
     //$name       filename without folder and extension of font metrics
@@ -1984,9 +1984,9 @@ EOT;
     $cache_name = "$metrics_name.php";
     $this->addMessage("metrics: $metrics_name, cache: $cache_name");
 
-    if (file_exists($fontcache . $cache_name)) {
-      $this->addMessage("openFont: php file exists $fontcache$cache_name");
-      $this->fonts[$font] = require($fontcache . $cache_name);
+    if (file_exists($fontcache . '/' . $cache_name)) {
+      $this->addMessage("openFont: php file exists $fontcache/$cache_name");
+      $this->fonts[$font] = require($fontcache . '/' . $cache_name);
 
       if (!isset($this->fonts[$font]['_version_']) || $this->fonts[$font]['_version_'] != $this->fontcacheVersion) {
         // if the font file is old, then clear it out and prepare for re-creation
@@ -1997,10 +1997,10 @@ EOT;
     }
     else {
       $old_cache_name = "php_$metrics_name";
-      if (file_exists($fontcache . $old_cache_name)) {
-        $this->addMessage("openFont: php file doesn't exist $fontcache$cache_name, creating it from the old format");
-        $old_cache = file_get_contents($fontcache . $old_cache_name);
-        file_put_contents($fontcache . $cache_name, '<?php return ' . $old_cache . ';');
+      if (file_exists($fontcache . '/' . $old_cache_name)) {
+        $this->addMessage("openFont: php file doesn't exist $fontcache/$cache_name, creating it from the old format");
+        $old_cache = file_get_contents($fontcache . '/' . $old_cache_name);
+        file_put_contents($fontcache . '/' . $cache_name, '<?php return ' . $old_cache . ';');
         return $this->openFont($font);
       }
     }
@@ -2165,8 +2165,8 @@ EOT;
 
       //Because of potential trouble with php safe mode, expect that the folder already exists.
       //If not existing, this will hit performance because of missing cached results.
-      if ( is_dir(substr($fontcache, 0, -1)) && is_writable(substr($fontcache, 0, -1)) ) {
-        file_put_contents($fontcache . $cache_name, '<?php return ' . var_export($data, true) . ';');
+      if ( is_dir($fontcache) && is_writable($fontcache) ) {
+        file_put_contents($fontcache . '/' . $cache_name, '<?php return ' . var_export($data, true) . ';');
       }
       $data = null;
     }

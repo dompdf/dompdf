@@ -34,7 +34,7 @@ class CanvasFactory
      */
     static function get_instance(Dompdf $dompdf, $paper = null, $orientation = null, $class = null)
     {
-        $DOMPDF_PDF_BACKEND = defined('DOMPDF_PDF_BACKEND') ? DOMPDF_PDF_BACKEND : 'CPDF';
+        $DOMPDF_PDF_BACKEND = $dompdf->get_option('pdf_backend');
         $backend = strtolower($DOMPDF_PDF_BACKEND);
 
         if (isset($class) && class_exists($class, false)) {
