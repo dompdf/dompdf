@@ -14,12 +14,10 @@ HTML attributes.
 
 **Check out the [demo](http://pxd.me/dompdf/www/examples.php) and ask any
 question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
-on the [Google Groups](http://groups.google.com/group/dompdf)**
+on the [Google Groups](http://groups.google.com/group/dompdf).**
 
-----
-
-[![Follow us on Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf)
-[![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-32.png)](https://plus.google.com/108710008521858993320?prsrc=3)
+Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf) or 
+[![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-16.png)](https://plus.google.com/108710008521858993320?prsrc=3).
 
 ## Features
 
@@ -40,12 +38,14 @@ on the [Google Groups](http://groups.google.com/group/dompdf)**
  * DOM extension
  * GD extension
 
-## Recommendations
+### Recommendations
 
- * MBString extension: provides internationalization support. This extension is
-   *not* enabled by default. Dompdf has limited internationalization support
-   when this extension is not enabled.
+ * MBString extension: provides internationalization support. Dompdf has limited
+   internationalization support when this extension is not enabled.
  * OPcache (OPcache, XCache, APC, etc.): improves performance
+
+Visit the wiki for more information:
+https://github.com/dompdf/dompdf/wiki/Requirements
 
 ## About Fonts & Character Encoding
 
@@ -58,23 +58,13 @@ reference in CSS @font-face rules. See the
 [font overview](https://github.com/dompdf/dompdf/wiki/About-Fonts-and-Character-Encoding)
 for more information on how to use fonts.
 
-The [DejaVu TrueType fonts](http://dejavu-fonts.org) have been pre-installed to
-give dompdf decent Unicode character coverage by default. To use the DejaVu
+The [DejaVu TrueType fonts](http://dejavu-fonts.org) have been pre-installed
+to give dompdf decent Unicode character coverage by default. To use the DejaVu
 fonts reference the font in your stylesheet, e.g. `body { font-family: DejaVu
-Sans; }` (for DejaVu Sans).
+Sans; }` (for DejaVu Sans). The following DejaVu 2.34 fonts are available:
+DejaVu Sans, DejaVu Serif, and DejaVu Sans Mono.
 
 ## Easy Installation
-
-### Install with git
-
-From the command line switch to the directory where dompdf will reside and run
-the following commands:
-
-```sh
-git clone https://github.com/dompdf/dompdf.git
-cd dompdf
-git submodule update --init
-```
 
 ### Install with composer
 
@@ -84,7 +74,7 @@ file:
 ```json
 {
   "require" : {
-    "dompdf/dompdf" : "dev-develop"
+    "dompdf/dompdf" : "dev-master"
   }
 }
 ```
@@ -95,21 +85,18 @@ And run Composer to update your dependencies:
 $ curl -sS http://getcomposer.org/installer | php
 $ php composer.phar update
 ```
-    
-Before you can use the Composer installation of dompdf in your application you
-must disable dompdf's default auto-loader, include the Composer autoloader, and
-load the dompdf configuration file:
+
+Most Composer applications typically only require the Composer autoloader in order
+to load all class files. Dompdf, however, still needs a bit of a kick-start by
+including its own autoloder.
 
 ```php
 // somewhere early in your project's loading, require the Composer autoloader
 // see: http://getcomposer.org/doc/00-intro.md
 require 'vendor/autoload.php';
 
-// disable dompdf's internal autoloader if you are using Composer
-define('DOMPDF_ENABLE_AUTOLOAD', false);
-
-// include dompdf's default configuration
-require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
+// include dompdf's autoloader
+require 'vendor/dompdf/dompdf/src/autoload.inc.php';
 ```
 
 ### Download and install
@@ -121,16 +108,47 @@ will reside
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
 
+### Install with git
+
+From the command line, switch to the directory where dompdf will reside and run
+the following commands:
+
+```sh
+git clone https://github.com/dompdf/dompdf.git .
+git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
+cd lib/php-font-lib
+git checkout 0.3.1
+```
+
+## Quick Start
+
+Just pass your HTML in to dompdf and stream the output:
+
+```php
+// reference the Dompdf namespace
+use Dompdf\Dompdf;
+
+// instantiate and use the dompdf class
+$dompdf = new Dompdf();
+$dompdf->load_html('hello world');
+$dompdf->render();
+$dompdf->stream();
+```
+
 ## Limitations (Known Issues)
 
- * not particularly tolerant to poorly-formed HTML input. To avoid any
-   unexpected rendering issues you should either enable the built-in HTML5
-   parser (via the `DOMPDF_ENABLE_HTML5PARSER` configuration constant) or run
-   your HTML through a HTML validator/cleaner (such as Tidy).
- * large files or large tables can take a while to render
- * CSS float is not supported (but is in the works, enable it through the
-   `DOMPDF_ENABLE_CSS_FLOAT` configuration constant).
- * If you find this project useful, please consider making a donation.
+ * Dompdf is not particularly tolerant to poorly-formed HTML input. To avoid
+   any unexpected rendering issues you should either enable the built-in HTML5
+   parser at runtime (`$dompdf->set_option('isHtml5ParserEnabled', true);`) 
+   or run your HTML through a HTML validator/cleaner (such as
+   [Tidy](http://tidy.sourceforge.net) or the
+   [W3C Markup Validation Service](http://validator.w3.org)).
+ * Large files or large tables can take a while to render.
+ * CSS float is in development and disabled by default but can be enabled at runtime
+   (`$dompdf->set_option('isCssFloatEnabled', true);.
 
-(Any funds donated will be used to help further development on this project.)	
+---
+
 [![Donate button](https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif)](http://goo.gl/DSvWf)
+
+*If you find this project useful, please consider making a donation. Any funds donated will be used to help further development on this project.)*
