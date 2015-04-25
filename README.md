@@ -1,7 +1,7 @@
 Dompdf
 ======
 
-[![Build Status](https://travis-ci.org/dompdf/dompdf.png?branch=master)](https://travis-ci.org/dompdf/dompdf) [![Latest Stable Version](https://poser.pugx.org/dompdf/dompdf/v/stable.png)](https://packagist.org/packages/dompdf/dompdf) [![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads.png)](https://packagist.org/packages/dompdf/dompdf) [![Latest Unstable Version](https://poser.pugx.org/dompdf/dompdf/v/unstable.png)](https://packagist.org/packages/dompdf/dompdf) [![License](https://poser.pugx.org/dompdf/dompdf/license.png)](https://packagist.org/packages/dompdf/dompdf)
+[![Build Status](https://travis-ci.org/dompdf/dompdf.png?branch=develop)](https://travis-ci.org/dompdf/dompdf) [![Latest Stable Version](https://poser.pugx.org/dompdf/dompdf/v/stable.png)](https://packagist.org/packages/dompdf/dompdf) [![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads.png)](https://packagist.org/packages/dompdf/dompdf) [![Latest Unstable Version](https://poser.pugx.org/dompdf/dompdf/v/unstable.png)](https://packagist.org/packages/dompdf/dompdf) [![License](https://poser.pugx.org/dompdf/dompdf/license.png)](https://packagist.org/packages/dompdf/dompdf)
 
 **Dompdf is an HTML to PDF converter**.
 At its heart, dompdf is (mostly) [CSS 2.1](http://www.w3.org/TR/CSS2/) compliant
@@ -130,8 +130,18 @@ use Dompdf\Dompdf;
 
 // instantiate and use the dompdf class
 $dompdf = new Dompdf();
-$dompdf->load_html('hello world');
+$dompdf->loadHtml('hello world');
+
+// (Optional) Setup the paper size and orientation
+$dompdf->setPaper('A4', 'landscape');
+
+// Render the HTML as PDF
 $dompdf->render();
+
+// Get the generated PDF file contents
+$pdf = $dompdf->output();
+ 
+// Output the generated PDF to Browser
 $dompdf->stream();
 ```
 
