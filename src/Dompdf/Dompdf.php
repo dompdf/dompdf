@@ -803,7 +803,7 @@ class Dompdf
         Cache::clear();
 
         global $_dompdf_warnings, $_dompdf_show_warnings;
-        if ($_dompdf_show_warnings) {
+        if ($_dompdf_show_warnings && isset($_dompdf_warnings)) {
             echo '<b>Dompdf Warnings</b><br><pre>';
             foreach ($_dompdf_warnings as $msg) {
                 echo $msg . "\n";
