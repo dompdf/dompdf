@@ -108,6 +108,16 @@ will reside
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
 
+Add references to dompdf, libraries and helper functions in your PHP:
+
+```php
+// include autoloaders and helper functions
+require_once 'dompdf/lib/html5lib/Parser.php';
+require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
+require_once 'dompdf/src/functions.inc.php';
+require_once 'dompdf/src/autoload.inc.php';
+```
+
 ### Install with git
 
 From the command line, switch to the directory where dompdf will reside and run
@@ -118,6 +128,16 @@ git clone https://github.com/dompdf/dompdf.git .
 git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
 cd lib/php-font-lib
 git checkout 0.3.1
+```
+
+Add references to dompdf, libraries and helper functions in your PHP:
+
+```php
+// include autoloaders and helper functions
+require_once 'dompdf/lib/html5lib/Parser.php';
+require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
+require_once 'dompdf/src/functions.inc.php';
+require_once 'dompdf/src/autoload.inc.php';
 ```
 
 ## Quick Start
