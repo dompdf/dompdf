@@ -545,11 +545,10 @@ class CPDF implements Canvas
      */
     protected function _convert_gif_bmp_to_png($image_url, $type)
     {
-        $image_type = Cache::type_to_ext($type);
-        $func_name = "imagecreatefrom$image_type";
+        $func_name = "imagecreatefrom$type";
 
         if (!function_exists($func_name)) {
-            throw new Exception("Function $func_name() not found.  Cannot convert $image_type image: $image_url.  Please install the image PHP extension.");
+            throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
         }
 
         set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
@@ -559,7 +558,7 @@ class CPDF implements Canvas
             imageinterlace($im, false);
 
             $tmp_dir = $this->_dompdf->get_option("temp_dir");
-            $tmp_name = tempnam($tmp_dir, "{$image_type}dompdf_img_");
+            $tmp_name = tempnam($tmp_dir, "{$type}dompdf_img_");
             @unlink($tmp_name);
             $filename = "$tmp_name.png";
             $this->_image_cache[] = $filename;
@@ -672,21 +671,27 @@ class CPDF implements Canvas
         if ($debug_png) print "[image:$img|$width|$height|$type]";
 
         switch ($type) {
-            case IMAGETYPE_JPEG:
+            case "jpeg":
                 if ($debug_png) print '!!!jpg!!!';
                 $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
-            case IMAGETYPE_GIF:
-            case IMAGETYPE_BMP:
+            case "gif":
+            case "bmp":
                 if ($debug_png) print '!!!bmp or gif!!!';
                 // @todo use cache for BMP and GIF
                 $img = $this->_convert_gif_bmp_to_png($img, $type);
 
-            case IMAGETYPE_PNG:
+            case "png":
                 if ($debug_png) print '!!!png!!!';
 
                 $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
+                break;
+
+            case "svg":
+                if ($debug_png) print '!!!SVG!!!';
+
+                $this->_pdf->addSvgFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
             default:

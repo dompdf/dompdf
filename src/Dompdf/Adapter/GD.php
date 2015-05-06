@@ -602,13 +602,12 @@ class GD implements Canvas
     function image($img_url, $x, $y, $w, $h, $resolution = "normal")
     {
         $img_type = Cache::detect_type($img_url);
-        $img_ext = Cache::type_to_ext($img_type);
 
-        if (!$img_ext) {
+        if (!$img_type) {
             return;
         }
 
-        $func = "imagecreatefrom$img_ext";
+        $func = "imagecreatefrom$img_type";
         $src = @$func($img_url);
 
         if (!$src) {

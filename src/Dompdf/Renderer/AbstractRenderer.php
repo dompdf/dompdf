@@ -257,22 +257,22 @@ abstract class AbstractRenderer
             $bg = imagecreatetruecolor($bg_width, $bg_height);
 
             switch (strtolower($type)) {
-                case IMAGETYPE_PNG:
+                case "png":
                     $is_png = true;
                     imagesavealpha($bg, true);
                     imagealphablending($bg, false);
                     $src = imagecreatefrompng($img);
                     break;
 
-                case IMAGETYPE_JPEG:
+                case "jpeg":
                     $src = imagecreatefromjpeg($img);
                     break;
 
-                case IMAGETYPE_GIF:
+                case "gif":
                     $src = imagecreatefromgif($img);
                     break;
 
-                case IMAGETYPE_BMP:
+                case "bmp":
                     $src = imagecreatefrombmp($img);
                     break;
 

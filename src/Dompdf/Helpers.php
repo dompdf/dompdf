@@ -602,6 +602,16 @@ class Helpers
 
         list($width, $height, $type) = getimagesize($filename);
 
+        // Custom types
+        $types = array(
+            IMAGETYPE_JPEG => "jpeg",
+            IMAGETYPE_GIF  => "gif",
+            IMAGETYPE_BMP  => "bmp",
+            IMAGETYPE_PNG  => "png",
+        );
+
+        $type = isset($types[$type]) ? $types[$type] : null;
+
         if ($width == null || $height == null) {
             $data = file_get_contents($filename, null, null, 0, 26);
 
@@ -609,8 +619,18 @@ class Helpers
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
                 $width = (int)$meta['width'];
                 $height = (int)$meta['height'];
-                $type = IMAGETYPE_BMP;
+                $type = "bmp";
             }
+            else {
+                if (strpos(file_get_contents($filename), "<svg") !== false) {
+                    $doc = new \Svg\Document();
+                    $doc->loadFile($filename);
+
+                    list($width, $height) = $doc->getDimensions();
+                    $type = "svg";
+                }
+            }
+
         }
 
         return $cache[$filename] = array($width, $height, $type);

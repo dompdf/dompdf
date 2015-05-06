@@ -126,11 +126,7 @@ class Cache
                 list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url);
 
                 // Known image type
-                if ($width && $height && in_array(
-                        $type,
-                        array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_BMP)
-                    )
-                ) {
+                if ($width && $height && in_array($type, array("gif", "png", "jpeg", "bmp", "svg"))) {
                     //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
                     //Only execute on successful caching of remote image.
                     if ($enable_remote && $remote || $data_uri) {
@@ -143,7 +139,7 @@ class Cache
             }
         } catch (ImageException $e) {
             $resolved_url = self::$broken_image;
-            $type = IMAGETYPE_PNG;
+            $type = "png";
             $message = $e->getMessage() . " \n $url";
         }
 
@@ -175,18 +171,6 @@ class Cache
         list(, , $type) = Helpers::dompdf_getimagesize($file);
 
         return $type;
-    }
-
-    static function type_to_ext($type)
-    {
-        $image_types = array(
-            IMAGETYPE_GIF  => "gif",
-            IMAGETYPE_PNG  => "png",
-            IMAGETYPE_JPEG => "jpeg",
-            IMAGETYPE_BMP  => "bmp",
-        );
-
-        return (isset($image_types[$type]) ? $image_types[$type] : null);
     }
 
     static function is_broken($url)
