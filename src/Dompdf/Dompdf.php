@@ -876,7 +876,7 @@ class Dompdf
      * @param string $filename the name of the streamed file
      * @param array $options header options (see above)
      */
-    public function stream($filename, $options = null)
+    public function stream($filename = 'document.pdf', $options = null)
     {
         $this->saveLocale();
 
