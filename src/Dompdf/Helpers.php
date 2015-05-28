@@ -3,8 +3,6 @@ namespace Dompdf;
 
 class Helpers
 {
-    private static $memusage = array();
-
     /**
      * print_r wrapper for html/cli output
      *
@@ -37,55 +35,7 @@ class Helpers
         flush();
     }
 
-    /**
-     * var_dump wrapper for html/cli output
-     *
-     * Wraps var_dump() output in < pre > tags if the current sapi is not 'cli'.
-     *
-     * @param mixed $mixed variable or expression to display.
-     * @deprecated
-     */
-    public static function pre_var_dump($mixed)
-    {
-        if (php_sapi_name() !== "cli") {
-            echo "<pre>";
-        }
-
-        var_dump($mixed);
-
-        if (php_sapi_name() !== "cli") {
-            echo "</pre>";
-        }
-    }
-
-    /**
-     * generic debug function
-     *
-     * Takes everything and does its best to give a good debug output
-     *
-     * @param mixed $mixed variable or expression to display.
-     * @deprecated
-     */
-    public static function d($mixed)
-    {
-        if (php_sapi_name() !== "cli") {
-            echo "<pre>";
-        }
-
-        // line
-        if ($mixed instanceof LineBox) {
-            echo $mixed;
-        } // other
-        else {
-            var_export($mixed);
-        }
-
-        if (php_sapi_name() !== "cli") {
-            echo "</pre>";
-        }
-    }
-
-    /**
+      /**
      * builds a full url given a protocol, hostname, base path and url
      *
      * @param string $protocol
@@ -441,49 +391,6 @@ class Helpers
     }
 
     /**
-     * @param $url
-     * @param null $headers
-     * @return mixed|string
-     * @deprecated
-     */
-    public static function DOMPDF_fetch_url($url, &$headers = null)
-    {
-        if (function_exists("curl_init")) {
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HEADER, true);
-
-            $data = curl_exec($ch);
-            $raw_headers = substr($data, 0, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-            $headers = preg_split("/[\n\r]+/", trim($raw_headers));
-            $data = substr($data, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-            curl_close($ch);
-
-            return $data;
-        } else {
-            $data = file_get_contents($url);
-            $headers = $http_response_header;
-
-            return $data;
-        }
-    }
-
-    /**
-     * @return int|string
-     */
-    public static function DOMPDF_memory_usage() {
-        if (function_exists("memory_get_peak_usage")) {
-            return memory_get_peak_usage(true);
-        } else if (function_exists("memory_get_usage")) {
-            return memory_get_usage(true);
-        } else {
-            return "N/A";
-        }
-    }
-
-    /**
      * Print debug messages
      *
      * @param string $type The type of debug messages to print
@@ -816,87 +723,4 @@ class Helpers
         return $im;
     }
 
-    /**
-     * Defined a constant if not already defined
-     *
-     * @param string $name  The constant name
-     * @param mixed  $value The value
-     */
-    public static function def($name, $value = true) {
-        if ( !defined($name) ) {
-            define($name, $value);
-        }
-    }
-
-    /**
-     * Print a useful backtrace
-     */
-    public static function bt()
-    {
-        if (php_sapi_name() !== "cli") {
-            echo "<pre>";
-        }
-
-        $bt = debug_backtrace();
-
-        array_shift($bt); // remove actual bt() call
-        echo "\n";
-
-        $i = 0;
-        foreach ($bt as $call) {
-            $file = basename($call["file"]) . " (" . $call["line"] . ")";
-            if (isset($call["class"])) {
-                $func = $call["class"] . "->" . $call["function"] . "()";
-            } else {
-                $func = $call["function"] . "()";
-            }
-
-            echo "#" . str_pad($i, 2, " ", STR_PAD_RIGHT) . ": " . str_pad($file . ":", 42) . " $func\n";
-            $i++;
-        }
-        echo "\n";
-
-        if (php_sapi_name() !== "cli") {
-            echo "</pre>";
-        }
-    }
-
-    /**
-     * Dump memory usage
-     */
-    public static function print_memusage()
-    {
-        echo "Memory Usage\n";
-        $prev = 0;
-        $initial = reset(self::$memusage);
-        echo str_pad("Initial:", 40) . $initial . "\n\n";
-
-        foreach (self::$memusage as $key => $mem) {
-            $mem -= $initial;
-            echo str_pad("$key:", 40);
-            echo str_pad("$mem", 12) . "(diff: " . ($mem - $prev) . ")\n";
-            $prev = $mem;
-        }
-
-        echo "\n" . str_pad("Total:", 40) . memory_get_usage() . "\n";
-    }
-
-    /**
-     * Initialize memory profiling code
-     */
-    public static function enable_mem_profile()
-    {
-        self::$memusage = array("Startup" => memory_get_usage());
-        register_shutdown_function("Dompdf\\Helpers::print_memusage");
-    }
-
-    /**
-     * Record the current memory usage
-     *
-     * @param string $location a meaningful location
-     */
-    public static function mark_memusage($location)
-    {
-        self::$memusage[$location] = memory_get_usage();
-    }
 }
