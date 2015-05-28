@@ -3,6 +3,8 @@ namespace Dompdf;
 
 class Helpers
 {
+    private static $memusage = array();
+
     /**
      * print_r wrapper for html/cli output
      *
@@ -812,5 +814,89 @@ class Helpers
         }
         fclose($fh);
         return $im;
+    }
+
+    /**
+     * Defined a constant if not already defined
+     *
+     * @param string $name  The constant name
+     * @param mixed  $value The value
+     */
+    public static function def($name, $value = true) {
+        if ( !defined($name) ) {
+            define($name, $value);
+        }
+    }
+
+    /**
+     * Print a useful backtrace
+     */
+    public static function bt()
+    {
+        if (php_sapi_name() !== "cli") {
+            echo "<pre>";
+        }
+
+        $bt = debug_backtrace();
+
+        array_shift($bt); // remove actual bt() call
+        echo "\n";
+
+        $i = 0;
+        foreach ($bt as $call) {
+            $file = basename($call["file"]) . " (" . $call["line"] . ")";
+            if (isset($call["class"])) {
+                $func = $call["class"] . "->" . $call["function"] . "()";
+            } else {
+                $func = $call["function"] . "()";
+            }
+
+            echo "#" . str_pad($i, 2, " ", STR_PAD_RIGHT) . ": " . str_pad($file . ":", 42) . " $func\n";
+            $i++;
+        }
+        echo "\n";
+
+        if (php_sapi_name() !== "cli") {
+            echo "</pre>";
+        }
+    }
+
+    /**
+     * Dump memory usage
+     */
+    public static function print_memusage()
+    {
+        echo "Memory Usage\n";
+        $prev = 0;
+        $initial = reset(self::$memusage);
+        echo str_pad("Initial:", 40) . $initial . "\n\n";
+
+        foreach (self::$memusage as $key => $mem) {
+            $mem -= $initial;
+            echo str_pad("$key:", 40);
+            echo str_pad("$mem", 12) . "(diff: " . ($mem - $prev) . ")\n";
+            $prev = $mem;
+        }
+
+        echo "\n" . str_pad("Total:", 40) . memory_get_usage() . "\n";
+    }
+
+    /**
+     * Initialize memory profiling code
+     */
+    public static function enable_mem_profile()
+    {
+        self::$memusage = array("Startup" => memory_get_usage());
+        register_shutdown_function("Dompdf\\Helpers::print_memusage");
+    }
+
+    /**
+     * Record the current memory usage
+     *
+     * @param string $location a meaningful location
+     */
+    public static function mark_memusage($location)
+    {
+        self::$memusage[$location] = memory_get_usage();
     }
 }

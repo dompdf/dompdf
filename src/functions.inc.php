@@ -8,20 +8,6 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-use Dompdf\Exception;
-
-/**
- * Defined a constant if not already defined
- *
- * @param string $name  The constant name
- * @param mixed  $value The value
- */
-function def($name, $value = true) {
-  if ( !defined($name) ) {
-    define($name, $value);
-  }
-}
-
 /**
  * mb_string compatibility
  */
@@ -172,90 +158,6 @@ if (!extension_loaded('mbstring')) {
                 "UTF-8",
                 "8bit",
             );
-        }
-    }
-}
-
-
-/**
- * Print a useful backtrace
- */
-function bt()
-{
-    if (php_sapi_name() !== "cli") {
-        echo "<pre>";
-    }
-
-    $bt = debug_backtrace();
-
-    array_shift($bt); // remove actual bt() call
-    echo "\n";
-
-    $i = 0;
-    foreach ($bt as $call) {
-        $file = basename($call["file"]) . " (" . $call["line"] . ")";
-        if (isset($call["class"])) {
-            $func = $call["class"] . "->" . $call["function"] . "()";
-        } else {
-            $func = $call["function"] . "()";
-        }
-
-        echo "#" . str_pad($i, 2, " ", STR_PAD_RIGHT) . ": " . str_pad($file . ":", 42) . " $func\n";
-        $i++;
-    }
-    echo "\n";
-
-    if (php_sapi_name() !== "cli") {
-        echo "</pre>";
-    }
-}
-
-if (!function_exists("print_memusage")) {
-    /**
-     * Dump memory usage
-     */
-    function print_memusage()
-    {
-        global $memusage;
-        echo "Memory Usage\n";
-        $prev = 0;
-        $initial = reset($memusage);
-        echo str_pad("Initial:", 40) . $initial . "\n\n";
-
-        foreach ($memusage as $key => $mem) {
-            $mem -= $initial;
-            echo str_pad("$key:", 40);
-            echo str_pad("$mem", 12) . "(diff: " . ($mem - $prev) . ")\n";
-            $prev = $mem;
-        }
-
-        echo "\n" . str_pad("Total:", 40) . memory_get_usage() . "\n";
-    }
-}
-
-if (!function_exists("enable_mem_profile")) {
-    /**
-     * Initialize memory profiling code
-     */
-    function enable_mem_profile()
-    {
-        global $memusage;
-        $memusage = array("Startup" => memory_get_usage());
-        register_shutdown_function("print_memusage");
-    }
-}
-
-if (!function_exists("mark_memusage")) {
-    /**
-     * Record the current memory usage
-     *
-     * @param string $location a meaningful location
-     */
-    function mark_memusage($location)
-    {
-        global $memusage;
-        if (isset($memusage)) {
-            $memusage[$location] = memory_get_usage();
         }
     }
 }
