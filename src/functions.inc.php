@@ -9,7 +9,6 @@
  */
 
 use Dompdf\Exception;
-use Dompdf\Helpers;
 
 /**
  * Defined a constant if not already defined
@@ -177,17 +176,6 @@ if (!extension_loaded('mbstring')) {
     }
 }
 
-if (!function_exists("date_default_timezone_get")) {
-    function date_default_timezone_get()
-    {
-        return "";
-    }
-
-    function date_default_timezone_set($timezone_identifier)
-    {
-        return true;
-    }
-}
 
 /**
  * Print a useful backtrace
@@ -272,30 +260,3 @@ if (!function_exists("mark_memusage")) {
     }
 }
 
-if (!function_exists('sys_get_temp_dir')) {
-    /**
-     * Find the current system temporary directory
-     *
-     * @link http://us.php.net/manual/en/function.sys-get-temp-dir.php#85261
-     */
-    function sys_get_temp_dir()
-    {
-        if (!empty($_ENV['TMP'])) {
-            return realpath($_ENV['TMP']);
-        }
-
-        if (!empty($_ENV['TMPDIR'])) {
-            return realpath($_ENV['TMPDIR']);
-        }
-
-        if (!empty($_ENV['TEMP'])) {
-            return realpath($_ENV['TEMP']);
-        }
-
-        $tempfile = tempnam(uniqid(rand(), true), '');
-        if (file_exists($tempfile)) {
-            unlink($tempfile);
-            return realpath(dirname($tempfile));
-        }
-    }
-}
