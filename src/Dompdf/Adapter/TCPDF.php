@@ -442,7 +442,7 @@ class TCPDF implements Canvas
     function add_info($label, $value)
     {
         $method = "Set$label";
-        if (in_array("Title", "Author", "Keywords", "Subject") && method_exists($this->_pdf, $method)) {
+        if (in_array($label, array("Title", "Author", "Keywords", "Subject")) && method_exists($this->_pdf, $method)) {
             $this->_pdf->$method($value);
         }
     }
