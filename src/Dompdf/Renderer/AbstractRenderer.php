@@ -273,7 +273,7 @@ abstract class AbstractRenderer
                     break;
 
                 case "bmp":
-                    $src = imagecreatefrombmp($img);
+                    $src = Helpers::imagecreatefrombmp($img);
                     break;
 
                 default:
