@@ -21,7 +21,8 @@
     "autoload": {
         "psr-0" : {
             "Dompdf" : "src/"
-        }
+        },
+        "classmap" : ["lib/"]
     },
     "require": {
         "php": ">=5.3.0",

@@ -74,17 +74,13 @@ To install with [Composer](https://getcomposer.org/), simply require the latest 
 composer require dompdf/dompdf:0.7.x@beta
 ```
 
-Most Composer applications typically only require the Composer autoloader in order
-to load all class files. Dompdf, however, still needs a bit of a kick-start by
-including its own autoloder.
+Make sure that the autoload file from Composer is loaded.
 
 ```php
 // somewhere early in your project's loading, require the Composer autoloader
 // see: http://getcomposer.org/doc/00-intro.md
 require 'vendor/autoload.php';
 
-// include dompdf's autoloader
-require 'vendor/dompdf/dompdf/src/autoload.inc.php';
 ```
 
 ### Download and install
