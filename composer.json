@@ -30,5 +30,10 @@
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "0.7-dev"
+        }
     }
 }

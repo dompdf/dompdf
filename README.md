@@ -68,22 +68,10 @@ DejaVu Sans, DejaVu Serif, and DejaVu Sans Mono.
 
 ### Install with composer
 
-To install with Composer, simply add the requirement to your `composer.json`
-file:
-
-```json
-{
-  "require" : {
-    "dompdf/dompdf" : "dev-master"
-  }
-}
-```
-
-And run Composer to update your dependencies:
+To install with [Composer](https://getcomposer.org/), simply require the latest version of this package.
 
 ```bash
-$ curl -sS http://getcomposer.org/installer | php
-$ php composer.phar update
+composer require dompdf/dompdf:0.7.x@beta
 ```
 
 Most Composer applications typically only require the Composer autoloader in order
