@@ -301,8 +301,10 @@ class Options
         } elseif ($key === 'debugLayoutPaddingBox' || $key === 'debug_layout_padding_box') {
             return $this->getDebugLayoutPaddingBox();
         } elseif ($key === 'pdfBackend' || $key === 'pdf_backend') {
-            return $this->getPdflibLicense();
+            return $this->getPdfBackend();
         } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
+            return $this->getPdflibLicense();
+        } elseif ($key === 'adminUsername' || $key === 'admin_username') {
             return $this->getAdminUsername();
         } elseif ($key === 'adminPassword' || $key === 'admin_password') {
             return $this->getAdminPassword();
