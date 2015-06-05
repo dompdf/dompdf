@@ -691,8 +691,6 @@ class Dompdf
             ob_start();
         }
 
-        //enable_mem_profile();
-
         $this->processHtml();
 
         $this->css->apply_styles($this->tree);

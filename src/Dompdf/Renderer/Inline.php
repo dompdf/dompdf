@@ -163,7 +163,7 @@ class Inline extends AbstractRenderer
             $this->$method($x, $y + $h, $w, $bp["bottom"]["color"], $widths, "bottom");
         }
 
-        //    Helpers::pre_var_dump(get_class($frame->get_next_sibling()));
+        //    Helpers::var_dump(get_class($frame->get_next_sibling()));
         //    $last_row = get_class($frame->get_next_sibling()) !== 'Inline';
         // Draw the right border if this is the last row
         if ($bp["right"]["style"] !== "none" && $bp["right"]["color"] !== "transparent" && $widths[1] > 0) {

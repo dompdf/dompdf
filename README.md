@@ -37,12 +37,12 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  * PHP version 5.3.0 or higher
  * DOM extension
  * GD extension
+ * MBString extension
 
 ### Recommendations
 
- * MBString extension: provides internationalization support. Dompdf has limited
-   internationalization support when this extension is not enabled.
  * OPcache (OPcache, XCache, APC, etc.): improves performance
+ * IMagick or GMagick extension: improves image processing performance
 
 Visit the wiki for more information:
 https://github.com/dompdf/dompdf/wiki/Requirements
@@ -92,13 +92,12 @@ will reside
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
 
-Add references to dompdf, libraries and helper functions in your PHP:
+Require dompdf, libraries, and helper functions in your PHP:
 
 ```php
 // include autoloaders and helper functions
 require_once 'dompdf/lib/html5lib/Parser.php';
 require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
-require_once 'dompdf/src/functions.inc.php';
 require_once 'dompdf/src/autoload.inc.php';
 ```
 
@@ -114,13 +113,12 @@ cd lib/php-font-lib
 git checkout 0.3.1
 ```
 
-Add references to dompdf, libraries and helper functions in your PHP:
+Require dompdf, libraries, and helper functions in your PHP:
 
 ```php
 // include autoloaders and helper functions
 require_once 'dompdf/lib/html5lib/Parser.php';
 require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
-require_once 'dompdf/src/functions.inc.php';
 require_once 'dompdf/src/autoload.inc.php';
 ```
 
