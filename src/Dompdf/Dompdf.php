@@ -839,7 +839,7 @@ class Dompdf
         }
 
         $frames = Frame::$ID_COUNTER;
-        $memory = Helpers::DOMPDF_memory_usage() / 1024;
+        $memory = memory_get_peak_usage(true) / 1024;
         $time = (microtime(true) - $this->startTime) * 1000;
 
         $out = sprintf(
