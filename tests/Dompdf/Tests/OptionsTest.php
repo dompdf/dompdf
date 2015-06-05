@@ -20,10 +20,8 @@ class OptionsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('serif', $option->getDefaultFont());
         $this->assertEquals(96, $option->getDpi());
         $this->assertEquals(1.1, $option->getFontHeightRatio());
-        $this->assertTrue($option->getIsUnicodeEnabled());
         $this->assertFalse($option->getIsPhpEnabled());
         $this->assertFalse($option->getIsRemoteEnabled());
-        $this->assertFalse($option->getIsCssFloatEnabled());
         $this->assertTrue($option->getIsJavascriptEnabled());
         $this->assertFalse($option->getIsHtml5ParserEnabled());
         $this->assertFalse($option->getIsFontSubsettingEnabled());
@@ -56,10 +54,8 @@ class OptionsTest extends PHPUnit_Framework_TestCase
             'defaultFont' => 'test8',
             'dpi' => 300,
             'fontHeightRatio' => 1.2,
-            'isUnicodeEnabled' => false,
             'isPhpEnabled' => true,
             'isRemoteEnabled' => true,
-            'isCssFloatEnabled' => true,
             'isJavascriptEnabled' => false,
             'isHtml5ParserEnabled' => true,
             'isFontSubsettingEnabled' => true,
@@ -84,10 +80,8 @@ class OptionsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('test8', $option->getDefaultFont());
         $this->assertEquals(300, $option->getDpi());
         $this->assertEquals(1.2, $option->getFontHeightRatio());
-        $this->assertFalse($option->getIsUnicodeEnabled());
         $this->assertTrue($option->getIsPhpEnabled());
         $this->assertTrue($option->getIsRemoteEnabled());
-        $this->assertTrue($option->getIsCssFloatEnabled());
         $this->assertFalse($option->getIsJavascriptEnabled());
         $this->assertTrue($option->getIsHtml5ParserEnabled());
         $this->assertTrue($option->getIsFontSubsettingEnabled());

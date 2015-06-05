@@ -141,11 +141,6 @@ class LineBox
 
     function get_float_offsets()
     {
-        $enable_css_float = $this->_block_frame->get_dompdf()->get_option("enable_css_float");
-        if (!$enable_css_float) {
-            return;
-        }
-
         static $anti_infinite_loop = 500; // FIXME smelly hack
 
         $reflower = $this->_block_frame->get_reflower();

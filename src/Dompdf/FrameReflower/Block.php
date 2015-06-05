@@ -577,11 +577,6 @@ class Block extends AbstractFrameReflower
      */
     function process_clear(Frame $child)
     {
-        $enable_css_float = $this->get_dompdf()->get_option("enable_css_float");
-        if (!$enable_css_float) {
-            return;
-        }
-
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
 
@@ -610,11 +605,6 @@ class Block extends AbstractFrameReflower
      */
     function process_float(Frame $child, $cb_x, $cb_w)
     {
-        $enable_css_float = $this->_frame->get_dompdf()->get_option("enable_css_float");
-        if (!$enable_css_float) {
-            return;
-        }
-
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
 

@@ -189,7 +189,7 @@ class CPDF implements Canvas
 
         $this->_pdf = new \Cpdf(
             $size,
-            $dompdf->get_option("enable_unicode"),
+            true,
             $dompdf->get_option("font_cache"),
             $dompdf->get_option("temp_dir")
         );
@@ -790,12 +790,6 @@ class CPDF implements Canvas
     function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0)
     {
         $this->_pdf->selectFont($font);
-
-        $unicode = $this->_dompdf->get_option("enable_unicode");
-        if (!$unicode) {
-            $text = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
-        }
-
         return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
     }
 

@@ -94,8 +94,7 @@ class Factory
                     $decorator = "Text";
                     $reflower = "Text";
                 } else {
-                    $enable_css_float = $dompdf->get_option("enable_css_float");
-                    if ($enable_css_float && $style->float !== "none") {
+                    if ($style->float !== "none") {
                         $decorator = "Block";
                         $reflower = "Block";
                     } else {

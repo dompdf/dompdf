@@ -33,10 +33,10 @@ class Image extends AbstractFrameReflower
         //$frame = $this->_frame;
         //$page = $frame->get_root();
 
-        //$enable_css_float = $this->get_dompdf()->get_option("enable_css_float");
-        //if ($enable_css_float && $frame->get_style()->float !== "none" ) {
+        //if ($frame->get_style()->float !== "none" ) {
         //  $page->add_floating_frame($this);
         //}
+        
         // Set the frame's width
         $this->get_min_max_width();
 

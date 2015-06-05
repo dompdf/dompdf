@@ -156,8 +156,7 @@ $dompdf->stream();
    [Tidy](http://tidy.sourceforge.net) or the
    [W3C Markup Validation Service](http://validator.w3.org)).
  * Large files or large tables can take a while to render.
- * CSS float is in development and disabled by default but can be enabled at runtime
-   (`$dompdf->set_option('isCssFloatEnabled', true);.
+ * CSS float is in development and may not produce the desired result
 
 ---
 

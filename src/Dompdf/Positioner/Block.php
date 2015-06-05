@@ -36,8 +36,7 @@ class Block extends AbstractPositioner {
         if ($p) {
             $float = $style->float;
 
-            $enable_css_float = $frame->get_dompdf()->get_option("enable_css_float");
-            if (!$enable_css_float || !$float || $float === "none") {
+            if (!$float || $float === "none") {
                 $p->add_line(true);
             }
             $y = $p->get_current_line_box()->y;

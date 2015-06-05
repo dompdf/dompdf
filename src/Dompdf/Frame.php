@@ -778,9 +778,7 @@ class Frame
         if (isset($this->_is_cache["in_flow"])) {
             return $this->_is_cache["in_flow"];
         }
-
-        $enable_css_float = $this->get_style()->get_stylesheet()->get_dompdf()->get_option("enable_css_float");
-        return $this->_is_cache["in_flow"] = !($enable_css_float && $this->get_style()->float !== "none" || $this->is_absolute());
+        return $this->_is_cache["in_flow"] = !($this->get_style()->float !== "none" || $this->is_absolute());
     }
 
     /**

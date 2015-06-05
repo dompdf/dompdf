@@ -61,22 +61,12 @@ class Options
     /**
      * @var bool
      */
-    private $isUnicodeEnabled = true;
-
-    /**
-     * @var bool
-     */
     private $isPhpEnabled = false;
 
     /**
      * @var bool
      */
     private $isRemoteEnabled = false;
-
-    /**
-     * @var bool
-     */
-    private $isCssFloatEnabled = false;
 
     /**
      * @var bool
@@ -201,14 +191,10 @@ class Options
                 $this->setDpi($value);
             } elseif ($key === 'fontHeightRatio' || $key === 'font_height_ratio') {
                 $this->setFontHeightRatio($value);
-            } elseif ($key === 'isUnicodeEnabled' || $key === 'is_unicode_enabled' || $key === 'enable_unicode') {
-                $this->setIsUnicodeEnabled($value);
             } elseif ($key === 'isPhpEnabled' || $key === 'is_php_enabled' || $key === 'enable_php') {
                 $this->setIsPhpEnabled($value);
             } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
                 $this->setIsRemoteEnabled($value);
-            } elseif ($key === 'isCssFloatEnabled' || $key === 'is_css_float_enabled' || $key === 'enable_css_float') {
-                $this->setIsCssFloatEnabled($value);
             } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
                 $this->setIsJavascriptEnabled($value);
             } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
@@ -270,14 +256,10 @@ class Options
             return $this->getDpi();
         } elseif ($key === 'fontHeightRatio' || $key === 'font_height_ratio') {
             return $this->getFontHeightRatio();
-        } elseif ($key === 'isUnicodeEnabled' || $key === 'is_unicode_enabled' || $key === 'enable_unicode') {
-            return $this->getIsUnicodeEnabled();
         } elseif ($key === 'isPhpEnabled' || $key === 'is_php_enabled' || $key === 'enable_php') {
             return $this->getIsPhpEnabled();
         } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
             return $this->getIsRemoteEnabled();
-        } elseif ($key === 'isCssFloatEnabled' || $key === 'is_css_float_enabled' || $key === 'enable_css_float') {
-            return $this->getIsCssFloatEnabled();
         } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
             return $this->getIsJavascriptEnabled();
         } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
@@ -673,32 +655,6 @@ class Options
     }
 
     /**
-     * @param boolean $isCssFloatEnabled
-     * @return $this
-     */
-    public function setIsCssFloatEnabled($isCssFloatEnabled)
-    {
-        $this->isCssFloatEnabled = $isCssFloatEnabled;
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getIsCssFloatEnabled()
-    {
-        return $this->isCssFloatEnabled;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isCssFloatEnabled()
-    {
-        return $this->getIsCssFloatEnabled();
-    }
-
-    /**
      * @param boolean $isFontSubsettingEnabled
      * @return $this
      */
@@ -826,32 +782,6 @@ class Options
     public function isRemoteEnabled()
     {
         return $this->getIsRemoteEnabled();
-    }
-
-    /**
-     * @param bool $isUnicodeEnabled
-     * @return $this
-     */
-    public function setIsUnicodeEnabled($isUnicodeEnabled)
-    {
-        $this->isUnicodeEnabled = $isUnicodeEnabled;
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getIsUnicodeEnabled()
-    {
-        return $this->isUnicodeEnabled;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isUnicodeEnabled()
-    {
-        return $this->getIsUnicodeEnabled();
     }
 
     /**
