@@ -178,18 +178,6 @@ class Cpdf
     public $firstPageId;
 
     /**
-     * @var float Used to track the last used value of the inter-word spacing, this is so that it is known
-     * when the spacing is changed.
-     */
-    public $wordSpaceAdjust = 0;
-
-    /**
-     * @var float Used to track the last used value of the inter-letter spacing, this is so that it is known
-     * when the spacing is changed.
-     */
-    public $charSpaceAdjust = 0;
-
-    /**
      * @var integer The object Id of the procset object
      */
     public $procsetObjectId;
@@ -3803,13 +3791,11 @@ EOT;
             );
         }
 
-        if ($wordSpaceAdjust != 0 || $wordSpaceAdjust != $this->wordSpaceAdjust) {
-            $this->wordSpaceAdjust = $wordSpaceAdjust;
+        if ($wordSpaceAdjust != 0) {
             $this->addContent(sprintf(" %.3F Tw", $wordSpaceAdjust));
         }
 
-        if ($charSpaceAdjust != 0 || $charSpaceAdjust != $this->charSpaceAdjust) {
-            $this->charSpaceAdjust = $charSpaceAdjust;
+        if ($charSpaceAdjust != 0) {
             $this->addContent(sprintf(" %.3F Tc", $charSpaceAdjust));
         }
 
@@ -3830,6 +3816,14 @@ EOT;
             $this->addContent(" [($place_text)] TJ");
         }
 
+        if ($wordSpaceAdjust != 0) {
+            $this->addContent(sprintf(" %.3F Tw", 0));
+        }
+        
+        if ($charSpaceAdjust != 0) {
+            $this->addContent(sprintf(" %.3F Tc", 0));
+        }
+        
         $this->addContent(' ET');
 
         // if there are any open callbacks, then they should be called, to show the end of the line
