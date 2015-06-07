@@ -655,6 +655,12 @@ class GD implements Canvas
         $h = $this->get_font_height($font, $size);
         $c = $this->_allocate_color($color);
 
+        // imagettftext() converts numeric entities to their respective
+        // character. Preserve any originally double encoded entities to be
+        // represented as is.
+        // eg: &amp;#160; will render &#160; rather than its character.
+        $text = preg_replace('/&(#(?:x[a-fA-F0-9]+|[0-9]+);)/', '&#38;\1', $text);
+
         $text = mb_encode_numericentity($text, array(0x0080, 0xff, 0, 0xff), 'UTF-8');
 
         $font = $this->get_ttf_file($font);
@@ -723,6 +729,12 @@ class GD implements Canvas
     function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)
     {
         $font = $this->get_ttf_file($font);
+
+        // imagettfbbox() converts numeric entities to their respective
+        // character. Preserve any originally double encoded entities to be
+        // represented as is.
+        // eg: &amp;#160; will render &#160; rather than its character.
+        $text = preg_replace('/&(#(?:x[a-fA-F0-9]+|[0-9]+);)/', '&#38;\1', $text);
 
         $text = mb_encode_numericentity($text, array(0x0080, 0xffff, 0, 0xffff), 'UTF-8');
 
