@@ -378,7 +378,7 @@ class Stylesheet
     private function _specificity($selector, $origin = self::ORIG_AUTHOR)
     {
         // http://www.w3.org/TR/CSS21/cascade.html#specificity
-        // ignoring the ":" pseudoclass modifyers
+        // ignoring the ":" pseudoclass modifiers
         // also ignored in _css_selector_to_xpath
 
         $a = ($selector === "!attr") ? 1 : 0;
@@ -392,7 +392,7 @@ class Stylesheet
             mb_substr_count($selector, ">") +
             mb_substr_count($selector, "+"), 255);
 
-        //If a normal element name is at the begining of the string,
+        //If a normal element name is at the beginning of the string,
         //a leading whitespace might have been removed on whitespace collapsing and removal
         //therefore there might be one whitespace less as selected element names
         //this can lead to a too small specificity
@@ -1049,12 +1049,12 @@ class Stylesheet
             "            (?(6) (?>[^}]*) }) \s*)+?                                                        \n" .
             "       )                                                                                     \n" .
             "   })                                  # Balancing '}'                                       \n" .
-            "|                                      # Branch to match regular rules (not preceeded by '@')\n" .
+            "|                                      # Branch to match regular rules (not preceded by '@')\n" .
             "([^{]*{[^}]*}))                        # Parse normal rulesets\n" .
             "/xs";
 
         if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
-            // An error occured
+            // An error occurred
             throw new Exception("Error parsing css file: preg_match_all() failed.");
         }
 
