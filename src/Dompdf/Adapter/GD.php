@@ -113,6 +113,16 @@ class GD implements Canvas
     private $_bg_color_array;
 
     /**
+     * Amount to scale font sizes
+     *
+     * Font sizes are 72 DPI, GD internally uses 96. Scale them proportionally.
+     * 72 / 96 = 0.75.
+     *
+     * @var float
+     */
+    const FONT_SCALE = 0.75;
+
+    /**
      * Class constructor
      *
      * @param mixed $size The size of image to create: array(x1,y1,x2,y2) or "letter", "legal", etc.
@@ -704,7 +714,7 @@ class GD implements Canvas
         // Scale by the AA factor and DPI
         $x = $this->_upscale($x);
         $y = $this->_upscale($y);
-        $size = $this->_upscale($size);
+        $size = $this->_upscale($size) * self::FONT_SCALE;
 
         $h = $this->get_font_height_actual($font, $size);
         $c = $this->_allocate_color($color);
@@ -777,13 +787,15 @@ class GD implements Canvas
     function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)
     {
         $font = $this->get_ttf_file($font);
-        $size = $this->_upscale($size);
+        $size = $this->_upscale($size) * self::FONT_SCALE;
 
         $text = mb_encode_numericentity($text, array(0x0080, 0xffff, 0, 0xffff), 'UTF-8');
 
         // FIXME: word spacing
         list($x1, , $x2) = imagettfbbox($size, 0, $font, $text);
-        return $this->_downscale($x2 - $x1);
+
+        // Add additional 1pt to prevent text overflow issues
+        return $this->_downscale($x2 - $x1) + 1;
     }
 
     function get_ttf_file($font)
@@ -809,7 +821,7 @@ class GD implements Canvas
      */
     function get_font_height($font, $size)
     {
-        $size = $this->_upscale($size);
+        $size = $this->_upscale($size) * self::FONT_SCALE;
 
         $height = $this->get_font_height_actual($font, $size);
 
