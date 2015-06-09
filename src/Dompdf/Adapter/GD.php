@@ -113,6 +113,13 @@ class GD implements Canvas
     private $_bg_color_array;
 
     /**
+     * Actual DPI
+     *
+     * @var int
+     */
+    private $dpi;
+
+    /**
      * Amount to scale font sizes
      *
      * Font sizes are 72 DPI, GD internally uses 96. Scale them proportionally.
@@ -149,6 +156,8 @@ class GD implements Canvas
         }
 
         $this->_dompdf = $dompdf;
+
+        $this->dpi = $this->get_dompdf()->get_option('dpi');
 
         if ($aa_factor < 1) {
             $aa_factor = 1;
@@ -317,9 +326,7 @@ class GD implements Canvas
      */
     private function _upscale($length)
     {
-        $dpi = $this->get_dompdf()->get_option('dpi');
-
-        return ($length * $dpi) / 72 * $this->_aa_factor;
+        return ($length * $this->dpi) / 72 * $this->_aa_factor;
     }
 
     /**
@@ -330,9 +337,7 @@ class GD implements Canvas
      */
     private function _downscale($length)
     {
-        $dpi = $this->get_dompdf()->get_option('dpi');
-
-        return ($length / $dpi * 72) / $this->_aa_factor;
+        return ($length / $this->dpi * 72) / $this->_aa_factor;
     }
 
     /**
@@ -511,12 +516,12 @@ class GD implements Canvas
 
     function save()
     {
-        // @todo
+        $this->get_dompdf()->set_option('dpi', 72);
     }
 
     function restore()
     {
-        // @todo
+        $this->get_dompdf()->set_option('dpi', $this->dpi);
     }
 
     function rotate($angle, $x, $y)
