@@ -300,7 +300,7 @@ class GD implements Canvas
         $c = $this->_allocate_color($color);
 
         // Convert the style array if required
-        if (!empty($style)) {
+        if (is_array($style) && count($style) > 0) {
             $gd_style = array();
 
             if (count($style) == 1) {
@@ -374,7 +374,7 @@ class GD implements Canvas
         $c = $this->_allocate_color($color);
 
         // Convert the style array if required
-        if (!empty($style)) {
+        if (is_array($style) && count($style) > 0) {
             $gd_style = array();
 
             foreach ($style as $length) {
@@ -514,7 +514,7 @@ class GD implements Canvas
         $c = $this->_allocate_color($color);
 
         // Convert the style array if required
-        if (!empty($style) && !$fill) {
+        if (is_array($style) && count($style) > 0 && !$fill) {
             $gd_style = array();
 
             foreach ($style as $length) {
@@ -562,7 +562,7 @@ class GD implements Canvas
         $c = $this->_allocate_color($color);
 
         // Convert the style array if required
-        if (!empty($style) && !$fill) {
+        if (is_array($style) && count($style) > 0 && !$fill) {
             $gd_style = array();
 
             foreach ($style as $length) {
