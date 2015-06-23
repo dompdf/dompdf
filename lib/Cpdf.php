@@ -16,6 +16,8 @@
  * @package Cpdf
  */
 use FontLib\Font;
+use FontLib\Binary_Stream;
+
 
 class Cpdf
 {
