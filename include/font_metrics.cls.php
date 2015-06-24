@@ -9,6 +9,8 @@
  */
 
 require_once DOMPDF_LIB_DIR . "/class.pdf.php";
+require_once DOMPDF_LIB_DIR . "/php-font-lib/classes/Autoloader.php";
+use FontLib\Font;
 
 /**
  * Name of the font cache file
