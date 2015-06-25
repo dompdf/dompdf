@@ -21,14 +21,7 @@ require_once DOMPDF_LIB_DIR . "/class.pdf.php";
  *
  * Declared here because PHP5 prevents constants from being declared with expressions
  */
-if (!defined("__DOMPDF_FONT_CACHE_FILE")) {
-  if (file_exists(DOMPDF_FONT_DIR . "dompdf_font_family_cache")) {
-    define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache");
-  }
-  else {
-    define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.dist.php");
-  }
-}
+define('__DOMPDF_FONT_CACHE_FILE', DOMPDF_FONT_DIR . "dompdf_font_family_cache.php");
 
 /**
  * The font metrics class
@@ -223,9 +216,10 @@ class Font_Metrics {
    * @see Font_Metrics::load_font_families()
    */
   static function save_font_families() {
-    // replace the path to the DOMPDF font directory with "DOMPDF_FONT_DIR" (allows for more portability)
+    // replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)
     $cache_data = var_export(self::$_font_lookup, true);
     $cache_data = str_replace('\''.DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $cache_data);
+    $cache_data = str_replace('\''.DOMPDF_DIR , 'DOMPDF_DIR . \'' , $cache_data);
     $cache_data = "<"."?php return $cache_data ?".">";
     file_put_contents(self::CACHE_FILE, $cache_data);
   }
@@ -236,10 +230,25 @@ class Font_Metrics {
    * @see save_font_families()
    */
   static function load_font_families() {
+    $dist_fonts = require_once DOMPDF_DIR . "/lib/fonts/dompdf_font_family_cache.dist.php";
+    
+    // FIXME: temporary step for font cache created before the font cache fix
+    if ( is_readable( DOMPDF_FONT_DIR . "dompdf_font_family_cache" ) ) {
+      $old_fonts = require_once DOMPDF_FONT_DIR . "dompdf_font_family_cache";
+      // If the font family cache is still in the old format
+      if ( $old_fonts === 1 ) {
+        $cache_data = file_get_contents(DOMPDF_FONT_DIR . "dompdf_font_family_cache");
+        file_put_contents(DOMPDF_FONT_DIR . "dompdf_font_family_cache", "<"."?php return $cache_data ?".">");
+        $old_fonts = require_once DOMPDF_FONT_DIR . "dompdf_font_family_cache";
+      }
+      $dist_fonts += $old_fonts;
+    }
+    
     if ( !is_readable(self::CACHE_FILE) ) {
+      self::$_font_lookup = $dist_fonts;
       return;
     }
-
+    
     self::$_font_lookup = require_once self::CACHE_FILE;
     
     // If the font family cache is still in the old format
@@ -248,6 +257,9 @@ class Font_Metrics {
       file_put_contents(self::CACHE_FILE, "<"."?php return $cache_data ?".">");
       self::$_font_lookup = require_once self::CACHE_FILE;
     }
+    
+    // Merge provided fonts
+    self::$_font_lookup += $dist_fonts;
   }
   
   static function get_type($type) {

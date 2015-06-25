@@ -227,6 +227,10 @@ switch ( $sapi ) {
     }
   }
   
+  if($file_parts['protocol'] === 'php://') {
+    throw new DOMPDF_Exception("Permission denied on $file. This script does not allow PHP streams.");
+  }
+  
   $outfile = "dompdf_out.pdf"; # Don't allow them to set the output file
   $save_file = false; # Don't save the file
   

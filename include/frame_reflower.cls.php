@@ -323,54 +323,55 @@ abstract class Frame_Reflower {
           continue;
         }
 
-        $args = explode(",", mb_substr($match[1], 8, $i - 8));
-        $counter_id = $args[0];
-
-        if ( $match[1][7] === "(" ) {
+        preg_match( '/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]+)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i' , $match[1] , $args );
+        $counter_id = $args[3];
+        if ( strtolower( $args[1] ) == 'counter' ) {
           // counter(name [,style])
-
-          if ( isset($args[1]) ) {
-            $type = trim($args[1]);
+          if ( isset( $args[5] ) ) {
+            $type = trim( $args[5] );
           }
           else {
             $type = null;
           }
-
-          $p = $this->_frame->lookup_counter_frame($counter_id);
+          $p = $this->_frame->lookup_counter_frame( $counter_id );
           
           $text .= $p->counter_value($counter_id, $type);
-
+          
         }
-        else if ( $match[1][7] === "s" ) {
+        else if ( strtolower( $args[1] ) == 'counters' ) {
           // counters(name, string [,style])
-          if ( isset($args[1]) ) {
-            $string = $this->_parse_string(trim($args[1]));
+          if ( isset($args[5]) ) {
+            $string = $this->_parse_string( $args[5] );
           }
           else {
             $string = "";
           }
-
-          if ( isset($args[2]) ) {
-            $type = $args[2];
+          
+          if ( isset( $args[7] ) ) {
+            $type = trim( $args[7] );
           }
           else {
             $type = null;
           }
-
+          
           $p = $this->_frame->lookup_counter_frame($counter_id);
-          $tmp = "";
+          $tmp = array();
           while ($p) {
-            $tmp = $p->counter_value($counter_id, $type) . $string . $tmp;
+            // We only want to use the counter values when they actually increment the counter
+            if ( array_key_exists( $counter_id , $p->_counters ) ) {
+              array_unshift( $tmp , $p->counter_value($counter_id, $type) );
+            }
             $p = $p->lookup_counter_frame($counter_id);
+            
           }
-          $text .= $tmp;
-
+          $text .= implode( $string , $tmp );
+          
         }
         else {
           // countertops?
           continue;
         }
-
+        
       }
       else if ( isset($match[4]) && $match[4] !== "" ) {
         // String match
@@ -412,7 +413,7 @@ abstract class Frame_Reflower {
         }
       }
     }
-
+    
     return $text;
   }
   
@@ -423,9 +424,10 @@ abstract class Frame_Reflower {
     $frame = $this->_frame;
     $style = $frame->get_style();
     
+    // if the element was pushed to a new page use the saved counter value, otherwise use the CSS reset value
     if ( $style->counter_reset && ($reset = $style->counter_reset) !== "none" ) {
       $vars = preg_split('/\s+/', trim($reset), 2);
-      $frame->reset_counter($vars[0], isset($vars[1]) ? $vars[1] : 0);
+      $frame->reset_counter( $vars[0] , ( isset($frame->_counters['__'.$vars[0]]) ? $frame->_counters['__'.$vars[0]] : ( isset($vars[1]) ? $vars[1] : 0 ) ) );
     }
     
     if ( $style->counter_increment && ($increment = $style->counter_increment) !== "none" ) {
@@ -434,6 +436,13 @@ abstract class Frame_Reflower {
   
     if ( $style->content && !$frame->get_first_child() && $frame->get_node()->nodeName === "dompdf_generated" ) {
       $content = $this->_parse_content();
+      // add generated content to the font subset
+      // FIXME: This is currently too late because the font subset has already been generated.
+      //        See notes in issue #750.
+      if ( $frame->get_dompdf()->get_option("enable_font_subsetting") && $frame->get_dompdf()->get_canvas() instanceof CPDF_Adapter ) {
+        $frame->get_dompdf()->get_canvas()->register_string_subset($style->font_family, $content);
+      }
+      
       $node = $frame->get_node()->ownerDocument->createTextNode($content);
       
       $new_style = $style->get_stylesheet()->create_style();

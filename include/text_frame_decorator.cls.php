@@ -86,7 +86,7 @@ class Text_Frame_Decorator extends Frame_Decorator {
     pre_r(($style->line_height / $size) * Font_Metrics::get_font_height($font, $size));
     */
 
-    return ($style->line_height / $size) * Font_Metrics::get_font_height($font, $size);
+    return ($style->line_height / ( $size > 0 ? $size : 1 )) * Font_Metrics::get_font_height($font, $size);
     
   }
 

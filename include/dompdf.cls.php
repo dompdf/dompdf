@@ -247,7 +247,7 @@ class DOMPDF {
     $this->_messages = array();
     $this->_css = new Stylesheet($this);
     $this->_pdf = null;
-    $this->_paper_size = "letter";
+    $this->_paper_size = DOMPDF_DEFAULT_PAPER_SIZE;
     $this->_paper_orientation = "portrait";
     $this->_base_protocol = "";
     $this->_base_host = "";
@@ -314,7 +314,8 @@ class DOMPDF {
       return;
     }
 
-    $this->_system_locale = setlocale(LC_NUMERIC, "C");
+    $this->_system_locale = setlocale(LC_NUMERIC, "0");
+    setlocale(LC_NUMERIC, "C");
   }
 
   /**
@@ -579,13 +580,6 @@ class DOMPDF {
       $str = substr($str, 3);
     }
 
-    // Parse embedded php, first-pass
-    if ( $this->get_option("enable_php") ) {
-      ob_start();
-      eval("?" . ">$str");
-      $str = ob_get_clean();
-    }
-
     // if the document contains non utf-8 with a utf-8 meta tag chars and was 
     // detected as utf-8 by mbstring, problems could happen.
     // http://devzone.zend.com/article/8855
@@ -620,9 +614,14 @@ class DOMPDF {
       $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
     }
     else {
+      // loadHTML assumes ISO-8859-1 unless otherwise specified, but there are
+      // bugs in how DOMDocument determines the actual encoding. Converting to
+      // HTML-ENTITIES prior to import appears to resolve the issue.
+      // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
+      // http://stackoverflow.com/a/11310258/264628
       $doc = new DOMDocument();
       $doc->preserveWhiteSpace = true;
-      $doc->loadHTML($str);
+      $doc->loadHTML( mb_convert_encoding( $str , 'HTML-ENTITIES' , 'UTF-8' ) );
 
       // If some text is before the doctype, we are in quirksmode
       if ( preg_match("/^(.+)<!doctype/i", ltrim($str), $matches) ) {
@@ -674,8 +673,6 @@ class DOMPDF {
    * the {@link Frame_Tree}
    */
   protected function _process_html() {
-    $this->save_locale();
-
     $this->_tree->build_tree();
 
     $this->_css->load_css_file(Stylesheet::DEFAULT_STYLESHEET, Stylesheet::ORIG_UA);
@@ -758,8 +755,6 @@ class DOMPDF {
           break;
       }
     }
-
-    $this->restore_locale();
   }
 
   /**
@@ -890,8 +885,25 @@ class DOMPDF {
           $this->_pdf->register_string_subset($style->font_family, $chars);
           continue;
         }
-
-        // TODO Handle other generated content (pseudo elements)
+        
+        // Handle other generated content (pseudo elements)
+        // FIXME: This only captures the text of the stylesheet declaration,
+        //        not the actual generated content, and forces all possible counter
+        //        values. See notes in issue #750.
+        if ( $frame->get_node()->nodeName == "dompdf_generated" ) {
+          // all possible counter values
+          $chars = List_Bullet_Renderer::get_counter_chars('decimal');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          $chars = List_Bullet_Renderer::get_counter_chars('upper-alpha');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          $chars = List_Bullet_Renderer::get_counter_chars('lower-alpha');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          $chars = List_Bullet_Renderer::get_counter_chars('lower-greek');
+          $this->_pdf->register_string_subset($style->font_family, $chars);
+          // the text of the stylesheet declaration
+          $this->_pdf->register_string_subset($style->font_family, $style->content);
+          continue;
+        }
       }
     }
 

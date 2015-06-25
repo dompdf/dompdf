@@ -193,7 +193,7 @@ class CSS_Color {
       return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
     }
     
-    // rgb( r,g,b ) format
+    // rgb( r,g,b ) / rgbaa( r,g,b,α ) format
     else if ( mb_strpos($color, "rgb") !== false ) {
       $i = mb_strpos($color, "(");
       $j = mb_strpos($color, ")");
@@ -204,7 +204,18 @@ class CSS_Color {
       }
       
       $triplet = explode(",", mb_substr($color, $i+1, $j-$i-1));
-
+      
+      // alpha transparency
+      // FIXME: not currently using transparency
+      $alpha = 1;
+      if ( count( $triplet ) == 4 ) {
+        $alpha = (float) ( trim( array_pop( $triplet ) ) );
+        // bad value, set to fully opaque
+        if ( $alpha > 1 || $alpha < 0 ) {
+          $alpha = 1;
+        }
+      }
+      
       if ( count($triplet) != 3 ) {
         return null;
       }

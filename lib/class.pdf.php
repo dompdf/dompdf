@@ -773,7 +773,7 @@ end
 EOT;
 
         $res = "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
-        $res .= "stream\n" . $stream . "endstream";
+        $res .= "stream\n" . $stream . "\nendstream";
 
         $this->objects[$toUnicodeId]['c'] = $res;
 
@@ -1897,7 +1897,7 @@ EOT;
       $tmp = 'o_'.$v['t'];
       $cont = $this->$tmp($k, 'out');
       $content.= $cont;
-      $xref[] = $pos;
+      $xref[] = $pos+1; //+1 to account for \n at the start of each object
       $pos+= mb_strlen($cont, '8bit');
     }
 
@@ -1917,6 +1917,9 @@ EOT;
     if (mb_strlen($this->fileIdentifier, '8bit')) {
       $content.= "/ID[<$this->fileIdentifier><$this->fileIdentifier>]\n";
     }
+
+    // account for \n added at start of xref table
+    $pos++;
 
     $content.= ">>\nstartxref\n$pos\n%%EOF\n";
 
@@ -2365,6 +2368,7 @@ EOT;
           // load the pfb file, and put that into an object too.
           // note that pdf supports only binary format type 1 font files, though there is a
           // simple utility to convert them from pfa to pfb.
+          // FIXME: should we move font subset creation to CPDF::output? See notes in issue #750.
           if (!$this->isUnicode || $fbtype !== 'ttf' || empty($this->stringSubsets)) {
             $data = file_get_contents($fbfile);
           }
@@ -2452,7 +2456,7 @@ EOT;
           $flags+= pow(2, 5); // assume non-sybolic
           $list = array(
             'Ascent' => 'Ascender',
-            'CapHeight' => 'CapHeight',
+            'CapHeight' => 'Ascender', //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
             'MissingWidth' => 'MissingWidth',
             'Descent' => 'Descender',
             'FontBBox' => 'FontBBox',
@@ -3499,7 +3503,7 @@ EOT;
 
   /**
    * calculate how wide a given text string will be on a page, at a given size.
-   * this can be called externally, but is alse used by the other class functions
+   * this can be called externally, but is also used by the other class functions
    */
   function getTextWidth($size, $text, $word_spacing = 0, $char_spacing = 0) {
     static $ord_cache = array();
@@ -3523,7 +3527,7 @@ EOT;
     $w = 0;
     $cf = $this->currentFont;
     $current_font = $this->fonts[$cf];
-    $space_scale = 1000 / $size;
+    $space_scale = 1000 / ( $size > 0 ? $size : 1 );
     $n_spaces = 0;
 
     if ( $current_font['isUnicode']) {

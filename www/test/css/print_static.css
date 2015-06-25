@@ -257,7 +257,7 @@ a:hover {
 }
 
 .form th, .form_head td { 
-  background-color: #ddd
+  background-color: #ddd;
   border-bottom: 1px solid black;
   color: black;
   padding: 3px;
@@ -343,7 +343,7 @@ a.button:hover {
 */
 
 .form_foot td { 
-  background-color: #ddd
+  background-color: #ddd;
   border-bottom: 1px solid black;
   color: black;
   padding: 3px;

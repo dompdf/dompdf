@@ -5,11 +5,11 @@
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Helmut Tischer <htischer@weihenstephan.org>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @autho   Brian Sweeney <eclecticgeek@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-//error_reporting(E_STRICT | E_ALL | E_DEPRECATED);
-//ini_set("display_errors", 1);
+if ( class_exists( 'DOMPDF' , false ) ) { return; }
 
 PHP_VERSION >= 5.0 or die("DOMPDF requires PHP 5.0+");
 
@@ -60,8 +60,8 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
 /**
  * The location of the DOMPDF font directory
  *
- * If DOMPDF_FONT_DIR identical to DOMPDF_FONT_CACHE or user executing DOMPDF from the CLI,
- * this directory must be writable by the webserver process ().
+ * The location of the directory where DOMPDF will store fonts and font metrics
+ * Note: This directory must exist and be writable by the webserver process.
  * *Please note the trailing slash.*
  *
  * Notes regarding fonts:
@@ -69,8 +69,8 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
  *
  * Only the original "Base 14 fonts" are present on all pdf viewers. Additional fonts must
  * be embedded in the pdf file or the PDF may not display correctly. This can significantly
- * increase file size and could violate copyright provisions of a font. Font subsetting is
- * not currently supported.
+ * increase file size unless font subsetting is enabled. Before embedding a font please
+ * review your rights under the font license.
  *
  * Any font specification in the source HTML is translated to the closest font available
  * in the font directory.
@@ -79,20 +79,17 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
  * Courier, Courier-Bold, Courier-BoldOblique, Courier-Oblique,
  * Helvetica, Helvetica-Bold, Helvetica-BoldOblique, Helvetica-Oblique,
  * Times-Roman, Times-Bold, Times-BoldItalic, Times-Italic,
- * Symbol,
- * ZapfDingbats,
- *
- * *Please note the trailing slash.*
+ * Symbol, ZapfDingbats.
  */
 def("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
 
 /**
  * The location of the DOMPDF font cache directory
  *
- * Note this directory must be writable by the webserver process
- * This folder must already exist!
- * It contains the .afm files, on demand parsed, converted to php syntax and cached
- * This folder can be the same as DOMPDF_FONT_DIR
+ * This directory contains the cached font metrics for the fonts used by DOMPDF.
+ * This directory can be the same as DOMPDF_FONT_DIR
+ * 
+ * Note: This directory must exist and be writable by the webserver process.
  */
 def("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
 
@@ -125,13 +122,13 @@ def("DOMPDF_CHROOT", realpath(DOMPDF_DIR));
  * When set to true the PDF backend must be set to "CPDF" and fonts must be
  * loaded via load_font.php.
  *
- * When enabled, dompdf can support all Unicode glyphs.  Any glyphs used in a
+ * When enabled, dompdf can support all Unicode glyphs. Any glyphs used in a
  * document must be present in your fonts, however.
  */
 def("DOMPDF_UNICODE_ENABLED", true);
 
 /**
- * Whether to make font subsetting or not.
+ * Whether to enable font subsetting or not.
  */
 def("DOMPDF_ENABLE_FONTSUBSETTING", false);
 
@@ -139,8 +136,8 @@ def("DOMPDF_ENABLE_FONTSUBSETTING", false);
  * The PDF rendering backend to use
  *
  * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class), 'GD' and
- * 'auto'.  'auto' will look for PDFLib and use it if found, or if not it will
- * fall back on CPDF.  'GD' renders PDFs to graphic files.  {@link
+ * 'auto'. 'auto' will look for PDFLib and use it if found, or if not it will
+ * fall back on CPDF. 'GD' renders PDFs to graphic files. {@link
  * Canvas_Factory} ultimately determines which rendering class to instantiate
  * based on this setting.
  *
@@ -149,15 +146,15 @@ def("DOMPDF_ENABLE_FONTSUBSETTING", false);
  * image and font support, etc.) differ between backends.  Please see
  * {@link PDFLib_Adapter} for more information on the PDFLib backend
  * and {@link CPDF_Adapter} and lib/class.pdf.php for more information
- * on CPDF.  Also see the documentation for each backend at the links
+ * on CPDF. Also see the documentation for each backend at the links
  * below.
  *
  * The GD rendering backend is a little different than PDFLib and
- * CPDF.  Several features of CPDF and PDFLib are not supported or do
+ * CPDF. Several features of CPDF and PDFLib are not supported or do
  * not make any sense when creating image files.  For example,
  * multiple pages are not supported, nor are PDF 'objects'.  Have a
- * look at {@link GD_Adapter} for more information.  GD support is new
- * and experimental, so use it at your own risk.
+ * look at {@link GD_Adapter} for more information.  GD support is
+ * experimental, so use it at your own risk.
  *
  * @link http://www.pdflib.com
  * @link http://www.ros.co.nz/pdf
@@ -221,7 +218,7 @@ def("DOMPDF_DEFAULT_FONT", "serif");
  *
  * For the purposes of DOMPDF, pixels per inch (PPI) = dots per inch (DPI).
  * If a size in html is given as px (or without unit as image size),
- * this tells the corresponding size in pt.
+ * this tells the corresponding size in pt at 72 DPI.
  * This adjusts the relative sizes to be similar to the rendering of the
  * html page in a reference browser.
  *
@@ -313,7 +310,7 @@ def("DOMPDF_ENABLE_CSS_FLOAT", false);
 def("DOMPDF_ENABLE_AUTOLOAD", true);
 
 /**
- * Prepend the DOMPDF autoload function the spl_autoload stack
+ * Prepend the DOMPDF autoload function to the spl_autoload stack
  *
  * @var bool
  */
@@ -332,7 +329,7 @@ require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
  */
 if (DOMPDF_ENABLE_AUTOLOAD) {
   require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
-  require_once(DOMPDF_LIB_DIR . "/php-font-lib/classes/font.cls.php");
+  require_once(DOMPDF_LIB_DIR . "/php-font-lib/classes/Font.php");
 }
 
 /**
