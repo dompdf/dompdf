@@ -19,6 +19,6 @@
 /*
  * New PHP 5.3.0 namespaced autoloader
  */
-require_once __DIR__ . "/Dompdf/Autoloader.php";
+require_once __DIR__ . "/Autoloader.php";
 
 Dompdf\Autoloader::register();

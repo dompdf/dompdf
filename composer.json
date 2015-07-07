@@ -19,8 +19,8 @@
         }
     ],
     "autoload": {
-        "psr-0" : {
-            "Dompdf" : "src/"
+        "psr-4" : {
+            "Dompdf\\" : "src/"
         },
         "classmap" : ["lib/"]
     },

@@ -26,7 +26,7 @@ class Autoloader
     public static function autoload($class)
     {
         if ($class === 'Cpdf') {
-            require_once __DIR__ . "/../../lib/Cpdf.php";
+            require_once __DIR__ . "/../lib/Cpdf.php";
             return;
         }
 
