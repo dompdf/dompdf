@@ -69,6 +69,7 @@ the following commands:
 
 ```sh
 git clone https://github.com/dompdf/dompdf.git
+cd dompdf
 git submodule init
 git submodule update
 ```
