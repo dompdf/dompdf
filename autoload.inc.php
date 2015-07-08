@@ -16,9 +16,12 @@
  * @param string $class
  */
 
+require_once __DIR__ . '/lib/html5lib/Parser.php';
+require_once __DIR__ . '/lib/php-font-lib/src/FontLib/Autoloader.php';
+
 /*
  * New PHP 5.3.0 namespaced autoloader
  */
-require_once __DIR__ . "/Autoloader.php";
+require_once __DIR__ . '/src/Autoloader.php';
 
 Dompdf\Autoloader::register();
