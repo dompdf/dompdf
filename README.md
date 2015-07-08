@@ -95,10 +95,8 @@ will reside
 Require dompdf, libraries, and helper functions in your PHP:
 
 ```php
-// include autoloaders and helper functions
-require_once 'dompdf/lib/html5lib/Parser.php';
-require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
-require_once 'dompdf/src/autoload.inc.php';
+// include autoloader
+require_once 'dompdf/autoload.inc.php';
 ```
 
 ### Install with git
@@ -116,10 +114,8 @@ git checkout 0.3.1
 Require dompdf, libraries, and helper functions in your PHP:
 
 ```php
-// include autoloaders and helper functions
-require_once 'dompdf/lib/html5lib/Parser.php';
-require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
-require_once 'dompdf/src/autoload.inc.php';
+// include autoloader
+require_once 'dompdf/autoload.inc.php';
 ```
 
 ## Quick Start
