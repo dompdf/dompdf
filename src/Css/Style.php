@@ -2414,10 +2414,22 @@ class Style
      */
     function set_transform_origin($val)
     {
-        $values = preg_split("/\s+/", $val);
+        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+        $this->_prop_cache["transform_origin"] = null;
+        $this->_props["transform_origin"] = $val;
+    }
+
+    /**
+     * Gets the CSS3 transform-origin property
+     *
+     * @link http://www.w3.org/TR/css3-2d-transforms/#transform-origin
+     * @return mixed[]
+     */
+    function get_transform_origin() {
+        $values = preg_split("/\s+/", $this->_props['transform_origin']);
 
         if (count($values) === 0) {
-            return;
+            $values = preg_split("/\s+/", self::$_defaults["transform_origin"]);
         }
 
         foreach ($values as &$value) {
@@ -2434,9 +2446,7 @@ class Style
             $values[1] = $values[0];
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["transform_origin"] = null;
-        $this->_props["transform_origin"] = $values;
+        return $values;
     }
 
     protected function parse_image_resolution($val)
