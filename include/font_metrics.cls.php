@@ -329,7 +329,7 @@ class Font_Metrics {
     
     $local_file = DOMPDF_FONT_DIR . md5($remote_file);
     $cache_entry = $local_file;
-    $local_file .= ".ttf";
+    $local_file .=".".pathinfo($remote_file,PATHINFO_EXTENSION); //Minor fix (replace .ttf by the extension of remote file)
     
     $style_string = Font_Metrics::get_type("{$style['weight']} {$style['style']}");
     
