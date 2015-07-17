@@ -211,7 +211,7 @@ class FontMetrics
         $localFile = $fontDir . DIRECTORY_SEPARATOR . md5($remoteFile);
         $localTempFile = $this->options->get('tempDir') . "/" . md5($remoteFile);
         $cacheEntry = $localFile;
-        $localFile .= ".ttf";
+        $localFile .= ".".strtolower(pathinfo($remote_file,PATHINFO_EXTENSION));
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
