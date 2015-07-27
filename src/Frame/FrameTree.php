@@ -196,6 +196,8 @@ class FrameTree
             return $frame;
         }
 
+        // Remove unwanted nodes from the tree. Do this before further building
+        // of the tree as it may modify the textContent of previous nodes.
         for ($i = 0; $i < $node->childNodes->length; $i++) {
             $child = $node->childNodes->item($i);
 
@@ -207,7 +209,14 @@ class FrameTree
                 $child->parentNode->removeChild($child);
             } elseif (($child->nodeName === "img" || $child->nodeName === "IMG") && $child->getAttribute("src") == "") {
                 $child->parentNode->removeChild($child);
-            } elseif (is_object($child)) {
+            }
+        }
+
+        // Build the current level of the Frame tree.
+        for ($i = 0; $i < $node->childNodes->length; $i++) {
+            $child = $node->childNodes->item($i);
+
+            if (is_object($child)) {
                 $frame->append_child($this->_build_tree_r($child), false);
             }
         }
