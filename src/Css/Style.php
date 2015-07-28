@@ -2268,20 +2268,19 @@ class Style
 
         $this->_props["size"] = $computed;
     }
-
     /**
-     * Sets the CSS3 transform property
+     * Gets the CSS3 transform property
      *
      * @link http://www.w3.org/TR/css3-2d-transforms/#transform-property
      * @param string $val
      */
-    function set_transform($val)
+    function get_transform()
     {
         $number = "\s*([^,\s]+)\s*";
         $tr_value = "\s*([^,\s]+)\s*";
         $angle = "\s*([^,\s]+(?:deg|rad)?)\s*";
 
-        if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $val, $parts, PREG_SET_ORDER)) {
+        if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $this->_props["transform"], $parts, PREG_SET_ORDER)) {
             return;
         }
 
@@ -2391,9 +2390,14 @@ class Style
             }
         }
 
+        return $transforms;
+    }
+
+    function set_transform($val)
+    {
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
         $this->_prop_cache["transform"] = null;
-        $this->_props["transform"] = $transforms;
+        $this->_props["transform"] = $val;
     }
 
     function set__webkit_transform($val)
