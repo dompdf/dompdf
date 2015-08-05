@@ -31,6 +31,7 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  * Image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
  * No dependencies on external PDF libraries, thanks to the R&OS PDF class
  * Inline PHP support
+ * Basic SVG support
  
 ## Requirements
 
@@ -38,6 +39,8 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  * DOM extension
  * GD extension
  * MBString extension
+ * php-font-lib
+ * php-svg-lib
 
 ### Recommendations
 
@@ -109,6 +112,10 @@ git clone https://github.com/dompdf/dompdf.git .
 git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
 cd lib/php-font-lib
 git checkout 0.3.1
+cd ..
+git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
+cd php-svg-lib
+git checkout v0.1
 ```
 
 Require dompdf, libraries, and helper functions in your PHP:
