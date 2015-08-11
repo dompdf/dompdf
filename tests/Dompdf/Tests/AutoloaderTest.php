@@ -8,6 +8,8 @@ class AutoloaderTest extends PHPUnit_Framework_TestCase
 {
     public function testAutoload()
     {
+        Autoloader::register();
+
         $declared = get_declared_classes();
         $declaredCount = count($declared);
         Autoloader::autoload('Foo');
