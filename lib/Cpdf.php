@@ -425,14 +425,66 @@ class Cpdf
             case 'add':
                 foreach ($options as $k => $v) {
                     switch ($k) {
+                        // Boolean keys
                         case 'HideToolbar':
                         case 'HideMenubar':
                         case 'HideWindowUI':
                         case 'FitWindow':
                         case 'CenterWindow':
+                        case 'DisplayDocTitle':
+                        case 'PickTrayByPDFSize':
+                            $o['info'][$k] = (bool)$v;
+                            break;
+
+                        // Integer keys
+                        case 'NumCopies':
+                            $o['info'][$k] = (int)$v;
+                            break;
+
+                        // Name keys
+                        case 'ViewArea':
+                        case 'ViewClip':
+                        case 'PrintClip':
+                        case 'PrintArea':
+                            $o['info'][$k] = (string)$v;
+                            break;
+
+                        // Named with limited valid values
                         case 'NonFullScreenPageMode':
-                        case 'Direction':
+                            if (!in_array($v, array('UseNone', 'UseOutlines', 'UseThumbs', 'UseOC'))) {
+                                continue;
+                            }
                             $o['info'][$k] = $v;
+                            break;
+
+                        case 'Direction':
+                            if (!in_array($v, array('L2R', 'R2L'))) {
+                                continue;
+                            }
+                            $o['info'][$k] = $v;
+                            break;
+
+                        case 'PrintScaling':
+                            if (!in_array($v, array('None', 'AppDefault'))) {
+                                continue;
+                            }
+                            $o['info'][$k] = $v;
+                            break;
+
+                        case 'Duplex':
+                            if (!in_array($v, array('None', 'AppDefault'))) {
+                                continue;
+                            }
+                            $o['info'][$k] = $v;
+                            break;
+
+                        // Integer array
+                        case 'PrintPageRange':
+                            // Cast to integer array
+                            foreach ($v as $vK => $vV) {
+                                $v[$vK] = (int)$vV;
+                            }
+                            $o['info'][$k] = array_values($v);
                             break;
                     }
                 }
@@ -441,6 +493,15 @@ class Cpdf
             case 'out':
                 $res = "\n$id 0 obj\n<< ";
                 foreach ($o['info'] as $k => $v) {
+                    if(is_string($v)) {
+                        $v = '/' . $v;
+                    } elseif (is_int($v)) {
+                        $v = (string) $v;
+                    } elseif (is_bool($v)) {
+                        $v = ($v ? 'true' : 'false');
+                    } elseif (is_array($v)) {
+                        $v = '[' . implode(' ', $v) . ']';
+                    }
                     $res .= "\n/$k $v";
                 }
                 $res .= "\n>>\n";
