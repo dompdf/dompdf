@@ -493,7 +493,7 @@ class Cpdf
             case 'out':
                 $res = "\n$id 0 obj\n<< ";
                 foreach ($o['info'] as $k => $v) {
-                    if(is_string($v)) {
+                    if (is_string($v)) {
                         $v = '/' . $v;
                     } elseif (is_int($v)) {
                         $v = (string) $v;
