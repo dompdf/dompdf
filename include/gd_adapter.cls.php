@@ -300,8 +300,10 @@ class GD_Adapter implements Canvas {
         }
       }
       
-      imagesetstyle($this->_img, $gd_style);
-      $c = IMG_COLOR_STYLED;
+      if(!empty($gd_style)) {
+        imagesetstyle($this->_img, $gd_style);
+        $c = IMG_COLOR_STYLED;
+      }
     }
     
     imagesetthickness($this->_img, $width);
@@ -349,8 +351,10 @@ class GD_Adapter implements Canvas {
         }
       }
 
-      imagesetstyle($this->_img, $gd_style);
-      $c = IMG_COLOR_STYLED;
+      if(!empty($gd_style)) {
+        imagesetstyle($this->_img, $gd_style);
+        $c = IMG_COLOR_STYLED;
+      }
     }
 
     imagesetthickness($this->_img, $width);
@@ -477,8 +481,10 @@ class GD_Adapter implements Canvas {
         }
       }
 
-      imagesetstyle($this->_img, $gd_style);
-      $c = IMG_COLOR_STYLED;
+      if(!empty($gd_style)) {
+        imagesetstyle($this->_img, $gd_style);
+        $c = IMG_COLOR_STYLED;
+      }
     }
 
     imagesetthickness($this->_img, $width);
@@ -524,8 +530,10 @@ class GD_Adapter implements Canvas {
         }
       }
 
-      imagesetstyle($this->_img, $gd_style);
-      $c = IMG_COLOR_STYLED;
+      if(!empty($gd_style)) {
+        imagesetstyle($this->_img, $gd_style);
+        $c = IMG_COLOR_STYLED;
+      }
     }
 
     imagesetthickness($this->_img, $width);
