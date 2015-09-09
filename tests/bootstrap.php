@@ -18,4 +18,3 @@ spl_autoload_register(function ($class) {
     }
 });
 
-Dompdf\Autoloader::register();
