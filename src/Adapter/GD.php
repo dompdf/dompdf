@@ -3,7 +3,7 @@
  * @package dompdf
  * @link    http://dompdf.github.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 namespace Dompdf\Adapter;
@@ -400,8 +400,10 @@ class GD implements Canvas
                 }
             }
 
-            imagesetstyle($this->get_image(), $gd_style);
-            $c = IMG_COLOR_STYLED;
+            if(!empty($gd_style)) {
+                imagesetstyle($this->get_image(), $gd_style);
+                $c = IMG_COLOR_STYLED;
+            }
         }
 
         imagesetthickness($this->get_image(), $width);
@@ -452,8 +454,10 @@ class GD implements Canvas
                 }
             }
 
-            imagesetstyle($this->get_image(), $gd_style);
-            $c = IMG_COLOR_STYLED;
+            if(!empty($gd_style)) {
+                imagesetstyle($this->get_image(), $gd_style);
+                $c = IMG_COLOR_STYLED;
+            }
         }
 
         imagesetthickness($this->get_image(), $width);
@@ -592,8 +596,10 @@ class GD implements Canvas
                 }
             }
 
-            imagesetstyle($this->get_image(), $gd_style);
-            $c = IMG_COLOR_STYLED;
+            if(!empty($gd_style)) {
+                imagesetstyle($this->get_image(), $gd_style);
+                $c = IMG_COLOR_STYLED;
+            }
         }
 
         imagesetthickness($this->get_image(), $width);
@@ -640,8 +646,10 @@ class GD implements Canvas
                 }
             }
 
-            imagesetstyle($this->get_image(), $gd_style);
-            $c = IMG_COLOR_STYLED;
+            if(!empty($gd_style)) {
+                imagesetstyle($this->get_image(), $gd_style);
+                $c = IMG_COLOR_STYLED;
+            }
         }
 
         imagesetthickness($this->get_image(), $width);
