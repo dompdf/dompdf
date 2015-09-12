@@ -196,28 +196,43 @@ class FrameTree
             return $frame;
         }
 
+        // Since childNodes->length is expensive to call in a loop store
+        // it into a variable and decrement as necessary.
+        $length = $node->childNodes->length;
+
         // Remove unwanted nodes from the tree. Do this before further building
         // of the tree as it may modify the textContent of previous nodes.
-        for ($i = 0; $i < $node->childNodes->length; $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $child = $node->childNodes->item($i);
+            $nodeName = $child->nodeName;
 
-            if (in_array($child->nodeName, self::$HIDDEN_TAGS)) {
-                if (($child->nodeName !== "head" && $child->nodeName !== "HEAD") && ($child->nodeName !== "style" && $child->nodeName !== "STYLE")) {
-                    $child->parentNode->removeChild($child);
+            if (in_array($nodeName, self::$HIDDEN_TAGS)) {
+                if (($nodeName !== "head" && $nodeName !== "HEAD") && ($nodeName !== "style" && $nodeName !== "STYLE")) {
+                    $node->removeChild($child);
+                    $length--;
                 }
-            } elseif (($child->nodeName === "#text" || $child->nodeName === "#TEXT") && $child->nodeValue == "") {
-                $child->parentNode->removeChild($child);
-            } elseif (($child->nodeName === "img" || $child->nodeName === "IMG") && $child->getAttribute("src") == "") {
-                $child->parentNode->removeChild($child);
+            } elseif (($nodeName === "#text" || $nodeName === "#TEXT") && $child->nodeValue == "") {
+                $node->removeChild($child);
+                $length--;
+            } elseif (($nodeName === "img" || $nodeName === "IMG") && $child->getAttribute("src") == "") {
+                $node->removeChild($child);
+                $length--;
             }
         }
 
-        // Build the current level of the Frame tree.
-        for ($i = 0; $i < $node->childNodes->length; $i++) {
-            $child = $node->childNodes->item($i);
+        // Since childNodes->length is expensive to call in a loop store
+        // it into a variable.
+        $length = $node->childNodes->length;
 
-            if (is_object($child)) {
-                $frame->append_child($this->_build_tree_r($child), false);
+        // Build the current level of the Frame tree.
+        for ($i = 0; $i < $length; $i++) {
+            $child = $node->childNodes->item($i);
+            $nodeName = $child->nodeName;
+
+            if (!in_array($nodeName, self::$HIDDEN_TAGS)) {
+                if (is_object($child)) {
+                    $frame->append_child($this->_build_tree_r($child), false);
+                }
             }
         }
 
