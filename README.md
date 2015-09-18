@@ -68,7 +68,7 @@ From the command line switch to the directory where dompdf will reside and run
 the following commands:
 
 ```sh
-git clone https://github.com/dompdf/dompdf.git
+git clone https://github.com/dompdf/dompdf.git .
 git submodule init
 git submodule update
 ```
