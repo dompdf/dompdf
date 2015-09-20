@@ -111,7 +111,7 @@ the following commands:
 git clone https://github.com/dompdf/dompdf.git .
 git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
 cd lib/php-font-lib
-git checkout 0.3.1
+git checkout 0.4
 cd ..
 git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
 cd php-svg-lib

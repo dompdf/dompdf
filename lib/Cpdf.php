@@ -16,7 +16,7 @@
  * @package Cpdf
  */
 use FontLib\Font;
-use FontLib\Binary_Stream;
+use FontLib\BinaryStream;
 
 
 class Cpdf
@@ -2567,7 +2567,7 @@ EOT;
 
                         // Write new font
                         $tmp_name = "$fbfile.tmp." . uniqid();
-                        $font_obj->open($tmp_name, Binary_Stream::modeWrite);
+                        $font_obj->open($tmp_name, BinaryStream::modeWrite);
                         $font_obj->encode(array("OS/2"));
                         $font_obj->close();
 
