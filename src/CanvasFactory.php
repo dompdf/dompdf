@@ -34,31 +34,22 @@ class CanvasFactory
      */
     static function get_instance(Dompdf $dompdf, $paper = null, $orientation = null, $class = null)
     {
-        $DOMPDF_PDF_BACKEND = $dompdf->get_option('pdf_backend');
-        $backend = strtolower($DOMPDF_PDF_BACKEND);
+        $backend = strtolower($dompdf->get_option('pdf_backend'));
 
         if (isset($class) && class_exists($class, false)) {
             $class .= "_Adapter";
         } else {
-            if (($DOMPDF_PDF_BACKEND === "auto" || $backend === "pdflib") &&
+            if (($backend === "auto" || $backend === "pdflib") &&
                 class_exists("PDFLib", false)
             ) {
                 $class = "Dompdf\\Adapter\\PDFLib";
             }
 
-            // FIXME The TCPDF adapter is not ready yet
-            //else if ( ($DOMPDF_PDF_BACKEND === "auto" || $backend === "cpdf") )
-            //  $class = "Dompdf\\Adapter\\CPDF";
-
             else {
-                if ($backend === "tcpdf") {
-                    $class = "Dompdf\\Adapter\\TCPDF";
+                if ($backend === "gd") {
+                    $class = "Dompdf\\Adapter\\GD";
                 } else {
-                    if ($backend === "gd") {
-                        $class = "Dompdf\\Adapter\\GD";
-                    } else {
-                        $class = "Dompdf\\Adapter\\CPDF";
-                    }
+                    $class = "Dompdf\\Adapter\\CPDF";
                 }
             }
         }

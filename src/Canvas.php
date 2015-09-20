@@ -12,7 +12,7 @@ namespace Dompdf;
 /**
  * Main rendering interface
  *
- * Currently {@link Dompdf\Adapter\CPDF}, {@link Dompdf\Adapter\PDFLib}, {@link TCPDF}, and {@link Dompdf\Adapter\GD}
+ * Currently {@link Dompdf\Adapter\CPDF}, {@link Dompdf\Adapter\PDFLib}, and {@link Dompdf\Adapter\GD}
  * implement this interface.
  *
  * Implementations should measure x and y increasing to the left and down,
