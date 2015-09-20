@@ -685,7 +685,13 @@ class GD implements Canvas
         }
 
         $func = "imagecreatefrom$img_type";
-        $src = @$func($img_url);
+        if (!function_exists($func_name)) {
+            if (!method_exists("Dompdf\Helpers", $func_name)) {
+                throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
+            }
+            $func_name = "\\Dompdf\\Helpers::" . $func_name;
+        }
+        $src = @call_user_func($func_name, $image_url);
 
         if (!$src) {
             return; // Probably should add to $_dompdf_errors or whatever here

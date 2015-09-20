@@ -548,11 +548,14 @@ class CPDF implements Canvas
         $func_name = "imagecreatefrom$type";
 
         if (!function_exists($func_name)) {
-            throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
+            if (!method_exists("Dompdf\Helpers", $func_name)) {
+                throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
+            }
+            $func_name = "\\Dompdf\\Helpers::" . $func_name;
         }
 
         set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
-        $im = $func_name($image_url);
+        $im = call_user_func($func_name, $image_url);
 
         if ($im) {
             imageinterlace($im, false);
