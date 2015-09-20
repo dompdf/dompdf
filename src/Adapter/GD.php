@@ -943,6 +943,17 @@ class GD implements Canvas
 
         header("Cache-Control: private");
 
+        $filename = str_replace(array("\n", "'"), "", $filename);
+        $attach = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
+
+        // detect the character encoding of the incoming file
+        $encoding = mb_detect_encoding($fileName);
+        $fallbackfilename = mb_convert_encoding($fileName, "ISO-8859-1", $encoding);
+        $encodedfallbackfilename = rawurlencode($fallbackfilename);
+        $encodedfilename = rawurlencode($fileName);
+        
+        header("Content-Disposition: $attach; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
+        
         switch ($type) {
 
             case "jpg":
