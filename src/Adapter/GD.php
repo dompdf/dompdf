@@ -943,7 +943,19 @@ class GD implements Canvas
 
         header("Cache-Control: private");
 
-        $filename = str_replace(array("\n", "'"), "", $filename);
+        $filename = str_replace(array("\n", "'"), "", basename($filename));
+        switch ($type) {
+
+            case "jpg":
+            case "jpeg":
+                $filename .= ".jpg";
+                break;
+
+            case "png":
+            default:
+                $filename .= ".png";
+                break;
+        }
         $attach = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
 
         // detect the character encoding of the incoming file

@@ -1089,7 +1089,7 @@ class PDFLib implements Canvas
         header("Cache-Control: private");
         header("Content-type: application/pdf");
 
-        $filename = str_replace(array("\n", "'"), "", $filename);
+        $filename = str_replace(array("\n", "'"), "", basename($filename)) . '.pdf';
         $attach = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
 
         // detect the character encoding of the incoming file
