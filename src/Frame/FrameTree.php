@@ -245,12 +245,12 @@ class FrameTree
                 continue;
             }
             // Skip empty text nodes
-            if ($nodeName === "#text" && empty($child->nodeValue)) {
+            if ($nodeName === "#text" && $child->nodeValue === "") {
                 $this->_remove_node($node, $children, $index);
                 continue;
             }
             // Skip empty image nodes
-            if ($nodeName === "img" && empty($child->getAttribute("src"))) {
+            if ($nodeName === "img" && $child->getAttribute("src") === "") {
                 $this->_remove_node($node, $children, $index);
                 continue;
             }
