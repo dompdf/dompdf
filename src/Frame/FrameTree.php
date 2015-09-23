@@ -173,6 +173,33 @@ class FrameTree
             $tbody->appendChild($row);
         }
     }
+    
+    // FIXME: temporary hack, preferably we will improve rendering of sequential #text nodes
+    /**
+     * Remove a child from a node
+     *
+     * Remove a child from a node. If the removed node results in two
+     * adjacent #text nodes then combine them.
+     *
+     * @param DONNode $node the current DOMNode being considered
+     * @param array $children an array of nodes that are the children of $node
+     * @param $index index from the $children array of the node to remove
+     */
+    protected function _remove_node(DOMNode $node, array &$children, $index)
+    {
+        $child = $children[$index];
+        $previousChild = $child->previousSibling;
+        $nextChild = $child->nextSibling;
+        $node->removeChild($child);
+        if (isset($previousChild, $nextChild)) {
+            if ($previousChild->nodeName === "#text" && $nextChild->nodeName === "#text")
+            {
+                $previousChild->nodeValue .= $nextChild->nodeValue;
+                $this->_remove_node($node, $children, $index+1);
+            }
+        }
+        array_splice($children, $index, 1);
+    }
 
     /**
      * Recursively adds {@link Frame} objects to the tree
@@ -195,45 +222,43 @@ class FrameTree
         if (!$node->hasChildNodes()) {
             return $frame;
         }
-
-        // Since childNodes->length is expensive to call in a loop store
-        // it into a variable and decrement as necessary.
+        
+        // Store the children in an array so that the tree can be modified
+        $children = array();
         $length = $node->childNodes->length;
-
-        // Remove unwanted nodes from the tree. Do this before further building
-        // of the tree as it may modify the textContent of previous nodes.
         for ($i = 0; $i < $length; $i++) {
-            $child = $node->childNodes->item($i);
-            $nodeName = $child->nodeName;
-
-            if (in_array($nodeName, self::$HIDDEN_TAGS)) {
-                if (($nodeName !== "head" && $nodeName !== "HEAD") && ($nodeName !== "style" && $nodeName !== "STYLE")) {
-                    $node->removeChild($child);
-                    $length--;
-                }
-            } elseif (($nodeName === "#text" || $nodeName === "#TEXT") && $child->nodeValue == "") {
-                $node->removeChild($child);
-                $length--;
-            } elseif (($nodeName === "img" || $nodeName === "IMG") && $child->getAttribute("src") == "") {
-                $node->removeChild($child);
-                $length--;
-            }
+            $children[] = $node->childNodes->item($i);
         }
-
-        // Since childNodes->length is expensive to call in a loop store
-        // it into a variable.
-        $length = $node->childNodes->length;
-
-        // Build the current level of the Frame tree.
-        for ($i = 0; $i < $length; $i++) {
-            $child = $node->childNodes->item($i);
-            $nodeName = $child->nodeName;
-
-            if (!in_array($nodeName, self::$HIDDEN_TAGS)) {
-                if (is_object($child)) {
-                    $frame->append_child($this->_build_tree_r($child), false);
+        $index = 0;
+        // INFO: We don't advance $index if a node is removed to avoid skipping nodes
+        while ($index < count($children)) {
+            $child = $children[$index];
+            $nodeName = strtolower($child->nodeName);
+            
+            // Skip non-displaying nodes
+            if (in_array($nodeName, self::$HIDDEN_TAGS)) {
+                if ($nodeName !== "head" && $nodeName !== "style") {
+                    $this->_remove_node($node, $children, $index);
+                } else {
+                    $index++;
                 }
+                continue;
             }
+            // Skip empty text nodes
+            if ($nodeName === "#text" && empty($child->nodeValue)) {
+                $this->_remove_node($node, $children, $index);
+                continue;
+            }
+            // Skip empty image nodes
+            if ($nodeName === "img" && empty($child->getAttribute("src"))) {
+                $this->_remove_node($node, $children, $index);
+                continue;
+            }
+       
+            if (is_object($child)) {
+                $frame->append_child($this->_build_tree_r($child), false);
+            }
+            $index++;
         }
 
         return $frame;
