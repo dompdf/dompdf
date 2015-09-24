@@ -965,10 +965,10 @@ class GD implements Canvas
         $attach = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
 
         // detect the character encoding of the incoming file
-        $encoding = mb_detect_encoding($fileName);
-        $fallbackfilename = mb_convert_encoding($fileName, "ISO-8859-1", $encoding);
+        $encoding = mb_detect_encoding($filename);
+        $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
         $encodedfallbackfilename = rawurlencode($fallbackfilename);
-        $encodedfilename = rawurlencode($fileName);
+        $encodedfilename = rawurlencode($filename);
         
         header("Content-Disposition: $attach; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
         

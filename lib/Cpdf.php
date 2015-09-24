@@ -3504,7 +3504,7 @@ EOT;
 
         //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
         header("Content-Length: " . mb_strlen($tmp, '8bit'));
-        $fileName = (isset($options['Content-Disposition']) ? $options['Content-Disposition'] : 'document.pdf');
+        $filename = (isset($options['Content-Disposition']) ? $options['Content-Disposition'] : 'document.pdf');
         $filename = str_replace(array("\n", "'"), "", basename($filename)) . '.pdf';
 
         if (!isset($options["Attachment"])) {
@@ -3514,10 +3514,10 @@ EOT;
         $attachment = $options["Attachment"] ? "attachment" : "inline";
 
         // detect the character encoding of the incoming file
-        $encoding = mb_detect_encoding($fileName);
-        $fallbackfilename = mb_convert_encoding($fileName, "ISO-8859-1", $encoding);
+        $encoding = mb_detect_encoding($filename);
+        $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
         $encodedfallbackfilename = rawurlencode($fallbackfilename);
-        $encodedfilename = rawurlencode($fileName);
+        $encodedfilename = rawurlencode($filename);
 
         header(
             "Content-Disposition: $attachment; filename=" . $encodedfallbackfilename . "; filename*=UTF-8''$encodedfilename"
@@ -3883,11 +3883,11 @@ EOT;
         if ($wordSpaceAdjust != 0) {
             $this->addContent(sprintf(" %.3F Tw", 0));
         }
-        
+
         if ($charSpaceAdjust != 0) {
             $this->addContent(sprintf(" %.3F Tc", 0));
         }
-        
+
         $this->addContent(' ET');
 
         // if there are any open callbacks, then they should be called, to show the end of the line
