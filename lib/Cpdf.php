@@ -3505,7 +3505,7 @@ EOT;
         //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
         header("Content-Length: " . mb_strlen($tmp, '8bit'));
         $fileName = (isset($options['Content-Disposition']) ? $options['Content-Disposition'] : 'document.pdf');
-        $filename = str_replace(array("\n", "'"), "", basename($filename)) . '.pdf';
+        $fileName = str_replace(array("\n", "'"), "", basename($fileName)) . '.pdf';
 
         if (!isset($options["Attachment"])) {
             $options["Attachment"] = true;
@@ -3883,11 +3883,11 @@ EOT;
         if ($wordSpaceAdjust != 0) {
             $this->addContent(sprintf(" %.3F Tw", 0));
         }
-        
+
         if ($charSpaceAdjust != 0) {
             $this->addContent(sprintf(" %.3F Tc", 0));
         }
-        
+
         $this->addContent(' ET');
 
         // if there are any open callbacks, then they should be called, to show the end of the line
