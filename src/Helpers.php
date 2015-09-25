@@ -80,8 +80,11 @@ class Helpers
             return $ret;
         }
 
-        //remote urls with backslash in html/css are not really correct, but lets be genereous
-        if ($url[0] === '/' || $url[0] === '\\') {
+        // Protocol relative urls (e.g. "//example.org/style.css")
+        if (strpos($url, '//') === 0) {
+            $ret .= substr($url, 2);
+            //remote urls with backslash in html/css are not really correct, but lets be genereous
+        } elseif ($url[0] === '/' || $url[0] === '\\') {
             // Absolute path
             $ret .= $host . $url;
         } else {
