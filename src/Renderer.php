@@ -228,7 +228,7 @@ class Renderer extends AbstractRenderer
             foreach ($fs as $f) {
                 if (is_callable($f)) {
                     if (is_array($f)) {
-                        $f[0]->$f[1]($info);
+                        $f[0]->{$f[1]}($info);
                     } else {
                         $f($info);
                     }

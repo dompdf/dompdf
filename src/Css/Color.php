@@ -250,11 +250,9 @@ class Color
                 return null;
             }
 
-            foreach ($values as &$c) {
-                $c = floatval(trim($c));
-                if ($c > 1.0) $c = 1.0;
-                if ($c < 0.0) $c = 0.0;
-            }
+            $values = array_map(function($c) {
+                return min(1.0, max(0.0, floatval(trim($c))));
+            }, $values);
 
             return $cache[$color] = self::getArray($values);
         }

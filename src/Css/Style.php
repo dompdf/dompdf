@@ -2436,15 +2436,15 @@ class Style
             $values = preg_split("/\s+/", self::$_defaults["transform_origin"]);
         }
 
-        foreach ($values as &$value) {
+        $values = array_map(function($value) {
             if (in_array($value, array("top", "left"))) {
-                $value = 0;
+                return 0;
+            } else if (in_array($value, array("bottom", "right"))) {
+                return "100%";
+            } else {
+                return $value;
             }
-
-            if (in_array($value, array("bottom", "right"))) {
-                $value = "100%";
-            }
-        }
+        }, $values);
 
         if (!isset($values[1])) {
             $values[1] = $values[0];

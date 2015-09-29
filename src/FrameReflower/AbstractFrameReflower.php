@@ -270,7 +270,7 @@ abstract class AbstractFrameReflower
         }
 
         $quotes_array = array();
-        foreach ($matches as &$_quote) {
+        foreach ($matches as $_quote) {
             $quotes_array[] = $this->_parse_string($_quote[0], true);
         }
 
