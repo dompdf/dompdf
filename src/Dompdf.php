@@ -430,13 +430,6 @@ class Dompdf
             $str = substr($str, 3);
         }
 
-        // Parse embedded php, first-pass
-        if ($this->options->isPhpEnabled()) {
-            ob_start();
-            eval("?" . ">$str");
-            $str = ob_get_clean();
-        }
-
         // if the document contains non utf-8 with a utf-8 meta tag chars and was
         // detected as utf-8 by mbstring, problems could happen.
         // http://devzone.zend.com/article/8855
