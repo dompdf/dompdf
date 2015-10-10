@@ -72,6 +72,13 @@ use Dompdf\Css\Stylesheet;
 class Dompdf
 {
     /**
+     * Version string for dompdf
+     *
+     * @var string
+     */
+    private $version = 'dompdf';
+    
+    /**
      * DomDocument representing the HTML document
      *
      * @var DOMDocument
@@ -252,6 +259,11 @@ class Dompdf
     public function __construct()
     {
         $this->setOptions(new Options);
+        
+        $versionFile = realpath(__DIR__ . '/../VERSION');
+        if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false && $version !== '$Format:<%h>$') {
+          $this->version = sprintf('dompdf %s', $version);
+        }
 
         $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
         $this->saveLocale();
@@ -954,7 +966,7 @@ class Dompdf
         $this->options->set($key, $value);
         return $this;
     }
-
+    
     /**
      * @param array $options
      * @return $this
@@ -1410,5 +1422,27 @@ class Dompdf
     public function getFontMetrics()
     {
         return $this->fontMetrics;
+    }
+    
+    /**
+     * PHP5 overloaded getter
+     * Along with {@link Dompdf::__set()} __get() provides access to all 
+     * properties directly.  Typically __get() is not called directly outside
+     * of this class.
+     *
+     * @param string $prop
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    function __get($prop)
+    {
+        switch ($prop)
+        {
+            case 'version' :
+                return $this->version;
+            default:
+                throw new Exception( 'Invalid property: ' . $field );
+        }
     }
 }

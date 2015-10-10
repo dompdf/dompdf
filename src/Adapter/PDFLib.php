@@ -181,7 +181,8 @@ class PDFLib implements Canvas
         $this->_pdf->set_parameter("textformat", "utf8");
         $this->_pdf->set_parameter("fontwarning", "false");
 
-        $this->_pdf->set_info("Creator", "DOMPDF");
+        // TODO: fetch PDFLib version information for the producer field
+        $this->_pdf->set_info("Producer", sprintf("%s + PDFLib", $dompdf->version));
 
         // Silence pedantic warnings about missing TZ settings
         $tz = @date_default_timezone_get();

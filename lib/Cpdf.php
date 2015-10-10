@@ -1228,7 +1228,7 @@ EOT;
                 $this->objects[$id] = array(
                     't'    => 'info',
                     'info' => array(
-                        'Creator'      => 'R and OS php pdf writer, http://www.ros.co.nz',
+                        'Producer'      => 'CPDF (dompdf)',
                         'CreationDate' => $date
                     )
                 );

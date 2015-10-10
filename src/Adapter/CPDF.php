@@ -194,7 +194,7 @@ class CPDF implements Canvas
             $dompdf->get_option("temp_dir")
         );
 
-        $this->_pdf->addInfo("Creator", "DOMPDF");
+        $this->_pdf->addInfo("Producer", sprintf("%s + CPDF", $dompdf->version));
         $time = substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'';
         $this->_pdf->addInfo("CreationDate", "D:$time");
         $this->_pdf->addInfo("ModDate", "D:$time");
