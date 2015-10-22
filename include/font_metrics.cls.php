@@ -318,7 +318,7 @@ class Font_Metrics {
     self::$_font_lookup[mb_strtolower($fontname)] = $entry;
   }
   
-  static function register_font($style, $remote_file) {
+  static function register_font($style, $remote_file, $context = null) {
     $fontname = mb_strtolower($style["family"]);
     $families = Font_Metrics::get_font_families();
     
@@ -340,7 +340,7 @@ class Font_Metrics {
       
       // Download the remote file
       if ( !is_file($local_file) ) {
-        file_put_contents($local_file, file_get_contents($remote_file));
+        file_put_contents($local_file, file_get_contents($remote_file, null, $context));
       }
       
       $font = Font::load($local_file);

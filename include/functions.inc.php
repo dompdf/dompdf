@@ -748,7 +748,7 @@ function imagecreatefrombmp($filename) {
  * @param string $filename
  * @return array The same format as getimagesize($filename)
  */
-function dompdf_getimagesize($filename) {
+function dompdf_getimagesize($filename, $context = null) {
   static $cache = array();
   
   if ( isset($cache[$filename]) ) {
@@ -758,7 +758,7 @@ function dompdf_getimagesize($filename) {
   list($width, $height, $type) = getimagesize($filename);
   
   if ( $width == null || $height == null ) {
-    $data = file_get_contents($filename, null, null, 0, 26);
+    $data = file_get_contents($filename, null, $context, 0, 26);
     
     if ( substr($data, 0, 2) === "BM" ) {
       $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -1005,31 +1005,6 @@ else {
   }
 }
 
-if ( function_exists("curl_init") ) {
-  function DOMPDF_fetch_url($url, &$headers = null) {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HEADER, true);
-    
-    $data = curl_exec($ch);
-    $raw_headers = substr($data, 0, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-    $headers = preg_split("/[\n\r]+/", trim($raw_headers));
-    $data = substr($data, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-    curl_close($ch);
-    
-    return $data;
-  }
-}
-else {
-  function DOMPDF_fetch_url($url, &$headers = null) {
-    $data = file_get_contents($url);
-    $headers = $http_response_header;
-    
-    return $data;
-  }
-}
 
 /**
  * Affect null to the unused objects

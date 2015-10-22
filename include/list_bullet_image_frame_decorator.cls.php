@@ -48,7 +48,7 @@ class List_Bullet_Image_Frame_Decorator extends Frame_Decorator {
     $frame->get_node()->setAttribute("src", $url);
     $this->_img = new Image_Frame_Decorator($frame, $dompdf);
     parent::__construct($this->_img, $dompdf);
-    list($width, $height) = dompdf_getimagesize($this->_img->get_image_url());
+    list($width, $height) = dompdf_getimagesize($this->_img->get_image_url(), $dompdf->get_http_context());
 
     // Resample the bullet image to be consistent with 'auto' sized images
     // See also Image_Frame_Reflower::get_min_max_width

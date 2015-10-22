@@ -553,7 +553,7 @@ class GD_Adapter implements Canvas {
    * @internal param string $img_type the type (e.g. extension) of the image
    */
   function image($img_url, $x, $y, $w, $h, $resolution = "normal") {
-    $img_type = Image_Cache::detect_type($img_url);
+    $img_type = Image_Cache::detect_type($img_url, $this->_dompdf->get_http_context());
     $img_ext  = Image_Cache::type_to_ext($img_type);
 
     if ( !$img_ext ) {

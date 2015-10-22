@@ -1268,7 +1268,7 @@ class Stylesheet {
       "style"  => $descriptors->font_style,
     );
     
-    Font_Metrics::register_font($style, $valid_sources[0]["path"]);
+    Font_Metrics::register_font($style, $valid_sources[0]["path"], $this->_dompdf->get_http_context());
   }
 
   /**
