@@ -342,6 +342,7 @@ class Font_Metrics {
     }
     
     $local_file = DOMPDF_FONT_DIR . md5($remote_file);
+    $local_temp_file = DOMPDF_TEMP_DIR . "/" . md5($remote_file);
     $cache_entry = $local_file;
     $local_file .= ".ttf";
     
@@ -350,23 +351,28 @@ class Font_Metrics {
     if ( !isset($entry[$style_string]) ) {
       $entry[$style_string] = $cache_entry;
       
-      Font_Metrics::set_font_family($fontname, $entry);
-      
       // Download the remote file
-      if ( !is_file($local_file) ) {
-        file_put_contents($local_file, file_get_contents($remote_file, null, $context));
-      }
+      file_put_contents($local_temp_file, file_get_contents($remote_file, null, $context));
       
-      $font = Font::load($local_file);
+      $font = Font::load($local_temp_file);
       
       if (!$font) {
+        unlink($local_temp_file);
         return false;
       }
       
       $font->parse();
       $font->saveAdobeFontMetrics("$cache_entry.ufm");
       
+      unlink($local_temp_file);
+      
+      if ( !file_exists("$cache_entry.ufm") ) {
+        return false;
+      }
+      
       // Save the changes
+      file_put_contents($local_file, file_get_contents($remote_file, null, $context));
+      Font_Metrics::set_font_family($fontname, $entry);
       Font_Metrics::save_font_families();
     }
     
