@@ -1,4 +1,10 @@
-<?php 
+<?php
+$allowed_hosts = array("::1", "127.0.0.1");
+if( !in_array($_SERVER['REMOTE_ADDR'], $allowed_hosts) ) {
+  die("Access denied to host at " . $_SERVER['REMOTE_ADDR']);
+}
+
+
 $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 ?>
 
@@ -6,6 +12,7 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 <html lang="en">
 <head>
   <title>dompdf debugger</title>
+  <meta name="robots" content="noindex">
   <script type="text/javascript" src="jquery-1.4.2.js"></script>
   
   <script type="text/javascript">
