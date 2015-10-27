@@ -129,6 +129,8 @@ global $_dompdf_show_warnings, $_dompdf_debug, $_DOMPDF_DEBUG_TYPES;
 $sapi = php_sapi_name();
 $options = array();
 
+$dompdf = new DOMPDF();
+
 switch ( $sapi ) {
 
  case "cli":
@@ -193,6 +195,8 @@ switch ( $sapi ) {
 
  default:
 
+  $dompdf->set_option('enable_php', false);
+  
   if ( isset($_GET["input_file"]) )
     $file = rawurldecode($_GET["input_file"]);
   else
@@ -224,8 +228,6 @@ switch ( $sapi ) {
   
   break;
 }
-
-$dompdf = new DOMPDF();
 
 if ( $file === "-" ) {
   $str = "";
