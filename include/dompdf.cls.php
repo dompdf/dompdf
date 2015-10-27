@@ -202,7 +202,7 @@ class DOMPDF {
    *
    * @var array
    */
-  private $_allowed_local_file_extensions = array(".htm", ".html");
+  private $_allowed_local_file_extensions = array("htm", "html");
 
   /**
    * The list of built-in fonts
@@ -505,9 +505,6 @@ class DOMPDF {
 
       // Get the full path to $file, returns false if the file doesn't exist
       $realfile = realpath($file);
-      if ( !$realfile ) {
-        throw new DOMPDF_Exception("File '$file' not found.");
-      }
 
       $chroot = $this->get_option("chroot");
       if ( strpos($realfile, $chroot) !== 0 ) {
@@ -519,6 +516,10 @@ class DOMPDF {
         throw new DOMPDF_Exception("Permission denied on $file.");
       }
       
+      if ( !$realfile ) {
+        throw new DOMPDF_Exception("File '$file' not found.");
+      }
+            
       $file = $realfile;
     }
     
