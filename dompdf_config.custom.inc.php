@@ -1,6 +1,7 @@
-<?php 
+<?php
+// Please refer to dompdf_config.inc.php for details on each configuration option.
+
 //define("DOMPDF_TEMP_DIR", "/tmp");
-//define("DOMPDF_CHROOT", DOMPDF_DIR);
 //define("DOMPDF_FONT_DIR", DOMPDF_DIR."/lib/fonts/");
 //define("DOMPDF_FONT_CACHE", DOMPDF_DIR."/lib/fonts/");
 //define("DOMPDF_UNICODE_ENABLED", true);
@@ -9,8 +10,6 @@
 //define("DOMPDF_DEFAULT_PAPER_SIZE", "letter");
 //define("DOMPDF_DEFAULT_FONT", "serif");
 //define("DOMPDF_DPI", 72);
-//define("DOMPDF_ENABLE_PHP", true);
-//define("DOMPDF_ENABLE_REMOTE", true);
 //define("DOMPDF_ENABLE_CSS_FLOAT", true);
 //define("DOMPDF_ENABLE_JAVASCRIPT", false);
 //define("DEBUGPNG", true);
@@ -26,6 +25,17 @@
 //define("DOMPDF_ENABLE_HTML5PARSER", true);
 //define("DOMPDF_ENABLE_FONTSUBSETTING", true);
 
-// DOMPDF authentication
+// Authentication for the dompdf/www
 //define("DOMPDF_ADMIN_USERNAME", "user");
 //define("DOMPDF_ADMIN_PASSWORD", "password");
+
+/**
+ * Attention!
+ * The following settings may increase the risk of system exploit.
+ * Do not change these settings without understanding the consequences.
+ * Additional documentation is available on the dompdf wiki at:
+ * https://github.com/dompdf/dompdf/wiki
+ */
+//define("DOMPDF_CHROOT", DOMPDF_DIR);
+//define("DOMPDF_ENABLE_PHP", false);
+//define("DOMPDF_ENABLE_REMOTE", false);
