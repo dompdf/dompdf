@@ -138,7 +138,8 @@ class Image_Cache {
     catch(DOMPDF_Image_Exception $e) {
       $resolved_url = self::$broken_image;
       $type = IMAGETYPE_PNG;
-      $message = $e->getMessage()." \n $url";
+      $message = "Image not found or type unknown";
+      $_dompdf_warnings[] = $e->getMessage()." :: $url";
     }
 
     return array($resolved_url, $type, $message);
