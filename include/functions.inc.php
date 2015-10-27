@@ -128,46 +128,43 @@ function d($mixed) {
  * is appended (o.k. also for Windows)
  */
 function build_url($protocol, $host, $base_path, $url) {
-  if ( strlen($url) == 0 ) {
+  if (strlen($url) == 0) {
     //return $protocol . $host . rtrim($base_path, "/\\") . "/";
     return $protocol . $host . $base_path;
   }
-
   // Is the url already fully qualified or a Data URI?
-  if ( mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0 ) {
+  if (mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0) {
     return $url;
   }
-
   $ret = $protocol;
-
-  if ( !in_array(mb_strtolower($protocol), array("http://", "https://", "ftp://", "ftps://")) ) {
+  if (!in_array(mb_strtolower($protocol), array("http://", "https://", "ftp://", "ftps://"))) {
     //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
     //drive: followed by a relative path would be a drive specific default folder.
     //not known in php app code, treat as abs path
     //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
-    if ( $url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':')) ) {
+    if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':'))) {
       // For rel path and local acess we ignore the host, and run the path through realpath()
-      $ret .= realpath($base_path).'/';
+      $ret .= realpath($base_path) . '/';
     }
     $ret .= $url;
     $ret = preg_replace('/\?(.*)$/', "", $ret);
     return $ret;
   }
-
-  //remote urls with backslash in html/css are not really correct, but lets be genereous
-  if ( $url[0] === '/' || $url[0] === '\\' ) {
+  // Protocol relative urls (e.g. "//example.org/style.css")
+  if (strpos($url, '//') === 0) {
+    $ret .= substr($url, 2);
+    //remote urls with backslash in html/css are not really correct, but lets be genereous
+  } elseif ($url[0] === '/' || $url[0] === '\\') {
     // Absolute path
     $ret .= $host . $url;
-  }
-  else {
+  } else {
     // Relative path
     //$base_path = $base_path !== "" ? rtrim($base_path, "/\\") . "/" : "";
     $ret .= $host . $base_path . $url;
   }
-
   return $ret;
-
 }
+
 
 /**
  * parse a full url or pathname and return an array(protocol, host, path,
