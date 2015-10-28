@@ -219,15 +219,14 @@ class Font_Metrics {
     // replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)
     $cache_data = sprintf("<?php return array (%s", PHP_EOL);
     foreach (self::$_font_lookup as $family => $variants) {
-      $cache_data .= sprintf("'%s' => array(%s", addslashes($family), PHP_EOL);
+      $cache_data .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
       foreach ($variants as $variant => $path) {
         $path = sprintf("'%s'", $path);
         $path = str_replace('\'' . DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $path);
         $path = str_replace('\'' . DOMPDF_DIR , 'DOMPDF_DIR . \'' , $path);
-        $path = str_replace('\'' . strtolower(DOMPDF_DIR) , 'DOMPDF_DIR . \'' , $path);
-        $cache_data .= sprintf("'%s' => %s,%s", $variant, $path, PHP_EOL);
+        $cache_data .= sprintf("    '%s' => %s,%s", $variant, $path, PHP_EOL);
       }
-      $cache_data .= sprintf("),%s", PHP_EOL);
+      $cache_data .= sprintf("  ),%s", PHP_EOL);
     }
     $cache_data .= ") ?>";
     file_put_contents(self::CACHE_FILE, $cache_data);
