@@ -128,6 +128,7 @@ function d($mixed) {
  * is appended (o.k. also for Windows)
  */
 function build_url($protocol, $host, $base_path, $url) {
+  $protocol = mb_strtolower($protocol);
   if (strlen($url) == 0) {
     //return $protocol . $host . rtrim($base_path, "/\\") . "/";
     return $protocol . $host . $base_path;
@@ -180,7 +181,10 @@ function explode_url($url) {
   $file = "";
 
   $arr = parse_url($url);
-
+  if ( isset($arr["scheme"])) {
+    $arr["scheme"] == mb_strtolower($arr["scheme"]);
+  }
+  
   // Exclude windows drive letters...
   if ( isset($arr["scheme"]) && $arr["scheme"] !== "file" && strlen($arr["scheme"]) > 1 ) {
     $protocol = $arr["scheme"] . "://";
@@ -226,7 +230,7 @@ function explode_url($url) {
   }
   else {
 
-    $i = mb_strpos($url, "file://");
+    $i = mb_stripos($url, "file://");
     if ( $i !== false ) {
       $url = mb_substr($url, $i + 7);
     }
@@ -394,6 +398,12 @@ if (!extension_loaded('mbstring')) {
   if (!function_exists('mb_strpos')) {
     function mb_strpos($haystack, $needle, $offset = 0) {
       return strpos($haystack, $needle, $offset);
+    }
+  }
+  
+  if (!function_exists('mb_stripos')) {
+    function mb_stripos($haystack, $needle, $offset = 0) {
+      return stripos($haystack, $needle, $offset);
     }
   }
   

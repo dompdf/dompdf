@@ -45,6 +45,7 @@ class Image_Cache {
    * @return array             An array with two elements: The local path to the image and the image extension
    */
   static function resolve_url($url, $protocol, $host, $base_path, DOMPDF $dompdf) {
+    $protocol = mb_strtolower($protocol);
     $parsed_url = explode_url($url);
     $message = null;
 
