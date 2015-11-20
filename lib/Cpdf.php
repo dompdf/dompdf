@@ -1444,6 +1444,15 @@ EOT;
 
             case 'out':
                 $res = "\n$id 0 obj\n<< /Type /Page";
+                if ($this->currentPageSize['width'] > 0 && $this->currentPageSize['height'] > 0) {
+                    $res .= "\n/MediaBox [" . sprintf(
+                            '%.3F %.3F %.3F %.3F',
+                            0,
+                            0,
+                            $this->currentPageSize['width'],
+                            $this->currentPageSize['height']
+                        ) . "]";
+                }
                 $res .= "\n/Parent " . $o['info']['parent'] . " 0 R";
 
                 if (isset($o['info']['annot'])) {
