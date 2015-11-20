@@ -1400,7 +1400,8 @@ EOT;
                     't'    => 'page',
                     'info' => array(
                         'parent'  => $this->currentNode,
-                        'pageNum' => $this->numPages
+                        'pageNum' => $this->numPages,
+                        'mediaBox' => $this->objects[$this->currentNode]['info']['mediaBox']
                     )
                 );
 
@@ -1444,6 +1445,16 @@ EOT;
 
             case 'out':
                 $res = "\n$id 0 obj\n<< /Type /Page";
+                if (isset($o['info']['mediaBox'])) {
+                    $tmp = $o['info']['mediaBox'];
+                    $res .= "\n/MediaBox [" . sprintf(
+                            '%.3F %.3F %.3F %.3F',
+                            $tmp[0],
+                            $tmp[1],
+                            $tmp[2],
+                            $tmp[3]
+                        ) . ']';
+                }
                 $res .= "\n/Parent " . $o['info']['parent'] . " 0 R";
 
                 if (isset($o['info']['annot'])) {
