@@ -217,10 +217,18 @@ class Font_Metrics {
    */
   static function save_font_families() {
     // replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)
-    $cache_data = var_export(self::$_font_lookup, true);
-    $cache_data = str_replace('\''.DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $cache_data);
-    $cache_data = str_replace('\''.DOMPDF_DIR , 'DOMPDF_DIR . \'' , $cache_data);
-    $cache_data = "<"."?php return $cache_data ?".">";
+    $cache_data = sprintf("<?php return array (%s", PHP_EOL);
+    foreach (self::$_font_lookup as $family => $variants) {
+      $cache_data .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
+      foreach ($variants as $variant => $path) {
+        $path = sprintf("'%s'", $path);
+        $path = str_replace('\'' . DOMPDF_FONT_DIR , 'DOMPDF_FONT_DIR . \'' , $path);
+        $path = str_replace('\'' . DOMPDF_DIR , 'DOMPDF_DIR . \'' , $path);
+        $cache_data .= sprintf("    '%s' => %s,%s", $variant, $path, PHP_EOL);
+      }
+      $cache_data .= sprintf("  ),%s", PHP_EOL);
+    }
+    $cache_data .= ") ?>";
     file_put_contents(self::CACHE_FILE, $cache_data);
   }
 
@@ -249,13 +257,18 @@ class Font_Metrics {
       return;
     }
     
-    self::$_font_lookup = require_once self::CACHE_FILE;
+    $cache_data = require_once self::CACHE_FILE;
     
     // If the font family cache is still in the old format
     if ( self::$_font_lookup === 1 ) {
       $cache_data = file_get_contents(self::CACHE_FILE);
       file_put_contents(self::CACHE_FILE, "<"."?php return $cache_data ?".">");
-      self::$_font_lookup = require_once self::CACHE_FILE;
+      $cache_data = require_once self::CACHE_FILE;
+    }
+    
+    self::$_font_lookup = array();
+    foreach ($cache_data as $key => $value) {
+      self::$_font_lookup[stripslashes($key)] = $value;
     }
     
     // Merge provided fonts
@@ -318,7 +331,7 @@ class Font_Metrics {
     self::$_font_lookup[mb_strtolower($fontname)] = $entry;
   }
   
-  static function register_font($style, $remote_file) {
+  static function register_font($style, $remote_file, $context = null) {
     $fontname = mb_strtolower($style["family"]);
     $families = Font_Metrics::get_font_families();
     
@@ -328,6 +341,7 @@ class Font_Metrics {
     }
     
     $local_file = DOMPDF_FONT_DIR . md5($remote_file);
+    $local_temp_file = DOMPDF_TEMP_DIR . "/" . md5($remote_file);
     $cache_entry = $local_file;
     $local_file .= ".ttf";
     
@@ -336,23 +350,28 @@ class Font_Metrics {
     if ( !isset($entry[$style_string]) ) {
       $entry[$style_string] = $cache_entry;
       
-      Font_Metrics::set_font_family($fontname, $entry);
-      
       // Download the remote file
-      if ( !is_file($local_file) ) {
-        file_put_contents($local_file, file_get_contents($remote_file));
-      }
+      file_put_contents($local_temp_file, file_get_contents($remote_file, null, $context));
       
-      $font = Font::load($local_file);
+      $font = Font::load($local_temp_file);
       
       if (!$font) {
+        unlink($local_temp_file);
         return false;
       }
       
       $font->parse();
       $font->saveAdobeFontMetrics("$cache_entry.ufm");
       
+      unlink($local_temp_file);
+      
+      if ( !file_exists("$cache_entry.ufm") ) {
+        return false;
+      }
+      
       // Save the changes
+      file_put_contents($local_file, file_get_contents($remote_file, null, $context));
+      Font_Metrics::set_font_family($fontname, $entry);
       Font_Metrics::save_font_families();
     }
     

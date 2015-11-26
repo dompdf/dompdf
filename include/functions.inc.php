@@ -128,46 +128,44 @@ function d($mixed) {
  * is appended (o.k. also for Windows)
  */
 function build_url($protocol, $host, $base_path, $url) {
-  if ( strlen($url) == 0 ) {
+  $protocol = mb_strtolower($protocol);
+  if (strlen($url) == 0) {
     //return $protocol . $host . rtrim($base_path, "/\\") . "/";
     return $protocol . $host . $base_path;
   }
-
   // Is the url already fully qualified or a Data URI?
-  if ( mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0 ) {
+  if (mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0) {
     return $url;
   }
-
   $ret = $protocol;
-
-  if ( !in_array(mb_strtolower($protocol), array("http://", "https://", "ftp://", "ftps://")) ) {
+  if (!in_array(mb_strtolower($protocol), array("http://", "https://", "ftp://", "ftps://"))) {
     //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
     //drive: followed by a relative path would be a drive specific default folder.
     //not known in php app code, treat as abs path
     //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
-    if ( $url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':')) ) {
+    if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':'))) {
       // For rel path and local acess we ignore the host, and run the path through realpath()
-      $ret .= realpath($base_path).'/';
+      $ret .= realpath($base_path) . '/';
     }
     $ret .= $url;
     $ret = preg_replace('/\?(.*)$/', "", $ret);
     return $ret;
   }
-
-  //remote urls with backslash in html/css are not really correct, but lets be genereous
-  if ( $url[0] === '/' || $url[0] === '\\' ) {
+  // Protocol relative urls (e.g. "//example.org/style.css")
+  if (strpos($url, '//') === 0) {
+    $ret .= substr($url, 2);
+    //remote urls with backslash in html/css are not really correct, but lets be genereous
+  } elseif ($url[0] === '/' || $url[0] === '\\') {
     // Absolute path
     $ret .= $host . $url;
-  }
-  else {
+  } else {
     // Relative path
     //$base_path = $base_path !== "" ? rtrim($base_path, "/\\") . "/" : "";
     $ret .= $host . $base_path . $url;
   }
-
   return $ret;
-
 }
+
 
 /**
  * parse a full url or pathname and return an array(protocol, host, path,
@@ -183,7 +181,10 @@ function explode_url($url) {
   $file = "";
 
   $arr = parse_url($url);
-
+  if ( isset($arr["scheme"])) {
+    $arr["scheme"] == mb_strtolower($arr["scheme"]);
+  }
+  
   // Exclude windows drive letters...
   if ( isset($arr["scheme"]) && $arr["scheme"] !== "file" && strlen($arr["scheme"]) > 1 ) {
     $protocol = $arr["scheme"] . "://";
@@ -229,7 +230,7 @@ function explode_url($url) {
   }
   else {
 
-    $i = mb_strpos($url, "file://");
+    $i = mb_stripos($url, "file://");
     if ( $i !== false ) {
       $url = mb_substr($url, $i + 7);
     }
@@ -397,6 +398,12 @@ if (!extension_loaded('mbstring')) {
   if (!function_exists('mb_strpos')) {
     function mb_strpos($haystack, $needle, $offset = 0) {
       return strpos($haystack, $needle, $offset);
+    }
+  }
+  
+  if (!function_exists('mb_stripos')) {
+    function mb_stripos($haystack, $needle, $offset = 0) {
+      return stripos($haystack, $needle, $offset);
     }
   }
   
@@ -748,7 +755,7 @@ function imagecreatefrombmp($filename) {
  * @param string $filename
  * @return array The same format as getimagesize($filename)
  */
-function dompdf_getimagesize($filename) {
+function dompdf_getimagesize($filename, $context = null) {
   static $cache = array();
   
   if ( isset($cache[$filename]) ) {
@@ -758,7 +765,7 @@ function dompdf_getimagesize($filename) {
   list($width, $height, $type) = getimagesize($filename);
   
   if ( $width == null || $height == null ) {
-    $data = file_get_contents($filename, null, null, 0, 26);
+    $data = file_get_contents($filename, null, $context, 0, 26);
     
     if ( substr($data, 0, 2) === "BM" ) {
       $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -1005,31 +1012,6 @@ else {
   }
 }
 
-if ( function_exists("curl_init") ) {
-  function DOMPDF_fetch_url($url, &$headers = null) {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HEADER, true);
-    
-    $data = curl_exec($ch);
-    $raw_headers = substr($data, 0, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-    $headers = preg_split("/[\n\r]+/", trim($raw_headers));
-    $data = substr($data, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-    curl_close($ch);
-    
-    return $data;
-  }
-}
-else {
-  function DOMPDF_fetch_url($url, &$headers = null) {
-    $data = file_get_contents($url);
-    $headers = $http_response_header;
-    
-    return $data;
-  }
-}
 
 /**
  * Affect null to the unused objects

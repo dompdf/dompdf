@@ -100,7 +100,7 @@ abstract class Abstract_Renderer {
     //Therefore read dimension directly from file, instead of creating gd object first.
     //$img_w = imagesx($src); $img_h = imagesy($src);
 
-    list($img_w, $img_h) = dompdf_getimagesize($img);
+    list($img_w, $img_h) = dompdf_getimagesize($img, $this->_dompdf->get_http_context());
     if (!isset($img_w) || $img_w == 0 || !isset($img_h) || $img_h == 0) {
       return;
     }

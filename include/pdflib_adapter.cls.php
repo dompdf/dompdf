@@ -770,7 +770,7 @@ class PDFLib_Adapter implements Canvas {
     $w = (int)$w;
     $h = (int)$h;
 
-    $img_type = Image_Cache::detect_type($img_url);
+    $img_type = Image_Cache::detect_type($img_url, $this->_dompdf->get_http_context());
     $img_ext  = Image_Cache::type_to_ext($img_type);
 
     if ( !isset($this->_imgs[$img_url]) ) {

@@ -45,6 +45,7 @@ class Image_Cache {
    * @return array             An array with two elements: The local path to the image and the image extension
    */
   static function resolve_url($url, $protocol, $host, $base_path, DOMPDF $dompdf) {
+    $protocol = mb_strtolower($protocol);
     $parsed_url = explode_url($url);
     $message = null;
 
@@ -84,7 +85,7 @@ class Image_Cache {
           }
           else {
             set_error_handler("record_warnings");
-            $image = file_get_contents($full_url);
+            $image = file_get_contents($full_url, null, $dompdf->get_http_context());
             restore_error_handler();
           }
   
@@ -118,7 +119,7 @@ class Image_Cache {
       
       // Check is the file is an image
       else {
-        list($width, $height, $type) = dompdf_getimagesize($resolved_url);
+        list($width, $height, $type) = dompdf_getimagesize($resolved_url, $dompdf->get_http_context());
         
         // Known image type
         if ( $width && $height && in_array($type, array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_BMP)) ) {
@@ -138,7 +139,8 @@ class Image_Cache {
     catch(DOMPDF_Image_Exception $e) {
       $resolved_url = self::$broken_image;
       $type = IMAGETYPE_PNG;
-      $message = $e->getMessage()." \n $url";
+      $message = "Image not found or type unknown";
+      $_dompdf_warnings[] = $e->getMessage()." :: $url";
     }
 
     return array($resolved_url, $type, $message);
@@ -159,8 +161,8 @@ class Image_Cache {
     self::$_cache = array();
   }
   
-  static function detect_type($file) {
-    list(, , $type) = dompdf_getimagesize($file);
+  static function detect_type($file, $context = null) {
+    list(, , $type) = dompdf_getimagesize($file, $context);
     return $type;
   }
   

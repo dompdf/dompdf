@@ -1250,7 +1250,7 @@ class Stylesheet {
         "path"   => build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
       );
       
-      if ( !$source["local"] && in_array($source["format"], array("", "woff", "opentype", "truetype")) ) {
+      if ( !$source["local"] && in_array($source["format"], array("", "truetype")) ) {
         $valid_sources[] = $source;
       }
       
@@ -1268,7 +1268,7 @@ class Stylesheet {
       "style"  => $descriptors->font_style,
     );
     
-    Font_Metrics::register_font($style, $valid_sources[0]["path"]);
+    Font_Metrics::register_font($style, $valid_sources[0]["path"], $this->_dompdf->get_http_context());
   }
 
   /**

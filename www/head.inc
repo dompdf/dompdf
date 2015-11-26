@@ -1,4 +1,8 @@
 <?php
+$allowed_hosts = array("::1", "127.0.0.1");
+if( !in_array($_SERVER['REMOTE_ADDR'], $allowed_hosts) ) {
+  die("Access denied to host at " . $_SERVER['REMOTE_ADDR']);
+}
 
 session_start();
 
@@ -21,6 +25,7 @@ auth_check();
 <head>
   <title>dompdf - The PHP 5 HTML to PDF Converter</title>
   <link rel="stylesheet" href="style.css" type="text/css"/>
+  <meta name="robots" content="noindex">
   <link rel="SHORTCUT ICON" href="images/favicon.ico"/>
   <script type="text/javascript" src="jquery-1.4.2.js"></script>
   

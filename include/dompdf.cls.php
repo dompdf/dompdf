@@ -184,6 +184,25 @@ class DOMPDF {
    * @var bool
    */
   private $_quirksmode = false;
+  
+  /**
+   * Protocol whitelist
+   *
+   * Protocols and PHP wrappers allowed in URLs. Full support is not 
+   * guarantee for the protocols/wrappers contained in this array.
+   *
+   * @var array
+   */
+  private $_allowed_protocols = array(null, "", "data:", "data://", "file://", "http://", "https://");
+  
+  /**
+   * Local file extension whitelist
+   *
+   * File extensions supported by dompdf for local files.
+   *
+   * @var array
+   */
+  private $_allowed_local_file_extensions = array("htm", "html");
 
   /**
    * The list of built-in fonts
@@ -474,6 +493,10 @@ class DOMPDF {
       list($this->_protocol, $this->_base_host, $this->_base_path) = explode_url($file);
     }
 
+    if ( !in_array($this->_protocol, $this->_allowed_protocols) ) {
+      throw new DOMPDF_Exception("Permission denied on $file. The communication protocol is not supported.");
+    }
+    
     if ( !$this->get_option("enable_remote") && ($this->_protocol != "" && $this->_protocol !== "file://" ) ) {
       throw new DOMPDF_Exception("Remote file requested, but DOMPDF_ENABLE_REMOTE is false.");
     }
@@ -482,23 +505,24 @@ class DOMPDF {
 
       // Get the full path to $file, returns false if the file doesn't exist
       $realfile = realpath($file);
-      if ( !$realfile ) {
-        throw new DOMPDF_Exception("File '$file' not found.");
-      }
 
       $chroot = $this->get_option("chroot");
       if ( strpos($realfile, $chroot) !== 0 ) {
         throw new DOMPDF_Exception("Permission denied on $file. The file could not be found under the directory specified by DOMPDF_CHROOT.");
       }
-
-      // Exclude dot files (e.g. .htaccess)
-      if ( substr(basename($realfile), 0, 1) === "." ) {
+      
+      $ext = pathinfo($realfile, PATHINFO_EXTENSION);
+      if (!in_array($ext, $this->_allowed_local_file_extensions)) {
         throw new DOMPDF_Exception("Permission denied on $file.");
       }
-
+      
+      if ( !$realfile ) {
+        throw new DOMPDF_Exception("File '$file' not found.");
+      }
+            
       $file = $realfile;
     }
-
+    
     $contents = file_get_contents($file, null, $this->_http_context);
     $encoding = null;
 
