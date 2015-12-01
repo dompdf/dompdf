@@ -274,10 +274,12 @@ class Dompdf
 
     /**
      * Class constructor
+     *
+     * @param array $options
      */
-    public function __construct()
+    public function __construct($options = null)
     {
-        $this->setOptions(new Options);
+        $this->setOptions(new Options($options));
         
         $versionFile = realpath(__DIR__ . '/../VERSION');
         if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false && $version !== '$Format:<%h>$') {
