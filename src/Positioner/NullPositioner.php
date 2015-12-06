@@ -6,25 +6,24 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-namespace Dompdf\FrameReflower;
+namespace Dompdf\Positioner;
 
-use Dompdf\Frame;
-use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\AbstractFrameDecorator;
 
 /**
- * Dummy reflower
+ * Dummy positioner
  *
  * @package dompdf
  */
-class Null extends AbstractFrameReflower
+class NullPositioner extends AbstractPositioner
 {
 
-    function __construct(Frame $frame)
+    function __construct(AbstractFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
-    function reflow(BlockFrameDecorator $block = null)
+    function position()
     {
         return;
     }

@@ -15,7 +15,7 @@ use Dompdf\Frame;
  *
  * @package dompdf
  */
-class Null extends AbstractFrameDecorator
+class NullFrameDecorator extends AbstractFrameDecorator
 {
 
     function __construct(Frame $frame, Dompdf $dompdf)
