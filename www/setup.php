@@ -1,5 +1,9 @@
 <?php include("head.inc"); ?>
 
+<?php
+if (auth_ok()) {
+?>
+
 <a name="setup"> </a>
 <h2>Setup</h2>
 
@@ -295,6 +299,13 @@ $constants = array(
   <?php } ?>
 
 </table>
+
+<?php
+} else {
+  echo auth_get_link();
+}
+?>
+
 
 
 <?php include("foot.inc"); ?>

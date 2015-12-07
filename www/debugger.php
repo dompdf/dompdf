@@ -1,6 +1,8 @@
 <?php
+require_once "functions.inc.php";
+
 $allowed_hosts = array("::1", "127.0.0.1");
-if( !in_array($_SERVER['REMOTE_ADDR'], $allowed_hosts) ) {
+if( !auth_ok() || !in_array($_SERVER['REMOTE_ADDR'], $allowed_hosts) ) {
   die("Access denied to host at " . $_SERVER['REMOTE_ADDR']);
 }
 
