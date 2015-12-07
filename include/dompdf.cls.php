@@ -193,7 +193,7 @@ class DOMPDF {
    *
    * @var array
    */
-  private $_allowed_protocols = array(null, "", "data:", "data://", "file://", "http://", "https://");
+  private $_allowed_protocols = array(null, "", "file://", "http://", "https://");
   
   /**
    * Local file extension whitelist
