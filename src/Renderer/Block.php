@@ -9,6 +9,7 @@ namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
+use Dompdf\Helpers;
 
 /**
  * Renders block frames
@@ -40,6 +41,7 @@ class Block extends AbstractRenderer
 
         // Handle anchors & links
         if ($node->nodeName === "a" && $href = $node->getAttribute("href")) {
+            $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
             $this->_canvas->add_link($href, $x, $y, $w, $h);
         }
 
