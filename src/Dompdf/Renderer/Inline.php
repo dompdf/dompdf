@@ -97,6 +97,7 @@ class Inline extends AbstractRenderer
                 }
 
                 if ($link_node && $href = $link_node->getAttribute("href")) {
+                    $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
                     $this->_canvas->add_link($href, $x, $y, $w, $h);
                 }
 
@@ -187,8 +188,10 @@ class Inline extends AbstractRenderer
 
         // Handle anchors & links
         if ($link_node) {
-            if ($href = $link_node->getAttribute("href"))
+            if ($href = $link_node->getAttribute("href")) {
+                $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
                 $this->_canvas->add_link($href, $x, $y, $w, $h);
+            }
         }
     }
 }

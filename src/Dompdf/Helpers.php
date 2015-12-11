@@ -60,7 +60,7 @@ class Helpers
         }
 
         // Is the url already fully qualified or a Data URI?
-        if (mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0) {
+        if (mb_strpos($url, "://") !== false || mb_strpos($url, "data:" || mb_strpos($url, "mailto:") === 0) {
             return $url;
         }
 
