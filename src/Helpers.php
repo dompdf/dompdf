@@ -730,4 +730,23 @@ class Helpers
         return $im;
     }
 
+    public static function getContent($path, $http_contest)
+    {
+        $result = false;
+        $is_remote_path = preg_match('/^https?:\/\//', $path);
+
+        if (!$is_remote_path || ini_get("allow_url_fopen")) {
+            set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
+            $result = file_get_contents($path, null, $http_contest);
+            restore_error_handler();
+        }
+        elseif ($is_remote_path && function_exists("curl_exec")) {
+            $curl = curl_init($path);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $result = curl_exec($curl);
+            curl_close($curl);
+        }
+
+        return $result;
+    }
 }
