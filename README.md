@@ -114,9 +114,38 @@ Download and install
 Download an archive of dompdf and extract it into the directory where dompdf
 will reside
  * You can download stable copies of dompdf from
-   https://github.com/dompdf/dompdf/tags
+   https://github.com/dompdf/dompdf/releases
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
+
+
+Quick Start
+===========
+
+**For Composer installations**
+
+Somewhere early in your project's loading require the Composer autoloader
+(see http://getcomposer.org/doc/00-intro.md) and disable the dompdf
+autoloader. Add the following lines before requiring `dompdf_config.inc.php`.
+
+```php
+require '/path/to/composer/vendor/autoload.php';
+define('DOMPDF_ENABLE_AUTOLOAD', false);
+```
+
+**For all installations**
+
+Just pass your HTML in to dompdf and stream the output:
+
+```php
+require_once '/path/to/dompdf/dompdf_config.inc.php';
+
+$dompdf = new DOMPDF();
+$dompdf->load_html_file($file);
+$dompdf->render();
+$dompdf->stream("sample.pdf");
+```
+
 
 Limitations (Known Issues)
 ==========================
