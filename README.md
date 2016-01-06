@@ -107,6 +107,14 @@ define('DOMPDF_ENABLE_AUTOLOAD', false);
 
 // include DOMPDF's default configuration
 require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
+
+// use it
+
+$dompdf = new DOMPDF();
+$dompdf->load_html_file($file);
+$dompdf->render();
+$dompdf->stream("sample.pdf");
+
 ```
 
 Download and install
