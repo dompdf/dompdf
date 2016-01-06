@@ -4065,21 +4065,6 @@ EOT;
     } 
 
     else {
-      $info = file_get_contents ($file, false, null, 24, 5);
-      $meta = unpack("CbitDepth/CcolorType/CcompressionMethod/CfilterMethod/CinterlaceMethod", $info);
-      $bit_depth = $meta["bitDepth"];
-      $color_type = $meta["colorType"];
-
-      // http://www.w3.org/TR/PNG/#11IHDR
-      // 3 => indexed
-      // 4 => greyscale with alpha
-      // 6 => fullcolor with alpha
-      $is_alpha = in_array($color_type, array(4, 6)) || ($color_type == 3 && $bit_depth != 4);
-
-      if ($is_alpha) { // exclude grayscale alpha
-        return $this->addImagePngAlpha($file, $x, $y, $w, $h, $color_type);
-      }
-
       //png files typically contain an alpha channel.
       //pdf file format or class.pdf does not support alpha blending.
       //on alpha blended images, more transparent areas have a color near black.
