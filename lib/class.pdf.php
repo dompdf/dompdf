@@ -3906,12 +3906,12 @@ EOT;
     imagesavealpha($img, false);
 
     // create temp alpha file
-    $tempfile_alpha = tempnam($this->tmp, "cpdf_img_");
+    $tempfile_alpha = dompdf_tempnam($this->tmp, "cpdf_img_");
     @unlink($tempfile_alpha);
     $tempfile_alpha = "$tempfile_alpha.png";
 
     // create temp plain file
-    $tempfile_plain = tempnam($this->tmp, "cpdf_img_");
+    $tempfile_plain = dompdf_tempnam($this->tmp, "cpdf_img_");
     @unlink($tempfile_plain);
     $tempfile_plain = "$tempfile_plain.png";
 

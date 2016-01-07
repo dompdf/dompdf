@@ -512,7 +512,7 @@ class CPDF_Adapter implements Canvas {
       imageinterlace($im, false);
 
       $tmp_dir = $this->_dompdf->get_option("temp_dir");
-      $tmp_name = tempnam($tmp_dir, "{$image_type}dompdf_img_");
+      $tmp_name = dompdf_tempnam($tmp_dir, "{$image_type}dompdf_img_");
       @unlink($tmp_name);
       $filename = "$tmp_name.png";
       $this->_image_cache[] = $filename;

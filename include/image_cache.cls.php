@@ -75,7 +75,7 @@ class Image_Cache {
         // From remote
         else {
           $tmp_dir = $dompdf->get_option("temp_dir");
-          $resolved_url = tempnam($tmp_dir, "ca_dompdf_img_");
+          $resolved_url = dompdf_tempnam($tmp_dir, "ca_dompdf_img_");
           $image = "";
 
           if ($data_uri) {
