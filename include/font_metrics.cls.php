@@ -241,13 +241,13 @@ class Font_Metrics {
     $dist_fonts = require_once DOMPDF_DIR . "/lib/fonts/dompdf_font_family_cache.dist.php";
     
     // FIXME: temporary step for font cache created before the font cache fix
-    if ( is_readable( DOMPDF_FONT_DIR . "dompdf_font_family_cache" ) ) {
-      $old_fonts = require_once DOMPDF_FONT_DIR . "dompdf_font_family_cache";
+    if ( is_readable( DOMPDF_FONT_DIR . "dompdf_font_family_cache.php" ) ) {
+      $old_fonts = require_once DOMPDF_FONT_DIR . "dompdf_font_family_cache.php";
       // If the font family cache is still in the old format
       if ( $old_fonts === 1 ) {
         $cache_data = file_get_contents(DOMPDF_FONT_DIR . "dompdf_font_family_cache");
-        file_put_contents(DOMPDF_FONT_DIR . "dompdf_font_family_cache", "<"."?php return $cache_data ?".">");
-        $old_fonts = require_once DOMPDF_FONT_DIR . "dompdf_font_family_cache";
+        file_put_contents(DOMPDF_FONT_DIR . "dompdf_font_family_cache.php", "<"."?php return $cache_data ?".">");
+        $old_fonts = require_once DOMPDF_FONT_DIR . "dompdf_font_family_cache.php";
       }
       $dist_fonts += $old_fonts;
     }
@@ -272,7 +272,11 @@ class Font_Metrics {
     }
     
     // Merge provided fonts
-    self::$_font_lookup += $dist_fonts;
+    if (is_array(self::$_font_lookup)) {
+        self::$_font_lookup = array_merge(self::$_font_lookup, $dist_fonts);
+    } else {
+        self::$_font_lookup = $dist_fonts;
+    }
   }
   
   static function get_type($type) {
