@@ -62,6 +62,11 @@ class Cpdf {
   /**
    * @var integer
    */
+  public $currentRoot;
+
+  /**
+   * @var integer
+   */
   public $currentNode;
 
   /**
@@ -512,7 +517,6 @@ class Cpdf {
     switch ($action) {
     case 'new':
       $this->objects[$id] = array('t' => 'pages', 'info' => array());
-      $this->o_catalog($this->catalogId, 'pages', $id);
       break;
 
     case 'page':
@@ -559,14 +563,16 @@ class Cpdf {
       $o['info']['procset'] = $options;
       break;
 
+    case 'parent':
+      $o['info']['parent'] = $options;
+      break;
+
     case 'mediaBox':
       $o['info']['mediaBox'] = $options;
-      // which should be an array of 4 numbers
-      $this->currentPageSize = array('width' => $options[2], 'height' => $options[3]);
       break;
 
     case 'font':
-      $o['info']['fonts'][] = array('objNum' => $options['objNum'], 'fontNum' => $options['fontNum']);
+      $o['info']['fonts'][$options['fontNum']] = array('objNum' => $options['objNum'], 'fontNum' => $options['fontNum']); // Key used just to avoid duplicates
       break;
 
     case 'extGState':
@@ -579,12 +585,30 @@ class Cpdf {
 
     case 'out':
       if (count($o['info']['pages'])) {
-        $res = "\n$id 0 obj\n<< /Type /Pages\n/Kids [";
+
+        $res = "\n$id 0 obj\n<< /Type /Pages";
+        if (isset($o['info']['parent'])) {
+          $res.= "\n/Parent ".$o['info']['parent']." 0 R";
+        }
+
+        $res .= "\n/Kids [";
         foreach ($o['info']['pages'] as $v) {
           $res.= "$v 0 R\n";
         }
 
-        $res.= "]\n/Count ".count($this->objects[$id]['info']['pages']);
+        if (isset($o['info']['page_count'])) { // Possible alternative, where $this->o_page($this->numObj, 'new') could increment?
+          $page_count = $o['info']['page_count'];
+        } else {
+          $page_count = 0;
+          foreach ($o['info']['pages'] as $obj) {
+            if ($this->objects[$obj]['t'] == 'page') {
+              $page_count++;
+            } else if ($this->objects[$obj]['t'] == 'pages') {
+              $page_count += count($this->objects[$obj]['info']['pages']); // Assume all children are 'page' objects
+            }
+          }
+        }
+        $res.= "]\n/Count ".$page_count;
 
         if ( (isset($o['info']['fonts']) && count($o['info']['fonts'])) ||
               isset($o['info']['procset']) ||
@@ -758,8 +782,6 @@ EOT;
         $this->objects[$id]['info']['cidFont'] = $cidFontId;
       }
 
-      // also tell the pages node about the new font
-      $this->o_pages($this->currentNode, 'font', array('fontNum' => $fontNum, 'objNum' => $id));
       break;
 
     case 'add':
@@ -1909,34 +1931,41 @@ EOT;
    * if this is called on an existing document results may be unpredictable, but the existing document would be lost at minimum
    * this function is called automatically by the constructor function
    */
-  private function newDocument($pageSize = array(0, 0, 612, 792)) {
-    $this->numObj = 0;
-    $this->objects = array();
+  public function newDocument($pageSize = array(0, 0, 612, 792)) {
 
-    $this->numObj++;
-    $this->o_catalog($this->numObj, 'new');
+    if ($this->numObj == 0) {
 
-    $this->numObj++;
-    $this->o_outlines($this->numObj, 'new');
+      $this->objects = array();
+
+      $this->numObj++;
+      $this->o_catalog($this->numObj, 'new');
+
+      $this->numObj++;
+      $this->o_outlines($this->numObj, 'new');
+
+      $this->numObj++;
+      $this->o_pages($this->numObj, 'new');
+      $this->o_catalog($this->catalogId, 'pages', $this->numObj);
+      $this->currentRoot = $this->numObj;
+
+      $this->numObj++;
+      $this->o_info($this->numObj, 'new');
+
+    }
 
     $this->numObj++;
     $this->o_pages($this->numObj, 'new');
-
+    $this->o_pages($this->numObj, 'parent', $this->currentRoot);
     $this->o_pages($this->numObj, 'mediaBox', $pageSize);
-    $this->currentNode = 3;
+    $this->o_pages($this->currentRoot, 'page', $this->numObj);
+    $this->currentNode = $this->numObj;
+    $this->currentPageSize = array('width' => $pageSize[2], 'height' => $pageSize[3]);
 
     $this->numObj++;
     $this->o_procset($this->numObj, 'new');
 
-    $this->numObj++;
-    $this->o_info($this->numObj, 'new');
+    $this->newPage();
 
-    $this->numObj++;
-    $this->o_page($this->numObj, 'new');
-
-    // need to store the first page id as there is no way to get it to the user during
-    // startup
-    $this->firstPageId = $this->currentContents;
   }
 
   /**
@@ -2223,6 +2252,7 @@ EOT;
 
         $fontObj = $this->numObj;
         $this->o_font($this->numObj, 'new', $options);
+        $font['fontObj'] = $fontObj;
         $font['fontNum'] = $this->numFonts;
 
         // if this is a '.afm' font, and there is a '.pfa' file to go with it ( as there
@@ -2503,51 +2533,23 @@ EOT;
     if ($set && isset($this->fonts[$fontName])) {
       // so if for some reason the font was not set in the last one then it will not be selected
       $this->currentBaseFont = $fontName;
-
-      // the next lines mean that if a new font is selected, then the current text state will be
-      // applied to it as well.
-      $this->currentFont = $this->currentBaseFont;
-      $this->currentFontNum = $this->fonts[$this->currentFont]['fontNum'];
-
-      //$this->setCurrentFont();
+      $this->setCurrentFont();
     }
 
     return $this->currentFontNum;
-    //return $this->numObj;
+
   }
 
-  /**
-   * sets up the current font, based on the font families, and the current text state
-   * note that this system is quite flexible, a bold-italic font can be completely different to a
-   * italic-bold font, and even bold-bold will have to be defined within the family to have meaning
-   * This function is to be called whenever the currentTextState is changed, it will update
-   * the currentFont setting to whatever the appropriatte family one is.
-   * If the user calls selectFont themselves then that will reset the currentBaseFont, and the currentFont
-   * This function will change the currentFont to whatever it should be, but will not change the
-   * currentBaseFont.
-   */
   private function setCurrentFont() {
-    //   if (strlen($this->currentBaseFont) == 0){
-    //     // then assume an initial font
-    //     $this->selectFont($this->defaultFont);
-    //   }
-    //   $cf = substr($this->currentBaseFont,strrpos($this->currentBaseFont,'/')+1);
-    //   if (strlen($this->currentTextState)
-    //     && isset($this->fontFamilies[$cf])
-    //       && isset($this->fontFamilies[$cf][$this->currentTextState])){
-    //     // then we are in some state or another
-    //     // and this font has a family, and the current setting exists within it
-    //     // select the font, then return it
-    //     $nf = substr($this->currentBaseFont,0,strrpos($this->currentBaseFont,'/')+1).$this->fontFamilies[$cf][$this->currentTextState];
-    //     $this->selectFont($nf,'',0);
-    //     $this->currentFont = $nf;
-    //     $this->currentFontNum = $this->fonts[$nf]['fontNum'];
-    //   } else {
-    //     // the this font must not have the right family member for the current state
-    //     // simply assume the base font
+
+    // the next lines mean that if a new font is selected, then the current text state will be
+    // applied to it as well.
     $this->currentFont = $this->currentBaseFont;
     $this->currentFontNum = $this->fonts[$this->currentFont]['fontNum'];
-    //  }
+
+    // also tell the pages node about the new font
+    $this->o_pages($this->currentNode, 'font', array('fontNum' => $this->currentFontNum, 'objNum' => $this->fonts[$this->currentFont]['fontObj']));
+
   }
 
   /**
@@ -3062,6 +3064,12 @@ EOT;
       $this->o_page($this->numObj, 'new', $opt);
     } else {
       $this->o_page($this->numObj, 'new');
+    }
+
+    if (!$this->firstPageId) {
+      // need to store the first page id as there is no way to get it to the user during
+      // startup
+      $this->firstPageId = $this->numObj;
     }
 
     // if there is a stack saved, then put that onto the page

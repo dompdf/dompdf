@@ -164,19 +164,10 @@ class CPDF_Adapter implements Canvas {
    * @param DOMPDF $dompdf      The DOMPDF instance
    */
   function __construct($paper = "letter", $orientation = "portrait", DOMPDF $dompdf) {
-    if ( is_array($paper) ) {
-      $size = $paper;
-    }
-    else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) ) {
-      $size = self::$PAPER_SIZES[mb_strtolower($paper)];
-    }
-    else {
-      $size = self::$PAPER_SIZES["letter"];
-    }
 
-    if ( mb_strtolower($orientation) === "landscape" ) {
-      list($size[2], $size[3]) = array($size[3], $size[2]);
-    }
+    $size = $this->get_size($paper, $orientation);
+    $this->_width = $size[2] - $size[0];
+    $this->_height= $size[3] - $size[1];
 
     $this->_dompdf = $dompdf;
     
@@ -191,9 +182,6 @@ class CPDF_Adapter implements Canvas {
     $time = substr_replace(date('YmdHisO'), '\'', -2, 0).'\'';
     $this->_pdf->addInfo("CreationDate", "D:$time");
     $this->_pdf->addInfo("ModDate", "D:$time");
-
-    $this->_width = $size[2] - $size[0];
-    $this->_height= $size[3] - $size[1];
     
     $this->_page_number = $this->_page_count = 1;
     $this->_page_text = array();
@@ -234,6 +222,45 @@ class CPDF_Adapter implements Canvas {
    */
   function get_cpdf() {
     return $this->_pdf;
+  }
+
+  /**
+   * Get size array
+   *
+   * @param mixed  $paper       The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
+   * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
+   */
+  function get_size($paper, $orientation) {
+
+    if ( is_array($paper) ) {
+      $size = $paper;
+    }
+    else if ( isset(self::$PAPER_SIZES[mb_strtolower($paper)]) ) {
+      $size = self::$PAPER_SIZES[mb_strtolower($paper)];
+    }
+    else {
+      $size = self::$PAPER_SIZES["letter"];
+    }
+
+    if ( mb_strtolower($orientation) === "landscape" ) {
+      list($size[2], $size[3]) = array($size[3], $size[2]);
+    }
+
+    return $size;
+
+  }
+
+  /**
+   * Create new document
+   *
+   * @param mixed  $paper       The size of paper to use in this PDF ({@link CPDF_Adapter::$PAPER_SIZES})
+   * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
+   */
+  function new_document($paper = "letter", $orientation = "portrait") {
+    $size = $this->get_size($paper, $orientation);
+    $this->_pdf->newDocument($size);
+    $this->_width = $size[2] - $size[0];
+    $this->_height= $size[3] - $size[1];
   }
 
   /**

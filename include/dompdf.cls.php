@@ -885,8 +885,12 @@ class DOMPDF {
       $this->set_paper(array(0, 0, $base_page_style->size[0], $base_page_style->size[1]));
     }
 
-    $this->_pdf = Canvas_Factory::get_instance($this, $this->_paper_size, $this->_paper_orientation);
-    Font_Metrics::init($this->_pdf);
+    if ($this->_pdf !== null && is_callable(array($this->_pdf, 'new_document'))) {
+      $this->_pdf->new_document($this->_paper_size, $this->_paper_orientation);
+    } else {
+      $this->_pdf = Canvas_Factory::get_instance($this, $this->_paper_size, $this->_paper_orientation);
+      Font_Metrics::init($this->_pdf);
+	}
 
     if ( $this->get_option("enable_font_subsetting") && $this->_pdf instanceof CPDF_Adapter ) {
       foreach ($this->_tree->get_frames() as $frame) {
