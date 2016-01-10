@@ -645,7 +645,12 @@ class DOMPDF {
       // http://stackoverflow.com/a/11310258/264628
       $doc = new DOMDocument();
       $doc->preserveWhiteSpace = true;
-      $doc->loadHTML( mb_convert_encoding( $str , 'HTML-ENTITIES' , 'UTF-8' ) );
+      
+      //Check if string is not UTF-8 and convert it.
+      if($encoding !== 'UTF-8')
+        $doc->loadHTML( mb_convert_encoding( $str , 'HTML-ENTITIES' , $encoding ) );
+      else
+        $doc->loadHTML( $str );
 
       // If some text is before the doctype, we are in quirksmode
       if ( preg_match("/^(.+)<!doctype/i", ltrim($str), $matches) ) {
