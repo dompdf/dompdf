@@ -1280,7 +1280,7 @@ class Stylesheet
                 "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
             );
 
-            if (!$source["local"] && in_array($source["format"], array("", "woff", "opentype", "truetype"))) {
+            if (!$source["local"] && in_array($source["format"], array("", "truetype"))) {
                 $valid_sources[] = $source;
             }
 
@@ -1298,7 +1298,7 @@ class Stylesheet
             "style" => $descriptors->font_style,
         );
 
-        $this->getFontMetrics()->registerFont($style, $valid_sources[0]["path"]);
+        $this->getFontMetrics()->registerFont($style, $valid_sources[0]["path"], $this->_dompdf->getHttpContext());
     }
 
     /**

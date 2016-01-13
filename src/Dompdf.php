@@ -214,6 +214,25 @@ class Dompdf
     private $quirksmode = false;
 
     /**
+    * Protocol whitelist
+    *
+    * Protocols and PHP wrappers allowed in URLs. Full support is not 
+    * guarantee for the protocols/wrappers contained in this array.
+    *
+    * @var array
+    */
+    private $allowedProtocols = array(null, "", "file://", "http://", "https://");
+    
+    /**
+    * Local file extension whitelist
+    *
+    * File extensions supported by dompdf for local files.
+    *
+    * @var array
+    */
+    private $allowedLocalFileExtensions = array("htm", "html");
+    
+    /**
      * @var array
      */
     private $messages = array();
@@ -323,13 +342,14 @@ class Dompdf
     {
         $this->saveLocale();
 
-        // Store parsing warnings as messages (this is to prevent output to the
-        // browser if the html is ugly and the dom extension complains,
-        // preventing the pdf from being streamed.)
         if (!$this->protocol && !$this->baseHost && !$this->basePath) {
             list($this->protocol, $this->baseHost, $this->basePath) = Helpers::explode_url($file);
         }
 
+        if ( !in_array($this->protocol, $this->allowedProtocols) ) {
+            throw new Exception("Permission denied on $file. The communication protocol is not supported.");
+        }
+    
         if (!$this->options->isRemoteEnabled() && ($this->protocol != "" && $this->protocol !== "file://")) {
             throw new Exception("Remote file requested, but remote file download is disabled.");
         }
@@ -338,18 +358,19 @@ class Dompdf
 
             // Get the full path to $file, returns false if the file doesn't exist
             $realfile = realpath($file);
-            if (!$realfile) {
-                throw new Exception("File '$file' not found.");
-            }
-
+            
             $chroot = $this->options->getChroot();
             if (strpos($realfile, $chroot) !== 0) {
                 throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
             }
 
-            // Exclude dot files (e.g. .htaccess)
-            if (substr(basename($realfile), 0, 1) === ".") {
+            $ext = pathinfo($realfile, PATHINFO_EXTENSION);
+            if (!in_array($ext, $this->allowedLocalFileExtensions)) {
                 throw new Exception("Permission denied on $file.");
+            }
+            
+            if (!$realfile) {
+                throw new Exception("File '$file' not found.");
             }
 
             $file = $realfile;
@@ -714,7 +735,7 @@ class Dompdf
             $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
         }
         
-        //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion.
+        //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion (see #1059).
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
         $this->setFontMetrics(new FontMetrics($this->pdf, $this->getOptions()));
 

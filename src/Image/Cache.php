@@ -59,6 +59,7 @@ class Cache
     {
         self::$_dompdf = $dompdf;
         
+        $protocol = mb_strtolower($protocol);
         $parsed_url = Helpers::explode_url($url);
         $message = null;
 
@@ -72,7 +73,7 @@ class Cache
 
             // Remote not allowed and is not DataURI
             if (!$enable_remote && $remote && !$data_uri) {
-                throw new ImageException("Remote file access is disabled.");
+                throw new ImageException("Remote file access is disabled.", E_WARNING);
             } // Remote allowed or DataURI
             else {
                 if ($enable_remote && $remote || $data_uri) {
@@ -101,7 +102,7 @@ class Cache
                         // Image not found or invalid
                         if (strlen($image) == 0) {
                             $msg = ($data_uri ? "Data-URI could not be parsed" : "Image not found");
-                            throw new ImageException($msg);
+                            throw new ImageException($msg, E_WARNING);
                         } // Image found, put in cache and process
                         else {
                             //e.g. fetch.php?media=url.jpg&cache=1
@@ -120,10 +121,10 @@ class Cache
 
             // Check if the local file is readable
             if (!is_readable($resolved_url) || !filesize($resolved_url)) {
-                throw new ImageException("Image not readable or empty");
+                throw new ImageException("Image not readable or empty", E_WARNING);
             } // Check is the file is an image
             else {
-                list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url);
+                list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $dompdf->getHttpContext());
 
                 // Known image type
                 if ($width && $height && in_array($type, array("gif", "png", "jpeg", "bmp", "svg"))) {
@@ -134,13 +135,14 @@ class Cache
                     }
                 } // Unknown image type
                 else {
-                    throw new ImageException("Image type unknown");
+                    throw new ImageException("Image type unknown", E_WARNING);
                 }
             }
         } catch (ImageException $e) {
             $resolved_url = self::$broken_image;
             $type = "png";
-            $message = $e->getMessage() . " \n $url";
+            $message = "Image not found or type unknown";
+            Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
         }
 
         return array($resolved_url, $type, $message);
@@ -166,9 +168,9 @@ class Cache
         self::$_cache = array();
     }
 
-    static function detect_type($file)
+    static function detect_type($file, $context = null)
     {
-        list(, , $type) = Helpers::dompdf_getimagesize($file);
+        list(, , $type) = Helpers::dompdf_getimagesize($file, $context);
 
         return $type;
     }

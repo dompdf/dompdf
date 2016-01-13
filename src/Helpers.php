@@ -54,6 +54,7 @@ class Helpers
      */
     public static function build_url($protocol, $host, $base_path, $url)
     {
+        $protocol = mb_strtolower($protocol);
         if (strlen($url) == 0) {
             //return $protocol . $host . rtrim($base_path, "/\\") . "/";
             return $protocol . $host . $base_path;
@@ -310,6 +311,9 @@ class Helpers
         $file = "";
 
         $arr = parse_url($url);
+        if ( isset($arr["scheme"]) ) {
+            $arr["scheme"] == mb_strtolower($arr["scheme"]);
+        }
 
         // Exclude windows drive letters...
         if (isset($arr["scheme"]) && $arr["scheme"] !== "file" && strlen($arr["scheme"]) > 1) {
@@ -354,7 +358,7 @@ class Helpers
 
         } else {
 
-            $i = mb_strpos($url, "file://");
+            $i = mb_stripos($url, "file://");
             if ($i !== false) {
                 $url = mb_substr($url, $i + 7);
             }
@@ -504,7 +508,7 @@ class Helpers
      * @param string $filename
      * @return array The same format as getimagesize($filename)
      */
-    public static function dompdf_getimagesize($filename)
+    public static function dompdf_getimagesize($filename, $context = null)
     {
         static $cache = array();
 
@@ -525,7 +529,7 @@ class Helpers
         $type = isset($types[$type]) ? $types[$type] : null;
 
         if ($width == null || $height == null) {
-            $data = file_get_contents($filename, null, null, 0, 26);
+            $data = file_get_contents($filename, null, $context, 0, 26);
 
             if (substr($data, 0, 2) === "BM") {
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -553,7 +557,7 @@ class Helpers
      * http://www.programmierer-forum.de/function-imagecreatefrombmp-welche-variante-laeuft-t143137.htm
      * Modified by Fabien Menager to support RGB555 BMP format
      */
-    public static function imagecreatefrombmp($filename)
+    public static function imagecreatefrombmp($filename, $context = null)
     {
         if (!function_exists("imagecreatetruecolor")) {
             trigger_error("The PHP GD extension is required, but is not installed.", E_ERROR);

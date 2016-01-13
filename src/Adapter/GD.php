@@ -678,7 +678,7 @@ class GD implements Canvas
      */
     function image($img_url, $x, $y, $w, $h, $resolution = "normal")
     {
-        $img_type = Cache::detect_type($img_url);
+        $img_type = Cache::detect_type($img_url, $this->get_dompdf()->getHttpContext());
 
         if (!$img_type) {
             return;

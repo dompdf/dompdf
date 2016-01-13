@@ -2645,8 +2645,7 @@ EOT;
                     $flags += pow(2, 5); // assume non-sybolic
                     $list = array(
                         'Ascent'       => 'Ascender',
-                        'CapHeight'    => 'Ascender',
-                        //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
+                        'CapHeight'    => 'Ascender', //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
                         'MissingWidth' => 'MissingWidth',
                         'Descent'      => 'Descender',
                         'FontBBox'     => 'FontBBox',

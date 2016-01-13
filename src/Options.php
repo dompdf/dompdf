@@ -4,26 +4,59 @@ namespace Dompdf;
 class Options
 {
     /**
+     * The root of your DOMPDF installation
+     *
      * @var string
      */
     private $rootDir;
 
     /**
+     * The location of a temporary directory.
+     *
+     * The directory specified must be writeable by the webserver process.
+     * The temporary directory is required to download remote images and when
+     * using the PFDLib back end.
+     *
      * @var string
      */
     private $tempDir;
 
     /**
+     * The location of the DOMPDF font directory
+     *
+     * The location of the directory where DOMPDF will store fonts and font metrics
+     * Note: This directory must exist and be writable by the webserver process.
+     *
      * @var string
      */
     private $fontDir;
 
     /**
+     * The location of the DOMPDF font cache directory
+     *
+     * This directory contains the cached font metrics for the fonts used by DOMPDF.
+     * This directory can be the same as $fontDir
+     * 
+     * Note: This directory must exist and be writable by the webserver process.
+     *
      * @var string
      */
     private $fontCache;
 
     /**
+     * dompdf's "chroot"
+     *
+     * Prevents dompdf from accessing system files or other files on the webserver.
+     * All local files opened by dompdf must be in a subdirectory of this directory.
+     * DO NOT set it to '/' since this could allow an attacker to use dompdf to
+     * read any files on the server.  This should be an absolute path.
+     *
+     * ==== IMPORTANT ====
+     * This setting may increase the risk of system exploit. Do not change 
+     * this settings without understanding the consequences. Additional
+     * documentation is available on the dompdf wiki at:
+     * https://github.com/dompdf/dompdf/wiki
+     *
      * @var string
      */
     private $chroot;
@@ -34,52 +67,132 @@ class Options
     private $logOutputFile;
 
     /**
+     * html target media view which should be rendered into pdf.
+     * List of types and parsing rules for future extensions:
+     * http://www.w3.org/TR/REC-html40/types.html
+     *   screen, tty, tv, projection, handheld, print, braille, aural, all
+     * Note: aural is deprecated in CSS 2.1 because it is replaced by speech in CSS 3.
+     * Note, even though the generated pdf file is intended for print output,
+     * the desired content might be different (e.g. screen or projection view of html file).
+     * Therefore allow specification of content here.
+     *
      * @var string
      */
     private $defaultMediaType = "screen";
 
     /**
+     * The default paper size.
+     *
+     * North America standard is "letter"; other countries generally "a4"
+     * @see Dompdf\Adapter\CPDF::PAPER_SIZES for valid sizes
+     *
      * @var string
      */
     private $defaultPaperSize = "letter";
 
     /**
+     * The default font family
+     *
+     * Used if no suitable fonts can be found. This must exist in the font folder.
+     *
      * @var string
      */
     private $defaultFont = "serif";
 
     /**
+     * Image DPI setting
+     *
+     * This setting determines the default DPI setting for images and fonts.  The
+     * DPI may be overridden for inline images by explictly setting the
+     * image's width & height style attributes (i.e. if the image's native
+     * width is 600 pixels and you specify the image's width as 72 points,
+     * the image will have a DPI of 600 in the rendered PDF.  The DPI of
+     * background images can not be overridden and is controlled entirely
+     * via this parameter.
+     *
+     * For the purposes of DOMPDF, pixels per inch (PPI) = dots per inch (DPI).
+     * If a size in html is given as px (or without unit as image size),
+     * this tells the corresponding size in pt at 72 DPI.
+     * This adjusts the relative sizes to be similar to the rendering of the
+     * html page in a reference browser.
+     *
+     * In pdf, always 1 pt = 1/72 inch
+     *
      * @var int
      */
     private $dpi = 96;
 
     /**
+     * A ratio applied to the fonts height to be more like browsers' line height
+     *
      * @var float
      */
     private $fontHeightRatio = 1.1;
 
     /**
+     * Enable embedded PHP
+     *
+     * If this setting is set to true then DOMPDF will automatically evaluate
+     * embedded PHP contained within <script type="text/php"> ... </script> tags.
+     *
+     * ==== IMPORTANT ====
+     * Enabling this for documents you do not trust (e.g. arbitrary remote html
+     * pages) is a security risk. Embedded scripts are run with the same level of
+     * system access available to dompdf. Set this option to false (recommended)
+     * if you wish to process untrusted documents.
+     *
+     * This setting may increase the risk of system exploit. Do not change 
+     * this settings without understanding the consequences. Additional
+     * documentation is available on the dompdf wiki at:
+     * https://github.com/dompdf/dompdf/wiki
+     *
      * @var bool
      */
     private $isPhpEnabled = false;
 
     /**
+     * Enable remote file access
+     *
+     * If this setting is set to true, DOMPDF will access remote sites for
+     * images and CSS files as required.
+     *
+     * ==== IMPORTANT ====
+     * This can be a security risk, in particular in combination with isPhpEnabled and
+     * allowing remote html code to be passed to $dompdf = new DOMPDF(); $dompdf->load_html(...);
+     * This allows anonymous users to download legally doubtful internet content which on
+     * tracing back appears to being downloaded by your server, or allows malicious php code
+     * in remote html pages to be executed by your server with your account privileges.
+     *
+     * This setting may increase the risk of system exploit. Do not change 
+     * this settings without understanding the consequences. Additional
+     * documentation is available on the dompdf wiki at:
+     * https://github.com/dompdf/dompdf/wiki
+     *
      * @var bool
      */
     private $isRemoteEnabled = false;
 
     /**
+     * Enable inline Javascript
+     *
+     * If this setting is set to true then DOMPDF will automatically insert
+     * JavaScript code contained within <script type="text/javascript"> ... </script> tags.
+     *
      * @var bool
      */
     private $isJavascriptEnabled = true;
 
     /**
+     * Use the more-than-experimental HTML5 Lib parser
+     *
      * @var bool
      */
     private $isHtml5ParserEnabled = false;
 
     /**
-     * @var bool
+     * Whether to enable font subsetting or not.
+     *
+     * @var is_bool
      */
     private $isFontSubsettingEnabled = false;
 
@@ -124,22 +237,43 @@ class Options
     private $debugLayoutPaddingBox = true;
 
     /**
+     * The PDF rendering backend to use
+     *
+     * Valid settings are 'PDFLib', 'CPDF', 'GD', and 'auto'. 'auto' will 
+     * look for PDFLib and use it if found, or if not it will fall back on 
+     * CPDF. 'GD' renders PDFs to graphic files. {@link Dompdf\CanvasFactory} 
+     * ultimately determines which rendering class to instantiate
+     * based on this setting.
+     *
      * @var string
      */
     private $pdfBackend = "CPDF";
     
     /**
+     * PDFlib license key
+     *
+     * If you are using a licensed, commercial version of PDFlib, specify
+     * your license key here.  If you are using PDFlib-Lite or are evaluating
+     * the commercial version of PDFlib, comment out this setting.
+     *
+     * @link http://www.pdflib.com
+     *
+     * If pdflib present in web server and auto or selected explicitely above,
+     * a real license code must exist!
+     *
      * @var string
      */
     private $pdflibLicense = "";
     
     /**
      * @var string
+     * @deprecated
      */
     private $adminUsername = "user";
 
     /**
      * @var string
+     * @deprecated
      */
     private $adminPassword = "password";
 

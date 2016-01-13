@@ -834,7 +834,7 @@ class PDFLib implements Canvas
         $w = (int)$w;
         $h = (int)$h;
 
-        $img_type = Cache::detect_type($img_url);
+        $img_type = Cache::detect_type($img_url, $this->get_dompdf()->getHttpContext());
 
         if (!isset($this->_imgs[$img_url])) {
             $this->_imgs[$img_url] = $this->_pdf->load_image($img_type, $img_url, "");
