@@ -3,7 +3,7 @@
     "type": "library",
     "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
     "homepage": "https://github.com/dompdf/dompdf",
-    "license": "LGPL-3.0",
+    "license": "LGPL-2.1",
     "authors": [
         {
             "name": "Fabien Ménager",
