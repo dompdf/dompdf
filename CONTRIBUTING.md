@@ -60,17 +60,6 @@ Questions should be asked on the
 - *Make your changes on the dev branch* or the most appropriate feature branch. Please only patch 
   the master branch if you are attempting to address an urgent bug in the released code.
 - Add a simple test file in `www/test/`, with a comprehensive name.
+- Add a unit test in the ``test/Dompdf/Tests/`` directory.
 - Submit a pull request
 ([how to create a pull request](https://help.github.com/articles/fork-a-repo))
-
-### Coding standards
-
-- 2 spaces per indentation level, no tabs.
-- spaces inside `if` like this:
-```php
-if ( $foo == "bar" ) {
-  //
-}
-```
-- booleans in lowercase
-- opening braces *always* on the same line

@@ -1,6 +1,9 @@
-[![Latest Stable Version](https://poser.pugx.org/dompdf/dompdf/v/stable.png)](https://packagist.org/packages/dompdf/dompdf) [![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads.png)](https://packagist.org/packages/dompdf/dompdf) [![Latest Unstable Version](https://poser.pugx.org/dompdf/dompdf/v/unstable.png)](https://packagist.org/packages/dompdf/dompdf) [![License](https://poser.pugx.org/dompdf/dompdf/license.png)](https://packagist.org/packages/dompdf/dompdf)
+Dompdf
+======
 
-**dompdf is an HTML to PDF converter**.
+[![Build Status](https://travis-ci.org/dompdf/dompdf.png?branch=develop)](https://travis-ci.org/dompdf/dompdf) [![Latest Stable Version](https://poser.pugx.org/dompdf/dompdf/v/stable.png)](https://packagist.org/packages/dompdf/dompdf) [![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads.png)](https://packagist.org/packages/dompdf/dompdf) [![Latest Unstable Version](https://poser.pugx.org/dompdf/dompdf/v/unstable.png)](https://packagist.org/packages/dompdf/dompdf) [![License](https://poser.pugx.org/dompdf/dompdf/license.png)](https://packagist.org/packages/dompdf/dompdf)
+
+**Dompdf is an HTML to PDF converter**.
 At its heart, dompdf is (mostly) [CSS 2.1](http://www.w3.org/TR/CSS2/) compliant
 HTML layout and rendering engine written in PHP. It is a style-driven renderer:
 it will download and read external stylesheets, inline style tags, and the style
@@ -9,108 +12,82 @@ HTML attributes.
 
 ----
 
-**Check out the [Demo](http://pxd.me/dompdf/www/examples.php) and ask any
+**Check out the [demo](http://pxd.me/dompdf/www/examples.php) and ask any
 question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
-on the [Google Groups](http://groups.google.com/group/dompdf)**
+on the [Google Groups](http://groups.google.com/group/dompdf).**
 
-----
+Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf) or 
+[![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-16.png)](https://plus.google.com/108710008521858993320?prsrc=3).
 
-[![Follow us on Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf)
-[![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-32.png)](https://plus.google.com/108710008521858993320?prsrc=3)
+## Features
 
-Features
-========
- * handles most CSS 2.1 and a few CSS3 properties, including @import, @media &
+ * Handles most CSS 2.1 and a few CSS3 properties, including @import, @media &
    @page rules
- * supports most presentational HTML 4.0 attributes
- * supports external stylesheets, either local or through http/ftp (via
+ * Supports most presentational HTML 4.0 attributes
+ * Supports external stylesheets, either local or through http/ftp (via
    fopen-wrappers)
- * supports complex tables, including row & column spans, separate & collapsed
+ * Supports complex tables, including row & column spans, separate & collapsed
    border models, individual cell styling
- * image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
- * no dependencies on external PDF libraries, thanks to the R&OS PDF class
- * inline PHP support
+ * Image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
+ * No dependencies on external PDF libraries, thanks to the R&OS PDF class
+ * Inline PHP support
+ * Basic SVG support
  
-Requirements
-============
- * PHP 5.0+ (5.3+ recommended)
+## Requirements
+
+ * PHP version 5.3.0 or higher
  * DOM extension
  * GD extension
+ * MBString extension
+ * php-font-lib
+ * php-svg-lib
 
-Recommendations
-============
- * MBString extension: provides internationalization support. This extension is
-   *not* enabled by default. dompdf has limited internationalization support
-   when this extension is not enabled.
- * opcache (OPcache, XCache, APC, etc.): improves performance
+### Recommendations
 
-About Fonts & Character Encoding
-============
+ * OPcache (OPcache, XCache, APC, etc.): improves performance
+ * IMagick or GMagick extension: improves image processing performance
+
+Visit the wiki for more information:
+https://github.com/dompdf/dompdf/wiki/Requirements
+
+## About Fonts & Character Encoding
+
 PDF documents internally support the following fonts: Helvetica, Times-Roman,
 Courier, Zapf-Dingbats, & Symbol. These fonts only support Windows ANSI
 encoding. In order for a PDF to display characters that are not available in
-Windows ANSI you must supply an external font. dompdf will embed any referenced
+Windows ANSI you must supply an external font. Dompdf will embed any referenced
 font in the PDF so long as it has been pre-loaded or is accessible to dompdf and
 reference in CSS @font-face rules. See the
 [font overview](https://github.com/dompdf/dompdf/wiki/About-Fonts-and-Character-Encoding)
 for more information on how to use fonts.
 
-The [DejaVu TrueType fonts](http://dejavu-fonts.org) have been pre-installed to
-give dompdf decent Unicode character coverage by default. To use the DejaVu
+The [DejaVu TrueType fonts](http://dejavu-fonts.org) have been pre-installed
+to give dompdf decent Unicode character coverage by default. To use the DejaVu
 fonts reference the font in your stylesheet, e.g. `body { font-family: DejaVu
-Sans; }` (for DejaVu Sans).
+Sans; }` (for DejaVu Sans). The following DejaVu 2.34 fonts are available:
+DejaVu Sans, DejaVu Serif, and DejaVu Sans Mono.
 
-Easy Installation
-============
-Install with git
----
-From the command line switch to the directory where dompdf will reside and run
-the following commands:
+## Easy Installation
 
-```sh
-git clone https://github.com/dompdf/dompdf.git .
-git submodule init
-git submodule update
-```
+### Install with composer
 
-Install with composer
----
-To install with Composer, simply add the requirement to your `composer.json`
-file:
-
-```json
-{
-  "require" : {
-    "dompdf/dompdf" : "0.6.*"
-  }
-}
-```
-
-And run Composer to update your dependencies:
+To install with [Composer](https://getcomposer.org/), simply require the latest version of this package.
 
 ```bash
-$ curl -sS http://getcomposer.org/installer | php
-$ php composer.phar update
+composer require dompdf/dompdf:0.7.x@beta
 ```
-    
-Before you can use the Composer installation of DOMPDF in your application you
-must disable dompdf's default auto-loader, include the Composer autoloader, and
-load the dompdf configuration file:
+
+Make sure that the autoload file from Composer is loaded.
 
 ```php
 // somewhere early in your project's loading, require the Composer autoloader
 // see: http://getcomposer.org/doc/00-intro.md
 require 'vendor/autoload.php';
 
-// disable DOMPDF's internal autoloader if you are using Composer
-define('DOMPDF_ENABLE_AUTOLOAD', false);
-
-// include DOMPDF's default configuration
-require_once '/path/to/vendor/dompdf/dompdf/dompdf_config.inc.php';
 ```
 
-Download and install
----
+### Download and install
+
 Download an archive of dompdf and extract it into the directory where dompdf
 will reside
  * You can download stable copies of dompdf from
@@ -118,45 +95,74 @@ will reside
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
 
-
-Quick Start
-===========
-
-**For Composer installations**
-
-Somewhere early in your project's loading require the Composer autoloader
-(see http://getcomposer.org/doc/00-intro.md) and disable the dompdf
-autoloader. Add the following lines before requiring `dompdf_config.inc.php`.
+Require dompdf, libraries, and helper functions in your PHP:
 
 ```php
-require '/path/to/composer/vendor/autoload.php';
-define('DOMPDF_ENABLE_AUTOLOAD', false);
+// include autoloader
+require_once 'dompdf/autoload.inc.php';
 ```
 
-**For all installations**
+### Install with git
+
+From the command line, switch to the directory where dompdf will reside and run
+the following commands:
+
+```sh
+git clone https://github.com/dompdf/dompdf.git .
+git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
+cd lib/php-font-lib
+git checkout 0.4
+cd ..
+git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
+cd php-svg-lib
+git checkout v0.1
+```
+
+Require dompdf, libraries, and helper functions in your PHP:
+
+```php
+// include autoloader
+require_once 'dompdf/autoload.inc.php';
+```
+
+## Quick Start
 
 Just pass your HTML in to dompdf and stream the output:
 
 ```php
-require_once '/path/to/dompdf/dompdf_config.inc.php';
+// reference the Dompdf namespace
+use Dompdf\Dompdf;
 
-$dompdf = new DOMPDF();
-$dompdf->load_html_file($file);
+// instantiate and use the dompdf class
+$dompdf = new Dompdf();
+$dompdf->loadHtml('hello world');
+
+// (Optional) Setup the paper size and orientation
+$dompdf->setPaper('A4', 'landscape');
+
+// Render the HTML as PDF
 $dompdf->render();
-$dompdf->stream("sample.pdf");
+
+// Get the generated PDF file contents
+$pdf = $dompdf->output();
+ 
+// Output the generated PDF to Browser
+$dompdf->stream();
 ```
 
+## Limitations (Known Issues)
 
-Limitations (Known Issues)
-==========================
- * not particularly tolerant to poorly-formed HTML input. To avoid any
-   unexpected rendering issues you should either enable the built-in HTML5
-   parser (via the `DOMPDF_ENABLE_HTML5PARSER` configuration constant) or run
-   your HTML through a HTML validator/cleaner (such as Tidy).
- * large files or large tables can take a while to render
- * CSS float is not supported (but is in the works, enable it through the
-   `DOMPDF_ENABLE_CSS_FLOAT` configuration constant).
- 
-If you find this project useful, please consider making a donation.
-(Any funds donated will be used to help further development on this project.)	
+ * Dompdf is not particularly tolerant to poorly-formed HTML input. To avoid
+   any unexpected rendering issues you should either enable the built-in HTML5
+   parser at runtime (`$dompdf->set_option('isHtml5ParserEnabled', true);`) 
+   or run your HTML through a HTML validator/cleaner (such as
+   [Tidy](http://tidy.sourceforge.net) or the
+   [W3C Markup Validation Service](http://validator.w3.org)).
+ * Large files or large tables can take a while to render.
+ * CSS float is in development and may not produce the desired result
+
+---
+
 [![Donate button](https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif)](http://goo.gl/DSvWf)
+
+*If you find this project useful, please consider making a donation. Any funds donated will be used to help further development on this project.)*
