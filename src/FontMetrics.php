@@ -190,6 +190,7 @@ class FontMetrics
             $records = $font->getData("name", "records");
             $type = $this->getType($records[2]);
             $names[mb_strtolower($records[1])][$type] = $file;
+            $font->close();
         }
 
         return $names;
@@ -246,6 +247,7 @@ class FontMetrics
             
             $font->parse();
             $font->saveAdobeFontMetrics("$cacheEntry.ufm");
+            $font->close();
             
             unlink($localTempFile);
             
