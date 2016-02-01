@@ -362,6 +362,7 @@ class Font_Metrics {
       
       $font->parse();
       $font->saveAdobeFontMetrics("$cache_entry.ufm");
+      $font->close();
       
       unlink($local_temp_file);
       
