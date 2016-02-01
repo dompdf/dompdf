@@ -234,6 +234,10 @@ class FontMetrics
         if ( !isset($entry[$styleString]) ) {
             $entry[$styleString] = $cacheEntry;
             
+            if (!file_exists($remoteFile)) {
+	            return false;
+            }
+            
             // Download the remote file
             file_put_contents($localTempFile, file_get_contents($remoteFile, null, $context));
             
