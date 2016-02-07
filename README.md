@@ -3,12 +3,17 @@ Dompdf
 
 [![Build Status](https://travis-ci.org/dompdf/dompdf.png?branch=develop)](https://travis-ci.org/dompdf/dompdf) [![Latest Stable Version](https://poser.pugx.org/dompdf/dompdf/v/stable.png)](https://packagist.org/packages/dompdf/dompdf) [![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads.png)](https://packagist.org/packages/dompdf/dompdf) [![Latest Unstable Version](https://poser.pugx.org/dompdf/dompdf/v/unstable.png)](https://packagist.org/packages/dompdf/dompdf) [![License](https://poser.pugx.org/dompdf/dompdf/license.png)](https://packagist.org/packages/dompdf/dompdf)
 
-**Dompdf is an HTML to PDF converter**.
-At its heart, dompdf is (mostly) [CSS 2.1](http://www.w3.org/TR/CSS2/) compliant
+**Dompdf is an HTML to PDF converter**
+
+At its heart, dompdf is (mostly) a [CSS 2.1](http://www.w3.org/TR/CSS2/) compliant
 HTML layout and rendering engine written in PHP. It is a style-driven renderer:
 it will download and read external stylesheets, inline style tags, and the style
 attributes of individual HTML elements. It also supports most presentational
 HTML attributes.
+
+*This document applies to the latest stable code which may not reflect the current 
+release. For released code please
+[navigate to the approrpiate tag](https://github.com/dompdf/dompdf/tags).*
 
 ----
 
@@ -18,6 +23,10 @@ on the [Google Groups](http://groups.google.com/group/dompdf).**
 
 Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf) or 
 [![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-16.png)](https://plus.google.com/108710008521858993320?prsrc=3).
+
+---
+
+
 
 ## Features
 
@@ -143,12 +152,10 @@ $dompdf->setPaper('A4', 'landscape');
 // Render the HTML as PDF
 $dompdf->render();
 
-// Get the generated PDF file contents
-$pdf = $dompdf->output();
- 
 // Output the generated PDF to Browser
 $dompdf->stream();
 ```
+
 
 ## Limitations (Known Issues)
 
