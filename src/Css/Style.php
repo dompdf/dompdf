@@ -464,7 +464,7 @@ class Style
 
         if (!is_array($length)) {
             $key = $length . "/$ref_size";
-			//Early check on cache, before converting $length to array
+            //Early check on cache, before converting $length to array
             if (isset($cache[$key])) {
                 return $cache[$key];
             }
