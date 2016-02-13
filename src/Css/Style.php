@@ -458,18 +458,22 @@ class Style
     {
         static $cache = array();
 
-        if (!is_array($length)) {
-            $length = array($length);
-        }
-
         if (!isset($ref_size)) {
             $ref_size = self::$default_font_size;
         }
 
-        $key = implode("@", $length) . "/$ref_size";
-
-        if (isset($cache[$key])) {
-            return $cache[$key];
+        if (!is_array($length)) {
+            $key = $length . "/$ref_size";
+			//Early check on cache, before converting $length to array
+            if (isset($cache[$key])) {
+                return $cache[$key];
+            }
+            $length = array($length);
+        } else {
+            $key = implode("@", $length) . "/$ref_size";
+            if (isset($cache[$key])) {
+                return $cache[$key];
+            }
         }
 
         $ret = 0;
