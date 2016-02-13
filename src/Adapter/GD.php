@@ -157,7 +157,7 @@ class GD implements Canvas
 
         $this->_dompdf = $dompdf;
 
-        $this->dpi = $this->get_dompdf()->get_option('dpi');
+        $this->dpi = $this->get_dompdf()->getOptions()->getDpi();
 
         if ($aa_factor < 1) {
             $aa_factor = 1;
@@ -862,7 +862,7 @@ class GD implements Canvas
     private function get_font_height_actual($font, $size)
     {
         $font = $this->get_ttf_file($font);
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
 
         // FIXME: word spacing
         list(, $y2, , , , $y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl"); // Test string with ascenders, descenders and caps
@@ -871,7 +871,7 @@ class GD implements Canvas
 
     function get_font_baseline($font, $size)
     {
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $this->get_font_height($font, $size) / $ratio;
     }
 

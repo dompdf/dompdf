@@ -154,7 +154,7 @@ class ListBullet extends AbstractRenderer
             //$w = $frame->get_width();
             //$h = $frame->get_height();
             list($width, $height) = Helpers::dompdf_getimagesize($img, $this->_dompdf->getHttpContext());
-            $dpi = $this->_dompdf->get_option("dpi");
+            $dpi = $this->_dompdf->getOptions()->getDpi();
             $w = ((float)rtrim($width, "px") * 72) / $dpi;
             $h = ((float)rtrim($height, "px") * 72) / $dpi;
 

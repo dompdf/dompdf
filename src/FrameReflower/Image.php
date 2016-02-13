@@ -47,7 +47,7 @@ class Image extends AbstractFrameReflower
 
     function get_min_max_width()
     {
-        if ($this->get_dompdf()->get_option("debugPng")) {
+        if ($this->get_dompdf()->getOptions()->getDebugPng()) {
             // Determine the image's size. Time consuming. Only when really needed?
             list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url(), $this->get_dompdf()->getHttpContext());
             print "get_min_max_width() " .
@@ -118,7 +118,7 @@ class Image extends AbstractFrameReflower
             // Resample according to px per inch
             // See also ListBulletImage::__construct
             if ($width == 0 && $height == 0) {
-                $dpi = $this->_frame->get_dompdf()->get_option("dpi");
+                $dpi = $this->_frame->get_dompdf()->getOptions()->getDpi();
                 $width = (float)($img_width * 72) / $dpi;
                 $height = (float)($img_height * 72) / $dpi;
                 $width_forced = false;
@@ -179,7 +179,7 @@ class Image extends AbstractFrameReflower
             }
         }
 
-        if ($this->get_dompdf()->get_option("debugPng")) print $width . ' ' . $height . ';';
+        if ($this->get_dompdf()->getOptions()->getDebugPng()) print $width . ' ' . $height . ';';
 
         $style->width = $width . "pt";
         $style->height = $height . "pt";

@@ -268,7 +268,7 @@ class Style
             $d["elevation"] = "level";
             $d["empty_cells"] = "show";
             $d["float"] = "none";
-            $d["font_family"] = $stylesheet->get_dompdf()->get_option("default_font");
+            $d["font_family"] = $stylesheet->get_dompdf()->getOptions()->getDefaultFont();
             $d["font_size"] = "medium";
             $d["font_style"] = "normal";
             $d["font_variant"] = "normal";
@@ -515,7 +515,7 @@ class Style
             }
 
             if (($i = mb_strpos($l, "px")) !== false) {
-                $dpi = $this->_stylesheet->get_dompdf()->get_option("dpi");
+                $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
                 $ret += (mb_substr($l, 0, $i) * 72) / $dpi;
                 continue;
             }

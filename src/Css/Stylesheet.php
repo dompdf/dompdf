@@ -1084,7 +1084,7 @@ class Stylesheet
 
                     case "media":
                         $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-                        $acceptedmedia[] = $this->_dompdf->get_option("default_media_type");
+                        $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
 
                         $media = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
 
@@ -1218,7 +1218,7 @@ class Stylesheet
 
         if (count($arr) > 0) {
             $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-            $acceptedmedia[] = $this->_dompdf->get_option("default_media_type");
+            $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
 
             // @import url media_type [media_type...]
             foreach ($arr as $type) {

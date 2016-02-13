@@ -67,7 +67,7 @@ class Cache
 
         $data_uri = strpos($parsed_url['protocol'], "data:") === 0;
         $full_url = null;
-        $enable_remote = $dompdf->get_option("enable_remote");
+        $enable_remote = $dompdf->getOptions()->getIsRemoteEnabled();
 
         try {
 
@@ -85,7 +85,7 @@ class Cache
                         $resolved_url = self::$_cache[$full_url];
                     } // From remote
                     else {
-                        $tmp_dir = $dompdf->get_option("temp_dir");
+                        $tmp_dir = $dompdf->getOptions()->getTempDir();
                         $resolved_url = tempnam($tmp_dir, "ca_dompdf_img_");
                         $image = "";
 
@@ -154,12 +154,12 @@ class Cache
      */
     static function clear()
     {
-        if (empty(self::$_cache) || self::$_dompdf->get_option("debugKeepTemp")) {
+        if (empty(self::$_cache) || self::$_dompdf->getOptions()->getDebugKeepTemp()) {
             return;
         }
 
         foreach (self::$_cache as $file) {
-            if (self::$_dompdf->get_option("debugPng")) {
+            if (self::$_dompdf->getOptions()->getDebugPng()) {
                 print "[clear unlink $file]";
             }
             unlink($file);
