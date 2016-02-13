@@ -402,7 +402,7 @@ class Stylesheet
             $d++;
         }
 
-        if ($this->_dompdf->get_option('debugCss')) {
+        if ($this->_dompdf->getOptions()->getDebugCss()) {
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
@@ -837,7 +837,7 @@ class Stylesheet
 
         $styles = array();
         $xp = new DOMXPath($tree->get_dom());
-        $DEBUGCSS = $this->_dompdf->get_option('debugCss');
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         // Add generated content
         foreach ($this->_styles as $selector => $style) {
@@ -1163,7 +1163,7 @@ class Stylesheet
     /* See also style.cls Style::_image(), refactoring?, works also for imported css files */
     protected function _image($val)
     {
-        $DEBUGCSS = $this->_dompdf->get_option('debugCss');
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
@@ -1314,7 +1314,7 @@ class Stylesheet
     private function _parse_properties($str)
     {
         $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
-        $DEBUGCSS = $this->_dompdf->get_option('debugCss');
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         if ($DEBUGCSS) print '[_parse_properties';
 
@@ -1403,7 +1403,7 @@ class Stylesheet
         $patterns = array("/[\\s\n]+/", "/\\s+([>.:+#])\\s+/");
         $replacements = array(" ", "\\1");
         $str = preg_replace($patterns, $replacements, $str);
-        $DEBUGCSS = $this->_dompdf->get_option('debugCss');
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         $sections = explode("}", $str);
         if ($DEBUGCSS) print '[_parse_sections';

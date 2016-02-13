@@ -802,7 +802,7 @@ class Style
             return $this->_font_family;
         }
 
-        $DEBUGCSS = $this->_stylesheet->get_dompdf()->get_option("debugCss");
+        $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
 
         // Select the appropriate font.  First determine the subtype, then check
         // the specified font-families for a candidate.
@@ -1549,7 +1549,7 @@ class Style
 
     protected function _image($val)
     {
-        $DEBUGCSS = $this->_stylesheet->get_dompdf()->get_option("debugCss");
+        $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
