@@ -190,8 +190,8 @@ class CPDF implements Canvas
         $this->_pdf = new \Cpdf(
             $size,
             true,
-            $dompdf->get_option("font_cache"),
-            $dompdf->get_option("temp_dir")
+            $dompdf->getOptions()->getFontCache(),
+            $dompdf->getOptions()->getTempDir()
         );
 
         $this->_pdf->addInfo("Producer", sprintf("%s + CPDF", $dompdf->version));
@@ -231,8 +231,8 @@ class CPDF implements Canvas
                 continue;
             }
 
-            if ($this->_dompdf->get_option("debugPng")) print '[__destruct unlink ' . $img . ']';
-            if (!$this->_dompdf->get_option("debugKeepTemp")) unlink($img);
+            if ($this->_dompdf->getOptions()->getDebugPng()) print '[__destruct unlink ' . $img . ']';
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) unlink($img);
         }
     }
 
@@ -560,7 +560,7 @@ class CPDF implements Canvas
         if ($im) {
             imageinterlace($im, false);
 
-            $tmp_dir = $this->_dompdf->get_option("temp_dir");
+            $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
             $tmp_name = tempnam($tmp_dir, "{$type}dompdf_img_");
             @unlink($tmp_name);
             $filename = "$tmp_name.png";
@@ -669,7 +669,7 @@ class CPDF implements Canvas
     {
         list($width, $height, $type) = Helpers::dompdf_getimagesize($img, $this->get_dompdf()->getHttpContext());
 
-        $debug_png = $this->_dompdf->get_option("debug_png");
+        $debug_png = $this->_dompdf->getOptions()->getDebugPng();
 
         if ($debug_png) print "[image:$img|$width|$height|$type]";
 
@@ -805,19 +805,19 @@ class CPDF implements Canvas
     {
         $this->_pdf->selectFont($font);
 
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $this->_pdf->getFontHeight($size) * $ratio;
     }
 
     /*function get_font_x_height($font, $size) {
       $this->_pdf->selectFont($font);
-      $ratio = $this->_dompdf->get_option("font_height_ratio");
+      $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
       return $this->_pdf->getFontXHeight($size) * $ratio;
     }*/
 
     function get_font_baseline($font, $size)
     {
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $this->get_font_height($font, $size) / $ratio;
     }
 

@@ -47,6 +47,8 @@ class Inline extends AbstractRenderer
 
         $first_row = true;
 
+        $DEBUGLAYOUTINLINE = $this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutInline();
+
         foreach ($frame->get_children() as $child) {
             list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
 
@@ -116,9 +118,9 @@ class Inline extends AbstractRenderer
 
             $h = max($h, $child_h);
 
-            if ($this->_dompdf->get_option("debugLayout") && $this->_dompdf->get_option("debugLayoutInline")) {
+            if ($DEBUGLAYOUTINLINE) {
                 $this->_debug_layout($child->get_border_box(), "blue");
-                if ($this->_dompdf->get_option("debugLayoutPaddingBox")) {
+                if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
                     $this->_debug_layout($child->get_padding_box(), "blue", array(0.5, 0.5));
                 }
             }

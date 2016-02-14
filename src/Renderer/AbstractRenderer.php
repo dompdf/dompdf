@@ -90,7 +90,7 @@ abstract class AbstractRenderer
         $box_height = $height;
 
         //debugpng
-        if ($this->_dompdf->get_option("debugPng")) print '[_background_image ' . $url . ']';
+        if ($this->_dompdf->getOptions()->getDebugPng()) print '[_background_image ' . $url . ']';
 
         list($img, $type, /*$msg*/) = Cache::resolve_url(
             $url,
@@ -117,7 +117,7 @@ abstract class AbstractRenderer
         }
 
         $repeat = $style->background_repeat;
-        $dpi = $this->_dompdf->get_option("dpi");
+        $dpi = $this->_dompdf->getOptions()->getDpi();
 
         //Increase background resolution and dependent box size according to image resolution to be placed in
         //Then image can be copied in without resize
@@ -410,22 +410,22 @@ abstract class AbstractRenderer
             // Note: CPDF_Adapter image converts y position
             $this->_canvas->get_cpdf()->addImagePng($filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
         } else {
-            $tmp_dir = $this->_dompdf->get_option("temp_dir");
+            $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
             $tmp_name = tempnam($tmp_dir, "bg_dompdf_img_");
             @unlink($tmp_name);
             $tmp_file = "$tmp_name.png";
 
             //debugpng
-            if ($this->_dompdf->get_option("debugPng")) print '[_background_image ' . $tmp_file . ']';
+            if ($this->_dompdf->getOptions()->getDebugPng()) print '[_background_image ' . $tmp_file . ']';
 
             imagepng($bg, $tmp_file);
             $this->_canvas->image($tmp_file, $x, $y, $width, $height);
             imagedestroy($bg);
 
             //debugpng
-            if ($this->_dompdf->get_option("debugPng")) print '[_background_image unlink ' . $tmp_file . ']';
+            if ($this->_dompdf->getOptions()->getDebugPng()) print '[_background_image unlink ' . $tmp_file . ']';
 
-            if (!$this->_dompdf->get_option("debugKeepTemp")) {
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
                 unlink($tmp_file);
             }
         }

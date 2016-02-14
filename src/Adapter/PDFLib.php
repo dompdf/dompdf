@@ -174,7 +174,7 @@ class PDFLib implements Canvas
 
         $this->_pdf = new \PDFLib();
         
-        $license = $dompdf->get_option('pdflibLicense');
+        $license = $dompdf->getOptions()->getPdflibLicense();
         if (strlen($license) > 0)
             $this->_pdf->set_parameter("license", $license);
 
@@ -193,7 +193,7 @@ class PDFLib implements Canvas
         if (self::$IN_MEMORY)
             $this->_pdf->begin_document("", "");
         else {
-            $tmp_dir = $this->_dompdf->get_options("temp_dir");
+            $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
             $tmp_name = tempnam($tmp_dir, "libdompdf_pdf_");
             @unlink($tmp_name);
             $this->_file = "$tmp_name.pdf";
@@ -621,7 +621,7 @@ class PDFLib implements Canvas
 
             // Unicode encoding is only available for the commerical
             // version of PDFlib and not PDFlib-Lite
-            if (strlen($dompdf->get_option('pdflibLicense')) > 0)
+            if (strlen($this->_dompdf->getOptions()->getPdflibLicense()) > 0)
                 $encoding = "unicode";
             else
                 $encoding = "auto";
@@ -869,7 +869,7 @@ class PDFLib implements Canvas
 
     function javascript($code)
     {
-        if (strlen($dompdf->get_option('pdflibLicense')) > 0) {
+        if (strlen($this->_dompdf->getOptions()->getPdflibLicense()) > 0) {
             $this->_pdf->create_action("JavaScript", $code);
         }
     }
@@ -951,13 +951,13 @@ class PDFLib implements Canvas
         $desc = $this->_pdf->get_value("descender", $fh);
 
         // $desc is usually < 0,
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $size * ($asc - $desc) * $ratio;
     }
 
     function get_font_baseline($font, $size)
     {
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $this->get_font_height($font, $size) / $ratio * 1.1;
     }
 
@@ -1119,8 +1119,8 @@ class PDFLib implements Canvas
             fclose($fh);
 
             //debugpng
-            if ($this->_dompdf->get_option("debugPng")) print '[pdflib stream unlink ' . $this->_file . ']';
-            if (!$this->_dompdf->get_option("debugKeepTemp"))
+            if ($this->_dompdf->getOptions()->getDebugPng()) print '[pdflib stream unlink ' . $this->_file . ']';
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp())
 
                 unlink($this->_file);
             $this->_file = null;
@@ -1152,8 +1152,8 @@ class PDFLib implements Canvas
             $data = file_get_contents($this->_file);
 
             //debugpng
-            if ($this->_dompdf->get_option("debugPng")) print '[pdflib output unlink ' . $this->_file . ']';
-            if (!$this->_dompdf->get_option("debugKeepTemp"))
+            if ($this->_dompdf->getOptions()->getDebugPng()) print '[pdflib output unlink ' . $this->_file . ']';
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp())
 
                 unlink($this->_file);
             $this->_file = null;

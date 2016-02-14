@@ -442,7 +442,7 @@ abstract class AbstractFrameReflower
             // add generated content to the font subset
             // FIXME: This is currently too late because the font subset has already been generated.
             //        See notes in issue #750.
-            if ($frame->get_dompdf()->get_option("enable_font_subsetting") && $frame->get_dompdf()->get_canvas() instanceof CPDF) {
+            if ($frame->get_dompdf()->getOptions()->getIsFontSubsettingEnabled() && $frame->get_dompdf()->get_canvas() instanceof CPDF) {
                 $frame->get_dompdf()->get_canvas()->register_string_subset($style->font_family, $content);
             }
 
