@@ -686,13 +686,24 @@ class Block extends AbstractFrameReflower
         // Determine the constraints imposed by this frame: calculate the width
         // of the content area:
         list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
+        if ($left_margin !== "auto" && $left_margin !== "none")
+            $left_margin .= "pt";
+        if ($right_margin !== "auto" && $right_margin !== "none")
+            $right_margin .= "pt";
+        if ($left !== "auto")
+            $left .= "pt";
+        if ($right !== "auto")
+            $right .= "pt";
+        $width = $w;
+        if ($width !== "auto")
+            $width .= "pt";
 
         // Store the calculated properties
-        $style->width = $w . "pt";
-        $style->margin_left = $left_margin . "pt";
-        $style->margin_right = $right_margin . "pt";
-        $style->left = $left . "pt";
-        $style->right = $right . "pt";
+        $style->width = $width;
+        $style->margin_left = $left_margin;
+        $style->margin_right = $right_margin;
+        $style->left = $left;
+        $style->right = $right;
 
         // Update the position
         $this->_frame->position();
