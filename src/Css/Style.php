@@ -178,6 +178,11 @@ class Style
     private $__font_size_calculated; // Cache flag
 
     /**
+     * The computed bottom spacing
+     */
+    private $_computed_bottom_spacing = null;
+
+    /**
      * The computed border radius
      */
     private $_computed_border_radius = null;
@@ -779,6 +784,19 @@ class Style
         }
 
         return $this->_prop_cache[$prop] = $this->_props[$prop];
+    }
+
+    function computed_bottom_spacing() {
+        if ($this->_computed_bottom_spacing !== null) {
+            return $this->_computed_bottom_spacing;
+        }
+        return $this->_computed_bottom_spacing = $this->length_in_pt(
+            array(
+                $this->margin_bottom,
+                $this->padding_bottom,
+                $this->border_bottom_width
+            )
+        );
     }
 
     function get_font_family_raw()
@@ -1478,6 +1496,9 @@ class Style
         $prop = $style . '_' . $side . $type;
 
         if (!isset($this->_important_props[$prop]) || $important) {
+            if ($side === "bottom") {
+                $this->_computed_bottom_spacing = null; //reset computed cache, border style can disable/enable border calculations
+            }
             //see __set and __get, on all assignments clear cache!
             $this->_prop_cache[$prop] = null;
             if ($important) {
@@ -1530,6 +1551,9 @@ class Style
      */
     protected function _set_style_side_width_important($style, $side, $val)
     {
+        if ($side === "bottom") {
+            $this->_computed_bottom_spacing = null; //reset cache for any bottom width changes
+        }
         //see __set and __get, on all assignments clear cache!
         $this->_prop_cache[$style . '_' . $side] = null;
         $this->_props[$style . '_' . $side] = str_replace("none", "0px", $val);
