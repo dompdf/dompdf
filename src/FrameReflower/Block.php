@@ -688,11 +688,11 @@ class Block extends AbstractFrameReflower
         list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
 
         // Store the calculated properties
-        $style->width = $w . "pt";
-        $style->margin_left = $left_margin . "pt";
-        $style->margin_right = $right_margin . "pt";
-        $style->left = $left . "pt";
-        $style->right = $right . "pt";
+        $style->width = $w;
+        $style->margin_left = $left_margin;
+        $style->margin_right = $right_margin;
+        $style->left = $left;
+        $style->right = $right;
 
         // Update the position
         $this->_frame->position();
