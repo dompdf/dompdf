@@ -497,14 +497,7 @@ class Page extends AbstractFrameDecorator
         // parents of $frame must fit on the page as well:
         $p = $frame->get_parent();
         while ($p) {
-            $style = $p->get_style();
-            $max_y += $style->length_in_pt(
-                array(
-                    $style->margin_bottom,
-                    $style->padding_bottom,
-                    $style->border_bottom_width
-                )
-            );
+            $max_y += $p->get_style()->computed_bottom_spacing();
             $p = $p->get_parent();
         }
 
