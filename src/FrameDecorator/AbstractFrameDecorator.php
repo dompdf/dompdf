@@ -83,6 +83,13 @@ abstract class AbstractFrameDecorator extends Frame
     private $_positionned_parent;
 
     /**
+     * Cache for the get_parent wehile loop results
+     *
+     * @var Frame
+     */
+    private $_cached_parent;
+
+    /**
      * Class constructor
      *
      * @param Frame $frame   The decoration target
@@ -172,6 +179,8 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame->reset();
 
         $this->_counters = array();
+
+        $this->_cached_parent = null; //clear get_parent() cache
 
         // Reset all children
         foreach ($this->get_children() as $child) {
@@ -403,20 +412,19 @@ abstract class AbstractFrameDecorator extends Frame
      */
     function get_parent()
     {
+        if ($this->_cached_parent) {
+            return $this->_cached_parent;
+        }
         $p = $this->_frame->get_parent();
         if ($p && $deco = $p->get_decorator()) {
             while ($tmp = $deco->get_decorator()) {
                 $deco = $tmp;
             }
 
-            return $deco;
+            return $this->_cached_parent = $deco;
         } else {
-            if ($p) {
-                return $p;
-            }
+            return $this->_cached_parent = $p;
         }
-
-        return null;
     }
 
     /**
