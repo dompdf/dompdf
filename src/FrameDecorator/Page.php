@@ -588,7 +588,7 @@ class Page extends AbstractFrameDecorator
         // If we are in a table, backtrack to the nearest top-level table row
         if ($this->_in_table) {
             $iter = $frame;
-            while ($iter && $iter->get_style()->display !== "table-row")
+            while ($iter && $iter->get_style()->display !== "table-row" && $iter->get_style()->display !== 'table-row-group')
                 $iter = $iter->get_parent();
 
             $iter->split(null, true);
