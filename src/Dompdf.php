@@ -279,6 +279,8 @@ class Dompdf
      */
     public function __construct($options = null)
     {
+        mb_internal_encoding('UTF-8');
+        
         $this->setOptions(new Options($options));
         
         $versionFile = realpath(__DIR__ . '/../VERSION');
