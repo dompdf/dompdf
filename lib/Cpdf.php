@@ -210,7 +210,6 @@ class Cpdf
      * @var string Temporary folder.
      * If empty string, will attempt system tmp folder.
      * This can be passed in from class creator.
-     * Only used for conversion of gd images to jpeg images.
      */
     public $tmp = '';
 
@@ -341,7 +340,7 @@ class Cpdf
     {
         $this->isUnicode = $isUnicode;
         $this->fontcache = rtrim($fontcache, "/");
-        $this->tmp = $tmp;
+        $this->tmp = ($tmp !== '' ? $tmp : sys_get_temp_dir());
         $this->newDocument($pageSize);
 
         $this->compressionReady = function_exists('gzcompress');
@@ -2577,7 +2576,7 @@ EOT;
                         $font_obj->reduce();
 
                         // Write new font
-                        $tmp_name = "$fbfile.tmp." . uniqid();
+                        $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
                         $font_obj->open($tmp_name, BinaryStream::modeWrite);
                         $font_obj->encode(array("OS/2"));
                         $font_obj->close();
