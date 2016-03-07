@@ -637,6 +637,12 @@ abstract class AbstractFrameDecorator extends Frame
         }
 
         $node = $this->_frame->get_node();
+        
+        if ($node->hasAttribute("id"))
+        {
+            $node->setAttribute('data-dompdf-clone-temp-id', $node->getAttribute('id'));
+            $node->removeAttribute('id');
+        }
 
         $split = $this->copy($node->cloneNode());
         $split->reset();
