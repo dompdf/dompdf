@@ -28,7 +28,6 @@ class Inline extends AbstractFrameDecorator
 
     function split(Frame $frame = null, $force_pagebreak = false)
     {
-
         if (is_null($frame)) {
             $this->get_parent()->split($this, $force_pagebreak);
             return;
@@ -38,7 +37,14 @@ class Inline extends AbstractFrameDecorator
             throw new Exception("Unable to split: frame is not a child of this one.");
         }
 
-        $split = $this->copy($this->_frame->get_node()->cloneNode());
+        $node = $this->_frame->get_node();
+        
+        if ($node instanceof DOMElement && $node->hasAttribute("id")) {
+            $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
+            $node->removeAttribute("id");
+        }
+
+        $split = $this->copy($node->cloneNode());
         $this->get_parent()->insert_child_after($split, $this);
 
         // Unset the current node's right style properties

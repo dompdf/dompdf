@@ -145,7 +145,14 @@ abstract class AbstractFrameDecorator extends Frame
      */
     function deep_copy()
     {
-        $frame = new Frame($this->get_node()->cloneNode());
+        $node = $this->_frame->get_node();
+        
+        if ($node instanceof DOMElement && $node->hasAttribute("id")) {
+            $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
+            $node->removeAttribute("id");
+        }
+        
+        $frame = new Frame($node->cloneNode());
         $frame->set_style(clone $this->_frame->get_original_style());
 
         $deco = Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
@@ -637,6 +644,11 @@ abstract class AbstractFrameDecorator extends Frame
         }
 
         $node = $this->_frame->get_node();
+        
+        if ($node instanceof DOMElement && $node->hasAttribute("id")) {
+            $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
+            $node->removeAttribute("id");
+        }
 
         $split = $this->copy($node->cloneNode());
         $split->reset();
