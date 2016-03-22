@@ -1467,7 +1467,7 @@ class Dompdf
             case 'version' :
                 return $this->version;
             default:
-                throw new Exception( 'Invalid property: ' . $field );
+                throw new Exception( 'Invalid property: ' . $prop );
         }
     }
 }
