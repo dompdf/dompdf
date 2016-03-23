@@ -402,7 +402,7 @@ class Text extends AbstractFrameReflower
                 $words = array_flip(preg_split("/[\s-]+/u", $str, -1, PREG_SPLIT_DELIM_CAPTURE));
                 $root = $this;
                 array_walk($words, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $val = $root->getFontMetrics()->getTextWidth($str, addslashes($font), $size, $word_spacing, $char_spacing);
+                    $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($words);
@@ -413,7 +413,7 @@ class Text extends AbstractFrameReflower
                 $lines = array_flip(preg_split("/\n/u", $str));
                 $root = $this;
                 array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $val = $root->getFontMetrics()->getTextWidth($str, addslashes($font), $size, $word_spacing, $char_spacing);
+                    $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($lines);
@@ -441,16 +441,10 @@ class Text extends AbstractFrameReflower
             case "pre-wrap":
                 // Find the longest word (i.e. minimum length)
                 $lines = array_flip(preg_split("/\n/", $text));
-                /*foreach($words as &$word) {
-                  $word = $this->getFontMetrics()->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
-                }*/
-                array_walk(
-                    $lines,
-                    create_function(
-                        '&$val,$str',
-                        '$val = $this->getFontMetrics()->getTextWidth($str, "' . $font . '", ' . $size . ', ' . $word_spacing . ', ' . $char_spacing . ');'
-                    )
-                );
+                $root = $this;
+                array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
+                    $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
+                });
                 arsort($lines);
                 reset($lines);
                 $str = key($lines);
