@@ -285,6 +285,8 @@ class Dompdf
             $this->setOptions($options);
         } elseif (is_array($options)) {
             $this->setOptions(new Options($options));
+        } else {
+            $this->setOptions(new Options());
         }
         
         $versionFile = realpath(__DIR__ . '/../VERSION');
