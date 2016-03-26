@@ -2151,7 +2151,7 @@ EOT;
     private function openFont($font)
     {
         // assume that $font contains the path and file but not the extension
-        $pos = strrpos($font, '/');
+        $pos = strrpos($font, DIRECTORY_SEPARATOR);
 
         if ($pos === false) {
             $dir = './';
@@ -2163,7 +2163,7 @@ EOT;
 
         $fontcache = $this->fontcache;
         if ($fontcache == '') {
-            $fontcache = rtrim($dir, "/");
+            $fontcache = rtrim($dir, DIRECTORY_SEPARATOR);
         }
 
         //$name       filename without folder and extension of font metrics
@@ -2417,7 +2417,7 @@ EOT;
                 $font = &$this->fonts[$fontName];
 
                 //$this->numFonts = md5($fontName);
-                $pos = strrpos($fontName, '/');
+                $pos = strrpos($fontName, DIRECTORY_SEPARATOR);
                 //      $dir = substr($fontName,0,$pos+1);
                 $name = substr($fontName, $pos + 1);
                 $options = array('name' => $name, 'fontFileName' => $fontName);
