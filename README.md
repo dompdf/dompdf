@@ -83,7 +83,7 @@ DejaVu Sans, DejaVu Serif, and DejaVu Sans Mono.
 To install with [Composer](https://getcomposer.org/), simply require the latest version of this package.
 
 ```bash
-composer require dompdf/dompdf:0.7.x@beta3
+composer require dompdf/dompdf:0.7.x@beta
 ```
 
 Make sure that the autoload file from Composer is loaded.
