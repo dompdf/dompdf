@@ -9,6 +9,7 @@ namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
+use Dompdf\Helpers;
 
 /**
  * Renders block frames
@@ -40,6 +41,7 @@ class Block extends AbstractRenderer
 
         // Handle anchors & links
         if ($node->nodeName === "a" && $href = $node->getAttribute("href")) {
+            $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
             $this->_canvas->add_link($href, $x, $y, $w, $h);
         }
 
@@ -66,14 +68,14 @@ class Block extends AbstractRenderer
         $this->_render_border($frame, $border_box);
         $this->_render_outline($frame, $border_box);
 
-        if ($this->_dompdf->get_option("debugLayout") && $this->_dompdf->get_option("debugLayoutBlocks")) {
+        if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutBlocks()) {
             $this->_debug_layout($frame->get_border_box(), "red");
-            if ($this->_dompdf->get_option("debugLayoutPaddingBox")) {
+            if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
                 $this->_debug_layout($frame->get_padding_box(), "red", array(0.5, 0.5));
             }
         }
 
-        if ($this->_dompdf->get_option("debugLayout") && $this->_dompdf->get_option("debugLayoutLines") && $frame->get_decorator()) {
+        if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutLines() && $frame->get_decorator()) {
             foreach ($frame->get_decorator()->get_line_boxes() as $line) {
                 $frame->_debug_layout(array($line->x, $line->y, $line->w, $line->h), "orange");
             }

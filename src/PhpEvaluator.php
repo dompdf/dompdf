@@ -29,7 +29,7 @@ class PhpEvaluator
 
     function evaluate($code, $vars = array())
     {
-        if (!$this->_canvas->get_dompdf()->get_option("enable_php")) {
+        if (!$this->_canvas->get_dompdf()->getOptions()->getIsPhpEnabled()) {
             return;
         }
 

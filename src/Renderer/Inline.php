@@ -8,6 +8,7 @@
 namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
+use Dompdf\Helpers;
 
 /**
  * Renders inline frames
@@ -45,6 +46,8 @@ class Inline extends AbstractRenderer
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         $first_row = true;
+
+        $DEBUGLAYOUTINLINE = $this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutInline();
 
         foreach ($frame->get_children() as $child) {
             list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
@@ -97,6 +100,7 @@ class Inline extends AbstractRenderer
                 }
 
                 if ($link_node && $href = $link_node->getAttribute("href")) {
+                    $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
                     $this->_canvas->add_link($href, $x, $y, $w, $h);
                 }
 
@@ -114,9 +118,9 @@ class Inline extends AbstractRenderer
 
             $h = max($h, $child_h);
 
-            if ($this->_dompdf->get_option("debugLayout") && $this->_dompdf->get_option("debugLayoutInline")) {
+            if ($DEBUGLAYOUTINLINE) {
                 $this->_debug_layout($child->get_border_box(), "blue");
-                if ($this->_dompdf->get_option("debugLayoutPaddingBox")) {
+                if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
                     $this->_debug_layout($child->get_padding_box(), "blue", array(0.5, 0.5));
                 }
             }
@@ -187,8 +191,10 @@ class Inline extends AbstractRenderer
 
         // Handle anchors & links
         if ($link_node) {
-            if ($href = $link_node->getAttribute("href"))
+            if ($href = $link_node->getAttribute("href")) {
+                $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
                 $this->_canvas->add_link($href, $x, $y, $w, $h);
+            }
         }
     }
 }

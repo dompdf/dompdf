@@ -153,8 +153,8 @@ class ListBullet extends AbstractRenderer
             // Tested php ver: value measured in px, suffix "px" not in value: rtrim unnecessary.
             //$w = $frame->get_width();
             //$h = $frame->get_height();
-            list($width, $height) = Helpers::dompdf_getimagesize($img);
-            $dpi = $this->_dompdf->get_option("dpi");
+            list($width, $height) = Helpers::dompdf_getimagesize($img, $this->_dompdf->getHttpContext());
+            $dpi = $this->_dompdf->getOptions()->getDpi();
             $w = ((float)rtrim($width, "px") * 72) / $dpi;
             $h = ((float)rtrim($height, "px") * 72) / $dpi;
 
