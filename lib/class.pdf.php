@@ -3464,7 +3464,7 @@ EOT;
       if ($this->fonts[$cf]['isUnicode'] && $wordSpaceAdjust != 0) {
         $space_scale = 1000 / $size;
         //$place_text = str_replace(' ', ') ( ) '.($this->getTextWidth($size, chr(32), $wordSpaceAdjust)*-75).' (', $place_text);
-        $place_text = str_replace(' ', ' ) '.(-round($space_scale*$wordSpaceAdjust)).' (', $place_text);
+        $place_text = str_replace("\x00\x20", "\x00\x20)\x00\x20".(-round($space_scale*$wordSpaceAdjust))."\x00\x20(", $place_text);
       }
       $this->addContent(" /F$this->currentFontNum ".sprintf('%.1F Tf ', $size));
       $this->addContent(" [($place_text)] TJ");
