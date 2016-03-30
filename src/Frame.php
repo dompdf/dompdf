@@ -773,6 +773,18 @@ class Frame
     /**
      * @return bool
      */
+    public function is_inline_block()
+    {
+        if (isset($this->_is_cache["inline_block"])) {
+            return $this->_is_cache["inline_block"];
+        }
+
+        return $this->_is_cache["inline_block"] = ($this->get_style()->display === 'inline-block');
+    }
+
+    /**
+     * @return bool
+     */
     public function is_in_flow()
     {
         if (isset($this->_is_cache["in_flow"])) {

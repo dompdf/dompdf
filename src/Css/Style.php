@@ -781,6 +781,32 @@ class Style
         return $this->_prop_cache[$prop] = $this->_props[$prop];
     }
 
+    /**
+     * Similar to __get() without storing the result. Useful for accessing
+     * properties while loading stylesheets.
+     *
+     * @return string
+     */
+    function get_prop($prop)
+    {
+        if (!isset(self::$_defaults[$prop])) {
+            throw new Exception("'$prop' is not a valid CSS2 property.");
+        }
+
+        $method = "get_$prop";
+
+        // Fall back on defaults if property is not set
+        if (!isset($this->_props[$prop])) {
+            return self::$_defaults[$prop];
+        }
+
+        if (method_exists($this, $method)) {
+            return $this->$method();
+        }
+
+        return $this->_props[$prop];
+    }
+
     function get_font_family_raw()
     {
         return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
