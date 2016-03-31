@@ -3290,6 +3290,9 @@ EOT;
         // start: top edge, left end
         $this->addContent(sprintf("\n%.3F %.3F m ", $x1, $y1 - $rTL + $h));
 
+        // line: bottom edge, left end
+        $this->addContent(sprintf("\n%.3F %.3F l ", $x1, $y1 - $rBL));
+
         // curve: bottom-left corner
         $this->ellipse($x1 + $rBL, $y1 + $rBL, $rBL, 0, 0, 8, 180, 270, false, false, false, true);
 
