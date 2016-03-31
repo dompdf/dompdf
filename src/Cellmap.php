@@ -516,7 +516,10 @@ class Cellmap
 
             $start_row = $this->__row;
             foreach ($frame->get_children() as $child) {
-                $this->add_frame($child);
+                // Ignore all Text frames and :before/:after pseudo-selector elements.
+                if (!($child instanceof FrameDecorator\Text) && $child->get_node()->nodeName !== 'dompdf_generated') {
+                    $this->add_frame($child);
+                }
             }
 
             if ($display === "table-row") {
