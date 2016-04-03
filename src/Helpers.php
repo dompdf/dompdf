@@ -312,7 +312,7 @@ class Helpers
 
         $arr = parse_url($url);
         if ( isset($arr["scheme"]) ) {
-            $arr["scheme"] == mb_strtolower($arr["scheme"]);
+            $arr["scheme"] = mb_strtolower($arr["scheme"]);
         }
 
         // Exclude windows drive letters...
