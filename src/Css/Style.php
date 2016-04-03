@@ -2133,7 +2133,36 @@ class Style
         //see __set and __get, on all assignments clear cache!
         $this->_prop_cache["border_" . $corner . "_radius"] = null;
 
-        $this->_props["border_" . $corner . "_radius"] = $this->length_in_pt($val);
+        $this->_props["border_" . $corner . "_radius"] = $val;
+    }
+
+    function get_border_top_left_radius()
+    {
+        return $this->_get_border_radius_corner("top_left");
+    }
+
+    function get_border_top_right_radius()
+    {
+        return $this->_get_border_radius_corner("top_right");
+    }
+
+    function get_border_bottom_left_radius()
+    {
+        return $this->_get_border_radius_corner("bottom_left");
+    }
+
+    function get_border_bottom_right_radius()
+    {
+        return $this->_get_border_radius_corner("bottom_right");
+    }
+
+    protected function _get_border_radius_corner($corner)
+    {
+        if (!isset($this->_props["border_" . $corner . "_radius"])) {
+            return;
+        }
+
+        return $this->length_in_pt($this->_props["border_" . $corner . "_radius"]);
     }
 
     /**
