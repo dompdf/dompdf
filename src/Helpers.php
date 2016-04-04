@@ -60,8 +60,8 @@ class Helpers
             return $protocol . $host . $base_path;
         }
 
-        // Is the url already fully qualified or a Data URI?
-        if (mb_strpos($url, "://") !== false || mb_strpos($url, "data:") === 0 || mb_strpos($url, "mailto:") === 0) {
+        // Is the url already fully qualified, a Data URI, or a reference to a named anchor?
+        if (mb_strpos($url, "://") !== false || mb_substr($url, 0, 1) === "#" || mb_strpos($url, "data:") === 0 || mb_strpos($url, "mailto:") === 0) {
             return $url;
         }
 
@@ -162,7 +162,7 @@ class Helpers
      */
     public static function parse_data_uri($data_uri)
     {
-        if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/i', $data_uri, $match)) {
+        if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/is', $data_uri, $match)) {
             return false;
         }
 
@@ -312,7 +312,7 @@ class Helpers
 
         $arr = parse_url($url);
         if ( isset($arr["scheme"]) ) {
-            $arr["scheme"] == mb_strtolower($arr["scheme"]);
+            $arr["scheme"] = mb_strtolower($arr["scheme"]);
         }
 
         // Exclude windows drive letters...

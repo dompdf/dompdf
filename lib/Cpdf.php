@@ -210,7 +210,6 @@ class Cpdf
      * @var string Temporary folder.
      * If empty string, will attempt system tmp folder.
      * This can be passed in from class creator.
-     * Only used for conversion of gd images to jpeg images.
      */
     public $tmp = '';
 
@@ -341,7 +340,7 @@ class Cpdf
     {
         $this->isUnicode = $isUnicode;
         $this->fontcache = rtrim($fontcache, "/");
-        $this->tmp = $tmp;
+        $this->tmp = ($tmp !== '' ? $tmp : sys_get_temp_dir());
         $this->newDocument($pageSize);
 
         $this->compressionReady = function_exists('gzcompress');
@@ -2152,7 +2151,11 @@ EOT;
     private function openFont($font)
     {
         // assume that $font contains the path and file but not the extension
-        $pos = strrpos($font, '/');
+        if (($pos = strrpos($font, DIRECTORY_SEPARATOR)) === false) {
+            if (($pos = strrpos($font, '/')) === false) {
+                $pos = strrpos($font, '\\');
+            }
+        }
 
         if ($pos === false) {
             $dir = './';
@@ -2164,7 +2167,7 @@ EOT;
 
         $fontcache = $this->fontcache;
         if ($fontcache == '') {
-            $fontcache = rtrim($dir, "/");
+            $fontcache = rtrim($dir, DIRECTORY_SEPARATOR);
         }
 
         //$name       filename without folder and extension of font metrics
@@ -2418,7 +2421,7 @@ EOT;
                 $font = &$this->fonts[$fontName];
 
                 //$this->numFonts = md5($fontName);
-                $pos = strrpos($fontName, '/');
+                $pos = strrpos($fontName, DIRECTORY_SEPARATOR);
                 //      $dir = substr($fontName,0,$pos+1);
                 $name = substr($fontName, $pos + 1);
                 $options = array('name' => $name, 'fontFileName' => $fontName);
@@ -2577,7 +2580,7 @@ EOT;
                         $font_obj->reduce();
 
                         // Write new font
-                        $tmp_name = "$fbfile.tmp." . uniqid();
+                        $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
                         $font_obj->open($tmp_name, BinaryStream::modeWrite);
                         $font_obj->encode(array("OS/2"));
                         $font_obj->close();
@@ -3287,6 +3290,9 @@ EOT;
         // start: top edge, left end
         $this->addContent(sprintf("\n%.3F %.3F m ", $x1, $y1 - $rTL + $h));
 
+        // line: bottom edge, left end
+        $this->addContent(sprintf("\n%.3F %.3F l ", $x1, $y1 - $rBL));
+
         // curve: bottom-left corner
         $this->ellipse($x1 + $rBL, $y1 + $rBL, $rBL, 0, 0, 8, 180, 270, false, false, false, true);
 
@@ -3627,7 +3633,6 @@ EOT;
         if ($convert_encoding) {
             $cf = $this->currentFont;
             if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
-                //$text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
                 $text = $this->utf8toUtf16BE($text, $bom);
             } else {
                 //$text = html_entity_decode($text, ENT_QUOTES);
@@ -3883,8 +3888,7 @@ EOT;
             $cf = $this->currentFont;
             if ($this->fonts[$cf]['isUnicode'] && $wordSpaceAdjust != 0) {
                 $space_scale = 1000 / $size;
-                //$place_text = str_replace(' ', ') ( ) '.($this->getTextWidth($size, chr(32), $wordSpaceAdjust)*-75).' (', $place_text);
-                $place_text = str_replace(' ', ' ) ' . (-round($space_scale * $wordSpaceAdjust)) . ' (', $place_text);
+                $place_text = str_replace('\x00\x20', '\x00\x20)\x00\x20' . (-round($space_scale * $wordSpaceAdjust)) . '\x00\x20(', $place_text);
             }
             $this->addContent(" /F$this->currentFontNum " . sprintf('%.1F Tf ', $size));
             $this->addContent(" [($place_text)] TJ");

@@ -275,13 +275,19 @@ class Dompdf
     /**
      * Class constructor
      *
-     * @param array $options
+     * @param array|Options $options
      */
     public function __construct($options = null)
     {
         mb_internal_encoding('UTF-8');
         
-        $this->setOptions(new Options($options));
+        if (isset($options) && $options instanceof Options) {
+            $this->setOptions($options);
+        } elseif (is_array($options)) {
+            $this->setOptions(new Options($options));
+        } else {
+            $this->setOptions(new Options());
+        }
         
         $versionFile = realpath(__DIR__ . '/../VERSION');
         if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false && $version !== '$Format:<%h>$') {
@@ -887,19 +893,20 @@ class Dompdf
     /**
      * Streams the PDF to the client
      *
-     * The file will open a download dialog by default.  The options
-     * parameter controls the output.  Accepted options are:
+     * The file will open a download dialog by default. The options
+     * parameter controls the output. Accepted options (array keys) are:
      *
-     * 'Accept-Ranges' => 1 or 0 - if this is not set to 1, then this
-     *    header is not included, off by default this header seems to
-     *    have caused some problems despite the fact that it is supposed
-     *    to solve them, so I am leaving it off by default.
+     * 'Accept-Ranges' => 1 or 0 (=default): Send an 'Accept-Ranges:'
+     *   HTTP header, see https://tools.ietf.org/html/rfc2616#section-14.5
+     *   This header seems to have caused some problems, despite the fact
+     *   that it is supposed to solve them, so I am leaving it off by default.
      *
-     * 'compress' = > 1 or 0 - apply content stream compression, this is
-     *    on (1) by default
+     * 'compress' = > 1 (=default) or 0:
+     *   Apply content stream compression
      *
-     * 'Attachment' => 1 or 0 - if 1, force the browser to open a
-     *    download dialog, on (1) by default
+     * 'Attachment' => 1 (=default) or 0:
+     *   Set the 'Content-Disposition:' HTTP header to 'attachment'
+     *   (thereby causing the browser to open a download dialog)
      *
      * @param string $filename the name of the streamed file
      * @param array $options header options (see above)
@@ -1467,7 +1474,7 @@ class Dompdf
             case 'version' :
                 return $this->version;
             default:
-                throw new Exception( 'Invalid property: ' . $field );
+                throw new Exception( 'Invalid property: ' . $prop );
         }
     }
 }

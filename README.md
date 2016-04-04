@@ -156,6 +156,30 @@ $dompdf->render();
 $dompdf->stream();
 ```
 
+### Setting Options
+
+Set options during dompdf instantiation:
+
+```php
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+$options = new Options();
+$options->set('defaultFont', 'Courier');
+$dompdf = new Dompdf($options);
+```
+
+or at run time
+
+```php
+use Dompdf\Dompdf;
+
+$dompdf = new Dompdf();
+$dompdf->set_option('defaultFont', 'Courier');
+```
+
+See [Dompdf\Options](src/Options.php) for a list of available options.
+
 
 ## Limitations (Known Issues)
 
