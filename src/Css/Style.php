@@ -813,7 +813,6 @@ class Style
     }
 
     function computed_bottom_spacing() {
-        trigger_error("!");
         if ($this->_computed_bottom_spacing !== null) {
             return $this->_computed_bottom_spacing;
         }
