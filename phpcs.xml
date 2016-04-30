@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<!--suppress XmlUnboundNsPrefix -->
+<ruleset name="PHP-SDK">
+ <description>Coding standard ruleset based on the PSR-2 coding standard.</description>
+ <rule ref="PSR2"/>
+ <rule ref="Generic.Files.LineLength.TooLong">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.Scope.MethodScope.Missing">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.SwitchDeclaration.TerminatingComment">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PEAR.Functions.ValidDefaultValue.NotAtEnd">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Classes.PropertyDeclaration.ScopeMissing">
+  <severity>0</severity>
+ </rule>
+ <!-- These can be fixed automatically by phpcbf -->
+ <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.ControlStructures.ControlSignature.SpaceBeforeSemicolon">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Files.EndFileNewline.NoneFound">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.FunctionCallSignature.CloseBracketLine">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.FunctionCallSignature.Indent">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpaceBeforeCloseBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.FunctionCallSignature.ContentAfterOpenBracket">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpenBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Generic.Functions.FunctionCallArgumentSpacing.SpaceBeforeComma">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.FunctionCallSignature.MultipleArguments">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.FunctionCallSignature.SpaceAfterOpenBracket">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Classes.ClassDeclaration.OpenBraceNewLine">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Generic.Formatting.DisallowMultipleStatements.SameLine">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Files.EndFileNewline.TooMany">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace">
+  <severity>0</severity>
+ </rule>
+ <rule ref="PSR2.Methods.MethodDeclaration.StaticBeforeVisibility">
+  <severity>0</severity>
+ </rule>
+ <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine">
+  <severity>0</severity>
+ </rule>
+</ruleset>
