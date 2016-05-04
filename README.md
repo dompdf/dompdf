@@ -117,11 +117,13 @@ From the command line, switch to the directory where dompdf will reside and run
 the following commands:
 
 ```sh
-git clone https://github.com/dompdf/dompdf.git .
+git clone https://github.com/dompdf/dompdf.git
+cd dompdf
 git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
 cd lib/php-font-lib
 git checkout 0.4
 cd ..
+#inside dompdf/lib/
 git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
 cd php-svg-lib
 git checkout v0.1
