@@ -339,7 +339,7 @@ class Cpdf
     function __construct($pageSize = array(0, 0, 612, 792), $isUnicode = false, $fontcache = '', $tmp = '')
     {
         $this->isUnicode = $isUnicode;
-        $this->fontcache = rtrim($fontcache, "/");
+        $this->fontcache = rtrim($fontcache, DIRECTORY_SEPARATOR."/\\");
         $this->tmp = ($tmp !== '' ? $tmp : sys_get_temp_dir());
         $this->newDocument($pageSize);
 
@@ -2151,23 +2151,12 @@ EOT;
     private function openFont($font)
     {
         // assume that $font contains the path and file but not the extension
-        if (($pos = strrpos($font, DIRECTORY_SEPARATOR)) === false) {
-            if (($pos = strrpos($font, '/')) === false) {
-                $pos = strrpos($font, '\\');
-            }
-        }
-
-        if ($pos === false) {
-            $dir = './';
-            $name = $font;
-        } else {
-            $dir = substr($font, 0, $pos + 1);
-            $name = substr($font, $pos + 1);
-        }
-
+        $name = basename($font);
+        $dir = dirname($font) . '/';
+        
         $fontcache = $this->fontcache;
         if ($fontcache == '') {
-            $fontcache = rtrim($dir, DIRECTORY_SEPARATOR);
+            $fontcache = rtrim($dir, DIRECTORY_SEPARATOR."/\\");
         }
 
         //$name       filename without folder and extension of font metrics
@@ -2420,10 +2409,8 @@ EOT;
 
                 $font = &$this->fonts[$fontName];
 
-                //$this->numFonts = md5($fontName);
-                $pos = strrpos($fontName, DIRECTORY_SEPARATOR);
-                //      $dir = substr($fontName,0,$pos+1);
-                $name = substr($fontName, $pos + 1);
+                $name = basename($fontName);
+                $dir = dirname($fontName) . '/';
                 $options = array('name' => $name, 'fontFileName' => $fontName);
 
                 if (is_array($encoding)) {
