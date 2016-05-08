@@ -1,93 +1,93 @@
-<?php return array (
-  'sans-serif' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Helvetica',
-    'bold' => $rootDir . '/lib/fonts/Helvetica-Bold',
-    'italic' => $rootDir . '/lib/fonts/Helvetica-Oblique',
-    'bold_italic' => $rootDir . '/lib/fonts/Helvetica-BoldOblique',
-  ),
-  'times' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Times-Roman',
-    'bold' => $rootDir . '/lib/fonts/Times-Bold',
-    'italic' => $rootDir . '/lib/fonts/Times-Italic',
-    'bold_italic' => $rootDir . '/lib/fonts/Times-BoldItalic',
-  ),
-  'times-roman' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Times-Roman',
-    'bold' => $rootDir . '/lib/fonts/Times-Bold',
-    'italic' => $rootDir . '/lib/fonts/Times-Italic',
-    'bold_italic' => $rootDir . '/lib/fonts/Times-BoldItalic',
-  ),
-  'courier' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Courier',
-    'bold' => $rootDir . '/lib/fonts/Courier-Bold',
-    'italic' => $rootDir . '/lib/fonts/Courier-Oblique',
-    'bold_italic' => $rootDir . '/lib/fonts/Courier-BoldOblique',
-  ),
-  'helvetica' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Helvetica',
-    'bold' => $rootDir . '/lib/fonts/Helvetica-Bold',
-    'italic' => $rootDir . '/lib/fonts/Helvetica-Oblique',
-    'bold_italic' => $rootDir . '/lib/fonts/Helvetica-BoldOblique',
-  ),
-  'zapfdingbats' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/ZapfDingbats',
-    'bold' => $rootDir . '/lib/fonts/ZapfDingbats',
-    'italic' => $rootDir . '/lib/fonts/ZapfDingbats',
-    'bold_italic' => $rootDir . '/lib/fonts/ZapfDingbats',
-  ),
-  'symbol' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Symbol',
-    'bold' => $rootDir . '/lib/fonts/Symbol',
-    'italic' => $rootDir . '/lib/fonts/Symbol',
-    'bold_italic' => $rootDir . '/lib/fonts/Symbol',
-  ),
-  'serif' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Times-Roman',
-    'bold' => $rootDir . '/lib/fonts/Times-Bold',
-    'italic' => $rootDir . '/lib/fonts/Times-Italic',
-    'bold_italic' => $rootDir . '/lib/fonts/Times-BoldItalic',
-  ),
-  'monospace' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Courier',
-    'bold' => $rootDir . '/lib/fonts/Courier-Bold',
-    'italic' => $rootDir . '/lib/fonts/Courier-Oblique',
-    'bold_italic' => $rootDir . '/lib/fonts/Courier-BoldOblique',
-  ),
-  'fixed' => 
-  array (
-    'normal' => $rootDir . '/lib/fonts/Courier',
-    'bold' => $rootDir . '/lib/fonts/Courier-Bold',
-    'italic' => $rootDir . '/lib/fonts/Courier-Oblique',
-    'bold_italic' => $rootDir . '/lib/fonts/Courier-BoldOblique',
-  ),
-  'dejavu sans' => 
-  array (
-    'bold' => $rootDir . '/lib/fonts/DejaVuSans-Bold',
-    'bold_italic' => $rootDir . '/lib/fonts/DejaVuSans-BoldOblique',
-    'italic' => $rootDir . '/lib/fonts/DejaVuSans-Oblique',
-    'normal' => $rootDir . '/lib/fonts/DejaVuSans',
-  ),
-  'dejavu sans mono' => 
-  array (
-    'bold' => $rootDir . '/lib/fonts/DejaVuSansMono-Bold',
-    'bold_italic' => $rootDir . '/lib/fonts/DejaVuSansMono-BoldOblique',
-    'italic' => $rootDir . '/lib/fonts/DejaVuSansMono-Oblique',
-    'normal' => $rootDir . '/lib/fonts/DejaVuSansMono',
-  ),
-  'dejavu serif' => 
-  array (
-    'bold' => $rootDir . '/lib/fonts/DejaVuSerif-Bold',
-    'bold_italic' => $rootDir . '/lib/fonts/DejaVuSerif-BoldItalic',
-    'italic' => $rootDir . '/lib/fonts/DejaVuSerif-Italic',
-    'normal' => $rootDir . '/lib/fonts/DejaVuSerif',
-  ),
+<?php return array(
+    'sans-serif' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica-Oblique',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica-BoldOblique',
+        ),
+    'times' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Roman',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Italic',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-BoldItalic',
+        ),
+    'times-roman' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Roman',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Italic',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-BoldItalic',
+        ),
+    'courier' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-Oblique',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-BoldOblique',
+        ),
+    'helvetica' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica-Oblique',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Helvetica-BoldOblique',
+        ),
+    'zapfdingbats' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'ZapfDingbats',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'ZapfDingbats',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'ZapfDingbats',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'ZapfDingbats',
+        ),
+    'symbol' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Symbol',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Symbol',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Symbol',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Symbol',
+        ),
+    'serif' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Roman',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-Italic',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Times-BoldItalic',
+        ),
+    'monospace' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-Oblique',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-BoldOblique',
+        ),
+    'fixed' =>
+        array(
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier',
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-Bold',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-Oblique',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'Courier-BoldOblique',
+        ),
+    'dejavu sans' =>
+        array(
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSans-Bold',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSans-BoldOblique',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSans-Oblique',
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSans',
+        ),
+    'dejavu sans mono' =>
+        array(
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSansMono-Bold',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSansMono-BoldOblique',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSansMono-Oblique',
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSansMono',
+        ),
+    'dejavu serif' =>
+        array(
+            'bold' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSerif-Bold',
+            'bold_italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSerif-BoldItalic',
+            'italic' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSerif-Italic',
+            'normal' => $rootDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR . 'DejaVuSerif',
+        ),
 ) ?>
