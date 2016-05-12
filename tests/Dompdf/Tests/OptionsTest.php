@@ -11,10 +11,10 @@ class OptionsTest extends PHPUnit_Framework_TestCase
         $root = realpath(__DIR__ . "/../../..");
         $option = new Options();
         $this->assertEquals(sys_get_temp_dir(), $option->getTempDir());
-        $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
-        $this->assertEquals($root . '/lib/fonts', $option->getFontCache());
+        $this->assertEquals($root . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts', $option->getFontDir());
+        $this->assertEquals($root . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'fonts', $option->getFontCache());
         $this->assertEquals($root, $option->getChroot());
-        $this->assertEquals($root . '/lib/fonts/log.htm', $option->getLogOutputFile());
+        $this->assertEquals($this->getTempDir() . DIRECTORY_SEPARATOR . "log.htm", $option->getLogOutputFile());
         $this->assertEquals('screen', $option->getDefaultMediaType());
         $this->assertEquals('letter', $option->getDefaultPaperSize());
         $this->assertEquals('serif', $option->getDefaultFont());
