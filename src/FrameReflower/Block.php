@@ -525,11 +525,24 @@ class Block extends AbstractFrameReflower
             foreach ($line->get_frames() as $frame) {
                 $style = $frame->get_style();
 
-                if ($style->display !== "inline") {
+                if ($isImage = ('-dompdf-image' == $style->display)) {
+                    $lineFrames = $line->get_frames();
+                    if (!$isImage = (1 == count($lineFrames)))
+                        continue;
+                    $frameBox = $this->_frame->get_frame()->get_border_box();
+                    $imageBox = $lineFrames[0]->get_frame()->get_border_box();
+                    $imageHeightDiff = $frameBox['h'] - $imageBox['h'];
+                    if (0 > $imageHeightDiff)
+                        $imageHeightDiff = 0;
+                }
+
+                if (!$isImage && $style->display !== "inline") {
                     continue;
                 }
 
-                $align = $frame->get_parent()->get_style()->vertical_align;
+                $align = $isImage ?
+                    $align = $frame->get_style()->vertical_align :
+                    $frame->get_parent()->get_style()->vertical_align;
 
                 if (!isset($canvas)) {
                     $canvas = $frame->get_root()->get_dompdf()->get_canvas();
@@ -538,31 +551,44 @@ class Block extends AbstractFrameReflower
                 $baseline = $canvas->get_font_baseline($style->font_family, $style->font_size);
                 $y_offset = 0;
 
-                switch ($align) {
-                    case "baseline":
-                        $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
-                        break;
+                if($isImage) {
+                    switch ($align) {
+                        case "top": // Nothing to worry about
+                            break;
+                        case "middle":
+                            $y_offset = $imageHeightDiff / 2;
+                            break;
+                        case "bottom":
+                            $y_offset = $imageHeightDiff;
+                            break;
+                    }
+                } else {
+                    switch ($align) {
+                        case "baseline":
+                            $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
+                            break;
 
-                    case "middle":
-                        $y_offset = ($height * 0.8 - $baseline) / 2;
-                        break;
+                        case "middle":
+                            $y_offset = ($height * 0.8 - $baseline) / 2;
+                            break;
 
-                    case "sub":
-                        $y_offset = 0.3 * $height;
-                        break;
+                        case "sub":
+                            $y_offset = 0.3 * $height;
+                            break;
 
-                    case "super":
-                        $y_offset = -0.2 * $height;
-                        break;
+                        case "super":
+                            $y_offset = -0.2 * $height;
+                            break;
 
-                    case "text-top":
-                    case "top": // Not strictly accurate, but good enough for now
-                        break;
+                        case "text-top":
+                        case "top": // Not strictly accurate, but good enough for now
+                            break;
 
-                    case "text-bottom":
-                    case "bottom":
-                        $y_offset = $height * 0.8 - $baseline;
-                        break;
+                        case "text-bottom":
+                        case "bottom":
+                            $y_offset = $height * 0.8 - $baseline;
+                            break;
+                    }
                 }
 
                 if ($y_offset) {
