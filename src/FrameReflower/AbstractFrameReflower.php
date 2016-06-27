@@ -68,7 +68,8 @@ abstract class AbstractFrameReflower
         $cb = $frame->get_containing_block();
         $style = $frame->get_style();
 
-        if (!$frame->is_in_flow()) {
+        // Margins of float/absolutely positioned/inline-block elements do not collapse.
+        if (!$frame->is_in_flow() || $frame->is_inline_block()) {
             return;
         }
 
@@ -436,7 +437,7 @@ abstract class AbstractFrameReflower
             $frame->increment_counters($increment);
         }
 
-        if ($style->content && !$frame->get_first_child() && $frame->get_node()->nodeName === "dompdf_generated") {
+        if ($style->content && /*!$frame->get_first_child() && */$frame->get_node()->nodeName === "dompdf_generated") {
             $content = $this->_parse_content();
             // add generated content to the font subset
             // FIXME: This is currently too late because the font subset has already been generated.
@@ -456,5 +457,15 @@ abstract class AbstractFrameReflower
             Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
             $frame->append_child($new_frame);
         }
+    }
+
+    /**
+     * Determine current frame width based on contents
+     *
+     * @return float
+     */
+    public function calculate_auto_width()
+    {
+        return $this->_frame->get_margin_width();
     }
 }

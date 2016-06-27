@@ -234,6 +234,22 @@ class LineBox
         $this->_frames[] = $frame;
     }
 
+    /**
+     * Recalculate LineBox width based on the contained frames total width.
+     *
+     * @return float
+     */
+    public function recalculate_width()
+    {
+        $width = 0;
+
+        foreach ($this->get_frames() as $frame) {
+            $width += $frame->calculate_auto_width();
+        }
+
+        return $this->w = $width;
+    }
+
     function __toString()
     {
         $props = array("wc", "y", "w", "h", "left", "right", "br");

@@ -73,4 +73,26 @@ class Inline extends AbstractFrameReflower
             $child->reflow($block);
         }
     }
+
+    /**
+     * Determine current frame width based on contents
+     *
+     * @return float
+     */
+    public function calculate_auto_width()
+    {
+        $width = 0;
+
+        foreach ($this->_frame->get_children() as $child) {
+            if ($child->get_original_style()->width == 'auto') {
+                $width += $child->calculate_auto_width();
+            } else {
+                $width += $child->get_margin_width();
+            }
+        }
+
+        $this->_frame->get_style()->width = $width;
+
+        return $this->_frame->get_margin_width();
+    }
 }
