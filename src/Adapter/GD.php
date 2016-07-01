@@ -949,7 +949,7 @@ class GD implements Canvas
 
         header("Cache-Control: private");
 
-        $filename = str_replace(array("\n", "'"), "", basename($filename));
+        $filename = str_replace(array("\n", "'"), "", basename($filename, ".$type"));
         switch ($type) {
 
             case "jpg":
