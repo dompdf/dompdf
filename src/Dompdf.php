@@ -842,7 +842,9 @@ class Dompdf
             foreach ($_dompdf_warnings as $msg) {
                 echo $msg . "\n";
             }
-            echo $this->getCanvas()->get_cpdf()->messages;
+            if (strtolower($this->options->getPdfBackend()) == "cpdf") {
+                echo $this->getCanvas()->get_cpdf()->messages;
+            }
             echo '</pre>';
             flush();
         }
