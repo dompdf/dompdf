@@ -11,4 +11,10 @@
 *.txt   text
 *.svg   text
 
+.gitattributes   export-ignore
+.gitignore       export-ignore
+.travis          export-ignore
+phpunit.xml.dist export-ignore
+Tests/           export-ignore
+
 VERSION export-subst
