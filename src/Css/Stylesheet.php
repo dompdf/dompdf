@@ -55,11 +55,28 @@ class Stylesheet
      */
     const ORIG_AUTHOR = 3;
 
+    /*
+     * The highest possible specificity is 0x01000000 (and that is only for author
+     * stylesheets, as it is for inline styles). Origin precedence can be achieved by
+     * adding multiples of 0x10000000 to the actual specificity. Important
+     * declarations are handled in Style; though technically they should be handled
+     * here so that user important declarations can be made to take precedence over
+     * user important declarations, this doesn't matter in practice as Dompdf does
+     * not support user stylesheets, and user agent stylesheets can not include
+     * important declarations.
+     */
     private static $_stylesheet_origins = array(
-        self::ORIG_UA => -0x0FFFFFFF, // user agent style sheets
-        self::ORIG_USER => -0x0000FFFF, // user normal style sheets
-        self::ORIG_AUTHOR => 0x00000000, // author normal style sheets
+        self::ORIG_UA => 0x00000000, // user agent declarations
+        self::ORIG_USER => 0x10000000, // user normal declarations
+        self::ORIG_AUTHOR => 0x30000000, // author normal declarations
     );
+
+    /*
+     * Non-CSS presentational hints (i.e. HTML 4 attributes) are handled as if added
+     * to the beginning of an author stylesheet, i.e. anything in author stylesheets
+     * should override them.
+     */
+    const SPEC_NON_CSS = 0x20000000;
 
     /**
      * Current dompdf instance
@@ -296,8 +313,11 @@ class Stylesheet
      *
      * @param string $css
      */
-    function load_css(&$css)
+    function load_css(&$css, $origin = self::ORIG_AUTHOR)
     {
+        if ($origin) {
+            $this->_current_origin = $origin;
+        }
         $this->_parse_css($css);
     }
 
@@ -365,11 +385,9 @@ class Stylesheet
      *
      * @param string $selector
      * @param int $origin :
-     *    - ua: user agent style sheets
-     *    - un: user normal style sheets
-     *    - an: author normal style sheets
-     *    - ai: author important style sheets
-     *    - ui: user important style sheets
+     *    - Stylesheet::ORIG_UA: user agent style sheet
+     *    - Stylesheet::ORIG_USER: user style sheet
+     *    - Stylesheet::ORIG_AUTHOR: author style sheet
      *
      * @return int
      */
@@ -396,7 +414,7 @@ class Stylesheet
         //this can lead to a too small specificity
         //see _css_selector_to_xpath
 
-        if (!in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) /* && $selector !== "*"*/) {
+        if (!in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) && $selector !== "*") {
             $d++;
         }
 
@@ -404,12 +422,12 @@ class Stylesheet
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
-            printf("_specificity(): 0x%08x \"%s\"\n", ($a << 24) | ($b << 16) | ($c << 8) | ($d), $selector);
+            printf("_specificity(): 0x%08x \"%s\"\n", self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d)), $selector);
             /*DEBUGCSS*/
             print "</pre>";
         }
 
-        return self::$_stylesheet_origins[$origin] + ($a << 24) | ($b << 16) | ($c << 8) | ($d);
+        return self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d));
     }
 
     /**
@@ -885,6 +903,8 @@ class Stylesheet
                 continue;
             }
 
+            $spec = $this->_specificity($selector, $style->get_origin());
+
             foreach ($nodes as $node) {
                 // Retrieve the node id
                 // Only DOMElements get styles
@@ -895,7 +915,6 @@ class Stylesheet
                 $id = $node->getAttribute("frame_id");
 
                 // Assign the current style to the scratch array
-                $spec = $this->_specificity($selector, $style->get_origin());
                 $styles[$id][$spec][] = $style;
             }
         }
@@ -936,8 +955,7 @@ class Stylesheet
             // Handle HTML 4.0 attributes
             AttributeTranslator::translate_attributes($frame);
             if (($str = $frame->get_node()->getAttribute(AttributeTranslator::$_style_attr)) !== "") {
-                // Lowest specificity
-                $styles[$id][1][] = $this->_parse_properties($str);
+                $styles[$id][self::SPEC_NON_CSS][] = $this->_parse_properties($str);
             }
 
             // Locate any additional style attributes
@@ -945,7 +963,7 @@ class Stylesheet
                 // Destroy CSS comments
                 $str = preg_replace("'/\*.*?\*/'si", "", $str);
 
-                $spec = $this->_specificity("!attr");
+                $spec = $this->_specificity("!attr", self::ORIG_AUTHOR);
                 $styles[$id][$spec][] = $this->_parse_properties($str);
             }
 
