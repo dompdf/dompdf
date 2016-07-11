@@ -656,7 +656,7 @@ class Dompdf
                         $css = $tag->nodeValue;
                     }
 
-                    $this->css->load_css($css);
+                    $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
         }
