@@ -132,18 +132,6 @@ class FontMetrics
         $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
         $distFonts = require $file;
         
-        // FIXME: temporary step for font cache created before the font cache fix
-        if (is_readable($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache")) {
-            $oldFonts = require $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
-            // If the font family cache is still in the old format
-            if ($oldFonts === 1) {
-                $cacheData = file_get_contents($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache");
-                file_put_contents($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache", "<" . "?php return $cacheData ?" . ">");
-                $oldFonts = require $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
-            }
-            $distFonts += $oldFonts;
-        }
-        
         if (!is_readable($this->getCacheFile())) {
             $this->fontLookup = $distFonts;
             return;
@@ -151,16 +139,11 @@ class FontMetrics
         
         $cacheData = require $this->getCacheFile();
         
-        // If the font family cache is still in the old format
-        if ($cacheData === 1) {
-            $cacheData = file_get_contents($this->getCacheFile());
-            file_put_contents($this->getCacheFile(), "<" . "?php return $cacheData ?" . ">");
-            $this->fontLookup = require $this->getCacheFile();
-        }
-        
         $this->fontLookup = array();
-        foreach ($cacheData as $key => $value) {
-            $this->fontLookup[stripslashes($key)] = $value;
+        if (is_array($this->fontLookup)) {
+            foreach ($cacheData as $key => $value) {
+                $this->fontLookup[stripslashes($key)] = $value;
+            }
         }
         
         // Merge provided fonts
