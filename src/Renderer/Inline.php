@@ -175,12 +175,17 @@ class Inline extends AbstractRenderer
             $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
         }
 
+        $id = $frame->get_node()->getAttribute("id");
+        if (strlen($id) > 0)  {
+            $this->_canvas->add_named_dest($id);
+        }
+
         // Only two levels of links frames
         $link_node = null;
         if ($frame->get_node()->nodeName === "a") {
             $link_node = $frame->get_node();
 
-            if (($name = $link_node->getAttribute("name")) || ($name = $link_node->getAttribute("id"))) {
+            if (($name = $link_node->getAttribute("name"))) {
                 $this->_canvas->add_named_dest($name);
             }
         }

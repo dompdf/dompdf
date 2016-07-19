@@ -80,6 +80,11 @@ class Block extends AbstractRenderer
                 $frame->_debug_layout(array($line->x, $line->y, $line->w, $line->h), "orange");
             }
         }
+
+        $id = $frame->get_node()->getAttribute("id");
+        if (strlen($id) > 0)  {
+            $this->_canvas->add_named_dest($id);
+        }
     }
 
     protected function _render_border(AbstractFrameDecorator $frame, $border_box = null, $corner_style = "bevel")
