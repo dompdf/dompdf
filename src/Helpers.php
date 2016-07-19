@@ -730,22 +730,58 @@ class Helpers
         return $im;
     }
 
-    public static function getContent($path, $http_contest)
+    /**
+     * Gets the content of the file at the specified path using one of
+     * the following methods, in preferential order:
+     *  - file_get_contents: if allow_url_fopen is true or the file is local
+     *  - curl: if allow_url_fopen is false and curl is available
+     *
+     * @param string $uri
+     * @param resource $context (ignored if curl is used)
+     * @param int $offset
+     * @param int $maxlen (ignored if curl is used)
+     * @return bool|array
+     */
+    public static function getFileContent($uri, $context = null, $offset = 0, $maxlen = null)
     {
         $result = false;
-        $is_remote_path = preg_match('/^https?:\/\//', $path);
+        $headers = null;
+        list($proto, $host, $path, $file) = Helpers::explode_url($uri);
+        $is_local_path = ($proto == "" || $proto === "file://");
 
-        if (!$is_remote_path || ini_get("allow_url_fopen")) {
-            set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
-            $result = file_get_contents($path, null, $http_contest);
-            restore_error_handler();
-        }
-        elseif ($is_remote_path && function_exists("curl_exec")) {
-            $curl = curl_init($path);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            $result = curl_exec($curl);
+        set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
+
+        if ($is_local_path || ini_get("allow_url_fopen")) {
+            if (isset($maxlen)) {
+                $result = file_get_contents($uri, null, $context, $offset, $maxlen);
+            } else {
+                $result = file_get_contents($uri, null, $context, $offset);
+            }
+            if (isset($http_response_header))
+            {
+                $headers = $http_response_header;
+            }
+
+        } elseif (function_exists("curl_exec")) {
+            $curl = curl_init($uri);
+
+            //TODO: use $context to define additional curl options
+            curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HEADER, true);
+            if ($offset > 0) {
+                curl_setopt($curl, CURLOPT_RESUME_FROM, $offset);
+            }
+
+            $data = curl_exec($curl);
+            $raw_headers = substr($data, 0, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
+            $headers = preg_split("/[\n\r]+/", trim($raw_headers));
+            $return = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
             curl_close($curl);
         }
+        
+        restore_error_handler();
 
         return $result;
     }
