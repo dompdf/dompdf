@@ -219,7 +219,7 @@ class FontMetrics
             $entry[$styleString] = $cacheEntry;
             
             // Download the remote file
-            $remoteFileContent = @file_get_contents($remoteFile, null, $context);
+            $remoteFileContent = @Helpers::getFileContent($remoteFile, null, $context);
             if (false === $remoteFileContent) {
                 return false;
             }
@@ -243,7 +243,7 @@ class FontMetrics
             }
             
             // Save the changes
-            file_put_contents($localFile, file_get_contents($remoteFile, null, $context));
+            file_put_contents($localFile, $remoteFileContent);
             
             if ( !file_exists($localFile) ) {
                 unlink("$cacheEntry.ufm");

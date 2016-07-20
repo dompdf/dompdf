@@ -529,7 +529,7 @@ class Helpers
         $type = isset($types[$type]) ? $types[$type] : null;
 
         if ($width == null || $height == null) {
-            $data = file_get_contents($filename, null, $context, 0, 26);
+            $data = Helpers::getFileContent($filename, null, $context, 0, 26);
 
             if (substr($data, 0, 2) === "BM") {
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -538,7 +538,7 @@ class Helpers
                 $type = "bmp";
             }
             else {
-                if (strpos(file_get_contents($filename), "<svg") !== false) {
+                if (strpos(Helpers::getFileContent($filename), "<svg") !== false) {
                     $doc = new \Svg\Document();
                     $doc->loadFile($filename);
 
@@ -783,6 +783,6 @@ class Helpers
         
         restore_error_handler();
 
-        return $result;
+        return array($result, $headers);
     }
 }
