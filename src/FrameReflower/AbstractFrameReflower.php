@@ -437,7 +437,7 @@ abstract class AbstractFrameReflower
             $frame->increment_counters($increment);
         }
 
-        if ($style->content && /*!$frame->get_first_child() && */$frame->get_node()->nodeName === "dompdf_generated") {
+        if ($style->content && $frame->get_node()->nodeName === "dompdf_generated") {
             $content = $this->_parse_content();
             // add generated content to the font subset
             // FIXME: This is currently too late because the font subset has already been generated.
