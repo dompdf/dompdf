@@ -151,35 +151,6 @@ class FontMetrics
     }
 
     /**
-     * @param array $files
-     * @return array
-     * @deprecated
-     */
-    public function install_fonts($files)
-    {
-        return $this->installFonts($files);
-    }
-
-    /**
-     * @param array $files
-     * @return array
-     */
-    public function installFonts(array $files)
-    {
-        $names = array();
-
-        foreach ($files as $file) {
-            $font = Font::load($file);
-            $records = $font->getData("name", "records");
-            $type = $this->getType($records[2]);
-            $names[mb_strtolower($records[1])][$type] = $file;
-            $font->close();
-        }
-
-        return $names;
-    }
-
-    /**
      * @param array $style
      * @param string $remote_file
      * @param resource $context
@@ -475,30 +446,6 @@ class FontMetrics
         }
 
         return $type;
-    }
-
-    /**
-     * @return array
-     * @deprecated
-     */
-    public function get_system_fonts()
-    {
-        return $this->getSystemFonts();
-    }
-
-    /**
-     * @return array
-     */
-    public function getSystemFonts()
-    {
-        $files = glob("/usr/share/fonts/truetype/*.ttf") +
-            glob("/usr/share/fonts/truetype/*/*.ttf") +
-            glob("/usr/share/fonts/truetype/*/*/*.ttf") +
-            glob("C:\\Windows\\fonts\\*.ttf") +
-            glob("C:\\WinNT\\fonts\\*.ttf") +
-            glob("/mnt/c_drive/WINDOWS/Fonts/");
-
-        return $this->installFonts($files);
     }
 
     /**
