@@ -2433,18 +2433,20 @@ EOT;
                 $this->o_font($this->numObj, 'new', $options);
                 $font['fontNum'] = $this->numFonts;
 
-                // if this is a '.afm' font, and there is a '.pfa' file to go with it ( as there
+                // if this is a '.afm' font, and there is a '.pfa' file to go with it (as there
                 // should be for all non-basic fonts), then load it into an object and put the
                 // references into the font object
                 $basefile = $fontName;
 
                 $fbtype = '';
-                if (file_exists("$basefile.pfb")) {
+                if (file_exists("$basefile.ttf")) {
+                    $fbtype = 'ttf';
+                } elseif (file_exists("$basefile.TTF")) {
+                    $fbtype = 'TTF';
+                } elseif (file_exists("$basefile.pfb")) {
                     $fbtype = 'pfb';
-                } else {
-                    if (file_exists("$basefile.ttf")) {
-                        $fbtype = 'ttf';
-                    }
+                } elseif (file_exists("$basefile.PFB")) {
+                    $fbtype = 'PFB';
                 }
 
                 $fbfile = "$basefile.$fbtype";
@@ -2550,7 +2552,7 @@ EOT;
                     // note that pdf supports only binary format type 1 font files, though there is a
                     // simple utility to convert them from pfa to pfb.
                     // FIXME: should we move font subset creation to CPDF::output? See notes in issue #750.
-                    if (!$this->isUnicode || $fbtype !== 'ttf' || empty($this->stringSubsets)) {
+                    if (!$this->isUnicode || strtolower($fbtype) !== 'ttf' || empty($this->stringSubsets)) {
                         $data = file_get_contents($fbfile);
                     } else {
                         $this->stringSubsets[$fontName][] = 32; // Force space if not in yet
@@ -2653,12 +2655,10 @@ EOT;
                         }
                     }
 
-                    if ($fbtype === 'pfb') {
+                    if (strtolower($fbtype) === 'pfb') {
                         $fdopt['FontFile'] = $pfbid;
-                    } else {
-                        if ($fbtype === 'ttf') {
-                            $fdopt['FontFile2'] = $pfbid;
-                        }
+                    } elseif (strtolower($fbtype) === 'ttf') {
+                        $fdopt['FontFile2'] = $pfbid;
                     }
 
                     $this->o_fontDescriptor($fontDescriptorId, 'new', $fdopt);
@@ -2668,7 +2668,7 @@ EOT;
                     $this->objects[$pfbid]['c'] .= $data;
 
                     // determine the cruicial lengths within this file
-                    if ($fbtype === 'pfb') {
+                    if (strtolower($fbtype) === 'pfb') {
                         $l1 = strpos($data, 'eexec') + 6;
                         $l2 = strpos($data, '00000000') - $l1;
                         $l3 = mb_strlen($data, '8bit') - $l2 - $l1;
@@ -2677,11 +2677,9 @@ EOT;
                             'add',
                             array('Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3)
                         );
-                    } else {
-                        if ($fbtype == 'ttf') {
-                            $l1 = mb_strlen($data, '8bit');
-                            $this->o_contents($this->numObj, 'add', array('Length1' => $l1));
-                        }
+                    } elseif (strtolower($fbtype) == 'ttf') {
+                        $l1 = mb_strlen($data, '8bit');
+                        $this->o_contents($this->numObj, 'add', array('Length1' => $l1));
                     }
 
                     // tell the font object about all this new stuff
@@ -2694,7 +2692,7 @@ EOT;
                         'FontDescriptor' => $fontDescriptorId
                     );
 
-                    if ($fbtype === 'ttf') {
+                    if (strtolower($fbtype) === 'ttf') {
                         $tmp['SubType'] = 'TrueType';
                     }
 

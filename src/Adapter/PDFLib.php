@@ -584,7 +584,6 @@ class PDFLib implements Canvas
 
                     } else if (file_exists("$file.pfb")) {
                         $outline = "$file.pfb";
-
                         if (file_exists("$file.afm")) {
                             $afm = "$file.afm";
                         }

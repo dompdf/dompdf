@@ -831,7 +831,7 @@ class GD implements Canvas
 
     function get_ttf_file($font)
     {
-        if (strpos($font, '.ttf') === false)
+        if (stripos($font, '.ttf') === false)
             $font .= ".ttf";
 
         /*$filename = substr(strtolower(basename($font)), 0, -4);
