@@ -95,6 +95,9 @@ class Cache
                             }
                         } else {
                             $image = Helpers::getFileContent($full_url, $dompdf->getHttpContext());
+
+                            # Helpers::getFileContent returns an array, and the contents are the first item in it.
+                            $image = $image[0];
                         }
 
                         // Image not found or invalid
