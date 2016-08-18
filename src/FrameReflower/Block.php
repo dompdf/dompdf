@@ -12,6 +12,7 @@ use Dompdf\FontMetrics;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
+use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\Exception;
 
 /**
@@ -529,7 +530,14 @@ class Block extends AbstractFrameReflower
                     continue;
                 }
 
-                $align = $frame->get_parent()->get_style()->vertical_align;
+                $parent = $frame->get_parent();
+
+                if ($parent instanceof TableCellFrameDecorator) {
+                    // Table cells are not inline elements.
+                    $align = "baseline";
+                } else {
+                    $align = $parent->get_style()->vertical_align;
+                }
 
                 if (!isset($canvas)) {
                     $canvas = $frame->get_root()->get_dompdf()->get_canvas();
