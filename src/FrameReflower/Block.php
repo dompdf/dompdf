@@ -11,6 +11,7 @@ namespace Dompdf\FrameReflower;
 use Dompdf\FontMetrics;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\Exception;
 use Dompdf\Css\Style;
@@ -537,7 +538,6 @@ class Block extends AbstractFrameReflower
                 $y_offset = 0;
 
                 if($isImage) {
-                    $align = $frame->get_style()->vertical_align;
                     $lineFrames = $line->get_frames();
                     if (count($lineFrames) == 1) {
                         continue;
@@ -546,6 +546,7 @@ class Block extends AbstractFrameReflower
                     $imageBox = $frame->get_frame()->get_border_box();
                     $imageHeightDiff = $height * .8 - $imageBox['h'];
                     
+                    $align = $frame->get_style()->vertical_align;
                     if (in_array($align, Style::$vertical_align_keywords) === true) {
                         switch ($align) {
                             case "middle":  // FIXME: this should be the height of the line minus half the height of the text
@@ -581,7 +582,12 @@ class Block extends AbstractFrameReflower
                         $y_offset = $baseline - $style->length_in_pt($align, $style->font_size) - $imageBox['h'];
                     }
                 } else {
-                    $align = $frame->get_parent()->get_style()->vertical_align;
+                    $parent = $frame->get_parent();
+                    if ($parent instanceof TableCellFrameDecorator) {
+                        $align = "baseline";
+                    } else {
+                        $align = $parent->get_style()->vertical_align;
+                    }
                     if (in_array($align, Style::$vertical_align_keywords) === true) {
                         switch ($align) {
                             case "middle":
