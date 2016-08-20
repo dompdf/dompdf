@@ -529,7 +529,7 @@ class Helpers
         $type = isset($types[$type]) ? $types[$type] : null;
 
         if ($width == null || $height == null) {
-            $data = Helpers::getFileContent($filename, null, $context, 0, 26);
+            list($data, $headers) = Helpers::getFileContent($filename, null, $context, 0, 26);
 
             if (substr($data, 0, 2) === "BM") {
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -538,7 +538,7 @@ class Helpers
                 $type = "bmp";
             }
             else {
-                if (strpos(Helpers::getFileContent($filename), "<svg") !== false) {
+                if (strpos($data, "<svg") !== false) {
                     $doc = new \Svg\Document();
                     $doc->loadFile($filename);
 
@@ -777,12 +777,12 @@ class Helpers
             $data = curl_exec($curl);
             $raw_headers = substr($data, 0, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
             $headers = preg_split("/[\n\r]+/", trim($raw_headers));
-            $return = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
+            $result = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
             curl_close($curl);
         }
         
         restore_error_handler();
-
+        
         return array($result, $headers);
     }
 }

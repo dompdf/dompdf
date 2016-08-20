@@ -190,7 +190,7 @@ class FontMetrics
             $entry[$styleString] = $cacheEntry;
             
             // Download the remote file
-            $remoteFileContent = @Helpers::getFileContent($remoteFile, null, $context);
+            list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, null, $context);
             if (false === $remoteFileContent) {
                 return false;
             }
