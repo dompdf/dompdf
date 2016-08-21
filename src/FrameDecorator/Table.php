@@ -278,6 +278,7 @@ class Table extends AbstractFrameDecorator
 
                     $table_row->normalise();
                     $child->normalise();
+                    $this->_cellmap->add_row();
                     $anon_row = false;
                     continue;
                 }
@@ -294,12 +295,34 @@ class Table extends AbstractFrameDecorator
                 }
 
                 if ($display === "table-cell") {
+                    $css = $this->get_style()->get_stylesheet();
+
+                    // Create an anonymous table row group
+                    $tbody = $this->get_node()->ownerDocument->createElement("tbody");
+
+                    $frame = new Frame($tbody);
+
+                    $style = $css->create_style();
+                    $style->inherit($this->get_style());
+
+                    // Lookup styles for tbody tags.  If the user wants styles to work
+                    // better, they should make the tbody explicit... I'm not going to
+                    // try to guess what they intended.
+                    if ($tbody_style = $css->lookup("tbody")) {
+                        $style->merge($tbody_style);
+                    }
+                    $style->display = 'table-row-group';
+
+                    // Okay, I have absolutely no idea why I need this clone here, but
+                    // if it's omitted, php (as of 2004-07-28) segfaults.
+                    $frame->set_style($style);
+                    $table_row_group = Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
+
                     // Create an anonymous table row
                     $tr = $this->get_node()->ownerDocument->createElement("tr");
 
                     $frame = new Frame($tr);
 
-                    $css = $this->get_style()->get_stylesheet();
                     $style = $css->create_style();
                     $style->inherit($this->get_style());
 
@@ -309,6 +332,7 @@ class Table extends AbstractFrameDecorator
                     if ($tr_style = $css->lookup("tr")) {
                         $style->merge($tr_style);
                     }
+                    $style->display = 'table-row';
 
                     // Okay, I have absolutely no idea why I need this clone here, but
                     // if it's omitted, php (as of 2004-07-28) segfaults.
@@ -316,7 +340,10 @@ class Table extends AbstractFrameDecorator
                     $table_row = Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
 
                     // Add the cell to the row
-                    $table_row->append_child($child);
+                    $table_row->append_child($child, true);
+
+                    // Add the tr to the tbody
+                    $table_row_group->append_child($table_row, true);
 
                     $anon_row = true;
                     continue;
@@ -343,11 +370,10 @@ class Table extends AbstractFrameDecorator
             }
         }
 
-        if ($anon_row && $table_row instanceof DOMNode) {
+        if ($anon_row && $table_row_group instanceof AbstractFrameDecorator) {
             // Add the row to the table
-            $this->_frame->append_child($table_row);
+            $this->_frame->append_child($table_row_group->_frame);
             $table_row->normalise();
-            $this->_cellmap->add_row();
         }
 
         foreach ($erroneous_frames as $frame) {
