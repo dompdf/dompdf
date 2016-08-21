@@ -2158,8 +2158,8 @@ class Style
 
     protected function _get_border_radius_corner($corner)
     {
-        if (!isset($this->_props["border_" . $corner . "_radius"])) {
-            return;
+        if (!isset($this->_props["border_" . $corner . "_radius"]) || empty($this->_props["border_" . $corner . "_radius"])) {
+            return 0;
         }
 
         return $this->length_in_pt($this->_props["border_" . $corner . "_radius"]);
