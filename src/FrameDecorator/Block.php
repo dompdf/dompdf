@@ -137,7 +137,9 @@ class Block extends AbstractFrameDecorator
 
         $w = $frame->get_margin_width();
 
-        if ($w == 0) {
+        // FIXME: Why? Doesn't quite seem to be the correct thing to do, 
+        // but does appear to be necessary. Hack to handle wrapped white space?
+        if ($w === 0) {
             return;
         }
 
