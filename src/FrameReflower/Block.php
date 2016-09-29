@@ -13,6 +13,7 @@ use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\Exception;
+use Dompdf\Css\Style;
 
 /**
  * Reflows block frames
@@ -515,7 +516,6 @@ class Block extends AbstractFrameReflower
      */
     function vertical_align()
     {
-
         $canvas = null;
 
         foreach ($this->_frame->get_line_boxes() as $line) {
@@ -524,25 +524,10 @@ class Block extends AbstractFrameReflower
 
             foreach ($line->get_frames() as $frame) {
                 $style = $frame->get_style();
-
-                if ($isImage = ('-dompdf-image' == $style->display)) {
-                    $lineFrames = $line->get_frames();
-                    if (!$isImage = (1 == count($lineFrames)))
-                        continue;
-                    $frameBox = $this->_frame->get_frame()->get_border_box();
-                    $imageBox = $lineFrames[0]->get_frame()->get_border_box();
-                    $imageHeightDiff = $frameBox['h'] - $imageBox['h'];
-                    if (0 > $imageHeightDiff)
-                        $imageHeightDiff = 0;
-                }
-
+                $isImage = ('-dompdf-image' === $style->display);
                 if (!$isImage && $style->display !== "inline") {
                     continue;
                 }
-
-                $align = $isImage ?
-                    $align = $frame->get_style()->vertical_align :
-                    $frame->get_parent()->get_style()->vertical_align;
 
                 if (!isset($canvas)) {
                     $canvas = $frame->get_root()->get_dompdf()->get_canvas();
@@ -552,22 +537,48 @@ class Block extends AbstractFrameReflower
                 $y_offset = 0;
 
                 if($isImage) {
+                    $align = $frame->get_style()->vertical_align;
+                    $lineFrames = $line->get_frames();
+                    if (count($lineFrames) == 1) {
+                        continue;
+                    }
+                    $frameBox = $this->_frame->get_frame()->get_padding_box();
+                    $imageBox = $frame->get_frame()->get_border_box();
+                    $imageHeightDiff = $height * .8 - $imageBox['h'];
+                    
                     switch ($align) {
-                        case "top": // Nothing to worry about
+                        case "middle":  // FIXME: this should be the height of the line minus half the height of the text
+                            $y_offset = $baseline - ($imageBox['h'] / 2);
                             break;
-                        case "middle":
-                            $y_offset = $imageHeightDiff / 2;
+
+                        case "sub":
+                            $y_offset = 0.3 * $height + $imageHeightDiff;
                             break;
+
+                        case "super":
+                            $y_offset = -0.2 * $height + $imageHeightDiff;
+                            break;
+
+                        case "text-top": // FIXME: this should be the height of the frame minus the height of the text
+                            $y_offset = $height - $style->length_in_pt($style->get_line_height(), $style->font_size);
+                            break;
+
+                        case "top":
+                            break;
+
+                        case "text-bottom": // FIXME: align bottom of image with the descender?
                         case "bottom":
+                            $y_offset = 0.3 * $height + $imageHeightDiff;
+                            break;
+
+                        case "baseline":
+                        default:
                             $y_offset = $imageHeightDiff;
                             break;
                     }
                 } else {
+                    $align = $frame->get_parent()->get_style()->vertical_align;
                     switch ($align) {
-                        case "baseline":
-                            $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
-                            break;
-
                         case "middle":
                             $y_offset = ($height * 0.8 - $baseline) / 2;
                             break;
@@ -588,10 +599,15 @@ class Block extends AbstractFrameReflower
                         case "bottom":
                             $y_offset = $height * 0.8 - $baseline;
                             break;
+
+                        case "baseline":
+                        default:
+                            $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
+                            break;
                     }
                 }
 
-                if ($y_offset) {
+                if ($y_offset !== 0) {
                     $frame->move(0, $y_offset);
                 }
             }
