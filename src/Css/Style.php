@@ -62,6 +62,14 @@ class Style
     );
 
     /**
+     * List of valid vertical-align keywords.  Should also really be a constant.
+     *
+     * @var array
+     */
+    static $vertical_align_keywords = array("baseline", "bottom", "middle", "sub", "super", "text-bottom",
+        "text-top", "top");
+
+    /**
      * List of all inline types.  Should really be a constant.
      *
      * @var array

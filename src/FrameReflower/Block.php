@@ -546,64 +546,72 @@ class Block extends AbstractFrameReflower
                     $imageBox = $frame->get_frame()->get_border_box();
                     $imageHeightDiff = $height * .8 - $imageBox['h'];
                     
-                    switch ($align) {
-                        case "middle":  // FIXME: this should be the height of the line minus half the height of the text
-                            $y_offset = $baseline - ($imageBox['h'] / 2);
-                            break;
+                    if (in_array($align, Style::$vertical_align_keywords) === true) {
+                        switch ($align) {
+                            case "middle":  // FIXME: this should be the height of the line minus half the height of the text
+                                $y_offset = $baseline - ($imageBox['h'] / 2);
+                                break;
 
-                        case "sub":
-                            $y_offset = 0.3 * $height + $imageHeightDiff;
-                            break;
+                            case "sub":
+                                $y_offset = 0.3 * $height + $imageHeightDiff;
+                                break;
 
-                        case "super":
-                            $y_offset = -0.2 * $height + $imageHeightDiff;
-                            break;
+                            case "super":
+                                $y_offset = -0.2 * $height + $imageHeightDiff;
+                                break;
 
-                        case "text-top": // FIXME: this should be the height of the frame minus the height of the text
-                            $y_offset = $height - $style->length_in_pt($style->get_line_height(), $style->font_size);
-                            break;
+                            case "text-top": // FIXME: this should be the height of the frame minus the height of the text
+                                $y_offset = $height - $style->length_in_pt($style->get_line_height(), $style->font_size);
+                                break;
 
-                        case "top":
-                            break;
+                            case "top":
+                                break;
 
-                        case "text-bottom": // FIXME: align bottom of image with the descender?
-                        case "bottom":
-                            $y_offset = 0.3 * $height + $imageHeightDiff;
-                            break;
+                            case "text-bottom": // FIXME: align bottom of image with the descender?
+                            case "bottom":
+                                $y_offset = 0.3 * $height + $imageHeightDiff;
+                                break;
 
-                        case "baseline":
-                        default:
-                            $y_offset = $imageHeightDiff;
-                            break;
+                            case "baseline":
+                            default:
+                                $y_offset = $imageHeightDiff;
+                                break;
+                        }
+                    } else {
+                        $y_offset = $baseline - $style->length_in_pt($align, $style->font_size) - $imageBox['h'];
                     }
                 } else {
                     $align = $frame->get_parent()->get_style()->vertical_align;
-                    switch ($align) {
-                        case "middle":
-                            $y_offset = ($height * 0.8 - $baseline) / 2;
-                            break;
+                    if (in_array($align, Style::$vertical_align_keywords) === true) {
+                        switch ($align) {
+                            case "middle":
+                                $y_offset = ($height * 0.8 - $baseline) / 2;
+                                break;
 
-                        case "sub":
-                            $y_offset = 0.3 * $height;
-                            break;
+                            case "sub":
+                                $y_offset = 0.3 * $height;
+                                break;
 
-                        case "super":
-                            $y_offset = -0.2 * $height;
-                            break;
+                            case "super":
+                                $y_offset = -0.2 * $height;
+                                break;
 
-                        case "text-top":
-                        case "top": // Not strictly accurate, but good enough for now
-                            break;
+                            case "text-top":
+                            case "top": // Not strictly accurate, but good enough for now
+                                break;
 
-                        case "text-bottom":
-                        case "bottom":
-                            $y_offset = $height * 0.8 - $baseline;
-                            break;
+                            case "text-bottom":
+                            case "bottom":
+                                $y_offset = $height * 0.8 - $baseline;
+                                break;
 
-                        case "baseline":
-                        default:
-                            $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
-                            break;
+                            case "baseline":
+                            default:
+                                $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
+                                break;
+                        }
+                    } else {
+                        $y_offset = -0.8 * $style->length_in_pt($align, $style->font_size);
                     }
                 }
 
