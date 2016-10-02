@@ -121,5 +121,9 @@ class Image extends Block
                 $this->_debug_layout($frame->get_padding_box(), "blue", array(0.5, 0.5));
             }
         }
+
+        if ($id = $frame->get_node()->getAttribute("id")) {
+            $this->_canvas->add_named_dest($id);
+        }
     }
 }

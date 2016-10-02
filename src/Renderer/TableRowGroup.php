@@ -40,5 +40,9 @@ class TableRowGroup extends Block
                 $frame->_debug_layout(array($line->x, $line->y, $line->w, $line->h), "orange");
             }
         }
+
+        if ($id = $frame->get_node()->getAttribute("id")) {
+            $this->_canvas->add_named_dest($id);
+        }
     }
 }

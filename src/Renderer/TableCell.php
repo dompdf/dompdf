@@ -156,5 +156,8 @@ class TableCell extends Block
             }
         }
 
+        if ($id = $frame->get_node()->getAttribute("id")) {
+            $this->_canvas->add_named_dest($id);
+        }
     }
 }
