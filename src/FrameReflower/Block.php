@@ -525,8 +525,12 @@ class Block extends AbstractFrameReflower
 
             foreach ($line->get_frames() as $frame) {
                 $style = $frame->get_style();
-                $isImage = ('-dompdf-image' === $style->display);
-                if (!$isImage && $style->display !== "inline") {
+                $isInlineBlock = (
+                    '-dompdf-image' === $style->display
+                    || 'inline-block' === $style->display
+                    || 'inline-table' === $style->display
+                );
+                if (!$isInlineBlock && $style->display !== "inline") {
                     continue;
                 }
 
@@ -537,20 +541,20 @@ class Block extends AbstractFrameReflower
                 $baseline = $canvas->get_font_baseline($style->font_family, $style->font_size);
                 $y_offset = 0;
 
-                if($isImage) {
+                //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
+                if($isInlineBlock) {
                     $lineFrames = $line->get_frames();
                     if (count($lineFrames) == 1) {
                         continue;
                     }
-                    $frameBox = $this->_frame->get_frame()->get_padding_box();
-                    $imageBox = $frame->get_frame()->get_border_box();
-                    $imageHeightDiff = $height * .8 - $imageBox['h'];
+                    $frameBox = $frame->get_frame()->get_border_box();
+                    $imageHeightDiff = $height * 0.8 - $frameBox['h'];
                     
                     $align = $frame->get_style()->vertical_align;
                     if (in_array($align, Style::$vertical_align_keywords) === true) {
                         switch ($align) {
-                            case "middle":  // FIXME: this should be the height of the line minus half the height of the text
-                                $y_offset = $baseline - ($imageBox['h'] / 2);
+                            case "middle":
+                                $y_offset = $imageHeightDiff / 2;
                                 break;
 
                             case "sub":
@@ -579,7 +583,7 @@ class Block extends AbstractFrameReflower
                                 break;
                         }
                     } else {
-                        $y_offset = $baseline - $style->length_in_pt($align, $style->font_size) - $imageBox['h'];
+                        $y_offset = $baseline - $style->length_in_pt($align, $style->font_size) - $frameBox['h'];
                     }
                 } else {
                     $parent = $frame->get_parent();
@@ -595,11 +599,11 @@ class Block extends AbstractFrameReflower
                                 break;
 
                             case "sub":
-                                $y_offset = 0.3 * $height;
+                                $y_offset = $height * 0.8 - $baseline * 0.5;
                                 break;
 
                             case "super":
-                                $y_offset = -0.2 * $height;
+                                $y_offset = $height * 0.8 - $baseline * 1.4;
                                 break;
 
                             case "text-top":
@@ -613,11 +617,11 @@ class Block extends AbstractFrameReflower
 
                             case "baseline":
                             default:
-                                $y_offset = $height * 0.8 - $baseline; // The 0.8 ratio is arbitrary until we find it's meaning
+                                $y_offset = $height * 0.8 - $baseline;
                                 break;
                         }
                     } else {
-                        $y_offset = -0.8 * $style->length_in_pt($align, $style->font_size);
+                        $y_offset = $height * 0.8 - $baseline - $style->length_in_pt($align, $style->font_size);
                     }
                 }
 
