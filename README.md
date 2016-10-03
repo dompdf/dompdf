@@ -161,7 +161,9 @@ $dompdf->setPaper('A4', 'landscape');
 $dompdf->render();
 
 // Output the generated PDF to Browser
-$dompdf->stream();
+header('Content-Type: application/pdf');
+echo $dompdf->output();
+exit();
 ```
 
 ### Setting Options
