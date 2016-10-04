@@ -167,6 +167,7 @@ class LineBox
                 continue;
             }
 
+            $style = $this->_block_frame->get_style();
             $floating_style = $floating_frame->get_style();
             $float = $floating_style->float;
 
@@ -189,9 +190,13 @@ class LineBox
                 $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
             ) {
                 if ($float === "left") {
-                    $this->left += $floating_width;
-                } else {
-                    $this->right += $floating_width;
+                    if ($floating_width > $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left)) {
+                        $this->left += $floating_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left);
+                    }
+                } elseif ($float === "right") {
+                    if ($floating_width > $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_right)) {
+                        $this->right += $floating_width - $style->length_in_pt($style->margin_right) - $style->length_in_pt($style->padding_right);
+                    }
                 }
 
                 $this->floating_blocks[$id] = true;
