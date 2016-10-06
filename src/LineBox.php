@@ -158,7 +158,10 @@ class LineBox
             return;
         }
 
+        $style = $this->_block_frame->get_style();
         $floating_frames = $this->get_floats_inside($root);
+        $left_floating_width = 0;
+        $right_floating_width = 0;
 
         foreach ($floating_frames as $child_key => $floating_frame) {
             $id = $floating_frame->get_id();
@@ -167,10 +170,8 @@ class LineBox
                 continue;
             }
 
-            $style = $this->_block_frame->get_style();
             $floating_style = $floating_frame->get_style();
             $float = $floating_style->float;
-
             $floating_width = $floating_frame->get_margin_width();
 
             if (!$cb_w) {
@@ -190,13 +191,9 @@ class LineBox
                 $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
             ) {
                 if ($float === "left") {
-                    if ($floating_width > $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left)) {
-                        $this->left += $floating_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left);
-                    }
+                    $left_floating_width += $floating_width;
                 } elseif ($float === "right") {
-                    if ($floating_width > $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_right)) {
-                        $this->right += $floating_width - $style->length_in_pt($style->margin_right) - $style->length_in_pt($style->padding_right);
-                    }
+                    $right_floating_width += $floating_width;
                 }
 
                 $this->floating_blocks[$id] = true;
@@ -204,6 +201,13 @@ class LineBox
             else {
                 $root->remove_floating_frame($child_key);
             }
+        }
+
+        if ($left_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_left)) {
+            $this->left += $left_floating_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left);
+        }
+        if ($right_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_right)) {
+            $this->right += $right_floating_width - $style->length_in_pt($style->margin_right) - $style->length_in_pt($style->padding_right);
         }
     }
 
