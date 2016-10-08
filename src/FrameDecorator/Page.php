@@ -645,6 +645,10 @@ class Page extends AbstractFrameDecorator
             }
         }
 
+        if ($y > 0) {
+            $y++; // add 1px buffer from float
+        }
+
         return $y;
     }
 
