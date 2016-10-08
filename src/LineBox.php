@@ -141,7 +141,7 @@ class LineBox
 
     function get_float_offsets()
     {
-        static $anti_infinite_loop = 500; // FIXME smelly hack
+        static $anti_infinite_loop = 10000; // FIXME smelly hack
 
         $reflower = $this->_block_frame->get_reflower();
 
@@ -160,18 +160,20 @@ class LineBox
 
         $style = $this->_block_frame->get_style();
         $floating_frames = $this->get_floats_inside($root);
-        $left_floating_width = 0;
-        $right_floating_width = 0;
+        $inside_left_floating_width = 0;
+        $inside_right_floating_width = 0;
+        $outside_left_floating_width = 0;
+        $outside_right_floating_width = 0;
 
         foreach ($floating_frames as $child_key => $floating_frame) {
+            $floating_frame_parent = $floating_frame->get_parent();
             $id = $floating_frame->get_id();
 
             if (isset($this->floating_blocks[$id])) {
                 continue;
             }
 
-            $floating_style = $floating_frame->get_style();
-            $float = $floating_style->float;
+            $float = $floating_frame->get_style()->float;
             $floating_width = $floating_frame->get_margin_width();
 
             if (!$cb_w) {
@@ -187,13 +189,21 @@ class LineBox
 
             // If the child is still shifted by the floating element
             if ($anti_infinite_loop-- > 0 &&
-                $floating_frame->get_position("y") + $floating_frame->get_margin_height() > $this->y &&
-                $block->get_position("x") + $block->get_margin_width() > $floating_frame->get_position("x")
+                $floating_frame->get_position("y") + $floating_frame->get_margin_height() >= $this->y &&
+                $block->get_position("x") + $block->get_margin_width() >= $floating_frame->get_position("x")
             ) {
                 if ($float === "left") {
-                    $left_floating_width += $floating_width;
+                    if ($floating_frame_parent === $this->_block_frame) {
+                        $inside_left_floating_width += $floating_width;
+                    } else {
+                        $outside_left_floating_width += $floating_width;
+                    }
                 } elseif ($float === "right") {
-                    $right_floating_width += $floating_width;
+                    if ($floating_frame_parent === $this->_block_frame) {
+                        $inside_right_floating_width += $floating_width;
+                    } else {
+                        $outside_right_floating_width += $floating_width;
+                    }
                 }
 
                 $this->floating_blocks[$id] = true;
@@ -203,11 +213,13 @@ class LineBox
             }
         }
 
-        if ($left_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_left)) {
-            $this->left += $left_floating_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left);
+        $this->left += $inside_left_floating_width;
+        if ($outside_left_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_left)) {
+            $this->left += $outside_left_floating_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left);
         }
-        if ($right_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_right)) {
-            $this->right += $right_floating_width - $style->length_in_pt($style->margin_right) - $style->length_in_pt($style->padding_right);
+        $this->right += $inside_right_floating_width;
+        if ($outside_right_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_right)) {
+            $this->right += $outside_right_floating_width - $style->length_in_pt($style->margin_right) - $style->length_in_pt($style->padding_right);
         }
     }
 
