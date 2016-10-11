@@ -218,7 +218,8 @@ class Block extends AbstractFrameReflower
         $lines = $this->_frame->get_line_boxes();
         if (count($lines) > 0) {
             $last_line = end($lines);
-            $height = $last_line->y + $last_line->h - $this->_frame->get_position()['y'];
+            $position = $this->_frame->get_position();
+            $height = $last_line->y + $last_line->h - $position['y'];
         }
         return $height;
     }
