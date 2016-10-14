@@ -275,6 +275,7 @@ class Text extends AbstractFrameReflower
                 // Trim newlines from the beginning of the line
                 //$this->_frame->set_text(ltrim($text, "\n\r"));
 
+                $this->_block_parent->maximize_line_height($style->height, $frame);
                 $this->_block_parent->add_line();
                 $frame->position();
 
