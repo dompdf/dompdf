@@ -872,6 +872,11 @@ class Frame
         }
 
         $child->_parent = $this;
+        $decorator = $child->get_decorator();
+        // force an update to the cached parent 
+        if ($decorator !== null) {
+            $decorator->get_parent(false);
+        }
         $child->_next_sibling = null;
 
         // Handle the first child

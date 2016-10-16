@@ -381,15 +381,17 @@ abstract class AbstractFrameDecorator extends Frame
      */
     function insert_child_after(Frame $new_child, Frame $ref, $update_node = true)
     {
-        while ($new_child instanceof AbstractFrameDecorator) {
-            $new_child = $new_child->_frame;
+        $insert_frame = $new_child;
+        while ($insert_frame instanceof AbstractFrameDecorator) {
+            $insert_frame = $insert_frame->_frame;
         }
 
-        while ($ref instanceof AbstractFrameDecorator) {
-            $ref = $ref->_frame;
+        $reference_frame = $ref;
+        while ($reference_frame instanceof AbstractFrameDecorator) {
+            $reference_frame = $reference_frame->_frame;
         }
 
-        $this->_frame->insert_child_after($new_child, $ref, $update_node);
+        $this->_frame->insert_child_after($insert_frame, $reference_frame, $update_node);
     }
 
     /**
@@ -410,9 +412,9 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @return AbstractFrameDecorator
      */
-    function get_parent()
+    function get_parent($use_cache = true)
     {
-        if ($this->_cached_parent) {
+        if ($use_cache && $this->_cached_parent) {
             return $this->_cached_parent;
         }
         $p = $this->_frame->get_parent();
@@ -620,8 +622,10 @@ abstract class AbstractFrameDecorator extends Frame
     {
         // decrement any counters that were incremented on the current node, unless that node is the body
         $style = $this->_frame->get_style();
-        if ($this->_frame->get_node(
-            )->nodeName !== "body" && $style->counter_increment && ($decrement = $style->counter_increment) !== "none"
+        if (
+            $this->_frame->get_node()->nodeName !== "body" &&
+            $style->counter_increment &&
+            ($decrement = $style->counter_increment) !== "none"
         ) {
             $this->decrement_counters($decrement);
         }
@@ -632,8 +636,9 @@ abstract class AbstractFrameDecorator extends Frame
             // it's been rendered, thus the position check)
             if (!$this->is_text_node() && $this->get_node()->hasAttribute("dompdf_before_frame_id")) {
                 foreach ($this->_frame->get_children() as $child) {
-                    if ($this->get_node()->getAttribute("dompdf_before_frame_id") == $child->get_id(
-                        ) && $child->get_position('x') !== null
+                    if (
+                        $this->get_node()->getAttribute("dompdf_before_frame_id") == $child->get_id() &&
+                        $child->get_position('x') !== null
                     ) {
                         $style = $child->get_style();
                         if ($style->counter_increment && ($decrement = $style->counter_increment) !== "none") {
@@ -688,6 +693,7 @@ abstract class AbstractFrameDecorator extends Frame
             $frame = $iter;
             $iter = $iter->get_next_sibling();
             $frame->reset();
+            $frame->_parent = $split;
             $split->append_child($frame);
         }
 
