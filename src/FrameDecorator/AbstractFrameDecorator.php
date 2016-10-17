@@ -685,7 +685,13 @@ abstract class AbstractFrameDecorator extends Frame
             $orig_style->page_break_before = "auto";
         }
 
+        // recalculate the float offsets after paging
         $this->get_parent()->insert_child_after($split, $this);
+        if ($this instanceof Block) {
+            foreach ($this->get_line_boxes() as $index => $line_box) {
+                $line_box->get_float_offsets();
+            }
+        }
 
         // Add $frame and all following siblings to the new split node
         $iter = $child;
@@ -695,6 +701,13 @@ abstract class AbstractFrameDecorator extends Frame
             $frame->reset();
             $frame->_parent = $split;
             $split->append_child($frame);
+ 
+            // recalculate the float offsets
+            if ($frame instanceof Block) {
+                foreach ($frame->get_line_boxes() as $index => $line_box) {
+                    $line_box->get_float_offsets();
+                }
+            }
         }
 
         $this->get_parent()->split($split, $force_pagebreak);
