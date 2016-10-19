@@ -641,6 +641,14 @@ class Block extends AbstractFrameReflower
 
         // Handle "clear"
         if ($child_style->clear !== "none") {
+            //TODO: this is a WIP for handling clear/float frames that are in between inline frames
+            if ($child->get_prev_sibling() !== null) {
+                $this->_frame->add_line();
+            }
+            if ($child_style->float !== "none" && $child->get_next_sibling()) {
+                $this->_frame->set_current_line_number($this->_frame->get_current_line_number() - 1);
+            }
+
             $lowest_y = $root->get_lowest_float_offset($child);
 
             // If a float is still applying, we handle it
