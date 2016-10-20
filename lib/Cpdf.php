@@ -4274,7 +4274,7 @@ EOT;
     function addImagePng($file, $x, $y, $w = 0.0, $h = 0.0, &$img, $is_mask = false, $mask = null)
     {
         if (!function_exists("imagepng")) {
-            throw new Exception("The PHP GD extension is required, but is not installed.");
+            throw new \Exception("The PHP GD extension is required, but is not installed.");
         }
 
         //if already cached, need not to read again
@@ -4363,7 +4363,7 @@ EOT;
 
         // Use PECL gmagick + Graphics Magic to process transparent PNG images
         if (extension_loaded("gmagick")) {
-            $gmagick = new Gmagick($file);
+            $gmagick = new \Gmagick($file);
             $gmagick->setimageformat('png');
 
             // Get opacity channel (negative of alpha channel)
@@ -4371,7 +4371,7 @@ EOT;
             $alpha_channel_neg->separateimagechannel(Gmagick::CHANNEL_OPACITY);
 
             // Negate opacity channel
-            $alpha_channel = new Gmagick();
+            $alpha_channel = new \Gmagick();
             $alpha_channel->newimage($wpx, $hpx, "#FFFFFF", "png");
             $alpha_channel->compositeimage($alpha_channel_neg, Gmagick::COMPOSITE_DIFFERENCE, 0, 0);
             $alpha_channel->separateimagechannel(Gmagick::CHANNEL_RED);
@@ -4384,7 +4384,7 @@ EOT;
             imagepng($imgalpha, $tempfile_alpha);
 
             // Make opaque image
-            $color_channels = new Gmagick();
+            $color_channels = new \Gmagick();
             $color_channels->newimage($wpx, $hpx, "#FFFFFF", "png");
             $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYRED, 0, 0);
             $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYGREEN, 0, 0);
@@ -4401,7 +4401,7 @@ EOT;
                 $imagickClonable = version_compare(phpversion('imagick'), '3.0.1rc1') > 0;
             }
 
-            $imagick = new Imagick($file);
+            $imagick = new \Imagick($file);
             $imagick->setFormat('png');
 
             // Get opacity channel (negative of alpha channel)
@@ -4417,7 +4417,7 @@ EOT;
             imagepng($imgalpha, $tempfile_alpha);
 
             // Make opaque image
-            $color_channels = new Imagick();
+            $color_channels = new \Imagick();
             $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
             $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYRED, 0, 0);
             $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYGREEN, 0, 0);
@@ -4489,7 +4489,7 @@ EOT;
     function addPngFromFile($file, $x, $y, $w = 0, $h = 0)
     {
         if (!function_exists("imagecreatefrompng")) {
-            throw new Exception("The PHP GD extension is required, but is not installed.");
+            throw new \Exception("The PHP GD extension is required, but is not installed.");
         }
 
         //if already cached, need not to read again
