@@ -4368,13 +4368,13 @@ EOT;
 
             // Get opacity channel (negative of alpha channel)
             $alpha_channel_neg = clone $gmagick;
-            $alpha_channel_neg->separateimagechannel(Gmagick::CHANNEL_OPACITY);
+            $alpha_channel_neg->separateimagechannel(\Gmagick::CHANNEL_OPACITY);
 
             // Negate opacity channel
             $alpha_channel = new \Gmagick();
             $alpha_channel->newimage($wpx, $hpx, "#FFFFFF", "png");
-            $alpha_channel->compositeimage($alpha_channel_neg, Gmagick::COMPOSITE_DIFFERENCE, 0, 0);
-            $alpha_channel->separateimagechannel(Gmagick::CHANNEL_RED);
+            $alpha_channel->compositeimage($alpha_channel_neg, \Gmagick::COMPOSITE_DIFFERENCE, 0, 0);
+            $alpha_channel->separateimagechannel(\Gmagick::CHANNEL_RED);
             $alpha_channel->writeimage($tempfile_alpha);
 
             // Cast to 8bit+palette
@@ -4386,9 +4386,9 @@ EOT;
             // Make opaque image
             $color_channels = new \Gmagick();
             $color_channels->newimage($wpx, $hpx, "#FFFFFF", "png");
-            $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYRED, 0, 0);
-            $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYGREEN, 0, 0);
-            $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYBLUE, 0, 0);
+            $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYRED, 0, 0);
+            $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYGREEN, 0, 0);
+            $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYBLUE, 0, 0);
             $color_channels->writeimage($tempfile_plain);
 
             $imgplain = imagecreatefrompng($tempfile_plain);
@@ -4406,7 +4406,7 @@ EOT;
 
             // Get opacity channel (negative of alpha channel)
             $alpha_channel = $imagickClonable ? clone $imagick : $imagick->clone();
-            $alpha_channel->separateImageChannel(Imagick::CHANNEL_ALPHA);
+            $alpha_channel->separateImageChannel(\Imagick::CHANNEL_ALPHA);
             $alpha_channel->negateImage(true);
             $alpha_channel->writeImage($tempfile_alpha);
 
@@ -4419,9 +4419,9 @@ EOT;
             // Make opaque image
             $color_channels = new \Imagick();
             $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
-            $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYRED, 0, 0);
-            $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYGREEN, 0, 0);
-            $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYBLUE, 0, 0);
+            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYRED, 0, 0);
+            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYGREEN, 0, 0);
+            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYBLUE, 0, 0);
             $color_channels->writeImage($tempfile_plain);
 
             $imgplain = imagecreatefrompng($tempfile_plain);
