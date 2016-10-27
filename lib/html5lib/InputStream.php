@@ -76,7 +76,7 @@ class HTML5_InputStream {
             $data = @iconv('UTF-8', 'UTF-8//IGNORE', $data);
         } else {
             // we can make a conforming native implementation
-            throw new Exception('Not implemented, please install mbstring or iconv');
+            throw new Exception('Not implemented, please install iconv');
         }
 
         /* One leading U+FEFF BYTE ORDER MARK character must be
