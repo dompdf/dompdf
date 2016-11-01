@@ -893,8 +893,13 @@ class CPDF implements Canvas
 
                 switch ($_t) {
                     case "text":
-                        $text = str_replace(array("{PAGE_NUM}", "{PAGE_COUNT}"),
-                            array($page_number, $this->_page_count), $text);
+                        $text = preg_replace_callback('/\{PAGE_NUM([\+\-]?\d*)\}/', 
+							function ($matches) use ($page_number)  {  return ($matches[1]+$page_number);},
+							$text);
+						$replaceCount = $this->_page_count;
+						$text = preg_replace_callback('/\{PAGE_COUNT([\+\-]?\d*)\}/', 
+							function ($matches) use ($replaceCount)  {  return ($matches[1]+$replaceCount);},
+							$text);
                         $this->text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
                         break;
 
