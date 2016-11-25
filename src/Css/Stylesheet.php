@@ -923,7 +923,12 @@ class Stylesheet
             }
         }
 
-        // Now create the styles and assign them to the appropriate frames.  (We
+        // Set the page width, height, and orientation based on the canvas paper size
+        $paper_width = $this->_dompdf->get_canvas()->get_width();
+        $paper_height = $this->_dompdf->get_canvas()->get_height();
+        $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+        
+        // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
         foreach ($tree->get_frames() as $frame) {
@@ -931,10 +936,18 @@ class Stylesheet
             if (!$root_flg && $this->_page_styles["base"]) {
                 $style = $this->_page_styles["base"];
                 $root_flg = true;
+
+                // set the page width, height, and orientation based on the base page style
+                if ($style->size !== "auto") {
+                    list($paper_width, $paper_height) = $style->size;
+                }
+                $paper_width = $paper_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->margin_right);
+                $paper_height = $paper_height - $style->length_in_pt($style->margin_top) - $style->length_in_pt($style->margin_bottom);
+                $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
             } else {
                 $style = $this->create_style();
             }
-
+            
             // Find nearest DOMElement parent
             $p = $frame;
             while ($p = $p->get_parent()) {
@@ -993,8 +1006,65 @@ class Stylesheet
                 }
 
                 // Merge the new styles with the inherited styles
+                $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
+                $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
                 foreach ($applied_styles as $arr) {
                     foreach ($arr as $s) {
+                        $media_queries = $s->get_media_queries();
+                        foreach ($media_queries as $media_query) {
+                            list($media_query_feature, $media_query_value) = $media_query;
+                            // if any of the Style's media queries fail then do not apply the style
+                            //TODO: When the media query logic is fully developed we should not apply the Style when any of the media queries fail or are bad, per https://www.w3.org/TR/css3-mediaqueries/#error-handling
+                            if (in_array($media_query_feature, self::$VALID_MEDIA_TYPES)) {
+                                if ((strlen($media_query_value) === 0 && !in_array($media_query, $acceptedmedia)) || (in_array($media_query, $acceptedmedia) && $media_query_value == "not")) {
+                                    continue (3);
+                                }
+                            } else {
+                                switch ($media_query_feature) {
+                                    case "height":
+                                        if ($paper_height !== $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "min-height":
+                                        if ($paper_height < $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "max-height":
+                                        if ($paper_height > $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "width":
+                                        if ($paper_width !== $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "min-width":
+                                        //if (min($paper_width, $media_query_width) === $paper_width) {
+                                        if ($paper_width < $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "max-width":
+                                        //if (max($paper_width, $media_query_width) === $paper_width) {
+                                        if ($paper_width > $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "orientation":
+                                        if ($paper_orientation !== $media_query_value) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    default:
+                                        Helpers::record_warnings(E_USER_WARNING, "Unknown media query: $media_query_feature", __FILE__, __LINE__);
+                                        break;
+                                }
+                            }
+                        }
+
                         $style->merge($s);
                     }
                 }
@@ -1091,6 +1161,9 @@ class Stylesheet
         // [6] => '{', within media rules
         // [7] => individual rules, outside of media rules
         //
+
+        $media_query_regex = "/(?:((only|not)?\s*(" . implode("|", self::$VALID_MEDIA_TYPES) . "))|(\s*\(\s*((?:(min|max)-)?([\w\-]+))\s*(?:\:\s*(.*?)\s*)?\)))/isx";
+
         //Helpers::pre_r($matches);
         foreach ($matches as $match) {
             $match[2] = trim($match[2]);
@@ -1107,10 +1180,31 @@ class Stylesheet
                         $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
                         $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
 
-                        $media = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
-
-                        if (count(array_intersect($acceptedmedia, $media))) {
-                            $this->_parse_sections($match[5]);
+                        $media_queries = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
+                        foreach ($media_queries as $media_query) {
+                            if (in_array($media_query, $acceptedmedia)) {
+                                //if we have a media type match go ahead and parse the stylesheet
+                                $this->_parse_sections($match[5]);
+                                break;
+                            } elseif (!in_array($media_query, self::$VALID_MEDIA_TYPES)) {
+                                // otherwise conditionally parse the stylesheet assuming there are parseable media queries
+                                if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) !== false) {
+                                    $mq = array();
+                                    foreach ($media_query_matches as $media_query_match) {
+                                        if (empty($media_query_match[1]) === false) {
+                                            $media_query_feature = strtolower($media_query_match[3]);
+                                            $media_query_value = strtolower($media_query_match[2]);
+                                            $mq[] = array($media_query_feature, $media_query_value);
+                                        } else if (empty($media_query_match[4]) === false) {
+                                            $media_query_feature = strtolower($media_query_match[5]);
+                                            $media_query_value = (array_key_exists(8, $media_query_match) ? strtolower($media_query_match[8]) : null);
+                                            $mq[] = array($media_query_feature, $media_query_value);
+                                        }
+                                    }
+                                    $this->_parse_sections($match[5], $mq);
+                                    break;
+                                }
+                            }
                         }
                         break;
 
@@ -1414,8 +1508,9 @@ class Stylesheet
      * parse selector + rulesets
      *
      * @param string $str CSS selectors and rulesets
+     * @param array $media_queries
      */
-    private function _parse_sections($str)
+    private function _parse_sections($str, $media_queries = array())
     {
         // Pre-process: collapse all whitespace and strip whitespace around '>',
         // '.', ':', '+', '#'
@@ -1445,6 +1540,10 @@ class Stylesheet
                 if ($DEBUGCSS) print '#' . $selector . '#';
                 //if ($DEBUGCSS) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
 
+                //FIXME: tag the selector with a hash of the media query to separate it from non-conditional styles (?), xpath comments are probably not what we want to do here
+                if (count($media_queries) > 0) {
+                    $style->set_media_queries($media_queries);
+                }
                 $this->add_style($selector, $style);
             }
 

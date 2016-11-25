@@ -139,6 +139,13 @@ class Style
     protected $_stylesheet; // stylesheet this style is attached to
 
     /**
+     * Media queries attached to the style
+     *
+     * @var int
+     */
+    protected $_media_queries;
+
+    /**
      * Main array of all CSS properties & values
      *
      * @var array
@@ -218,6 +225,7 @@ class Style
         $this->_props = array();
         $this->_important_props = array();
         $this->_stylesheet = $stylesheet;
+        $this->_media_queries = array();
         $this->_origin = $origin;
         $this->_parent_font_size = null;
         $this->__font_size_calculated = false;
@@ -421,6 +429,16 @@ class Style
      */
     function dispose()
     {
+    }
+
+    function set_media_queries($media_queries)
+    {
+        $this->_media_queries = $media_queries;
+    }
+
+    function get_media_queries()
+    {
+        return $this->_media_queries;
     }
 
     function set_frame(Frame $frame)
