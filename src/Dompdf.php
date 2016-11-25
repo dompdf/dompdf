@@ -297,6 +297,7 @@ class Dompdf
         $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
         $this->saveLocale();
         $this->paperSize = $this->options->getDefaultPaperSize();
+        $this->paperOrientation = $this->options->getDefaultPaperOrientation();
 
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
         $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
@@ -1034,6 +1035,33 @@ class Dompdf
         $this->paperSize = $size;
         $this->paperOrientation = $orientation;
         return $this;
+    }
+
+    /**
+     * Gets the paper size
+     *
+     * @return int[] A four-element integer array
+     */
+    public function getPaperSize()
+    {
+        $size = $this->_paperSize;
+        if (is_array($size)) {
+            return $size;
+        } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
+            return Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)];
+        } else {
+            return Adapter\CPDF::$PAPER_SIZES["letter"];
+        }
+    }
+
+    /**
+     * Gets the paper orientation
+     *
+     * @return string Either 
+     */
+    public function getPaperOrientation()
+    {
+        return $this->_paperOrientation;
     }
 
     /**
