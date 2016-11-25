@@ -2351,6 +2351,10 @@ class Style
             } else {
                 $computed[] = $computed[0];
             }
+
+            if (isset($parts[2]) && $parts[2] === "landscape") {
+                $computed = array_reverse($computed);
+            }
         } elseif (isset(CPDF::$PAPER_SIZES[$parts[0]])) {
             $computed = array_slice(CPDF::$PAPER_SIZES[$parts[0]], 2, 2);
 
