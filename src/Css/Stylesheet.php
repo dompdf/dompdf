@@ -152,6 +152,7 @@ class Stylesheet
      */
     static $ACCEPTED_DEFAULT_MEDIA_TYPE = "print";
     static $ACCEPTED_GENERIC_MEDIA_TYPES = array("all", "static", "visual", "bitmap", "paged", "dompdf");
+    static $VALID_MEDIA_TYPES = array("all", "aural", "bitmap", "braille", "dompdf", "embossed", "handheld", "paged", "print", "projection", "screen", "speech", "static", "tty", "tv", "visual");
 
     /**
      * @var FontMetrics
@@ -270,19 +271,18 @@ class Stylesheet
             throw new Exception("CSS rule must be keyed by a string.");
         }
 
-        if (isset($this->_styles[$key])) {
-            $this->_styles[$key]->merge($style);
-        } else {
-            $this->_styles[$key] = clone $style;
+        if (!isset($this->_styles[$key])) {
+            $this->_styles[$key] = array();
         }
-
-        $this->_styles[$key]->set_origin($this->_current_origin);
+        $new_style = clone $style;
+        $new_style->set_origin($this->_current_origin);
+        $this->_styles[$key][] = $new_style;
     }
 
     /**
-     * lookup a specifc Style object
+     * lookup a specifc Style collection
      *
-     * lookup() returns the Style specified by $key, or null if the Style is
+     * lookup() returns the Style collection specified by $key, or null if the Style is
      * not found.
      *
      * @param string $key the selector of the requested Style
@@ -857,65 +857,69 @@ class Stylesheet
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         // Add generated content
-        foreach ($this->_styles as $selector => $style) {
-            if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
-                continue;
-            }
+        foreach ($this->_styles as $selector => $selector_styles) {
+            foreach ($selector_styles as $style) {
+                if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
+                    continue;
+                }
 
-            $query = $this->_css_selector_to_xpath($selector, true);
+                $query = $this->_css_selector_to_xpath($selector, true);
 
-            // Retrieve the nodes, limit to body for generated content
-            $nodes = @$xp->query('.' . $query["query"]);
-            if ($nodes == null) {
-                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                continue;
-            }
+                // Retrieve the nodes, limit to body for generated content
+                $nodes = @$xp->query('.' . $query["query"]);
+                if ($nodes == null) {
+                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                    continue;
+                }
 
-            foreach ($nodes as $node) {
-                foreach ($query["pseudo_elements"] as $pos) {
-                    // Do not add a new pseudo element if another one already matched
-                    if ($node->hasAttribute("dompdf_{$pos}_frame_id")) {
-                        continue;
+                foreach ($nodes as $node) {
+                    foreach ($query["pseudo_elements"] as $pos) {
+                        // Do not add a new pseudo element if another one already matched
+                        if ($node->hasAttribute("dompdf_{$pos}_frame_id")) {
+                            continue;
+                        }
+
+                        if (($src = $this->_image($style->get_prop('content'))) !== "none") {
+                            $new_node = $node->ownerDocument->createElement("img_generated");
+                            $new_node->setAttribute("src", $src);
+                        } else {
+                            $new_node = $node->ownerDocument->createElement("dompdf_generated");
+                        }
+
+                        $new_node->setAttribute($pos, $pos);
+                        $new_frame_id = $tree->insert_node($node, $new_node, $pos);
+                        $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
                     }
-
-                    if (($src = $this->_image($style->get_prop('content'))) !== "none") {
-                        $new_node = $node->ownerDocument->createElement("img_generated");
-                        $new_node->setAttribute("src", $src);
-                    } else {
-                        $new_node = $node->ownerDocument->createElement("dompdf_generated");
-                    }
-
-                    $new_node->setAttribute($pos, $pos);
-                    $new_frame_id = $tree->insert_node($node, $new_node, $pos);
-                    $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
                 }
             }
         }
 
         // Apply all styles in stylesheet
-        foreach ($this->_styles as $selector => $style) {
-            $query = $this->_css_selector_to_xpath($selector);
+        foreach ($this->_styles as $selector => $selector_styles) {
+            foreach ($selector_styles as $style) {
+                $query = $this->_css_selector_to_xpath($selector);
 
-            // Retrieve the nodes
-            $nodes = @$xp->query($query["query"]);
-            if ($nodes == null) {
-                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                continue;
-            }
-
-            $spec = $this->_specificity($selector, $style->get_origin());
-
-            foreach ($nodes as $node) {
-                // Retrieve the node id
-                // Only DOMElements get styles
-                if ($node->nodeType != XML_ELEMENT_NODE) {
+                // Retrieve the nodes
+                $nodes = @$xp->query($query["query"]);
+                if ($nodes == null) {
+                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                     continue;
                 }
 
-                $id = $node->getAttribute("frame_id");
+                $spec = $this->_specificity($selector, $style->get_origin());
 
-                // Assign the current style to the scratch array
-                $styles[$id][$spec][] = $style;
+                foreach ($nodes as $node) {
+                    // Retrieve the node id
+                    // Only DOMElements get styles
+                    if ($node->nodeType != XML_ELEMENT_NODE) {
+                        continue;
+                    }
+
+                    $id = $node->getAttribute("frame_id");
+
+                    // Assign the current style to the scratch array
+                    $styles[$id][$spec][] = $style;
+                }
             }
         }
 
@@ -1067,8 +1071,8 @@ class Stylesheet
             "            (?(6) (?>[^}]*) }) \s*)+?                                                        \n" .
             "       )                                                                                     \n" .
             "   })                                  # Balancing '}'                                       \n" .
-            "|                                      # Branch to match regular rules (not preceded by '@')\n" .
-            "([^{]*{[^}]*}))                        # Parse normal rulesets\n" .
+            "|                                      # Branch to match regular rules (not preceded by '@') \n" .
+            "([^{]*{[^}]*}))                        # Parse normal rulesets                               \n" .
             "/xs";
 
         if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
@@ -1279,7 +1283,6 @@ class Stylesheet
      * http://www.w3.org/TR/css3-fonts/#the-font-face-rule
      *
      * @param string $str CSS @font-face rules
-     * @return Style
      */
     private function _parse_font_face($str)
     {
@@ -1486,8 +1489,10 @@ class Stylesheet
     function __toString()
     {
         $str = "";
-        foreach ($this->_styles as $selector => $style) {
-            $str .= "$selector => " . $style->__toString() . "\n";
+        foreach ($this->_styles as $selector => $selector_styles) {
+            foreach ($selector_styles as $style) {
+                $str .= "$selector => " . $style->__toString() . "\n";
+            }
         }
 
         return $str;
