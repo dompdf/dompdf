@@ -831,14 +831,25 @@ class GD implements Canvas
 
     function get_ttf_file($font)
     {
-        if (stripos($font, '.ttf') === false)
+        if ( stripos($font, ".ttf") === false ) {
             $font .= ".ttf";
+        }
 
-        /*$filename = substr(strtolower(basename($font)), 0, -4);
-
-        if ( in_array($filename, Dompdf::$native_fonts) ) {
-          return "arial.ttf";
-        }*/
+        if ( !file_exists($font) ) {
+            $font_metrics = $this->_dompdf->getFontMetrics();
+            $font = $font_metrics->getFont($this->_dompdf->getOptions()->getDefaultFont()) . ".ttf";
+            if ( !file_exists($font) ) {
+                if (strpos($font, "mono")) {
+                    $font = $font_metrics->getFont("DejaVu Mono") . ".ttf";
+                } elseif (strpos($font, "sans") !== false) {
+                    $font = $font_metrics->getFont("DejaVu Sans") . ".ttf";
+                } elseif (strpos($font, "serif")) {
+                    $font = $font_metrics->getFont("DejaVu Serif") . ".ttf";
+                } else {
+                    $font = $font_metrics->getFont("DejaVu Sans") . ".ttf";
+                }
+            }
+        }
 
         return $font;
     }
