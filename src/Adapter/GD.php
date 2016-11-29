@@ -277,21 +277,18 @@ class GD implements Canvas
      */
     private function _allocate_color($color)
     {
+        $a = isset($color["alpha"]) ? $color["alpha"] : 1;
 
         if (isset($color["c"])) {
             $color = Helpers::cmyk_to_rgb($color);
         }
 
-        // Full opacity if no alpha set
-        if (!isset($color[3]))
-            $color[3] = 0;
-
-        list($r, $g, $b, $a) = $color;
+        list($r, $g, $b) = $color;
 
         $r *= 255;
         $g *= 255;
         $b *= 255;
-        $a *= 127;
+        $a = 127 - ($a * 127);
 
         // Clip values
         $r = $r > 255 ? 255 : $r;

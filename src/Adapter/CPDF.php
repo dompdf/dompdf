@@ -165,6 +165,13 @@ class CPDF implements Canvas
     private $_image_cache;
 
     /**
+     * Currently-applied opacity level (0 - 1)
+     *
+     * @var float
+     */
+    private $_current_opacity = 1;
+
+    /**
      * Class constructor
      *
      * @param mixed $paper The size of paper to use in this PDF ({@link CPDF::$PAPER_SIZES})
@@ -421,6 +428,11 @@ class CPDF implements Canvas
     protected function _set_stroke_color($color)
     {
         $this->_pdf->setStrokeColor($color);
+        $alpha = isset($color["alpha"]) ? $color["alpha"] : 1;
+        if ($this->_current_opacity != 1) {
+            $alpha *= $this->_current_opacity;
+        }
+        $this->_set_line_transparency("Normal", $alpha);
     }
 
     /**
@@ -432,6 +444,11 @@ class CPDF implements Canvas
     protected function _set_fill_color($color)
     {
         $this->_pdf->setColor($color);
+        $alpha = isset($color["alpha"]) ? $color["alpha"] : 1;
+        if ($this->_current_opacity) {
+            $alpha *= $this->_current_opacity;
+        }
+        $this->_set_fill_transparency("Normal", $alpha);
     }
 
     /**
@@ -495,6 +512,7 @@ class CPDF implements Canvas
     {
         $this->_set_line_transparency($mode, $opacity);
         $this->_set_fill_transparency($mode, $opacity);
+        $this->_current_opacity = $opacity;
     }
 
     function set_default_view($view, $options = array())
@@ -706,7 +724,7 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $pdf->setColor($color);
+        $this->_set_fill_color($color);
 
         $font .= ".afm";
         $pdf->selectFont($font);
