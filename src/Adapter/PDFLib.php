@@ -118,6 +118,13 @@ class PDFLib implements Canvas
     private $_objs;
 
     /**
+     * List of gstate objects created for this PDF (for reuse)
+     *
+     * @var array
+     */
+    private $_gstates = array();
+
+    /**
      * Current page number
      *
      * @var int
@@ -534,9 +541,23 @@ class PDFLib implements Canvas
     function set_opacity($opacity, $mode = "Normal")
     {
         if ($mode === "Normal") {
-            $gstate = $this->_pdf->create_gstate("opacityfill=$opacity opacitystroke=$opacity");
-            $this->_pdf->set_gstate($gstate);
+            $this->_set_gstate("opacityfill=$opacity opacitystroke=$opacity");
         }
+    }
+
+    /**
+     * Sets the gstate
+     *
+     * @param $gstate_options
+     * @return int
+     */
+    function _set_gstate($gstate_options)
+    {
+        if (($gstate = array_search($gstate_options, $this->_gstates)) === false) {
+            $gstate = $this->_pdf->create_gstate($gstate_options);
+            $this->_gstates[$gstate] = $gstate_options;
+        }
+        return $this->_pdf->set_gstate($gstate);
     }
 
     function set_default_view($view, $options = array())

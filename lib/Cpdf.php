@@ -90,6 +90,11 @@ class Cpdf
     private $numStates = 0;
 
     /**
+     * @var array Number of graphic state resources used
+     */
+    private $gstates = array();
+
+    /**
      * @var array Current color for fill operations, defaults to inactive value,
      * all three components should be between 0 and 1 inclusive when active
      */
@@ -122,7 +127,7 @@ class Cpdf
 
     /**
      * @var array An array which is used to save the state of the document, mainly the colors and styles
-     * it is used to temporarily change to another state, the change back to what it was before
+     * it is used to temporarily change to another state, then change back to what it was before
      */
     public $stateStack = array();
 
@@ -2846,11 +2851,14 @@ EOT;
      */
     function setGraphicsState($parameters)
     {
-        // Create a new graphics state object
-        // FIXME: should actually keep track of states that have already been created...
-        $this->numObj++;
-        $this->o_extGState($this->numObj, 'new', $parameters);
-        $this->addContent("\n/GS$this->numStates gs");
+        // Create a new graphics state object if necessary
+        if (($gstate = array_search($parameters, $this->gstates)) === false) {
+            $this->numObj++;
+            $this->o_extGState($this->numObj, 'new', $parameters);
+            $gstate = $this->numStates;
+            $this->gstates[$gstate] = $parameters;
+        }
+        $this->addContent("\n/GS$gstate gs");
     }
 
     /**
