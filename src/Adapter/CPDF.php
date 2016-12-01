@@ -911,7 +911,7 @@ class CPDF implements Canvas
             foreach ($this->_page_text as $pt) {
                 extract($pt);
 
-                if (in_array($page_number, $except_on)) {
+                if ($except_on && in_array($page_number, $except_on)) {
                     // don't run the script on the page that is to be excluded
                     break;
                 }
