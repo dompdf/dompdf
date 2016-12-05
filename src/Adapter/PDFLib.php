@@ -1099,6 +1099,7 @@ class PDFLib implements Canvas
         if (!count($this->_page_text))
             return;
 
+        $eval = null;
         $this->_pdf->suspend_page("");
 
         for ($p = 1; $p <= $this->_page_count; $p++) {
