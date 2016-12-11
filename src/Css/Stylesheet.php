@@ -55,11 +55,28 @@ class Stylesheet
      */
     const ORIG_AUTHOR = 3;
 
+    /*
+     * The highest possible specificity is 0x01000000 (and that is only for author
+     * stylesheets, as it is for inline styles). Origin precedence can be achieved by
+     * adding multiples of 0x10000000 to the actual specificity. Important
+     * declarations are handled in Style; though technically they should be handled
+     * here so that user important declarations can be made to take precedence over
+     * user important declarations, this doesn't matter in practice as Dompdf does
+     * not support user stylesheets, and user agent stylesheets can not include
+     * important declarations.
+     */
     private static $_stylesheet_origins = array(
-        self::ORIG_UA => -0x0FFFFFFF, // user agent style sheets
-        self::ORIG_USER => -0x0000FFFF, // user normal style sheets
-        self::ORIG_AUTHOR => 0x00000000, // author normal style sheets
+        self::ORIG_UA => 0x00000000, // user agent declarations
+        self::ORIG_USER => 0x10000000, // user normal declarations
+        self::ORIG_AUTHOR => 0x30000000, // author normal declarations
     );
+
+    /*
+     * Non-CSS presentational hints (i.e. HTML 4 attributes) are handled as if added
+     * to the beginning of an author stylesheet, i.e. anything in author stylesheets
+     * should override them.
+     */
+    const SPEC_NON_CSS = 0x20000000;
 
     /**
      * Current dompdf instance
@@ -135,6 +152,7 @@ class Stylesheet
      */
     static $ACCEPTED_DEFAULT_MEDIA_TYPE = "print";
     static $ACCEPTED_GENERIC_MEDIA_TYPES = array("all", "static", "visual", "bitmap", "paged", "dompdf");
+    static $VALID_MEDIA_TYPES = array("all", "aural", "bitmap", "braille", "dompdf", "embossed", "handheld", "paged", "print", "projection", "screen", "speech", "static", "tty", "tv", "visual");
 
     /**
      * @var FontMetrics
@@ -253,19 +271,18 @@ class Stylesheet
             throw new Exception("CSS rule must be keyed by a string.");
         }
 
-        if (isset($this->_styles[$key])) {
-            $this->_styles[$key]->merge($style);
-        } else {
-            $this->_styles[$key] = clone $style;
+        if (!isset($this->_styles[$key])) {
+            $this->_styles[$key] = array();
         }
-
-        $this->_styles[$key]->set_origin($this->_current_origin);
+        $new_style = clone $style;
+        $new_style->set_origin($this->_current_origin);
+        $this->_styles[$key][] = $new_style;
     }
 
     /**
-     * lookup a specifc Style object
+     * lookup a specifc Style collection
      *
-     * lookup() returns the Style specified by $key, or null if the Style is
+     * lookup() returns the Style collection specified by $key, or null if the Style is
      * not found.
      *
      * @param string $key the selector of the requested Style
@@ -296,8 +313,11 @@ class Stylesheet
      *
      * @param string $css
      */
-    function load_css(&$css)
+    function load_css(&$css, $origin = self::ORIG_AUTHOR)
     {
+        if ($origin) {
+            $this->_current_origin = $origin;
+        }
         $this->_parse_css($css);
     }
 
@@ -336,9 +356,7 @@ class Stylesheet
                 $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
             }
 
-            set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
-            $css = file_get_contents($file, null, $this->_dompdf->get_http_context());
-            restore_error_handler();
+            list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->get_http_context());
 
             $good_mime_type = true;
 
@@ -367,11 +385,9 @@ class Stylesheet
      *
      * @param string $selector
      * @param int $origin :
-     *    - ua: user agent style sheets
-     *    - un: user normal style sheets
-     *    - an: author normal style sheets
-     *    - ai: author important style sheets
-     *    - ui: user important style sheets
+     *    - Stylesheet::ORIG_UA: user agent style sheet
+     *    - Stylesheet::ORIG_USER: user style sheet
+     *    - Stylesheet::ORIG_AUTHOR: author style sheet
      *
      * @return int
      */
@@ -398,20 +414,20 @@ class Stylesheet
         //this can lead to a too small specificity
         //see _css_selector_to_xpath
 
-        if (!in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) /* && $selector !== "*"*/) {
+        if (!in_array($selector[0], array(" ", ">", ".", "#", "+", ":", "[")) && $selector !== "*") {
             $d++;
         }
 
-        if ($this->_dompdf->get_option('debugCss')) {
+        if ($this->_dompdf->getOptions()->getDebugCss()) {
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
-            printf("_specificity(): 0x%08x \"%s\"\n", ($a << 24) | ($b << 16) | ($c << 8) | ($d), $selector);
+            printf("_specificity(): 0x%08x \"%s\"\n", self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d)), $selector);
             /*DEBUGCSS*/
             print "</pre>";
         }
 
-        return self::$_stylesheet_origins[$origin] + ($a << 24) | ($b << 16) | ($c << 8) | ($d);
+        return self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d));
     }
 
     /**
@@ -612,6 +628,7 @@ class Stylesheet
                         case "first-letter": // TODO
 
                             // N/A
+                        case "focus":
                         case "active":
                         case "hover":
                         case "visited":
@@ -837,70 +854,81 @@ class Stylesheet
 
         $styles = array();
         $xp = new DOMXPath($tree->get_dom());
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         // Add generated content
-        foreach ($this->_styles as $selector => $style) {
-            if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
-                continue;
-            }
+        foreach ($this->_styles as $selector => $selector_styles) {
+            foreach ($selector_styles as $style) {
+                if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
+                    continue;
+                }
 
-            $query = $this->_css_selector_to_xpath($selector, true);
+                $query = $this->_css_selector_to_xpath($selector, true);
 
-            // Retrieve the nodes, limit to body for generated content
-            $nodes = @$xp->query('.' . $query["query"]);
-            if ($nodes == null) {
-                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                continue;
-            }
+                // Retrieve the nodes, limit to body for generated content
+                $nodes = @$xp->query('.' . $query["query"]);
+                if ($nodes == null) {
+                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                    continue;
+                }
 
-            foreach ($nodes as $node) {
-                foreach ($query["pseudo_elements"] as $pos) {
-                    // Do not add a new pseudo element if another one already matched
-                    if ($node->hasAttribute("dompdf_{$pos}_frame_id")) {
-                        continue;
+                foreach ($nodes as $node) {
+                    foreach ($query["pseudo_elements"] as $pos) {
+                        // Do not add a new pseudo element if another one already matched
+                        if ($node->hasAttribute("dompdf_{$pos}_frame_id")) {
+                            continue;
+                        }
+
+                        if (($src = $this->_image($style->get_prop('content'))) !== "none") {
+                            $new_node = $node->ownerDocument->createElement("img_generated");
+                            $new_node->setAttribute("src", $src);
+                        } else {
+                            $new_node = $node->ownerDocument->createElement("dompdf_generated");
+                        }
+
+                        $new_node->setAttribute($pos, $pos);
+                        $new_frame_id = $tree->insert_node($node, $new_node, $pos);
+                        $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
                     }
-
-                    if (($src = $this->_image($style->content)) !== "none") {
-                        $new_node = $node->ownerDocument->createElement("img_generated");
-                        $new_node->setAttribute("src", $src);
-                    } else {
-                        $new_node = $node->ownerDocument->createElement("dompdf_generated");
-                    }
-
-                    $new_node->setAttribute($pos, $pos);
-                    $new_frame_id = $tree->insert_node($node, $new_node, $pos);
-                    $node->setAttribute("dompdf_{$pos}_frame_id", $new_frame_id);
                 }
             }
         }
 
         // Apply all styles in stylesheet
-        foreach ($this->_styles as $selector => $style) {
-            $query = $this->_css_selector_to_xpath($selector);
+        foreach ($this->_styles as $selector => $selector_styles) {
+            foreach ($selector_styles as $style) {
+                $query = $this->_css_selector_to_xpath($selector);
 
-            // Retrieve the nodes
-            $nodes = @$xp->query($query["query"]);
-            if ($nodes == null) {
-                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                continue;
-            }
-
-            foreach ($nodes as $node) {
-                // Retrieve the node id
-                // Only DOMElements get styles
-                if ($node->nodeType != XML_ELEMENT_NODE) {
+                // Retrieve the nodes
+                $nodes = @$xp->query($query["query"]);
+                if ($nodes == null) {
+                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                     continue;
                 }
 
-                $id = $node->getAttribute("frame_id");
+                $spec = $this->_specificity($selector, $style->get_origin());
 
-                // Assign the current style to the scratch array
-                $spec = $this->_specificity($selector);
-                $styles[$id][$spec][] = $style;
+                foreach ($nodes as $node) {
+                    // Retrieve the node id
+                    // Only DOMElements get styles
+                    if ($node->nodeType != XML_ELEMENT_NODE) {
+                        continue;
+                    }
+
+                    $id = $node->getAttribute("frame_id");
+
+                    // Assign the current style to the scratch array
+                    $styles[$id][$spec][] = $style;
+                }
             }
         }
 
-        // Now create the styles and assign them to the appropriate frames.  (We
+        // Set the page width, height, and orientation based on the canvas paper size
+        $paper_width = $this->_dompdf->get_canvas()->get_width();
+        $paper_height = $this->_dompdf->get_canvas()->get_height();
+        $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+        
+        // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
         foreach ($tree->get_frames() as $frame) {
@@ -908,10 +936,18 @@ class Stylesheet
             if (!$root_flg && $this->_page_styles["base"]) {
                 $style = $this->_page_styles["base"];
                 $root_flg = true;
+
+                // set the page width, height, and orientation based on the base page style
+                if ($style->size !== "auto") {
+                    list($paper_width, $paper_height) = $style->size;
+                }
+                $paper_width = $paper_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->margin_right);
+                $paper_height = $paper_height - $style->length_in_pt($style->margin_top) - $style->length_in_pt($style->margin_bottom);
+                $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
             } else {
                 $style = $this->create_style();
             }
-
+            
             // Find nearest DOMElement parent
             $p = $frame;
             while ($p = $p->get_parent()) {
@@ -936,8 +972,7 @@ class Stylesheet
             // Handle HTML 4.0 attributes
             AttributeTranslator::translate_attributes($frame);
             if (($str = $frame->get_node()->getAttribute(AttributeTranslator::$_style_attr)) !== "") {
-                // Lowest specificity
-                $styles[$id][1][] = $this->_parse_properties($str);
+                $styles[$id][self::SPEC_NON_CSS][] = $this->_parse_properties($str);
             }
 
             // Locate any additional style attributes
@@ -945,7 +980,7 @@ class Stylesheet
                 // Destroy CSS comments
                 $str = preg_replace("'/\*.*?\*/'si", "", $str);
 
-                $spec = $this->_specificity("!attr");
+                $spec = $this->_specificity("!attr", self::ORIG_AUTHOR);
                 $styles[$id][$spec][] = $this->_parse_properties($str);
             }
 
@@ -957,7 +992,7 @@ class Stylesheet
                 // Sort by specificity
                 ksort($applied_styles);
 
-                if ($this->_dompdf->get_option('debugCss')) {
+                if ($DEBUGCSS) {
                     $debug_nodename = $frame->get_node()->nodeName;
                     print "<pre>\n[$debug_nodename\n";
                     foreach ($applied_styles as $spec => $arr) {
@@ -971,8 +1006,65 @@ class Stylesheet
                 }
 
                 // Merge the new styles with the inherited styles
+                $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
+                $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
                 foreach ($applied_styles as $arr) {
                     foreach ($arr as $s) {
+                        $media_queries = $s->get_media_queries();
+                        foreach ($media_queries as $media_query) {
+                            list($media_query_feature, $media_query_value) = $media_query;
+                            // if any of the Style's media queries fail then do not apply the style
+                            //TODO: When the media query logic is fully developed we should not apply the Style when any of the media queries fail or are bad, per https://www.w3.org/TR/css3-mediaqueries/#error-handling
+                            if (in_array($media_query_feature, self::$VALID_MEDIA_TYPES)) {
+                                if ((strlen($media_query_value) === 0 && !in_array($media_query, $acceptedmedia)) || (in_array($media_query, $acceptedmedia) && $media_query_value == "not")) {
+                                    continue (3);
+                                }
+                            } else {
+                                switch ($media_query_feature) {
+                                    case "height":
+                                        if ($paper_height !== $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "min-height":
+                                        if ($paper_height < $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "max-height":
+                                        if ($paper_height > $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "width":
+                                        if ($paper_width !== $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "min-width":
+                                        //if (min($paper_width, $media_query_width) === $paper_width) {
+                                        if ($paper_width < $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "max-width":
+                                        //if (max($paper_width, $media_query_width) === $paper_width) {
+                                        if ($paper_width > $style->length_in_pt($media_query_value)) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    case "orientation":
+                                        if ($paper_orientation !== $media_query_value) {
+                                            continue (3);
+                                        }
+                                        break;
+                                    default:
+                                        Helpers::record_warnings(E_USER_WARNING, "Unknown media query: $media_query_feature", __FILE__, __LINE__);
+                                        break;
+                                }
+                            }
+                        }
+
                         $style->merge($s);
                     }
                 }
@@ -981,7 +1073,7 @@ class Stylesheet
             // Inherit parent's styles if required
             if ($p) {
 
-                if ($this->_dompdf->get_option('debugCss')) {
+                if ($DEBUGCSS) {
                     print "inherit:\n";
                     print "[\n";
                     $p->get_style()->debug_print();
@@ -991,7 +1083,7 @@ class Stylesheet
                 $style->inherit($p->get_style());
             }
 
-            if ($this->_dompdf->get_option('debugCss')) {
+            if ($DEBUGCSS) {
                 print "DomElementStyle:\n";
                 print "[\n";
                 $style->debug_print();
@@ -1049,8 +1141,8 @@ class Stylesheet
             "            (?(6) (?>[^}]*) }) \s*)+?                                                        \n" .
             "       )                                                                                     \n" .
             "   })                                  # Balancing '}'                                       \n" .
-            "|                                      # Branch to match regular rules (not preceded by '@')\n" .
-            "([^{]*{[^}]*}))                        # Parse normal rulesets\n" .
+            "|                                      # Branch to match regular rules (not preceded by '@') \n" .
+            "([^{]*{[^}]*}))                        # Parse normal rulesets                               \n" .
             "/xs";
 
         if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
@@ -1069,6 +1161,9 @@ class Stylesheet
         // [6] => '{', within media rules
         // [7] => individual rules, outside of media rules
         //
+
+        $media_query_regex = "/(?:((only|not)?\s*(" . implode("|", self::$VALID_MEDIA_TYPES) . "))|(\s*\(\s*((?:(min|max)-)?([\w\-]+))\s*(?:\:\s*(.*?)\s*)?\)))/isx";
+
         //Helpers::pre_r($matches);
         foreach ($matches as $match) {
             $match[2] = trim($match[2]);
@@ -1083,12 +1178,33 @@ class Stylesheet
 
                     case "media":
                         $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-                        $acceptedmedia[] = $this->_dompdf->get_option("default_media_type");
+                        $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
 
-                        $media = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
-
-                        if (count(array_intersect($acceptedmedia, $media))) {
-                            $this->_parse_sections($match[5]);
+                        $media_queries = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
+                        foreach ($media_queries as $media_query) {
+                            if (in_array($media_query, $acceptedmedia)) {
+                                //if we have a media type match go ahead and parse the stylesheet
+                                $this->_parse_sections($match[5]);
+                                break;
+                            } elseif (!in_array($media_query, self::$VALID_MEDIA_TYPES)) {
+                                // otherwise conditionally parse the stylesheet assuming there are parseable media queries
+                                if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) !== false) {
+                                    $mq = array();
+                                    foreach ($media_query_matches as $media_query_match) {
+                                        if (empty($media_query_match[1]) === false) {
+                                            $media_query_feature = strtolower($media_query_match[3]);
+                                            $media_query_value = strtolower($media_query_match[2]);
+                                            $mq[] = array($media_query_feature, $media_query_value);
+                                        } else if (empty($media_query_match[4]) === false) {
+                                            $media_query_feature = strtolower($media_query_match[5]);
+                                            $media_query_value = (array_key_exists(8, $media_query_match) ? strtolower($media_query_match[8]) : null);
+                                            $mq[] = array($media_query_feature, $media_query_value);
+                                        }
+                                    }
+                                    $this->_parse_sections($match[5], $mq);
+                                    break;
+                                }
+                            }
                         }
                         break;
 
@@ -1162,7 +1278,7 @@ class Stylesheet
     /* See also style.cls Style::_image(), refactoring?, works also for imported css files */
     protected function _image($val)
     {
-        $DEBUGCSS = $this->_dompdf->get_option('debugCss');
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
@@ -1217,7 +1333,7 @@ class Stylesheet
 
         if (count($arr) > 0) {
             $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-            $acceptedmedia[] = $this->_dompdf->get_option("default_media_type");
+            $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
 
             // @import url media_type [media_type...]
             foreach ($arr as $type) {
@@ -1261,7 +1377,6 @@ class Stylesheet
      * http://www.w3.org/TR/css3-fonts/#the-font-face-rule
      *
      * @param string $str CSS @font-face rules
-     * @return Style
      */
     private function _parse_font_face($str)
     {
@@ -1313,8 +1428,9 @@ class Stylesheet
     private function _parse_properties($str)
     {
         $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
-        if ($this->_dompdf->get_option('debugCss')) print '[_parse_properties';
+        if ($DEBUGCSS) print '[_parse_properties';
 
         // Create the style
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
@@ -1342,7 +1458,7 @@ class Stylesheet
             }
             $prop = trim($prop);
             */
-            if ($this->_dompdf->get_option('debugCss')) print '(';
+            if ($DEBUGCSS) print '(';
 
             $important = false;
             $prop = trim($prop);
@@ -1357,19 +1473,19 @@ class Stylesheet
             }
 
             if ($prop === "") {
-                if ($this->_dompdf->get_option('debugCss')) print 'empty)';
+                if ($DEBUGCSS) print 'empty)';
                 continue;
             }
 
             $i = mb_strpos($prop, ":");
             if ($i === false) {
-                if ($this->_dompdf->get_option('debugCss')) print 'novalue' . $prop . ')';
+                if ($DEBUGCSS) print 'novalue' . $prop . ')';
                 continue;
             }
 
             $prop_name = rtrim(mb_strtolower(mb_substr($prop, 0, $i)));
             $value = ltrim(mb_substr($prop, $i + 1));
-            if ($this->_dompdf->get_option('debugCss')) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
+            if ($DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
             //New style, anyway empty
             //if ($important || !$style->important_get($prop_name) ) {
             //$style->$prop_name = array($value,$important);
@@ -1383,7 +1499,7 @@ class Stylesheet
             $style->$prop_name = $value;
             //$style->props_set($prop_name, $value);
         }
-        if ($this->_dompdf->get_option('debugCss')) print '_parse_properties]';
+        if ($DEBUGCSS) print '_parse_properties]';
 
         return $style;
     }
@@ -1392,8 +1508,9 @@ class Stylesheet
      * parse selector + rulesets
      *
      * @param string $str CSS selectors and rulesets
+     * @param array $media_queries
      */
-    private function _parse_sections($str)
+    private function _parse_sections($str, $media_queries = array())
     {
         // Pre-process: collapse all whitespace and strip whitespace around '>',
         // '.', ':', '+', '#'
@@ -1401,14 +1518,15 @@ class Stylesheet
         $patterns = array("/[\\s\n]+/", "/\\s+([>.:+#])\\s+/");
         $replacements = array(" ", "\\1");
         $str = preg_replace($patterns, $replacements, $str);
+        $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         $sections = explode("}", $str);
-        if ($this->_dompdf->get_option('debugCss')) print '[_parse_sections';
+        if ($DEBUGCSS) print '[_parse_sections';
         foreach ($sections as $sect) {
             $i = mb_strpos($sect, "{");
 
             $selectors = explode(",", mb_substr($sect, 0, $i));
-            if ($this->_dompdf->get_option('debugCss')) print '[section';
+            if ($DEBUGCSS) print '[section';
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
@@ -1416,19 +1534,23 @@ class Stylesheet
                 $selector = trim($selector);
 
                 if ($selector == "") {
-                    if ($this->_dompdf->get_option('debugCss')) print '#empty#';
+                    if ($DEBUGCSS) print '#empty#';
                     continue;
                 }
-                if ($this->_dompdf->get_option('debugCss')) print '#' . $selector . '#';
-                //if ($this->_dompdf->get_option('debugCss')) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
+                if ($DEBUGCSS) print '#' . $selector . '#';
+                //if ($DEBUGCSS) { if (strpos($selector,'p') !== false) print '!!!p!!!#'; }
 
+                //FIXME: tag the selector with a hash of the media query to separate it from non-conditional styles (?), xpath comments are probably not what we want to do here
+                if (count($media_queries) > 0) {
+                    $style->set_media_queries($media_queries);
+                }
                 $this->add_style($selector, $style);
             }
 
-            if ($this->_dompdf->get_option('debugCss')) print 'section]';
+            if ($DEBUGCSS) print 'section]';
         }
 
-        if ($this->_dompdf->get_option('debugCss')) print '_parse_sections]';
+        if ($DEBUGCSS) print '_parse_sections]';
     }
 
     public static function getDefaultStylesheet()
@@ -1466,8 +1588,10 @@ class Stylesheet
     function __toString()
     {
         $str = "";
-        foreach ($this->_styles as $selector => $style) {
-            $str .= "$selector => " . $style->__toString() . "\n";
+        foreach ($this->_styles as $selector => $selector_styles) {
+            foreach ($selector_styles as $style) {
+                $str .= "$selector => " . $style->__toString() . "\n";
+            }
         }
 
         return $str;

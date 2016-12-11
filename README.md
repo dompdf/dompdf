@@ -17,7 +17,7 @@ HTML attributes.
 
 *This document applies to the latest stable code which may not reflect the current 
 release. For released code please
-[navigate to the approrpiate tag](https://github.com/dompdf/dompdf/tags).*
+[navigate to the appropriate tag](https://github.com/dompdf/dompdf/tags).*
 
 ----
 

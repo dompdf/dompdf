@@ -72,7 +72,7 @@ class Helpers
             //drive: followed by a relative path would be a drive specific default folder.
             //not known in php app code, treat as abs path
             //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
-            if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':'))) {
+            if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || (mb_strlen($url) > 1 && $url[0] !== '\\' && $url[1] !== ':'))) {
                 // For rel path and local acess we ignore the host, and run the path through realpath()
                 $ret .= realpath($base_path) . '/';
             }
@@ -529,7 +529,7 @@ class Helpers
         $type = isset($types[$type]) ? $types[$type] : null;
 
         if ($width == null || $height == null) {
-            $data = file_get_contents($filename, null, $context, 0, 26);
+            list($data, $headers) = Helpers::getFileContent($filename, null, $context, 0, 26);
 
             if (substr($data, 0, 2) === "BM") {
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -538,7 +538,7 @@ class Helpers
                 $type = "bmp";
             }
             else {
-                if (strpos(file_get_contents($filename), "<svg") !== false) {
+                if (strpos($data, "<svg") !== false) {
                     $doc = new \Svg\Document();
                     $doc->loadFile($filename);
 
@@ -730,4 +730,59 @@ class Helpers
         return $im;
     }
 
+    /**
+     * Gets the content of the file at the specified path using one of
+     * the following methods, in preferential order:
+     *  - file_get_contents: if allow_url_fopen is true or the file is local
+     *  - curl: if allow_url_fopen is false and curl is available
+     *
+     * @param string $uri
+     * @param resource $context (ignored if curl is used)
+     * @param int $offset
+     * @param int $maxlen (ignored if curl is used)
+     * @return bool|array
+     */
+    public static function getFileContent($uri, $context = null, $offset = 0, $maxlen = null)
+    {
+        $result = false;
+        $headers = null;
+        list($proto, $host, $path, $file) = Helpers::explode_url($uri);
+        $is_local_path = ($proto == "" || $proto === "file://");
+
+        set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
+
+        if ($is_local_path || ini_get("allow_url_fopen")) {
+            if (isset($maxlen)) {
+                $result = file_get_contents($uri, null, $context, $offset, $maxlen);
+            } else {
+                $result = file_get_contents($uri, null, $context, $offset);
+            }
+            if (isset($http_response_header))
+            {
+                $headers = $http_response_header;
+            }
+
+        } elseif (function_exists("curl_exec")) {
+            $curl = curl_init($uri);
+
+            //TODO: use $context to define additional curl options
+            curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HEADER, true);
+            if ($offset > 0) {
+                curl_setopt($curl, CURLOPT_RESUME_FROM, $offset);
+            }
+
+            $data = curl_exec($curl);
+            $raw_headers = substr($data, 0, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
+            $headers = preg_split("/[\n\r]+/", trim($raw_headers));
+            $result = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
+            curl_close($curl);
+        }
+        
+        restore_error_handler();
+        
+        return array($result, $headers);
+    }
 }

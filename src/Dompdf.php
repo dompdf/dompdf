@@ -297,6 +297,7 @@ class Dompdf
         $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
         $this->saveLocale();
         $this->paperSize = $this->options->getDefaultPaperSize();
+        $this->paperOrientation = $this->options->getDefaultPaperOrientation();
 
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
         $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
@@ -386,7 +387,7 @@ class Dompdf
             $file = $realfile;
         }
 
-        $contents = file_get_contents($file, null, $this->httpContext);
+        list($contents, $http_response_header) = Helpers::getFileContent($file, null, $this->httpContext);
         $encoding = null;
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
@@ -656,7 +657,7 @@ class Dompdf
                         $css = $tag->nodeValue;
                     }
 
-                    $this->css->load_css($css);
+                    $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
         }
@@ -747,7 +748,7 @@ class Dompdf
         
         //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion (see #1059).
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-        $this->setFontMetrics(new FontMetrics($this->pdf, $this->getOptions()));
+        $this->fontMetrics->setCanvas($this->pdf);
 
         if ($this->options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
             foreach ($this->tree->get_frames() as $frame) {
@@ -842,7 +843,9 @@ class Dompdf
             foreach ($_dompdf_warnings as $msg) {
                 echo $msg . "\n";
             }
-            echo $this->getCanvas()->get_cpdf()->messages;
+            if (strtolower($this->options->getPdfBackend()) == "cpdf") {
+                echo $this->getCanvas()->get_cpdf()->messages;
+            }
             echo '</pre>';
             flush();
         }
@@ -867,7 +870,7 @@ class Dompdf
      */
     private function write_log()
     {
-        $log_output_file = $this->get_option("log_output_file");
+        $log_output_file = $this->getOptions()->getLogOutputFile();
         if (!$log_output_file || !is_writable($log_output_file)) {
             return;
         }
@@ -886,7 +889,7 @@ class Dompdf
 
         $out .= ob_get_clean();
 
-        $log_output_file = $this->get_option("log_output_file");
+        $log_output_file = $this->getOptions()->getLogOutputFile();
         file_put_contents($log_output_file, $out);
     }
 
@@ -1032,6 +1035,33 @@ class Dompdf
         $this->paperSize = $size;
         $this->paperOrientation = $orientation;
         return $this;
+    }
+
+    /**
+     * Gets the paper size
+     *
+     * @return int[] A four-element integer array
+     */
+    public function getPaperSize()
+    {
+        $size = $this->_paperSize;
+        if (is_array($size)) {
+            return $size;
+        } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
+            return Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)];
+        } else {
+            return Adapter\CPDF::$PAPER_SIZES["letter"];
+        }
+    }
+
+    /**
+     * Gets the paper orientation
+     *
+     * @return string Either 
+     */
+    public function getPaperOrientation()
+    {
+        return $this->_paperOrientation;
     }
 
     /**

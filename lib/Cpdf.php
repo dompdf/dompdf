@@ -90,6 +90,11 @@ class Cpdf
     private $numStates = 0;
 
     /**
+     * @var array Number of graphic state resources used
+     */
+    private $gstates = array();
+
+    /**
      * @var array Current color for fill operations, defaults to inactive value,
      * all three components should be between 0 and 1 inclusive when active
      */
@@ -122,7 +127,7 @@ class Cpdf
 
     /**
      * @var array An array which is used to save the state of the document, mainly the colors and styles
-     * it is used to temporarily change to another state, the change back to what it was before
+     * it is used to temporarily change to another state, then change back to what it was before
      */
     public $stateStack = array();
 
@@ -2433,18 +2438,20 @@ EOT;
                 $this->o_font($this->numObj, 'new', $options);
                 $font['fontNum'] = $this->numFonts;
 
-                // if this is a '.afm' font, and there is a '.pfa' file to go with it ( as there
+                // if this is a '.afm' font, and there is a '.pfa' file to go with it (as there
                 // should be for all non-basic fonts), then load it into an object and put the
                 // references into the font object
                 $basefile = $fontName;
 
                 $fbtype = '';
-                if (file_exists("$basefile.pfb")) {
+                if (file_exists("$basefile.ttf")) {
+                    $fbtype = 'ttf';
+                } elseif (file_exists("$basefile.TTF")) {
+                    $fbtype = 'TTF';
+                } elseif (file_exists("$basefile.pfb")) {
                     $fbtype = 'pfb';
-                } else {
-                    if (file_exists("$basefile.ttf")) {
-                        $fbtype = 'ttf';
-                    }
+                } elseif (file_exists("$basefile.PFB")) {
+                    $fbtype = 'PFB';
                 }
 
                 $fbfile = "$basefile.$fbtype";
@@ -2550,7 +2557,7 @@ EOT;
                     // note that pdf supports only binary format type 1 font files, though there is a
                     // simple utility to convert them from pfa to pfb.
                     // FIXME: should we move font subset creation to CPDF::output? See notes in issue #750.
-                    if (!$this->isUnicode || $fbtype !== 'ttf' || empty($this->stringSubsets)) {
+                    if (!$this->isUnicode || strtolower($fbtype) !== 'ttf' || empty($this->stringSubsets)) {
                         $data = file_get_contents($fbfile);
                     } else {
                         $this->stringSubsets[$fontName][] = 32; // Force space if not in yet
@@ -2653,12 +2660,10 @@ EOT;
                         }
                     }
 
-                    if ($fbtype === 'pfb') {
+                    if (strtolower($fbtype) === 'pfb') {
                         $fdopt['FontFile'] = $pfbid;
-                    } else {
-                        if ($fbtype === 'ttf') {
-                            $fdopt['FontFile2'] = $pfbid;
-                        }
+                    } elseif (strtolower($fbtype) === 'ttf') {
+                        $fdopt['FontFile2'] = $pfbid;
                     }
 
                     $this->o_fontDescriptor($fontDescriptorId, 'new', $fdopt);
@@ -2668,7 +2673,7 @@ EOT;
                     $this->objects[$pfbid]['c'] .= $data;
 
                     // determine the cruicial lengths within this file
-                    if ($fbtype === 'pfb') {
+                    if (strtolower($fbtype) === 'pfb') {
                         $l1 = strpos($data, 'eexec') + 6;
                         $l2 = strpos($data, '00000000') - $l1;
                         $l3 = mb_strlen($data, '8bit') - $l2 - $l1;
@@ -2677,11 +2682,9 @@ EOT;
                             'add',
                             array('Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3)
                         );
-                    } else {
-                        if ($fbtype == 'ttf') {
-                            $l1 = mb_strlen($data, '8bit');
-                            $this->o_contents($this->numObj, 'add', array('Length1' => $l1));
-                        }
+                    } elseif (strtolower($fbtype) == 'ttf') {
+                        $l1 = mb_strlen($data, '8bit');
+                        $this->o_contents($this->numObj, 'add', array('Length1' => $l1));
                     }
 
                     // tell the font object about all this new stuff
@@ -2694,7 +2697,7 @@ EOT;
                         'FontDescriptor' => $fontDescriptorId
                     );
 
-                    if ($fbtype === 'ttf') {
+                    if (strtolower($fbtype) === 'ttf') {
                         $tmp['SubType'] = 'TrueType';
                     }
 
@@ -2848,11 +2851,14 @@ EOT;
      */
     function setGraphicsState($parameters)
     {
-        // Create a new graphics state object
-        // FIXME: should actually keep track of states that have already been created...
-        $this->numObj++;
-        $this->o_extGState($this->numObj, 'new', $parameters);
-        $this->addContent("\n/GS$this->numStates gs");
+        // Create a new graphics state object if necessary
+        if (($gstate = array_search($parameters, $this->gstates)) === false) {
+            $this->numObj++;
+            $this->o_extGState($this->numObj, 'new', $parameters);
+            $gstate = $this->numStates;
+            $this->gstates[$gstate] = $parameters;
+        }
+        $this->addContent("\n/GS$gstate gs");
     }
 
     /**
@@ -3278,7 +3284,7 @@ EOT;
         $this->addContent(sprintf("\n%.3F %.3F m ", $x1, $y1 - $rTL + $h));
 
         // line: bottom edge, left end
-        $this->addContent(sprintf("\n%.3F %.3F l ", $x1, $y1 - $rBL));
+        $this->addContent(sprintf("\n%.3F %.3F l ", $x1, $y1 + $rBL));
 
         // curve: bottom-left corner
         $this->ellipse($x1 + $rBL, $y1 + $rBL, $rBL, 0, 0, 8, 180, 270, false, false, false, true);
@@ -3508,7 +3514,7 @@ EOT;
         //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
         header("Content-Length: " . mb_strlen($tmp, '8bit'));
         $filename = (isset($options['Content-Disposition']) ? $options['Content-Disposition'] : 'document.pdf');
-        $filename = str_replace(array("\n", "'"), "", basename($filename)) . '.pdf';
+        $filename = str_replace(array("\n", "'"), "", basename($filename, ".pdf")) . ".pdf";
 
         if (!isset($options["Attachment"])) {
             $options["Attachment"] = true;
@@ -4276,7 +4282,7 @@ EOT;
     function addImagePng($file, $x, $y, $w = 0.0, $h = 0.0, &$img, $is_mask = false, $mask = null)
     {
         if (!function_exists("imagepng")) {
-            throw new Exception("The PHP GD extension is required, but is not installed.");
+            throw new \Exception("The PHP GD extension is required, but is not installed.");
         }
 
         //if already cached, need not to read again
@@ -4365,18 +4371,18 @@ EOT;
 
         // Use PECL gmagick + Graphics Magic to process transparent PNG images
         if (extension_loaded("gmagick")) {
-            $gmagick = new Gmagick($file);
+            $gmagick = new \Gmagick($file);
             $gmagick->setimageformat('png');
 
             // Get opacity channel (negative of alpha channel)
             $alpha_channel_neg = clone $gmagick;
-            $alpha_channel_neg->separateimagechannel(Gmagick::CHANNEL_OPACITY);
+            $alpha_channel_neg->separateimagechannel(\Gmagick::CHANNEL_OPACITY);
 
             // Negate opacity channel
-            $alpha_channel = new Gmagick();
+            $alpha_channel = new \Gmagick();
             $alpha_channel->newimage($wpx, $hpx, "#FFFFFF", "png");
-            $alpha_channel->compositeimage($alpha_channel_neg, Gmagick::COMPOSITE_DIFFERENCE, 0, 0);
-            $alpha_channel->separateimagechannel(Gmagick::CHANNEL_RED);
+            $alpha_channel->compositeimage($alpha_channel_neg, \Gmagick::COMPOSITE_DIFFERENCE, 0, 0);
+            $alpha_channel->separateimagechannel(\Gmagick::CHANNEL_RED);
             $alpha_channel->writeimage($tempfile_alpha);
 
             // Cast to 8bit+palette
@@ -4386,11 +4392,11 @@ EOT;
             imagepng($imgalpha, $tempfile_alpha);
 
             // Make opaque image
-            $color_channels = new Gmagick();
+            $color_channels = new \Gmagick();
             $color_channels->newimage($wpx, $hpx, "#FFFFFF", "png");
-            $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYRED, 0, 0);
-            $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYGREEN, 0, 0);
-            $color_channels->compositeimage($gmagick, Gmagick::COMPOSITE_COPYBLUE, 0, 0);
+            $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYRED, 0, 0);
+            $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYGREEN, 0, 0);
+            $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYBLUE, 0, 0);
             $color_channels->writeimage($tempfile_plain);
 
             $imgplain = imagecreatefrompng($tempfile_plain);
@@ -4403,12 +4409,12 @@ EOT;
                 $imagickClonable = version_compare(phpversion('imagick'), '3.0.1rc1') > 0;
             }
 
-            $imagick = new Imagick($file);
+            $imagick = new \Imagick($file);
             $imagick->setFormat('png');
 
             // Get opacity channel (negative of alpha channel)
             $alpha_channel = $imagickClonable ? clone $imagick : $imagick->clone();
-            $alpha_channel->separateImageChannel(Imagick::CHANNEL_ALPHA);
+            $alpha_channel->separateImageChannel(\Imagick::CHANNEL_ALPHA);
             $alpha_channel->negateImage(true);
             $alpha_channel->writeImage($tempfile_alpha);
 
@@ -4419,11 +4425,11 @@ EOT;
             imagepng($imgalpha, $tempfile_alpha);
 
             // Make opaque image
-            $color_channels = new Imagick();
+            $color_channels = new \Imagick();
             $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
-            $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYRED, 0, 0);
-            $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYGREEN, 0, 0);
-            $color_channels->compositeImage($imagick, Imagick::COMPOSITE_COPYBLUE, 0, 0);
+            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYRED, 0, 0);
+            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYGREEN, 0, 0);
+            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYBLUE, 0, 0);
             $color_channels->writeImage($tempfile_plain);
 
             $imgplain = imagecreatefrompng($tempfile_plain);
@@ -4491,7 +4497,7 @@ EOT;
     function addPngFromFile($file, $x, $y, $w = 0, $h = 0)
     {
         if (!function_exists("imagecreatefrompng")) {
-            throw new Exception("The PHP GD extension is required, but is not installed.");
+            throw new \Exception("The PHP GD extension is required, but is not installed.");
         }
 
         //if already cached, need not to read again

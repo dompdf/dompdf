@@ -62,6 +62,14 @@ class Style
     );
 
     /**
+     * List of valid vertical-align keywords.  Should also really be a constant.
+     *
+     * @var array
+     */
+    static $vertical_align_keywords = array("baseline", "bottom", "middle", "sub",
+        "super", "text-bottom", "text-top", "top");
+
+    /**
      * List of all inline types.  Should really be a constant.
      *
      * @var array
@@ -131,6 +139,13 @@ class Style
     protected $_stylesheet; // stylesheet this style is attached to
 
     /**
+     * Media queries attached to the style
+     *
+     * @var int
+     */
+    protected $_media_queries;
+
+    /**
      * Main array of all CSS properties & values
      *
      * @var array
@@ -178,6 +193,11 @@ class Style
     private $__font_size_calculated; // Cache flag
 
     /**
+     * The computed bottom spacing
+     */
+    private $_computed_bottom_spacing = null;
+ 
+    /**
      * The computed border radius
      */
     private $_computed_border_radius = null;
@@ -205,6 +225,7 @@ class Style
         $this->_props = array();
         $this->_important_props = array();
         $this->_stylesheet = $stylesheet;
+        $this->_media_queries = array();
         $this->_origin = $origin;
         $this->_parent_font_size = null;
         $this->__font_size_calculated = false;
@@ -268,7 +289,7 @@ class Style
             $d["elevation"] = "level";
             $d["empty_cells"] = "show";
             $d["float"] = "none";
-            $d["font_family"] = $stylesheet->get_dompdf()->get_option("default_font");
+            $d["font_family"] = $stylesheet->get_dompdf()->getOptions()->getDefaultFont();
             $d["font_size"] = "medium";
             $d["font_style"] = "normal";
             $d["font_variant"] = "normal";
@@ -410,6 +431,16 @@ class Style
     {
     }
 
+    function set_media_queries($media_queries)
+    {
+        $this->_media_queries = $media_queries;
+    }
+
+    function get_media_queries()
+    {
+        return $this->_media_queries;
+    }
+
     function set_frame(Frame $frame)
     {
         $this->_frame = $frame;
@@ -458,18 +489,22 @@ class Style
     {
         static $cache = array();
 
-        if (!is_array($length)) {
-            $length = array($length);
-        }
-
         if (!isset($ref_size)) {
             $ref_size = self::$default_font_size;
         }
 
-        $key = implode("@", $length) . "/$ref_size";
-
-        if (isset($cache[$key])) {
-            return $cache[$key];
+        if (!is_array($length)) {
+            $key = $length . "/$ref_size";
+            //Early check on cache, before converting $length to array
+            if (isset($cache[$key])) {
+                return $cache[$key];
+            }
+            $length = array($length);
+        } else {
+            $key = implode("@", $length) . "/$ref_size";
+            if (isset($cache[$key])) {
+                return $cache[$key];
+            }
         }
 
         $ret = 0;
@@ -511,7 +546,7 @@ class Style
             }
 
             if (($i = mb_strpos($l, "px")) !== false) {
-                $dpi = $this->_stylesheet->get_dompdf()->get_option("dpi");
+                $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
                 $ret += (mb_substr($l, 0, $i) * 72) / $dpi;
                 continue;
             }
@@ -777,7 +812,46 @@ class Style
         return $this->_prop_cache[$prop] = $this->_props[$prop];
     }
 
-    function get_font_family_raw()
+    /**
+     * Similar to __get() without storing the result. Useful for accessing
+     * properties while loading stylesheets.
+     *
+     * @return string
+     */
+    function get_prop($prop)
+    {
+        if (!isset(self::$_defaults[$prop])) {
+            throw new Exception("'$prop' is not a valid CSS2 property.");
+        }
+
+        $method = "get_$prop";
+
+        // Fall back on defaults if property is not set
+        if (!isset($this->_props[$prop])) {
+            return self::$_defaults[$prop];
+        }
+
+        if (method_exists($this, $method)) {
+            return $this->$method();
+        }
+
+        return $this->_props[$prop];
+    }
+
+    function computed_bottom_spacing() {
+        if ($this->_computed_bottom_spacing !== null) {
+            return $this->_computed_bottom_spacing;
+        }
+        return $this->_computed_bottom_spacing = $this->length_in_pt(
+            array(
+                $this->margin_bottom,
+                $this->padding_bottom,
+                $this->border_bottom_width
+            )
+        );
+    }
+
+     function get_font_family_raw()
     {
         return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
     }
@@ -798,7 +872,7 @@ class Style
             return $this->_font_family;
         }
 
-        $DEBUGCSS = $this->_stylesheet->get_dompdf()->get_option("debugCss");
+        $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
 
         // Select the appropriate font.  First determine the subtype, then check
         // the specified font-families for a candidate.
@@ -965,6 +1039,10 @@ class Style
      */
     function get_line_height()
     {
+        if (array_key_exists("line_height", $this->_props) === false)
+        {
+            $this->_props["line_height"] = self::$_defaults["line_height"];
+        }
         $line_height = $this->_props["line_height"];
 
         if ($line_height === "normal") {
@@ -1474,6 +1552,9 @@ class Style
         $prop = $style . '_' . $side . $type;
 
         if (!isset($this->_important_props[$prop]) || $important) {
+            if ($side === "bottom") {
+                $this->_computed_bottom_spacing = null; //reset computed cache, border style can disable/enable border calculations
+            }
             //see __set and __get, on all assignments clear cache!
             $this->_prop_cache[$prop] = null;
             if ($important) {
@@ -1526,6 +1607,9 @@ class Style
      */
     protected function _set_style_side_width_important($style, $side, $val)
     {
+        if ($side === "bottom") {
+            $this->_computed_bottom_spacing = null; //reset cache for any bottom width changes
+        }
         //see __set and __get, on all assignments clear cache!
         $this->_prop_cache[$style . '_' . $side] = null;
         $this->_props[$style . '_' . $side] = str_replace("none", "0px", $val);
@@ -1545,7 +1629,7 @@ class Style
 
     protected function _image($val)
     {
-        $DEBUGCSS = $this->_stylesheet->get_dompdf()->get_option("debugCss");
+        $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
         $parsed_url = "none";
 
         if (mb_strpos($val, "url") === false) {
@@ -2079,7 +2163,36 @@ class Style
         //see __set and __get, on all assignments clear cache!
         $this->_prop_cache["border_" . $corner . "_radius"] = null;
 
-        $this->_props["border_" . $corner . "_radius"] = $this->length_in_pt($val);
+        $this->_props["border_" . $corner . "_radius"] = $val;
+    }
+
+    function get_border_top_left_radius()
+    {
+        return $this->_get_border_radius_corner("top_left");
+    }
+
+    function get_border_top_right_radius()
+    {
+        return $this->_get_border_radius_corner("top_right");
+    }
+
+    function get_border_bottom_left_radius()
+    {
+        return $this->_get_border_radius_corner("bottom_left");
+    }
+
+    function get_border_bottom_right_radius()
+    {
+        return $this->_get_border_radius_corner("bottom_right");
+    }
+
+    protected function _get_border_radius_corner($corner)
+    {
+        if (!isset($this->_props["border_" . $corner . "_radius"]) || empty($this->_props["border_" . $corner . "_radius"])) {
+            return 0;
+        }
+
+        return $this->length_in_pt($this->_props["border_" . $corner . "_radius"]);
     }
 
     /**
@@ -2255,6 +2368,10 @@ class Style
                 $computed[] = $this->length_in_pt($parts[1]);
             } else {
                 $computed[] = $computed[0];
+            }
+
+            if (isset($parts[2]) && $parts[2] === "landscape") {
+                $computed = array_reverse($computed);
             }
         } elseif (isset(CPDF::$PAPER_SIZES[$parts[0]])) {
             $computed = array_slice(CPDF::$PAPER_SIZES[$parts[0]], 2, 2);

@@ -191,9 +191,17 @@ class Color
         // #rgb format
         if ($length == 4 && $color[0] === "#") {
             return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3]);
+        } // #rgba format
+        else if ($length == 5 && $color[0] === "#") {
+            $alpha = round(hexdec($color[4] . $color[4])/255, 2);
+            return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3], $alpha);
         } // #rrggbb format
         else if ($length == 7 && $color[0] === "#") {
             return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
+        } // #rrggbbaa format
+        else if ($length == 9 && $color[0] === "#") {
+            $alpha = round(hexdec(mb_substr($color, 7, 2))/255, 2);
+            return $cache[$color] = self::getArray(mb_substr($color, 1, 8), $alpha);
         } // rgb( r,g,b ) / rgbaa( r,g,b,α ) format
         else if (mb_strpos($color, "rgb") !== false) {
             $i = mb_strpos($color, "(");
@@ -208,12 +216,12 @@ class Color
 
             // alpha transparency
             // FIXME: not currently using transparency
-            $alpha = 1;
+            $alpha = 1.0;
             if (count($triplet) == 4) {
                 $alpha = (float)(trim(array_pop($triplet)));
                 // bad value, set to fully opaque
-                if ($alpha > 1 || $alpha < 0) {
-                    $alpha = 1;
+                if ($alpha > 1.0 || $alpha < 0.0) {
+                    $alpha = 1.0;
                 }
             }
 
@@ -229,7 +237,7 @@ class Color
                 }
             }
 
-            return $cache[$color] = self::getArray(vsprintf("%02X%02X%02X", $triplet));
+            return $cache[$color] = self::getArray(vsprintf("%02X%02X%02X", $triplet), $alpha);
 
         }
 
@@ -260,9 +268,9 @@ class Color
         return null;
     }
 
-    static function getArray($color)
+    static function getArray($color, $alpha = 1.0)
     {
-        $c = array(null, null, null, null, "hex" => null);
+        $c = array(null, null, null, null, "alpha" => $alpha, "hex" => null);
 
         if (is_array($color)) {
             $c = $color;
@@ -270,6 +278,7 @@ class Color
             $c["m"] = $c[1];
             $c["y"] = $c[2];
             $c["k"] = $c[3];
+            $c["alpha"] = $alpha;
             $c["hex"] = "cmyk($c[0],$c[1],$c[2],$c[3])";
         } else {
             $c[0] = hexdec(mb_substr($color, 0, 2)) / 0xff;
@@ -278,7 +287,8 @@ class Color
             $c["r"] = $c[0];
             $c["g"] = $c[1];
             $c["b"] = $c[2];
-            $c["hex"] = "#$color";
+            $c["alpha"] = $alpha;
+            $c["hex"] = sprintf("#%s%02X", mb_substr($color, 0, 6), round($alpha * 255));
         }
 
         return $c;

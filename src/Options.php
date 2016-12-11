@@ -91,6 +91,15 @@ class Options
     private $defaultPaperSize = "letter";
 
     /**
+     * The default paper orientation.
+     *
+     * The orientation of the page (portrait or landscape).
+     *
+     * @var string
+     */
+    private $defaultPaperOrientation = "portrait";
+
+    /**
      * The default font family
      *
      * Used if no suitable fonts can be found. This must exist in the font folder.
@@ -319,6 +328,8 @@ class Options
                 $this->setDefaultMediaType($value);
             } elseif ($key === 'defaultPaperSize' || $key === 'default_paper_size') {
                 $this->setDefaultPaperSize($value);
+            } elseif ($key === 'defaultPaperOrientation' || $key === 'default_paper_orientation') {
+                $this->setDefaultPaperOrientation($value);
             } elseif ($key === 'defaultFont' || $key === 'default_font') {
                 $this->setDefaultFont($value);
             } elseif ($key === 'dpi') {
@@ -384,6 +395,8 @@ class Options
             return $this->getDefaultMediaType();
         } elseif ($key === 'defaultPaperSize' || $key === 'default_paper_size') {
             return $this->getDefaultPaperSize();
+        } elseif ($key === 'defaultPaperOrientation' || $key === 'default_paper_orientation') {
+            return $this->getDefaultPaperOrientation();
         } elseif ($key === 'defaultFont' || $key === 'default_font') {
             return $this->getDefaultFont();
         } elseif ($key === 'dpi') {
@@ -709,11 +722,29 @@ class Options
     }
 
     /**
+     * @param string $defaultPaperOrientation
+     * @return $this
+     */
+    public function setDefaultPaperOrientation($defaultPaperOrientation)
+    {
+        $this->defaultPaperOrientation = $defaultPaperOrientation;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getDefaultPaperSize()
     {
         return $this->defaultPaperSize;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultPaperOrientation()
+    {
+        return $this->defaultPaperOrientation;
     }
 
     /**

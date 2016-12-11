@@ -132,18 +132,6 @@ class FontMetrics
         $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
         $distFonts = require $file;
         
-        // FIXME: temporary step for font cache created before the font cache fix
-        if (is_readable($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache")) {
-            $oldFonts = require $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
-            // If the font family cache is still in the old format
-            if ($oldFonts === 1) {
-                $cacheData = file_get_contents($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache");
-                file_put_contents($fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache", "<" . "?php return $cacheData ?" . ">");
-                $oldFonts = require $fontDir . DIRECTORY_SEPARATOR . "dompdf_font_family_cache";
-            }
-            $distFonts += $oldFonts;
-        }
-        
         if (!is_readable($this->getCacheFile())) {
             $this->fontLookup = $distFonts;
             return;
@@ -151,49 +139,15 @@ class FontMetrics
         
         $cacheData = require $this->getCacheFile();
         
-        // If the font family cache is still in the old format
-        if ($cacheData === 1) {
-            $cacheData = file_get_contents($this->getCacheFile());
-            file_put_contents($this->getCacheFile(), "<" . "?php return $cacheData ?" . ">");
-            $this->fontLookup = require $this->getCacheFile();
-        }
-        
         $this->fontLookup = array();
-        foreach ($cacheData as $key => $value) {
-            $this->fontLookup[stripslashes($key)] = $value;
+        if (is_array($this->fontLookup)) {
+            foreach ($cacheData as $key => $value) {
+                $this->fontLookup[stripslashes($key)] = $value;
+            }
         }
         
         // Merge provided fonts
         $this->fontLookup += $distFonts;
-    }
-
-    /**
-     * @param array $files
-     * @return array
-     * @deprecated
-     */
-    public function install_fonts($files)
-    {
-        return $this->installFonts($files);
-    }
-
-    /**
-     * @param array $files
-     * @return array
-     */
-    public function installFonts(array $files)
-    {
-        $names = array();
-
-        foreach ($files as $file) {
-            $font = Font::load($file);
-            $records = $font->getData("name", "records");
-            $type = $this->getType($records[2]);
-            $names[mb_strtolower($records[1])][$type] = $file;
-            $font->close();
-        }
-
-        return $names;
     }
 
     /**
@@ -228,7 +182,7 @@ class FontMetrics
         $localFile = $fontDir . DIRECTORY_SEPARATOR . md5($remoteFile);
         $localTempFile = $this->options->get('tempDir') . "/" . md5($remoteFile);
         $cacheEntry = $localFile;
-        $localFile .= ".ttf";
+        $localFile .= ".".strtolower(pathinfo($remoteFile,PATHINFO_EXTENSION));
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
@@ -236,7 +190,7 @@ class FontMetrics
             $entry[$styleString] = $cacheEntry;
             
             // Download the remote file
-            $remoteFileContent = @file_get_contents($remoteFile, null, $context);
+            list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, null, $context);
             if (false === $remoteFileContent) {
                 return false;
             }
@@ -260,7 +214,7 @@ class FontMetrics
             }
             
             // Save the changes
-            file_put_contents($localFile, file_get_contents($remoteFile, null, $context));
+            file_put_contents($localFile, $remoteFileContent);
             
             if ( !file_exists($localFile) ) {
                 unlink("$cacheEntry.ufm");
@@ -492,30 +446,6 @@ class FontMetrics
         }
 
         return $type;
-    }
-
-    /**
-     * @return array
-     * @deprecated
-     */
-    public function get_system_fonts()
-    {
-        return $this->getSystemFonts();
-    }
-
-    /**
-     * @return array
-     */
-    public function getSystemFonts()
-    {
-        $files = glob("/usr/share/fonts/truetype/*.ttf") +
-            glob("/usr/share/fonts/truetype/*/*.ttf") +
-            glob("/usr/share/fonts/truetype/*/*/*.ttf") +
-            glob("C:\\Windows\\fonts\\*.ttf") +
-            glob("C:\\WinNT\\fonts\\*.ttf") +
-            glob("/mnt/c_drive/WINDOWS/Fonts/");
-
-        return $this->installFonts($files);
     }
 
     /**

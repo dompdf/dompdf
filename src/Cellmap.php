@@ -797,7 +797,7 @@ class Cellmap
         $g_key = $group->get_id();
         $r_key = $last_row->get_id();
 
-        $r_rows = $this->_frames[$r_key]["rows"];
+        $r_rows = $this->_frames[$g_key]["rows"];
         $this->_frames[$g_key]["rows"] = range($this->_frames[$g_key]["rows"][0], end($r_rows));
     }
 

@@ -157,7 +157,7 @@ class GD implements Canvas
 
         $this->_dompdf = $dompdf;
 
-        $this->dpi = $this->get_dompdf()->get_option('dpi');
+        $this->dpi = $this->get_dompdf()->getOptions()->getDpi();
 
         if ($aa_factor < 1) {
             $aa_factor = 1;
@@ -277,21 +277,18 @@ class GD implements Canvas
      */
     private function _allocate_color($color)
     {
+        $a = isset($color["alpha"]) ? $color["alpha"] : 1;
 
         if (isset($color["c"])) {
             $color = Helpers::cmyk_to_rgb($color);
         }
 
-        // Full opacity if no alpha set
-        if (!isset($color[3]))
-            $color[3] = 0;
-
-        list($r, $g, $b, $a) = $color;
+        list($r, $g, $b) = $color;
 
         $r *= 255;
         $g *= 255;
         $b *= 255;
-        $a *= 127;
+        $a = 127 - ($a * 127);
 
         // Clip values
         $r = $r > 255 ? 255 : $r;
@@ -831,14 +828,25 @@ class GD implements Canvas
 
     function get_ttf_file($font)
     {
-        if (strpos($font, '.ttf') === false)
+        if ( stripos($font, ".ttf") === false ) {
             $font .= ".ttf";
+        }
 
-        /*$filename = substr(strtolower(basename($font)), 0, -4);
-
-        if ( in_array($filename, Dompdf::$native_fonts) ) {
-          return "arial.ttf";
-        }*/
+        if ( !file_exists($font) ) {
+            $font_metrics = $this->_dompdf->getFontMetrics();
+            $font = $font_metrics->getFont($this->_dompdf->getOptions()->getDefaultFont()) . ".ttf";
+            if ( !file_exists($font) ) {
+                if (strpos($font, "mono")) {
+                    $font = $font_metrics->getFont("DejaVu Mono") . ".ttf";
+                } elseif (strpos($font, "sans") !== false) {
+                    $font = $font_metrics->getFont("DejaVu Sans") . ".ttf";
+                } elseif (strpos($font, "serif")) {
+                    $font = $font_metrics->getFont("DejaVu Serif") . ".ttf";
+                } else {
+                    $font = $font_metrics->getFont("DejaVu Sans") . ".ttf";
+                }
+            }
+        }
 
         return $font;
     }
@@ -862,7 +870,7 @@ class GD implements Canvas
     private function get_font_height_actual($font, $size)
     {
         $font = $this->get_ttf_file($font);
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
 
         // FIXME: word spacing
         list(, $y2, , , , $y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl"); // Test string with ascenders, descenders and caps
@@ -871,7 +879,7 @@ class GD implements Canvas
 
     function get_font_baseline($font, $size)
     {
-        $ratio = $this->_dompdf->get_option("font_height_ratio");
+        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $this->get_font_height($font, $size) / $ratio;
     }
 
@@ -949,7 +957,7 @@ class GD implements Canvas
 
         header("Cache-Control: private");
 
-        $filename = str_replace(array("\n", "'"), "", basename($filename));
+        $filename = str_replace(array("\n", "'"), "", basename($filename, ".$type"));
         switch ($type) {
 
             case "jpg":

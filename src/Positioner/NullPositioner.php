@@ -18,12 +18,7 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class NullPositioner extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
-    {
-        parent::__construct($frame);
-    }
-
-    function position()
+    function position(AbstractFrameDecorator $frame)
     {
         return;
     }

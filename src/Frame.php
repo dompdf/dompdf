@@ -773,6 +773,18 @@ class Frame
     /**
      * @return bool
      */
+    public function is_inline_block()
+    {
+        if (isset($this->_is_cache["inline_block"])) {
+            return $this->_is_cache["inline_block"];
+        }
+
+        return $this->_is_cache["inline_block"] = ($this->get_style()->display === 'inline-block');
+    }
+
+    /**
+     * @return bool
+     */
     public function is_in_flow()
     {
         if (isset($this->_is_cache["in_flow"])) {
@@ -860,6 +872,11 @@ class Frame
         }
 
         $child->_parent = $this;
+        $decorator = $child->get_decorator();
+        // force an update to the cached parent 
+        if ($decorator !== null) {
+            $decorator->get_parent(false);
+        }
         $child->_next_sibling = null;
 
         // Handle the first child

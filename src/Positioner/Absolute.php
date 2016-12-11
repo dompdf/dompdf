@@ -16,15 +16,9 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class Absolute extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
-    {
-        parent::__construct($frame);
-    }
-
-    function position()
+    function position(AbstractFrameDecorator $frame)
     {
 
-        $frame = $this->_frame;
         $style = $frame->get_style();
 
         $p = $frame->find_positionned_parent();
@@ -43,7 +37,7 @@ class Absolute extends AbstractPositioner
 
         list($width, $height) = array($frame->get_margin_width(), $frame->get_margin_height());
 
-        $orig_style = $this->_frame->get_original_style();
+        $orig_style = $frame->get_original_style();
         $orig_width = $orig_style->width;
         $orig_height = $orig_style->height;
 
