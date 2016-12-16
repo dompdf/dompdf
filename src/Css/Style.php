@@ -1396,10 +1396,10 @@ class Style
             return $this->_computed_border_radius;
         }
 
-        $rTL = $this->__get("border_top_left_radius");
-        $rTR = $this->__get("border_top_right_radius");
-        $rBL = $this->__get("border_bottom_left_radius");
-        $rBR = $this->__get("border_bottom_right_radius");
+        $rTL = intval($this->__get("border_top_left_radius"));
+        $rTR = intval($this->__get("border_top_right_radius"));
+        $rBL = intval($this->__get("border_bottom_left_radius"));
+        $rBR = intval($this->__get("border_bottom_right_radius"));
 
         if ($rTL + $rTR + $rBL + $rBR == 0) {
             return $this->_computed_border_radius = array(
@@ -1411,10 +1411,10 @@ class Style
             );
         }
 
-        $t = $this->__get("border_top_width");
-        $r = $this->__get("border_right_width");
-        $b = $this->__get("border_bottom_width");
-        $l = $this->__get("border_left_width");
+        $t = intval($this->__get("border_top_width"));
+        $r = intval($this->__get("border_right_width"));
+        $b = intval($this->__get("border_bottom_width"));
+        $l = intval($this->__get("border_left_width"));
 
         $rTL = min($rTL, $h - $rBL - $t / 2 - $b / 2, $w - $rTR - $l / 2 - $r / 2);
         $rTR = min($rTR, $h - $rBR - $t / 2 - $b / 2, $w - $rTL - $l / 2 - $r / 2);
