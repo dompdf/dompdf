@@ -314,7 +314,7 @@ class Text extends AbstractFrameReflower
             // FIXME: Include non-breaking spaces?
             $t = $frame->get_text();
             $parent = $frame->get_parent();
-            $is_inline_frame = get_class($parent) === 'Inline_Frame_Decorator';
+            $is_inline_frame = ($parent instanceof Dompdf\FrameDecorator\Inline);
 
             if ((!$is_inline_frame && !$frame->get_next_sibling()) /* ||
           ( $is_inline_frame && !$parent->get_next_sibling())*/
