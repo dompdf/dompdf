@@ -992,11 +992,11 @@ class Style
 
         // Ensure relative sizes resolve to something
         if (($i = mb_strpos($fs, "em")) !== false) {
-            $fs = mb_substr($fs, 0, $i) * $this->_parent_font_size;
+            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
         } else if (($i = mb_strpos($fs, "ex")) !== false) {
-            $fs = mb_substr($fs, 0, $i) * $this->_parent_font_size;
+            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
         } else {
-            $fs = $this->length_in_pt($fs);
+            $fs = (float)$this->length_in_pt($fs);
         }
 
         //see __set and __get, on all assignments clear cache!
