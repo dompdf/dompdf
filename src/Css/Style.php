@@ -547,7 +547,7 @@ class Style
 
             if (($i = mb_strpos($l, "px")) !== false) {
                 $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
-                $ret += (mb_substr($l, 0, $i) * 72) / $dpi;
+                $ret += ((float)mb_substr($l, 0, $i) * 72) / $dpi;
                 continue;
             }
 
@@ -572,18 +572,18 @@ class Style
             }
 
             if (($i = mb_strpos($l, "cm")) !== false) {
-                $ret += mb_substr($l, 0, $i) * 72 / 2.54;
+                $ret += (float)mb_substr($l, 0, $i) * 72 / 2.54;
                 continue;
             }
 
             if (($i = mb_strpos($l, "mm")) !== false) {
-                $ret += mb_substr($l, 0, $i) * 72 / 25.4;
+                $ret += (float)mb_substr($l, 0, $i) * 72 / 25.4;
                 continue;
             }
 
             // FIXME: em:ex ratio?
             if (($i = mb_strpos($l, "ex")) !== false) {
-                $ret += mb_substr($l, 0, $i) * $this->__get("font_size") / 2;
+                $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size") / 2;
                 continue;
             }
 
