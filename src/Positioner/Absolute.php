@@ -90,23 +90,23 @@ class Absolute extends AbstractPositioner
             } else {
                 if ($orig_height === "auto") {
                     // C
-                    $y += intval($h) - intval($height) - intval($bottom);
+                    $y += (float)$h - (float)$height - (float)$bottom;
                 } else {
                     // G
-                    $y += $h - intval($height) - intval($bottom);
+                    $y += $h - (float)$height - (float)$bottom;
                 }
             }
         } else {
             if ($bottom === "auto") {
                 // B or F
-                $y += intval($top);
+                $y += (float)$top;
             } else {
                 if ($orig_height === "auto") {
                     // D - TODO change height
-                    $y += intval($top);
+                    $y += (float)$top;
                 } else {
                     // H - Everything is fixed: top + height win
-                    $y += intval($top);
+                    $y += (float)$top;
                 }
             }
         }
