@@ -32,11 +32,11 @@ class AttributeTranslator
                 'left' => 'float: left;',
                 'right' => 'float: right;'
             ),
-            'border' => 'border: %0.2F px solid;',
-            'height' => 'height: %s px;',
-            'hspace' => 'padding-left: %1$0.2F px; padding-right: %1$0.2F px;',
-            'vspace' => 'padding-top: %1$0.2F px; padding-bottom: %1$0.2F px;',
-            'width' => 'width: %s px;',
+            'border' => 'border: %0.2Fpx solid;',
+            'height' => 'height: %spx;',
+            'hspace' => 'padding-left: %1$0.2Fpx; padding-right: %1$0.2Fpx;',
+            'vspace' => 'padding-top: %1$0.2Fpx; padding-bottom: %1$0.2Fpx;',
+            'width' => 'width: %spx;',
         ),
         'table' => array(
             'align' => array(
