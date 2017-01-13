@@ -476,14 +476,15 @@ class Style
      *
      * length_in_pt() takes a single length (e.g. '1em') or an array of
      * lengths and returns an absolute length.  If an array is passed, then
-     * the return value is the sum of all elements.
+     * the return value is the sum of all elements. If any of the lengths
+     * provided are "auto" or "none" then that value is returned.
      *
      * If a reference size is not provided, the default font size is used
      * ({@link Style::$default_font_size}).
      *
-     * @param float|array $length the length or array of lengths to resolve
+     * @param float|string|array $length the numeric length (or string measurement) or array of lengths to resolve
      * @param float $ref_size an absolute reference size to resolve percentage lengths
-     * @return float
+     * @return float|string
      */
     function length_in_pt($length, $ref_size = null)
     {
@@ -598,7 +599,7 @@ class Style
             }
 
             // Bogus value
-            $ret += $ref_size;
+            $ret += (float)$ref_size;
         }
 
         return $cache[$key] = $ret;

@@ -31,7 +31,7 @@ class Block extends AbstractRenderer
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         if ($node->nodeName === "body") {
-            $h = $frame->get_containing_block("h") - $style->length_in_pt(array(
+            $h = $frame->get_containing_block("h") - (float)$style->length_in_pt(array(
                         $style->margin_top,
                         $style->border_top_width,
                         $style->border_bottom_width,
@@ -49,11 +49,11 @@ class Block extends AbstractRenderer
         list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
 
         if ($tl + $tr + $br + $bl > 0) {
-            $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
+            $this->_canvas->clipping_roundrectangle($x, $y, (float)$w, (float)$h, $tl, $tr, $br, $bl);
         }
 
         if (($bg = $style->background_color) !== "transparent") {
-            $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
+            $this->_canvas->filled_rectangle($x, $y, (float)$w, (float)$h, $bg);
         }
 
         if (($url = $style->background_image) && $url !== "none") {
@@ -111,7 +111,7 @@ class Block extends AbstractRenderer
             if ($props["color"] === "transparent" || $props["width"] <= 0) return;
 
             list($x, $y, $w, $h) = $border_box;
-            $width = $style->length_in_pt($props["width"]);
+            $width = (float)$style->length_in_pt($props["width"]);
             $pattern = $this->_get_dash_pattern($props["style"], $width);
             $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width, $pattern);
             return;
@@ -189,7 +189,7 @@ class Block extends AbstractRenderer
             $border_box = $frame->get_border_box();
         }
 
-        $offset = $style->length_in_pt($props["width"]);
+        $offset = (float)$style->length_in_pt($props["width"]);
         $pattern = $this->_get_dash_pattern($props["style"], $offset);
 
         // If the outline style is "solid" we'd better draw a rectangle

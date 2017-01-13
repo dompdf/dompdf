@@ -33,7 +33,7 @@ class TableCell extends Block
 
         // Draw our background, border and content
         if (($bg = $style->background_color) !== "transparent") {
-            $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
+            $this->_canvas->filled_rectangle($x, $y, (float)$w, (float)$h, $bg);
         }
 
         if (($url = $style->background_image) && $url !== "none") {

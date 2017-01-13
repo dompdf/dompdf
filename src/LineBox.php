@@ -214,12 +214,12 @@ class LineBox
         }
 
         $this->left += $inside_left_floating_width;
-        if ($outside_left_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_left)) {
-            $this->left += $outside_left_floating_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->padding_left);
+        if ($outside_left_floating_width > (float)$style->length_in_pt($style->margin_left) + (float)$style->length_in_pt($style->padding_left)) {
+            $this->left += $outside_left_floating_width - (float)$style->length_in_pt($style->margin_left) - (float)$style->length_in_pt($style->padding_left);
         }
         $this->right += $inside_right_floating_width;
-        if ($outside_right_floating_width > $style->length_in_pt($style->margin_left) + $style->length_in_pt($style->padding_right)) {
-            $this->right += $outside_right_floating_width - $style->length_in_pt($style->margin_right) - $style->length_in_pt($style->padding_right);
+        if ($outside_right_floating_width > (float)$style->length_in_pt($style->margin_left) + (float)$style->length_in_pt($style->padding_right)) {
+            $this->right += $outside_right_floating_width - (float)$style->length_in_pt($style->margin_right) - (float)$style->length_in_pt($style->padding_right);
         }
     }
 

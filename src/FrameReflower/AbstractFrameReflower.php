@@ -104,7 +104,7 @@ abstract class AbstractFrameReflower
 
         if ($n) {
             $n_style = $n->get_style();
-            $b = max($b, $n_style->length_in_pt($n_style->margin_top, $cb["h"]));
+            $b = max($b, (float)$n_style->length_in_pt($n_style->margin_top, $cb["h"]));
             $n_style->margin_top = "0pt";
             $style->margin_bottom = $b . "pt";
         }
@@ -127,7 +127,7 @@ abstract class AbstractFrameReflower
         // Margin are collapsed only between block elements
         if ( $f ) {
           $f_style = $f->get_style();
-          $t = max($t, $f_style->length_in_pt($f_style->margin_top, $cb["h"]));
+          $t = max($t, (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]));
           $style->margin_top = $t."pt";
           $f_style->margin_bottom = "0pt";
         }*/
@@ -160,7 +160,7 @@ abstract class AbstractFrameReflower
             $style->margin_right);
 
         $cb_w = $this->_frame->get_containing_block("w");
-        $delta = $style->length_in_pt($dims, $cb_w);
+        $delta = (float)$style->length_in_pt($dims, $cb_w);
 
         // Handle degenerate case
         if (!$this->_frame->get_first_child()) {
@@ -215,7 +215,7 @@ abstract class AbstractFrameReflower
         // content.  If the width is a percentage ignore it for now.
         $width = $style->width;
         if ($width !== "auto" && !Helpers::is_percent($width)) {
-            $width = $style->length_in_pt($width, $cb_w);
+            $width = (float)$style->length_in_pt($width, $cb_w);
             if ($min < $width) $min = $width;
             if ($max < $width) $max = $width;
         }

@@ -150,7 +150,7 @@ class Block extends AbstractFrameDecorator
 
         // FIXME: Why? Doesn't quite seem to be the correct thing to do, 
         // but does appear to be necessary. Hack to handle wrapped white space?
-        if ($w === 0) {
+        if ($w == 0 && $frame->get_node()->nodeName !== "hr") {
             return;
         }
 
@@ -234,6 +234,9 @@ class Block extends AbstractFrameDecorator
         }
     }
 
+    /**
+     * @param float $w
+     */
     function increase_line_width($w)
     {
         $this->_line_boxes[$this->_cl]->w += $w;

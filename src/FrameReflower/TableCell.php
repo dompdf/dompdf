@@ -44,21 +44,21 @@ class TableCell extends Block
         //FIXME?
         $h = $this->_frame->get_containing_block("h");
 
-        $left_space = $style->length_in_pt(array($style->margin_left,
+        $left_space = (float)$style->length_in_pt(array($style->margin_left,
                 $style->padding_left,
                 $style->border_left_width),
             $w);
 
-        $right_space = $style->length_in_pt(array($style->padding_right,
+        $right_space = (float)$style->length_in_pt(array($style->padding_right,
                 $style->margin_right,
                 $style->border_right_width),
             $w);
 
-        $top_space = $style->length_in_pt(array($style->margin_top,
+        $top_space = (float)$style->length_in_pt(array($style->margin_top,
                 $style->padding_top,
                 $style->border_top_width),
             $h);
-        $bottom_space = $style->length_in_pt(array($style->margin_bottom,
+        $bottom_space = (float)$style->length_in_pt(array($style->margin_bottom,
                 $style->padding_bottom,
                 $style->border_bottom_width),
             $h);
@@ -69,7 +69,7 @@ class TableCell extends Block
         $content_y = $line_y = $y + $top_space;
 
         // Adjust the first line based on the text-indent property
-        $indent = $style->length_in_pt($style->text_indent, $w);
+        $indent = (float)$style->length_in_pt($style->text_indent, $w);
         $this->_frame->increase_line_width($indent);
 
         $page = $this->_frame->get_root();

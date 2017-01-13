@@ -41,7 +41,7 @@ class ListBullet extends AbstractPositioner
         if ($n) {
             $style = $n->get_style();
             $line_height = $style->length_in_pt($style->line_height, $style->get_font_size());
-            $offset = $style->length_in_pt($line_height, $n->get_containing_block("h")) - $frame->get_height();
+            $offset = (float)$style->length_in_pt($line_height, $n->get_containing_block("h")) - $frame->get_height();
             $y += $offset / 2;
         }
 
@@ -66,7 +66,7 @@ class ListBullet extends AbstractPositioner
 
         /*$style = $p->get_style();
         $font_size = $style->get_font_size();
-        $line_height = $style->length_in_pt($style->line_height, $font_size);
+        $line_height = (float)$style->length_in_pt($style->line_height, $font_size);
         $y += ($line_height - $font_size) / 2;    */
 
         //Position is x-end y-top of character position of the bullet.

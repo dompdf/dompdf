@@ -323,6 +323,22 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
+     * @return float
+     */
+    function is_auto_height()
+    {
+        return $this->_frame->is_auto_height();
+    }
+
+    /**
+     * @return float
+     */
+    function is_auto_width()
+    {
+        return $this->_frame->is_auto_width();
+    }
+
+    /**
      * @return string
      */
     function __toString()

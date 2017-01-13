@@ -941,8 +941,8 @@ class Stylesheet
                 if ($style->size !== "auto") {
                     list($paper_width, $paper_height) = $style->size;
                 }
-                $paper_width = $paper_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->margin_right);
-                $paper_height = $paper_height - $style->length_in_pt($style->margin_top) - $style->length_in_pt($style->margin_bottom);
+                $paper_width = $paper_width - (float)$style->length_in_pt($style->margin_left) - (float)$style->length_in_pt($style->margin_right);
+                $paper_height = $paper_height - (float)$style->length_in_pt($style->margin_top) - (float)$style->length_in_pt($style->margin_bottom);
                 $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
             } else {
                 $style = $this->create_style();
@@ -1022,34 +1022,34 @@ class Stylesheet
                             } else {
                                 switch ($media_query_feature) {
                                     case "height":
-                                        if ($paper_height !== $style->length_in_pt($media_query_value)) {
+                                        if ($paper_height !== (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "min-height":
-                                        if ($paper_height < $style->length_in_pt($media_query_value)) {
+                                        if ($paper_height < (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "max-height":
-                                        if ($paper_height > $style->length_in_pt($media_query_value)) {
+                                        if ($paper_height > (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "width":
-                                        if ($paper_width !== $style->length_in_pt($media_query_value)) {
+                                        if ($paper_width !== (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "min-width":
                                         //if (min($paper_width, $media_query_width) === $paper_width) {
-                                        if ($paper_width < $style->length_in_pt($media_query_value)) {
+                                        if ($paper_width < (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "max-width":
                                         //if (max($paper_width, $media_query_width) === $paper_width) {
-                                        if ($paper_width > $style->length_in_pt($media_query_value)) {
+                                        if ($paper_width > (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
