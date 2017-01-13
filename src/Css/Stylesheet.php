@@ -620,7 +620,7 @@ class Stylesheet
                             break;
 
                         case "link":
-                            $query .= "[@href]";
+                            $query .= "a[@href]";
                             $tok = "";
                             break;
 
