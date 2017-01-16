@@ -109,28 +109,55 @@ abstract class AbstractFrameReflower
             $style->margin_bottom = $b . "pt";
         }
 
-        // Collapse our first child's margin
-        /*$f = $this->_frame->get_first_child();
-        if ( $f && !$f->is_block() ) {
-          while ( $f = $f->get_next_sibling() ) {
-            if ( $f->is_block() ) {
-              break;
+        // Collapse our first child's margin, if there is no border or padding
+        if ($style->get_border_top_width() == 0 && $style->length_in_pt($style->padding_top) == 0) {
+            $f = $this->_frame->get_first_child();
+            if ( $f && !$f->is_block() ) {
+                while ( $f = $f->get_next_sibling() ) {
+                    if ( $f->is_block() ) {
+                        break;
+                    }
+
+                    if ( !$f->get_first_child() ) {
+                        $f = null;
+                        break;
+                    }
+                }
             }
 
-            if ( !$f->get_first_child() ) {
-              $f = null;
-              break;
+            // Margin are collapsed only between block elements
+            if ( $f ) {
+                $f_style = $f->get_style();
+                $t = max($t, (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]));
+                $style->margin_top = $t."pt";
+                $f_style->margin_top = "0pt";
             }
-          }
         }
 
-        // Margin are collapsed only between block elements
-        if ( $f ) {
-          $f_style = $f->get_style();
-          $t = max($t, (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]));
-          $style->margin_top = $t."pt";
-          $f_style->margin_bottom = "0pt";
-        }*/
+        // Collapse our last child's margin, if there is no border or padding
+        if ($style->get_border_bottom_width() == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
+            $l = $this->_frame->get_last_child();
+            if ( $l && !$l->is_block() ) {
+                while ( $l = $l->get_prev_sibling() ) {
+                    if ( $l->is_block() ) {
+                        break;
+                    }
+
+                    if ( !$l->get_last_child() ) {
+                        $l = null;
+                        break;
+                    }
+                }
+            }
+
+            // Margin are collapsed only between block elements
+            if ( $l ) {
+                $l_style = $l->get_style();
+                $b = max($b, (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]));
+                $style->margin_bottom = $b."pt";
+                $l_style->margin_bottom = "0pt";
+            }
+        }
     }
 
     //........................................................................
