@@ -426,7 +426,7 @@ class Frame
     /**
      * Containing block dimensions
      *
-     * @param $i string The key of the wanted containing block's dimension (x, y, x, h)
+     * @param $i string The key of the wanted containing block's dimension (x, y, w, h)
      *
      * @return float[]|float
      */
@@ -515,6 +515,38 @@ class Frame
             $style->padding_top,
             $style->padding_bottom
         ), $this->_containing_block["h"]);
+    }
+
+    /**
+     * Return the content box (x,y,w,h) of the frame
+     *
+     * @return array
+     */
+    public function get_content_box()
+    {
+        $style = $this->_style;
+        $cb = $this->_containing_block;
+
+        $x = $this->_position["x"] +
+            (float)$style->length_in_pt(array($style->margin_left,
+                    $style->border_left_width,
+                    $style->padding_left),
+                $cb["w"]);
+
+        $y = $this->_position["y"] +
+            (float)$style->length_in_pt(array($style->margin_top,
+                    $style->border_top_width,
+                    $style->padding_top),
+                $cb["h"]);
+
+        $w = $style->length_in_pt($style->width, $cb["w"]);
+
+        $h = $style->length_in_pt($style->height, $cb["h"]);
+
+        return array(0 => $x, "x" => $x,
+            1 => $y, "y" => $y,
+            2 => $w, "w" => $w,
+            3 => $h, "h" => $h);
     }
 
     /**

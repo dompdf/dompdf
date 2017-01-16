@@ -273,6 +273,14 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @return array
      */
+    function get_content_box()
+    {
+        return $this->_frame->get_content_box();
+    }
+
+    /**
+     * @return array
+     */
     function get_padding_box()
     {
         return $this->_frame->get_padding_box();
