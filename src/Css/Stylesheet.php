@@ -562,7 +562,7 @@ class Stylesheet
 
                 case ":":
                     $i2 = $i - strlen($tok) - 2; // the char before ":"
-                    if (!isset($selector[$i2]) || in_array($selector[$i2], $delimiters)) {
+                    if ($i2 < 0 || !isset($selector[$i2]) || in_array($selector[$i2], $delimiters)) {
                         $query .= "*";
                     }
 
@@ -620,7 +620,7 @@ class Stylesheet
                             break;
 
                         case "link":
-                            $query .= "a[@href]";
+                            $query .= "[@href]";
                             $tok = "";
                             break;
 
