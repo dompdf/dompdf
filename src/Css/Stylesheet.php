@@ -487,7 +487,7 @@ class Stylesheet
                 $c = $selector[$i];
                 $c_prev = $selector[$i - 1];
 
-                if (!$in_attr && in_array($c, $delimiters)) {
+                if (!$in_attr && in_array($c, $delimiters) && !(($c == $c_prev) == ":")) {
                     break;
                 }
 
@@ -562,7 +562,7 @@ class Stylesheet
 
                 case ":":
                     $i2 = $i - strlen($tok) - 2; // the char before ":"
-                    if ($i2 < 0 || !isset($selector[$i2]) || in_array($selector[$i2], $delimiters)) {
+                    if ($i2 < 0 || !isset($selector[$i2]) || (in_array($selector[$i2], $delimiters) && $selector[$i2] != ":")) {
                         $query .= "*";
                     }
 
@@ -624,8 +624,12 @@ class Stylesheet
                             $tok = "";
                             break;
 
-                        case "first-line": // TODO
-                        case "first-letter": // TODO
+                        case "first-line":
+                        case ":first-line":
+                        case "first-letter":
+                        case ":first-letter":
+                            // TODO
+                            break;
 
                             // N/A
                         case "focus":
@@ -638,11 +642,14 @@ class Stylesheet
 
                         /* Pseudo-elements */
                         case "before":
+                        case ":before":
                         case "after":
+                        case ":after":
+                            $pos = trim($tok, ":");
                             if ($first_pass) {
-                                $pseudo_elements[$tok] = $tok;
+                                $pseudo_elements[$pos] = $pos;
                             } else {
-                                $query .= "/*[@$tok]";
+                                $query .= "/*[@$pos]";
                             }
 
                             $tok = "";
