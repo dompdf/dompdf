@@ -482,23 +482,31 @@ class Stylesheet
             // Eat characters up to the next delimiter
             $tok = "";
             $in_attr = false;
+            $in_func = false;
 
             while ($i < $len) {
                 $c = $selector[$i];
                 $c_prev = $selector[$i - 1];
 
-                if (!$in_attr && in_array($c, $delimiters) && !(($c == $c_prev) == ":")) {
+                if (!$in_func && !$in_attr && in_array($c, $delimiters) && !(($c == $c_prev) == ":")) {
                     break;
                 }
 
                 if ($c_prev === "[") {
                     $in_attr = true;
                 }
+                if ($c_prev === "(") {
+                    $in_func = true;
+                }
 
                 $tok .= $selector[$i++];
 
                 if ($in_attr && $c === "]") {
                     $in_attr = false;
+                    break;
+                }
+                if ($in_func && $c === ")") {
+                    $in_func = false;
                     break;
                 }
             }
