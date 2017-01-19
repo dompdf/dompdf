@@ -529,7 +529,7 @@ class Helpers
         $type = isset($types[$type]) ? $types[$type] : null;
 
         if ($width == null || $height == null) {
-            list($data, $headers) = Helpers::getFileContent($filename, null, $context, 0, 26);
+            list($data, $headers) = Helpers::getFileContent($filename, $context);
 
             if (substr($data, 0, 2) === "BM") {
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
