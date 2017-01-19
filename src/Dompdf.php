@@ -387,7 +387,7 @@ class Dompdf
             $file = $realfile;
         }
 
-        list($contents, $http_response_header) = Helpers::getFileContent($file, null, $this->httpContext);
+        list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
         $encoding = null;
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
