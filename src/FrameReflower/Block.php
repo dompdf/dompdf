@@ -792,24 +792,30 @@ class Block extends AbstractFrameReflower
 
         // Set the containing blocks and reflow each child
         foreach ($this->_frame->get_children() as $child) {
-
-            // Bail out if the page is full
-            if ($page->is_full()) {
-                break;
-            }
-
             $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
 
             $this->process_clear($child);
 
             $child->reflow($this->_frame);
 
-            // Don't add the child to the line if a page break has occurred
-            if ($page->check_page_break($child)) {
-                break;
-            }
-
             $this->process_float($child, $cb_x, $w);
+        }
+
+        // Go back through and handle any page breaks
+        foreach ($this->_frame->get_children() as $child) {
+            // Skip children that are empty text nodes
+            if (!$child->is_text_node() ||
+                $child->get_node()->nodeValue != ""
+            ) {
+                if ($page->check_page_break($child)) {
+                    break;
+                }
+
+                // Bail out if the page is full
+                if ($page->is_full()) {
+                    break;
+                }
+            }
         }
 
         // Determine our height

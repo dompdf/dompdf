@@ -357,14 +357,32 @@ class Page extends AbstractFrameDecorator
 
                 // Rule C
                 $block_parent = $frame->find_block_parent();
-                if (count($block_parent->get_line_boxes()) < $frame->get_style()->orphans) {
+                $block_line_boxes = $block_parent->get_line_boxes();
+                $frame_line_number = 0;
+                $i = 1;
+                $first_node_on_line = false;
+                foreach ($block_line_boxes as &$line_box) {
+                    if ($line_box === $frame->get_containing_line()) {
+                        $frame_line_number = $i;
+			if (count($first_node_on_line = $line_box->get_frames()) > 0) {
+			    $first_node_on_line = $line_box->get_frames()[0]->get_node();
+                        }
+                        break;
+                    }
+                    $i++;
+                }
+
+                if ($frame_line_number <= $frame->get_style()->orphans) {
                     Helpers::dompdf_debug("page-break", "orphans");
 
                     return false;
                 }
 
-                // FIXME: Checking widows is tricky without having laid out the
-                // remaining line boxes.  Just ignore it for now...
+                if (count($block_line_boxes) - $frame_line_number + 1 < $frame->get_style()->widows) {
+                    Helpers::dompdf_debug("page-break", "widows");
+
+                    return false;
+                }
 
                 // Rule D
                 $p = $block_parent;
@@ -389,13 +407,6 @@ class Page extends AbstractFrameDecorator
                     // We are the body's first child
                     Helpers::dompdf_debug("page-break", "Body's first child.");
 
-                    return false;
-                }
-
-                // Skip breaks on empty text nodes
-                if ($frame->is_text_node() &&
-                    $frame->get_node()->nodeValue == ""
-                ) {
                     return false;
                 }
 
@@ -546,6 +557,12 @@ class Page extends AbstractFrameDecorator
             }
 
             if ($next = $iter->get_prev_sibling()) {
+                while ($next->is_text_node() && $next->get_node()->nodeValue == "") {
+                    $next = $next->get_prev_sibling();
+                    if (!$next)
+                        break 2;
+                }
+
                 Helpers::dompdf_debug("page-break", "following prev sibling.");
 
                 if ($next->is_table() && !$iter->is_table())
