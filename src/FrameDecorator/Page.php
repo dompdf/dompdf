@@ -364,8 +364,9 @@ class Page extends AbstractFrameDecorator
                 foreach ($block_line_boxes as &$line_box) {
                     if ($line_box === $frame->get_containing_line()) {
                         $frame_line_number = $i;
-			if (count($first_node_on_line = $line_box->get_frames()) > 0) {
-			    $first_node_on_line = $line_box->get_frames()[0]->get_node();
+                        $frames = $line_box->get_frames();
+                        if (count($frames) > 0) {
+                            $first_node_on_line = $frames[0]->get_node();
                         }
                         break;
                     }
