@@ -93,7 +93,7 @@ class Absolute extends AbstractPositioner
                     $y += (float)$h - $height - (float)$bottom;
                 } else {
                     // G
-                    $y += $h - $height - (float)$bottom;
+                    $y += (float)$h - $height - (float)$bottom;
                 }
             }
         } else {

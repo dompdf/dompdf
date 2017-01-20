@@ -161,9 +161,9 @@ class Renderer extends AbstractRenderer
             list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
 
             if ($tl + $tr + $br + $bl > 0) {
-                $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
+                $this->_canvas->clipping_roundrectangle($x, $y, (float)$w, (float)$h, $tl, $tr, $br, $bl);
             } else {
-                $this->_canvas->clipping_rectangle($x, $y, $w, $h);
+                $this->_canvas->clipping_rectangle($x, $y, (float)$w, (float)$h);
             }
         }
 
