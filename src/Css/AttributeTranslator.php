@@ -89,6 +89,10 @@ class AttributeTranslator
         'h6' => array(
             'align' => 'text-align: %s;',
         ),
+        //TODO: translate more form element attributes
+        'input' => array(
+            'size' => '!set_input_width'
+        ),
         'p' => array(
             'align' => 'text-align: %s;',
         ),
@@ -506,6 +510,23 @@ class AttributeTranslator
         }
 
         return ltrim($style, "; ");
+    }
+
+    /**
+     * @param \DOMElement $node
+     * @param string $value
+     *
+     * @return null|string
+     */
+    static protected function _set_input_width(\DOMElement $node, $value)
+    {
+        if (empty($value)) { return null; }
+
+        if ($node->hasAttribute("type") && in_array(strtolower($node->getAttribute("type")), array("text","password"))) {
+            return sprintf("width: %Fem", (((int)$value * .65)+2));
+        } else {
+            return sprintf("width: %upx;", (int)$value);
+        }
     }
 
     /**
