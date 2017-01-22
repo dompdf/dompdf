@@ -166,14 +166,21 @@ class FrameTree
             $table->parentNode->insertBefore($caption, $table);
         }
 
-        $rows = $xp->query("//table/tr");
-        foreach ($rows as $row) {
+        $firstRows = $xp->query("//table/tr[1]");
+        foreach ($firstRows as $firstRow) {
             $tbody = $this->_dom->createElement("tbody");
-            $tbody = $row->parentNode->insertBefore($tbody, $row);
-            $tbody->appendChild($row);
+            $tableNode = $firstRow->parentNode;
+            $childNodes = $tableNode->childNodes;
+            $length = $childNodes->length;
+            for ($i = 0; $i < $length; $i++) {
+                $childNode = $childNodes->item(0);
+                $tableNode->removeChild($childNode);
+                $tbody->appendChild($childNode);
+            }
+            $tableNode->appendChild($tbody);
         }
     }
-    
+
     // FIXME: temporary hack, preferably we will improve rendering of sequential #text nodes
     /**
      * Remove a child from a node
@@ -222,7 +229,7 @@ class FrameTree
         if (!$node->hasChildNodes()) {
             return $frame;
         }
-        
+
         // Store the children in an array so that the tree can be modified
         $children = array();
         $length = $node->childNodes->length;
@@ -234,7 +241,7 @@ class FrameTree
         while ($index < count($children)) {
             $child = $children[$index];
             $nodeName = strtolower($child->nodeName);
-            
+
             // Skip non-displaying nodes
             if (in_array($nodeName, self::$HIDDEN_TAGS)) {
                 if ($nodeName !== "head" && $nodeName !== "style") {
@@ -254,7 +261,7 @@ class FrameTree
                 $this->_remove_node($node, $children, $index);
                 continue;
             }
-       
+
             if (is_object($child)) {
                 $frame->append_child($this->_build_tree_r($child), false);
             }
