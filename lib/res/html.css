@@ -392,7 +392,7 @@ input[type=file]:before {
 }
 
 input[type=password][value]:before {
-  font-family: "DejaVu Sans";
+  font-family: "DejaVu Sans" !important;
   content: "\2022\2022\2022\2022\2022\2022\2022\2022";
   line-height: 1em;
 }
@@ -400,7 +400,7 @@ input[type=password][value]:before {
 input[type=checkbox],
 input[type=radio],
 select:after {
-  font-family: "DejaVu Sans";
+  font-family: "DejaVu Sans" !important;
   font-size: 18px;
   line-height: 1;
 }
