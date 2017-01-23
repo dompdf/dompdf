@@ -3794,7 +3794,7 @@ EOT;
     }
 
     /**
-     * add text to the document, at a specified location, size and angle on the page
+     * register text for font subsetting
      */
     function registerText($font, $text)
     {

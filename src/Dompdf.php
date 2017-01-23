@@ -782,8 +782,15 @@ class Dompdf
                     $this->getCanvas()->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('lower-greek');
                     $this->getCanvas()->register_string_subset($style->font_family, $chars);
-                    // the text of the stylesheet declaration
+
+                    // the raw text of the content property
                     $this->getCanvas()->register_string_subset($style->font_family, $style->content);
+                    
+                    // the hex-decoded text of the content property, duplicated from AbstrctFrameReflower::_parse_string
+                    $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
+                        function ($matches) { return \Dompdf\Helpers::unichr(hexdec($matches[1])); },
+                        $style->content);
+                    $this->getCanvas()->register_string_subset($style->font_family, $string);
                     continue;
                 }
             }
