@@ -1,12 +1,12 @@
 /**
  * dompdf default stylesheet.
- * 
+ *
  * The Original Code is mozilla.org code.
  *
  * The Initial Developer of the Original Code is Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998 the Initial Developer. 
+ * Portions created by the Initial Developer are Copyright (C) 1998 the Initial Developer.
  * All Rights Reserved.
- * 
+ *
  * @package dompdf
  * @link    http://dompdf.github.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
@@ -20,7 +20,7 @@
   margin: 1.2cm;
 }
 
-html { 
+html {
   display: -dompdf-page;
   counter-reset: page;
 }
@@ -64,7 +64,7 @@ center {
 
 blockquote[type=cite] {
   display: block;
-  margin: 1em 0px;
+  margin: 1em 0;
   padding-left: 1em;
   border-left: solid;
   border-color: blue;
@@ -131,7 +131,7 @@ nav, section {
 
 table {
   display: table;
-  border-spacing: 2px; 
+  border-spacing: 2px;
   border-collapse: separate;
   margin-top: 0;
   margin-bottom: 0;
@@ -155,8 +155,8 @@ table[border] th {
 td, th, tr {
   background: inherit;
 }
-   
-/* caption inherits from table not table-outer */  
+
+/* caption inherits from table not table-outer */
 caption {
   display: block;
   text-align: center;
@@ -195,10 +195,10 @@ table > tr {
   vertical-align: middle;
 }
 
-td { 
+td {
   display: table-cell;
   vertical-align: inherit;
-  text-align: inherit; 
+  text-align: inherit;
   padding: 1px;
 }
 
@@ -491,7 +491,7 @@ noframes {
   display: none;
 }
 
-br { 
+br {
   display: -dompdf-br;
 }
 
