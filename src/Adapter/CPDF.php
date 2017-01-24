@@ -873,11 +873,13 @@ class CPDF implements Canvas
      *
      * @param string $code the script code
      * @param string $type the language type for script
+     * @param array $except_on the page numbers on which not to run the script
      */
-    function page_script($code, $type = "text/php")
+    function page_script($code, $type = "text/php", $except_on = array())
     {
         $_t = "script";
-        $this->_page_text[] = compact("_t", "code", "type");
+
+        $this->_page_text[] = compact("_t", "code", "type", "except_on");
     }
 
     function new_page()
@@ -908,6 +910,11 @@ class CPDF implements Canvas
 
             foreach ($this->_page_text as $pt) {
                 extract($pt);
+
+                if ($except_on && in_array($page_number, $except_on)) {
+                    // don't run the script on the page that is to be excluded
+                    break;
+                }
 
                 switch ($_t) {
                     case "text":
