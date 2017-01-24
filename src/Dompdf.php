@@ -12,14 +12,12 @@ use DOMDocument;
 use DOMNode;
 use Dompdf\Adapter\CPDF;
 use DOMXPath;
-use Dompdf\Frame;
 use Dompdf\Frame\Factory;
 use Dompdf\Frame\FrameTree;
 use HTML5_Tokenizer;
 use HTML5_TreeBuilder;
 use Dompdf\Image\Cache;
 use Dompdf\Renderer\ListBullet;
-use Dompdf\Renderer;
 use Dompdf\Css\Stylesheet;
 
 /**
@@ -98,12 +96,6 @@ class Dompdf
      * @var Stylesheet
      */
     private $css;
-
-    /**
-     * @var Canvas
-     * @deprecated
-     */
-    private $pdf;
 
     /**
      * Actual PDF renderer
@@ -600,6 +592,7 @@ class Dompdf
         $xpath = new DOMXPath($this->dom);
         $stylesheets = $xpath->query("//*[name() = 'link' or name() = 'style']");
 
+        /** @var \DOMElement $tag */
         foreach ($stylesheets as $tag) {
             switch (strtolower($tag->nodeName)) {
                 // load <link rel="STYLESHEET" ... /> tags
@@ -748,23 +741,24 @@ class Dompdf
 
         //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion (see #1059).
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-        $this->fontMetrics->setCanvas($this->pdf);
+        $this->fontMetrics->setCanvas($this->getCanvas());
+        $canvas = $this->getCanvas();
 
-        if ($this->options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
+        if ($this->options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
             foreach ($this->tree->get_frames() as $frame) {
                 $style = $frame->get_style();
                 $node = $frame->get_node();
 
                 // Handle text nodes
                 if ($node->nodeName === "#text") {
-                    $this->getCanvas()->register_string_subset($style->font_family, $node->nodeValue);
+                    $canvas->register_string_subset($style->font_family, $node->nodeValue);
                     continue;
                 }
 
                 // Handle generated content (list items)
                 if ($style->display === "list-item") {
                     $chars = ListBullet::get_counter_chars($style->list_style_type);
-                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     continue;
                 }
 
@@ -775,15 +769,15 @@ class Dompdf
                 if ($frame->get_node()->nodeName == "dompdf_generated") {
                     // all possible counter values
                     $chars = ListBullet::get_counter_chars('decimal');
-                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('upper-alpha');
-                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('lower-alpha');
-                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('lower-greek');
-                    $this->getCanvas()->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     // the text of the stylesheet declaration
-                    $this->getCanvas()->register_string_subset($style->font_family, $style->content);
+                    $canvas->register_string_subset($style->font_family, $style->content);
                     continue;
                 }
             }
@@ -805,7 +799,7 @@ class Dompdf
         // Add meta information
         $title = $this->dom->getElementsByTagName("title");
         if ($title->length) {
-            $this->getCanvas()->add_info("Title", trim($title->item(0)->nodeValue));
+            $canvas->add_info("Title", trim($title->item(0)->nodeValue));
         }
 
         $metas = $this->dom->getElementsByTagName("meta");
@@ -814,21 +808,22 @@ class Dompdf
             "keywords" => "Keywords",
             "description" => "Subject",
         );
+        /** @var \DOMElement $meta */
         foreach ($metas as $meta) {
             $name = mb_strtolower($meta->getAttribute("name"));
             $value = trim($meta->getAttribute("content"));
 
             if (isset($labels[$name])) {
-                $this->pdf->add_info($labels[$name], $value);
+                $canvas->add_info($labels[$name], $value);
                 continue;
             }
 
             if ($name === "dompdf.view" && $this->parseDefaultView($value)) {
-                $this->getCanvas()->set_default_view($this->defaultView, $this->defaultViewOptions);
+                $canvas->set_default_view($this->defaultView, $this->defaultViewOptions);
             }
         }
 
-        $root->set_containing_block(0, 0, $this->getCanvas()->get_width(), $this->getCanvas()->get_height());
+        $root->set_containing_block(0, 0,$canvas->get_width(), $canvas->get_height());
         $root->set_renderer(new Renderer($this));
 
         // This is where the magic happens:
@@ -843,8 +838,9 @@ class Dompdf
             foreach ($_dompdf_warnings as $msg) {
                 echo $msg . "\n";
             }
-            if (strtolower($this->options->getPdfBackend()) == "cpdf") {
-                echo $this->getCanvas()->get_cpdf()->messages;
+
+            if ($canvas instanceof CPDF) {
+                echo $canvas->get_cpdf()->messages;
             }
             echo '</pre>';
             flush();
@@ -858,8 +854,9 @@ class Dompdf
      */
     public function add_info($label, $value)
     {
-        if (!is_null($this->pdf)) {
-            $this->pdf->add_info($label, $value);
+        $canvas = $this->getCanvas();
+        if (!is_null($canvas)) {
+            $canvas->add_info($label, $value);
         }
     }
 
@@ -920,8 +917,9 @@ class Dompdf
 
         $this->write_log();
 
-        if (!is_null($this->pdf)) {
-            $this->pdf->stream($filename, $options);
+        $canvas = $this->getCanvas();
+        if (!is_null($canvas)) {
+            $canvas->stream($filename, $options);
         }
 
         $this->restoreLocale();
@@ -948,11 +946,12 @@ class Dompdf
 
         $this->write_log();
 
-        if (is_null($this->pdf)) {
+        $canvas = $this->getCanvas();
+        if (is_null($canvas)) {
             return null;
         }
 
-        $output = $this->pdf->output($options);
+        $output = $canvas->output($options);
 
         $this->restoreLocale();
 
@@ -1289,7 +1288,6 @@ class Dompdf
      */
     public function setCanvas(Canvas $canvas)
     {
-        $this->pdf = $canvas;
         $this->canvas = $canvas;
         return $this;
     }
@@ -1310,9 +1308,6 @@ class Dompdf
      */
     public function getCanvas()
     {
-        if (null === $this->canvas && null !== $this->pdf) {
-            return $this->pdf;
-        }
         return $this->canvas;
     }
 
