@@ -321,6 +321,21 @@ interface Canvas
     function get_font_baseline($font, $size);
 
     /**
+     * Returns the PDF's width in points
+     *
+     * @return float
+     */
+    function get_width();
+
+
+    /**
+     * Return the image's height in pixels
+     *
+     * @return float
+     */
+    function get_height();
+
+    /**
      * Returns the font x-height, in points
      *
      * @param string $font
