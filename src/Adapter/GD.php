@@ -517,12 +517,12 @@ class GD implements Canvas
 
     function save()
     {
-        $this->get_dompdf()->set_option('dpi', 72);
+        $this->get_dompdf()->getOptions()->setDpi(72);
     }
 
     function restore()
     {
-        $this->get_dompdf()->set_option('dpi', $this->dpi);
+        $this->get_dompdf()->getOptions()->setDpi($this->dpi);
     }
 
     function rotate($angle, $x, $y)
@@ -977,9 +977,9 @@ class GD implements Canvas
         $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
         $encodedfallbackfilename = rawurlencode($fallbackfilename);
         $encodedfilename = rawurlencode($filename);
-        
+
         header("Content-Disposition: $attach; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
-        
+
         switch ($type) {
 
             case "jpg":

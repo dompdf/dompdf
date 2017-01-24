@@ -37,7 +37,7 @@ class Factory
      * @var AbstractPositioner[]
      */
     protected static $_positioners;
-    
+
     /**
      * Decorate the root Frame
      *
@@ -228,7 +228,7 @@ class Factory
 
         if ($display === "list-item") {
             // Insert a list-bullet frame
-            $xml = $dompdf->get_dom();
+            $xml = $dompdf->getDom();
             $bullet_node = $xml->createElement("bullet"); // arbitrary choice
             $b_f = new Frame($bullet_node);
 
@@ -256,7 +256,7 @@ class Factory
                 $bullet_node->setAttribute("dompdf-counter", $index);
             }
 
-            $new_style = $dompdf->get_css()->create_style();
+            $new_style = $dompdf->getCss()->create_style();
             $new_style->display = "-dompdf-list-bullet";
             $new_style->inherit($style);
             $b_f->set_style($new_style);
@@ -266,7 +266,7 @@ class Factory
 
         return $deco;
     }
-    
+
     /**
      * Creates Positioners
      *

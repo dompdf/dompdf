@@ -29,7 +29,7 @@ class JavascriptEmbedder
 
     function insert($script)
     {
-        $this->_dompdf->get_canvas()->javascript($script);
+        $this->_dompdf->getCanvas()->javascript($script);
     }
 
     function render(Frame $frame)

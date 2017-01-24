@@ -187,7 +187,7 @@ class PDFLib implements Canvas
         $this->_dompdf = $dompdf;
 
         $this->_pdf = new \PDFLib();
-        
+
         $license = $dompdf->getOptions()->getPdflibLicense();
         if (strlen($license) > 0)
             $this->_pdf->set_parameter("license", $license);
@@ -677,7 +677,7 @@ class PDFLib implements Canvas
         // Check if the font is a native PDF font
         // Embed non-native fonts
         $test = strtolower(basename($font));
-        if (in_array($test, DOMPDF::$native_fonts)) {
+        if (in_array($test, DOMPDF::$nativeFonts)) {
             $font = basename($font);
 
         } else {
@@ -1167,9 +1167,9 @@ class PDFLib implements Canvas
         $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
         $encodedfallbackfilename = rawurlencode($fallbackfilename);
         $encodedfilename = rawurlencode($filename);
-        
+
         header("Content-Disposition: $attach; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
-        
+
         //header("Content-length: " . $size);
 
         if (self::$IN_MEMORY)

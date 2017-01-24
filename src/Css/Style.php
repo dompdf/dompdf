@@ -581,7 +581,7 @@ class Style
             }
 
             if (($i = mb_strpos($l, "rem")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->get_tree()->get_root()->get_style()->font_size;
+                $ret += (float)mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style()->font_size;
                 continue;
             }
 

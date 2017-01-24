@@ -218,7 +218,7 @@ class Renderer extends AbstractRenderer
     protected function _check_callbacks($event, $frame)
     {
         if (!isset($this->_callbacks)) {
-            $this->_callbacks = $this->_dompdf->get_callbacks();
+            $this->_callbacks = $this->_dompdf->getCallbacks();
         }
 
         if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {

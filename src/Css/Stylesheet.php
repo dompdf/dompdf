@@ -356,12 +356,12 @@ class Stylesheet
                 $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
             }
 
-            list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->get_http_context());
+            list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
 
             // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
-            if (isset($http_response_header) && !$this->_dompdf->get_quirksmode()) {
+            if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
                     if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
                         ($matches[1] !== "text/css")
@@ -989,7 +989,7 @@ class Stylesheet
         }
 
         // Set the page width, height, and orientation based on the canvas paper size
-        $canvas = $this->_dompdf->get_canvas();
+        $canvas = $this->_dompdf->getCanvas();
         $paper_width = $canvas->get_width();
         $paper_height = $canvas->get_height();
         $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");

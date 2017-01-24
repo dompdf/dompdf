@@ -2158,7 +2158,7 @@ EOT;
         // assume that $font contains the path and file but not the extension
         $name = basename($font);
         $dir = dirname($font) . '/';
-        
+
         $fontcache = $this->fontcache;
         if ($fontcache == '') {
             $fontcache = rtrim($dir, DIRECTORY_SEPARATOR."/\\");
@@ -2356,9 +2356,9 @@ EOT;
                         case 'KPX':
                             break; // don't include them as they are not used yet
                             //KPX Adieresis yacute -40
-                            $bits = explode(' ', trim($row));
+                            /*$bits = explode(' ', trim($row));
                             $data['KPX'][$bits[1]][$bits[2]] = $bits[3];
-                            break;
+                            break;*/
                     }
                 }
             }

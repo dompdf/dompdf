@@ -77,7 +77,7 @@ class Dompdf
      * @var string
      */
     private $version = 'dompdf';
-    
+
     /**
      * DomDocument representing the HTML document
      *
@@ -216,13 +216,13 @@ class Dompdf
     /**
     * Protocol whitelist
     *
-    * Protocols and PHP wrappers allowed in URLs. Full support is not 
+    * Protocols and PHP wrappers allowed in URLs. Full support is not
     * guarantee for the protocols/wrappers contained in this array.
     *
     * @var array
     */
     private $allowedProtocols = array(null, "", "file://", "http://", "https://");
-    
+
     /**
     * Local file extension whitelist
     *
@@ -231,7 +231,7 @@ class Dompdf
     * @var array
     */
     private $allowedLocalFileExtensions = array("htm", "html");
-    
+
     /**
      * @var array
      */
@@ -280,7 +280,7 @@ class Dompdf
     public function __construct($options = null)
     {
         mb_internal_encoding('UTF-8');
-        
+
         if (isset($options) && $options instanceof Options) {
             $this->setOptions($options);
         } elseif (is_array($options)) {
@@ -288,7 +288,7 @@ class Dompdf
         } else {
             $this->setOptions(new Options());
         }
-        
+
         $versionFile = realpath(__DIR__ . '/../VERSION');
         if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false && $version !== '$Format:<%h>$') {
           $this->version = sprintf('dompdf %s', $version);
@@ -360,7 +360,7 @@ class Dompdf
         if ( !in_array($this->protocol, $this->allowedProtocols) ) {
             throw new Exception("Permission denied on $file. The communication protocol is not supported.");
         }
-    
+
         if (!$this->options->isRemoteEnabled() && ($this->protocol != "" && $this->protocol !== "file://")) {
             throw new Exception("Remote file requested, but remote file download is disabled.");
         }
@@ -369,7 +369,7 @@ class Dompdf
 
             // Get the full path to $file, returns false if the file doesn't exist
             $realfile = realpath($file);
-            
+
             $chroot = $this->options->getChroot();
             if (strpos($realfile, $chroot) !== 0) {
                 throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
@@ -379,7 +379,7 @@ class Dompdf
             if (!in_array($ext, $this->allowedLocalFileExtensions)) {
                 throw new Exception("Permission denied on $file.");
             }
-            
+
             if (!$realfile) {
                 throw new Exception("File '$file' not found.");
             }
@@ -501,7 +501,7 @@ class Dompdf
                 $nodes = $doc->getElementsByTagName($tag_name);
 
                 foreach ($nodes as $node) {
-                    self::remove_text_nodes($node);
+                    self::removeTextNodes($node);
                 }
             }
 
@@ -745,7 +745,7 @@ class Dompdf
         if (is_array($basePageStyle->size)) {
             $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
         }
-        
+
         //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion (see #1059).
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
         $this->fontMetrics->setCanvas($this->pdf);
@@ -1001,7 +1001,7 @@ class Dompdf
         $this->options->set($key, $value);
         return $this;
     }
-    
+
     /**
      * @param array $options
      * @return $this
@@ -1057,7 +1057,7 @@ class Dompdf
     /**
      * Gets the paper orientation
      *
-     * @return string Either 
+     * @return string Either
      */
     public function getPaperOrientation()
     {
@@ -1485,10 +1485,10 @@ class Dompdf
     {
         return $this->fontMetrics;
     }
-    
+
     /**
      * PHP5 overloaded getter
-     * Along with {@link Dompdf::__set()} __get() provides access to all 
+     * Along with {@link Dompdf::__set()} __get() provides access to all
      * properties directly.  Typically __get() is not called directly outside
      * of this class.
      *

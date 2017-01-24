@@ -47,7 +47,7 @@ abstract class AbstractRenderer
     function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
-        $this->_canvas = $dompdf->get_canvas();
+        $this->_canvas = $dompdf->getCanvas();
     }
 
     /**
