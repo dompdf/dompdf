@@ -603,6 +603,7 @@ class Stylesheet
                             break;
 
                         // an+b, n, odd, and even
+                        /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-of-type":
                             $last = true;
                         case "nth-of-type":
@@ -633,7 +634,7 @@ class Stylesheet
                             $query .= "[$condition]";
                             $tok = "";
                             break;
-                        
+                        /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-child":
                             $last = true;
                         case "nth-child":
@@ -861,7 +862,13 @@ class Stylesheet
         return array("query" => $query, "pseudo_elements" => $pseudo_elements);
     }
 
-    // https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
+    /**
+     * https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
+     *
+     * @param $expr
+     * @param bool $last
+     * @return string
+     */
     protected function _selector_an_plus_b($expr, $last = false)
     {
         $expr = preg_replace("/\s/", "", $expr);
@@ -982,10 +989,11 @@ class Stylesheet
         }
 
         // Set the page width, height, and orientation based on the canvas paper size
-        $paper_width = $this->_dompdf->get_canvas()->get_width();
-        $paper_height = $this->_dompdf->get_canvas()->get_height();
+        $canvas = $this->_dompdf->get_canvas();
+        $paper_width = $canvas->get_width();
+        $paper_height = $canvas->get_height();
         $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
-        
+
         // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
@@ -1005,7 +1013,7 @@ class Stylesheet
             } else {
                 $style = $this->create_style();
             }
-            
+
             // Find nearest DOMElement parent
             $p = $frame;
             while ($p = $p->get_parent()) {
@@ -1333,7 +1341,12 @@ class Stylesheet
         }
     }
 
-    /* See also style.cls Style::_image(), refactoring?, works also for imported css files */
+    /**
+     * See also style.cls Style::_image(), refactoring?, works also for imported css files
+     *
+     * @param $val
+     * @return string
+     */
     protected function _image($val)
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
@@ -1611,6 +1624,9 @@ class Stylesheet
         if ($DEBUGCSS) print '_parse_sections]';
     }
 
+    /**
+     * @return string
+     */
     public static function getDefaultStylesheet()
     {
         $dir = realpath(__DIR__ . "/../..");

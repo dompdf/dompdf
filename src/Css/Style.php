@@ -196,7 +196,7 @@ class Style
      * The computed bottom spacing
      */
     private $_computed_bottom_spacing = null;
- 
+
     /**
      * The computed border radius
      */
@@ -431,31 +431,49 @@ class Style
     {
     }
 
+    /**
+     * @param $media_queries
+     */
     function set_media_queries($media_queries)
     {
         $this->_media_queries = $media_queries;
     }
 
+    /**
+     * @return array|int
+     */
     function get_media_queries()
     {
         return $this->_media_queries;
     }
 
+    /**
+     * @param Frame $frame
+     */
     function set_frame(Frame $frame)
     {
         $this->_frame = $frame;
     }
 
+    /**
+     * @return Frame
+     */
     function get_frame()
     {
         return $this->_frame;
     }
 
+    /**
+     * @param $origin
+     */
     function set_origin($origin)
     {
         $this->_origin = $origin;
     }
 
+    /**
+     * @return int
+     */
     function get_origin()
     {
         return $this->_origin;
@@ -711,6 +729,10 @@ class Style
         $this->_important_props[$prop] = true;
     }
 
+    /**
+     * @param $prop
+     * @return bool
+     */
     function important_get($prop)
     {
         return isset($this->_important_props[$prop]);
@@ -817,7 +839,9 @@ class Style
      * Similar to __get() without storing the result. Useful for accessing
      * properties while loading stylesheets.
      *
+     * @param $prop
      * @return string
+     * @throws Exception
      */
     function get_prop($prop)
     {
@@ -839,6 +863,9 @@ class Style
         return $this->_props[$prop];
     }
 
+    /**
+     * @return float|null|string
+     */
     function computed_bottom_spacing() {
         if ($this->_computed_bottom_spacing !== null) {
             return $this->_computed_bottom_spacing;
@@ -852,7 +879,10 @@ class Style
         );
     }
 
-     function get_font_family_raw()
+    /**
+     * @return string
+     */
+    function get_font_family_raw()
     {
         return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
     }
@@ -1239,6 +1269,9 @@ class Style
         return $this->munge_color($this->_props["border_top_color"]);
     }
 
+    /**
+     * @return array
+     */
     function get_border_right_color()
     {
         if ($this->_props["border_right_color"] === "") {
@@ -1250,6 +1283,9 @@ class Style
         return $this->munge_color($this->_props["border_right_color"]);
     }
 
+    /**
+     * @return array
+     */
     function get_border_bottom_color()
     {
         if ($this->_props["border_bottom_color"] === "") {
@@ -1261,6 +1297,9 @@ class Style
         return $this->munge_color($this->_props["border_bottom_color"]);
     }
 
+    /**
+     * @return array
+     */
     function get_border_left_color()
     {
         if ($this->_props["border_left_color"] === "") {
@@ -1286,18 +1325,27 @@ class Style
         return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props["border_top_width"]) : 0;
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_right_width()
     {
         $style = $this->__get("border_right_style");
         return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props["border_right_width"]) : 0;
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_bottom_width()
     {
         $style = $this->__get("border_bottom_style");
         return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props["border_bottom_width"]) : 0;
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_left_width()
     {
         $style = $this->__get("border_left_style");
@@ -1374,23 +1422,35 @@ class Style
         return $this->_get_border("top");
     }
 
+    /**
+     * @return mixed
+     */
     function get_border_right()
     {
         return $this->_get_border("right");
     }
 
+    /**
+     * @return mixed
+     */
     function get_border_bottom()
     {
         return $this->_get_border("bottom");
     }
 
+    /**
+     * @return mixed
+     */
     function get_border_left()
     {
         return $this->_get_border("left");
     }
 
-    /**#@-*/
-
+    /**
+     * @param $w
+     * @param $h
+     * @return array|null
+     */
     function get_computed_border_radius($w, $h)
     {
         if (!empty($this->_computed_border_radius)) {
@@ -1430,8 +1490,6 @@ class Style
             "bottom-left" => $rBL,
         );
     }
-    /**#@-*/
-
 
     /**
      * Returns the outline color as an array
@@ -1543,10 +1601,18 @@ class Style
      Related functionality for background, padding, margin, font, list_style
     */
 
-    /* Generalized set function for individual attribute of combined style.
+    /**
+     * Generalized set function for individual attribute of combined style.
      * With check for !important
      * Applicable for background, border, padding, margin, font, list_style
+     *
      * Note: $type has a leading underscore (or is empty), the others not.
+     *
+     * @param $style
+     * @param $side
+     * @param $type
+     * @param $val
+     * @param $important
      */
     protected function _set_style_side_type($style, $side, $type, $val, $important)
     {
@@ -1565,6 +1631,15 @@ class Style
         }
     }
 
+    /**
+     * @param $style
+     * @param $top
+     * @param $right
+     * @param $bottom
+     * @param $left
+     * @param $type
+     * @param $important
+     */
     protected function _set_style_sides_type($style, $top, $right, $bottom, $left, $type, $important)
     {
         $this->_set_style_side_type($style, 'top', $type, $top, $important);
@@ -1573,6 +1648,12 @@ class Style
         $this->_set_style_side_type($style, 'left', $type, $left, $important);
     }
 
+    /**
+     * @param $style
+     * @param $type
+     * @param $val
+     * @param $important
+     */
     protected function _set_style_type($style, $type, $val, $important)
     {
         $val = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
@@ -1598,13 +1679,23 @@ class Style
         $this->_props[$style . $type] = $val;
     }
 
+    /**
+     * @param $style
+     * @param $type
+     * @param $val
+     */
     protected function _set_style_type_important($style, $type, $val)
     {
         $this->_set_style_type($style, $type, $val, isset($this->_important_props[$style . $type]));
     }
 
-    /* Anyway only called if _important matches and is assigned
+    /**
+     * Anyway only called if _important matches and is assigned
      * E.g. _set_style_side_type($style,$side,'',str_replace("none", "0px", $val),isset($this->_important_props[$style.'_'.$side]));
+     *
+     * @param $style
+     * @param $side
+     * @param $val
      */
     protected function _set_style_side_width_important($style, $side, $val)
     {
@@ -1616,6 +1707,11 @@ class Style
         $this->_props[$style . '_' . $side] = str_replace("none", "0px", $val);
     }
 
+    /**
+     * @param $style
+     * @param $val
+     * @param $important
+     */
     protected function _set_style($style, $val, $important)
     {
         if (!isset($this->_important_props[$style]) || $important) {
@@ -1628,6 +1724,10 @@ class Style
         }
     }
 
+    /**
+     * @param $val
+     * @return string
+     */
     protected function _image($val)
     {
         $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
@@ -1915,7 +2015,7 @@ class Style
         }
     }
 
-    /**#@+
+    /**
      * Sets page break properties
      *
      * @link http://www.w3.org/TR/CSS21/page.html#page-breaks
@@ -1932,6 +2032,9 @@ class Style
         $this->_props["page_break_before"] = $break;
     }
 
+    /**
+     * @param $break
+     */
     function set_page_break_after($break)
     {
         if ($break === "left" || $break === "right") {
@@ -1942,11 +2045,8 @@ class Style
         $this->_prop_cache["page_break_after"] = null;
         $this->_props["page_break_after"] = $break;
     }
-    /**#@-*/
 
-    //........................................................................
-
-    /**#@+
+    /**
      * Sets the margin size
      *
      * @link http://www.w3.org/TR/CSS21/box.html#margin-properties
@@ -1957,29 +2057,40 @@ class Style
         $this->_set_style_side_width_important('margin', 'top', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_margin_right($val)
     {
         $this->_set_style_side_width_important('margin', 'right', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_margin_bottom($val)
     {
         $this->_set_style_side_width_important('margin', 'bottom', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_margin_left($val)
     {
         $this->_set_style_side_width_important('margin', 'left', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_margin($val)
     {
         $val = str_replace("none", "0px", $val);
         $this->_set_style_type_important('margin', '', $val);
     }
-    /**#@-*/
 
-    /**#@+
+    /**
      * Sets the padding size
      *
      * @link http://www.w3.org/TR/CSS21/box.html#padding-properties
@@ -1990,21 +2101,33 @@ class Style
         $this->_set_style_side_width_important('padding', 'top', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_padding_right($val)
     {
         $this->_set_style_side_width_important('padding', 'right', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_padding_bottom($val)
     {
         $this->_set_style_side_width_important('padding', 'bottom', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_padding_left($val)
     {
         $this->_set_style_side_width_important('padding', 'left', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_padding($val)
     {
         $val = str_replace("none", "0px", $val);
@@ -2061,21 +2184,33 @@ class Style
         $this->_set_border("top", $val, isset($this->_important_props['border_top']));
     }
 
+    /**
+     * @param $val
+     */
     function set_border_right($val)
     {
         $this->_set_border("right", $val, isset($this->_important_props['border_right']));
     }
 
+    /**
+     * @param $val
+     */
     function set_border_bottom($val)
     {
         $this->_set_border("bottom", $val, isset($this->_important_props['border_bottom']));
     }
 
+    /**
+     * @param $val
+     */
     function set_border_left($val)
     {
         $this->_set_border("left", $val, isset($this->_important_props['border_left']));
     }
 
+    /**
+     * @param $val
+     */
     function set_border($val)
     {
         $important = isset($this->_important_props["border"]);
@@ -2088,16 +2223,25 @@ class Style
         $this->_props["border"] = $val;
     }
 
+    /**
+     * @param $val
+     */
     function set_border_width($val)
     {
         $this->_set_style_type_important('border', '_width', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_border_color($val)
     {
         $this->_set_style_type_important('border', '_color', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_border_style($val)
     {
         $this->_set_style_type_important('border', '_style', $val);
@@ -2107,27 +2251,41 @@ class Style
      * Sets the border radius size
      *
      * http://www.w3.org/TR/css3-background/#corners
+     *
+     * @param $val
      */
     function set_border_top_left_radius($val)
     {
         $this->_set_border_radius_corner($val, "top_left");
     }
 
+    /**
+     * @param $val
+     */
     function set_border_top_right_radius($val)
     {
         $this->_set_border_radius_corner($val, "top_right");
     }
 
+    /**
+     * @param $val
+     */
     function set_border_bottom_left_radius($val)
     {
         $this->_set_border_radius_corner($val, "bottom_left");
     }
 
+    /**
+     * @param $val
+     */
     function set_border_bottom_right_radius($val)
     {
         $this->_set_border_radius_corner($val, "bottom_right");
     }
 
+    /**
+     * @param $val
+     */
     function set_border_radius($val)
     {
         $val = preg_replace("/\s*\,\s*/", ",", $val); // when border-radius has spaces
@@ -2149,6 +2307,12 @@ class Style
         }
     }
 
+    /**
+     * @param $val1
+     * @param $val2
+     * @param $val3
+     * @param $val4
+     */
     protected function _set_border_radii($val1, $val2, $val3, $val4)
     {
         $this->_set_border_radius_corner($val1, "top_left");
@@ -2157,6 +2321,10 @@ class Style
         $this->_set_border_radius_corner($val4, "bottom_left");
     }
 
+    /**
+     * @param $val
+     * @param $corner
+     */
     protected function _set_border_radius_corner($val, $corner)
     {
         $this->_has_border_radius = true;
@@ -2167,26 +2335,42 @@ class Style
         $this->_props["border_" . $corner . "_radius"] = $val;
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_top_left_radius()
     {
         return $this->_get_border_radius_corner("top_left");
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_top_right_radius()
     {
         return $this->_get_border_radius_corner("top_right");
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_bottom_left_radius()
     {
         return $this->_get_border_radius_corner("bottom_left");
     }
 
+    /**
+     * @return float|int|string
+     */
     function get_border_bottom_right_radius()
     {
         return $this->_get_border_radius_corner("bottom_right");
     }
 
+    /**
+     * @param $corner
+     * @return float|int|string
+     */
     protected function _get_border_radius_corner($corner)
     {
         if (!isset($this->_props["border_" . $corner . "_radius"]) || empty($this->_props["border_" . $corner . "_radius"])) {
@@ -2245,16 +2429,25 @@ class Style
         $this->_props["outline"] = $val;
     }
 
+    /**
+     * @param $val
+     */
     function set_outline_width($val)
     {
         $this->_set_style_type_important('outline', '_width', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_outline_color($val)
     {
         $this->_set_style_type_important('outline', '_color', $val);
     }
 
+    /**
+     * @param $val
+     */
     function set_outline_style($val)
     {
         $this->_set_style_type_important('outline', '_style', $val);
@@ -2349,6 +2542,9 @@ class Style
         $this->_props["list_style"] = $val;
     }
 
+    /**
+     * @param $val
+     */
     function set_size($val)
     {
         $length_re = "/(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))/";
@@ -2386,11 +2582,12 @@ class Style
 
         $this->_props["size"] = $computed;
     }
+
     /**
      * Gets the CSS3 transform property
      *
      * @link http://www.w3.org/TR/css3-2d-transforms/#transform-property
-     * @param string $val
+     * @return array|null
      */
     function get_transform()
     {
@@ -2399,7 +2596,7 @@ class Style
         $angle = "\s*([^,\s]+(?:deg|rad)?)\s*";
 
         if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $this->_props["transform"], $parts, PREG_SET_ORDER)) {
-            return;
+            return null;
         }
 
         $functions = array(
@@ -2511,6 +2708,9 @@ class Style
         return $transforms;
     }
 
+    /**
+     * @param $val
+     */
     function set_transform($val)
     {
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
@@ -2518,11 +2718,17 @@ class Style
         $this->_props["transform"] = $val;
     }
 
+    /**
+     * @param $val
+     */
     function set__webkit_transform($val)
     {
         $this->set_transform($val);
     }
 
+    /**
+     * @param $val
+     */
     function set__webkit_transform_origin($val)
     {
         $this->set_transform_origin($val);
@@ -2571,6 +2777,10 @@ class Style
         return $values;
     }
 
+    /**
+     * @param $val
+     * @return null
+     */
     protected function parse_image_resolution($val)
     {
         // If exif data could be get:
@@ -2585,7 +2795,11 @@ class Style
         return $matches[1];
     }
 
-    // auto | normal | dpi
+    /**
+     * auto | normal | dpi
+     *
+     * @param $val
+     */
     function set_background_image_resolution($val)
     {
         $parsed = $this->parse_image_resolution($val);
@@ -2594,7 +2808,11 @@ class Style
         $this->_props["background_image_resolution"] = $parsed;
     }
 
-    // auto | normal | dpi
+    /**
+     * auto | normal | dpi
+     *
+     * @param $val
+     */
     function set_image_resolution($val)
     {
         $parsed = $this->parse_image_resolution($val);
@@ -2603,16 +2821,25 @@ class Style
         $this->_props["image_resolution"] = $parsed;
     }
 
+    /**
+     * @param $val
+     */
     function set__dompdf_background_image_resolution($val)
     {
         $this->set_background_image_resolution($val);
     }
 
+    /**
+     * @param $val
+     */
     function set__dompdf_image_resolution($val)
     {
         $this->set_image_resolution($val);
     }
 
+    /**
+     * @param $val
+     */
     function set_z_index($val)
     {
         if (round($val) != $val && $val !== "auto") {
@@ -2623,6 +2850,9 @@ class Style
         $this->_props["z_index"] = $val;
     }
 
+    /**
+     * @param $val
+     */
     function set_counter_increment($val)
     {
         $val = trim($val);
