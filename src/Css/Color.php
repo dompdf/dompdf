@@ -10,6 +10,8 @@
 
 namespace Dompdf\Css;
 
+use Dompdf\Helpers;
+
 class Color
 {
     static $cssColorNames = array(
@@ -232,8 +234,8 @@ class Color
             foreach (array_keys($triplet) as $c) {
                 $triplet[$c] = trim($triplet[$c]);
 
-                if ($triplet[$c][mb_strlen($triplet[$c]) - 1] === "%") {
-                    $triplet[$c] = round($triplet[$c] * 2.55);
+                if (Helpers::is_percent($triplet[$c])) {
+                    $triplet[$c] = round((float)$triplet[$c] * 2.55);
                 }
             }
 

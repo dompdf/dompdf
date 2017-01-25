@@ -54,7 +54,7 @@ class TableCell extends BlockFrameDecorator
     function set_cell_height($height)
     {
         $style = $this->get_style();
-        $v_space = $style->length_in_pt(array($style->margin_top,
+        $v_space = (float)$style->length_in_pt(array($style->margin_top,
                 $style->padding_top,
                 $style->border_top_width,
                 $style->border_bottom_width,

@@ -97,10 +97,10 @@ class Page extends AbstractFrameReflower
 
             // Pages are only concerned with margins
             $cb = $this->_frame->get_containing_block();
-            $left = $style->length_in_pt($style->margin_left, $cb["w"]);
-            $right = $style->length_in_pt($style->margin_right, $cb["w"]);
-            $top = $style->length_in_pt($style->margin_top, $cb["h"]);
-            $bottom = $style->length_in_pt($style->margin_bottom, $cb["h"]);
+            $left = (float)$style->length_in_pt($style->margin_left, $cb["w"]);
+            $right = (float)$style->length_in_pt($style->margin_right, $cb["w"]);
+            $top = (float)$style->length_in_pt($style->margin_top, $cb["h"]);
+            $bottom = (float)$style->length_in_pt($style->margin_bottom, $cb["h"]);
 
             $content_x = $cb["x"] + $left;
             $content_y = $cb["y"] + $top;

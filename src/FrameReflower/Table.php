@@ -77,13 +77,13 @@ class Table extends AbstractFrameReflower
 
         $centered = ($left === "auto" && $right === "auto");
 
-        $left = $left === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]);
-        $right = $right === "auto" ? 0 : $style->length_in_pt($right, $cb["w"]);
+        $left = (float)($left === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]));
+        $right = (float)($right === "auto" ? 0 : $style->length_in_pt($right, $cb["w"]));
 
         $delta = $left + $right;
 
         if (!$centered) {
-            $delta += $style->length_in_pt(array(
+            $delta += (float)$style->length_in_pt(array(
                     $style->padding_left,
                     $style->border_left_width,
                     $style->border_right_width,
@@ -91,7 +91,7 @@ class Table extends AbstractFrameReflower
                 $cb["w"]);
         }
 
-        $min_table_width = $style->length_in_pt($style->min_width, $cb["w"] - $delta);
+        $min_table_width = (float)$style->length_in_pt($style->min_width, $cb["w"] - $delta);
 
         // min & max widths already include borders & padding
         $min_width -= $delta;
@@ -99,7 +99,7 @@ class Table extends AbstractFrameReflower
 
         if ($width !== "auto") {
 
-            $preferred_width = $style->length_in_pt($width, $cb["w"]) - $delta;
+            $preferred_width = (float)$style->length_in_pt($width, $cb["w"]) - $delta;
 
             if ($preferred_width < $min_table_width)
                 $preferred_width = $min_table_width;
@@ -415,13 +415,13 @@ class Table extends AbstractFrameReflower
         if ($style->border_collapse === "separate") {
             list($h, $v) = $style->border_spacing;
 
-            $v = $style->length_in_pt($v) / 2;
-            $h = $style->length_in_pt($h) / 2;
+            $v = (float)$style->length_in_pt($v) / 2;
+            $h = (float)$style->length_in_pt($h) / 2;
 
-            $style->padding_left = $style->length_in_pt($style->padding_left, $cb["w"]) + $h;
-            $style->padding_right = $style->length_in_pt($style->padding_right, $cb["w"]) + $h;
-            $style->padding_top = $style->length_in_pt($style->padding_top, $cb["h"]) + $v;
-            $style->padding_bottom = $style->length_in_pt($style->padding_bottom, $cb["h"]) + $v;
+            $style->padding_left = (float)$style->length_in_pt($style->padding_left, $cb["w"]) + $h;
+            $style->padding_right = (float)$style->length_in_pt($style->padding_right, $cb["w"]) + $h;
+            $style->padding_top = (float)$style->length_in_pt($style->padding_top, $cb["h"]) + $v;
+            $style->padding_bottom = (float)$style->length_in_pt($style->padding_bottom, $cb["h"]) + $v;
 
         }
 
@@ -442,24 +442,24 @@ class Table extends AbstractFrameReflower
                 $left = $right = $diff / 2;
             }
 
-            $style->margin_left = "$left pt";
-            $style->margin_right = "$right pt";
+            $style->margin_left = sprintf("%Fpt", $left);
+            $style->margin_right = sprintf("%Fpt", $right);;
 
         } else {
             if ($left === "auto") {
-                $left = $style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
+                $left = (float)$style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
             }
             if ($right === "auto") {
-                $left = $style->length_in_pt($left, $cb["w"]);
+                $left = (float)$style->length_in_pt($left, $cb["w"]);
             }
         }
 
         list($x, $y) = $frame->get_position();
 
         // Determine the content edge
-        $content_x = $x + $left + $style->length_in_pt(array($style->padding_left,
+        $content_x = $x + (float)$left + (float)$style->length_in_pt(array($style->padding_left,
                 $style->border_left_width), $cb["w"]);
-        $content_y = $y + $style->length_in_pt(array($style->margin_top,
+        $content_y = $y + (float)$style->length_in_pt(array($style->margin_top,
                 $style->border_top_width,
                 $style->padding_top), $cb["h"]);
 
@@ -572,7 +572,7 @@ class Table extends AbstractFrameReflower
         if ($style->border_collapse !== "collapse")
             list($dims[]) = $style->border_spacing;
 
-        $delta = $style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
+        $delta = (float)$style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
 
         $this->_state["min_width"] += $delta;
         $this->_state["max_width"] += $delta;

@@ -118,7 +118,7 @@ class Text extends AbstractFrameDecorator
         $style = $this->_frame->get_style();
 
         $this->_text_spacing = $spacing;
-        $char_spacing = $style->length_in_pt($style->letter_spacing);
+        $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
         // Re-adjust our width to account for the change in spacing
         $style->width = $this->_dompdf->getFontMetrics()->getTextWidth($this->get_text(), $style->font_family, $style->font_size, $spacing, $char_spacing);
@@ -133,8 +133,8 @@ class Text extends AbstractFrameDecorator
         $text = $this->get_text();
         $size = $style->font_size;
         $font = $style->font_family;
-        $word_spacing = $style->length_in_pt($style->word_spacing);
-        $char_spacing = $style->length_in_pt($style->letter_spacing);
+        $word_spacing = (float)$style->length_in_pt($style->word_spacing);
+        $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
         return $style->width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
     }

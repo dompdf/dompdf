@@ -83,7 +83,7 @@ class Image extends AbstractFrameReflower
                 }
             }
             $width = ((float)rtrim($width, "%") * $t) / 100; //maybe 0
-        } elseif (!mb_strpos($width, 'pt')) {
+        } else {
             // Don't set image original size if "%" branch was 0 or size not given.
             // Otherwise aspect changed on %/auto combination for width/height
             // Resample according to px per inch
@@ -102,7 +102,7 @@ class Image extends AbstractFrameReflower
                 }
             }
             $height = ((float)rtrim($height, "%") * $t) / 100; //maybe 0
-        } elseif (!mb_strpos($height, 'pt')) {
+        } else {
             // Don't set image original size if "%" branch was 0 or size not given.
             // Otherwise aspect changed on %/auto combination for width/height
             // Resample according to px per inch

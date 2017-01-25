@@ -621,8 +621,14 @@ class Cellmap
             list($h, $v) = $this->_table->get_style()->border_spacing;
 
             // Border spacing is effectively a margin between cells
-            $v = $style->length_in_pt($v) / 2;
-            $h = $style->length_in_pt($h) / 2;
+            $v = $style->length_in_pt($v);
+            if (is_numeric($v)) {
+                $v = $v / 2;
+            }
+            $h = $style->length_in_pt($h);
+            if (is_numeric($h)) {
+                $h = $h / 2;
+            }
             $style->margin = "$v $h";
 
             // The additional 1/2 width gets added to the table proper

@@ -84,8 +84,8 @@ class Renderer extends AbstractRenderer
                 }
 
                 $values = array_map("floatval", $values);
-                $values[] = $x + $style->length_in_pt($origin[0], $style->width);
-                $values[] = $y + $style->length_in_pt($origin[1], $style->height);
+                $values[] = $x + (float)$style->length_in_pt($origin[0], $style->width);
+                $values[] = $y + (float)$style->length_in_pt($origin[1], $style->height);
 
                 call_user_func_array(array($this->_canvas, $function), $values);
             }
@@ -161,9 +161,9 @@ class Renderer extends AbstractRenderer
             list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
 
             if ($tl + $tr + $br + $bl > 0) {
-                $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
+                $this->_canvas->clipping_roundrectangle($x, $y, (float)$w, (float)$h, $tl, $tr, $br, $bl);
             } else {
-                $this->_canvas->clipping_rectangle($x, $y, $w, $h);
+                $this->_canvas->clipping_rectangle($x, $y, (float)$w, (float)$h);
             }
         }
 

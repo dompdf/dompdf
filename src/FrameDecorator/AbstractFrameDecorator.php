@@ -273,6 +273,14 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @return array
      */
+    function get_content_box()
+    {
+        return $this->_frame->get_content_box();
+    }
+
+    /**
+     * @return array
+     */
     function get_padding_box()
     {
         return $this->_frame->get_padding_box();
@@ -320,6 +328,22 @@ abstract class AbstractFrameDecorator extends Frame
     function set_position($x = null, $y = null)
     {
         $this->_frame->set_position($x, $y);
+    }
+
+    /**
+     * @return float
+     */
+    function is_auto_height()
+    {
+        return $this->_frame->is_auto_height();
+    }
+
+    /**
+     * @return float
+     */
+    function is_auto_width()
+    {
+        return $this->_frame->is_auto_width();
     }
 
     /**

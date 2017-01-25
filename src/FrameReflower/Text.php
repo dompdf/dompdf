@@ -73,13 +73,13 @@ class Text extends AbstractFrameReflower
         $available_width = $line_width - $current_line_width;
 
         // Account for word-spacing
-        $word_spacing = $style->length_in_pt($style->word_spacing);
-        $char_spacing = $style->length_in_pt($style->letter_spacing);
+        $word_spacing = (float)$style->length_in_pt($style->word_spacing);
+        $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
         // Determine the frame width including margin, padding & border
         $text_width = $this->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
         $mbp_width =
-            $style->length_in_pt(array($style->margin_left,
+            (float)$style->length_in_pt(array($style->margin_left,
                 $style->border_left_width,
                 $style->padding_left,
                 $style->padding_right,
@@ -314,7 +314,7 @@ class Text extends AbstractFrameReflower
             // FIXME: Include non-breaking spaces?
             $t = $frame->get_text();
             $parent = $frame->get_parent();
-            $is_inline_frame = get_class($parent) === 'Inline_Frame_Decorator';
+            $is_inline_frame = ($parent instanceof \Dompdf\FrameDecorator\Inline);
 
             if ((!$is_inline_frame && !$frame->get_next_sibling()) /* ||
           ( $is_inline_frame && !$parent->get_next_sibling())*/
@@ -384,8 +384,8 @@ class Text extends AbstractFrameReflower
         $size = $style->font_size;
         $font = $style->font_family;
 
-        $word_spacing = $style->length_in_pt($style->word_spacing);
-        $char_spacing = $style->length_in_pt($style->letter_spacing);
+        $word_spacing = (float)$style->length_in_pt($style->word_spacing);
+        $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
         switch ($style->white_space) {
 
@@ -455,7 +455,7 @@ class Text extends AbstractFrameReflower
 
         $max = $this->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
 
-        $delta = $style->length_in_pt(array($style->margin_left,
+        $delta = (float)$style->length_in_pt(array($style->margin_left,
             $style->border_left_width,
             $style->padding_left,
             $style->padding_right,

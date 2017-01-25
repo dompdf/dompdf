@@ -450,8 +450,11 @@ class Stylesheet
         // Initial query (non-absolute)
         $query = "//";
 
-        // Will contain :before and :after if they must be created
+        // Will contain :before and :after
         $pseudo_elements = array();
+
+        // Will contain :link, etc
+        $pseudo_classes = array();
 
         // Parse the selector
         //$s = preg_split("/([ :>.#+])/", $selector, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -482,23 +485,31 @@ class Stylesheet
             // Eat characters up to the next delimiter
             $tok = "";
             $in_attr = false;
+            $in_func = false;
 
             while ($i < $len) {
                 $c = $selector[$i];
                 $c_prev = $selector[$i - 1];
 
-                if (!$in_attr && in_array($c, $delimiters)) {
+                if (!$in_func && !$in_attr && in_array($c, $delimiters) && !(($c == $c_prev) == ":")) {
                     break;
                 }
 
                 if ($c_prev === "[") {
                     $in_attr = true;
                 }
+                if ($c_prev === "(") {
+                    $in_func = true;
+                }
 
                 $tok .= $selector[$i++];
 
                 if ($in_attr && $c === "]") {
                     $in_attr = false;
+                    break;
+                }
+                if ($in_func && $c === ")") {
+                    $in_func = false;
                     break;
                 }
             }
@@ -562,7 +573,7 @@ class Stylesheet
 
                 case ":":
                     $i2 = $i - strlen($tok) - 2; // the char before ":"
-                    if (!isset($selector[$i2]) || in_array($selector[$i2], $delimiters)) {
+                    if (($i2 < 0 || !isset($selector[$i2]) || (in_array($selector[$i2], $delimiters) && $selector[$i2] != ":")) && substr($query, -1) != "*") {
                         $query .= "*";
                     }
 
@@ -593,11 +604,15 @@ class Stylesheet
 
                         // an+b, n, odd, and even
                         case "nth-last-of-type":
-                        case "nth-last-child":
                             $last = true;
-
                         case "nth-of-type":
-                        case "nth-child":
+                            //FIXME: this fix-up is pretty ugly, would parsing the selector in reverse work better generally?
+                            $descendant_delimeter = strrpos($query, "::");
+                            $isChild = substr($query, $descendant_delimeter-5, 5) == "child";
+                            $el = substr($query, $descendant_delimeter+2);
+                            $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . $el;
+
+                            $pseudo_classes[$tok] = true;
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
 
@@ -618,14 +633,54 @@ class Stylesheet
                             $query .= "[$condition]";
                             $tok = "";
                             break;
+                        
+                        case "nth-last-child":
+                            $last = true;
+                        case "nth-child":
+                            //FIXME: this fix-up is pretty ugly, would parsing the selector in reverse work better generally?
+                            $descendant_delimeter = strrpos($query, "::");
+                            $isChild = substr($query, $descendant_delimeter-5, 5) == "child";
+                            $el = substr($query, $descendant_delimeter+2);
+                            $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . "*";
+
+                            $pseudo_classes[$tok] = true;
+                            $p = $i + 1;
+                            $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+
+                            // 1
+                            if (preg_match("/^\d+$/", $nth)) {
+                                $condition = "position() = $nth";
+                            } // odd
+                            elseif ($nth === "odd") {
+                                $condition = "(position() mod 2) = 1";
+                            } // even
+                            elseif ($nth === "even") {
+                                $condition = "(position() mod 2) = 0";
+                            } // an+b
+                            else {
+                                $condition = $this->_selector_an_plus_b($nth, $last);
+                            }
+
+                            $query .= "[$condition]";
+                            if ($el != "*") {
+                                $query .= "[name() = '$el']";
+                            }
+                            $tok = "";
+                            break;
 
                         case "link":
                             $query .= "[@href]";
                             $tok = "";
                             break;
 
-                        case "first-line": // TODO
-                        case "first-letter": // TODO
+                        case "first-line":
+                        case ":first-line":
+                        case "first-letter":
+                        case ":first-letter":
+                            // TODO
+                            $el = trim($tok, ":");
+                            $pseudo_elements[$el] = true;
+                            break;
 
                             // N/A
                         case "focus":
@@ -638,11 +693,13 @@ class Stylesheet
 
                         /* Pseudo-elements */
                         case "before":
+                        case ":before":
                         case "after":
-                            if ($first_pass) {
-                                $pseudo_elements[$tok] = $tok;
-                            } else {
-                                $query .= "/*[@$tok]";
+                        case ":after":
+                            $pos = trim($tok, ":");
+                            $pseudo_elements[$pos] = true;
+                            if (!$first_pass) {
+                                $query .= "/*[@$pos]";
                             }
 
                             $tok = "";
@@ -866,6 +923,7 @@ class Stylesheet
                 $query = $this->_css_selector_to_xpath($selector, true);
 
                 // Retrieve the nodes, limit to body for generated content
+                //TODO: If we use a context node can we remove the leading dot?
                 $nodes = @$xp->query('.' . $query["query"]);
                 if ($nodes == null) {
                     Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
@@ -873,7 +931,7 @@ class Stylesheet
                 }
 
                 foreach ($nodes as $node) {
-                    foreach ($query["pseudo_elements"] as $pos) {
+                    foreach (array_keys($query["pseudo_elements"], true, true) as $pos) {
                         // Do not add a new pseudo element if another one already matched
                         if ($node->hasAttribute("dompdf_{$pos}_frame_id")) {
                             continue;
@@ -941,8 +999,8 @@ class Stylesheet
                 if ($style->size !== "auto") {
                     list($paper_width, $paper_height) = $style->size;
                 }
-                $paper_width = $paper_width - $style->length_in_pt($style->margin_left) - $style->length_in_pt($style->margin_right);
-                $paper_height = $paper_height - $style->length_in_pt($style->margin_top) - $style->length_in_pt($style->margin_bottom);
+                $paper_width = $paper_width - (float)$style->length_in_pt($style->margin_left) - (float)$style->length_in_pt($style->margin_right);
+                $paper_height = $paper_height - (float)$style->length_in_pt($style->margin_top) - (float)$style->length_in_pt($style->margin_bottom);
                 $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
             } else {
                 $style = $this->create_style();
@@ -1022,34 +1080,34 @@ class Stylesheet
                             } else {
                                 switch ($media_query_feature) {
                                     case "height":
-                                        if ($paper_height !== $style->length_in_pt($media_query_value)) {
+                                        if ($paper_height !== (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "min-height":
-                                        if ($paper_height < $style->length_in_pt($media_query_value)) {
+                                        if ($paper_height < (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "max-height":
-                                        if ($paper_height > $style->length_in_pt($media_query_value)) {
+                                        if ($paper_height > (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "width":
-                                        if ($paper_width !== $style->length_in_pt($media_query_value)) {
+                                        if ($paper_width !== (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "min-width":
                                         //if (min($paper_width, $media_query_width) === $paper_width) {
-                                        if ($paper_width < $style->length_in_pt($media_query_value)) {
+                                        if ($paper_width < (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;
                                     case "max-width":
                                         //if (max($paper_width, $media_query_width) === $paper_width) {
-                                        if ($paper_width > $style->length_in_pt($media_query_value)) {
+                                        if ($paper_width > (float)$style->length_in_pt($media_query_value)) {
                                             continue (3);
                                         }
                                         break;

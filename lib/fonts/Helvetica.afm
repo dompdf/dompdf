@@ -130,7 +130,7 @@ C 167 ; WX 556 ; N section ; B 43 -191 512 737 ;
 C 164 ; WX 556 ; N currency ; B 28 99 528 603 ;
 C 39 ; WX 191 ; N quotesingle ; B 59 463 132 718 ;
 C 147 ; WX 333 ; N quotedblleft ; B 38 470 307 725 ;
-C 170 ; WX 556 ; N guillemotleft ; B 97 108 459 446 ;
+C 171 ; WX 556 ; N guillemotleft ; B 97 108 459 446 ;
 C 139 ; WX 333 ; N guilsinglleft ; B 88 108 245 446 ;
 C 155 ; WX 333 ; N guilsinglright ; B 88 108 245 446 ;
 C -1 ; WX 500 ; N fi ; B 14 0 434 728 ;

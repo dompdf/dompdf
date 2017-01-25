@@ -140,7 +140,7 @@ abstract class AbstractRenderer
             $bg_x = (float)($style->length_in_pt($bg_x) * $dpi) / 72;
         }
 
-        $bg_x = round($bg_x + $style->length_in_pt($style->border_left_width) * $dpi / 72);
+        $bg_x = round($bg_x + (float)$style->length_in_pt($style->border_left_width) * $dpi / 72);
 
         if (Helpers::is_percent($bg_y)) {
             // The point $bg_y % from the left edge of the image is placed
@@ -154,7 +154,7 @@ abstract class AbstractRenderer
             $bg_y = (float)($style->length_in_pt($bg_y) * $dpi) / 72;
         }
 
-        $bg_y = round($bg_y + $style->length_in_pt($style->border_top_width) * $dpi / 72);
+        $bg_y = round($bg_y + (float)$style->length_in_pt($style->border_top_width) * $dpi / 72);
 
         //clip background to the image area on partial repeat. Nothing to do if img off area
         //On repeat, normalize start position to the tile at immediate left/top or 0/0 of area

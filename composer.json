@@ -30,10 +30,10 @@
         "ext-dom": "*",
         "ext-mbstring": "*",
         "phenx/php-font-lib": "0.4.*",
-        "phenx/php-svg-lib": "0.1.*"
+        "phenx/php-svg-lib": "0.2.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit": "4.8.*",
         "squizlabs/php_codesniffer": "2.*"
     },
     "extra": {
