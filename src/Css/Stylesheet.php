@@ -937,6 +937,7 @@ class Stylesheet
                     continue;
                 }
 
+                /** @var \DOMElement $node */
                 foreach ($nodes as $node) {
                     foreach (array_keys($query["pseudo_elements"], true, true) as $pos) {
                         // Do not add a new pseudo element if another one already matched
