@@ -97,5 +97,8 @@ class DompdfTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals("one", $text_frame_contents[0]);
         $this->assertEquals(" - two", $text_frame_contents[1]);
+
+        /* This closes the OB opened by render() */
+        $dompdf->output();
     }
 }
