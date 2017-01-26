@@ -196,7 +196,7 @@ class Block extends AbstractFrameReflower
             $width = $style->length_in_pt($style->width, $cb["w"]);
         }
 
-        $calculate_width = extract($this->_calculate_width($width));
+        $calculate_width = $this->_calculate_width($width);
         $margin_left = $calculate_width['margin_left'];
         $margin_right = $calculate_width['margin_right'];
         $width =  $calculate_width['width'];
@@ -216,7 +216,7 @@ class Block extends AbstractFrameReflower
         }
 
         if ($width < $min_width) {
-            $calculate_width = extract($this->_calculate_width($min_width));
+            $calculate_width = $this->_calculate_width($min_width);
             $margin_left = $calculate_width['margin_left'];
             $margin_right = $calculate_width['margin_right'];
             $width =  $calculate_width['width'];
