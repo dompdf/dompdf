@@ -17,14 +17,20 @@ use Dompdf\FrameDecorator\Table as TableFrameDecorator;
  */
 class TableCell extends Block
 {
+    /**
+     * TableCell constructor.
+     * @param BlockFrameDecorator $frame
+     */
     function __construct(BlockFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
+    /**
+     * @param BlockFrameDecorator|null $block
+     */
     function reflow(BlockFrameDecorator $block = null)
     {
-
         $style = $this->_frame->get_style();
 
         $table = TableFrameDecorator::find_parent_table($this->_frame);
@@ -80,16 +86,13 @@ class TableCell extends Block
 
         // Set the containing blocks and reflow each child
         foreach ($this->_frame->get_children() as $child) {
-
-            if ($page->is_full())
+            if ($page->is_full()) {
                 break;
+            }
 
             $child->set_containing_block($content_x, $content_y, $cb_w, $h);
-
             $this->process_clear($child);
-
             $child->reflow($this->_frame);
-
             $this->process_float($child, $x + $left_space, $w - $right_space - $left_space);
         }
 
@@ -103,18 +106,16 @@ class TableCell extends Block
         // Let the cellmap know our height
         $cell_height = $height / count($cells["rows"]);
 
-        if ($style_height <= $height)
+        if ($style_height <= $height) {
             $cell_height += $top_space + $bottom_space;
+        }
 
-        foreach ($cells["rows"] as $i)
+        foreach ($cells["rows"] as $i) {
             $cellmap->set_row_height($i, $cell_height);
+        }
 
         $style->height = $height;
-
         $this->_text_align();
-
         $this->vertical_align();
-
     }
-
 }
