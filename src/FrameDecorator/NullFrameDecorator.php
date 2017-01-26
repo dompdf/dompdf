@@ -17,7 +17,11 @@ use Dompdf\Frame;
  */
 class NullFrameDecorator extends AbstractFrameDecorator
 {
-
+    /**
+     * NullFrameDecorator constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
+     */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
@@ -27,5 +31,4 @@ class NullFrameDecorator extends AbstractFrameDecorator
         $style->margin = 0;
         $style->padding = 0;
     }
-
 }
