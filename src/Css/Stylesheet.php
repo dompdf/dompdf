@@ -287,6 +287,8 @@ class Stylesheet
      *
      * @param string $key the selector of the requested Style
      * @return Style
+     *
+     * @Fixme _styles is a two dimensional array. It should produce wrong results
      */
     function lookup($key)
     {
@@ -312,6 +314,7 @@ class Stylesheet
      * load and parse a CSS string
      *
      * @param string $css
+     * @param int $origin
      */
     function load_css(&$css, $origin = self::ORIG_AUTHOR)
     {
@@ -922,6 +925,7 @@ class Stylesheet
 
         // Add generated content
         foreach ($this->_styles as $selector => $selector_styles) {
+            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
                     continue;
@@ -962,6 +966,7 @@ class Stylesheet
 
         // Apply all styles in stylesheet
         foreach ($this->_styles as $selector => $selector_styles) {
+            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 $query = $this->_css_selector_to_xpath($selector);
 
@@ -1054,6 +1059,7 @@ class Stylesheet
             // Grab the applicable styles
             if (isset($styles[$id])) {
 
+                /** @var array[][] $applied_styles */
                 $applied_styles = $styles[$frame->get_id()];
 
                 // Sort by specificity
@@ -1064,6 +1070,7 @@ class Stylesheet
                     print "<pre>\n[$debug_nodename\n";
                     foreach ($applied_styles as $spec => $arr) {
                         printf("specificity: 0x%08x\n", $spec);
+                        /** @var Style $s */
                         foreach ($arr as $s) {
                             print "[\n";
                             $s->debug_print();
@@ -1076,6 +1083,7 @@ class Stylesheet
                 $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
                 $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
                 foreach ($applied_styles as $arr) {
+                    /** @var Style $s */
                     foreach ($arr as $s) {
                         $media_queries = $s->get_media_queries();
                         foreach ($media_queries as $media_query) {
@@ -1308,6 +1316,7 @@ class Stylesheet
                             case ":right":
                             case ":odd":
                             case ":even":
+                            /** @noinspection PhpMissingBreakStatementInspection */
                             case ":first":
                                 $key = $page_selector;
 
@@ -1664,6 +1673,7 @@ class Stylesheet
     {
         $str = "";
         foreach ($this->_styles as $selector => $selector_styles) {
+            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 $str .= "$selector => " . $style->__toString() . "\n";
             }
