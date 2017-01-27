@@ -22,6 +22,10 @@ use Dompdf\FrameDecorator\ListBullet as ListBulletFrameDecorator;
  */
 class ListBullet extends AbstractRenderer
 {
+    /**
+     * @param $type
+     * @return mixed|string
+     */
     static function get_counter_chars($type)
     {
         static $cache = array();
@@ -124,6 +128,9 @@ class ListBullet extends AbstractRenderer
         return "$text.";
     }
 
+    /**
+     * @param Frame $frame
+     */
     function render(Frame $frame)
     {
         $style = $frame->get_style();
@@ -144,7 +151,6 @@ class ListBullet extends AbstractRenderer
         if ($style->list_style_image !== "none" &&
             !Cache::is_broken($img = $frame->get_image_url())
         ) {
-
             list($x, $y) = $frame->get_position();
 
             //For expected size and aspect, instead of box size, use image natural size scaled to DPI.
@@ -162,16 +168,14 @@ class ListBullet extends AbstractRenderer
             $y -= ($line_height - $font_size) / 2; //Reverse hinting of list_bullet_positioner
 
             $this->_canvas->image($img, $x, $y, $w, $h);
-
         } else {
-
             $bullet_style = $style->list_style_type;
 
             $fill = false;
 
             switch ($bullet_style) {
-
                 default:
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case "disc":
                     $fill = true;
 
