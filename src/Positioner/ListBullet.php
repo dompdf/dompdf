@@ -19,8 +19,9 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class ListBullet extends AbstractPositioner
 {
 
-    //........................................................................
-
+    /**
+     * @param AbstractFrameDecorator $frame
+     */
     function position(AbstractFrameDecorator $frame)
     {
 
@@ -71,6 +72,5 @@ class ListBullet extends AbstractPositioner
 
         //Position is x-end y-top of character position of the bullet.
         $frame->set_position($x, $y);
-
     }
 }
