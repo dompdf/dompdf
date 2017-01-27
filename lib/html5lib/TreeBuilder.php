@@ -2322,7 +2322,7 @@ class HTML5_TreeBuilder {
                 } elseif ($token['type'] === HTML5_Tokenizer::COMMENT) {
                     /* Append a Comment node to the current node with the data
                     attribute set to the data given in the comment token. */
-                    $this->insertToken($token['data']);
+                    $this->insertComment($token['data']);
                 } elseif ($token['type'] === HTML5_Tokenizer::DOCTYPE) {
                     // parse error
                 } elseif ($token['type'] === HTML5_Tokenizer::STARTTAG && $token['name'] === 'html') {
