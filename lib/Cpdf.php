@@ -797,7 +797,7 @@ class Cpdf
      *
      * @param $id
      * @param $action
-     * @param string $options
+     * @param string|array $options
      * @return string|null
      */
     protected function o_font($id, $action, $options = '')
@@ -1104,7 +1104,7 @@ EOT;
      *
      * @param $id
      * @param $action
-     * @param string $options
+     * @param string|array $options
      * @return null|string
      */
     protected function o_fontDescendentCID($id, $action, $options = '')
