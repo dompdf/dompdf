@@ -54,7 +54,7 @@ class Renderer extends AbstractRenderer
      *
      * @param Frame $frame the frame to render
      */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         global $_dompdf_debug;
 
@@ -291,6 +291,5 @@ class Renderer extends AbstractRenderer
         }
 
         $this->_renderers[$type]->render($frame);
-
     }
 }
