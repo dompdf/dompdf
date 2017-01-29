@@ -24,6 +24,11 @@ class TableCell extends BlockFrameDecorator
 
     //........................................................................
 
+    /**
+     * TableCell constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
+     */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
@@ -41,16 +46,25 @@ class TableCell extends BlockFrameDecorator
         $this->_frame->reset();
     }
 
+    /**
+     * @return int
+     */
     function get_content_height()
     {
         return $this->_content_height;
     }
 
+    /**
+     * @param $height
+     */
     function set_content_height($height)
     {
         $this->_content_height = $height;
     }
 
+    /**
+     * @param $height
+     */
     function set_cell_height($height)
     {
         $style = $this->get_style();
@@ -95,21 +109,29 @@ class TableCell extends BlockFrameDecorator
                 }
             }
         }
-
     }
 
+    /**
+     * @param $side
+     * @param $border_spec
+     */
     function set_resolved_border($side, $border_spec)
     {
         $this->_resolved_borders[$side] = $border_spec;
     }
 
-    //........................................................................
-
+    /**
+     * @param $side
+     * @return mixed
+     */
     function get_resolved_border($side)
     {
         return $this->_resolved_borders[$side];
     }
 
+    /**
+     * @return array
+     */
     function get_resolved_borders()
     {
         return $this->_resolved_borders;

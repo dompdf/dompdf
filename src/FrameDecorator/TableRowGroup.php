@@ -65,7 +65,6 @@ class TableRowGroup extends AbstractFrameDecorator
 
         $cellmap->update_row_group($this, $child->get_prev_sibling());
         parent::split($child);
-
     }
 }
- 
+

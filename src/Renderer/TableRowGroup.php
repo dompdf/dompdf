@@ -17,8 +17,9 @@ use Dompdf\Frame;
 class TableRowGroup extends Block
 {
 
-    //........................................................................
-
+    /**
+     * @param Frame $frame
+     */
     function render(Frame $frame)
     {
         $style = $frame->get_style();

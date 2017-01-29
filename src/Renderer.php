@@ -54,7 +54,7 @@ class Renderer extends AbstractRenderer
      *
      * @param Frame $frame the frame to render
      */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         global $_dompdf_debug;
 
@@ -218,7 +218,7 @@ class Renderer extends AbstractRenderer
     protected function _check_callbacks($event, $frame)
     {
         if (!isset($this->_callbacks)) {
-            $this->_callbacks = $this->_dompdf->get_callbacks();
+            $this->_callbacks = $this->_dompdf->getCallbacks();
         }
 
         if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {
@@ -291,6 +291,5 @@ class Renderer extends AbstractRenderer
         }
 
         $this->_renderers[$type]->render($frame);
-
     }
 }

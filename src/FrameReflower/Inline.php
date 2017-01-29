@@ -19,13 +19,18 @@ use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 class Inline extends AbstractFrameReflower
 {
 
+    /**
+     * Inline constructor.
+     * @param Frame $frame
+     */
     function __construct(Frame $frame)
     {
         parent::__construct($frame);
     }
 
-    //........................................................................
-
+    /**
+     * @param BlockFrameDecorator|null $block
+     */
     function reflow(BlockFrameDecorator $block = null)
     {
         $frame = $this->_frame;

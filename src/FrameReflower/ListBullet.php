@@ -18,13 +18,18 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class ListBullet extends AbstractFrameReflower
 {
 
+    /**
+     * ListBullet constructor.
+     * @param AbstractFrameDecorator $frame
+     */
     function __construct(AbstractFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
-    //........................................................................
-
+    /**
+     * @param BlockFrameDecorator|null $block
+     */
     function reflow(BlockFrameDecorator $block = null)
     {
         $style = $this->_frame->get_style();
@@ -36,6 +41,5 @@ class ListBullet extends AbstractFrameReflower
             $p = $this->_frame->find_block_parent();
             $p->add_frame_to_line($this->_frame);
         }
-
     }
 }

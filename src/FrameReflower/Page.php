@@ -34,11 +34,19 @@ class Page extends AbstractFrameReflower
      */
     private $_canvas;
 
+    /**
+     * Page constructor.
+     * @param PageFrameDecorator $frame
+     */
     function __construct(PageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
+    /**
+     * @param Frame $frame
+     * @param $page_number
+     */
     function apply_page_style(Frame $frame, $page_number)
     {
         $style = $frame->get_style();
@@ -77,11 +85,11 @@ class Page extends AbstractFrameReflower
         }
     }
 
-    //........................................................................
-
     /**
      * Paged layout:
      * http://www.w3.org/TR/CSS21/page.html
+     *
+     * @param BlockFrameDecorator|null $block
      */
     function reflow(BlockFrameDecorator $block = null)
     {
@@ -161,8 +169,6 @@ class Page extends AbstractFrameReflower
             $prev_child->dispose(true);
         }
     }
-
-    //........................................................................
 
     /**
      * Check for callbacks that need to be performed when a given event

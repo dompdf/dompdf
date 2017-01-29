@@ -96,7 +96,6 @@ class Table extends AbstractFrameDecorator
         $this->_footers = array();
     }
 
-
     public function reset()
     {
         parent::reset();
@@ -257,6 +256,9 @@ class Table extends AbstractFrameDecorator
      * Restructure tree so that the table has the correct structure.
      * Invalid children (i.e. all non-table-rows) are moved below the
      * table.
+     *
+     * @fixme #1363 Method has some bugs. $table_row has not been initialized and lookup most likely could return an
+     * array of Style instead a Style Object
      */
     public function normalise()
     {
