@@ -19,14 +19,16 @@ use Dompdf\Helpers;
 class Inline extends AbstractRenderer
 {
 
-    //........................................................................
-
+    /**
+     * @param Frame $frame
+     */
     function render(Frame $frame)
     {
         $style = $frame->get_style();
 
-        if (!$frame->get_first_child())
+        if (!$frame->get_first_child()) {
             return; // No children, no service
+        }
 
         // Draw the left border if applicable
         $bp = $style->get_border_properties();
@@ -42,8 +44,8 @@ class Inline extends AbstractRenderer
         list($x, $y) = $frame->get_first_child()->get_position();
         $w = null;
         $h = 0;
-//     $x += $widths[3];
-//     $y += $widths[0];
+        // $x += $widths[3];
+        // $y += $widths[0];
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
@@ -65,8 +67,9 @@ class Inline extends AbstractRenderer
                 // borders on this line.
 
                 // Background:
-                if (($bg = $style->background_color) !== "transparent")
+                if (($bg = $style->background_color) !== "transparent") {
                     $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
+                }
 
                 if (($url = $style->background_image) && $url !== "none") {
                     $this->_background_image($url, $x, $y, $w, $h, $style);
@@ -74,7 +77,6 @@ class Inline extends AbstractRenderer
 
                 // If this is the first row, draw the left border
                 if ($first_row) {
-
                     if ($bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $bp["left"]["width"] > 0) {
                         $method = "_border_" . $bp["left"]["style"];
                         $this->$method($x, $y, $h + $widths[0] + $widths[2], $bp["left"]["color"], $widths, "left");
@@ -113,10 +115,11 @@ class Inline extends AbstractRenderer
                 continue;
             }
 
-            if (is_null($w))
+            if (is_null($w)) {
                 $w = (float)$child_w;
-            else
+            }else {
                 $w += (float)$child_w;
+            }
 
             $h = max($h, $child_h);
 
@@ -128,10 +131,10 @@ class Inline extends AbstractRenderer
             }
         }
 
-
         // Handle the last child
-        if (($bg = $style->background_color) !== "transparent")
+        if (($bg = $style->background_color) !== "transparent") {
             $this->_canvas->filled_rectangle($x + $widths[3], $y + $widths[0], $w, $h, $bg);
+        }
 
         //On continuation lines (after line break) of inline elements, the style got copied.
         //But a non repeatable background image should not be repeated on the next line.
@@ -141,8 +144,9 @@ class Inline extends AbstractRenderer
         // Repeat not given: default is Style::__construct
         // ... && (!($repeat = $style->background_repeat) || $repeat === "repeat" ...
         //different position? $this->_background_image($url, $x, $y, $w, $h, $style);
-        if (($url = $style->background_image) && $url !== "none")
+        if (($url = $style->background_image) && $url !== "none") {
             $this->_background_image($url, $x + $widths[3], $y + $widths[0], $w, $h, $style);
+        }
 
         // Add the border widths
         $w += (float)$widths[1] + (float)$widths[3];

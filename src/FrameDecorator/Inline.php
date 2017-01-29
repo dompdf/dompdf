@@ -22,11 +22,21 @@ use Dompdf\Exception;
 class Inline extends AbstractFrameDecorator
 {
 
+    /**
+     * Inline constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
+     */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }
 
+    /**
+     * @param Frame|null $frame
+     * @param bool $force_pagebreak
+     * @throws Exception
+     */
     function split(Frame $frame = null, $force_pagebreak = false)
     {
         if (is_null($frame)) {
@@ -39,7 +49,7 @@ class Inline extends AbstractFrameDecorator
         }
 
         $node = $this->_frame->get_node();
-        
+
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
             $node->removeAttribute("id");

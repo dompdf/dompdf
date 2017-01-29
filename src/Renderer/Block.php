@@ -19,8 +19,9 @@ use Dompdf\Helpers;
 class Block extends AbstractRenderer
 {
 
-    //........................................................................
-
+    /**
+     * @param Frame $frame
+     */
     function render(Frame $frame)
     {
         $style = $frame->get_style();
@@ -87,6 +88,11 @@ class Block extends AbstractRenderer
         }
     }
 
+    /**
+     * @param AbstractFrameDecorator $frame
+     * @param null $border_box
+     * @param string $corner_style
+     */
     protected function _render_border(AbstractFrameDecorator $frame, $border_box = null, $corner_style = "bevel")
     {
         $style = $frame->get_style();
@@ -108,7 +114,9 @@ class Block extends AbstractRenderer
             array_sum($radius) == 0
         ) {
             $props = $bp["top"];
-            if ($props["color"] === "transparent" || $props["width"] <= 0) return;
+            if ($props["color"] === "transparent" || $props["width"] <= 0) {
+                return;
+            }
 
             list($x, $y, $w, $h) = $border_box;
             $width = (float)$style->length_in_pt($props["width"]);
@@ -135,8 +143,9 @@ class Block extends AbstractRenderer
                 $props["style"] === "none" ||
                 $props["width"] <= 0 ||
                 $props["color"] == "transparent"
-            )
+            ) {
                 continue;
+            }
 
             switch ($side) {
                 case "top":
@@ -174,6 +183,11 @@ class Block extends AbstractRenderer
         }
     }
 
+    /**
+     * @param AbstractFrameDecorator $frame
+     * @param null $border_box
+     * @param string $corner_style
+     */
     protected function _render_outline(AbstractFrameDecorator $frame, $border_box = null, $corner_style = "bevel")
     {
         $style = $frame->get_style();
@@ -184,8 +198,9 @@ class Block extends AbstractRenderer
             "color" => $style->outline_color,
         );
 
-        if (!$props["style"] || $props["style"] === "none" || $props["width"] <= 0)
+        if (!$props["style"] || $props["style"] === "none" || $props["width"] <= 0) {
             return;
+        }
 
         if (empty($border_box)) {
             $border_box = $frame->get_border_box();
