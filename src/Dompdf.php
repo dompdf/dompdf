@@ -713,14 +713,13 @@ class Dompdf
 
     /**
      * Renders the HTML to PDF
-     *
-     * @param bool $calculatePageSetup
      */
-    public function render($calculatePageSetup = true)
+    public function render()
     {
         $this->saveLocale();
+        $options = $this->options;
 
-        $logOutputFile = $this->options->getLogOutputFile();
+        $logOutputFile = $options->getLogOutputFile();
         if ($logOutputFile) {
             if (!file_exists($logOutputFile) && is_writable(dirname($logOutputFile))) {
                 touch($logOutputFile);
@@ -734,26 +733,26 @@ class Dompdf
 
         $this->css->apply_styles($this->tree);
 
-        if ($calculatePageSetup === true) {
-            // @page style rules : size, margins
-            $pageStyles = $this->css->get_page_styles();
+        // @page style rules : size, margins
+        $pageStyles = $this->css->get_page_styles();
+        $basePageStyle = $pageStyles["base"];
+        unset($pageStyles["base"]);
 
-            $basePageStyle = $pageStyles["base"];
-            unset($pageStyles["base"]);
+        foreach ($pageStyles as $pageStyle) {
+            $pageStyle->inherit($basePageStyle);
+        }
 
-            foreach ($pageStyles as $pageStyle) {
-                $pageStyle->inherit($basePageStyle);
-            }
+        $optionPaperSize = $this->getPaperSize($options->getDefaultPaperSize());
 
-            if (is_array($basePageStyle->size)) {
-                $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
-            }
-
+        if (is_array($basePageStyle->size)
+            && ($basePageStyle->size[0] !== $optionPaperSize[0] || $basePageStyle->size[1] !== $optionPaperSize[1])
+        ) {
+            $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
             $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
             $this->fontMetrics->setCanvas($this->pdf);
         }
 
-        if ($this->options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
+        if ($options->isFontSubsettingEnabled() && $this->pdf instanceof CPDF) {
             foreach ($this->tree->get_frames() as $frame) {
                 $style = $frame->get_style();
                 $node = $frame->get_node();
@@ -1050,11 +1049,12 @@ class Dompdf
     /**
      * Gets the paper size
      *
-     * @return int[] A four-element integer array
+     * @param null|string|array $paperSize
+     * @return \int[] A four-element integer array
      */
-    public function getPaperSize()
+    public function getPaperSize($paperSize = null)
     {
-        $size = $this->_paperSize;
+        $size = $paperSize !== null ? $paperSize : $this->_paperSize;
         if (is_array($size)) {
             return $size;
         } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
