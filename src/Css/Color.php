@@ -164,6 +164,10 @@ class Color
         "yellowgreen" => "9ACD32",
     );
 
+    /**
+     * @param $color
+     * @return array|mixed|null|string
+     */
     static function parse($color)
     {
         if (is_array($color)) {
@@ -270,6 +274,11 @@ class Color
         return null;
     }
 
+    /**
+     * @param $color
+     * @param float $alpha
+     * @return array
+     */
     static function getArray($color, $alpha = 1.0)
     {
         $c = array(null, null, null, null, "alpha" => $alpha, "hex" => null);

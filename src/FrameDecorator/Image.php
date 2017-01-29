@@ -52,9 +52,9 @@ class Image extends AbstractFrameDecorator
 
         list($this->_image_url, /*$type*/, $this->_image_msg) = Cache::resolve_url(
             $url,
-            $dompdf->get_protocol(),
-            $dompdf->get_host(),
-            $dompdf->get_base_path(),
+            $dompdf->getProtocol(),
+            $dompdf->getBaseHost(),
+            $dompdf->getBasePath(),
             $dompdf
         );
 

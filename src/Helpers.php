@@ -12,7 +12,7 @@ class Helpers
      * @param mixed $mixed variable or expression to display
      * @param bool $return
      *
-     * @return string
+     * @return string|null
      */
     public static function pre_r($mixed, $return = false)
     {
@@ -33,6 +33,8 @@ class Helpers
         }
 
         flush();
+
+        return null;
     }
 
       /**
@@ -125,12 +127,16 @@ class Helpers
 
         $ret = "";
         switch (mb_strlen($num)) {
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 4:
                 $ret .= $thou[$num[3]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 3:
                 $ret .= $hund[$num[2]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 2:
                 $ret .= $tens[$num[1]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 1:
                 $ret .= $ones[$num[0]];
             default:
@@ -158,7 +164,7 @@ class Helpers
      *
      * @param string $data_uri The data URI to parse
      *
-     * @return array The result with charset, mime type and decoded data
+     * @return array|bool The result with charset, mime type and decoded data
      */
     public static function parse_data_uri($data_uri)
     {
@@ -780,9 +786,9 @@ class Helpers
             $result = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
             curl_close($curl);
         }
-        
+
         restore_error_handler();
-        
+
         return array($result, $headers);
     }
 }

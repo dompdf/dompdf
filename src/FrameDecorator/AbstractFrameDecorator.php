@@ -153,12 +153,12 @@ abstract class AbstractFrameDecorator extends Frame
     function deep_copy()
     {
         $node = $this->_frame->get_node();
-        
+
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
             $node->removeAttribute("id");
         }
-        
+
         $frame = new Frame($node->cloneNode());
         $frame->set_style(clone $this->_frame->get_original_style());
 
@@ -189,6 +189,10 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     // Getters -----------
+
+    /**
+     * @return string
+     */
     function get_id()
     {
         return $this->_frame->get_id();
@@ -331,7 +335,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @return float
+     * @return bool
      */
     function is_auto_height()
     {
@@ -339,7 +343,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @return float
+     * @return bool
      */
     function is_auto_width()
     {
@@ -681,7 +685,7 @@ abstract class AbstractFrameDecorator extends Frame
         }
 
         $node = $this->_frame->get_node();
-        
+
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
             $node->removeAttribute("id");
@@ -725,7 +729,7 @@ abstract class AbstractFrameDecorator extends Frame
             $frame->reset();
             $frame->_parent = $split;
             $split->append_child($frame);
- 
+
             // recalculate the float offsets
             if ($frame instanceof Block) {
                 foreach ($frame->get_line_boxes() as $index => $line_box) {
@@ -743,11 +747,18 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
+    /**
+     * @param string $id
+     * @param int $value
+     */
     function reset_counter($id = self::DEFAULT_COUNTER, $value = 0)
     {
         $this->get_parent()->_counters[$id] = intval($value);
     }
 
+    /**
+     * @param $counters
+     */
     function decrement_counters($counters)
     {
         foreach ($counters as $id => $increment) {
@@ -755,6 +766,9 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
+    /**
+     * @param $counters
+     */
     function increment_counters($counters)
     {
         foreach ($counters as $id => $increment) {
@@ -762,6 +776,10 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
+    /**
+     * @param string $id
+     * @param int $increment
+     */
     function increment_counter($id = self::DEFAULT_COUNTER, $increment = 1)
     {
         $counter_frame = $this->lookup_counter_frame($id);
@@ -775,6 +793,10 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
+    /**
+     * @param string $id
+     * @return AbstractFrameDecorator|null
+     */
     function lookup_counter_frame($id = self::DEFAULT_COUNTER)
     {
         $f = $this->get_parent();
@@ -791,9 +813,17 @@ abstract class AbstractFrameDecorator extends Frame
 
             $f = $fp;
         }
+
+        return null;
     }
 
-    // TODO: What version is the best : this one or the one in ListBullet ?
+    /**
+     * @param string $id
+     * @param string $type
+     * @return bool|string
+     *
+     * TODO: What version is the best : this one or the one in ListBullet ?
+     */
     function counter_value($id = self::DEFAULT_COUNTER, $type = "decimal")
     {
         $type = mb_strtolower($type);
@@ -834,16 +864,27 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
+    /**
+     *
+     */
     final function position()
     {
         $this->_positioner->position($this);
     }
 
+    /**
+     * @param $offset_x
+     * @param $offset_y
+     * @param bool $ignore_self
+     */
     final function move($offset_x, $offset_y, $ignore_self = false)
     {
         $this->_positioner->move($this, $offset_x, $offset_y, $ignore_self);
     }
 
+    /**
+     * @param Block|null $block
+     */
     final function reflow(Block $block = null)
     {
         // Uncomment this to see the frames before they're laid out, instead of
@@ -852,6 +893,9 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_reflower->reflow($block);
     }
 
+    /**
+     * @return array
+     */
     final function get_min_max_width()
     {
         return $this->_reflower->get_min_max_width();

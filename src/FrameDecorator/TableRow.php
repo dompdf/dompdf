@@ -18,6 +18,11 @@ use Dompdf\FrameDecorator\Table as TableFrameDecorator;
  */
 class TableRow extends AbstractFrameDecorator
 {
+    /**
+     * TableRow constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
+     */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
@@ -31,7 +36,6 @@ class TableRow extends AbstractFrameDecorator
      */
     function normalise()
     {
-
         // Find our table parent
         $p = TableFrameDecorator::find_parent_table($this);
 
@@ -47,6 +51,4 @@ class TableRow extends AbstractFrameDecorator
         foreach ($erroneous_frames as $frame)
             $p->move_after($frame);
     }
-
-
 }

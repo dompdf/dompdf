@@ -81,8 +81,9 @@ class LineBox
      * Class constructor
      *
      * @param Block $frame the Block containing this line
+     * @param int $y
      */
-    function __construct(Block $frame, $y = 0)
+    public function __construct(Block $frame, $y = 0)
     {
         $this->_block_frame = $frame;
         $this->_frames = array();
@@ -98,7 +99,7 @@ class LineBox
      *
      * @return Frame[]
      */
-    function get_floats_inside(Page $root)
+    public function get_floats_inside(Page $root)
     {
         $floating_frames = $root->get_floating_frames();
 
@@ -139,7 +140,10 @@ class LineBox
         return $childs;
     }
 
-    function get_float_offsets()
+    /**
+     *
+     */
+    public function get_float_offsets()
     {
         static $anti_infinite_loop = 10000; // FIXME smelly hack
 
@@ -226,7 +230,7 @@ class LineBox
     /**
      * @return float
      */
-    function get_width()
+    public function get_width()
     {
         return $this->left + $this->w + $this->right;
     }
@@ -234,7 +238,7 @@ class LineBox
     /**
      * @return Block
      */
-    function get_block_frame()
+    public function get_block_frame()
     {
         return $this->_block_frame;
     }
@@ -250,7 +254,7 @@ class LineBox
     /**
      * @param Frame $frame
      */
-    function add_frame(Frame $frame)
+    public function add_frame(Frame $frame)
     {
         $this->_frames[] = $frame;
     }
@@ -271,7 +275,10 @@ class LineBox
         return $this->w = $width;
     }
 
-    function __toString()
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         $props = array("wc", "y", "w", "h", "left", "right", "br");
         $s = "";
@@ -292,6 +299,6 @@ class LineBox
 class LineBoxList implements Iterator {
   private $_p = 0;
   private $_lines = array();
-  
+
 }
 */

@@ -4,11 +4,11 @@ namespace Dompdf\Frame;
 
 use DOMDocument;
 use DOMNode;
+use DOMElement;
 use DOMXPath;
 
 use Dompdf\Exception;
 use Dompdf\Frame;
-use Dompdf\FrameDecorator\Page;
 
 /**
  * @package dompdf
@@ -103,7 +103,7 @@ class FrameTree
     /**
      * Returns the root frame of the tree
      *
-     * @return \Dompdf\FrameDecorator\Page
+     * @return Frame
      */
     public function get_root()
     {
@@ -115,7 +115,7 @@ class FrameTree
      *
      * @param string $id
      *
-     * @return Frame
+     * @return Frame|null
      */
     public function get_frame($id)
     {
@@ -188,9 +188,9 @@ class FrameTree
      * Remove a child from a node. If the removed node results in two
      * adjacent #text nodes then combine them.
      *
-     * @param DONNode $node the current DOMNode being considered
+     * @param DOMNode $node the current DOMNode being considered
      * @param array $children an array of nodes that are the children of $node
-     * @param $index index from the $children array of the node to remove
+     * @param int $index index from the $children array of the node to remove
      */
     protected function _remove_node(DOMNode $node, array &$children, $index)
     {
@@ -272,13 +272,13 @@ class FrameTree
     }
 
     /**
-     * @param DOMNode $node
-     * @param DOMNode $new_node
+     * @param DOMElement $node
+     * @param DOMElement $new_node
      * @param string $pos
      *
      * @return mixed
      */
-    public function insert_node(DOMNode $node, DOMNode $new_node, $pos)
+    public function insert_node(DOMElement $node, DOMElement $new_node, $pos)
     {
         if ($pos === "after" || !$node->firstChild) {
             $node->appendChild($new_node);

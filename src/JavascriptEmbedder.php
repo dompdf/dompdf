@@ -22,17 +22,28 @@ class JavascriptEmbedder
      */
     protected $_dompdf;
 
-    function __construct(Dompdf $dompdf)
+    /**
+     * JavascriptEmbedder constructor.
+     *
+     * @param Dompdf $dompdf
+     */
+    public function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
     }
 
-    function insert($script)
+    /**
+     * @param $script
+     */
+    public function insert($script)
     {
-        $this->_dompdf->get_canvas()->javascript($script);
+        $this->_dompdf->getCanvas()->javascript($script);
     }
 
-    function render(Frame $frame)
+    /**
+     * @param \Dompdf\Frame $frame
+     */
+    public function render(Frame $frame)
     {
         if (!$this->_dompdf->getOptions()->getIsJavascriptEnabled()) {
             return;
