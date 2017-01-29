@@ -189,6 +189,10 @@ class FontMetrics
         if ( !isset($entry[$styleString]) ) {
             $entry[$styleString] = $cacheEntry;
             
+            if (!file_exists($remoteFile)) {
+	            return false;
+            }
+            
             // Download the remote file
             list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
             if (false === $remoteFileContent) {
