@@ -742,12 +742,10 @@ class Dompdf
             if (($basePageStyleSize[0] !== $optionPaperSize[0] || $basePageStyleSize[1] !== $optionPaperSize[1])) {
                 $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]));
                 $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-                $canvas = $this->getCanvas();
-                $this->fontMetrics->setCanvas($this->pdf);
+                $this->fontMetrics->setCanvas($this->getCanvas());
             }
-        } else {
-            $canvas = $this->getCanvas();
         }
+        $canvas = $this->getCanvas();
 
         if ($options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
             foreach ($this->tree->get_frames() as $frame) {
