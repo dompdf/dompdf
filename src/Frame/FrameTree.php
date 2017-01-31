@@ -44,7 +44,6 @@ class FrameTree
         "title",
         "colgroup",
         "noembed",
-        "noscript",
         "param",
         "#comment"
     );
