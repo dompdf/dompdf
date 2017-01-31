@@ -672,6 +672,22 @@ class Stylesheet
                             $tok = "";
                             break;
 
+                        //TODO: bit of a hack attempt at matches support, currently only matches against elements
+                        case "matches":
+                            $pseudo_classes[$tok] = true;
+                            $p = $i + 1;
+                            $matchList = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+
+                            // Tag names are case-insensitive
+                            $elements = array_map("trim", explode(",", strtolower($matchList)));
+                            foreach ($elements as &$element) {
+                                $element = "name() = '$element'";
+                            }
+
+                            $query .= "[" . implode(" or ", $elements) . "]";
+                            $tok = "";
+                            break;
+
                         case "link":
                             $query .= "[@href]";
                             $tok = "";
@@ -1605,9 +1621,12 @@ class Stylesheet
         if ($DEBUGCSS) print '[_parse_sections';
         foreach ($sections as $sect) {
             $i = mb_strpos($sect, "{");
+            if ($i === false) { continue; }
 
-            $selectors = explode(",", mb_substr($sect, 0, $i));
+            //$selectors = explode(",", mb_substr($sect, 0, $i));
+            $selectors = preg_split("/,(?![^\(]*\))/", mb_substr($sect, 0, $i),0, PREG_SPLIT_NO_EMPTY);
             if ($DEBUGCSS) print '[section';
+            
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
