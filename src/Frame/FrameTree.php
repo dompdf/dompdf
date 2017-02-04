@@ -190,8 +190,6 @@ class FrameTree
                 $tableNode->appendChild($tbody);
             }
         }
-
-        dd(new DOMXPath($this->_dom));
     }
 
     // FIXME: temporary hack, preferably we will improve rendering of sequential #text nodes
