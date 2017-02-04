@@ -167,16 +167,16 @@ class FrameTree
         }
 
         $firstRows = $xp->query("//table/tr[1]");
+        /** @var DOMElement $firstRow */
         foreach ($firstRows as $firstRow) {
             $tbody = $this->_dom->createElement("tbody");
             $tableNode = $firstRow->parentNode;
-            $childNodes = $tableNode->childNodes;
-            $length = $childNodes->length;
-            for ($i = 0; $i < $length; $i++) {
-                $childNode = $childNodes->item(0);
-                $tableNode->removeChild($childNode);
-                $tbody->appendChild($childNode);
-            }
+            do {
+                $tmpNode = $firstRow;
+                $firstRow = $firstRow->nextSibling;
+                $tableNode->removeChild($tmpNode);
+                $tbody->appendChild($tmpNode);
+            } while ($firstRow);
             $tableNode->appendChild($tbody);
         }
     }
