@@ -159,17 +159,34 @@ class FrameTree
 
         // Move table caption before the table
         // FIXME find a better way to deal with it...
-        $captions = $xp->query("//table/caption");
+        $captions = $xp->query('//table/caption');
         foreach ($captions as $caption) {
             $table = $caption->parentNode;
             $table->parentNode->insertBefore($caption, $table);
         }
 
-        $rows = $xp->query("//table/tr");
-        foreach ($rows as $row) {
-            $tbody = $this->_dom->createElement("tbody");
-            $tbody = $row->parentNode->insertBefore($tbody, $row);
-            $tbody->appendChild($row);
+        $firstRows = $xp->query('//table/tr[1]');
+        /** @var DOMElement $tableChild */
+        foreach ($firstRows as $tableChild) {
+            $tbody = $this->_dom->createElement('tbody');
+            $tableNode = $tableChild->parentNode;
+            do {
+                if ($tableChild->nodeName === 'tr') {
+                    $tmpNode = $tableChild;
+                    $tableChild = $tableChild->nextSibling;
+                    $tableNode->removeChild($tmpNode);
+                    $tbody->appendChild($tmpNode);
+                } else {
+                    if ($tbody->hasChildNodes() === true) {
+                        $tableNode->insertBefore($tbody, $tableChild);
+                        $tbody = $this->_dom->createElement('tbody');
+                    }
+                    $tableChild = $tableChild->nextSibling;
+                }
+            } while ($tableChild);
+            if ($tbody->hasChildNodes() === true) {
+                $tableNode->appendChild($tbody);
+            }
         }
     }
 
