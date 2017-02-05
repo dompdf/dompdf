@@ -735,16 +735,28 @@ class Dompdf
             $pageStyle->inherit($basePageStyle);
         }
 
+        $defaultOptionPaperSize = $this->getPaperSize($options->getDefaultPaperSize());
+        // If there is a CSS defined paper size compare to the paper size used to create the canvas to determine a
+        // recreation need
         if (is_array($basePageStyle->size)) {
             $basePageStyleSize = $basePageStyle->size;
-            $optionPaperSize = $this->getPaperSize($options->getDefaultPaperSize());
-
-            if (($basePageStyleSize[0] !== $optionPaperSize[0] || $basePageStyleSize[1] !== $optionPaperSize[1])) {
-                $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]));
+            if ($defaultOptionPaperSize[0] !== $basePageStyleSize[0] || $defaultOptionPaperSize[1] !== $basePageStyleSize[1]
+                || $this->paperOrientation !== $options->getDefaultPaperOrientation()) {
+                $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]), $this->paperOrientation);
+                $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
+                $this->fontMetrics->setCanvas($this->getCanvas());
+            }
+        // Default PaperSize or orientation might be also overwritten by the paper setting of this class
+        } else {
+            $paperSize = $this->getPaperSize();
+            if ($defaultOptionPaperSize[0] !== $paperSize[0] || $defaultOptionPaperSize[1] !== $paperSize[1]
+                || $this->paperOrientation !== $options->getDefaultPaperOrientation()
+            ) {
                 $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
                 $this->fontMetrics->setCanvas($this->getCanvas());
             }
         }
+
         $canvas = $this->getCanvas();
 
         if ($options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
@@ -1054,7 +1066,7 @@ class Dompdf
      */
     public function getPaperSize($paperSize = null)
     {
-        $size = $paperSize !== null ? $paperSize : $this->_paperSize;
+        $size = $paperSize !== null ? $paperSize : $this->paperSize;
         if (is_array($size)) {
             return $size;
         } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
