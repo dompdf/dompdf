@@ -167,7 +167,6 @@ class FrameTree
         }
 
         $firstRows = $xp->query('//table/tr[1]');
-        $tbodyInsertPosition = null;
         /** @var DOMElement $tableChild */
         foreach ($firstRows as $tableChild) {
             $tbody = $this->_dom->createElement('tbody');
