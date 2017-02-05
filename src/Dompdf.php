@@ -719,7 +719,9 @@ class Dompdf
             }
 
             $this->startTime = microtime(true);
-            ob_start();
+            if (is_writable($logOutputFile)) {
+                ob_start();
+            }
         }
 
         $this->processHtml();
@@ -868,6 +870,11 @@ class Dompdf
             flush();
         }
 
+        if ($logOutputFile && is_writable($logOutputFile)) {
+            $this->write_log();
+            ob_end_clean();
+        }
+
         $this->restoreLocale();
     }
 
@@ -906,9 +913,9 @@ class Dompdf
             ($this->quirksmode ? "<span style='color: #d00'> ON</span>" : "<span style='color: #0d0'>OFF</span>") .
             "</span><br />", $frames, $memory, $time);
 
-        $out .= ob_get_clean();
+        $out .= ob_get_contents();
+        ob_clean();
 
-        $log_output_file = $this->getOptions()->getLogOutputFile();
         file_put_contents($log_output_file, $out);
     }
 
@@ -937,8 +944,6 @@ class Dompdf
     {
         $this->saveLocale();
 
-        $this->write_log();
-
         $canvas = $this->getCanvas();
         if (!is_null($canvas)) {
             $canvas->stream($filename, $options);
@@ -965,8 +970,6 @@ class Dompdf
     public function output($options = null)
     {
         $this->saveLocale();
-
-        $this->write_log();
 
         $canvas = $this->getCanvas();
         if (is_null($canvas)) {
