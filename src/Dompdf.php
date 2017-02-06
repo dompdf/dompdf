@@ -348,26 +348,25 @@ class Dompdf
         if (!$this->protocol && !$this->baseHost && !$this->basePath) {
             list($this->protocol, $this->baseHost, $this->basePath) = Helpers::explode_url($file);
         }
+        $protocol = strtolower($this->protocol);
 
-        if ( !in_array($this->protocol, $this->allowedProtocols) ) {
+        if ( !in_array($protocol, $this->allowedProtocols) ) {
             throw new Exception("Permission denied on $file. The communication protocol is not supported.");
         }
 
-        if (!$this->options->isRemoteEnabled() && ($this->protocol != "" && $this->protocol !== "file://")) {
+        if (!$this->options->isRemoteEnabled() && ($protocol != "" && $protocol !== "file://")) {
             throw new Exception("Remote file requested, but remote file download is disabled.");
         }
 
-        if ($this->protocol == "" || $this->protocol === "file://") {
-
-            // Get the full path to $file, returns false if the file doesn't exist
+        if ($protocol == "" || $protocol === "file://") {
             $realfile = realpath($file);
 
-            $chroot = $this->options->getChroot();
-            if (strpos($realfile, $chroot) !== 0) {
+            $chroot = realpath($this->options->getChroot());
+            if ($chroot && strpos($realfile, $chroot) !== 0) {
                 throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
             }
 
-            $ext = pathinfo($realfile, PATHINFO_EXTENSION);
+            $ext = strtolower(pathinfo($realfile, PATHINFO_EXTENSION));
             if (!in_array($ext, $this->allowedLocalFileExtensions)) {
                 throw new Exception("Permission denied on $file.");
             }
