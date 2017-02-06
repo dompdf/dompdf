@@ -183,6 +183,37 @@ class Helpers
     }
 
     /**
+     * Encodes a Uniform Resource Identifier (URI) by replacing non-alphanumeric
+     * characters with a percent (%) sign followed by two hex digits, excepting 
+     * characters in the URI reserved character set.
+     * 
+     * Assumes that the URI is a complete URI, so does not encode reserved 
+     * characters that have special meaning in the URI.
+     *
+     * Simulates the encodeURI function available in JavaScript  
+     * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURI
+     * 
+     * Source: http://stackoverflow.com/q/4929584/264628
+     *
+     * @param string $uri The URI to encode
+     * @return string The original URL with special characters encoded
+     */
+    public static function encodeURI($uri) {
+        $unescaped = array(
+            '%2D'=>'-','%5F'=>'_','%2E'=>'.','%21'=>'!', '%7E'=>'~',
+            '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')'
+        );
+        $reserved = array(
+            '%3B'=>';','%2C'=>',','%2F'=>'/','%3F'=>'?','%3A'=>':',
+            '%40'=>'@','%26'=>'&','%3D'=>'=','%2B'=>'+','%24'=>'$'
+        );
+        $score = array(
+            '%23'=>'#'
+        );
+        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved,$unescaped,$score));
+    }
+
+    /**
      * Decoder for RLE8 compression in windows bitmaps
      * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
      *
@@ -758,6 +789,9 @@ class Helpers
         set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
 
         if ($is_local_path || ini_get("allow_url_fopen")) {
+            if ($is_local_path === false) {
+                $uri = Helpers::encodeURI($uri);
+            }
             if (isset($maxlen)) {
                 $result = file_get_contents($uri, null, $context, $offset, $maxlen);
             } else {
