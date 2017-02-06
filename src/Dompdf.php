@@ -793,7 +793,7 @@ class Dompdf
                     $canvas->register_string_subset($style->font_family, $chars);
 
                     // the raw text of the content property
-                    $this->getCanvas()->register_string_subset($style->font_family, $style->content);
+                    $canvas->register_string_subset($style->font_family, $style->content);
 
                     // the hex-decoded text of the content property, duplicated from AbstrctFrameReflower::_parse_string
                     $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
