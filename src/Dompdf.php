@@ -741,21 +741,17 @@ class Dompdf
         // recreation need
         if (is_array($basePageStyle->size)) {
             $basePageStyleSize = $basePageStyle->size;
-            if ($defaultOptionPaperSize[0] !== $basePageStyleSize[0] || $defaultOptionPaperSize[1] !== $basePageStyleSize[1]
-                || $this->paperOrientation !== $options->getDefaultPaperOrientation()) {
-                $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]), $this->paperOrientation);
-                $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-                $this->fontMetrics->setCanvas($this->getCanvas());
-            }
-        // Default PaperSize or orientation might be also overwritten by the paper setting of this class
-        } else {
-            $paperSize = $this->getPaperSize();
-            if ($defaultOptionPaperSize[0] !== $paperSize[0] || $defaultOptionPaperSize[1] !== $paperSize[1]
-                || $this->paperOrientation !== $options->getDefaultPaperOrientation()
-            ) {
-                $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-                $this->fontMetrics->setCanvas($this->getCanvas());
-            }
+            $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]));
+        }
+
+        $paperSize = $this->getPaperSize();
+        if (
+            $defaultOptionPaperSize[0] !== $paperSize[0] ||
+            $defaultOptionPaperSize[1] !== $paperSize[1] ||
+            $options->getDefaultPaperOrientation() !== $this->paperOrientation
+        ) {
+            $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
+            $this->fontMetrics->setCanvas($this->getCanvas());
         }
 
         $canvas = $this->getCanvas();
