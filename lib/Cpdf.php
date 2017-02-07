@@ -3825,9 +3825,11 @@ EOT;
         $encodedfallbackfilename = rawurlencode($fallbackfilename);
         $encodedfilename = rawurlencode($filename);
 
-        header(
-            "Content-Disposition: $attachment; filename=" . $encodedfallbackfilename . "; filename*=UTF-8''$encodedfilename"
-        );
+        $contentDisposition = "Content-Disposition: $attachment; filename=\"" . $encodedfallbackfilename . "\"";
+        if ($encodedfallbackfilename !== $encodedfilename) {
+            $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
+        }
+        header($contentDisposition);
 
         if (isset($options['Accept-Ranges']) && $options['Accept-Ranges'] == 1) {
             //FIXME: Is this the correct value ... spec says 1#range-unit

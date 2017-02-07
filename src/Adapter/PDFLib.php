@@ -1285,7 +1285,11 @@ class PDFLib implements Canvas
         $encodedfallbackfilename = rawurlencode($fallbackfilename);
         $encodedfilename = rawurlencode($filename);
 
-        header("Content-Disposition: $attach; filename=". $encodedfallbackfilename ."; filename*=UTF-8''$encodedfilename");
+        $contentDisposition = "Content-Disposition: $attachment; filename=\"" . $encodedfallbackfilename . "\"";
+        if ($encodedfallbackfilename !== $encodedfilename) {
+            $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
+        }
+        header($contentDisposition);
 
         //header("Content-length: " . $size);
 
