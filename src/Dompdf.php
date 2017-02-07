@@ -710,8 +710,9 @@ class Dompdf
     public function render()
     {
         $this->saveLocale();
+        $options = $this->options;
 
-        $logOutputFile = $this->options->getLogOutputFile();
+        $logOutputFile = $options->getLogOutputFile();
         if ($logOutputFile) {
             if (!file_exists($logOutputFile) && is_writable(dirname($logOutputFile))) {
                 touch($logOutputFile);
@@ -727,7 +728,6 @@ class Dompdf
 
         // @page style rules : size, margins
         $pageStyles = $this->css->get_page_styles();
-
         $basePageStyle = $pageStyles["base"];
         unset($pageStyles["base"]);
 
@@ -735,16 +735,31 @@ class Dompdf
             $pageStyle->inherit($basePageStyle);
         }
 
+        $defaultOptionPaperSize = $this->getPaperSize($options->getDefaultPaperSize());
+        // If there is a CSS defined paper size compare to the paper size used to create the canvas to determine a
+        // recreation need
         if (is_array($basePageStyle->size)) {
-            $this->setPaper(array(0, 0, $basePageStyle->size[0], $basePageStyle->size[1]));
+            $basePageStyleSize = $basePageStyle->size;
+            if ($defaultOptionPaperSize[0] !== $basePageStyleSize[0] || $defaultOptionPaperSize[1] !== $basePageStyleSize[1]
+                || $this->paperOrientation !== $options->getDefaultPaperOrientation()) {
+                $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]), $this->paperOrientation);
+                $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
+                $this->fontMetrics->setCanvas($this->getCanvas());
+            }
+        // Default PaperSize or orientation might be also overwritten by the paper setting of this class
+        } else {
+            $paperSize = $this->getPaperSize();
+            if ($defaultOptionPaperSize[0] !== $paperSize[0] || $defaultOptionPaperSize[1] !== $paperSize[1]
+                || $this->paperOrientation !== $options->getDefaultPaperOrientation()
+            ) {
+                $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
+                $this->fontMetrics->setCanvas($this->getCanvas());
+            }
         }
 
-        //TODO: We really shouldn't be doing this; properties were already set in the constructor. We should add Canvas methods to set the page size and orientation after instantiaion (see #1059).
-        $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-        $this->fontMetrics->setCanvas($this->getCanvas());
         $canvas = $this->getCanvas();
 
-        if ($this->options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
+        if ($options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
             foreach ($this->tree->get_frames() as $frame) {
                 $style = $frame->get_style();
                 $node = $frame->get_node();
@@ -1046,11 +1061,12 @@ class Dompdf
     /**
      * Gets the paper size
      *
-     * @return int[] A four-element integer array
+     * @param null|string|array $paperSize
+     * @return \int[] A four-element integer array
      */
-    public function getPaperSize()
+    public function getPaperSize($paperSize = null)
     {
-        $size = $this->_paperSize;
+        $size = $paperSize !== null ? $paperSize : $this->paperSize;
         if (is_array($size)) {
             return $size;
         } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
