@@ -746,8 +746,8 @@ class Dompdf
 
         $paperSize = $this->getPaperSize();
         if (
-            $defaultOptionPaperSize[0] !== $paperSize[0] ||
-            $defaultOptionPaperSize[1] !== $paperSize[1] ||
+            $defaultOptionPaperSize[2] !== $paperSize[2] ||
+            $defaultOptionPaperSize[3] !== $paperSize[3] ||
             $options->getDefaultPaperOrientation() !== $this->paperOrientation
         ) {
             $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
