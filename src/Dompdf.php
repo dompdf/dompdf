@@ -379,7 +379,7 @@ class Dompdf
         }
 
         list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
-        $encoding = null;
+        $encoding = 'UTF-8';
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
         if (isset($http_response_header)) {
@@ -401,7 +401,7 @@ class Dompdf
      * @param null $encoding
      * @deprecated
      */
-    public function load_html($str, $encoding = null)
+    public function load_html($str, $encoding = 'UTF-8')
     {
         $this->loadHtml($str, $encoding);
     }
@@ -414,63 +414,44 @@ class Dompdf
      * @param string $str HTML text to load
      * @param string $encoding Not used yet
      */
-    public function loadHtml($str, $encoding = null)
+    public function loadHtml($str, $encoding = 'UTF-8')
     {
         $this->saveLocale();
 
         // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
         mb_detect_order('auto');
-
-        if (mb_detect_encoding($str) !== 'UTF-8') {
-            $metatags = array(
-                '@<meta\s+http-equiv="Content-Type"\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))?@i',
-                '@<meta\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))"?\s+http-equiv="Content-Type"@i',
-                '@<meta [^>]*charset\s*=\s*["\']?\s*([^"\' ]+)@i',
-            );
-
-            foreach ($metatags as $metatag) {
-                if (preg_match($metatag, $str, $matches)) break;
-            }
-
-            if (mb_detect_encoding($str) == '') {
-                if (isset($matches[1])) {
-                    $encoding = strtoupper($matches[1]);
-                } else {
-                    $encoding = 'UTF-8';
-                }
-            } else {
-                if (isset($matches[1])) {
-                    $encoding = strtoupper($matches[1]);
-                } else {
-                    $encoding = 'auto';
-                }
-            }
-
-            if ($encoding !== 'UTF-8') {
-                $str = mb_convert_encoding($str, 'UTF-8', $encoding);
-            }
-
-            if (isset($matches[1])) {
-                $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
-            } else {
-                $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
-            }
-        } else {
-            $encoding = 'UTF-8';
+        if (($file_encoding = mb_detect_encoding($str, null, true)) === false) {
+            $file_encoding = "auto";
         }
+        if (in_array(strtoupper($file_encoding), array('UTF-8','UTF8')) === false) {
+            $str = mb_convert_encoding($str, 'UTF-8', $file_encoding);
+        }
+
+        $metatags = array(
+            '@<meta\s+http-equiv="Content-Type"\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))?@i',
+            '@<meta\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))"?\s+http-equiv="Content-Type"@i',
+            '@<meta [^>]*charset\s*=\s*["\']?\s*([^"\' ]+)@i',
+        );
+        foreach ($metatags as $metatag) {
+            if (preg_match($metatag, $str, $matches)) {
+                $document_encoding = strtoupper($matches[1]);
+                break;
+            }
+        }
+        if (isset($document_encoding) && in_array(strtoupper($document_encoding), array('UTF-8','UTF8')) === false) {
+            $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
+        } elseif (strpos($str, '<head>') !== false) {
+            $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
+        } else {
+            $str = '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">' . $str;
+        }
+        //FIXME: since we're not using this just yet
+        $encoding = 'UTF-8';
 
         // remove BOM mark from UTF-8, it's treated as document text by DOMDocument
         // FIXME: roll this into the encoding detection using UTF-8/16/32 BOM (http://us2.php.net/manual/en/function.mb-detect-encoding.php#91051)?
         if (substr($str, 0, 3) == chr(0xEF) . chr(0xBB) . chr(0xBF)) {
             $str = substr($str, 3);
-        }
-
-        // if the document contains non utf-8 with a utf-8 meta tag chars and was
-        // detected as utf-8 by mbstring, problems could happen.
-        // http://devzone.zend.com/article/8855
-        if ($encoding !== 'UTF-8') {
-            $re = '/<meta ([^>]*)((?:charset=[^"\' ]+)([^>]*)|(?:charset=["\'][^"\' ]+["\']))([^>]*)>/i';
-            $str = preg_replace($re, '<meta $1$3>', $str);
         }
 
         // Store parsing warnings as messages
@@ -498,14 +479,13 @@ class Dompdf
 
             $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
         } else {
-            // loadHTML assumes ISO-8859-1 unless otherwise specified, but there are
-            // bugs in how DOMDocument determines the actual encoding. Converting to
-            // HTML-ENTITIES prior to import appears to resolve the issue.
+            // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
             // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
             // http://stackoverflow.com/a/11310258/264628
-            $doc = new DOMDocument();
+            $doc = new DOMDocument("1.0", $encoding);
             $doc->preserveWhiteSpace = true;
-            $doc->loadHTML(mb_convert_encoding($str, 'HTML-ENTITIES', 'UTF-8'));
+            $doc->loadHTML($str);
+            $doc->encoding = $encoding;
 
             // If some text is before the doctype, we are in quirksmode
             if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {

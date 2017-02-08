@@ -52,7 +52,6 @@ class PhpEvaluator
             $$k = $v;
         }
 
-        //$code = html_entity_decode($code); // @todo uncomment this when tested
         eval($code);
     }
 
