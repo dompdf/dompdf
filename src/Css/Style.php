@@ -1457,6 +1457,8 @@ class Style
             return $this->_computed_border_radius;
         }
 
+        $w = (float)$w;
+        $h = (float)$h;
         $rTL = (float)$this->__get("border_top_left_radius");
         $rTR = (float)$this->__get("border_top_right_radius");
         $rBL = (float)$this->__get("border_bottom_left_radius");
