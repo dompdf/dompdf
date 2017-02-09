@@ -1051,7 +1051,7 @@ class Dompdf
      */
     public function getPaperSize()
     {
-        $size = $this->_paperSize;
+        $size = $this->paperSize;
         if (is_array($size)) {
             return $size;
         } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
@@ -1068,7 +1068,7 @@ class Dompdf
      */
     public function getPaperOrientation()
     {
-        return $this->_paperOrientation;
+        return $this->paperOrientation;
     }
 
     /**
