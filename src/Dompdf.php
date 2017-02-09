@@ -1056,11 +1056,11 @@ class Dompdf
     /**
      * Gets the paper orientation
      *
-     * @return string Either
+     * @return string Either "portrait" or "landscape"
      */
     public function getPaperOrientation()
     {
-        return $this->_paperOrientation;
+        return $this->paperOrientation;
     }
 
     /**
