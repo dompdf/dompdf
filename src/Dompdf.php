@@ -440,9 +440,9 @@ class Dompdf
         }
         if (isset($document_encoding) && in_array(strtoupper($document_encoding), array('UTF-8','UTF8')) === false) {
             $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
-        } elseif (strpos($str, '<head>') !== false) {
+        } elseif (isset($document_encoding) === false && strpos($str, '<head>') !== false) {
             $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
-        } else {
+        } elseif (isset($document_encoding) === false) {
             $str = '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">' . $str;
         }
         //FIXME: since we're not using this just yet
