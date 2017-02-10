@@ -743,7 +743,8 @@ class Dompdf
 
                 // Handle text nodes
                 if ($node->nodeName === "#text") {
-                    $canvas->register_string_subset($style->font_family, $node->nodeValue);
+                    $chars = mb_strtoupper($node->nodeValue) . mb_strtolower($node->nodeValue);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     continue;
                 }
 
@@ -759,7 +760,7 @@ class Dompdf
                 //        not the actual generated content, and forces all possible counter
                 //        values. See notes in issue #750.
                 if ($frame->get_node()->nodeName == "dompdf_generated") {
-                    // all possible counter values
+                    // all possible counter values, just in case
                     $chars = ListBullet::get_counter_chars('decimal');
                     $canvas->register_string_subset($style->font_family, $chars);
                     $chars = ListBullet::get_counter_chars('upper-alpha');
@@ -769,14 +770,12 @@ class Dompdf
                     $chars = ListBullet::get_counter_chars('lower-greek');
                     $canvas->register_string_subset($style->font_family, $chars);
 
-                    // the raw text of the content property
-                    $canvas->register_string_subset($style->font_family, $style->content);
-
                     // the hex-decoded text of the content property, duplicated from AbstrctFrameReflower::_parse_string
-                    $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
+                    $decoded_string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
                         function ($matches) { return \Dompdf\Helpers::unichr(hexdec($matches[1])); },
                         $style->content);
-                    $canvas->register_string_subset($style->font_family, $string);
+                    $chars = mb_strtoupper($style->content) . mb_strtolower($style->content) . mb_strtoupper($decoded_string) . mb_strtolower($decoded_string);
+                    $canvas->register_string_subset($style->font_family, $chars);
                     continue;
                 }
             }
