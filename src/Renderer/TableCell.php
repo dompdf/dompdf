@@ -54,6 +54,11 @@ class TableCell extends Block
 
         $cellmap = $table->get_cellmap();
         $cells = $cellmap->get_spanned_cells($frame);
+
+        if (is_null($cells)) {
+            return;
+        }
+
         $num_rows = $cellmap->get_num_rows();
         $num_cols = $cellmap->get_num_cols();
 
