@@ -419,6 +419,7 @@ class Dompdf
         $this->saveLocale();
 
         // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
+        $known_encodings = mb_list_encodings();
         mb_detect_order('auto');
         if (($file_encoding = mb_detect_encoding($str, null, true)) === false) {
             $file_encoding = "auto";
@@ -434,8 +435,10 @@ class Dompdf
         );
         foreach ($metatags as $metatag) {
             if (preg_match($metatag, $str, $matches)) {
-                $document_encoding = strtoupper($matches[1]);
-                break;
+                if (isset($matches[1]) && in_array($matches[1], $known_encodings)) {
+                    $document_encoding = $matches[1];
+                    break;
+                }
             }
         }
         if (isset($document_encoding) && in_array(strtoupper($document_encoding), array('UTF-8','UTF8')) === false) {
