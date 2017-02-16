@@ -37,7 +37,7 @@ class Factory
      * @var AbstractPositioner[]
      */
     protected static $_positioners;
-    
+
     /**
      * Decorate the root Frame
      *
@@ -84,12 +84,15 @@ class Factory
 
         switch ($display) {
 
+            case "flex": //FIXME: display type not yet supported 
+            case "table-caption": //FIXME: display type not yet supported
             case "block":
                 $positioner = "Block";
                 $decorator = "Block";
                 $reflower = "Block";
                 break;
 
+            case "inline-flex": //FIXME: display type not yet supported 
             case "inline-block":
                 $positioner = "Inline";
                 $decorator = "Block";
@@ -228,7 +231,7 @@ class Factory
 
         if ($display === "list-item") {
             // Insert a list-bullet frame
-            $xml = $dompdf->get_dom();
+            $xml = $dompdf->getDom();
             $bullet_node = $xml->createElement("bullet"); // arbitrary choice
             $b_f = new Frame($bullet_node);
 
@@ -248,7 +251,7 @@ class Factory
                     if (!$parent_node->hasAttribute("dompdf-counter")) {
                         $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start") : 1);
                     } else {
-                        $index = $parent_node->getAttribute("dompdf-counter") + 1;
+                        $index = (int)$parent_node->getAttribute("dompdf-counter") + 1;
                     }
                 }
 
@@ -256,7 +259,7 @@ class Factory
                 $bullet_node->setAttribute("dompdf-counter", $index);
             }
 
-            $new_style = $dompdf->get_css()->create_style();
+            $new_style = $dompdf->getCss()->create_style();
             $new_style->display = "-dompdf-list-bullet";
             $new_style->inherit($style);
             $b_f->set_style($new_style);
@@ -266,7 +269,7 @@ class Factory
 
         return $deco;
     }
-    
+
     /**
      * Creates Positioners
      *

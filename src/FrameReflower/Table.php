@@ -32,6 +32,10 @@ class Table extends AbstractFrameReflower
      */
     protected $_state;
 
+    /**
+     * Table constructor.
+     * @param TableFrameDecorator $frame
+     */
     function __construct(TableFrameDecorator $frame)
     {
         $this->_state = null;
@@ -46,8 +50,6 @@ class Table extends AbstractFrameReflower
         $this->_state = null;
         $this->_min_max_cache = null;
     }
-
-    //........................................................................
 
     protected function _assign_widths()
     {
@@ -98,28 +100,30 @@ class Table extends AbstractFrameReflower
         $max_width -= $delta;
 
         if ($width !== "auto") {
-
             $preferred_width = (float)$style->length_in_pt($width, $cb["w"]) - $delta;
 
-            if ($preferred_width < $min_table_width)
+            if ($preferred_width < $min_table_width) {
                 $preferred_width = $min_table_width;
+            }
 
-            if ($preferred_width > $min_width)
+            if ($preferred_width > $min_width) {
                 $width = $preferred_width;
-            else
+            } else {
                 $width = $min_width;
+            }
 
         } else {
-
-            if ($max_width + $delta < $cb["w"])
+            if ($max_width + $delta < $cb["w"]) {
                 $width = $max_width;
-            else if ($cb["w"] - $delta > $min_width)
+            } else if ($cb["w"] - $delta > $min_width) {
                 $width = $cb["w"] - $delta;
-            else
+            } else {
                 $width = $min_width;
+            }
 
-            if ($width < $min_table_width)
+            if ($width < $min_table_width) {
                 $width = $min_table_width;
+            }
 
         }
 
@@ -134,16 +138,15 @@ class Table extends AbstractFrameReflower
 
         // If the whole table fits on the page, then assign each column it's max width
         if ($width == $max_width) {
-
-            foreach (array_keys($columns) as $i)
+            foreach (array_keys($columns) as $i) {
                 $cellmap->set_column_width($i, $columns[$i]["max-width"]);
+            }
 
             return;
         }
 
         // Determine leftover and assign it evenly to all columns
         if ($width > $min_width) {
-
             // We have four cases to deal with:
             //
             // 1. All columns are auto--no widths have been specified.  In this
@@ -172,21 +175,19 @@ class Table extends AbstractFrameReflower
                 return;
             }
 
-
             // Case 2
             if ($absolute_used > 0 && $percent_used == 0) {
-
-                if (count($auto) > 0)
+                if (count($auto) > 0) {
                     $increment = ($width - $auto_min - $absolute_used) / count($auto);
+                }
 
                 // Use the absolutely specified width or the increment
                 foreach (array_keys($columns) as $i) {
-
-                    if ($columns[$i]["absolute"] > 0 && count($auto))
+                    if ($columns[$i]["absolute"] > 0 && count($auto)) {
                         $cellmap->set_column_width($i, $columns[$i]["min-width"]);
-                    else if (count($auto))
+                    } else if (count($auto)) {
                         $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
-                    else {
+                    } else {
                         // All absolute columns
                         $increment = ($width - $absolute_used) * $columns[$i]["absolute"] / $absolute_used;
 
@@ -197,19 +198,18 @@ class Table extends AbstractFrameReflower
                 return;
             }
 
-
             // Case 3:
             if ($absolute_used == 0 && $percent_used > 0) {
-
                 $scale = null;
                 $remaining = null;
 
                 // Scale percent values if the total percentage is > 100, or if all
                 // values are specified as percentages.
-                if ($percent_used > 100 || count($auto) == 0)
+                if ($percent_used > 100 || count($auto) == 0) {
                     $scale = 100 / $percent_used;
-                else
+                } else {
                     $scale = 1;
+                }
 
                 // Account for the minimum space used by the unassigned auto columns
                 $used_width = $auto_min;
@@ -221,8 +221,9 @@ class Table extends AbstractFrameReflower
 
                     $w = min($columns[$i]["percent"] * $width / 100, $slack);
 
-                    if ($w < $columns[$i]["min-width"])
+                    if ($w < $columns[$i]["min-width"]) {
                         $w = $columns[$i]["min-width"];
+                    }
 
                     $cellmap->set_column_width($i, $w);
                     $used_width += $w;
@@ -234,8 +235,9 @@ class Table extends AbstractFrameReflower
                 if (count($auto) > 0) {
                     $increment = ($width - $used_width) / count($auto);
 
-                    foreach ($auto as $i)
+                    foreach ($auto as $i) {
                         $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
+                    }
 
                 }
                 return;
@@ -245,7 +247,6 @@ class Table extends AbstractFrameReflower
 
             // First-come, first served
             if ($absolute_used > 0 && $percent_used > 0) {
-
                 $used_width = $auto_min;
 
                 foreach ($absolute as $i) {
@@ -255,10 +256,11 @@ class Table extends AbstractFrameReflower
 
                 // Scale percent values if the total percentage is > 100 or there
                 // are no auto values to take up slack
-                if ($percent_used > 100 || count($auto) == 0)
+                if ($percent_used > 100 || count($auto) == 0) {
                     $scale = 100 / $percent_used;
-                else
+                } else {
                     $scale = 1;
+                }
 
                 $remaining_width = $width - $used_width;
 
@@ -278,30 +280,28 @@ class Table extends AbstractFrameReflower
                 if (count($auto) > 0) {
                     $increment = ($width - $used_width) / count($auto);
 
-                    foreach ($auto as $i)
+                    foreach ($auto as $i) {
                         $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
-
+                    }
                 }
 
                 return;
             }
-
-
         } else { // we are over constrained
-
             // Each column gets its minimum width
-            foreach (array_keys($columns) as $i)
+            foreach (array_keys($columns) as $i) {
                 $cellmap->set_column_width($i, $columns[$i]["min-width"]);
-
+            }
         }
     }
 
-    //........................................................................
-
-    // Determine the frame's height based on min/max height
+    /**
+     * Determine the frame's height based on min/max height
+     *
+     * @return float|int|mixed|string
+     */
     protected function _calculate_height()
     {
-
         $style = $this->_frame->get_style();
         $height = $style->height;
 
@@ -311,15 +311,15 @@ class Table extends AbstractFrameReflower
 
         // Determine our content height
         $content_height = 0;
-        foreach ($rows as $r)
+        foreach ($rows as $r) {
             $content_height += $r["height"];
+        }
 
         $cb = $this->_frame->get_containing_block();
 
         if (!($style->overflow === "visible" ||
             ($style->overflow === "hidden" && $height === "auto"))
         ) {
-
             // Only handle min/max height if the height is independent of the frame's content
 
             $min_height = $style->min_height;
@@ -330,48 +330,47 @@ class Table extends AbstractFrameReflower
                 $max_height = $style->length_in_pt($max_height, $cb["h"]);
 
             } else if (isset($cb["w"])) {
-
-                if (mb_strpos($min_height, "%") !== false)
+                if (mb_strpos($min_height, "%") !== false) {
                     $min_height = 0;
-                else
+                } else {
                     $min_height = $style->length_in_pt($min_height, $cb["w"]);
-
-                if (mb_strpos($max_height, "%") !== false)
+                }
+                if (mb_strpos($max_height, "%") !== false) {
                     $max_height = "none";
-                else
+                } else {
                     $max_height = $style->length_in_pt($max_height, $cb["w"]);
+                }
             }
 
-            if ($max_height !== "none" && $min_height > $max_height)
+            if ($max_height !== "none" && $min_height > $max_height) {
                 // Swap 'em
                 list($max_height, $min_height) = array($min_height, $max_height);
+            }
 
-            if ($max_height !== "none" && $height > $max_height)
+            if ($max_height !== "none" && $height > $max_height) {
                 $height = $max_height;
+            }
 
-            if ($height < $min_height)
+            if ($height < $min_height) {
                 $height = $min_height;
-
+            }
         } else {
-
             // Use the content height or the height value, whichever is greater
             if ($height !== "auto") {
                 $height = $style->length_in_pt($height, $cb["h"]);
 
-                if ($height <= $content_height)
+                if ($height <= $content_height) {
                     $height = $content_height;
-                else
+                } else {
                     $cellmap->set_frame_heights($height, $content_height);
-
-            } else
+                }
+            } else {
                 $height = $content_height;
-
+            }
         }
 
         return $height;
-
     }
-    //........................................................................
 
     /**
      * @param BlockFrameDecorator $block
@@ -386,8 +385,9 @@ class Table extends AbstractFrameReflower
         $page->check_forced_page_break($frame);
 
         // Bail if the page is full
-        if ($page->is_full())
+        if ($page->is_full()) {
             return;
+        }
 
         // Let the page know that we're reflowing a table so that splits
         // are suppressed (simply setting page-break-inside: avoid won't
@@ -403,8 +403,9 @@ class Table extends AbstractFrameReflower
         // Table layout algorithm:
         // http://www.w3.org/TR/CSS21/tables.html#auto-table-layout
 
-        if (is_null($this->_state))
+        if (is_null($this->_state)) {
             $this->get_min_max_width();
+        }
 
         $cb = $frame->get_containing_block();
         $style = $frame->get_style();
@@ -422,7 +423,6 @@ class Table extends AbstractFrameReflower
             $style->padding_right = (float)$style->length_in_pt($style->padding_right, $cb["w"]) + $h;
             $style->padding_top = (float)$style->length_in_pt($style->padding_top, $cb["h"]) + $v;
             $style->padding_bottom = (float)$style->length_in_pt($style->padding_bottom, $cb["h"]) + $v;
-
         }
 
         $this->_assign_widths();
@@ -444,7 +444,6 @@ class Table extends AbstractFrameReflower
 
             $style->margin_left = sprintf("%Fpt", $left);
             $style->margin_right = sprintf("%Fpt", $right);;
-
         } else {
             if ($left === "auto") {
                 $left = (float)$style->length_in_pt($cb["w"] - $right - $width, $cb["w"]);
@@ -463,10 +462,11 @@ class Table extends AbstractFrameReflower
                 $style->border_top_width,
                 $style->padding_top), $cb["h"]);
 
-        if (isset($cb["h"]))
+        if (isset($cb["h"])) {
             $h = $cb["h"];
-        else
+        } else {
             $h = null;
+        }
 
         $cellmap = $frame->get_cellmap();
         $col =& $cellmap->get_column(0);
@@ -479,17 +479,18 @@ class Table extends AbstractFrameReflower
 
         // Set the containing block of each child & reflow
         foreach ($frame->get_children() as $child) {
-
             // Bail if the page is full
-            if (!$page->in_nested_table() && $page->is_full())
+            if (!$page->in_nested_table() && $page->is_full()) {
                 break;
+            }
 
             $child->set_containing_block($content_x, $content_y, $width, $h);
             $child->reflow();
 
-            if (!$page->in_nested_table())
+            if (!$page->in_nested_table()) {
                 // Check if a split has occured
                 $page->check_page_break($child);
+            }
 
         }
 
@@ -512,13 +513,14 @@ class Table extends AbstractFrameReflower
         }
     }
 
-    //........................................................................
-
+    /**
+     * @return array|null
+     */
     function get_min_max_width()
     {
-
-        if (!is_null($this->_min_max_cache))
+        if (!is_null($this->_min_max_cache)) {
             return $this->_min_max_cache;
+        }
 
         $style = $this->_frame->get_style();
 
@@ -550,11 +552,9 @@ class Table extends AbstractFrameReflower
             if ($columns[$i]["absolute"] > 0) {
                 $this->_state["absolute"][] = $i;
                 $this->_state["absolute_used"] += $columns[$i]["absolute"];
-
             } else if ($columns[$i]["percent"] > 0) {
                 $this->_state["percent"][] = $i;
                 $this->_state["percent_used"] += $columns[$i]["percent"];
-
             } else {
                 $this->_state["auto"][] = $i;
                 $this->_state["auto_min"] += $columns[$i]["min-width"];
@@ -569,8 +569,9 @@ class Table extends AbstractFrameReflower
             $style->margin_left,
             $style->margin_right);
 
-        if ($style->border_collapse !== "collapse")
+        if ($style->border_collapse !== "collapse") {
             list($dims[]) = $style->border_spacing;
+        }
 
         $delta = (float)$style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
 

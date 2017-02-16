@@ -33,6 +33,11 @@ class Block extends AbstractFrameDecorator
      */
     protected $_line_boxes;
 
+    /**
+     * Block constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
+     */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
@@ -41,6 +46,9 @@ class Block extends AbstractFrameDecorator
         $this->_cl = 0;
     }
 
+    /**
+     *
+     */
     function reset()
     {
         parent::reset();
@@ -148,7 +156,7 @@ class Block extends AbstractFrameDecorator
 
         $w = $frame->get_margin_width();
 
-        // FIXME: Why? Doesn't quite seem to be the correct thing to do, 
+        // FIXME: Why? Doesn't quite seem to be the correct thing to do,
         // but does appear to be necessary. Hack to handle wrapped white space?
         if ($w == 0 && $frame->get_node()->nodeName !== "hr") {
             return;
@@ -190,6 +198,9 @@ class Block extends AbstractFrameDecorator
         $this->maximize_line_height($frame->get_margin_height(), $frame);
     }
 
+    /**
+     * @param Frame $frame
+     */
     function remove_frames_from_line(Frame $frame)
     {
         // Search backwards through the lines for $frame
@@ -242,6 +253,10 @@ class Block extends AbstractFrameDecorator
         $this->_line_boxes[$this->_cl]->w += $w;
     }
 
+    /**
+     * @param $val
+     * @param Frame $frame
+     */
     function maximize_line_height($val, Frame $frame)
     {
         if ($val > $this->_line_boxes[$this->_cl]->h) {
@@ -250,6 +265,9 @@ class Block extends AbstractFrameDecorator
         }
     }
 
+    /**
+     * @param bool $br
+     */
     function add_line($br = false)
     {
 

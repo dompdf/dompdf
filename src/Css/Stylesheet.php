@@ -287,6 +287,8 @@ class Stylesheet
      *
      * @param string $key the selector of the requested Style
      * @return Style
+     *
+     * @Fixme _styles is a two dimensional array. It should produce wrong results
      */
     function lookup($key)
     {
@@ -312,6 +314,7 @@ class Stylesheet
      * load and parse a CSS string
      *
      * @param string $css
+     * @param int $origin
      */
     function load_css(&$css, $origin = self::ORIG_AUTHOR)
     {
@@ -356,12 +359,12 @@ class Stylesheet
                 $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
             }
 
-            list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->get_http_context());
+            list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
 
             // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
-            if (isset($http_response_header) && !$this->_dompdf->get_quirksmode()) {
+            if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
                     if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
                         ($matches[1] !== "text/css")
@@ -603,6 +606,7 @@ class Stylesheet
                             break;
 
                         // an+b, n, odd, and even
+                        /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-of-type":
                             $last = true;
                         case "nth-of-type":
@@ -633,7 +637,7 @@ class Stylesheet
                             $query .= "[$condition]";
                             $tok = "";
                             break;
-                        
+                        /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-child":
                             $last = true;
                         case "nth-child":
@@ -665,6 +669,22 @@ class Stylesheet
                             if ($el != "*") {
                                 $query .= "[name() = '$el']";
                             }
+                            $tok = "";
+                            break;
+
+                        //TODO: bit of a hack attempt at matches support, currently only matches against elements
+                        case "matches":
+                            $pseudo_classes[$tok] = true;
+                            $p = $i + 1;
+                            $matchList = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+
+                            // Tag names are case-insensitive
+                            $elements = array_map("trim", explode(",", strtolower($matchList)));
+                            foreach ($elements as &$element) {
+                                $element = "name() = '$element'";
+                            }
+
+                            $query .= "[" . implode(" or ", $elements) . "]";
                             $tok = "";
                             break;
 
@@ -861,7 +881,13 @@ class Stylesheet
         return array("query" => $query, "pseudo_elements" => $pseudo_elements);
     }
 
-    // https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
+    /**
+     * https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
+     *
+     * @param $expr
+     * @param bool $last
+     * @return string
+     */
     protected function _selector_an_plus_b($expr, $last = false)
     {
         $expr = preg_replace("/\s/", "", $expr);
@@ -915,6 +941,7 @@ class Stylesheet
 
         // Add generated content
         foreach ($this->_styles as $selector => $selector_styles) {
+            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
                     continue;
@@ -930,6 +957,7 @@ class Stylesheet
                     continue;
                 }
 
+                /** @var \DOMElement $node */
                 foreach ($nodes as $node) {
                     foreach (array_keys($query["pseudo_elements"], true, true) as $pos) {
                         // Do not add a new pseudo element if another one already matched
@@ -954,6 +982,7 @@ class Stylesheet
 
         // Apply all styles in stylesheet
         foreach ($this->_styles as $selector => $selector_styles) {
+            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 $query = $this->_css_selector_to_xpath($selector);
 
@@ -982,10 +1011,11 @@ class Stylesheet
         }
 
         // Set the page width, height, and orientation based on the canvas paper size
-        $paper_width = $this->_dompdf->get_canvas()->get_width();
-        $paper_height = $this->_dompdf->get_canvas()->get_height();
+        $canvas = $this->_dompdf->getCanvas();
+        $paper_width = $canvas->get_width();
+        $paper_height = $canvas->get_height();
         $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
-        
+
         // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
@@ -1005,7 +1035,7 @@ class Stylesheet
             } else {
                 $style = $this->create_style();
             }
-            
+
             // Find nearest DOMElement parent
             $p = $frame;
             while ($p = $p->get_parent()) {
@@ -1045,6 +1075,7 @@ class Stylesheet
             // Grab the applicable styles
             if (isset($styles[$id])) {
 
+                /** @var array[][] $applied_styles */
                 $applied_styles = $styles[$frame->get_id()];
 
                 // Sort by specificity
@@ -1055,6 +1086,7 @@ class Stylesheet
                     print "<pre>\n[$debug_nodename\n";
                     foreach ($applied_styles as $spec => $arr) {
                         printf("specificity: 0x%08x\n", $spec);
+                        /** @var Style $s */
                         foreach ($arr as $s) {
                             print "[\n";
                             $s->debug_print();
@@ -1067,6 +1099,7 @@ class Stylesheet
                 $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
                 $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
                 foreach ($applied_styles as $arr) {
+                    /** @var Style $s */
                     foreach ($arr as $s) {
                         $media_queries = $s->get_media_queries();
                         foreach ($media_queries as $media_query) {
@@ -1299,6 +1332,7 @@ class Stylesheet
                             case ":right":
                             case ":odd":
                             case ":even":
+                            /** @noinspection PhpMissingBreakStatementInspection */
                             case ":first":
                                 $key = $page_selector;
 
@@ -1333,7 +1367,12 @@ class Stylesheet
         }
     }
 
-    /* See also style.cls Style::_image(), refactoring?, works also for imported css files */
+    /**
+     * See also style.cls Style::_image(), refactoring?, works also for imported css files
+     *
+     * @param $val
+     * @return string
+     */
     protected function _image($val)
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
@@ -1342,7 +1381,7 @@ class Stylesheet
         if (mb_strpos($val, "url") === false) {
             $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
         } else {
-            $val = preg_replace("/url\(['\"]?([^'\")]+)['\"]?\)/", "\\1", trim($val));
+            $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
             $parsed_url = Helpers::explode_url($val);
@@ -1582,9 +1621,12 @@ class Stylesheet
         if ($DEBUGCSS) print '[_parse_sections';
         foreach ($sections as $sect) {
             $i = mb_strpos($sect, "{");
+            if ($i === false) { continue; }
 
-            $selectors = explode(",", mb_substr($sect, 0, $i));
+            //$selectors = explode(",", mb_substr($sect, 0, $i));
+            $selectors = preg_split("/,(?![^\(]*\))/", mb_substr($sect, 0, $i),0, PREG_SPLIT_NO_EMPTY);
             if ($DEBUGCSS) print '[section';
+            
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
@@ -1611,6 +1653,9 @@ class Stylesheet
         if ($DEBUGCSS) print '_parse_sections]';
     }
 
+    /**
+     * @return string
+     */
     public static function getDefaultStylesheet()
     {
         $dir = realpath(__DIR__ . "/../..");
@@ -1647,6 +1692,7 @@ class Stylesheet
     {
         $str = "";
         foreach ($this->_styles as $selector => $selector_styles) {
+            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 $str .= "$selector => " . $style->__toString() . "\n";
             }

@@ -40,6 +40,10 @@ abstract class AbstractFrameReflower
      */
     protected $_min_max_cache;
 
+    /**
+     * AbstractFrameReflower constructor.
+     * @param Frame $frame
+     */
     function __construct(Frame $frame)
     {
         $this->_frame = $frame;
@@ -126,7 +130,7 @@ abstract class AbstractFrameReflower
             }
 
             // Margin are collapsed only between block elements
-            if ( $f ) {
+            if ($f) {
                 $f_style = $f->get_style();
                 $t = max($t, (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]));
                 $style->margin_top = $t."pt";
@@ -137,7 +141,7 @@ abstract class AbstractFrameReflower
         // Collapse our last child's margin, if there is no border or padding
         if ($style->get_border_bottom_width() == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
             $l = $this->_frame->get_last_child();
-            if ( $l && !$l->is_block() ) {
+            if ($l && !$l->is_block()) {
                 while ( $l = $l->get_prev_sibling() ) {
                     if ( $l->is_block() ) {
                         break;
@@ -151,7 +155,7 @@ abstract class AbstractFrameReflower
             }
 
             // Margin are collapsed only between block elements
-            if ( $l ) {
+            if ($l) {
                 $l_style = $l->get_style();
                 $b = max($b, (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]));
                 $style->margin_bottom = $b."pt";
@@ -160,16 +164,20 @@ abstract class AbstractFrameReflower
         }
     }
 
-    //........................................................................
-
+    /**
+     * @param Block|null $block
+     * @return mixed
+     */
     abstract function reflow(Block $block = null);
 
-    //........................................................................
-
-    // Required for table layout: Returns an array(0 => min, 1 => max, "min"
-    // => min, "max" => max) of the minimum and maximum widths of this frame.
-    // This provides a basic implementation.  Child classes should override
-    // this if necessary.
+    /**
+     * Required for table layout: Returns an array(0 => min, 1 => max, "min"
+     * => min, "max" => max) of the minimum and maximum widths of this frame.
+     * This provides a basic implementation.  Child classes should override
+     * this if necessary.
+     *
+     * @return array|null
+     */
     function get_min_max_width()
     {
         if (!is_null($this->_min_max_cache)) {
@@ -210,7 +218,6 @@ abstract class AbstractFrameReflower
 
             // Add all adjacent inline widths together to calculate max width
             while ($iter->valid() && in_array($iter->current()->get_style()->display, Style::$INLINE_TYPES)) {
-
                 $child = $iter->current();
 
                 $minmax = $child->get_min_max_width();
@@ -223,7 +230,6 @@ abstract class AbstractFrameReflower
 
                 $inline_max += $minmax["max"];
                 $iter->next();
-
             }
 
             if ($inline_max > 0) $high[] = $inline_max;
@@ -233,7 +239,6 @@ abstract class AbstractFrameReflower
                 list($low[], $high[]) = $iter->current()->get_min_max_width();
                 continue;
             }
-
         }
         $min = count($low) ? max($low) : 0;
         $max = count($high) ? max($high) : 0;
@@ -243,8 +248,12 @@ abstract class AbstractFrameReflower
         $width = $style->width;
         if ($width !== "auto" && !Helpers::is_percent($width)) {
             $width = (float)$style->length_in_pt($width, $cb_w);
-            if ($min < $width) $min = $width;
-            if ($max < $width) $max = $width;
+            if ($min < $width) {
+                $min = $width;
+            }
+            if ($max < $width) {
+                $max = $width;
+            }
         }
 
         $min += $delta;
@@ -285,7 +294,6 @@ abstract class AbstractFrameReflower
      */
     protected function _parse_quotes()
     {
-
         // Matches quote types
         $re = '/(\'[^\']*\')|(\"[^\"]*\")/';
 
@@ -315,7 +323,6 @@ abstract class AbstractFrameReflower
      */
     protected function _parse_content()
     {
-
         // Matches generated content
         $re = "/\n" .
             "\s(counters?\\([^)]*\\))|\n" .
@@ -338,7 +345,6 @@ abstract class AbstractFrameReflower
         $text = "";
 
         foreach ($matches as $match) {
-
             if (isset($match[2]) && $match[2] !== "") {
                 $match[1] = $match[2];
             }
@@ -352,7 +358,6 @@ abstract class AbstractFrameReflower
             }
 
             if (isset($match[1]) && $match[1] !== "") {
-
                 // counters?(...)
                 $match[1] = mb_strtolower(trim($match[1]));
 
@@ -399,10 +404,8 @@ abstract class AbstractFrameReflower
                             array_unshift($tmp, $p->counter_value($counter_id, $type));
                         }
                         $p = $p->lookup_counter_frame($counter_id);
-
                     }
                     $text .= implode($string, $tmp);
-
                 } else {
                     // countertops?
                     continue;
@@ -425,7 +428,6 @@ abstract class AbstractFrameReflower
                 } else if ($match[7] === "no-close-quote") {
                     // FIXME:
                 } else if (mb_strpos($match[7], "attr(") === 0) {
-
                     $i = mb_strpos($match[7], ")");
                     if ($i === false) {
                         continue;

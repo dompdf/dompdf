@@ -1,33 +1,48 @@
 /**
  * dompdf default stylesheet.
- * 
- * The Original Code is mozilla.org code.
  *
- * The Initial Developer of the Original Code is Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998 the Initial Developer. 
- * All Rights Reserved.
- * 
  * @package dompdf
  * @link    http://dompdf.github.com/
  * @author  Benj Carson <benjcarson@digitaljunkies.ca>
  * @author  Blake Ross <BlakeR1234@aol.com>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- * @version $Id$
+ *
+ * Portions from Mozilla
+ * @link https://dxr.mozilla.org/mozilla-central/source/layout/style/res/html.css
+ * @license http://mozilla.org/MPL/2.0/ Mozilla Public License, v. 2.0 
+ *
+ * Portions from W3C
+ * @link https://drafts.csswg.org/css-ui-3/#default-style-sheet
+ *
  */
 
 @page {
   margin: 1.2cm;
 }
 
-html { 
+html {
   display: -dompdf-page;
   counter-reset: page;
 }
 
 /* blocks */
 
-div, map, dt, isindex {
+article,
+aside,
+details,
+div,
+dt,
+figcaption,
+footer,
+form,
+header,
+hgroup,
+main,
+nav,
+noscript,
+section,
+summary {
   display: block;
 }
 
@@ -47,7 +62,7 @@ dd {
   margin-left: 40px;
 }
 
-blockquote {
+blockquote, figure {
   display: block;
   margin: 1em 40px;
 }
@@ -64,7 +79,7 @@ center {
 
 blockquote[type=cite] {
   display: block;
-  margin: 1em 0px;
+  margin: 1em 0;
   padding-left: 1em;
   border-left: solid;
   border-color: blue;
@@ -113,25 +128,18 @@ listing {
   margin: 1em 0;
 }
 
-plaintext, xmp, pre {
+plaintext, pre, xmp {
   display: block;
   font-family: fixed;
   white-space: pre;
   margin: 1em 0;
 }
 
-article, aside, details,
-figcaption, figure,
-footer, header, hgroup,
-nav, section {
-  display: block;
-}
-
 /* tables */
 
 table {
   display: table;
-  border-spacing: 2px; 
+  border-spacing: 2px;
   border-collapse: separate;
   margin-top: 0;
   margin-bottom: 0;
@@ -155,10 +163,10 @@ table[border] th {
 td, th, tr {
   background: inherit;
 }
-   
-/* caption inherits from table not table-outer */  
+
+/* caption inherits from table not table-outer */
 caption {
-  display: block;
+  display: table-caption;
   text-align: center;
 }
 
@@ -195,10 +203,10 @@ table > tr {
   vertical-align: middle;
 }
 
-td { 
+td {
   display: table-cell;
   vertical-align: inherit;
-  text-align: inherit; 
+  text-align: inherit;
   padding: 1px;
 }
 
@@ -207,7 +215,6 @@ th {
   vertical-align: inherit;
   font-weight: bold;
   padding: 1px;
-  text-align: center;
 }
 
 /* inlines */
@@ -248,10 +255,6 @@ s, strike, del {
   text-decoration: line-through;
 }
 
-blink {
-  text-decoration: blink;
-}
-
 big {
   font-size: larger;
 }
@@ -274,6 +277,17 @@ sup {
 
 nobr {
   white-space: nowrap;
+}
+
+mark {
+  background: yellow;
+  color: black;
+}
+
+/* titles */
+
+abbr[title], acronym[title] {
+  text-decoration: dotted underline;
 }
 
 /* lists */
@@ -303,40 +317,32 @@ li {
 }*/
 
 /* nested lists have no top/bottom margins */
-ul ul,   ul ol,   ul dir,   ul menu,   ul dl,
-ol ul,   ol ol,   ol dir,   ol menu,   ol dl,
-dir ul,  dir ol,  dir dir,  dir menu,  dir dl,
-menu ul, menu ol, menu dir, menu menu, menu dl,
-dl ul,   dl ol,   dl dir,   dl menu,   dl dl {
+:matches(ul, ol, dir, menu, dl) ul,
+:matches(ul, ol, dir, menu, dl) ol,
+:matches(ul, ol, dir, menu, dl) dir,
+:matches(ul, ol, dir, menu, dl) menu,
+:matches(ul, ol, dir, menu, dl) dl {
   margin-top: 0;
   margin-bottom: 0;
 }
 
 /* 2 deep unordered lists use a circle */
-ol ul,   ul ul,   menu ul,   dir ul,
-ol menu, ul menu, menu menu, dir menu,
-ol dir,  ul dir,  menu dir,  dir dir {
+:matches(ul, ol, dir, menu) ul,
+:matches(ul, ol, dir, menu) ul,
+:matches(ul, ol, dir, menu) ul,
+:matches(ul, ol, dir, menu) ul {
   list-style-type: circle;
 }
 
 /* 3 deep (or more) unordered lists use a square */
-ol ol ul,     ol ul ul,     ol menu ul,     ol dir ul,
-ol ol menu,   ol ul menu,   ol menu menu,   ol dir menu,
-ol ol dir,    ol ul dir,    ol menu dir,    ol dir dir,
-ul ol ul,     ul ul ul,     ul menu ul,     ul dir ul,
-ul ol menu,   ul ul menu,   ul menu menu,   ul dir menu,
-ul ol dir,    ul ul dir,    ul menu dir,    ul dir dir,
-menu ol ul,   menu ul ul,   menu menu ul,   menu dir ul,
-menu ol menu, menu ul menu, menu menu menu, menu dir menu,
-menu ol dir,  menu ul dir,  menu menu dir,  menu dir dir,
-dir ol ul,    dir ul ul,    dir menu ul,    dir dir ul,
-dir ol menu,  dir ul menu,  dir menu menu,  dir dir menu,
-dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
+:matches(ul, ol, dir, menu) :matches(ul, ol, dir, menu) ul,
+:matches(ul, ol, dir, menu) :matches(ul, ol, dir, menu) menu,
+:matches(ul, ol, dir, menu) :matches(ul, ol, dir, menu) dir {
   list-style-type: square;
 }
 
 /* forms */
-/* From http://dev.w3.org/csswg/css3-ui/#appearance */
+/* From https://drafts.csswg.org/css-ui-3/#default-style-sheet */
 form {
   display: block;
 }
@@ -388,7 +394,7 @@ input[type=reset]:before {
 }
 
 input[type=file]:before {
-  content: "Chose a file";
+  content: "Choose a file";
 }
 
 input[type=password][value]:before {
@@ -483,15 +489,19 @@ hr {
   margin: 0.5em auto 0.5em auto;
 }
 
+hr[size="1"] {
+  border-style: solid none none none;
+}
+
 iframe {
   border: 2px inset;
 }
 
 noframes {
-  display: none;
+  display: block;
 }
 
-br { 
+br {
   display: -dompdf-br;
 }
 
@@ -505,7 +515,7 @@ dompdf_generated {
 
 /* hidden elements */
 area, base, basefont, head, meta, script, style, title,
-noembed, noscript, param {
+noembed, param {
   display: none;
   -dompdf-keep: yes;
 }

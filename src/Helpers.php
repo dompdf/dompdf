@@ -12,7 +12,7 @@ class Helpers
      * @param mixed $mixed variable or expression to display
      * @param bool $return
      *
-     * @return string
+     * @return string|null
      */
     public static function pre_r($mixed, $return = false)
     {
@@ -33,6 +33,8 @@ class Helpers
         }
 
         flush();
+
+        return null;
     }
 
       /**
@@ -125,12 +127,16 @@ class Helpers
 
         $ret = "";
         switch (mb_strlen($num)) {
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 4:
                 $ret .= $thou[$num[3]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 3:
                 $ret .= $hund[$num[2]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 2:
                 $ret .= $tens[$num[1]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 1:
                 $ret .= $ones[$num[0]];
             default:
@@ -158,7 +164,7 @@ class Helpers
      *
      * @param string $data_uri The data URI to parse
      *
-     * @return array The result with charset, mime type and decoded data
+     * @return array|bool The result with charset, mime type and decoded data
      */
     public static function parse_data_uri($data_uri)
     {
@@ -174,6 +180,37 @@ class Helpers
         );
 
         return $result;
+    }
+
+    /**
+     * Encodes a Uniform Resource Identifier (URI) by replacing non-alphanumeric
+     * characters with a percent (%) sign followed by two hex digits, excepting 
+     * characters in the URI reserved character set.
+     * 
+     * Assumes that the URI is a complete URI, so does not encode reserved 
+     * characters that have special meaning in the URI.
+     *
+     * Simulates the encodeURI function available in JavaScript  
+     * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURI
+     * 
+     * Source: http://stackoverflow.com/q/4929584/264628
+     *
+     * @param string $uri The URI to encode
+     * @return string The original URL with special characters encoded
+     */
+    public static function encodeURI($uri) {
+        $unescaped = array(
+            '%2D'=>'-','%5F'=>'_','%2E'=>'.','%21'=>'!', '%7E'=>'~',
+            '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')'
+        );
+        $reserved = array(
+            '%3B'=>';','%2C'=>',','%2F'=>'/','%3F'=>'?','%3A'=>':',
+            '%40'=>'@','%26'=>'&','%3D'=>'=','%2B'=>'+','%24'=>'$'
+        );
+        $score = array(
+            '%23'=>'#'
+        );
+        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved,$unescaped,$score));
     }
 
     /**
@@ -752,6 +789,9 @@ class Helpers
         set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
 
         if ($is_local_path || ini_get("allow_url_fopen")) {
+            if ($is_local_path === false) {
+                $uri = Helpers::encodeURI($uri);
+            }
             if (isset($maxlen)) {
                 $result = file_get_contents($uri, null, $context, $offset, $maxlen);
             } else {
@@ -780,9 +820,9 @@ class Helpers
             $result = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
             curl_close($curl);
         }
-        
+
         restore_error_handler();
-        
+
         return array($result, $headers);
     }
 }

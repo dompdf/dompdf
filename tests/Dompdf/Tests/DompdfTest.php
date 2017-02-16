@@ -53,7 +53,7 @@ class DompdfTest extends PHPUnit_Framework_TestCase
     public function testLoadHtml()
     {
         $dompdf = new Dompdf();
-        $dompdf->loadHtml('<strong>Hello</strong>');
+        $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
         $dom = $dompdf->getDom();
         $this->assertEquals('Hello', $dom->textContent);
     }
@@ -61,15 +61,11 @@ class DompdfTest extends PHPUnit_Framework_TestCase
     public function testRender()
     {
         $dompdf = new Dompdf();
-        $dompdf->loadHtml('<strong>Hello</strong>');
+        $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
         $dompdf->render();
 
         $dom = $dompdf->getDom();
         $this->assertEquals('', $dom->textContent);
-
-        /* This closes the OB opened by render() */
-        $dompdf->output();
-
     }
 
     public function testSpaceAtStartOfSecondInlineTag()
@@ -92,13 +88,10 @@ class DompdfTest extends PHPUnit_Framework_TestCase
             }
         )));
 
-        $dompdf->loadHtml('<span>one</span><span> - two</span>');
+        $dompdf->loadHtml('<html><body><span>one</span><span> - two</span></body></html>');
         $dompdf->render();
 
         $this->assertEquals("one", $text_frame_contents[0]);
         $this->assertEquals(" - two", $text_frame_contents[1]);
-
-        /* This closes the OB opened by render() */
-        $dompdf->output();
     }
 }

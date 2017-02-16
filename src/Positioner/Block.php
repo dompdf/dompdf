@@ -18,9 +18,6 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
  */
 class Block extends AbstractPositioner {
 
-
-    //........................................................................
-
     function position(AbstractFrameDecorator $frame)
     {
         $style = $frame->get_style();
