@@ -1,0 +1,22 @@
+{
+  "name": "dompdf",
+  "version": "0.6.1",
+  "license": "LGPL-3.0",
+  "dependencies": {
+    "php-font-lib": "0.3.1"
+  },
+  "keywords": [
+    "pdf",
+    "conversion"
+  ],
+  "homepage": "https://github.com/dompdf/dompdf.git",
+  "_release": "0.6.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.6.1",
+    "commit": "d746dacd8d910a0586e7622ac4502580bec5a260"
+  },
+  "_source": "https://github.com/dompdf/dompdf.git.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/dompdf/dompdf.git.git"
+}
