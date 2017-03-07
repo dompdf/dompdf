@@ -116,7 +116,7 @@ abstract class AbstractFrameReflower
         // Collapse our first child's margin, if there is no border or padding
         if ($style->get_border_top_width() == 0 && $style->length_in_pt($style->padding_top) == 0) {
             $f = $this->_frame->get_first_child();
-            if ( $f && !$f->is_block() ) {
+            if ( $f && !$f->is_block() && !$f->is_table() ) {
                 while ( $f = $f->get_next_sibling() ) {
                     if ( $f->is_block() ) {
                         break;
