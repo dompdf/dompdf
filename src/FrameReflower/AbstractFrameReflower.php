@@ -118,7 +118,7 @@ abstract class AbstractFrameReflower
             $f = $this->_frame->get_first_child();
             if ( $f && !$f->is_block() && !$f->is_table() ) {
                 while ( $f = $f->get_next_sibling() ) {
-                    if ( $f->is_block() ) {
+                    if ( $f->is_block() || $f->is_table() ) {
                         break;
                     }
 
