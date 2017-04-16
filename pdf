@@ -1,0 +1,282 @@
+<div style="width: 100%;"> 
+	<table style="width: 100%;"> <tr> <th align="left" style="width: 780px;"> </th> <td style="padding-top : 100px;"> 
+	<table style="float: right;"> <tr> <th style=""><p>DOMPDF 0.6.0 BETA3<br> TABLE issues <br> rowspan is not working while pagebreak<br> (320) 203-0700</p> 
+	</th> </tr> </table> </td> </tr> </table> <div align="left"> <table class="table table-striped"> <tr class="info"> <td style="font: bold;" class="lbl">
+	Insured Name:</td> <td style="font: bold;">24/7 Construction Plumbing Services Inc.</td> </tr> <tr> <td style="font: bold;"class="lbl">Policy Number:</td> 
+	<td style="font: bold;">WC0780784-00</td> </tr> <tr> <td style="font: bold;" class="lbl">Effective Date:</td> <td style="font: bold;">04/21/2013</td> </tr>
+	 <!-- <tr> <td style="font: bold;" class="lbl">Date:</td> <td style="font: bold;">04/08/2014</td> </tr> --> <tr> <td style="font: bold;" class="lbl">
+	 Reporting Date:</td> <td style="font: bold;">03/01/2014 - 03/31/2014</td> </tr> <tr> <td style="font: bold;" class="lbl"></td> <td style="font: bold;">
+	 </td> </tr> <tr> <td></td> <td></td> </tr> <tr> <td></td> <td></td> </tr> <tr> <td></td> <td></td> </tr> </table> </div> 
+</div> 
+<br> 
+ <div class="CSSTableGenerator" > 
+	 <table id="invoice-container" style="width: 100%;border-collapse:collapse; font-size: 12px;" cellspacing="0" border="1" cellpadding="0"> <tr > 
+	 <td width="8%" align="center"><strong>Class Code</strong></td> <td width="8%" align="center"><strong>Check Date</strong></td> <td width="10%" align="center">
+	 <strong>Work Comp Wages</strong></td> <td width="8%" align="center"><strong>Regular Wages</strong></td> <td width="8%" align="center"><strong>Overtime Wages
+	 </strong></td> <td width="10%" align="center"><strong>Total Gross</strong></td> <td width="5%" align="center"><strong>Net Rate</strong></td> 
+	 <td width="5%" align="center"><strong>Admin Fee</strong></td> <td width="10%" align="center"><strong>Regular Premium</strong></td> 
+	 <td width="12%" align="center"><strong>Overtime Premium</strong></td> <td width="12%" align="center"><strong>Total Premium</strong></td> </tr>
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 
+	 <tr > <td width="8%">5183 - Plumbing NOC</td> 
+	 <td width="8%" align="center" rowspan="3">04/08/2014</td> <td width="10%" align="right">$7,086.20</td> 
+	 <td width="8%" align="right">$6,945.50</td> <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" 
+
+align="right">
+	 4.83</td> <td width="5%" align="center" rowspan="3">$15.00</td> <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> 
+	 <td width="12%" align="right">$342.26</td> </tr> 
+	 
+	 <tr><td width="8%">8810 - Office/Clerical</td> 
+	 <td width="10%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$1,910.00</td> <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> 
+	 <td width="5%" align="right">0.23</td> <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$4.39</td> </tr> 
+	 
+	 <tr><td width="8%">Exempt Payroll</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="10%" align="right">$0.00</td> <td width="5%" align="right">0</td> <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> 
+	 <td width="12%" align="right">$0.00</td> </tr> 
+	 <tr> <td width="8%"></td> <td width="8%"></td> <td width="10%"></td> <td width="8%" ></td> <td width="8%" ></td> 
+	 <td width="10%"></td> <td width="5%"></td> <td width="5%"></td> <td width="10%"></td> <td width="12%"></td> <td width="12%"></td> </tr> <tr> 
+	 <td width="8%">5183- Plumbing NOC</td> <td width="8%" align="right">Totals</td> <td width="10%" align="right">$7,086.20</td> <td width="8%" align="right">
+
+$6,945.50</td> 
+	 <td width="8%" align="right">$210.00</td> <td width="10%" align="right">$7,155.50</td> <td width="5%" align="right"></td> <td width="5%" align="right"></td> 
+	 <td width="10%" align="right">$335.47</td> <td width="12%" align="right">$6.80</td> <td width="12%" align="right">$342.26</td> </tr> <tr> <td width="8%">
+	 8810 - Office/Clerical</td> <td width="8%" align="right">Totals</td> <td width="10%" align="right">$1,910.00</td> <td width="8%" align="right">$1,910.00</td> 
+	 <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$1,910.00</td> <td width="5%" align="right"></td> <td width="5%" align="right"></td> 
+	 <td width="10%" align="right">$4.39</td> <td width="12%" align="right">$0.00</td> <td width="12%" align="right">$4.39</td> </tr> <tr> <td width="8%">
+	 Exempt Payroll</td> <td width="8%" align="right">Totals</td> <td width="10%" align="right">$0.00</td> <td width="8%" align="right">$0.00</td> 
+	 <td width="8%" align="right">$0.00</td> <td width="10%" align="right">$0.00</td> <td width="5%" align="right"></td> <td width="5%" align="right"></td> 
+	 <td width="10%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> <td width="12%" align="right">$0.00</td> </tr> <tr> <td colspan="9">
+	 </td> <td width="12%" align="right" colspan="">Premium Total</td> <td width="12%" align="right">$346.66</td> </tr> <tr> <td colspan="9"></td> 
+	 <td width="12%" align="right" colspan="">RPM Admin Fee</td> <td width="12%" align="right">$15.00</td> </tr> <tr> <td colspan="9"></td> 
+	 <td width="12%" align="right" colspan=""><strong>Grand Total</strong></td> <td width="12%" align="right">$361.66</td> </tr> </table> 
+</div> 
