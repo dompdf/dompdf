@@ -581,7 +581,12 @@ class Style
             }
 
             if (($i = mb_strpos($l, "rem")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style()->font_size;
+                if ($this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style() === null) {
+                    // Interpreting it as "em", see https://github.com/dompdf/dompdf/issues/1406
+                    $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size");
+                } else {
+                    $ret += (float)mb_substr($l, 0, $i) * $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style()->font_size;
+                }
                 continue;
             }
 
