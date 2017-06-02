@@ -180,7 +180,7 @@ class FontMetrics
         }
 
         $localFile = $fontDir . DIRECTORY_SEPARATOR . md5($remoteFile);
-        $localTempFile = $this->options->get('tempDir') . "/" . md5($remoteFile);
+        $localTempFilePrefix = $this->options->get('tempDir') . "/" . md5($remoteFile);
         $cacheEntry = $localFile;
         $localFile .= ".".strtolower(pathinfo($remoteFile,PATHINFO_EXTENSION));
 
@@ -194,7 +194,12 @@ class FontMetrics
             if (false === $remoteFileContent) {
                 return false;
             }
-            file_put_contents($localTempFile, $remoteFileContent);
+            $i = 0;
+            do {
+                $localTempFile = $localTempFilePrefix.'-'.($i++);
+            } while (($tmpFile = @fopen($localTempFile, 'x')) === false);
+            fwrite($tmpFile, $remoteFileContent);
+            fclose($tmpFile);
 
             $font = Font::load($localTempFile);
 
