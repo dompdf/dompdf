@@ -106,7 +106,7 @@ class Image extends AbstractFrameReflower
             $t = 0.0;
             for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
                 $f_style = $f->get_style();
-                $t = $f_style->length_in_pt($f_style->height);
+                $t = (float)$f_style->length_in_pt($f_style->height);
                 if ($t != 0) {
                     break;
                 }
