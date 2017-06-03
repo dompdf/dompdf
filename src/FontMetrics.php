@@ -182,7 +182,7 @@ class FontMetrics
         $localFile = $fontDir . DIRECTORY_SEPARATOR . md5($remoteFile);
         $localTempFile = $this->options->get('tempDir') . "/" . md5($remoteFile);
         $cacheEntry = $localFile;
-        $localFile .= ".".strtolower(pathinfo($remoteFile,PATHINFO_EXTENSION));
+        $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH),PATHINFO_EXTENSION));
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
