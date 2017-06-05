@@ -186,7 +186,7 @@ class FontMetrics
         $fontDir = $this->getOptions()->getFontDir();
         $remoteHash = md5($remoteFile);
         $localFile = $fontDir . DIRECTORY_SEPARATOR . $remoteHash;
-        $localTempFilePrefix = $this->options->get('tempDir') . '/' . $remoteHash;
+        $localTempFile = tempnam($this->options->get("tempDir"), "dompdf-font-");
 
         $cacheEntry = $localFile;
         $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH),PATHINFO_EXTENSION));
@@ -198,13 +198,7 @@ class FontMetrics
         if (false === $remoteFileContent) {
             return false;
         }
-
-        $i = 0;
-        do {
-            $localTempFile = $localTempFilePrefix.'-'.($i++);
-        } while (($tmpFile = @fopen($localTempFile, 'x')) === false);
-        fwrite($tmpFile, $remoteFileContent);
-        fclose($tmpFile);
+        file_put_contents($localTempFile, $remoteFileContent);
 
         $font = Font::load($localTempFile);
 
