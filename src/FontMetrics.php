@@ -170,7 +170,6 @@ class FontMetrics
      */
     public function registerFont($style, $remoteFile, $context = null)
     {
-        $fontDir = $this->getOptions()->getFontDir();
         $fontname = mb_strtolower($style["family"]);
         $families = $this->getFontFamilies();
 
@@ -179,51 +178,55 @@ class FontMetrics
             $entry = $families[$fontname];
         }
 
-        $localFile = $fontDir . DIRECTORY_SEPARATOR . md5($remoteFile);
-        $localTempFile = $this->options->get('tempDir') . "/" . md5($remoteFile);
+        $styleString = $this->getType("{$style['weight']} {$style['style']}");
+        if (isset($entry[$styleString])) {
+            return true;
+        }
+
+        $fontDir = $this->getOptions()->getFontDir();
+        $remoteHash = md5($remoteFile);
+        $localFile = $fontDir . DIRECTORY_SEPARATOR . $remoteHash;
+        $localTempFile = tempnam($this->options->get("tempDir"), "dompdf-font-");
+
         $cacheEntry = $localFile;
         $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH),PATHINFO_EXTENSION));
 
-        $styleString = $this->getType("{$style['weight']} {$style['style']}");
+        $entry[$styleString] = $cacheEntry;
 
-        if ( !isset($entry[$styleString]) ) {
-            $entry[$styleString] = $cacheEntry;
-
-            // Download the remote file
-            list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
-            if (false === $remoteFileContent) {
-                return false;
-            }
-            file_put_contents($localTempFile, $remoteFileContent);
-
-            $font = Font::load($localTempFile);
-
-            if (!$font) {
-                unlink($localTempFile);
-                return false;
-            }
-
-            $font->parse();
-            $font->saveAdobeFontMetrics("$cacheEntry.ufm");
-            $font->close();
-
-            unlink($localTempFile);
-
-            if ( !file_exists("$cacheEntry.ufm") ) {
-                return false;
-            }
-
-            // Save the changes
-            file_put_contents($localFile, $remoteFileContent);
-
-            if ( !file_exists($localFile) ) {
-                unlink("$cacheEntry.ufm");
-                return false;
-            }
-
-            $this->setFontFamily($fontname, $entry);
-            $this->saveFontFamilies();
+        // Download the remote file
+        list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
+        if (false === $remoteFileContent) {
+            return false;
         }
+        file_put_contents($localTempFile, $remoteFileContent);
+
+        $font = Font::load($localTempFile);
+
+        if (!$font) {
+            unlink($localTempFile);
+            return false;
+        }
+
+        $font->parse();
+        $font->saveAdobeFontMetrics("$cacheEntry.ufm");
+        $font->close();
+
+        unlink($localTempFile);
+
+        if ( !file_exists("$cacheEntry.ufm") ) {
+            return false;
+        }
+
+        // Save the changes
+        file_put_contents($localFile, $remoteFileContent);
+
+        if ( !file_exists($localFile) ) {
+            unlink("$cacheEntry.ufm");
+            return false;
+        }
+
+        $this->setFontFamily($fontname, $entry);
+        $this->saveFontFamilies();
 
         return true;
     }
