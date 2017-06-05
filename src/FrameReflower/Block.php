@@ -157,6 +157,17 @@ class Block extends AbstractFrameReflower
             $rm = $diff;
         }
 
+        // When previous sibling is floating, we have to ignore it when calculating the margin
+        if($lm > 0) {
+            $prev = $frame->get_prev_sibling();
+            if($prev) {
+                $prev_stype = $prev->get_style();
+                if ($prev_stype->float === "left") {
+                    $lm -= $prev_stype->width;
+                }
+            }
+        }
+
         return array(
             "width" => $width,
             "margin_left" => $lm,
