@@ -119,20 +119,16 @@ require_once 'dompdf/autoload.inc.php';
 ### Install with git
 
 From the command line, switch to the directory where dompdf will reside and run
-the following commands:
+the following command:
 
 ```sh
-git clone https://github.com/dompdf/dompdf.git
-cd dompdf
+git clone --recursive https://github.com/dompdf/dompdf.git
+```
 
-git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
-cd lib/php-font-lib
-git checkout 0.4
-cd ..
+If you checked out the main repository without the submodules run:
 
-git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
-cd php-svg-lib
-git checkout v0.1
+```sh
+git submodule update --init --recursive
 ```
 
 Require dompdf, libraries, and helper functions in your PHP:
