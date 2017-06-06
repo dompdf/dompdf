@@ -1,0 +1,6 @@
+[submodule "lib/php-font-lib"]
+	path = lib/php-font-lib
+	url = https://github.com/PhenX/php-font-lib.git
+[submodule "lib/php-svg-lib"]
+	path = lib/php-svg-lib
+	url = https://github.com/PhenX/php-svg-lib.git
