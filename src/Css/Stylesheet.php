@@ -740,6 +740,12 @@ class Stylesheet
                             $query .= "[not(@disabled)]";
                             $tok = "";
                             break;
+
+                        // the selector is not handled, until we support all possible selectors force an empty set (silent failure)
+                        default:
+                            $query = "/..";
+                            $tok = "";
+                            break;
                     }
 
                     break;
