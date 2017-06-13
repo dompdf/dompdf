@@ -553,6 +553,7 @@ class CPDF implements Canvas
 
         $this->_pdf->line($x1, $this->y($y1),
             $x2, $this->y($y2));
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -572,6 +573,7 @@ class CPDF implements Canvas
         $this->_set_line_style($width, "butt", "", $style);
 
         $this->_pdf->ellipse($x, $this->y($y), $r1, $r2, 0, 8, $astart, $aend, false, false, true, false);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -631,6 +633,7 @@ class CPDF implements Canvas
         $this->_set_stroke_color($color);
         $this->_set_line_style($width, "butt", "", $style);
         $this->_pdf->rectangle($x1, $this->y($y1) - $h, $w, $h);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -644,6 +647,7 @@ class CPDF implements Canvas
     {
         $this->_set_fill_color($color);
         $this->_pdf->filledRectangle($x1, $this->y($y1) - $h, $w, $h);
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -768,6 +772,9 @@ class CPDF implements Canvas
         }
 
         $this->_pdf->polygon($points, count($points) / 2, $fill);
+
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -789,6 +796,9 @@ class CPDF implements Canvas
         }
 
         $this->_pdf->ellipse($x, $this->y($y), $r1, 0, 0, 8, 0, 360, 1, $fill);
+
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -889,6 +899,8 @@ class CPDF implements Canvas
         //
         //$pdf->addText($x, $this->y($y) - ($pdf->fonts[$pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $word_space, $char_space);
         $pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size), $size, $text, $angle, $word_space, $char_space);
+
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
     }
 
     /**
