@@ -104,8 +104,9 @@ class TableCell extends BlockFrameDecorator
             if ($y_offset) {
                 // Move our children
                 foreach ($this->get_line_boxes() as $line) {
-                    foreach ($line->get_frames() as $frame)
+                    foreach ($line->get_frames() as $frame) {
                         $frame->move(0, $y_offset);
+                    }
                 }
             }
         }

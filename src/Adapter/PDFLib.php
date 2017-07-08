@@ -189,8 +189,9 @@ class PDFLib implements Canvas
         $this->_pdf = new \PDFLib();
 
         $license = $dompdf->getOptions()->getPdflibLicense();
-        if (strlen($license) > 0)
+        if (strlen($license) > 0) {
             $this->_pdf->set_parameter("license", $license);
+        }
 
         $this->_pdf->set_parameter("textformat", "utf8");
         $this->_pdf->set_parameter("fontwarning", "false");
@@ -204,9 +205,9 @@ class PDFLib implements Canvas
         $this->_pdf->set_info("Date", date("Y-m-d"));
         date_default_timezone_set($tz);
 
-        if (self::$IN_MEMORY)
+        if (self::$IN_MEMORY) {
             $this->_pdf->begin_document("", "");
-        else {
+        } else {
             $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
             $tmp_name = tempnam($tmp_dir, "libdompdf_pdf_");
             @unlink($tmp_name);
@@ -341,8 +342,9 @@ class PDFLib implements Canvas
         if (mb_strpos($where, "next") !== false) {
             $this->_objs[$object]["start_page"]++;
             $where = str_replace("next", "", $where);
-            if ($where == "")
+            if ($where == "") {
                 $where = "add";
+            }
         }
 
         $this->_objs[$object]["where"] = $where;
@@ -359,8 +361,9 @@ class PDFLib implements Canvas
     public function stop_object($object)
     {
 
-        if (!isset($this->_objs[$object]))
+        if (!isset($this->_objs[$object])) {
             return;
+        }
 
         $start = $this->_objs[$object]["start_page"];
         $where = $this->_objs[$object]["where"];
@@ -460,13 +463,15 @@ class PDFLib implements Canvas
      */
     protected function _set_line_style($width, $cap, $join, $dash)
     {
-        if (count($dash) == 1)
+        if (count($dash) == 1) {
             $dash[] = $dash[0];
+        }
 
-        if (count($dash) > 1)
+        if (count($dash) > 1) {
             $this->_pdf->setdashpattern("dasharray={" . implode(" ", $dash) . "}");
-        else
+        } else {
             $this->_pdf->setdash(0, 0);
+        }
 
         switch ($join) {
             case "miter":
@@ -545,8 +550,9 @@ class PDFLib implements Canvas
      */
     protected function _set_fill_color($color)
     {
-        if ($this->_last_fill_color == $color)
+        if ($this->_last_fill_color == $color) {
             return;
+        }
 
         $alpha = isset($color["alpha"]) ? $color["alpha"] : 1;
         if (isset($this->_current_opacity)) {
@@ -988,8 +994,9 @@ class PDFLib implements Canvas
         $this->_set_fill_color($color);
         $this->_set_stroke_color($color);
 
-        if (!$fill && isset($width))
+        if (!$fill && isset($width)) {
             $this->_set_line_style($width, "round", "round", $style);
+        }
 
         $y = $this->y($y);
 
@@ -1325,10 +1332,12 @@ class PDFLib implements Canvas
             fclose($fh);
 
             //debugpng
-            if ($this->_dompdf->getOptions()->getDebugPng()) print '[pdflib stream unlink ' . $this->_file . ']';
-            if (!$this->_dompdf->getOptions()->getDebugKeepTemp())
-
+            if ($this->_dompdf->getOptions()->getDebugPng()) {
+                print '[pdflib stream unlink ' . $this->_file . ']';
+            }
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
                 unlink($this->_file);
+            }
             $this->_file = null;
             unset($this->_file);
         }

@@ -43,12 +43,14 @@ class TableRow extends AbstractFrameDecorator
         foreach ($this->get_children() as $child) {
             $display = $child->get_style()->display;
 
-            if ($display !== "table-cell")
+            if ($display !== "table-cell") {
                 $erroneous_frames[] = $child;
+            }
         }
 
         //  dump the extra nodes after the table.
-        foreach ($erroneous_frames as $frame)
+        foreach ($erroneous_frames as $frame) {
             $p->move_after($frame);
+        }
     }
 }

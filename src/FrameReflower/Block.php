@@ -384,17 +384,13 @@ class Block extends AbstractFrameReflower
             // _calculate_restricted_width
 
             // Only handle min/max height if the height is independent of the frame's content
-            if (!($style->overflow === "visible" ||
-                ($style->overflow === "hidden" && $height === "auto"))
-            ) {
-
+            if (!($style->overflow === "visible" || ($style->overflow === "hidden" && $height === "auto"))) {
                 $min_height = $style->min_height;
                 $max_height = $style->max_height;
 
                 if (isset($cb["h"])) {
                     $min_height = $style->length_in_pt($min_height, $cb["h"]);
                     $max_height = $style->length_in_pt($max_height, $cb["h"]);
-
                 } else if (isset($cb["w"])) {
                     if (mb_strpos($min_height, "%") !== false) {
                         $min_height = 0;

@@ -209,10 +209,7 @@ abstract class AbstractFrameReflower
         $low = array();
         $high = array();
 
-        for ($iter = $this->_frame->get_children()->getIterator();
-             $iter->valid();
-             $iter->next()) {
-
+        for ($iter = $this->_frame->get_children()->getIterator(); $iter->valid(); $iter->next()) {
             $inline_min = 0;
             $inline_max = 0;
 
@@ -232,8 +229,12 @@ abstract class AbstractFrameReflower
                 $iter->next();
             }
 
-            if ($inline_max > 0) $high[] = $inline_max;
-            if ($inline_min > 0) $low[] = $inline_min;
+            if ($inline_max > 0) {
+                $high[] = $inline_max;
+            }
+            if ($inline_min > 0) {
+                $low[] = $inline_min;
+            }
 
             if ($iter->valid()) {
                 list($low[], $high[]) = $iter->current()->get_min_max_width();

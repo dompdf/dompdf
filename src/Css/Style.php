@@ -960,7 +960,9 @@ class Style
             $font = $this->getFontMetrics()->getFont($family, $subtype);
 
             if ($font) {
-                if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
+                if ($DEBUGCSS) {
+                    print '(' . $font . ")get_font_family]\n</pre>";
+                }
                 return $this->_font_family = $font;
             }
         }
@@ -972,7 +974,9 @@ class Style
         $font = $this->getFontMetrics()->getFont($family, $subtype);
 
         if ($font) {
-            if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
+            if ($DEBUGCSS) {
+                print '(' . $font . ")get_font_family]\n</pre>";
+            }
             return $this->_font_family = $font;
         }
 
@@ -1075,8 +1079,7 @@ class Style
      */
     function get_line_height()
     {
-        if (array_key_exists("line_height", $this->_props) === false)
-        {
+        if (array_key_exists("line_height", $this->_props) === false) {
             $this->_props["line_height"] = self::$_defaults["line_height"];
         }
         $line_height = $this->_props["line_height"];
@@ -1160,7 +1163,6 @@ class Style
         }
 
         if (isset($tmp[1])) {
-
             switch ($tmp[1]) {
                 case "left":
                     $x = "0%";
@@ -1190,7 +1192,6 @@ class Style
                     $y = $tmp[1];
                     break;
             }
-
         } else {
             $y = "50%";
         }

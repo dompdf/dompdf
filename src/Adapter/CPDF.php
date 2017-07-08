@@ -241,8 +241,12 @@ class CPDF implements Canvas
                 continue;
             }
 
-            if ($this->_dompdf->getOptions()->getDebugPng()) print '[__destruct unlink ' . $img . ']';
-            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) unlink($img);
+            if ($this->_dompdf->getOptions()->getDebugPng()) {
+                print '[__destruct unlink ' . $img . ']';
+            }
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
+                unlink($img);
+            }
         }
     }
 
@@ -821,7 +825,9 @@ class CPDF implements Canvas
 
         switch ($type) {
             case "jpeg":
-                if ($debug_png) print '!!!jpg!!!';
+                if ($debug_png) {
+                    print '!!!jpg!!!';
+                }
                 $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 

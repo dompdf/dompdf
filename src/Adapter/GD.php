@@ -1004,8 +1004,9 @@ class GD implements Canvas
             $dst = $img;
         }
 
-        if (!isset($options["type"]))
+        if (!isset($options["type"])) {
             $options["type"] = "png";
+        }
 
         $type = strtolower($options["type"]);
 
@@ -1041,8 +1042,9 @@ class GD implements Canvas
 
             case "jpg":
             case "jpeg":
-                if (!isset($options["quality"]))
+                if (!isset($options["quality"])) {
                     $options["quality"] = 75;
+                }
 
                 header("Content-type: image/jpeg");
                 imagejpeg($dst, '', $options["quality"]);
@@ -1055,8 +1057,9 @@ class GD implements Canvas
                 break;
         }
 
-        if ($this->_aa_factor != 1)
+        if ($this->_aa_factor != 1) {
             imagedestroy($dst);
+        }
     }
 
     /**

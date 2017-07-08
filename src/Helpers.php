@@ -236,20 +236,27 @@ class Helpers
                     switch (ord($str[$i])) {
                         case 0: # NEW LINE
                             $padCnt = $lineWidth - strlen($out) % $lineWidth;
-                            if ($padCnt < $lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+                            if ($padCnt < $lineWidth) {
+                                $out .= str_repeat(chr(0), $padCnt); # pad line
+                            }
                             break;
                         case 1: # END OF FILE
                             $padCnt = $lineWidth - strlen($out) % $lineWidth;
-                            if ($padCnt < $lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+                            if ($padCnt < $lineWidth) {
+                                $out .= str_repeat(chr(0), $padCnt); # pad line
+                            }
                             break 3;
                         case 2: # DELTA
                             $i += 2;
                             break;
                         default: # ABSOLUTE MODE
                             $num = ord($str[$i]);
-                            for ($j = 0; $j < $num; $j++)
+                            for ($j = 0; $j < $num; $j++) {
                                 $out .= $str[++$i];
-                            if ($num % 2) $i++;
+                            }
+                            if ($num % 2) {
+                                $i++;
+                            }
                     }
                     break;
                 default:
@@ -529,9 +536,15 @@ class Helpers
         $g = (1 - round(2.55 * ($m + $k)));
         $b = (1 - round(2.55 * ($y + $k)));
 
-        if ($r < 0) $r = 0;
-        if ($g < 0) $g = 0;
-        if ($b < 0) $b = 0;
+        if ($r < 0) {
+            $r = 0;
+        }
+        if ($g < 0) {
+            $g = 0;
+        }
+        if ($b < 0) {
+            $b = 0;
+        }
 
         return array(
             $r, $g, $b,
@@ -797,8 +810,7 @@ class Helpers
             } else {
                 $result = file_get_contents($uri, null, $context, $offset);
             }
-            if (isset($http_response_header))
-            {
+            if (isset($http_response_header)) {
                 $headers = $http_response_header;
             }
 

@@ -133,7 +133,6 @@ class Block extends AbstractFrameDecorator
 
         // Handle inline frames (which are effectively wrappers)
         if ($frame instanceof Inline) {
-
             // Handle line breaks
             if ($frame->get_node()->nodeName === "br") {
                 $this->maximize_line_height($style->length_in_pt($style->line_height), $frame);
@@ -149,7 +148,6 @@ class Block extends AbstractFrameDecorator
             $frame->is_text_node() &&
             !$frame->is_pre()
         ) {
-
             $frame->set_text(ltrim($frame->get_text()));
             $frame->recalculate_width();
         }

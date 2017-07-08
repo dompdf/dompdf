@@ -1535,7 +1535,9 @@ class Stylesheet
         $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
-        if ($DEBUGCSS) print '[_parse_properties';
+        if ($DEBUGCSS) {
+            print '[_parse_properties';
+        }
 
         // Create the style
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
@@ -1634,7 +1636,7 @@ class Stylesheet
             //$selectors = explode(",", mb_substr($sect, 0, $i));
             $selectors = preg_split("/,(?![^\(]*\))/", mb_substr($sect, 0, $i),0, PREG_SPLIT_NO_EMPTY);
             if ($DEBUGCSS) print '[section';
-            
+
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
@@ -1655,10 +1657,14 @@ class Stylesheet
                 $this->add_style($selector, $style);
             }
 
-            if ($DEBUGCSS) print 'section]';
+            if ($DEBUGCSS) {
+                print 'section]';
+            }
         }
 
-        if ($DEBUGCSS) print '_parse_sections]';
+        if ($DEBUGCSS) {
+            print '_parse_sections]';
+        }
     }
 
     /**
