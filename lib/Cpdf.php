@@ -1236,6 +1236,11 @@ EOT;
                         $res .= "\n/Filter /FlateDecode";
                     }
 
+                    if ($this->encrypted) {
+                        $this->encryptInit($id);
+                        $tmp = $this->ARC4($tmp);
+                    }
+
                     $res .= "\n/Length " . mb_strlen($tmp, '8bit') . ">>\nstream\n$tmp\nendstream";
                 }
 
