@@ -1142,23 +1142,8 @@ EOT;
 
                 // we need a CID system info section
                 $cidSystemInfoId = ++$this->numObj;
-                $this->o_contents($cidSystemInfoId, 'new', 'raw');
+                $this->o_cidSystemInfo($cidSystemInfoId, 'new');
                 $this->objects[$id]['info']['cidSystemInfo'] = $cidSystemInfoId;
-
-                $ordering = '(UCS)';
-                $registry = '(Adobe)';
-
-                if ($this->encrypted) {
-                    $this->encryptInit($id);
-                    $ordering = $this->ARC4($ordering);
-                    $registry = $this->ARC4($registry);
-                }
-
-                $res = '<</Registry ' . $registry . "\n"; // A string identifying an issuer of character collections
-                $res .= '/Ordering ' . $ordering . "\n"; // A string that uniquely names a character collection issued by a specific registry
-                $res .= "/Supplement 0\n"; // The supplement number of the character collection.
-                $res .= ">>";
-                $this->objects[$cidSystemInfoId]['c'] = $res;
 
                 // and a CID to GID map
                 $cidToGidMapId = ++$this->numObj;
@@ -1221,6 +1206,42 @@ EOT;
                 $res .= "/CIDToGIDMap " . $o['info']['cidToGidMap'] . " 0 R\n";
                 $res .= ">>\n";
                 $res .= "endobj";
+
+                return $res;
+        }
+
+        return null;
+    }
+
+    protected function o_cidSystemInfo($id, $action, $options = '')
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = array(
+                    't' => 'cidSystemInfo'
+                );
+                break;
+            case 'add':
+                break;
+            case 'out':
+                $ordering = '(UCS)';
+                $registry = '(Adobe)';
+
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                    $ordering = $this->ARC4($ordering);
+                    $registry = $this->ARC4($registry);
+                }
+
+
+                $res = "\n$id 0 obj\n";
+
+                $res .= '<</Registry ' . $registry . "\n"; // A string identifying an issuer of character collections
+                $res .= '/Ordering ' . $ordering . "\n"; // A string that uniquely names a character collection issued by a specific registry
+                $res .= "/Supplement 0\n"; // The supplement number of the character collection.
+                $res .= ">>";
+
+                $res .= "\nendobj";;
 
                 return $res;
         }
