@@ -953,7 +953,14 @@ class Cpdf
         return null;
     }
 
-    protected function o_toUnicode($id, $action, $options = '')
+    /**
+     * A toUnicode section, needed for unicode fonts
+     *
+     * @param $id
+     * @param $action
+     * @return null|string
+     */
+    protected function o_toUnicode($id, $action)
     {
         switch ($action) {
             case 'new':
@@ -1215,7 +1222,14 @@ EOT;
         return null;
     }
 
-    protected function o_cidSystemInfo($id, $action, $options = '')
+    /**
+     * CID system info section, needed for unicode fonts
+     *
+     * @param $id
+     * @param $action
+     * @return null|string
+     */
+    protected function o_cidSystemInfo($id, $action)
     {
         switch ($action) {
             case 'new':
