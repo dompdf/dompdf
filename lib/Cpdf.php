@@ -855,36 +855,8 @@ class Cpdf
                     // transform FPDF to TCPDF (http://tcpdf.sourceforge.net/)
 
                     $toUnicodeId = ++$this->numObj;
-                    $this->o_contents($toUnicodeId, 'new', 'raw');
+                    $this->o_toUnicode($toUnicodeId, 'new');
                     $this->objects[$id]['info']['toUnicode'] = $toUnicodeId;
-
-                    $stream = <<<EOT
-/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/CIDSystemInfo
-<</Registry (Adobe)
-/Ordering (UCS)
-/Supplement 0
->> def
-/CMapName /Adobe-Identity-UCS def
-/CMapType 2 def
-1 begincodespacerange
-<0000> <FFFF>
-endcodespacerange
-1 beginbfrange
-<0000> <FFFF> <0000>
-endbfrange
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-end
-EOT;
-
-                    $res = "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
-                    $res .= "stream\n" . $stream . "\nendstream";
-
-                    $this->objects[$toUnicodeId]['c'] = $res;
 
                     $cidFontId = ++$this->numObj;
                     $this->o_fontDescendentCID($cidFontId, 'new', $options);
@@ -972,6 +944,59 @@ EOT;
                     $res .= ">>\n";
                     $res .= "endobj";
                 }
+
+                return $res;
+        }
+
+        return null;
+    }
+
+    protected function o_toUnicode($id, $action, $options = '')
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = array(
+                    't'    => 'toUnicode'
+                );
+                break;
+            case 'add':
+                break;
+            case 'out':
+                $ordering = '(UCS)';
+                $registry = '(Adobe)';
+
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                    $ordering = $this->ARC4($ordering);
+                    $registry = $this->ARC4($registry);
+                }
+
+                $stream = <<<EOT
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo
+<</Registry $registry
+/Ordering $ordering
+/Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <FFFF>
+endcodespacerange
+1 beginbfrange
+<0000> <FFFF> <0000>
+endbfrange
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+EOT;
+
+                $res = "\n$id 0 obj\n";
+                $res .= "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
+                $res .= "stream\n" . $stream . "\nendstream" . "\nendobj";;
 
                 return $res;
         }
@@ -1119,8 +1144,18 @@ EOT;
                 $cidSystemInfoId = ++$this->numObj;
                 $this->o_contents($cidSystemInfoId, 'new', 'raw');
                 $this->objects[$id]['info']['cidSystemInfo'] = $cidSystemInfoId;
-                $res = "<</Registry (Adobe)\n"; // A string identifying an issuer of character collections
-                $res .= "/Ordering (UCS)\n"; // A string that uniquely names a character collection issued by a specific registry
+
+                $ordering = '(UCS)';
+                $registry = '(Adobe)';
+
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                    $ordering = $this->ARC4($ordering);
+                    $registry = $this->ARC4($registry);
+                }
+
+                $res = '<</Registry ' . $registry . "\n"; // A string identifying an issuer of character collections
+                $res .= '/Ordering ' . $ordering . "\n"; // A string that uniquely names a character collection issued by a specific registry
                 $res .= "/Supplement 0\n"; // The supplement number of the character collection.
                 $res .= ">>";
                 $this->objects[$cidSystemInfoId]['c'] = $res;
@@ -4455,6 +4490,7 @@ EOT;
         // close the object, as long as there was one open in the first place, which will be indicated by
         // an objectId on the stack.
         if ($this->nStack > 0) {
+            dd($this->stack[$this->nStack]);
             $this->currentContents = $this->stack[$this->nStack]['c'];
             $this->currentPage = $this->stack[$this->nStack]['p'];
             $this->nStack--;
