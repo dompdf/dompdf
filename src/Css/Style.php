@@ -2668,10 +2668,10 @@ class Style
 
                         // <translation-value> units
                         case "translate":
-                            $values[0] = $this->length_in_pt($values[0], $this->width);
+                            $values[0] = $this->length_in_pt($values[0], (float)$this->length_in_pt($this->width));
 
                             if (isset($values[1])) {
-                                $values[1] = $this->length_in_pt($values[1], $this->height);
+                                $values[1] = $this->length_in_pt($values[1], (float)$this->length_in_pt($this->height));
                             } else {
                                 $values[1] = 0;
                             }
@@ -2679,12 +2679,12 @@ class Style
 
                         case "translateX":
                             $name = "translate";
-                            $values = array($this->length_in_pt($values[0], $this->width), 0);
+                            $values = array($this->length_in_pt($values[0], (float)$this->length_in_pt($this->width)), 0);
                             break;
 
                         case "translateY":
                             $name = "translate";
-                            $values = array(0, $this->length_in_pt($values[0], $this->height));
+                            $values = array(0, $this->length_in_pt($values[0], (float)$this->length_in_pt($this->height)));
                             break;
 
                         // <number> units

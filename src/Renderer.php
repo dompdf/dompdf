@@ -84,8 +84,8 @@ class Renderer extends AbstractRenderer
                 }
 
                 $values = array_map("floatval", $values);
-                $values[] = $x + (float)$style->length_in_pt($origin[0], $style->width);
-                $values[] = $y + (float)$style->length_in_pt($origin[1], $style->height);
+                $values[] = $x + (float)$style->length_in_pt($origin[0], (float)$style->length_in_pt($style->width));
+                $values[] = $y + (float)$style->length_in_pt($origin[1], (float)$style->length_in_pt($style->height));
 
                 call_user_func_array(array($this->_canvas, $function), $values);
             }
