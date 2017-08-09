@@ -77,7 +77,7 @@ class TableCell extends BlockFrameDecorator
                 $style->padding_bottom,
                 $style->margin_bottom
             ),
-            (float)$style->length_in_pt($style->width)
+            (float)$style->length_in_pt($style->height)
         );
 
         $new_height = $height - $v_space;
