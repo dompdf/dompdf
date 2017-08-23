@@ -1487,7 +1487,7 @@ class Dompdf implements DompdfInterface
     /**
      * @return FontMetrics
      */
-    public function clone()
+    public function copy()
     {
         return new static($this->getOptions());
     }

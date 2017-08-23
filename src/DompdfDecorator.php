@@ -38,8 +38,8 @@ abstract class DompdfDecorator implements DompdfInterface
         $this->pdf->loadHtml($html, $encoding);
     }
 
-    public function clone() {
-        $this->pdf = $this->pdf->clone();
+    public function copy() {
+        $this->pdf = $this->pdf->copy();
         return $this;
     }
 

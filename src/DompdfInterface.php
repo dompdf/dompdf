@@ -39,6 +39,6 @@ interface DompdfInterface
     /**
      * @return DompdfInterface
      */
-    public function clone();
+    public function copy();
 
 }
