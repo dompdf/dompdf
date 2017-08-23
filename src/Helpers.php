@@ -184,15 +184,15 @@ class Helpers
 
     /**
      * Encodes a Uniform Resource Identifier (URI) by replacing non-alphanumeric
-     * characters with a percent (%) sign followed by two hex digits, excepting 
+     * characters with a percent (%) sign followed by two hex digits, excepting
      * characters in the URI reserved character set.
-     * 
-     * Assumes that the URI is a complete URI, so does not encode reserved 
+     *
+     * Assumes that the URI is a complete URI, so does not encode reserved
      * characters that have special meaning in the URI.
      *
-     * Simulates the encodeURI function available in JavaScript  
+     * Simulates the encodeURI function available in JavaScript
      * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURI
-     * 
+     *
      * Source: http://stackoverflow.com/q/4929584/264628
      *
      * @param string $uri The URI to encode
@@ -836,5 +836,32 @@ class Helpers
         restore_error_handler();
 
         return array($result, $headers);
+    }
+
+    public static function mb_ucwords($str) {
+        $max_len = mb_strlen($str);
+        if ($max_len === 1) {
+            return mb_strtoupper($str);
+        }
+
+        $str = mb_strtoupper(mb_substr($str, 0, 1)) . mb_substr($str, 1);
+
+        foreach (array(' ', '.', ',', '!', '?', '-', '+') as $s) {
+            $pos = 0;
+            while (($pos = mb_strpos($str, $s, $pos)) !== false) {
+                $pos++;
+                // Nothing to do if the separator is the last char of the string
+                if ($pos !== false && $pos < $max_len) {
+                    // If the char we want to upper is the last char there is nothing to append behind
+                    if ($pos + 1 < $max_len) {
+                        $str = mb_substr($str, 0, $pos) . mb_strtoupper(mb_substr($str, $pos, 1)) . mb_substr($str, $pos + 1);
+                    } else {
+                        $str = mb_substr($str, 0, $pos) . mb_strtoupper(mb_substr($str, $pos, 1));
+                    }
+                }
+            }
+        }
+
+        return $str;
     }
 }

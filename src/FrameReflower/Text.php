@@ -11,6 +11,7 @@ namespace Dompdf\FrameReflower;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\FontMetrics;
+use Dompdf\Helpers;
 
 /**
  * Reflows text frames.
@@ -204,7 +205,7 @@ class Text extends AbstractFrameReflower
             default:
                 break;
             case "capitalize":
-                $text = mb_convert_case($text, MB_CASE_TITLE);
+                $text = Helpers::mb_ucwords($text);
                 break;
             case "uppercase":
                 $text = mb_convert_case($text, MB_CASE_UPPER);
