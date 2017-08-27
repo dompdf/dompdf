@@ -310,7 +310,7 @@ class Cpdf
     /**
      * @var string The target internal encoding
      */
-    static protected $targetEncoding = 'iso-8859-1';
+    static protected $targetEncoding = 'Windows-1252';
 
     /**
      * @var array The list of the core fonts
@@ -1345,7 +1345,7 @@ EOT;
 
                     // dates must be outputted as-is, without Unicode transformations
                     if ($k !== 'CreationDate' && $k !== 'ModDate') {
-                        $v = $this->filterText($v);
+                        $v = $this->filterText($v, true, false);
                     }
 
                     if ($encrypted) {
@@ -1715,7 +1715,7 @@ EOT;
                     't'    => 'javascript',
                     'info' => array(
                         'S'  => '/JavaScript',
-                        'JS' => '(' . $this->filterText($code) . ')',
+                        'JS' => '(' . $this->filterText($code, true, false) . ')',
                     )
                 );
                 break;
@@ -3950,6 +3950,8 @@ EOT;
                 //$text = html_entity_decode($text, ENT_QUOTES);
                 $text = mb_convert_encoding($text, self::$targetEncoding, 'UTF-8');
             }
+        } else if ($bom) {
+            $text = $this->utf8toUtf16BE($text, $bom);
         }
 
         // the chr(13) substitution fixes a bug seen in TCPDF (bug #1421290)
@@ -4049,10 +4051,6 @@ EOT;
      */
     function utf8toUtf16BE(&$text, $bom = true)
     {
-        $cf = $this->currentFont;
-        if (!$this->fonts[$cf]['isUnicode']) {
-            return $text;
-        }
         $out = $bom ? "\xFE\xFF" : '';
 
         $unicode = $this->utf8toCodePointsArray($text);
