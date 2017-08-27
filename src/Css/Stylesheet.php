@@ -1496,7 +1496,7 @@ class Stylesheet
             $source = array(
                 "local" => strtolower($src[1][$i]) === "local",
                 "uri" => $src[2][$i],
-                "format" => $src[4][$i],
+                "format" => strtolower($src[4][$i]),
                 "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
             );
 
