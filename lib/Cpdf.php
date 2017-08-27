@@ -356,7 +356,8 @@ class Cpdf
 
         // also initialize the font families that are known about already
         $this->setFontFamily('init');
-        //  $this->fileIdentifier = md5('xxxxxxxx'.time());
+
+        $this->fileIdentifier = md5('DOMPDF' . time());
     }
 
     /**
@@ -2263,15 +2264,19 @@ EOT;
             $content .= str_pad($p, 10, "0", STR_PAD_LEFT) . " 00000 n \n";
         }
 
-        $content .= "trailer\n<<\n/Size " . (count($xref) + 1) . "\n/Root 1 0 R\n/Info $this->infoObject 0 R\n";
+        $content .= "trailer\n<<\n" .
+            '/Size ' . (count($xref) + 1) . "\n" .
+            '/Root 1 0 R' . "\n" .
+            '/Info ' . $this->infoObject . " 0 R\n"
+        ;
 
         // if encryption has been applied to this document then add the marker for this dictionary
         if ($this->arc4_objnum > 0) {
-            $content .= "/Encrypt $this->arc4_objnum 0 R\n";
+            $content .= '/Encrypt ' . $this->arc4_objnum . " 0 R\n";
         }
 
         if (mb_strlen($this->fileIdentifier, '8bit')) {
-            $content .= "/ID[<$this->fileIdentifier><$this->fileIdentifier>]\n";
+            $content .= '/ID[<' . $this->fileIdentifier . '><' . $this->fileIdentifier . ">]\n";
         }
 
         // account for \n added at start of xref table
