@@ -356,8 +356,6 @@ class Cpdf
 
         // also initialize the font families that are known about already
         $this->setFontFamily('init');
-
-        $this->fileIdentifier = md5('DOMPDF' . time());
     }
 
     /**
@@ -1998,7 +1996,7 @@ EOT;
 
                 // now make the u value, phew.
                 $tmp = $this->md5_16(
-                    $user . $ovalue . chr($options['p']) . chr(255) . chr(255) . chr(255) . $this->fileIdentifier
+                    $user . $ovalue . chr($options['p']) . chr(255) . chr(255) . chr(255)
                 );
 
                 $ukey = substr($tmp, 0, 5);
@@ -2275,9 +2273,12 @@ EOT;
             $content .= '/Encrypt ' . $this->arc4_objnum . " 0 R\n";
         }
 
-        if (mb_strlen($this->fileIdentifier, '8bit')) {
-            $content .= '/ID[<' . $this->fileIdentifier . '><' . $this->fileIdentifier . ">]\n";
+        if ($this->fileIdentifier === '') {
+            $tmp = implode('',  $this->objects[$this->infoObject]['info']);
+            $this->fileIdentifier = md5('DOMPDF' . __FILE__ . $tmp . $pos . microtime() . mt_rand());
         }
+
+        $content .= '/ID[<' . $this->fileIdentifier . '><' . $this->fileIdentifier . ">]\n";
 
         // account for \n added at start of xref table
         $pos++;
