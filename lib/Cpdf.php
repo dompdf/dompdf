@@ -4525,7 +4525,6 @@ EOT;
         // close the object, as long as there was one open in the first place, which will be indicated by
         // an objectId on the stack.
         if ($this->nStack > 0) {
-            dd($this->stack[$this->nStack]);
             $this->currentContents = $this->stack[$this->nStack]['c'];
             $this->currentPage = $this->stack[$this->nStack]['p'];
             $this->nStack--;
