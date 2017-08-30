@@ -1022,6 +1022,12 @@ class Stylesheet
         $paper_height = $canvas->get_height();
         $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
 
+        if ($this->_page_styles["base"] && is_array($this->_page_styles["base"]->size)) {
+            $paper_width = $this->_page_styles['base']->size[0];
+            $paper_height = $this->_page_styles['base']->size[1];
+            $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+        }
+
         // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
