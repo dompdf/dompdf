@@ -755,6 +755,7 @@ class Dompdf
                 if ($style->display === "list-item") {
                     $chars = ListBullet::get_counter_chars($style->list_style_type);
                     $canvas->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, '.');
                     continue;
                 }
 
