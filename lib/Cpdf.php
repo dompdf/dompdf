@@ -2016,8 +2016,8 @@ EOT;
                 $res .= "\n/Filter /Standard";
                 $res .= "\n/V 1";
                 $res .= "\n/R 2";
-                $res .= "\n/O (" . $this->filterText($o['info']['O'], true, false) . ')';
-                $res .= "\n/U (" . $this->filterText($o['info']['U'], true, false) . ')';
+                $res .= "\n/O (" . $this->filterText($o['info']['O'], false, false) . ')';
+                $res .= "\n/U (" . $this->filterText($o['info']['U'], false, false) . ')';
                 // and the p-value needs to be converted to account for the twos-complement approach
                 $o['info']['p'] = (($o['info']['p'] ^ 255) + 1) * -1;
                 $res .= "\n/P " . ($o['info']['p']);
