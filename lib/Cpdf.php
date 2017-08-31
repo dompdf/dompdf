@@ -3269,7 +3269,9 @@ EOT;
         $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F %.3F %.3F c", $x1, $y1, $x2, $y2, $x3, $y3));
     }
  
-    function quadTo($cpx, $cpy, $x, $y)
+    /**
+     * draw a bezier curve based on 4 control points
+     */    function quadTo($cpx, $cpy, $x, $y)
     {
         $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F v", $cpx, $cpy, $x, $y));
     }
