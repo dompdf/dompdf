@@ -21,7 +21,7 @@ release. For released code please
 
 ----
 
-**Check out the [demo](http://pxd.me/dompdf/www/examples.php) and ask any
+**Check out the [demo](https://dompdf.net/examples.php) and ask any
 question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
 on the [Google Groups](http://groups.google.com/group/dompdf).**
 
