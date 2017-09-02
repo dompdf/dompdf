@@ -2,6 +2,7 @@ language: php
 
 php:
   - 5.3
+    dist: precise
   - 5.4
   - 5.5
   - 5.6
