@@ -58,6 +58,8 @@ class Renderer extends AbstractRenderer
     {
         global $_dompdf_debug;
 
+        $this->_check_callbacks("begin_frame", $frame);
+
         if ($_dompdf_debug) {
             echo $frame;
             flush();
