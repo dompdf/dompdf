@@ -89,7 +89,7 @@ class Block extends AbstractFrameDecorator
     {
         $line_boxes_count = count($this->_line_boxes);
         $cl = max(min($line_number, $line_boxes_count), 0);
-        return ($this->_cl = $line_number);
+        return ($this->_cl = $cl);
     }
 
     /**
