@@ -100,6 +100,34 @@ class Helpers
     }
 
     /**
+     * Builds a HTTP Content-Disposition header string using `$dispositionType`
+     * and `$filename`.
+     *
+     * If the filename contains any characters not in the ISO-8859-1 character
+     * set, a fallback filename will be included for clients not supporting the
+     * `filename*` parameter.
+     *
+     * @param string $dispositionType
+     * @param string $filename
+     * @return string
+     */
+    public static function buildContentDispositionHeader($dispositionType, $filename)
+    {
+        // detect the character encoding of the incoming filename
+        $encoding = mb_detect_encoding($filename);
+        $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
+        $fallbackfilename = str_replace("\"", "", $fallbackfilename);
+        $encodedfilename = rawurlencode($filename);
+
+        $contentDisposition = "Content-Disposition: $dispositionType; filename=\"$fallbackfilename\"";
+        if ($fallbackfilename !== $filename) {
+            $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
+        }
+
+        return $contentDisposition;
+    }
+
+    /**
      * Converts decimal numbers to roman numerals
      *
      * @param int $num
