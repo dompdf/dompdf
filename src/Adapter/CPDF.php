@@ -1100,31 +1100,50 @@ class CPDF implements Canvas
     }
 
     /**
-     * Streams the PDF directly to the browser
+     * Streams the PDF to the client.
      *
-     * @param string $filename the name of the PDF file
-     * @param array $options associative array, 'Attachment' => 0 or 1, 'compress' => 1 or 0
+     * @param string $filename The filename to present to the client.
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      */
-    public function stream($filename, $options = null)
+    public function stream($filename = "document.pdf", $options = array())
     {
-        // Add page text
+        if (headers_sent()) {
+            die("Unable to stream pdf: headers already sent");
+        }
+
+        if (!isset($options["compress"])) $options["compress"] = true;
+        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+
         $this->_add_page_text();
 
-        $options["Content-Disposition"] = $filename;
-        $this->_pdf->stream($options);
+        $debug = !$options['compress'];
+        $tmp = ltrim($this->_pdf->output($debug));
+
+        header("Cache-Control: private");
+        header("Content-Type: application/pdf");
+        header("Content-Length: " . mb_strlen($tmp, "8bit"));
+
+        $filename = str_replace(array("\n", "'"), "", basename($filename, ".pdf")) . ".pdf";
+        $attachment = $options["Attachment"] ? "attachment" : "inline";
+        header(Helpers::buildContentDispositionHeader($attachment, $filename));
+
+        echo $tmp;
+        flush();
     }
 
     /**
-     * Returns the PDF as a string
+     * Returns the PDF as a string.
      *
-     * @param array $options Output options
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1).
      * @return string
      */
-    public function output($options = null)
+    public function output($options = array())
     {
+        if (!isset($options["compress"])) $options["compress"] = true;
+
         $this->_add_page_text();
 
-        $debug = isset($options["compress"]) && $options["compress"] != 1;
+        $debug = !$options['compress'];
 
         return $this->_pdf->output($debug);
     }

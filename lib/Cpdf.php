@@ -17,7 +17,6 @@
  */
 use FontLib\Font;
 use FontLib\BinaryStream;
-use Dompdf\Helpers;
 
 class Cpdf
 {
@@ -3800,53 +3799,40 @@ EOT;
     }
 
     /**
-     * output the pdf code, streaming it to the browser
-     * the relevant headers are set so that hopefully the browser will recognise it
+     * Streams the PDF to the client.
      *
-     * @param string $options
+     * @param string $filename The filename to present to the client.
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      */
-    function stream($options = '')
+    function stream($filename = "document.pdf", $options = array())
     {
-        // setting the options allows the adjustment of the headers
-        // values at the moment are:
-        // 'Content-Disposition' => 'filename'  - sets the filename, though not too sure how well this will
-        //        work as in my trial the browser seems to use the filename of the php file with .pdf on the end
-        // 'Accept-Ranges' => 1 or 0 - if this is not set to 1, then this header is not included, off by default
-        //    this header seems to have caused some problems despite tha fact that it is supposed to solve
-        //    them, so I am leaving it off by default.
-        // 'compress' = > 1 or 0 - apply content stream compression, this is on (1) by default
-        // 'Attachment' => 1 or 0 - if 1, force the browser to open a download dialog
-        if (!is_array($options)) {
-            $options = array();
-        }
-
         if (headers_sent()) {
             die("Unable to stream pdf: headers already sent");
         }
 
-        $debug = empty($options['compression']);
+        if (!isset($options["compress"])) $options["compress"] = true;
+        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+
+        $debug = !$options['compress'];
         $tmp = ltrim($this->output($debug));
 
         header("Cache-Control: private");
-        header("Content-type: application/pdf");
+        header("Content-Type: application/pdf");
+        header("Content-Length: " . mb_strlen($tmp, "8bit"));
 
-        //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
-        header("Content-Length: " . mb_strlen($tmp, '8bit'));
-        $filename = (isset($options['Content-Disposition']) ? $options['Content-Disposition'] : 'document.pdf');
         $filename = str_replace(array("\n", "'"), "", basename($filename, ".pdf")) . ".pdf";
-
-        if (!isset($options["Attachment"])) {
-            $options["Attachment"] = true;
-        }
-
         $attachment = $options["Attachment"] ? "attachment" : "inline";
 
-        header(Helpers::buildContentDispositionHeader($attachment, $filename));
+        $encoding = mb_detect_encoding($filename);
+        $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
+        $fallbackfilename = str_replace("\"", "", $fallbackfilename);
+        $encodedfilename = rawurlencode($filename);
 
-        if (isset($options['Accept-Ranges']) && $options['Accept-Ranges'] == 1) {
-            //FIXME: Is this the correct value ... spec says 1#range-unit
-            header("Accept-Ranges: " . mb_strlen($tmp, '8bit'));
+        $contentDisposition = "Content-Disposition: $attachment; filename=\"$fallbackfilename\"";
+        if ($fallbackfilename !== $filename) {
+            $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
         }
+        header($contentDisposition);
 
         echo $tmp;
         flush();
