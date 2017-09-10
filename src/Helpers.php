@@ -113,7 +113,6 @@ class Helpers
      */
     public static function buildContentDispositionHeader($dispositionType, $filename)
     {
-        // detect the character encoding of the incoming filename
         $encoding = mb_detect_encoding($filename);
         $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
         $fallbackfilename = str_replace("\"", "", $fallbackfilename);

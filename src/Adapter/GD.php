@@ -979,17 +979,78 @@ class GD implements Canvas
     }
 
     /**
-     * Streams the image directly to the browser
+     * Streams the image to the client.
      *
-     * @param string $filename the name of the image file (ignored)
-     * @param array $options associative array, 'type' => jpeg|jpg|png, 'quality' => 0 - 100 (jpeg only)
+     * @param string $filename The filename to present to the client.
+     * @param array $options Associative array: 'type' => jpeg|jpg|png; 'quality' => 0 - 100 (JPEG only);
+     *     'page' => Number of the page to output (defaults to the first); 'Attachment': 1 or 0 (default 1).
      */
-    public function stream($filename, $options = null)
+    public function stream($filename, $options = array())
     {
-        $img = $this->_imgs[0];
+        if (headers_sent()) {
+            die("Unable to stream image: headers already sent");
+        }
 
-        if (isset($options['page']) && isset($this->_imgs[$options['page'] - 1])) {
-            $img = $this->_imgs[$options['page'] - 1];
+        if (!isset($options["type"])) $options["type"] = "png";
+        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+        $type = strtolower($options["type"]);
+
+        switch ($type) {
+            case "jpg":
+            case "jpeg":
+                $contentType = "image/jpeg";
+                $extension = ".jpg";
+                break;
+            case "png":
+            default:
+                $contentType = "image/png";
+                $extension = ".png";
+                break;
+        }
+
+        header("Cache-Control: private");
+        header("Content-Type: $contentType");
+
+        $filename = str_replace(array("\n", "'"), "", basename($filename, ".$type")) . $extension;
+        $attachment = $options["Attachment"] ? "attachment" : "inline";
+        header(Helpers::buildContentDispositionHeader($attachment, $filename));
+
+        $this->_output($options);
+        flush();
+    }
+
+    /**
+     * Returns the image as a string.
+     *
+     * @param array $options Associative array: 'type' => jpeg|jpg|png; 'quality' => 0 - 100 (JPEG only);
+     *     'page' => Number of the page to output (defaults to the first).
+     * @return string
+     */
+    public function output($options = array())
+    {
+        ob_start();
+
+        $this->_output($options);
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Outputs the image stream directly.
+     *
+     * @param array $options Associative array: 'type' => jpeg|jpg|png; 'quality' => 0 - 100 (JPEG only);
+     *     'page' => Number of the page to output (defaults to the first).
+     */
+    private function _output($options = array())
+    {
+        if (!isset($options["type"])) $options["type"] = "png";
+        if (!isset($options["page"])) $options["page"] = 1;
+        $type = strtolower($options["type"]);
+
+        if (isset($this->_imgs[$options["page"] - 1])) {
+            $img = $this->_imgs[$options["page"] - 1];
+        } else {
+            $img = $this->_imgs[0];
         }
 
         // Perform any antialiasing
@@ -1004,87 +1065,6 @@ class GD implements Canvas
             $dst = $img;
         }
 
-        if (!isset($options["type"])) {
-            $options["type"] = "png";
-        }
-
-        $type = strtolower($options["type"]);
-
-        header("Cache-Control: private");
-
-        $filename = str_replace(array("\n", "'"), "", basename($filename, ".$type"));
-        switch ($type) {
-            case "jpg":
-            case "jpeg":
-                $filename .= ".jpg";
-                break;
-
-            case "png":
-            default:
-                $filename .= ".png";
-                break;
-        }
-        $attachment = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
-
-        header(Helpers::buildContentDispositionHeader($attachment, $filename));
-
-        switch ($type) {
-
-            case "jpg":
-            case "jpeg":
-                if (!isset($options["quality"])) {
-                    $options["quality"] = 75;
-                }
-
-                header("Content-type: image/jpeg");
-                imagejpeg($dst, '', $options["quality"]);
-                break;
-
-            case "png":
-            default:
-                header("Content-type: image/png");
-                imagepng($dst);
-                break;
-        }
-
-        if ($this->_aa_factor != 1) {
-            imagedestroy($dst);
-        }
-    }
-
-    /**
-     * Returns the PNG as a string
-     *
-     * @param array $options associative array, 'type' => jpeg|jpg|png, 'quality' => 0 - 100 (jpeg only)
-     * @return string
-     */
-    public function output($options = null)
-    {
-        $img = $this->_imgs[0];
-
-        if (isset($options['page']) && isset($this->_imgs[$options['page'] - 1])) {
-            $img = $this->_imgs[$options['page'] - 1];
-        }
-
-        if ($this->_aa_factor != 1) {
-            $dst_w = $this->_actual_width / $this->_aa_factor;
-            $dst_h = $this->_actual_height / $this->_aa_factor;
-            $dst = imagecreatetruecolor($dst_w, $dst_h);
-            imagecopyresampled($dst, $img, 0, 0, 0, 0,
-                $dst_w, $dst_h,
-                $this->_actual_width, $this->_actual_height);
-        } else {
-            $dst = $img;
-        }
-
-        if (!isset($options["type"])) {
-            $options["type"] = "png";
-        }
-
-        $type = $options["type"];
-
-        ob_start();
-
         switch ($type) {
             case "jpg":
             case "jpeg":
@@ -1092,7 +1072,7 @@ class GD implements Canvas
                     $options["quality"] = 75;
                 }
 
-                imagejpeg($dst, '', $options["quality"]);
+                imagejpeg($dst, null, $options["quality"]);
                 break;
             case "png":
             default:
@@ -1100,12 +1080,8 @@ class GD implements Canvas
                 break;
         }
 
-        $image = ob_get_clean();
-
         if ($this->_aa_factor != 1) {
             imagedestroy($dst);
         }
-
-        return $image;
     }
 }

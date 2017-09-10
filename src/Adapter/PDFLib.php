@@ -1270,19 +1270,27 @@ class PDFLib implements Canvas
     }
 
     /**
-     * @param string $filename
-     * @param null $options
+     * Streams the PDF to the client.
+     *
+     * @param string $filename The filename to present to the client.
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      * @throws Exception
      */
-    public function stream($filename, $options = null)
+    public function stream($filename = "document.pdf", $options = array())
     {
-        // Add page text
+        if (headers_sent()) {
+            die("Unable to stream pdf: headers already sent");
+        }
+
+        if (!isset($options["compress"])) $options["compress"] = true;
+        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+
         $this->_add_page_text();
 
-        if (isset($options["compress"]) && $options["compress"] != 1) {
-            $this->_pdf->set_value("compress", 0);
-        } else {
+        if ($options["compress"]) {
             $this->_pdf->set_value("compress", 6);
+        } else {
+            $this->_pdf->set_value("compress", 0);
         }
 
         $this->_close();
@@ -1291,20 +1299,18 @@ class PDFLib implements Canvas
 
         if (self::$IN_MEMORY) {
             $data = $this->_pdf->get_buffer();
-            //$size = strlen($data);
+            $size = mb_strlen($data, "8bit");
         } else {
-            //$size = filesize($this->_file);
+            $size = filesize($this->_file);
         }
 
         header("Cache-Control: private");
-        header("Content-type: application/pdf");
+        header("Content-Type: application/pdf");
+        header("Content-Length: " . $size);
 
         $filename = str_replace(array("\n", "'"), "", basename($filename, ".pdf")) . ".pdf";
-        $attachment = (isset($options["Attachment"]) && $options["Attachment"]) ? "attachment" : "inline";
-
+        $attachment = $options["Attachment"] ? "attachment" : "inline";
         header(Helpers::buildContentDispositionHeader($attachment, $filename));
-
-        //header("Content-length: " . $size);
 
         if (self::$IN_MEMORY) {
             echo $data;
@@ -1336,18 +1342,21 @@ class PDFLib implements Canvas
     }
 
     /**
-     * @param null $options
+     * Returns the PDF as a string.
+     *
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1).
      * @return string
      */
-    public function output($options = null)
+    public function output($options = array())
     {
-        // Add page text
+        if (!isset($options["compress"])) $options["compress"] = true;
+
         $this->_add_page_text();
 
-        if (isset($options["compress"]) && $options["compress"] != 1) {
-            $this->_pdf->set_value("compress", 0);
-        } else {
+        if ($options["compress"]) {
             $this->_pdf->set_value("compress", 6);
+        } else {
+            $this->_pdf->set_value("compress", 0);
         }
 
         $this->_close();
