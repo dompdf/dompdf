@@ -465,7 +465,7 @@ class Dompdf
         // https://developer.mozilla.org/en/mozilla's_quirks_mode
         $quirksmode = false;
 
-        if ($this->options->isHtml5ParserEnabled()) {
+        if ($this->options->isHtml5ParserEnabled() && class_exists("HTML5_Tokenizer", false)) {
             $tokenizer = new HTML5_Tokenizer($str);
             $tokenizer->parse();
             $doc = $tokenizer->save();
