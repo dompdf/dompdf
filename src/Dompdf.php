@@ -465,7 +465,7 @@ class Dompdf
         // https://developer.mozilla.org/en/mozilla's_quirks_mode
         $quirksmode = false;
 
-        if ($this->options->isHtml5ParserEnabled()) {
+        if ($this->options->isHtml5ParserEnabled() && class_exists("HTML5_Tokenizer", false)) {
             $tokenizer = new HTML5_Tokenizer($str);
             $tokenizer->parse();
             $doc = $tokenizer->save();
@@ -755,6 +755,7 @@ class Dompdf
                 if ($style->display === "list-item") {
                     $chars = ListBullet::get_counter_chars($style->list_style_type);
                     $canvas->register_string_subset($style->font_family, $chars);
+                    $canvas->register_string_subset($style->font_family, '.');
                     continue;
                 }
 
@@ -897,15 +898,10 @@ class Dompdf
     }
 
     /**
-     * Streams the PDF to the client
+     * Streams the PDF to the client.
      *
      * The file will open a download dialog by default. The options
      * parameter controls the output. Accepted options (array keys) are:
-     *
-     * 'Accept-Ranges' => 1 or 0 (=default): Send an 'Accept-Ranges:'
-     *   HTTP header, see https://tools.ietf.org/html/rfc2616#section-14.5
-     *   This header seems to have caused some problems, despite the fact
-     *   that it is supposed to solve them, so I am leaving it off by default.
      *
      * 'compress' = > 1 (=default) or 0:
      *   Apply content stream compression
@@ -917,7 +913,7 @@ class Dompdf
      * @param string $filename the name of the streamed file
      * @param array $options header options (see above)
      */
-    public function stream($filename = 'document.pdf', $options = null)
+    public function stream($filename = "document.pdf", $options = array())
     {
         $this->saveLocale();
 
@@ -930,21 +926,18 @@ class Dompdf
     }
 
     /**
-     * Returns the PDF as a string
+     * Returns the PDF as a string.
      *
-     * The file will open a download dialog by default.  The options
-     * parameter controls the output.  Accepted options are:
-     *
+     * The options parameter controls the output. Accepted options are:
      *
      * 'compress' = > 1 or 0 - apply content stream compression, this is
      *    on (1) by default
-     *
      *
      * @param array $options options (see above)
      *
      * @return string
      */
-    public function output($options = null)
+    public function output($options = array())
     {
         $this->saveLocale();
 

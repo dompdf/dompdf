@@ -18,7 +18,6 @@
 use FontLib\Font;
 use FontLib\BinaryStream;
 
-
 class Cpdf
 {
 
@@ -310,7 +309,7 @@ class Cpdf
     /**
      * @var string The target internal encoding
      */
-    static protected $targetEncoding = 'iso-8859-1';
+    static protected $targetEncoding = 'Windows-1252';
 
     /**
      * @var array The list of the core fonts
@@ -356,7 +355,6 @@ class Cpdf
 
         // also initialize the font families that are known about already
         $this->setFontFamily('init');
-        //  $this->fileIdentifier = md5('xxxxxxxx'.time());
     }
 
     /**
@@ -1236,6 +1234,11 @@ EOT;
                         $res .= "\n/Filter /FlateDecode";
                     }
 
+                    if ($this->encrypted) {
+                        $this->encryptInit($id);
+                        $tmp = $this->ARC4($tmp);
+                    }
+
                     $res .= "\n/Length " . mb_strlen($tmp, '8bit') . ">>\nstream\n$tmp\nendstream";
                 }
 
@@ -1303,10 +1306,6 @@ EOT;
      */
     protected function o_info($id, $action, $options = '')
     {
-        if ($action !== 'new') {
-            $o = &$this->objects[$id];
-        }
-
         switch ($action) {
             case 'new':
                 $this->infoObject = $id;
@@ -1328,23 +1327,27 @@ EOT;
             case 'CreationDate':
             case 'ModDate':
             case 'Trapped':
-                $o['info'][$action] = $options;
+                $this->objects[$id]['info'][$action] = $options;
                 break;
 
             case 'out':
-                if ($this->encrypted) {
+                $encrypted = $this->encrypted;
+                if ($encrypted) {
                     $this->encryptInit($id);
                 }
 
                 $res = "\n$id 0 obj\n<<\n";
+                $o = &$this->objects[$id];
                 foreach ($o['info'] as $k => $v) {
                     $res .= "/$k (";
 
-                    if ($this->encrypted) {
+                    // dates must be outputted as-is, without Unicode transformations
+                    if ($k !== 'CreationDate' && $k !== 'ModDate') {
+                        $v = $this->filterText($v, true, false);
+                    }
+
+                    if ($encrypted) {
                         $v = $this->ARC4($v);
-                    } // dates must be outputted as-is, without Unicode transformations
-                    elseif (!in_array($k, array('CreationDate', 'ModDate'))) {
-                        $v = $this->filterText($v);
                     }
 
                     $res .= $v;
@@ -1710,7 +1713,7 @@ EOT;
                     't'    => 'javascript',
                     'info' => array(
                         'S'  => '/JavaScript',
-                        'JS' => '(' . $this->filterText($code) . ')',
+                        'JS' => '(' . $this->filterText($code, true, false) . ')',
                     )
                 );
                 break;
@@ -1954,33 +1957,37 @@ EOT;
                 // make the new object
                 $this->objects[$id] = array('t' => 'encryption', 'info' => $options);
                 $this->arc4_objnum = $id;
+                break;
 
+            case 'keys':
                 // figure out the additional parameters required
                 $pad = chr(0x28) . chr(0xBF) . chr(0x4E) . chr(0x5E) . chr(0x4E) . chr(0x75) . chr(0x8A) . chr(0x41)
                     . chr(0x64) . chr(0x00) . chr(0x4E) . chr(0x56) . chr(0xFF) . chr(0xFA) . chr(0x01) . chr(0x08)
                     . chr(0x2E) . chr(0x2E) . chr(0x00) . chr(0xB6) . chr(0xD0) . chr(0x68) . chr(0x3E) . chr(0x80)
                     . chr(0x2F) . chr(0x0C) . chr(0xA9) . chr(0xFE) . chr(0x64) . chr(0x53) . chr(0x69) . chr(0x7A);
 
-                $len = mb_strlen($options['owner'], '8bit');
+                $info = $this->objects[$id]['info'];
+
+                $len = mb_strlen($info['owner'], '8bit');
 
                 if ($len > 32) {
-                    $owner = substr($options['owner'], 0, 32);
+                    $owner = substr($info['owner'], 0, 32);
                 } else {
                     if ($len < 32) {
-                        $owner = $options['owner'] . substr($pad, 0, 32 - $len);
+                        $owner = $info['owner'] . substr($pad, 0, 32 - $len);
                     } else {
-                        $owner = $options['owner'];
+                        $owner = $info['owner'];
                     }
                 }
 
-                $len = mb_strlen($options['user'], '8bit');
+                $len = mb_strlen($info['user'], '8bit');
                 if ($len > 32) {
-                    $user = substr($options['user'], 0, 32);
+                    $user = substr($info['user'], 0, 32);
                 } else {
                     if ($len < 32) {
-                        $user = $options['user'] . substr($pad, 0, 32 - $len);
+                        $user = $info['user'] . substr($pad, 0, 32 - $len);
                     } else {
-                        $user = $options['user'];
+                        $user = $info['user'];
                     }
                 }
 
@@ -1992,7 +1999,7 @@ EOT;
 
                 // now make the u value, phew.
                 $tmp = $this->md5_16(
-                    $user . $ovalue . chr($options['p']) . chr(255) . chr(255) . chr(255) . $this->fileIdentifier
+                    $user . $ovalue . chr($info['p']) . chr(255) . chr(255) . chr(255) . hex2bin($this->fileIdentifier)
                 );
 
                 $ukey = substr($tmp, 0, 5);
@@ -2001,7 +2008,6 @@ EOT;
                 $this->encrypted = true;
                 $uvalue = $this->ARC4($pad);
                 $this->objects[$id]['info']['U'] = $uvalue;
-                $this->encryptionKey = $ukey;
                 // initialize the arc4 array
                 break;
 
@@ -2012,8 +2018,8 @@ EOT;
                 $res .= "\n/Filter /Standard";
                 $res .= "\n/V 1";
                 $res .= "\n/R 2";
-                $res .= "\n/O (" . $this->filterText($o['info']['O'], true, false) . ')';
-                $res .= "\n/U (" . $this->filterText($o['info']['U'], true, false) . ')';
+                $res .= "\n/O (" . $this->filterText($o['info']['O'], false, false) . ')';
+                $res .= "\n/U (" . $this->filterText($o['info']['U'], false, false) . ')';
                 // and the p-value needs to be converted to account for the twos-complement approach
                 $o['info']['p'] = (($o['info']['p'] ^ 255) + 1) * -1;
                 $res .= "\n/P " . ($o['info']['p']);
@@ -2234,7 +2240,13 @@ EOT;
             $this->o_catalog($id, 'javascript', $js_id);
         }
 
+        if ($this->fileIdentifier === '') {
+            $tmp = implode('',  $this->objects[$this->infoObject]['info']);
+            $this->fileIdentifier = md5('DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
+        }
+
         if ($this->arc4_objnum) {
+            $this->o_encryption($this->arc4_objnum, 'keys');
             $this->ARC4_init($this->encryptionKey);
         }
 
@@ -2258,16 +2270,18 @@ EOT;
             $content .= str_pad($p, 10, "0", STR_PAD_LEFT) . " 00000 n \n";
         }
 
-        $content .= "trailer\n<<\n/Size " . (count($xref) + 1) . "\n/Root 1 0 R\n/Info $this->infoObject 0 R\n";
+        $content .= "trailer\n<<\n" .
+            '/Size ' . (count($xref) + 1) . "\n" .
+            '/Root 1 0 R' . "\n" .
+            '/Info ' . $this->infoObject . " 0 R\n"
+        ;
 
         // if encryption has been applied to this document then add the marker for this dictionary
         if ($this->arc4_objnum > 0) {
-            $content .= "/Encrypt $this->arc4_objnum 0 R\n";
+            $content .= '/Encrypt ' . $this->arc4_objnum . " 0 R\n";
         }
 
-        if (mb_strlen($this->fileIdentifier, '8bit')) {
-            $content .= "/ID[<$this->fileIdentifier><$this->fileIdentifier>]\n";
-        }
+        $content .= '/ID[<' . $this->fileIdentifier . '><' . $this->fileIdentifier . ">]\n";
 
         // account for \n added at start of xref table
         $pos++;
@@ -3257,10 +3271,17 @@ EOT;
     {
         $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F %.3F %.3F c", $x1, $y1, $x2, $y2, $x3, $y3));
     }
-
+ 
+    /**
+     * draw a bezier curve based on 4 control points
+     */    function quadTo($cpx, $cpy, $x, $y)
+    {
+        $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F v", $cpx, $cpy, $x, $y));
+    }
+    
     function closePath()
     {
-        //$this->addContent(' s');
+        $this->addContent(' h');
     }
 
     function endPath()
@@ -3778,63 +3799,40 @@ EOT;
     }
 
     /**
-     * output the pdf code, streaming it to the browser
-     * the relevant headers are set so that hopefully the browser will recognise it
+     * Streams the PDF to the client.
      *
-     * @param string $options
+     * @param string $filename The filename to present to the client.
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      */
-    function stream($options = '')
+    function stream($filename = "document.pdf", $options = array())
     {
-        // setting the options allows the adjustment of the headers
-        // values at the moment are:
-        // 'Content-Disposition' => 'filename'  - sets the filename, though not too sure how well this will
-        //        work as in my trial the browser seems to use the filename of the php file with .pdf on the end
-        // 'Accept-Ranges' => 1 or 0 - if this is not set to 1, then this header is not included, off by default
-        //    this header seems to have caused some problems despite tha fact that it is supposed to solve
-        //    them, so I am leaving it off by default.
-        // 'compress' = > 1 or 0 - apply content stream compression, this is on (1) by default
-        // 'Attachment' => 1 or 0 - if 1, force the browser to open a download dialog
-        if (!is_array($options)) {
-            $options = array();
-        }
-
         if (headers_sent()) {
             die("Unable to stream pdf: headers already sent");
         }
 
-        $debug = empty($options['compression']);
+        if (!isset($options["compress"])) $options["compress"] = true;
+        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+
+        $debug = !$options['compress'];
         $tmp = ltrim($this->output($debug));
 
         header("Cache-Control: private");
-        header("Content-type: application/pdf");
+        header("Content-Type: application/pdf");
+        header("Content-Length: " . mb_strlen($tmp, "8bit"));
 
-        //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
-        header("Content-Length: " . mb_strlen($tmp, '8bit'));
-        $filename = (isset($options['Content-Disposition']) ? $options['Content-Disposition'] : 'document.pdf');
         $filename = str_replace(array("\n", "'"), "", basename($filename, ".pdf")) . ".pdf";
-
-        if (!isset($options["Attachment"])) {
-            $options["Attachment"] = true;
-        }
-
         $attachment = $options["Attachment"] ? "attachment" : "inline";
 
-        // detect the character encoding of the incoming file
         $encoding = mb_detect_encoding($filename);
         $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
-        $encodedfallbackfilename = rawurlencode($fallbackfilename);
+        $fallbackfilename = str_replace("\"", "", $fallbackfilename);
         $encodedfilename = rawurlencode($filename);
 
-        $contentDisposition = "Content-Disposition: $attachment; filename=\"" . $encodedfallbackfilename . "\"";
-        if ($encodedfallbackfilename !== $encodedfilename) {
+        $contentDisposition = "Content-Disposition: $attachment; filename=\"$fallbackfilename\"";
+        if ($fallbackfilename !== $filename) {
             $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
         }
         header($contentDisposition);
-
-        if (isset($options['Accept-Ranges']) && $options['Accept-Ranges'] == 1) {
-            //FIXME: Is this the correct value ... spec says 1#range-unit
-            header("Accept-Ranges: " . mb_strlen($tmp, '8bit'));
-        }
 
         echo $tmp;
         flush();
@@ -3945,6 +3943,8 @@ EOT;
                 //$text = html_entity_decode($text, ENT_QUOTES);
                 $text = mb_convert_encoding($text, self::$targetEncoding, 'UTF-8');
             }
+        } else if ($bom) {
+            $text = $this->utf8toUtf16BE($text, $bom);
         }
 
         // the chr(13) substitution fixes a bug seen in TCPDF (bug #1421290)
@@ -4044,10 +4044,6 @@ EOT;
      */
     function utf8toUtf16BE(&$text, $bom = true)
     {
-        $cf = $this->currentFont;
-        if (!$this->fonts[$cf]['isUnicode']) {
-            return $text;
-        }
         $out = $bom ? "\xFE\xFF" : '';
 
         $unicode = $this->utf8toCodePointsArray($text);

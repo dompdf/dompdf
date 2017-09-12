@@ -111,7 +111,9 @@ class HTML5_TreeBuilder {
             $r = new ReflectionClass('HTML5_TreeBuilder');
             $consts = $r->getConstants();
             foreach ($consts as $const => $num) {
-                if (!is_int($num)) continue;
+                if (!is_int($num)) {
+                    continue;
+                }
                 $lookup[$num] = $const;
             }
         }
@@ -1722,8 +1724,12 @@ class HTML5_TreeBuilder {
                                 also in the stack of open elements but the element
                                 is not in scope, then this is a parse error. Abort
                                 these steps. The token is ignored. */
-                                if (!isset($formatting_element) || ($in_stack &&
-                                !$this->elementInScope($token['name']))) {
+                                if (
+                                    !isset($formatting_element) || (
+                                        $in_stack &&
+                                        !$this->elementInScope($token['name'])
+                                    )
+                                ) {
                                     $this->ignored = true;
                                     break;
 
@@ -2133,7 +2139,9 @@ class HTML5_TreeBuilder {
                         'type' => HTML5_Tokenizer::ENDTAG
                     ));
 
-                    if (!$this->ignored) $this->emitToken($token);
+                    if (!$this->ignored) {
+                        $this->emitToken($token);
+                    }
 
                 /* An end tag whose tag name is "table" */
                 } elseif ($token['type'] === HTML5_Tokenizer::ENDTAG &&
@@ -2371,7 +2379,9 @@ class HTML5_TreeBuilder {
                         'type' => HTML5_Tokenizer::ENDTAG
                     ));
 
-                    if (!$this->ignored) $this->emitToken($token);
+                    if (!$this->ignored) {
+                        $this->emitToken($token);
+                    }
                 }
             break;
 
@@ -2512,7 +2522,9 @@ class HTML5_TreeBuilder {
                         'name' => 'tr',
                         'type' => HTML5_Tokenizer::ENDTAG
                     ));
-                    if (!$this->ignored) $this->emitToken($token);
+                    if (!$this->ignored) {
+                        $this->emitToken($token);
+                    }
 
                 /* An end tag whose tag name is one of: "tbody", "tfoot", "thead" */
                 } elseif ($token['type'] === HTML5_Tokenizer::ENDTAG &&
@@ -3204,11 +3216,15 @@ class HTML5_TreeBuilder {
      * @param $data
      */
     private function insertText($data) {
-        if ($data === '') return;
+        if ($data === '') {
+            return;
+        }
         if ($this->ignore_lf_token) {
             if ($data[0] === "\n") {
                 $data = substr($data, 1);
-                if ($data === false) return;
+                if ($data === false) {
+                    return;
+                }
             }
         }
         $text = $this->dom->createTextNode($data);
@@ -3231,8 +3247,13 @@ class HTML5_TreeBuilder {
         /* If the current node is a table, tbody, tfoot, thead, or tr
         element, then, whenever a node would be inserted into the current
         node, it must instead be inserted into the foster parent element. */
-        if (!$this->foster_parent || !in_array(end($this->stack)->tagName,
-        array('table', 'tbody', 'tfoot', 'thead', 'tr'))) {
+        if (
+            !$this->foster_parent ||
+            !in_array(
+                end($this->stack)->tagName,
+                array('table', 'tbody', 'tfoot', 'thead', 'tr')
+            )
+        ) {
             end($this->stack)->appendChild($node);
         } else {
             $this->fosterParent($node);
@@ -3622,10 +3643,14 @@ class HTML5_TreeBuilder {
      * @return bool
      */
     private function getAttr($token, $key) {
-        if (!isset($token['attr'])) return false;
+        if (!isset($token['attr'])) {
+            return false;
+        }
         $ret = false;
         foreach ($token['attr'] as $keypair) {
-            if ($keypair['name'] === $key) $ret = $keypair['value'];
+            if ($keypair['name'] === $key) {
+                $ret = $keypair['value'];
+            }
         }
         return $ret;
     }
@@ -3717,11 +3742,16 @@ class HTML5_TreeBuilder {
      * For debugging, prints active formatting elements
      */
     private function printActiveFormattingElements() {
-        if (!$this->a_formatting) return;
+        if (!$this->a_formatting) {
+            return;
+        }
         $names = array();
         foreach ($this->a_formatting as $node) {
-            if ($node === self::MARKER) $names[] = 'MARKER';
-            else $names[] = $node->tagName;
+            if ($node === self::MARKER) {
+                $names[] = 'MARKER';
+            } else {
+                $names[] = $node->tagName;
+            }
         }
         echo "  -> active formatting [" . implode(', ', $names) . "]\n";
     }

@@ -247,9 +247,7 @@ abstract class AbstractRenderer
         //Optimization to avoid multiple times rendering the same image.
         //If check functions are existing and identical image already cached,
         //then skip creation of duplicate, because it is not needed by addImagePng
-        if ($this->_canvas instanceof CPDF &&
-            $this->_canvas->get_cpdf()->image_iscached($filedummy)
-        ) {
+        if ($this->_canvas instanceof CPDF && $this->_canvas->get_cpdf()->image_iscached($filedummy)) {
             $bg = null;
         } else {
             // Create a new image to fit over the background rectangle
@@ -408,7 +406,9 @@ abstract class AbstractRenderer
             $tmp_file = "$tmp_name.png";
 
             //debugpng
-            if ($this->_dompdf->getOptions()->getDebugPng()) print '[_background_image ' . $tmp_file . ']';
+            if ($this->_dompdf->getOptions()->getDebugPng()) {
+                print '[_background_image ' . $tmp_file . ']';
+            }
 
             imagepng($bg, $tmp_file);
             $this->_canvas->image($tmp_file, $x, $y, $width, $height);
@@ -448,10 +448,11 @@ abstract class AbstractRenderer
                 break;
 
             case "dotted":
-                if ($width <= 1)
+                if ($width <= 1) {
                     $pattern = array($width, $width * 2);
-                else
+                } else {
                     $pattern = array($width);
+                }
                 break;
 
             case "dashed":
@@ -725,8 +726,9 @@ abstract class AbstractRenderer
      */
     protected function _tint($c)
     {
-        if (!is_numeric($c))
+        if (!is_numeric($c)) {
             return $c;
+        }
 
         return min(1, $c + 0.16);
     }
@@ -737,8 +739,9 @@ abstract class AbstractRenderer
      */
     protected function _shade($c)
     {
-        if (!is_numeric($c))
+        if (!is_numeric($c)) {
             return $c;
+        }
 
         return max(0, $c - 0.33);
     }

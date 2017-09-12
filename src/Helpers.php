@@ -100,6 +100,33 @@ class Helpers
     }
 
     /**
+     * Builds a HTTP Content-Disposition header string using `$dispositionType`
+     * and `$filename`.
+     *
+     * If the filename contains any characters not in the ISO-8859-1 character
+     * set, a fallback filename will be included for clients not supporting the
+     * `filename*` parameter.
+     *
+     * @param string $dispositionType
+     * @param string $filename
+     * @return string
+     */
+    public static function buildContentDispositionHeader($dispositionType, $filename)
+    {
+        $encoding = mb_detect_encoding($filename);
+        $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
+        $fallbackfilename = str_replace("\"", "", $fallbackfilename);
+        $encodedfilename = rawurlencode($filename);
+
+        $contentDisposition = "Content-Disposition: $dispositionType; filename=\"$fallbackfilename\"";
+        if ($fallbackfilename !== $filename) {
+            $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
+        }
+
+        return $contentDisposition;
+    }
+
+    /**
      * Converts decimal numbers to roman numerals
      *
      * @param int $num
@@ -184,15 +211,15 @@ class Helpers
 
     /**
      * Encodes a Uniform Resource Identifier (URI) by replacing non-alphanumeric
-     * characters with a percent (%) sign followed by two hex digits, excepting 
+     * characters with a percent (%) sign followed by two hex digits, excepting
      * characters in the URI reserved character set.
-     * 
-     * Assumes that the URI is a complete URI, so does not encode reserved 
+     *
+     * Assumes that the URI is a complete URI, so does not encode reserved
      * characters that have special meaning in the URI.
      *
-     * Simulates the encodeURI function available in JavaScript  
+     * Simulates the encodeURI function available in JavaScript
      * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURI
-     * 
+     *
      * Source: http://stackoverflow.com/q/4929584/264628
      *
      * @param string $uri The URI to encode
@@ -236,20 +263,27 @@ class Helpers
                     switch (ord($str[$i])) {
                         case 0: # NEW LINE
                             $padCnt = $lineWidth - strlen($out) % $lineWidth;
-                            if ($padCnt < $lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+                            if ($padCnt < $lineWidth) {
+                                $out .= str_repeat(chr(0), $padCnt); # pad line
+                            }
                             break;
                         case 1: # END OF FILE
                             $padCnt = $lineWidth - strlen($out) % $lineWidth;
-                            if ($padCnt < $lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+                            if ($padCnt < $lineWidth) {
+                                $out .= str_repeat(chr(0), $padCnt); # pad line
+                            }
                             break 3;
                         case 2: # DELTA
                             $i += 2;
                             break;
                         default: # ABSOLUTE MODE
                             $num = ord($str[$i]);
-                            for ($j = 0; $j < $num; $j++)
+                            for ($j = 0; $j < $num; $j++) {
                                 $out .= $str[++$i];
-                            if ($num % 2) $i++;
+                            }
+                            if ($num % 2) {
+                                $i++;
+                            }
                     }
                     break;
                 default:
@@ -529,9 +563,15 @@ class Helpers
         $g = (1 - round(2.55 * ($m + $k)));
         $b = (1 - round(2.55 * ($y + $k)));
 
-        if ($r < 0) $r = 0;
-        if ($g < 0) $g = 0;
-        if ($b < 0) $b = 0;
+        if ($r < 0) {
+            $r = 0;
+        }
+        if ($g < 0) {
+            $g = 0;
+        }
+        if ($b < 0) {
+            $b = 0;
+        }
 
         return array(
             $r, $g, $b,
@@ -797,8 +837,7 @@ class Helpers
             } else {
                 $result = file_get_contents($uri, null, $context, $offset);
             }
-            if (isset($http_response_header))
-            {
+            if (isset($http_response_header)) {
                 $headers = $http_response_header;
             }
 
@@ -824,5 +863,32 @@ class Helpers
         restore_error_handler();
 
         return array($result, $headers);
+    }
+
+    public static function mb_ucwords($str) {
+        $max_len = mb_strlen($str);
+        if ($max_len === 1) {
+            return mb_strtoupper($str);
+        }
+
+        $str = mb_strtoupper(mb_substr($str, 0, 1)) . mb_substr($str, 1);
+
+        foreach (array(' ', '.', ',', '!', '?', '-', '+') as $s) {
+            $pos = 0;
+            while (($pos = mb_strpos($str, $s, $pos)) !== false) {
+                $pos++;
+                // Nothing to do if the separator is the last char of the string
+                if ($pos !== false && $pos < $max_len) {
+                    // If the char we want to upper is the last char there is nothing to append behind
+                    if ($pos + 1 < $max_len) {
+                        $str = mb_substr($str, 0, $pos) . mb_strtoupper(mb_substr($str, $pos, 1)) . mb_substr($str, $pos + 1);
+                    } else {
+                        $str = mb_substr($str, 0, $pos) . mb_strtoupper(mb_substr($str, $pos, 1));
+                    }
+                }
+            }
+        }
+
+        return $str;
     }
 }

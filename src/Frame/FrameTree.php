@@ -208,8 +208,7 @@ class FrameTree
         $nextChild = $child->nextSibling;
         $node->removeChild($child);
         if (isset($previousChild, $nextChild)) {
-            if ($previousChild->nodeName === "#text" && $nextChild->nodeName === "#text")
-            {
+            if ($previousChild->nodeName === "#text" && $nextChild->nodeName === "#text") {
                 $previousChild->nodeValue .= $nextChild->nodeValue;
                 $this->_remove_node($node, $children, $index+1);
             }

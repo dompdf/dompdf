@@ -92,10 +92,11 @@ class ListBullet extends AbstractRenderer
             case "decimal-leading-zero":
             case "decimal":
             case "1":
-                if ($pad)
+                if ($pad) {
                     $text = str_pad($n, $pad, "0", STR_PAD_LEFT);
-                else
+                } else {
                     $text = $n;
+                }
                 break;
 
             case "upper-alpha":
@@ -135,7 +136,7 @@ class ListBullet extends AbstractRenderer
     {
         $style = $frame->get_style();
         $font_size = $style->get_font_size();
-        $line_height = (float)$style->length_in_pt($style->line_height, $frame->get_containing_block("w"));
+        $line_height = (float)$style->length_in_pt($style->line_height, $frame->get_containing_block("h"));
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
@@ -148,9 +149,7 @@ class ListBullet extends AbstractRenderer
 
         // Handle list-style-image
         // If list style image is requested but missing, fall back to predefined types
-        if ($style->list_style_image !== "none" &&
-            !Cache::is_broken($img = $frame->get_image_url())
-        ) {
+        if ($style->list_style_image !== "none" && !Cache::is_broken($img = $frame->get_image_url())) {
             list($x, $y) = $frame->get_position();
 
             //For expected size and aspect, instead of box size, use image natural size scaled to DPI.

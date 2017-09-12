@@ -689,19 +689,33 @@ class Style
      */
     function merge(Style $style)
     {
+        $shorthand_properties = array("background", "border", "border_bottom", "border_color", "border_left", "border_radius", "border_right", "border_style", "border_top", "border_width", "flex", "font", "list_style", "margin", "padding", "transform");
         //treat the !important attribute
         //if old rule has !important attribute, override with new rule only if
         //the new rule is also !important
         foreach ($style->_props as $prop => $val) {
+            $can_merge = false;
             if (isset($style->_important_props[$prop])) {
                 $this->_important_props[$prop] = true;
-                //see __set and __get, on all assignments clear cache!
-                $this->_prop_cache[$prop] = null;
-                $this->_props[$prop] = $val;
+                $can_merge = true;
             } else if (!isset($this->_important_props[$prop])) {
+                $can_merge = true;
+            }
+
+            if ($can_merge) {
                 //see __set and __get, on all assignments clear cache!
                 $this->_prop_cache[$prop] = null;
                 $this->_props[$prop] = $val;
+
+                // Clear out "inherit" shorthand properties if specific properties have been set
+                $shorthands = array_filter($shorthand_properties, function($el) use ($prop) {
+                    return ( strpos($prop, $el."_") !== false );
+                });
+                foreach ($shorthands as $shorthand) {
+                    if (array_key_exists($shorthand, $this->_props) && $this->_props[$shorthand] === "inherit") {
+                        unset($this->_props[$shorthand]);
+                    }
+                } 
             }
         }
 
@@ -960,7 +974,9 @@ class Style
             $font = $this->getFontMetrics()->getFont($family, $subtype);
 
             if ($font) {
-                if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
+                if ($DEBUGCSS) {
+                    print '(' . $font . ")get_font_family]\n</pre>";
+                }
                 return $this->_font_family = $font;
             }
         }
@@ -972,7 +988,9 @@ class Style
         $font = $this->getFontMetrics()->getFont($family, $subtype);
 
         if ($font) {
-            if ($DEBUGCSS) print '(' . $font . ")get_font_family]\n</pre>";
+            if ($DEBUGCSS) {
+                print '(' . $font . ")get_font_family]\n</pre>";
+            }
             return $this->_font_family = $font;
         }
 
@@ -1075,8 +1093,7 @@ class Style
      */
     function get_line_height()
     {
-        if (array_key_exists("line_height", $this->_props) === false)
-        {
+        if (array_key_exists("line_height", $this->_props) === false) {
             $this->_props["line_height"] = self::$_defaults["line_height"];
         }
         $line_height = $this->_props["line_height"];
@@ -1160,7 +1177,6 @@ class Style
         }
 
         if (isset($tmp[1])) {
-
             switch ($tmp[1]) {
                 case "left":
                     $x = "0%";
@@ -1190,7 +1206,6 @@ class Style
                     $y = $tmp[1];
                     break;
             }
-
         } else {
             $y = "50%";
         }
@@ -2667,10 +2682,10 @@ class Style
 
                         // <translation-value> units
                         case "translate":
-                            $values[0] = $this->length_in_pt($values[0], $this->width);
+                            $values[0] = $this->length_in_pt($values[0], (float)$this->length_in_pt($this->width));
 
                             if (isset($values[1])) {
-                                $values[1] = $this->length_in_pt($values[1], $this->height);
+                                $values[1] = $this->length_in_pt($values[1], (float)$this->length_in_pt($this->height));
                             } else {
                                 $values[1] = 0;
                             }
@@ -2678,12 +2693,12 @@ class Style
 
                         case "translateX":
                             $name = "translate";
-                            $values = array($this->length_in_pt($values[0], $this->width), 0);
+                            $values = array($this->length_in_pt($values[0], (float)$this->length_in_pt($this->width)), 0);
                             break;
 
                         case "translateY":
                             $name = "translate";
-                            $values = array(0, $this->length_in_pt($values[0], $this->height));
+                            $values = array(0, $this->length_in_pt($values[0], (float)$this->length_in_pt($this->height)));
                             break;
 
                         // <number> units

@@ -99,7 +99,6 @@ class Inline extends AbstractFrameDecorator
             in_array($frame_style->page_break_before, $page_breaks) ||
             in_array($frame_style->page_break_after, $page_breaks)
         ) {
-
             $this->get_parent()->split($split, true);
         }
     }

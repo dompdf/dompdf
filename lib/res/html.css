@@ -22,7 +22,7 @@
 }
 
 html {
-  display: -dompdf-page;
+  display: -dompdf-page !important;
   counter-reset: page;
 }
 
@@ -506,7 +506,7 @@ br {
 }
 
 img, img_generated {
-  display: -dompdf-image;
+  display: -dompdf-image !important;
 }
 
 dompdf_generated {

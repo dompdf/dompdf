@@ -241,8 +241,12 @@ class CPDF implements Canvas
                 continue;
             }
 
-            if ($this->_dompdf->getOptions()->getDebugPng()) print '[__destruct unlink ' . $img . ']';
-            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) unlink($img);
+            if ($this->_dompdf->getOptions()->getDebugPng()) {
+                print '[__destruct unlink ' . $img . ']';
+            }
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
+                unlink($img);
+            }
         }
     }
 
@@ -553,6 +557,7 @@ class CPDF implements Canvas
 
         $this->_pdf->line($x1, $this->y($y1),
             $x2, $this->y($y2));
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -572,6 +577,7 @@ class CPDF implements Canvas
         $this->_set_line_style($width, "butt", "", $style);
 
         $this->_pdf->ellipse($x, $this->y($y), $r1, $r2, 0, 8, $astart, $aend, false, false, true, false);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -631,6 +637,7 @@ class CPDF implements Canvas
         $this->_set_stroke_color($color);
         $this->_set_line_style($width, "butt", "", $style);
         $this->_pdf->rectangle($x1, $this->y($y1) - $h, $w, $h);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -644,6 +651,7 @@ class CPDF implements Canvas
     {
         $this->_set_fill_color($color);
         $this->_pdf->filledRectangle($x1, $this->y($y1) - $h, $w, $h);
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -768,6 +776,9 @@ class CPDF implements Canvas
         }
 
         $this->_pdf->polygon($points, count($points) / 2, $fill);
+
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -789,6 +800,9 @@ class CPDF implements Canvas
         }
 
         $this->_pdf->ellipse($x, $this->y($y), $r1, 0, 0, 8, 0, 360, 1, $fill);
+
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
+        $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -811,7 +825,9 @@ class CPDF implements Canvas
 
         switch ($type) {
             case "jpeg":
-                if ($debug_png) print '!!!jpg!!!';
+                if ($debug_png) {
+                    print '!!!jpg!!!';
+                }
                 $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
@@ -889,6 +905,8 @@ class CPDF implements Canvas
         //
         //$pdf->addText($x, $this->y($y) - ($pdf->fonts[$pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $word_space, $char_space);
         $pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size), $size, $text, $angle, $word_space, $char_space);
+
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
     }
 
     /**
@@ -1082,31 +1100,50 @@ class CPDF implements Canvas
     }
 
     /**
-     * Streams the PDF directly to the browser
+     * Streams the PDF to the client.
      *
-     * @param string $filename the name of the PDF file
-     * @param array $options associative array, 'Attachment' => 0 or 1, 'compress' => 1 or 0
+     * @param string $filename The filename to present to the client.
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      */
-    public function stream($filename, $options = null)
+    public function stream($filename = "document.pdf", $options = array())
     {
-        // Add page text
+        if (headers_sent()) {
+            die("Unable to stream pdf: headers already sent");
+        }
+
+        if (!isset($options["compress"])) $options["compress"] = true;
+        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+
         $this->_add_page_text();
 
-        $options["Content-Disposition"] = $filename;
-        $this->_pdf->stream($options);
+        $debug = !$options['compress'];
+        $tmp = ltrim($this->_pdf->output($debug));
+
+        header("Cache-Control: private");
+        header("Content-Type: application/pdf");
+        header("Content-Length: " . mb_strlen($tmp, "8bit"));
+
+        $filename = str_replace(array("\n", "'"), "", basename($filename, ".pdf")) . ".pdf";
+        $attachment = $options["Attachment"] ? "attachment" : "inline";
+        header(Helpers::buildContentDispositionHeader($attachment, $filename));
+
+        echo $tmp;
+        flush();
     }
 
     /**
-     * Returns the PDF as a string
+     * Returns the PDF as a string.
      *
-     * @param array $options Output options
+     * @param array $options Associative array: 'compress' => 1 or 0 (default 1).
      * @return string
      */
-    public function output($options = null)
+    public function output($options = array())
     {
+        if (!isset($options["compress"])) $options["compress"] = true;
+
         $this->_add_page_text();
 
-        $debug = isset($options["compress"]) && $options["compress"] != 1;
+        $debug = !$options['compress'];
 
         return $this->_pdf->output($debug);
     }

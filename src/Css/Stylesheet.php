@@ -446,9 +446,9 @@ class Stylesheet
     {
 
         // Collapse white space and strip whitespace around delimiters
-//     $search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
-//     $replace = array(" ", "\\1");
-//     $selector = preg_replace($search, $replace, trim($selector));
+        //$search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
+        //$replace = array(" ", "\\1");
+        //$selector = preg_replace($search, $replace, trim($selector));
 
         // Initial query (non-absolute)
         $query = "//";
@@ -740,6 +740,12 @@ class Stylesheet
                             $query .= "[not(@disabled)]";
                             $tok = "";
                             break;
+
+                        // the selector is not handled, until we support all possible selectors force an empty set (silent failure)
+                        default:
+                            $query = "/..";
+                            $tok = "";
+                            break;
                     }
 
                     break;
@@ -1016,6 +1022,12 @@ class Stylesheet
         $paper_height = $canvas->get_height();
         $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
 
+        if ($this->_page_styles["base"] && is_array($this->_page_styles["base"]->size)) {
+            $paper_width = $this->_page_styles['base']->size[0];
+            $paper_height = $this->_page_styles['base']->size[1];
+            $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+        }
+
         // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
@@ -1023,15 +1035,6 @@ class Stylesheet
             // Helpers::pre_r($frame->get_node()->nodeName . ":");
             if (!$root_flg && $this->_page_styles["base"]) {
                 $style = $this->_page_styles["base"];
-                $root_flg = true;
-
-                // set the page width, height, and orientation based on the base page style
-                if ($style->size !== "auto") {
-                    list($paper_width, $paper_height) = $style->size;
-                }
-                $paper_width = $paper_width - (float)$style->length_in_pt($style->margin_left) - (float)$style->length_in_pt($style->margin_right);
-                $paper_height = $paper_height - (float)$style->length_in_pt($style->margin_top) - (float)$style->length_in_pt($style->margin_bottom);
-                $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
             } else {
                 $style = $this->create_style();
             }
@@ -1107,7 +1110,7 @@ class Stylesheet
                             // if any of the Style's media queries fail then do not apply the style
                             //TODO: When the media query logic is fully developed we should not apply the Style when any of the media queries fail or are bad, per https://www.w3.org/TR/css3-mediaqueries/#error-handling
                             if (in_array($media_query_feature, self::$VALID_MEDIA_TYPES)) {
-                                if ((strlen($media_query_value) === 0 && !in_array($media_query, $acceptedmedia)) || (in_array($media_query, $acceptedmedia) && $media_query_value == "not")) {
+                                if ((strlen($media_query_feature) === 0 && !in_array($media_query, $acceptedmedia)) || (in_array($media_query, $acceptedmedia) && $media_query_value == "not")) {
                                     continue (3);
                                 }
                             } else {
@@ -1189,6 +1192,17 @@ class Stylesheet
             echo "</pre>";*/
             $frame->set_style($style);
 
+            if (!$root_flg && $this->_page_styles["base"]) {
+                $root_flg = true;
+
+                // set the page width, height, and orientation based on the parsed page style
+                if ($style->size !== "auto") {
+                    list($paper_width, $paper_height) = $style->size;
+                }
+                $paper_width = $paper_width - (float)$style->length_in_pt($style->margin_left) - (float)$style->length_in_pt($style->margin_right);
+                $paper_height = $paper_height - (float)$style->length_in_pt($style->margin_top) - (float)$style->length_in_pt($style->margin_bottom);
+                $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+            }
         }
 
         // We're done!  Clean out the registry of all styles since we
@@ -1488,7 +1502,7 @@ class Stylesheet
             $source = array(
                 "local" => strtolower($src[1][$i]) === "local",
                 "uri" => $src[2][$i],
-                "format" => $src[4][$i],
+                "format" => strtolower($src[4][$i]),
                 "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
             );
 
@@ -1527,7 +1541,9 @@ class Stylesheet
         $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
-        if ($DEBUGCSS) print '[_parse_properties';
+        if ($DEBUGCSS) {
+            print '[_parse_properties';
+        }
 
         // Create the style
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
@@ -1626,7 +1642,7 @@ class Stylesheet
             //$selectors = explode(",", mb_substr($sect, 0, $i));
             $selectors = preg_split("/,(?![^\(]*\))/", mb_substr($sect, 0, $i),0, PREG_SPLIT_NO_EMPTY);
             if ($DEBUGCSS) print '[section';
-            
+
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
@@ -1647,10 +1663,14 @@ class Stylesheet
                 $this->add_style($selector, $style);
             }
 
-            if ($DEBUGCSS) print 'section]';
+            if ($DEBUGCSS) {
+                print 'section]';
+            }
         }
 
-        if ($DEBUGCSS) print '_parse_sections]';
+        if ($DEBUGCSS) {
+            print '_parse_sections]';
+        }
     }
 
     /**

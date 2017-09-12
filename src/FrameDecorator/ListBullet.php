@@ -44,11 +44,7 @@ class ListBullet extends AbstractFrameDecorator
     {
         $style = $this->_frame->get_style();
 
-        // Small hack to prevent extra indenting of list text on list_style_position === "inside"
-        // and on suppressed bullet
-        if ($style->list_style_position === "outside" ||
-            $style->list_style_type === "none"
-        ) {
+        if ($style->list_style_type === "none") {
             return 0;
         }
 
@@ -76,7 +72,7 @@ class ListBullet extends AbstractFrameDecorator
      */
     function get_width()
     {
-        return $this->get_margin_height();
+        return $this->get_margin_width();
     }
 
     /**

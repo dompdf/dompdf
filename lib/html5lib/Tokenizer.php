@@ -148,7 +148,9 @@ class HTML5_Tokenizer {
                     /* Consume the next input character */
                     $char = $this->stream->char();
                     $lastFourChars .= $char;
-                    if (strlen($lastFourChars) > 4) $lastFourChars = substr($lastFourChars, -4);
+                    if (strlen($lastFourChars) > 4) {
+                        $lastFourChars = substr($lastFourChars, -4);
+                    }
 
                     // see below for meaning
                     $hyp_cond =

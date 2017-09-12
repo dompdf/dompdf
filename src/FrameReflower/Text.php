@@ -11,6 +11,7 @@ namespace Dompdf\FrameReflower;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\FontMetrics;
+use Dompdf\Helpers;
 
 /**
  * Reflows text frames.
@@ -204,7 +205,7 @@ class Text extends AbstractFrameReflower
             default:
                 break;
             case "capitalize":
-                $text = mb_convert_case($text, MB_CASE_TITLE);
+                $text = Helpers::mb_ucwords($text);
                 break;
             case "uppercase":
                 $text = mb_convert_case($text, MB_CASE_UPPER);
@@ -220,8 +221,9 @@ class Text extends AbstractFrameReflower
             default:
             case "normal":
                 $frame->set_text($text = $this->_collapse_white_space($text));
-                if ($text == "")
+                if ($text == "") {
                     break;
+                }
 
                 $split = $this->_line_break($text);
                 break;
@@ -296,8 +298,9 @@ class Text extends AbstractFrameReflower
                 $t = $frame->get_text();
 
                 // Remove any trailing newlines
-                if ($split > 1 && $t[$split - 1] === "\n" && !$frame->is_pre())
+                if ($split > 1 && $t[$split - 1] === "\n" && !$frame->is_pre()) {
                     $frame->set_text(mb_substr($t, 0, -1));
+                }
 
                 // Do we need to trim spaces on wrapped lines? This might be desired, however, we
                 // can't trim the lines here or the layout will be affected if trimming the line
@@ -322,19 +325,18 @@ class Text extends AbstractFrameReflower
             $is_inline_frame = ($parent instanceof \Dompdf\FrameDecorator\Inline);
 
             if ((!$is_inline_frame && !$frame->get_next_sibling()) /* ||
-          ( $is_inline_frame && !$parent->get_next_sibling())*/
+            ( $is_inline_frame && !$parent->get_next_sibling())*/
             ) { // fails <b>BOLD <u>UNDERLINED</u></b> becomes <b>BOLD<u>UNDERLINED</u></b>
                 $t = rtrim($t);
             }
 
             if ((!$is_inline_frame && !$frame->get_prev_sibling()) /* ||
-          ( $is_inline_frame && !$parent->get_prev_sibling())*/
+            ( $is_inline_frame && !$parent->get_prev_sibling())*/
             ) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
                 $t = ltrim($t);
             }
 
             $frame->set_text($t);
-
         }
 
         // Set our new width
