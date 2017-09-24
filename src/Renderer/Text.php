@@ -10,7 +10,6 @@
 namespace Dompdf\Renderer;
 
 use Dompdf\Adapter\CPDF;
-use Dompdf\FontMetrics;
 use Dompdf\Frame;
 
 /**

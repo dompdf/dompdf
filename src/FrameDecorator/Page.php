@@ -11,8 +11,6 @@ use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Frame;
-use Dompdf\FrameDecorator\Table as TableFrameDecorator;
-use Dompdf\FrameDecorator\TableRow as TableRowFrameDecorator;
 use Dompdf\Renderer;
 
 /**

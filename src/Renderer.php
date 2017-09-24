@@ -15,8 +15,6 @@ use Dompdf\Renderer\TableCell;
 use Dompdf\Renderer\TableRowGroup;
 use Dompdf\Renderer\Text;
 
-use Dompdf\Frame;
-
 /**
  * Concrete renderer
  *
