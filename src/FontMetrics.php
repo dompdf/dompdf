@@ -84,10 +84,10 @@ class FontMetrics
      * Saves the stored font family cache
      *
      * The name and location of the cache file are determined by {@link
-     * FontMetrics::CACHE_FILE}.  This file should be writable by the
+     * FontMetrics::CACHE_FILE}. This file should be writable by the
      * webserver process.
      *
-     * @see Font_Metrics::load_font_families()
+     * @see FontMetrics::loadFontFamilies()
      */
     public function saveFontFamilies()
     {
@@ -118,7 +118,7 @@ class FontMetrics
     /**
      * Loads the stored font family cache
      *
-     * @see save_font_families()
+     * @see FontMetrics::saveFontFamilies()
      */
     public function loadFontFamilies()
     {

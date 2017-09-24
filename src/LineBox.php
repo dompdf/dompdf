@@ -7,7 +7,6 @@
  */
 namespace Dompdf;
 
-use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block;
 use Dompdf\FrameDecorator\Page;
 

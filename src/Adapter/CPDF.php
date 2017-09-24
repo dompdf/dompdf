@@ -280,8 +280,8 @@ class CPDF implements Canvas
      *
      * The return value is an integer ID for the new object.
      *
-     * @see CPDF_Adapter::close_object()
-     * @see CPDF_Adapter::add_object()
+     * @see CPDF::close_object()
+     * @see CPDF::add_object()
      *
      * @return int
      */
@@ -295,7 +295,7 @@ class CPDF implements Canvas
     /**
      * Reopens an existing 'object'
      *
-     * @see CPDF_Adapter::open_object()
+     * @see CPDF::open_object()
      * @param int $object the ID of a previously opened object
      */
     public function reopen_object($object)
@@ -307,7 +307,7 @@ class CPDF implements Canvas
     /**
      * Closes the current 'object'
      *
-     * @see CPDF_Adapter::open_object()
+     * @see CPDF::open_object()
      */
     public function close_object()
     {

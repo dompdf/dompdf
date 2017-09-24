@@ -10,7 +10,6 @@ namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
 use Dompdf\Frame;
-use Dompdf\FontMetrics;
 use Dompdf\Image\Cache;
 
 /**

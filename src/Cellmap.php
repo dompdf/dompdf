@@ -7,8 +7,6 @@
  */
 namespace Dompdf;
 
-use Dompdf\Exception;
-use Dompdf\Frame;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 

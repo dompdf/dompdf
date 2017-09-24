@@ -10,7 +10,6 @@ namespace Dompdf\Positioner;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
-use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\Exception;
 
 /**
