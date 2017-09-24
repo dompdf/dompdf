@@ -108,9 +108,11 @@ abstract class AbstractFrameReflower
 
         if ($n) {
             $n_style = $n->get_style();
-            $b = max($b, (float)$n_style->length_in_pt($n_style->margin_top, $cb["h"]));
-            $n_style->margin_top = "0pt";
+            $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["h"]);
+
+            $b = $this->_get_collapsed_margin_length($b, $n_t);
             $style->margin_bottom = $b . "pt";
+            $n_style->margin_top = "0pt";
         }
 
         // Collapse our first child's margin, if there is no border or padding
@@ -132,7 +134,9 @@ abstract class AbstractFrameReflower
             // Margin are collapsed only between block-level boxes
             if ($f) {
                 $f_style = $f->get_style();
-                $t = max($t, (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]));
+                $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]);
+
+                $t = $this->_get_collapsed_margin_length($t, $f_t);
                 $style->margin_top = $t."pt";
                 $f_style->margin_top = "0pt";
             }
@@ -157,11 +161,35 @@ abstract class AbstractFrameReflower
             // Margin are collapsed only between block-level boxes
             if ($l) {
                 $l_style = $l->get_style();
-                $b = max($b, (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]));
+                $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]);
+
+                $b = $this->_get_collapsed_margin_length($b, $l_b);
                 $style->margin_bottom = $b."pt";
                 $l_style->margin_bottom = "0pt";
             }
         }
+    }
+
+    /**
+     * Get the combined (collapsed) length of two adjoining margins.
+     * 
+     * See http://www.w3.org/TR/CSS2/box.html#collapsing-margins.
+     * 
+     * @param number $length1
+     * @param number $length2
+     * @return number
+     */
+    private function _get_collapsed_margin_length($length1, $length2)
+    {
+        if ($length1 < 0 && $length2 < 0) {
+            return min($length1, $length2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
+        }
+        
+        if ($length1 < 0 || $length2 < 0) {
+            return $length1 + $length2; // x + y = x - abs(y), if y < 0
+        }
+        
+        return max($length1, $length2);
     }
 
     /**
