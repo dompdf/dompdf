@@ -89,6 +89,7 @@ class CPDF implements Canvas
         "sra3" => array(0, 0, 907.09, 1275.59),
         "sra4" => array(0, 0, 637.80, 907.09),
         "letter" => array(0, 0, 612.00, 792.00),
+        "half-letter" => array(0, 0, 396.00, 612.00),
         "legal" => array(0, 0, 612.00, 1008.00),
         "ledger" => array(0, 0, 1224.00, 792.00),
         "tabloid" => array(0, 0, 792.00, 1224.00),
