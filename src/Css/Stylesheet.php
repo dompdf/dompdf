@@ -9,6 +9,7 @@
  */
 namespace Dompdf\Css;
 
+use DOMElement;
 use DOMXPath;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
@@ -965,6 +966,11 @@ class Stylesheet
 
                 /** @var \DOMElement $node */
                 foreach ($nodes as $node) {
+                    // Expect $node to be an instance of DOMElement class
+                    if (!$node instanceof DOMElement) {
+                        continue;
+                    }
+
                     foreach (array_keys($query["pseudo_elements"], true, true) as $pos) {
                         // Do not add a new pseudo element if another one already matched
                         if ($node->hasAttribute("dompdf_{$pos}_frame_id")) {
