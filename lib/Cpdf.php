@@ -1477,7 +1477,7 @@ EOT;
                         if ($this->encrypted) {
                             $res .= $this->filterText($this->ARC4($o['info']), true, false);
                         } else {
-                            $res .= $this->filterText($o['info'], true, false);
+                            $res .= $this->filterText($o['info'], false, false);
                         }
 
                         $res .= ")";
@@ -3341,14 +3341,14 @@ EOT;
     {
         $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F %.3F %.3F c", $x1, $y1, $x2, $y2, $x3, $y3));
     }
- 
+
     /**
      * draw a bezier curve based on 4 control points
      */    function quadTo($cpx, $cpy, $x, $y)
     {
         $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F v", $cpx, $cpy, $x, $y));
     }
-    
+
     function closePath()
     {
         $this->addContent(' h');
