@@ -1475,7 +1475,7 @@ EOT;
                     case 'URI':
                         $res .= "\n/S /URI\n/URI (";
                         if ($this->encrypted) {
-                            $res .= $this->filterText($this->ARC4($o['info']), true, false);
+                            $res .= $this->filterText($this->ARC4($o['info']), false, false);
                         } else {
                             $res .= $this->filterText($o['info'], false, false);
                         }
