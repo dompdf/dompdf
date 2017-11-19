@@ -57,7 +57,7 @@ Questions should be asked on the
 - Make sure you have a [GitHub Account](https://github.com/signup/free)
 - Fork [dompdf](https://github.com/dompdf/dompdf/)
   ([how to fork a repo](https://help.github.com/articles/fork-a-repo))
-- *Make your changes on the dev branch* or the most appropriate feature branch. Please only patch 
+- *Make your changes on the `develop` branch* or the most appropriate feature branch. Please only patch 
   the master branch if you are attempting to address an urgent bug in the released code.
 - Add a simple test file in `www/test/`, with a comprehensive name.
 - Add a unit test in the ``test/Dompdf/Tests/`` directory.

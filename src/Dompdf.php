@@ -465,7 +465,7 @@ class Dompdf
         // https://developer.mozilla.org/en/mozilla's_quirks_mode
         $quirksmode = false;
 
-        if ($this->options->isHtml5ParserEnabled() && class_exists("HTML5_Tokenizer", false)) {
+        if ($this->options->isHtml5ParserEnabled() && class_exists("HTML5_Tokenizer")) {
             $tokenizer = new HTML5_Tokenizer($str);
             $tokenizer->parse();
             $doc = $tokenizer->save();
@@ -489,6 +489,16 @@ class Dompdf
             $doc->preserveWhiteSpace = true;
             $doc->loadHTML($str);
             $doc->encoding = $encoding;
+
+            // Remove #text children nodes in nodes that shouldn't have
+            $tag_names = array("html", "table", "tbody", "thead", "tfoot", "tr");
+            foreach ($tag_names as $tag_name) {
+                $nodes = $doc->getElementsByTagName($tag_name);
+
+                foreach ($nodes as $node) {
+                    self::removeTextNodes($node);
+                }
+            }
 
             // If some text is before the doctype, we are in quirksmode
             if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {

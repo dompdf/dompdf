@@ -21,7 +21,7 @@ release. For released code please
 
 ----
 
-**Check out the [demo](http://pxd.me/dompdf/www/examples.php) and ask any
+**Check out the [demo](https://dompdf.net/examples.php) and ask any
 question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
 on the [Google Groups](http://groups.google.com/group/dompdf).**
 
@@ -109,7 +109,8 @@ will reside
  * Or download a nightly (the latest, unreleased code) from
    http://eclecticgeek.com/dompdf
 
-Require dompdf, libraries, and helper functions in your PHP:
+Use the packaged release autoloader to load dompdf, libraries,
+and helper functions in your PHP:
 
 ```php
 // include autoloader
@@ -127,19 +128,22 @@ cd dompdf
 
 git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
 cd lib/php-font-lib
-git checkout 0.4
+git checkout 0.5.1
 cd ..
 
 git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
 cd php-svg-lib
-git checkout v0.1
+git checkout v0.3
 ```
 
 Require dompdf, libraries, and helper functions in your PHP:
 
 ```php
-// include autoloader
-require_once 'dompdf/autoload.inc.php';
+require_once 'dompdf/lib/html5lib/Parser.php';
+require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
+require_once 'dompdf/lib/php-svg-lib/src/autoload.php';
+require_once 'dompdf/src/Autoloader.php';
+Dompdf\Autoloader::register();
 ```
 
 ## Quick Start
