@@ -1045,7 +1045,7 @@ class Dompdf
      * Gets the paper size
      *
      * @param null|string|array $paperSize
-     * @return \int[] A four-element integer array
+     * @return int[] A four-element integer array
      */
     public function getPaperSize($paperSize = null)
     {

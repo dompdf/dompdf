@@ -7,8 +7,6 @@
  */
 namespace Dompdf;
 
-use Dompdf\Frame;
-
 /**
  * Embeds Javascript into the PDF document
  *
@@ -41,7 +39,7 @@ class JavascriptEmbedder
     }
 
     /**
-     * @param \Dompdf\Frame $frame
+     * @param Frame $frame
      */
     public function render(Frame $frame)
     {

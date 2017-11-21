@@ -744,7 +744,7 @@ class Stylesheet
 
                         // the selector is not handled, until we support all possible selectors force an empty set (silent failure)
                         default:
-                            $query = "/..";
+                            $query = "/../.."; // go up two levels because generated content starts on the body element
                             $tok = "";
                             break;
                     }
@@ -966,8 +966,8 @@ class Stylesheet
 
                 /** @var \DOMElement $node */
                 foreach ($nodes as $node) {
-                    // Expect $node to be an instance of DOMElement class
-                    if (!$node instanceof DOMElement) {
+                    // Only DOMElements get styles
+                    if ($node->nodeType != XML_ELEMENT_NODE) {
                         continue;
                     }
 

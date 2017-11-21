@@ -8,7 +8,6 @@
  */
 namespace Dompdf\FrameReflower;
 
-use Dompdf\FontMetrics;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;

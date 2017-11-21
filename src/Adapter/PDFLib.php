@@ -13,7 +13,6 @@ use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Exception;
-use Dompdf\FontMetrics;
 use Dompdf\Image\Cache;
 use Dompdf\PhpEvaluator;
 
@@ -281,8 +280,8 @@ class PDFLib implements Canvas
      *
      * The return value is an integer ID for the new object.
      *
-     * @see PDFLib_Adapter::close_object()
-     * @see PDFLib_Adapter::add_object()
+     * @see PDFLib::close_object()
+     * @see PDFLib::add_object()
      *
      * @return int
      */
@@ -312,7 +311,7 @@ class PDFLib implements Canvas
     /**
      * Close the current template
      *
-     * @see PDFLib_Adapter::open_object()
+     * @see PDFLib::open_object()
      */
     public function close_object()
     {
