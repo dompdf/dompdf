@@ -18,7 +18,3 @@ matrix:
   allow_failures:
     - php: hhvm
   fast_finish: true
-  include:
-    -
-      php: "5.3"
-      dist: precise
