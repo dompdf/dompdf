@@ -945,7 +945,7 @@ class Dompdf
      *
      * @param array $options options (see above)
      *
-     * @return string
+     * @return string|null
      */
     public function output($options = array())
     {
