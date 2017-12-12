@@ -237,6 +237,10 @@ class Page extends AbstractFrameDecorator
      *    break occurs here, the used values of the relevant
      *    'margin-top' and 'margin-bottom' properties are set to '0'.
      *    2. Between line boxes inside a block box.
+     *    3. Between the content edge of a block container box and the
+     *    outer edges of its child content (margin edges of block-level
+     *    children or line box edges for inline-level children) if there
+     *    is a (non-zero) gap between them.
      *
      * These breaks are subject to the following rules:
      *
@@ -332,10 +336,14 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // If the frame is the first block-level frame, use the value from
-            // $frame's parent instead.
+            // If the frame is the first block-level frame, only allow a page
+            // break if there is a (non-zero) gap between the frame and its
+            // parent
             if (!$prev && $parent) {
-                return $this->_page_break_allowed($parent);
+                Helpers::dompdf_debug("page-break", "First block level frame, checking gap");
+
+                return $frame->get_style()->length_in_pt($frame->get_style()->margin_top) != 0
+                    || $parent->get_style()->length_in_pt($parent->get_style()->padding_top) != 0;
             }
 
             Helpers::dompdf_debug("page-break", "block: break allowed");
