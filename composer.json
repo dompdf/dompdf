@@ -26,7 +26,6 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "ext-gd": "*",
         "ext-dom": "*",
         "ext-mbstring": "*",
         "phenx/php-font-lib": "0.5.*",
