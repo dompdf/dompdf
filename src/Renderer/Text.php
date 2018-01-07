@@ -132,7 +132,7 @@ class Text extends AbstractRenderer
                 continue;
             }
 
-            $deco_y = $y; //$line->y;
+            $deco_y = $y+$base; //$line->y;
             $color = $f->get_style()->color;
 
             switch ($text_deco) {
