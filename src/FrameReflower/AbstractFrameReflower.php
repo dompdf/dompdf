@@ -354,8 +354,8 @@ abstract class AbstractFrameReflower
     {
         // Matches generated content
         $re = "/\n" .
-            "\s(counters?\\([^)]*\\))|\n" .
-            "\A(counters?\\([^)]*\\))|\n" .
+            "\s(counters?\\([^;\v}]*)|\n" .
+            "\A(counters?\\([^;\v}]*)|\n" .
             "\s([\"']) ( (?:[^\"']|\\\\[\"'])+ )(?<!\\\\)\\3|\n" .
             "\A([\"']) ( (?:[^\"']|\\\\[\"'])+ )(?<!\\\\)\\5|\n" .
             "\s([^\s\"']+)|\n" .
@@ -398,7 +398,8 @@ abstract class AbstractFrameReflower
                     continue;
                 }
 
-                preg_match('/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]+)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i', $match[1], $args);
+                preg_match('/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]+)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)([\s\S]*)/i', $match[1], $args);
+                
                 $counter_id = $args[3];
                 if (strtolower($args[1]) == 'counter') {
                     // counter(name [,style])
@@ -435,6 +436,12 @@ abstract class AbstractFrameReflower
                         $p = $p->lookup_counter_frame($counter_id);
                     }
                     $text .= implode($string, $tmp);
+
+                    // Catch Data after the counter e.g. content: counters(item, ".") ".";
+                    if (isset($args[8])) {
+                        $text .= str_replace(['"', '\''], '', trim($args[8]));
+                    }
+
                 } else {
                     // countertops?
                     continue;
