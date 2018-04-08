@@ -41,7 +41,7 @@ class ListBullet extends AbstractPositioner
         $n = $frame->get_next_sibling();
         if ($n) {
             $style = $n->get_style();
-            $line_height = $style->length_in_pt($style->line_height, $style->get_font_size());
+            $line_height = $style->length_in_pt($style->line_height, $style->font_size);
             $offset = (float)$style->length_in_pt($line_height, $n->get_containing_block("h")) - $frame->get_height();
             $y += $offset / 2;
         }
@@ -66,7 +66,7 @@ class ListBullet extends AbstractPositioner
         // For now give up on the above. Use Guesswork with font y-pos in the middle of the line spacing
 
         /*$style = $p->get_style();
-        $font_size = $style->get_font_size();
+        $font_size = $style->font_size;
         $line_height = (float)$style->length_in_pt($style->line_height, $font_size);
         $y += ($line_height - $font_size) / 2;    */
 
