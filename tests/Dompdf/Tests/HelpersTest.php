@@ -2,9 +2,9 @@
 namespace Dompdf\Tests;
 
 use Dompdf\Helpers;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class HelpersTest extends PHPUnit_Framework_TestCase
+class HelpersTest extends TestCase
 {
     public function testParseDataUriBase64Image()
     {
