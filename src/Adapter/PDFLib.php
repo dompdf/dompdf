@@ -759,7 +759,7 @@ class PDFLib implements Canvas
         $this->_pdf->lineto($x2, $y2);
         $this->_pdf->stroke();
 
-        $this->_set_line_transparency("Normal", $this->_current_opacity);
+        $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
     /**
@@ -783,7 +783,7 @@ class PDFLib implements Canvas
         $this->_pdf->arc($x1, $y1, $r1, $astart, $aend);
         $this->_pdf->stroke();
 
-        $this->_set_line_transparency("Normal", $this->_current_opacity);
+        $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
     /**
@@ -805,7 +805,7 @@ class PDFLib implements Canvas
         $this->_pdf->rect($x1, $y1, $w, $h);
         $this->_pdf->stroke();
 
-        $this->_set_line_transparency("Normal", $this->_current_opacity);
+        $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
     /**
@@ -824,7 +824,7 @@ class PDFLib implements Canvas
         $this->_pdf->rect(floatval($x1), floatval($y1), floatval($w), floatval($h));
         $this->_pdf->fill();
 
-        $this->_set_fill_opacity("Normal", $this->_current_opacity);
+        $this->_set_fill_opacity($this->_current_opacity, "Normal");
     }
 
     /**
@@ -975,8 +975,8 @@ class PDFLib implements Canvas
             $this->_pdf->closepath_stroke();
         }
 
-        $this->_set_fill_opacity("Normal", $this->_current_opacity);
-        $this->_set_line_transparency("Normal", $this->_current_opacity);
+        $this->_set_fill_opacity($this->_current_opacity, "Normal");
+        $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
     /**
@@ -1007,8 +1007,8 @@ class PDFLib implements Canvas
             $this->_pdf->stroke();
         }
 
-        $this->_set_fill_opacity("Normal", $this->_current_opacity);
-        $this->_set_line_transparency("Normal", $this->_current_opacity);
+        $this->_set_fill_opacity($this->_current_opacity, "Normal");
+        $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
     /**
@@ -1062,7 +1062,7 @@ class PDFLib implements Canvas
 
         $this->_pdf->fit_textline($text, $x, $y, "rotate=$angle wordspacing=$word_spacing charspacing=$char_spacing ");
 
-        $this->_set_fill_opacity("Normal", $this->_current_opacity);
+        $this->_set_fill_opacity($this->_current_opacity, "Normal");
     }
 
     /**
