@@ -55,6 +55,31 @@ class PDFLib implements Canvas
      */
     static private $MAJOR_VERSION = null;
 
+
+    /**
+     * Transforms the list of native fonts into PDFLib compatible names (casesensitive)
+     *
+     * @var array
+     */
+    static public $nativeFontsTpPDFLib = array(
+        "courier"               => "Courier",
+        "courier-bold"          => "Courier-Bold",
+        "courier-oblique"       => "Courier-Oblique",
+        "courier-boldoblique"   => "Courier-BoldOblique",
+        "helvetica"             => "Helvetica",
+        "helvetica-bold"        => "Helvetica-Bold",
+        "helvetica-oblique"     => "Helvetica-Oblique",
+        "helvetica-boldoblique" => "Helvetica-BoldOblique",
+        "times"                 => "Times-Roman",
+        "times-roman"           => "Times-Roman",
+        "times-bold"            => "Times-Bold",
+        "times-italic"          => "Times-Italic",
+        "times-bolditalic"      => "Times-BoldItalic",
+        "symbol"                => "Symbol",
+        "zapfdinbats"           => "Zapfdingbats",
+        "zapfdingbats"          => "Zapfdingbats",
+    );
+
     /**
      * @var \Dompdf\Dompdf
      */
@@ -202,6 +227,8 @@ class PDFLib implements Canvas
         $this->setPDFLibParameter("textformat", "utf8");
         if ($this->getPDFLibMajorVersion() >= 7) {
             $this->setPDFLibParameter("errorpolicy", "return");
+            //            $this->_pdf->set_option('logging={filename=' . \APP_PATH . '/logs/pdflib.log classes={api=1 warning=2}}');
+            //            $this->_pdf->set_option('errorpolicy=exception');
         } else {
             $this->setPDFLibParameter("fontwarning", "false");
         }
@@ -708,6 +735,12 @@ class PDFLib implements Canvas
      */
     protected function _load_font($font, $encoding = null, $options = "")
     {
+        // Fix for PDFLibs case-sensitive font names
+        $baseFont = basename($font);
+        if (isset(self::$nativeFontsTpPDFLib[$baseFont])) {
+            $font = self::$nativeFontsTpPDFLib[$baseFont];
+        }
+
         // Set up font paths
         $fontOutline = $this->getPDFLibParameter("FontOutline", 1);
         if ($fontOutline === "" || $fontOutline <= 0) {
