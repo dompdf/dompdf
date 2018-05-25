@@ -76,8 +76,8 @@ class PDFLib implements Canvas
         "times-italic"          => "Times-Italic",
         "times-bolditalic"      => "Times-BoldItalic",
         "symbol"                => "Symbol",
-        "zapfdinbats"           => "Zapfdingbats",
-        "zapfdingbats"          => "Zapfdingbats",
+        "zapfdinbats"           => "ZapfDingbats",
+        "zapfdingbats"          => "ZapfDingbats",
     );
 
     /**
@@ -147,6 +147,13 @@ class PDFLib implements Canvas
      * @var array
      */
     private $_fonts;
+
+    /**
+     * Cache of fontFile checks
+     *
+     * @var array
+     */
+    private $_fontsFiles;
 
     /**
      * List of objects (templates) to add to multiple pages
@@ -737,61 +744,15 @@ class PDFLib implements Canvas
     {
         // Fix for PDFLibs case-sensitive font names
         $baseFont = basename($font);
+        $isNativeFont = false;
         if (isset(self::$nativeFontsTpPDFLib[$baseFont])) {
             $font = self::$nativeFontsTpPDFLib[$baseFont];
-        }
-
-        // Set up font paths
-        $fontOutline = $this->getPDFLibParameter("FontOutline", 1);
-        if ($fontOutline === "" || $fontOutline <= 0) {
-            $families = $this->_dompdf->getFontMetrics()->getFontFamilies();
-            foreach ($families as $files) {
-                foreach ($files as $file) {
-                    $face = basename($file);
-                    $afm = null;
-
-                    // Prefer ttfs to afms
-                    if (file_exists("$file.ttf")) {
-                        $outline = "$file.ttf";
-
-                    } elseif (file_exists("$file.TTF")) {
-                        $outline = "$file.TTF";
-
-                    } elseif (file_exists("$file.pfb")) {
-                        $outline = "$file.pfb";
-                        if (file_exists("$file.afm")) {
-                            $afm = "$file.afm";
-                        }
-
-                    } elseif (file_exists("$file.PFB")) {
-                        $outline = "$file.PFB";
-                        if (file_exists("$file.AFM")) {
-                            $afm = "$file.AFM";
-                        }
-                    } else {
-                        continue;
-                    }
-
-                    if ($this->getPDFLibMajorVersion() >= 9) {
-                        $this->setPDFLibParameter("FontOutline", '{' . "$face=$outline" . '}');
-                    } else {
-                        $this->setPDFLibParameter("FontOutline", "\{$face\}=\{$outline\}");
-                    }
-
-                    if (!is_null($afm)) {
-                        if ($this->getPDFLibMajorVersion() >= 9) {
-                            $this->setPDFLibParameter("FontAFM", '{' . "$face=$afm" . '}');
-                        } else {
-                            $this->setPDFLibParameter("FontAFM", "\{$face\}=\{$afm\}");
-                        }
-                    }
-                }
-            }
+            $isNativeFont = true;
         }
 
         // Check if the font is a native PDF font
         // Embed non-native fonts
-        $test = strtolower(basename($font));
+        $test = strtolower($baseFont);
         if (in_array($test, DOMPDF::$nativeFonts)) {
             $font = basename($font);
         } else {
@@ -810,14 +771,71 @@ class PDFLib implements Canvas
         }
 
         $key = "$font:$encoding:$options";
-
         if (isset($this->_fonts[$key])) {
             return $this->_fonts[$key];
-        } else {
+        }
+
+        // Native fonts are build in, just load it
+        if ($isNativeFont) {
             $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
 
             return $this->_fonts[$key];
         }
+
+        $fontOutline = $this->getPDFLibParameter("FontOutline", 1);
+        if ($fontOutline === "" || $fontOutline <= 0) {
+            $families = $this->_dompdf->getFontMetrics()->getFontFamilies();
+            foreach ($families as $files) {
+                foreach ($files as $file) {
+                    $face = basename($file);
+                    $afm = null;
+
+                    if (isset($this->_fontsFiles[$face])) {
+                        continue;
+                    }
+
+                    // Prefer ttfs to afms
+                    if (file_exists("$file.ttf")) {
+                        $outline = "$file.ttf";
+                    } elseif (file_exists("$file.TTF")) {
+                        $outline = "$file.TTF";
+                    } elseif (file_exists("$file.pfb")) {
+                        $outline = "$file.pfb";
+                        if (file_exists("$file.afm")) {
+                            $afm = "$file.afm";
+                        }
+                    } elseif (file_exists("$file.PFB")) {
+                        $outline = "$file.PFB";
+                        if (file_exists("$file.AFM")) {
+                            $afm = "$file.AFM";
+                        }
+                    } else {
+                        continue;
+                    }
+
+                    $this->_fontsFiles[$face] = true;
+
+                    if ($this->getPDFLibMajorVersion() >= 9) {
+                        $this->setPDFLibParameter("FontOutline", '{' . "$face=$outline" . '}');
+                    } else {
+                        $this->setPDFLibParameter("FontOutline", "\{$face\}=\{$outline\}");
+                    }
+
+                    if (is_null($afm)) {
+                        continue;
+                    }
+                    if ($this->getPDFLibMajorVersion() >= 9) {
+                        $this->setPDFLibParameter("FontAFM", '{' . "$face=$afm" . '}');
+                    } else {
+                        $this->setPDFLibParameter("FontAFM", "\{$face\}=\{$afm\}");
+                    }
+                }
+            }
+        }
+
+        $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
+
+        return $this->_fonts[$key];
     }
 
     /**
