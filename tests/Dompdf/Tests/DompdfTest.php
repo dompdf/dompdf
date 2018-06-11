@@ -68,6 +68,24 @@ class DompdfTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('', $dom->textContent);
     }
 
+    public function testRenderWithDefaultWidth()
+    {
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml('<html>
+<body>
+  <ul></ul>
+  <div style="line-height:inherit">
+    <div style="line-height:inherit">
+      <div>
+        <div style="text-decoration:none solid rgb(0,0,0);">1</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>');
+        $dompdf->render();
+    }
+
     public function testSpaceAtStartOfSecondInlineTag()
     {
         $text_frame_contents = array();

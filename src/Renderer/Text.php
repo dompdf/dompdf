@@ -72,7 +72,7 @@ class Text extends AbstractRenderer
         $size = $frame_font_size = $style->font_size;
         $word_spacing = $frame->get_text_spacing() + (float)$style->length_in_pt($style->word_spacing);
         $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
-        $width = $style->width;
+        $width = $style->width !== 'auto' ? $style->width : 0;
 
         /*$text = str_replace(
           array("{PAGE_NUM}"),
