@@ -697,6 +697,13 @@ abstract class AbstractFrameDecorator extends Frame
         $split->_splitted = true;
         $split->_already_pushed = true;
 
+        // Workaround for list item bullets, because the counter of the bullet gets lost,
+        // because node is not cloned deeply.
+        if ('list-item' === $split->get_style()->display && $node instanceof DOMElement) {
+            $counter = $node->childNodes->item(0)->getAttribute('dompdf-counter');
+            $split->get_node()->childNodes->item(0)->setAttribute('dompdf-counter', $counter);
+        }
+
         // The body's properties must be kept
         if ($node->nodeName !== "body") {
             // Style reset on the first and second parts
@@ -745,6 +752,18 @@ abstract class AbstractFrameDecorator extends Frame
         if ($style->counter_reset && ($reset = $style->counter_reset) !== "none") {
             $vars = preg_split('/\s+/', trim($reset), 2);
             $split->_counters['__' . $vars[0]] = $this->lookup_counter_frame($vars[0])->_counters[$vars[0]];
+        }
+
+        // If the frame is completely empty after the splitting, it must be removed from the tree.
+        // This is necessary to avoid drawing list bullets although the list item has been emptied during splitting.
+        if (((null === $this->get_first_child() && null === $this->get_last_child())
+            || ($this->get_first_child() === $this->get_last_child() && 'bullet' === $this->get_first_child()->get_node()->nodeName))
+            && '' === trim($this->get_node()->textContent)
+        ) {
+            $this->get_parent()->remove_child($this);
+
+            // Mark the copy as non-splitted, because we want the bullet to be drawn if the origin was removed.
+            $split->_splitted = false;
         }
     }
 
