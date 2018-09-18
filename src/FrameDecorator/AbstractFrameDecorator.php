@@ -756,10 +756,7 @@ abstract class AbstractFrameDecorator extends Frame
 
         // If the frame is completely empty after the splitting, it must be removed from the tree.
         // This is necessary to avoid drawing list bullets although the list item has been emptied during splitting.
-        if (((null === $this->get_first_child() && null === $this->get_last_child())
-            || ($this->get_first_child() === $this->get_last_child() && 'bullet' === $this->get_first_child()->get_node()->nodeName))
-            && '' === trim($this->get_node()->textContent)
-        ) {
+        if ($this->is_empty()) {
             $this->get_parent()->remove_child($this);
 
             // Mark the copy as non-splitted, because we want the bullet to be drawn if the origin was removed.
@@ -929,5 +926,30 @@ abstract class AbstractFrameDecorator extends Frame
     final function calculate_auto_width()
     {
         return $this->_reflower->calculate_auto_width();
+    }
+
+    /**
+     * Check if the frame is empty.
+     *
+     * A frame that only consists of list bullets or empty text nodes is regarded as empty.
+     */
+    public function is_empty()
+    {
+        if (null === $this->get_first_child() && null === $this->get_last_child()) {
+            return true;
+        }
+
+        $child = $this->get_first_child();
+
+        do {
+            $nodeName = $child->get_node()->nodeName;
+            $empty = 'bullet' === $nodeName || ('#text' === $nodeName && '' === trim($this->get_node()->textContent));
+
+            if (!$empty) {
+                return false;
+            }
+        } while ($child = $child->get_next_sibling());
+
+        return true;
     }
 }
