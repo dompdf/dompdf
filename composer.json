@@ -35,6 +35,11 @@
         "phpunit/phpunit": "4.8.*",
         "squizlabs/php_codesniffer": "2.*"
     },
+    "suggest": {
+        "ext-gd": "Needed to process images",
+        "ext-imagick": "Improves image processing performance",
+        "ext-gmagick": "Improves image processing performance"
+    },
     "extra": {
         "branch-alias": {
             "dev-develop": "0.7-dev"
