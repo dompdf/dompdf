@@ -308,6 +308,7 @@ ol {
 
 li {
   display: list-item;
+  vertical-align: top;
 }
 
 /*li:before {

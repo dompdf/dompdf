@@ -181,7 +181,8 @@ class ListBullet extends AbstractRenderer
                     list($x, $y) = $frame->get_position();
                     $r = ($font_size * (ListBulletFrameDecorator::BULLET_SIZE /*-ListBulletFrameDecorator::BULLET_THICKNESS*/)) / 2;
                     $x -= $font_size * (ListBulletFrameDecorator::BULLET_SIZE / 2);
-                    $y += ($font_size * (1 - ListBulletFrameDecorator::BULLET_DESCENT)) / 2;
+                    $line = $li->get_containing_line();
+                    $y = $line->y +($font_size / 2);
                     $o = $font_size * ListBulletFrameDecorator::BULLET_THICKNESS;
                     $this->_canvas->circle($x, $y, $r, $style->color, $o, null, $fill);
                     break;
@@ -190,7 +191,8 @@ class ListBullet extends AbstractRenderer
                     list($x, $y) = $frame->get_position();
                     $w = $font_size * ListBulletFrameDecorator::BULLET_SIZE;
                     $x -= $w;
-                    $y += ($font_size * (1 - ListBulletFrameDecorator::BULLET_DESCENT - ListBulletFrameDecorator::BULLET_SIZE)) / 2;
+                    $line = $li->get_containing_line();
+                    $y = $line->y +($font_size / 2);
                     $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
                     break;
 
@@ -235,8 +237,8 @@ class ListBullet extends AbstractRenderer
                     $x -= $this->_dompdf->getFontMetrics()->getTextWidth($text, $font_family, $font_size, $spacing);
 
                     // Take line-height into account
-                    $line_height = $style->line_height;
-                    $y += ($line_height - $font_size) / 4; // FIXME I thought it should be 2, but 4 gives better results
+                    // $line_height = $style->line_height;
+                    // $y += ($line_height - $font_size) / 4; // FIXME I thought it should be 2, but 4 gives better results
 
                     $this->_canvas->text($x, $y, $text,
                         $font_family, $font_size,
