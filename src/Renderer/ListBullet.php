@@ -182,7 +182,8 @@ class ListBullet extends AbstractRenderer
                     $r = ($font_size * (ListBulletFrameDecorator::BULLET_SIZE /*-ListBulletFrameDecorator::BULLET_THICKNESS*/)) / 2;
                     $x -= $font_size * (ListBulletFrameDecorator::BULLET_SIZE / 2);
                     $line = $li->get_containing_line();
-                    $y = $line->y +($font_size / 2);
+                    $y = $line->y;
+                    $y += $font_size;
                     $o = $font_size * ListBulletFrameDecorator::BULLET_THICKNESS;
                     $this->_canvas->circle($x, $y, $r, $style->color, $o, null, $fill);
                     break;
@@ -192,7 +193,8 @@ class ListBullet extends AbstractRenderer
                     $w = $font_size * ListBulletFrameDecorator::BULLET_SIZE;
                     $x -= $w;
                     $line = $li->get_containing_line();
-                    $y = $line->y +($font_size / 2);
+                    $y = $line->y;
+                    $y += $font_size;
                     $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
                     break;
 
