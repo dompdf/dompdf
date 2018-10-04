@@ -177,7 +177,7 @@ class Stylesheet
             $script = $_SERVER["SCRIPT_FILENAME"];
         }
         list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explode_url($script);
-        $this->_page_styles = array("base" => null);
+        $this->_page_styles = array("base" => new Style($this));
     }
 
     /**
