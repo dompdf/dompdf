@@ -172,7 +172,7 @@ class Stylesheet
         $this->setFontMetrics($dompdf->getFontMetrics());
         $this->_styles = array();
         $this->_loaded_files = array();
-        $script = 'commandLine';
+        $script = __FILE__;
         if(isset($_SERVER["SCRIPT_FILENAME"])){
             $script = $_SERVER["SCRIPT_FILENAME"];
         }
