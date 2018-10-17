@@ -1390,24 +1390,24 @@ class Style
     {
         return array(
             "top" => array(
-                "width" => $this->__get("border_top_width"),
-                "style" => $this->__get("border_top_style"),
-                "color" => $this->__get("border_top_color"),
+                "width" => (float) $this->__get("border_top_width"),
+                "style" => (float) $this->__get("border_top_style"),
+                "color" => (float) $this->__get("border_top_color"),
             ),
             "bottom" => array(
-                "width" => $this->__get("border_bottom_width"),
-                "style" => $this->__get("border_bottom_style"),
-                "color" => $this->__get("border_bottom_color"),
+                "width" => (float) $this->__get("border_bottom_width"),
+                "style" => (float) $this->__get("border_bottom_style"),
+                "color" => (float) $this->__get("border_bottom_color"),
             ),
             "right" => array(
-                "width" => $this->__get("border_right_width"),
-                "style" => $this->__get("border_right_style"),
-                "color" => $this->__get("border_right_color"),
+                "width" => (float) $this->__get("border_right_width"),
+                "style" => (float) $this->__get("border_right_style"),
+                "color" => (float) $this->__get("border_right_color"),
             ),
             "left" => array(
-                "width" => $this->__get("border_left_width"),
-                "style" => $this->__get("border_left_style"),
-                "color" => $this->__get("border_left_color"),
+                "width" => (float) $this->__get("border_left_width"),
+                "style" => (float) $this->__get("border_left_style"),
+                "color" => (float) $this->__get("border_left_color"),
             ),
         );
     }
