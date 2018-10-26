@@ -208,7 +208,7 @@ class PDFLib implements Canvas
             $this->_pdf->begin_document("", "");
         } else {
             $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-            $tmp_name = tempnam($tmp_dir, "libdompdf_pdf_");
+            $tmp_name = @tempnam($tmp_dir, "libdompdf_pdf_");
             @unlink($tmp_name);
             $this->_file = "$tmp_name.pdf";
             $this->_pdf->begin_document($this->_file, "");
