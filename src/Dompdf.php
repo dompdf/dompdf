@@ -107,7 +107,7 @@ class Dompdf
     /**
      * Desired paper size ('letter', 'legal', 'A4', etc.)
      *
-     * @var string
+     * @var string|array
      */
     private $paperSize;
 
@@ -397,8 +397,8 @@ class Dompdf
     }
 
     /**
-     * @param $str
-     * @param null $encoding
+     * @param string $str
+     * @param string $encoding
      * @deprecated
      */
     public function load_html($str, $encoding = 'UTF-8')
@@ -1030,7 +1030,7 @@ class Dompdf
     /**
      * Sets the paper size & orientation
      *
-     * @param string $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
+     * @param string|array $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
      * @param string $orientation 'portrait' or 'landscape'
      * @return $this
      */
