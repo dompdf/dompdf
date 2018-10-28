@@ -445,7 +445,7 @@ class Stylesheet
      * @param bool $first_pass
      *
      * @throws Exception
-     * @return string
+     * @return array
      */
     private function _css_selector_to_xpath($selector, $first_pass = false)
     {

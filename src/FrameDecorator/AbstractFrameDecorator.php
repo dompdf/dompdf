@@ -438,6 +438,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
+     * @param bool $use_cache
      * @return AbstractFrameDecorator
      */
     function get_parent($use_cache = true)

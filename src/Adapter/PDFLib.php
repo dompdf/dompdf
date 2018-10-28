@@ -88,7 +88,7 @@ class PDFLib implements Canvas
     /**
      * Instance of PDFLib class
      *
-     * @var \PDFlib
+     * @var \PDFLib
      */
     private $_pdf;
 
@@ -200,7 +200,7 @@ class PDFLib implements Canvas
     /**
      * Class constructor
      *
-     * @param mixed  $paper       The size of paper to use either a string (see {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}) or
+     * @param string|array $paper The size of paper to use either a string (see {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}) or
      *                            an array(xmin,ymin,xmax,ymax)
      * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
      * @param Dompdf $dompdf

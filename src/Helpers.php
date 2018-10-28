@@ -583,6 +583,7 @@ class Helpers
      * getimagesize doesn't give a good size for 32bit BMP image v5
      *
      * @param string $filename
+     * @param resource $context
      * @return array The same format as getimagesize($filename)
      */
     public static function dompdf_getimagesize($filename, $context = null)
