@@ -285,7 +285,7 @@ class Stylesheet
     }
 
     /**
-     * lookup a specifc Style collection
+     * lookup a specific Style collection
      *
      * lookup() returns the Style collection specified by $key, or null if the Style is
      * not found.
@@ -570,7 +570,7 @@ class Stylesheet
                     break;
 
                 case "+":
-                    // All sibling elements that folow the current token
+                    // All sibling elements that follow the current token
                     if (mb_substr($query, -1, 1) !== "/") {
                         $query .= "/";
                     }
@@ -1265,7 +1265,7 @@ class Stylesheet
             throw new Exception("Error parsing css file: preg_match_all() failed.");
         }
 
-        // After matching, the array indicies are set as follows:
+        // After matching, the array indices are set as follows:
         //
         // [0] => complete text of match
         // [1] => contains '@import ...;' or '@media {' if applicable
@@ -1560,7 +1560,7 @@ class Stylesheet
 
         foreach ($properties as $prop) {
             // If the $prop contains an url, the regex may be wrong
-            // @todo: fix the regex so that it works everytime
+            // @todo: fix the regex so that it works every time
             /*if (strpos($prop, "url(") === false) {
               if (preg_match("/([a-z-]+)\s*:\s*[^:]+$/i", $prop, $m))
                 $prop = $m[0];

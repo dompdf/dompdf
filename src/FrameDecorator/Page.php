@@ -194,7 +194,7 @@ class Page extends AbstractFrameDecorator
             // Prevent cascading splits
             $frame->split(null, true);
             // We have to grab the style again here because split() resets
-            // $frame->style to the frame's orignal style.
+            // $frame->style to the frame's original style.
             $frame->get_style()->page_break_before = "auto";
             $this->_page_full = true;
             $frame->_already_pushed = true;
