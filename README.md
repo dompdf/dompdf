@@ -54,6 +54,7 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  * MBString extension
  * php-font-lib
  * php-svg-lib
+ * PHP's `output_buffering` must be enabled
 
 ### Recommendations
 
