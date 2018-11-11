@@ -2,9 +2,9 @@
 namespace Dompdf\Tests;
 
 use Dompdf\Options;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class OptionsTest extends PHPUnit_Framework_TestCase
+class OptionsTest extends TestCase
 {
     public function testConstructor()
     {
