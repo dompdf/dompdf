@@ -26,7 +26,6 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "ext-gd": "*",
         "ext-dom": "*",
         "ext-mbstring": "*",
         "phenx/php-font-lib": "0.5.*",
@@ -35,6 +34,11 @@
     "require-dev": {
         "phpunit/phpunit": "4.8.*",
         "squizlabs/php_codesniffer": "2.*"
+    },
+    "suggest": {
+        "ext-gd": "Needed to process images",
+        "ext-imagick": "Improves image processing performance",
+        "ext-gmagick": "Improves image processing performance"
     },
     "extra": {
         "branch-alias": {
