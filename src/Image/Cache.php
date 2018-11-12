@@ -88,7 +88,7 @@ class Cache
                     } // From remote
                     else {
                         $tmp_dir = $dompdf->getOptions()->getTempDir();
-                        $resolved_url = tempnam($tmp_dir, "ca_dompdf_img_");
+                        $resolved_url = @tempnam($tmp_dir, "ca_dompdf_img_");
                         $image = "";
 
                         if ($data_uri) {

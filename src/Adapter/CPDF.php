@@ -627,7 +627,7 @@ class CPDF implements Canvas
             imageinterlace($im, false);
 
             $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-            $tmp_name = tempnam($tmp_dir, "{$type}dompdf_img_");
+            $tmp_name = @tempnam($tmp_dir, "{$type}dompdf_img_");
             @unlink($tmp_name);
             $filename = "$tmp_name.png";
             $this->_image_cache[] = $filename;
