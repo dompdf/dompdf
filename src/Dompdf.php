@@ -273,6 +273,11 @@ class Dompdf
     {
         mb_internal_encoding('UTF-8');
 
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0)
+        {
+            ini_set('pcre.jit', 0);
+        }
+
         if (isset($options) && $options instanceof Options) {
             $this->setOptions($options);
         } elseif (is_array($options)) {
