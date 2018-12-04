@@ -15,6 +15,9 @@
  * @license Public Domain http://creativecommons.org/licenses/publicdomain/
  * @package Cpdf
  */
+
+namespace Dompdf;
+
 use FontLib\Font;
 use FontLib\BinaryStream;
 
