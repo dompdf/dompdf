@@ -3118,7 +3118,7 @@ EOT;
     header("Content-type: application/pdf");
 
     //FIXME: I don't know that this is sufficient for determining content length (i.e. what about transport compression?)
-    header("Content-Length: " . mb_strlen($tmp, '8bit'));
+    //header("Content-Length: " . mb_strlen($tmp, '8bit'));
     $fileName = (isset($options['Content-Disposition']) ?  $options['Content-Disposition'] :  'file.pdf');
 
     if ( !isset($options["Attachment"]))

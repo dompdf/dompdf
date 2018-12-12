@@ -91,7 +91,13 @@ class List_Bullet_Renderer extends Abstract_Renderer {
       case "lower-alpha":
       case "lower-latin":
       case "a":
-        $text = chr( ($n % 26) + ord('a') - 1);
+        // $text = chr( ($n % 26) + ord('a') - 1); //bug z is not z
+        //this works till zz, but should be more than required.
+        if(floor((($n -1) / 26)) > 0)
+        {
+            $text .= chr( (((floor((($n -1) / 26))) - 1)% 26) + ord('a'));
+        }
+        $text .= chr( (($n -1) % 26) + ord('a'));
         break;
         
       case "upper-roman":
