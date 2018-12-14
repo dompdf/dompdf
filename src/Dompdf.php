@@ -107,7 +107,7 @@ class Dompdf
     /**
      * Desired paper size ('letter', 'legal', 'A4', etc.)
      *
-     * @var string
+     * @var string|array
      */
     private $paperSize;
 
@@ -273,6 +273,11 @@ class Dompdf
     {
         mb_internal_encoding('UTF-8');
 
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0)
+        {
+            ini_set('pcre.jit', 0);
+        }
+
         if (isset($options) && $options instanceof Options) {
             $this->setOptions($options);
         } elseif (is_array($options)) {
@@ -397,8 +402,8 @@ class Dompdf
     }
 
     /**
-     * @param $str
-     * @param null $encoding
+     * @param string $str
+     * @param string $encoding
      * @deprecated
      */
     public function load_html($str, $encoding = 'UTF-8')
@@ -607,7 +612,7 @@ class Dompdf
                             if (!$accept) {
                                 //found at least one mediatype, but none of the accepted ones
                                 //Skip this css file.
-                                continue;
+                                break;
                             }
                         }
 
@@ -628,7 +633,7 @@ class Dompdf
                         ($media = $tag->getAttribute("media")) &&
                         !in_array($media, $acceptedmedia)
                     ) {
-                        continue;
+                        break;
                     }
 
                     $css = "";
@@ -1030,7 +1035,7 @@ class Dompdf
     /**
      * Sets the paper size & orientation
      *
-     * @param string $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
+     * @param string|array $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
      * @param string $orientation 'portrait' or 'landscape'
      * @return $this
      */

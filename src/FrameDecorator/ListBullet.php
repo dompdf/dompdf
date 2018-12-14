@@ -48,7 +48,7 @@ class ListBullet extends AbstractFrameDecorator
             return 0;
         }
 
-        return $style->get_font_size() * self::BULLET_SIZE + 2 * self::BULLET_PADDING;
+        return $style->font_size * self::BULLET_SIZE + 2 * self::BULLET_PADDING;
     }
 
     /**
@@ -64,7 +64,7 @@ class ListBullet extends AbstractFrameDecorator
             return 0;
         }
 
-        return $style->get_font_size() * self::BULLET_SIZE + 2 * self::BULLET_PADDING;
+        return $style->font_size * self::BULLET_SIZE + 2 * self::BULLET_PADDING;
     }
 
     /**

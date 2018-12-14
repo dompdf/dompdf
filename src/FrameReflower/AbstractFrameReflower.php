@@ -116,7 +116,7 @@ abstract class AbstractFrameReflower
         }
 
         // Collapse our first child's margin, if there is no border or padding
-        if ($style->get_border_top_width() == 0 && $style->length_in_pt($style->padding_top) == 0) {
+        if ($style->border_top_width == 0 && $style->length_in_pt($style->padding_top) == 0) {
             $f = $this->_frame->get_first_child();
             if ( $f && !$f->is_block() && !$f->is_table() ) {
                 while ( $f = $f->get_next_sibling() ) {
@@ -143,7 +143,7 @@ abstract class AbstractFrameReflower
         }
 
         // Collapse our last child's margin, if there is no border or padding
-        if ($style->get_border_bottom_width() == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
+        if ($style->border_bottom_width == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
             $l = $this->_frame->get_last_child();
             if ( $l && !$l->is_block() && !$l->is_table() ) {
                 while ( $l = $l->get_prev_sibling() ) {
@@ -398,7 +398,7 @@ abstract class AbstractFrameReflower
                     continue;
                 }
 
-                preg_match('/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]+)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i', $match[1], $args);
+                preg_match('/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]*)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i', $match[1], $args);
                 $counter_id = $args[3];
                 if (strtolower($args[1]) == 'counter') {
                     // counter(name [,style])

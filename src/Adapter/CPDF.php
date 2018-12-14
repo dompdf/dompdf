@@ -152,7 +152,7 @@ class CPDF implements Canvas
     private $_page_text;
 
     /**
-     * Array of pages for accesing after rendering is initially complete
+     * Array of pages for accessing after rendering is initially complete
      *
      * @var array
      */
@@ -275,7 +275,7 @@ class CPDF implements Canvas
     /**
      * Opens a new 'object'
      *
-     * While an object is open, all drawing actions are recored in the object,
+     * While an object is open, all drawing actions are recorded in the object,
      * as opposed to being drawn on the current page.  Objects can be added
      * later to a specific page or to several pages.
      *

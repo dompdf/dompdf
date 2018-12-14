@@ -125,7 +125,7 @@ class FontMetrics
         $fontDir = $this->getOptions()->getFontDir();
         $rootDir = $this->getOptions()->getRootDir();
 
-        // FIXME: tempoarary define constants for cache files <= v0.6.2
+        // FIXME: temporarily define constants for cache files <= v0.6.2
         if (!defined("DOMPDF_DIR")) { define("DOMPDF_DIR", $rootDir); }
         if (!defined("DOMPDF_FONT_DIR")) { define("DOMPDF_FONT_DIR", $fontDir); }
 
@@ -186,7 +186,6 @@ class FontMetrics
         $fontDir = $this->getOptions()->getFontDir();
         $remoteHash = md5($remoteFile);
         $localFile = $fontDir . DIRECTORY_SEPARATOR . $remoteHash;
-        $localTempFile = @tempnam($this->options->get("tempDir"), "dompdf-font-");
 
         $cacheEntry = $localFile;
         $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH),PATHINFO_EXTENSION));
@@ -198,6 +197,8 @@ class FontMetrics
         if (false === $remoteFileContent) {
             return false;
         }
+
+        $localTempFile = @tempnam($this->options->get("tempDir"), "dompdf-font-");
         file_put_contents($localTempFile, $remoteFileContent);
 
         $font = Font::load($localTempFile);
