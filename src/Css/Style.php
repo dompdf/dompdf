@@ -1106,7 +1106,7 @@ class Style
             return $this->length_in_pt($line_height . "em", $this->get_font_size());
         }
 
-        return $this->length_in_pt($line_height, $this->_parent_font_size);
+        return (float)$this->length_in_pt($line_height, $this->_parent_font_size);
     }
 
     /**
