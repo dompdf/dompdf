@@ -48,7 +48,7 @@ summary {
 
 body {
   page-break-before: avoid;
-  display: block;
+  display: block !important;
   counter-increment: page;
 }
 
