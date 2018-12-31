@@ -109,7 +109,9 @@ class Text extends AbstractFrameReflower
         }
 
         // split the text into words
-        $words = preg_split('/([\s-]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        // regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
+        //TODO: this misses narrow nbsp (http://www.fileformat.info/info/unicode/char/202f/index.htm)
+        $words = preg_split('/([^\S\xA0]+|-+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         $wc = count($words);
 
         // Determine the split point
