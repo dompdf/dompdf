@@ -28,8 +28,7 @@
         "php": ">=5.4.0",
         "ext-dom": "*",
         "ext-mbstring": "*",
-        "phenx/php-font-lib": "0.5.*",
-        "phenx/php-svg-lib": "0.3.*"
+        "phenx/php-font-lib": "0.5.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8|^5.5|^6.5",
@@ -38,7 +37,8 @@
     "suggest": {
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
-        "ext-gmagick": "Improves image processing performance"
+        "ext-gmagick": "Improves image processing performance",
+        "phenx/php-svg-lib": "Required if rendering SVG (^0.3)"
     },
     "extra": {
         "branch-alias": {
