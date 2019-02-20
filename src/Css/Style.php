@@ -1050,31 +1050,17 @@ class Style
 
         // Resolve font-weight
         $weight = $this->__get("font_weight");
-
-        if (is_numeric($weight)) {
-            if ($weight < 600) {
-                $weight = "normal";
-            } else {
-                $weight = "bold";
-            }
-        } else if ($weight === "bold" || $weight === "bolder") {
-            $weight = "bold";
+        if ($weight === 'bold') {
+            $weight = 700;
+        } elseif (preg_match('/^[0-9]+$/', $weight)) {
+            $weight = (int)$weight;
         } else {
-            $weight = "normal";
+            $weight = 400;
         }
 
         // Resolve font-style
         $font_style = $this->__get("font_style");
-
-        if ($weight === "bold" && ($font_style === "italic" || $font_style === "oblique")) {
-            $subtype = "bold_italic";
-        } else if ($weight === "bold" && $font_style !== "italic" && $font_style !== "oblique") {
-            $subtype = "bold";
-        } else if ($weight !== "bold" && ($font_style === "italic" || $font_style === "oblique")) {
-            $subtype = "italic";
-        } else {
-            $subtype = "normal";
-        }
+        $subtype = $this->getFontMetrics()->getType($weight.' '.$font_style);
 
         // Resolve the font family
         if ($DEBUGCSS) {
