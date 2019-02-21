@@ -379,7 +379,7 @@ class Stylesheet
                 }
             }
 
-            if (!$good_mime_type || $css == "") {
+            if (!$good_mime_type || empty($css)) {
                 Helpers::record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
                 return;
             }

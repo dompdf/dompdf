@@ -194,7 +194,7 @@ class FontMetrics
 
         // Download the remote file
         list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
-        if (false === $remoteFileContent) {
+        if (empty($remoteFileContent)) {
             return false;
         }
 

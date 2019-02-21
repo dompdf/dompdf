@@ -100,7 +100,7 @@ class Cache
                         }
 
                         // Image not found or invalid
-                        if (strlen($image) == 0) {
+                        if (empty($image)) {
                             $msg = ($data_uri ? "Data-URI could not be parsed" : "Image not found");
                             throw new ImageException($msg, E_WARNING);
                         } // Image found, put in cache and process

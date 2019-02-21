@@ -384,6 +384,9 @@ class Dompdf
         }
 
         list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
+        if (empty($contents)) {
+            throw new Exception("File '$file' not found.");
+        }
         $encoding = 'UTF-8';
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
