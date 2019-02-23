@@ -50,14 +50,16 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
 
  * PHP version 5.4.0 or higher
  * DOM extension
- * GD extension
  * MBString extension
  * php-font-lib
  * php-svg-lib
+ 
+Note that some required dependencies may have further dependencies (notably php-svg-lib requires sabberworm/php-css-parser).
 
 ### Recommendations
 
  * OPcache (OPcache, XCache, APC, etc.): improves performance
+ * GD (for image processing)
  * IMagick or GMagick extension: improves image processing performance
 
 Visit the wiki for more information:
