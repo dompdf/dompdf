@@ -1179,7 +1179,10 @@ class Style
      */
     function get_color()
     {
-        return $this->munge_color($this->_props["color"]);
+        if (!isset($this->_props["color"]) || $this->_props["color"] === "inherit") {
+            return $this->munge_color(self::$_defaults["color"]);
+    }
+        return $this->munge_color($this->_props_computed["color"]);
     }
 
     /**
@@ -1192,7 +1195,7 @@ class Style
      */
     function get_background_color()
     {
-        return $this->munge_color($this->_props["background_color"]);
+        return $this->munge_color($this->_props_computed["background_color"]);
     }
 
     /**
@@ -1864,17 +1867,17 @@ class Style
      */
     function set_color($color)
     {
-        $col = $this->munge_color($color);
-
-        if (is_null($col) || !isset($col["hex"])) {
-            $color = "inherit";
-        } else {
-            $color = $col["hex"];
-        }
-
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["color"] = null;
         $this->_props["color"] = $color;
+        $this->_props_computed["color"] = null;
+        $this->_prop_cache["color"] = null;
+
+        $munged_color = $this->munge_color($color);
+
+        if (is_null($munged_color) || !isset($munged_color["hex"])) {
+            $this->_props_computed["color"] = "inherit";
+        } else {
+            $this->_props_computed["color"] = $munged_color["hex"];
+        }
     }
 
     /**
@@ -1885,16 +1888,23 @@ class Style
      */
     function set_background_color($color)
     {
-        $col = $this->munge_color($color);
+        $this->_props["background_color"] = $color;
+        $this->_props_computed["background_color"] = null;
+        $this->_prop_cache["background_color"] = null;
 
-        if (is_null($col)) {
-            return;
-            //$col = self::$_defaults["background_color"];
+        $munged_color = $this->munge_color($color);
+
+        if (is_null($munged_color) || !isset($munged_color["hex"])) {
+            $this->_props_computed["color"] = "inherit";
+        } else {
+            $this->_props_computed["color"] = $munged_color["hex"];
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["background_color"] = null;
-        $this->_props["background_color"] = is_array($col) ? $col["hex"] : $col;
+        if (is_null($munged_color)) {
+            return;
+        }
+
+        $this->_props_computed["background_color"] = is_array($munged_color) ? $munged_color["hex"] : $munged_color;
     }
 
     /**
