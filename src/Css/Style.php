@@ -160,17 +160,25 @@ class Style
      *
      * @var array
      */
-    protected $_props;
+    protected $_props = array();
 
     /* var instead of protected would allow access outside of class */
-    protected $_important_props;
+    protected $_important_props = array();
 
     /**
-     * Cached property values
+     * The computed values of the CSS property
      *
      * @var array
      */
-    protected $_prop_cache;
+    protected $_props_computed = array();
+
+
+    /**
+     * The used values of the CSS property
+     *
+     * @var array
+     */
+    protected $_prop_cache = array();
 
     /**
      * Font size of parent element in document tree.  Used for relative font
@@ -660,17 +668,22 @@ class Style
 
             //inherit the !important property also.
             //if local property is also !important, don't inherit.
-            if (isset($parent->_props[$prop]) &&
-                (!isset($this->_props[$prop]) ||
-                    (isset($parent->_important_props[$prop]) && !isset($this->_important_props[$prop]))
+
+            if (isset($parent->_props_computed[$prop]) &&
+                (
+                    !isset($this->_props[$prop])
+                    || (isset($parent->_important_props[$prop]) && !isset($this->_important_props[$prop]))
                 )
             ) {
                 if (isset($parent->_important_props[$prop])) {
                     $this->_important_props[$prop] = true;
                 }
-                //see __set and __get, on all assignments clear cache!
-                $this->_prop_cache[$prop] = null;
-                $this->_props[$prop] = $parent->_props[$prop];
+                if (isset($parent->_props_computed[$prop])) {
+                    $this->__set($prop, $parent->_props_computed[$prop]);
+                } else {
+                    // parent prop not set, use the default
+                    $this->__set($prop, self::$_defaults[$prop]);
+                }
             }
         }
 
@@ -694,7 +707,14 @@ class Style
                 //props_set for more obvious explicite assignment not implemented, because
                 //too many implicite uses.
                 // $this->props_set($prop, $parent->$prop);
-                $this->__set($prop, $parent->__get($prop));
+                if (isset($parent->_props_computed[$prop])) {
+                    $this->__set($prop, $parent->_props_computed[$prop]);
+                } else {
+                    // parent prop not set, use the default
+                    $this->__set($prop, self::$_defaults[$prop]);
+                }
+                // set the specified prop back to "inherit"
+                $this->_props[$prop] = "inherit";
             }
         }
 
@@ -728,13 +748,12 @@ class Style
                 foreach ($shorthands as $shorthand) {
                     if (array_key_exists($shorthand, $this->_props) && $this->_props[$shorthand] === "inherit") {
                         unset($this->_props[$shorthand]);
+                        unset($this->_props_computed[$shorthand]);
+                        unset($this->_prop_cache[$shorthand]);
                     }
                 } 
+                $this->__set($prop, $val);
             }
-        }
-
-        if (isset($style->_props["font_size"])) {
-            $this->__font_size_calculated = false;
         }
     }
 
@@ -801,7 +820,6 @@ class Style
     function __set($prop, $val)
     {
         $prop = str_replace("-", "_", $prop);
-        $this->_prop_cache[$prop] = null;
 
         if (!isset(self::$_defaults[$prop])) {
             global $_dompdf_warnings;
@@ -814,6 +832,10 @@ class Style
             $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
+        $this->_props[$prop] = $val;
+        $this->_props_computed[$prop] = null;
+        $this->_prop_cache[$prop] = null;
+
         $method = "set_$prop";
 
         if (!isset(self::$_methods_cache[$method])) {
@@ -822,8 +844,9 @@ class Style
 
         if (self::$_methods_cache[$method]) {
             $this->$method($val);
-        } else {
-            $this->_props[$prop] = $val;
+        }
+        if (isset($this->_props_computed[$prop]) === false) {
+            $this->_props_computed[$prop] = $val;
         }
     }
 
@@ -846,15 +869,17 @@ class Style
             throw new Exception("'$prop' is not a valid CSS2 property.");
         }
 
-        if (isset($this->_prop_cache[$prop]) && $this->_prop_cache[$prop] != null) {
+        if (isset($this->_prop_cache[$prop])) {
             return $this->_prop_cache[$prop];
         }
 
         $method = "get_$prop";
 
-        // Fall back on defaults if property is not set
-        if (!isset($this->_props[$prop])) {
-            $this->_props[$prop] = self::$_defaults[$prop];
+        $retval = null;
+        // Fall back on defaults if property is not set. Also, if the computed prop is set to inherit 
+        // we'll preview the value with the default since inheritance has not yet been applied.
+        if (isset($this->_props_computed[$prop]) === false || $this->_props_computed[$prop] === "inherit") {
+            $this->__set($prop, self::$_defaults[$prop]);
         }
 
         if (!isset(self::$_methods_cache[$method])) {
@@ -862,10 +887,41 @@ class Style
         }
 
         if (self::$_methods_cache[$method]) {
-            return $this->_prop_cache[$prop] = $this->$method();
+            $retval = $this->_prop_cache[$prop] = $this->$method();
         }
 
-        return $this->_prop_cache[$prop] = $this->_props[$prop];
+        if (!isset($retval)) {
+            $retval = $this->_prop_cache[$prop] = $this->_props_computed[$prop];
+        }
+
+        return $retval;
+    }
+
+    /**
+     * Sets the property value without calculating the computed value
+     *
+     * @param $prop
+     * @param $val
+     */
+    function set_prop($prop, $val)
+    {
+        $prop = str_replace("-", "_", $prop);
+        $this->_props_computed[$prop] = null;
+        $this->_prop_cache[$prop] = null;
+
+        if (!isset(self::$_defaults[$prop])) {
+            global $_dompdf_warnings;
+            $_dompdf_warnings[] = "'$prop' is not a valid CSS2 property.";
+            return;
+        }
+
+        // clean up the value
+        if ($prop !== "content" && is_string($val) && strlen($val) > 5 && mb_strpos($val, "url") === false) {
+            $val = mb_strtolower(trim(str_replace(array("\n", "\t"), array(" "), $val)));
+            $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
+        }
+
+        $this->_props[$prop] = $val;
     }
 
     /**
@@ -885,7 +941,7 @@ class Style
         $method = "get_$prop";
 
         // Fall back on defaults if property is not set
-        if (!isset($this->_props[$prop])) {
+        if (!isset($this->_props_computed[$prop])) {
             return self::$_defaults[$prop];
         }
 
@@ -894,6 +950,18 @@ class Style
         }
 
         return $this->_props[$prop];
+    }
+
+    /**
+     * Calculates the computed value of the CSS properties that have been set (the specified properties)
+     */
+    function compute_props()
+    {
+        foreach ($this->_props as $prop => $val) {
+            if (in_array($prop, self::$_props_shorthand) === false) {
+                $this->__set($prop, $val);
+            }
+        }
     }
 
     /**
@@ -1755,8 +1823,10 @@ class Style
                 $this->_important_props[$style] = true;
             }
             //see __set and __get, on all assignments clear cache!
-            $this->_prop_cache[$style] = null;
-            $this->_props[$style] = $val;
+            //$this->_prop_cache[$style] = null;
+            //$this->_props_computed[$style] = $val;
+            //$this->_props[$style] = $val;
+            $this->__set($style, $val);
         }
     }
 
@@ -2945,22 +3015,27 @@ class Style
     /*DEBUGCSS*/
     function debug_print()
     {
-        /*DEBUGCSS*/
         print "parent_font_size:" . $this->_parent_font_size . ";\n";
-        /*DEBUGCSS*/
+        print "[Props\n";
         foreach ($this->_props as $prop => $val) {
-            /*DEBUGCSS*/
-            print $prop . ':' . $val;
-            /*DEBUGCSS*/
+            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
             if (isset($this->_important_props[$prop])) {
-                /*DEBUGCSS*/
                 print '!important';
-                /*DEBUGCSS*/
             }
-            /*DEBUGCSS*/
             print ";\n";
-            /*DEBUGCSS*/
         }
-        /*DEBUGCSS*/
+        print "[computed\n";
+        foreach ($this->_props_computed as $prop => $val) {
+            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print ";\n";
+        }
+        print "/computed]\n";
+        print "[cached\n";
+        foreach ($this->_prop_cache as $prop => $val) {
+            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print ";\n";
+        }
+        print "/cached]\n";
+        print "/Props]\n";
     }
 }
