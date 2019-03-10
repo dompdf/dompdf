@@ -2708,11 +2708,16 @@ class Style
      */
     function set_size($val)
     {
+        $this->_props["size"] = $val;
+        $this->_props_computed["size"] = null;
+        $this->_prop_cache["size"] = null;
+        
         $length_re = "/(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))/";
 
         $val = mb_strtolower($val);
 
         if ($val === "auto") {
+            $this->_props["size"] = $val;
             return;
         }
 
@@ -2741,7 +2746,7 @@ class Style
             return;
         }
 
-        $this->_props["size"] = $computed;
+        $this->_props_computed["size"] = $computed;
     }
 
     /**
