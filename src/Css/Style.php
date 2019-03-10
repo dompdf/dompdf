@@ -1181,7 +1181,7 @@ class Style
     {
         if (!isset($this->_props["color"]) || $this->_props["color"] === "inherit") {
             return $this->munge_color(self::$_defaults["color"]);
-    }
+        }
         return $this->munge_color($this->_props_computed["color"]);
     }
 
@@ -1640,6 +1640,28 @@ class Style
         }
         return $arr;
     }
+
+    /**
+     * @param $val
+     */
+    function get_counter_increment()
+    {
+        $val = trim($this->_props_computed["counter_increment"]);
+        $value = null;
+        
+        if (in_array($val, array("none", "inherit"))) {
+            $value = $val;
+        } else {
+            if (preg_match_all("/(" . self::CSS_IDENTIFIER . ")(?:\s+(" . self::CSS_INTEGER . "))?/", $val, $matches, PREG_SET_ORDER)) {
+                $value = array();
+                foreach ($matches as $match) {
+                    $value[$match[1]] = isset($match[2]) ? $match[2] : 1;
+                }
+            }
+        }
+        return $value;
+    }
+
 
     /*==============================*/
 
@@ -3024,29 +3046,6 @@ class Style
 
         $this->_prop_cache["z_index"] = null;
         $this->_props["z_index"] = $val;
-    }
-
-    /**
-     * @param $val
-     */
-    function set_counter_increment($val)
-    {
-        $val = trim($val);
-        $value = null;
-
-        if (in_array($val, array("none", "inherit"))) {
-            $value = $val;
-        } else {
-            if (preg_match_all("/(" . self::CSS_IDENTIFIER . ")(?:\s+(" . self::CSS_INTEGER . "))?/", $val, $matches, PREG_SET_ORDER)) {
-                $value = array();
-                foreach ($matches as $match) {
-                    $value[$match[1]] = isset($match[2]) ? $match[2] : 1;
-                }
-            }
-        }
-
-        $this->_prop_cache["counter_increment"] = null;
-        $this->_props["counter_increment"] = $value;
     }
 
     /**
