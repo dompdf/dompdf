@@ -172,6 +172,9 @@ class Style
      */
     protected $_props_computed = array();
 
+    static protected $_dependency_map = array(
+        "font_size" => array("line_height")
+    );
 
     /**
      * The used values of the CSS property
@@ -842,6 +845,15 @@ class Style
         if (isset($this->_props_computed[$prop]) === false) {
             $this->_props_computed[$prop] = $val;
         }
+
+        //FIXME: need to catch for circular dependencies because oops
+        if (array_key_exists($prop, self::$_dependency_map)) {
+            foreach (self::$_dependency_map[$prop] as $dependent) {
+                if (isset($this->_props[$dependent]) === true) {
+                    $this->__set($dependent, $this->_props[$dependent]);
+                }
+            }
+        }
     }
 
     /**
@@ -1086,7 +1098,7 @@ class Style
             return $this->_parent_font_size;
         }
         return $this->_props_computed["font_size"];
-        }
+    }
 
     /**
      * @link http://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
