@@ -1120,20 +1120,23 @@ class Style
      */
     function get_line_height()
     {
-        if (array_key_exists("line_height", $this->_props) === false) {
-            $this->_props["line_height"] = self::$_defaults["line_height"];
+        if (!isset($this->_props["line_height"]) || $this->_props["line_height"] === "inherit") {
+            $this->__set("line_height", self::$_defaults["line_height"]);
         }
-        $line_height = $this->_props["line_height"];
+        if (isset($this->_props_computed["line_height"]) === false) {
+            $this->__set("line_height", $this->_props["line_height"]);
+        }
+        $line_height = $this->_props_computed["line_height"];
 
         if ($line_height === "normal") {
-            return self::$default_line_height * $this->get_font_size();
+            return self::$default_line_height * $this->__get("font_size");
         }
 
         if (is_numeric($line_height)) {
-            return $this->length_in_pt($line_height . "em", $this->get_font_size());
+            return $line_height  * $this->__get("font_size");
         }
 
-        return (float)$this->length_in_pt($line_height, $this->_parent_font_size);
+        return (float)$this->length_in_pt($line_height, $this->__get("font_size"));
     }
 
     /**
@@ -2122,6 +2125,25 @@ class Style
             $this->_set_style("font_family", $val, $important);
         } else {
             $this->_set_style("font_family", self::$_defaults["font_family"], $important);
+        }
+    }
+
+    /**
+     * Sets line height property
+     * 
+     * @link http://www.w3.org/TR/CSS21/visudet.html#propdef-line-height
+     * @param $val
+     */
+    function set_line_height($val)
+    {
+        $this->_props["line_height"] = $val;
+        $this->_props_computed["line_height"] = null;
+        $this->_prop_cache["line_height"] = null;
+
+        if ($val === "inherit" || $val === "normal" || is_numeric($val)) {
+            $this->_props_computed["line_height"] = $val;
+        } else {
+            $this->_props_computed["line_height"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
         }
     }
 
