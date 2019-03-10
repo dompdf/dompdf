@@ -882,9 +882,20 @@ class Style
         $method = "get_$prop";
 
         $retval = null;
-        // Fall back on defaults if property is not set. Also, if the computed prop is set to inherit 
-        // we'll preview the value with the default since inheritance has not yet been applied.
-        if (isset($this->_props_computed[$prop]) === false || $this->_props_computed[$prop] === "inherit") {
+        // Preview the value based on the default if a property is not set or is currently "inherit"
+        // (i.e. inheritance has not yet been applied). Reset the specified property afterwards so 
+        // that we don't block inheritance later.
+        $reset_value = false;
+        $specified_value = null;
+        $computed_value = null;
+        if (!isset($this->_props_computed[$prop]) || (isset($this->_props[$prop]) && $this->_props[$prop] === "inherit")) {
+            $reset_value = true;
+            if (isset($this->_props[$prop])) {
+                $specified_value = $this->_props[$prop];
+            }
+            if (isset($this->_props_computed[$prop])) {
+                $computed_value = $this->_props_computed[$prop];
+            }
             $this->__set($prop, self::$_defaults[$prop]);
         }
 
@@ -900,6 +911,11 @@ class Style
             $retval = $this->_prop_cache[$prop] = $this->_props_computed[$prop];
         }
 
+        if ($reset_value) {
+            $this->_props[$prop] = $specified_value;
+            $this->_props_computed[$prop] = $computed_value;
+        }
+        
         return $retval;
     }
 
