@@ -312,7 +312,10 @@ class Stylesheet
      */
     function create_style(Style $parent = null)
     {
-        return new Style($this, $this->_current_origin);
+        if ($parent == null) {
+            $parent = $this;
+        }
+        return new Style($parent, $this->_current_origin);
     }
 
     /**
