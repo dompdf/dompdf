@@ -820,7 +820,7 @@ class Style
 
         if (!isset(self::$_defaults[$prop])) {
             global $_dompdf_warnings;
-            $_dompdf_warnings[] = "'$prop' is not a valid CSS2 property.";
+            $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
             return;
         }
 
@@ -872,7 +872,7 @@ class Style
     function __get($prop)
     {
         if (!isset(self::$_defaults[$prop])) {
-            throw new Exception("'$prop' is not a valid CSS2 property.");
+            throw new Exception("'$prop' is not a recognized CSS property.");
         }
         
         if (isset($this->_prop_cache[$prop])) {
@@ -933,7 +933,7 @@ class Style
 
         if (!isset(self::$_defaults[$prop])) {
             global $_dompdf_warnings;
-            $_dompdf_warnings[] = "'$prop' is not a valid CSS2 property.";
+            $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
             return;
         }
 
@@ -957,7 +957,7 @@ class Style
     function get_prop($prop)
     {
         if (!isset(self::$_defaults[$prop])) {
-            throw new Exception("'$prop' is not a valid CSS2 property.");
+            throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
         $method = "get_$prop";
