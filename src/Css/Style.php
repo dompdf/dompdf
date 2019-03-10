@@ -188,8 +188,6 @@ class Style
      */
     protected $_parent_font_size; // Font size of parent element
 
-    protected $_font_family;
-
     /**
      * @var Frame
      */
@@ -203,13 +201,6 @@ class Style
     protected $_origin = Stylesheet::ORIG_AUTHOR;
 
     // private members
-    /**
-     * True once the font size is resolved absolutely
-     *
-     * @var bool
-     */
-    private $__font_size_calculated; // Cache flag
-
     /**
      * The computed bottom spacing
      */
@@ -246,7 +237,6 @@ class Style
         $this->_media_queries = array();
         $this->_origin = $origin;
         $this->_parent_font_size = null;
-        $this->__font_size_calculated = false;
 
         if (!isset(self::$_defaults)) {
 
@@ -656,9 +646,13 @@ class Style
      */
     function inherit(Style $parent)
     {
-
-        // Set parent font size
-        $this->_parent_font_size = $parent->get_font_size();
+        // Set parent font size, changes affect font size of the element
+        if ($this->_parent_font_size !== $parent->font_size) {
+            $this->_parent_font_size = $parent->font_size;
+            if (isset($this->_props["font_size"])) {
+                $this->__set("font_size", $this->_props["font_size"]);
+            }
+        }
 
         foreach (self::$_inherited as $prop) {
             // don't inherit shorthand properties, the specific properties will inherit
@@ -1000,9 +994,7 @@ class Style
      */
     function get_font_family()
     {
-        if (isset($this->_font_family)) {
-            return $this->_font_family;
-        }
+        //TODO: we should be using the calculated prop rather than perform the entire family parsing operation again
 
         $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
 
@@ -1059,7 +1051,7 @@ class Style
                 if ($DEBUGCSS) {
                     print '(' . $font . ")get_font_family]\n</pre>";
                 }
-                return $this->_font_family = $font;
+                return $font;
             }
         }
 
@@ -1073,11 +1065,10 @@ class Style
             if ($DEBUGCSS) {
                 print '(' . $font . ")get_font_family]\n</pre>";
             }
-            return $this->_font_family = $font;
+            return $font;
         }
 
         throw new Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] . "'");
-
     }
 
     /**
@@ -1088,60 +1079,14 @@ class Style
      */
     function get_font_size()
     {
-
-        if ($this->__font_size_calculated) {
-            return $this->_props["font_size"];
-        }
-
-        if (!isset($this->_props["font_size"])) {
-            $fs = self::$_defaults["font_size"];
-        } else {
-            $fs = $this->_props["font_size"];
-        }
-
         if (!isset($this->_parent_font_size)) {
             $this->_parent_font_size = self::$default_font_size;
         }
-
-        switch ((string)$fs) {
-            case "xx-small":
-            case "x-small":
-            case "small":
-            case "medium":
-            case "large":
-            case "x-large":
-            case "xx-large":
-                $fs = self::$default_font_size * self::$font_size_keywords[$fs];
-                break;
-
-            case "smaller":
-                $fs = 8 / 9 * $this->_parent_font_size;
-                break;
-
-            case "larger":
-                $fs = 6 / 5 * $this->_parent_font_size;
-                break;
-
-            default:
-                break;
+        if (!isset($this->_props["font_size"]) || $this->_props["font_size"] === "inherit") {
+            return $this->_parent_font_size;
         }
-
-        // Ensure relative sizes resolve to something
-        if (($i = mb_strpos($fs, "em")) !== false) {
-            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
-        } else if (($i = mb_strpos($fs, "ex")) !== false) {
-            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
-        } else {
-            $fs = (float)$this->length_in_pt($fs);
+        return $this->_props_computed["font_size"];
         }
-
-        //see __set and __get, on all assignments clear cache!
-        $this->_prop_cache["font_size"] = null;
-        $this->_props["font_size"] = $fs;
-        $this->__font_size_calculated = true;
-        return $this->_props["font_size"];
-
-    }
 
     /**
      * @link http://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
@@ -2037,10 +1982,60 @@ class Style
      */
     function set_font_size($size)
     {
-        $this->__font_size_calculated = false;
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["font_size"] = null;
         $this->_props["font_size"] = $size;
+        $this->_props_computed["font_size"] = null;
+        $this->_prop_cache["font_size"] = null;
+
+        if ($size === "inherit") {
+            $this->_props_computed["font_size"] = $size;
+            return;
+        }
+        if (!isset($this->_parent_font_size)) {
+            $this->_parent_font_size = self::$default_font_size;
+        }
+
+        switch ((string)$size) {
+            case "xx-small":
+            case "x-small":
+            case "small":
+            case "medium":
+            case "large":
+            case "x-large":
+            case "xx-large":
+                $fs = self::$default_font_size * self::$font_size_keywords[$size];
+                break;
+
+            case "smaller":
+                $fs = 8 / 9 * $this->_parent_font_size;
+                break;
+
+            case "larger":
+                $fs = 6 / 5 * $this->_parent_font_size;
+                break;
+
+            default:
+                $fs = $size;
+                break;
+        }
+
+        // length_in_pt uses the font size if units are em or ex (and, potentially, rem) so we'll calculate in the method
+        if (($i = mb_strpos($fs, "rem")) !== false) {
+            if ($this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style() === null) {
+                // Interpreting it as "em", see https://github.com/dompdf/dompdf/issues/1406
+                $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
+            } else {
+                $fs = (float)mb_substr($fs, 0, $i) * $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style()->font_size;
+            }
+        } elseif (($i = mb_strpos($fs, "em")) !== false) {
+            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
+        } elseif (($i = mb_strpos($fs, "ex")) !== false) {
+            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size / 2;
+        } else {
+            //FIXME: prefer just calling length_in_pt, when we provide a ref size to length_in_pt should em and ex use that instead of the current font size?
+            $fs = (float)$this->length_in_pt($fs, $this->_parent_font_size);
+        }
+        
+        $this->_props_computed["font_size"] = $fs;
     }
 
     /**
@@ -2069,12 +2064,21 @@ class Style
      */
     function set_font($val)
     {
-        $this->__font_size_calculated = false;
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
         $this->_prop_cache["font"] = null;
         $this->_props["font"] = $val;
 
         $important = isset($this->_important_props["font"]);
+
+        if (strtolower($val) === "inherit") {
+            $this->_set_style("font_family", "inherit", $important);
+            $this->_set_style("font_size", "inherit", $important);
+            $this->_set_style("font_style", "inherit", $important);
+            $this->_set_style("font_variant", "inherit", $important);
+            $this->_set_style("font_weight", "inherit", $important);
+            $this->_set_style("line_height", "inherit", $important);
+            return;
+        }
 
         if (preg_match("/^(italic|oblique|normal)\s*(.*)$/i", $val, $match)) {
             $this->_set_style("font_style", $match[1], $important);
