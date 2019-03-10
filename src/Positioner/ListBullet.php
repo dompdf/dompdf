@@ -41,8 +41,10 @@ class ListBullet extends AbstractPositioner
         $n = $frame->get_next_sibling();
         if ($n) {
             $style = $n->get_style();
-            $line_height = $style->length_in_pt($style->line_height, $style->font_size);
-            $offset = (float)$style->length_in_pt($line_height, $n->get_containing_block("h")) - $frame->get_height();
+            $line_height = $style->line_height;
+            // TODO: should offset take into account the line height of the next sibling (per previous logic)?
+            // $offset = (float)$style->length_in_pt($line_height, $n->get_containing_block("h")) - $frame->get_height();
+            $offset = $line_height - $frame->get_height();
             $y += $offset / 2;
         }
 

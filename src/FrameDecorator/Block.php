@@ -135,7 +135,7 @@ class Block extends AbstractFrameDecorator
         if ($frame instanceof Inline) {
             // Handle line breaks
             if ($frame->get_node()->nodeName === "br") {
-                $this->maximize_line_height($style->length_in_pt($style->line_height), $frame);
+                $this->maximize_line_height($style->line_height, $frame);
                 $this->add_line(true);
             }
 
