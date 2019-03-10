@@ -748,7 +748,7 @@ class Style
                         unset($this->_props_computed[$shorthand]);
                         unset($this->_prop_cache[$shorthand]);
                     }
-                } 
+                }
                 $this->__set($prop, $val);
             }
         }
@@ -874,7 +874,7 @@ class Style
         if (!isset(self::$_defaults[$prop])) {
             throw new Exception("'$prop' is not a valid CSS2 property.");
         }
-
+        
         if (isset($this->_prop_cache[$prop])) {
             return $this->_prop_cache[$prop];
         }
@@ -973,7 +973,8 @@ class Style
     /**
      * @return float|null|string
      */
-    function computed_bottom_spacing() {
+    function computed_bottom_spacing()
+    {
         if ($this->_computed_bottom_spacing !== null) {
             return $this->_computed_bottom_spacing;
         }
@@ -2132,7 +2133,7 @@ class Style
             $this->_set_style("font_size", self::$_defaults["font_size"], $important);
             $this->_set_style("line_height", self::$_defaults["line_height"], $important);
         }
-
+        
         if (strlen($val) != 0) {
             $this->_set_style("font_family", $val, $important);
         } else {

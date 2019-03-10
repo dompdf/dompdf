@@ -306,7 +306,6 @@ class Frame
         $this->_original_style->dispose();
         $this->_original_style = null;
         unset($this->_original_style);
-
     }
 
     /**

@@ -237,7 +237,7 @@ class Helpers
         $score = array(
             '%23'=>'#'
         );
-        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved,$unescaped,$score));
+        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved, $unescaped, $score));
     }
 
     /**

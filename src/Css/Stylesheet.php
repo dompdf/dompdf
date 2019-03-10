@@ -1092,7 +1092,7 @@ class Stylesheet
             if (isset($styles[$id])) {
 
                 /** @var array[][] $applied_styles */
-                $applied_styles = $styles[$frame->get_id()];
+                $applied_styles = $styles[$id];
 
                 // Sort by specificity
                 ksort($applied_styles);
@@ -1177,16 +1177,14 @@ class Stylesheet
                 }
             }
 
-            // Inherit parent's styles if required
+            // Inherit parent's styles if parent exists
             if ($p) {
-
                 if ($DEBUGCSS) {
                     print "inherit:\n";
                     print "[\n";
                     $p->get_style()->debug_print();
                     print "]\n";
                 }
-
                 $style->inherit($p->get_style());
             }
 
@@ -1236,7 +1234,6 @@ class Stylesheet
      */
     private function _parse_css($str)
     {
-
         $str = trim($str);
 
         // Destroy comments and remove HTML comments
@@ -1390,7 +1387,6 @@ class Stylesheet
             if ($match[7] !== "") {
                 $this->_parse_sections($match[7]);
             }
-
         }
     }
 

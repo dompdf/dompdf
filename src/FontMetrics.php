@@ -188,7 +188,7 @@ class FontMetrics
         $localFile = $fontDir . DIRECTORY_SEPARATOR . $remoteHash;
 
         $cacheEntry = $localFile;
-        $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH),PATHINFO_EXTENSION));
+        $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH), PATHINFO_EXTENSION));
 
         $entry[$styleString] = $cacheEntry;
 

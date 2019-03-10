@@ -843,7 +843,7 @@ class Dompdf
             }
         }
 
-        $root->set_containing_block(0, 0,$canvas->get_width(), $canvas->get_height());
+        $root->set_containing_block(0, 0, $canvas->get_width(), $canvas->get_height());
         $root->set_renderer(new Renderer($this));
 
         // This is where the magic happens:
