@@ -1,8 +1,8 @@
 {
-    "name": "baklysystems/dompdf",
+    "name": "dompdf/dompdf",
     "type": "library",
-    "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter with arabic support",
-    "homepage": "https://github.com/baklysystems/dompdf",
+    "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
+    "homepage": "https://github.com/dompdf/dompdf",
     "license": "LGPL-2.1",
     "authors": [
         {
@@ -16,10 +16,6 @@
         {
             "name": "Gabriel Bull",
             "email": "me@gabrielbull.com"
-        },
- 	{
-            "name": "Hebatollah Moaz",
-            "email": "hebatollah.moaz@gmail.com"
         }
     ],
     "autoload": {
@@ -43,5 +39,10 @@
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
         "ext-gmagick": "Improves image processing performance"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "0.7-dev"
+        }
     }
 }
