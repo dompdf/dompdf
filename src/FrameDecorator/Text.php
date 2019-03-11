@@ -98,7 +98,7 @@ class Text extends AbstractFrameDecorator
         // This function is called in add_frame_to_line() and is used to
         // determine the line height, so we actually want to return the
         // 'line-height' property, not the actual margin box
-        $style = $this->get_parent()->get_style();
+        $style = $this->get_style();
         $font = $style->font_family;
         $size = $style->font_size;
 
