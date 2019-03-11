@@ -10,6 +10,7 @@ namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
 use Dompdf\Dompdf;
+use Dompdf\Exception;
 use Dompdf\Image\Cache;
 use Dompdf\Helpers;
 
@@ -875,9 +876,15 @@ class GD implements Canvas
     /**
      * @param $font
      * @return string
+     * @throws Exception
      */
     public function get_ttf_file($font)
     {
+        $normalizedPath = strtolower(trim($font));
+        if (strpos($normalizedPath, 'phar://') === 0) {
+            throw new Exception('phar handler not allowed');
+        }
+
         if ( stripos($font, ".ttf") === false ) {
             $font .= ".ttf";
         }

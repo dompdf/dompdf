@@ -230,10 +230,15 @@ class CPDF implements Canvas
      * Class destructor
      *
      * Deletes all temporary image files
+     * @throws Exception
      */
     public function __destruct()
     {
         foreach ($this->_image_cache as $img) {
+            $normalizedPath = strtolower(trim($img));
+            if (strpos($normalizedPath, 'phar://') === 0) {
+                throw new Exception('phar handler not allowed');
+            }
             // The file might be already deleted by 3rd party tmp cleaner,
             // the file might not have been created at all
             // (if image outputting commands failed)
