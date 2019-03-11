@@ -11,6 +11,7 @@ namespace Dompdf\Renderer;
 
 use Dompdf\Adapter\CPDF;
 use Dompdf\Frame;
+use I18N_Arabic_Glyphs;
 
 /**
  * Renders text frames
@@ -80,7 +81,22 @@ class Text extends AbstractRenderer
           array($this->_canvas->get_page_number()),
           $text
         );*/
+        /**added by us**/
+      /*  if (strtolower($style->direction) == 'rtl' && !mb_detect_encoding($text, array("ASCII"))) {
+            preg_match_all('/./us', $text, $ar);
+            $text = join('',array_reverse($ar[0]));
+            // if there are numbers in the string
+            // so the next line reverse the number back
+            // treat also numbers with dot (decimal) and email
+            $text = preg_replace_callback('/\d+-\d+|\d+|\d+\.\d+|\S+@\S+/', function (array $m) { return strrev($m[0]); }, $text);
+        }*/
+        if ( ! class_exists( 'I18N_Arabic' ) ){
 
+            require_once( DOMPDF_DIR . "/src/I18N/Arabic/Glyphs.php" );
+            $Arabic = new I18N_Arabic_Glyphs('Glyphs');
+            $text = $Arabic->utf8Glyphs($text);
+
+        }
         $this->_canvas->text($x, $y, $text,
             $font, $size,
             $style->color, $word_spacing, $char_spacing);
