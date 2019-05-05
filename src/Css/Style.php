@@ -113,7 +113,7 @@ class Style
     static protected $_props_shorthand = array("background", "border", 
         "border_bottom", "border_color", "border_left", "border_radius", 
         "border_right", "border_style", "border_top", "border_width", 
-        "flex", "font", "list_style", "margin", "padding", "transform");
+        "flex", "font", "list_style", "margin", "padding");
 
     /**
      * Default style values.
@@ -175,11 +175,6 @@ class Style
     static protected $_dependency_map = array(
         "font_size" => array(
             "line_height",
-            "border",
-            "border_top",
-            "border_right",
-            "border_bottom",
-            "border_left",
             "border_top_width",
             "border_right_width",
             "border_bottom_width", 
@@ -882,6 +877,7 @@ class Style
      */
     function __get($prop)
     {
+        //FIXME: need to get shorthand from component properties
         if (!isset(self::$_defaults[$prop])) {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
@@ -907,7 +903,9 @@ class Style
             if (isset($this->_props_computed[$prop])) {
                 $computed_value = $this->_props_computed[$prop];
             }
-            $this->__set($prop, self::$_defaults[$prop]);
+            if (!in_array($prop, self::$_props_shorthand)) {
+                $this->__set($prop, self::$_defaults[$prop]);
+            }
         }
 
         if (!isset(self::$_methods_cache[$method])) {
