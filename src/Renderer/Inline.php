@@ -44,83 +44,19 @@ class Inline extends AbstractRenderer
         list($x, $y) = $frame->get_first_child()->get_position();
         $w = null;
         $h = 0;
-        // $x += $widths[3];
-        // $y += $widths[0];
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
-
-        $first_row = true;
 
         $DEBUGLAYOUTINLINE = $this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutInline();
 
         foreach ($frame->get_children() as $child) {
             list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
 
-            if (!is_null($w) && $child_x < $x + $w) {
-                //This branch seems to be supposed to being called on the first part
-                //of an inline html element, and the part after the if clause for the
-                //parts after a line break.
-                //But because $w initially mostly is 0, and gets updated only on the next
-                //round, this seem to be never executed and the common close always.
-
-                // The next child is on another line.  Draw the background &
-                // borders on this line.
-
-                // Background:
-                if (($bg = $style->background_color) !== "transparent") {
-                    $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
-                }
-
-                if (($url = $style->background_image) && $url !== "none") {
-                    $this->_background_image($url, $x, $y, $w, $h, $style);
-                }
-
-                // If this is the first row, draw the left border
-                if ($first_row) {
-                    if ($bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $bp["left"]["width"] > 0) {
-                        $method = "_border_" . $bp["left"]["style"];
-                        $this->$method($x, $y, $h + $widths[0] + $widths[2], $bp["left"]["color"], $widths, "left");
-                    }
-                    $first_row = false;
-                }
-
-                // Draw the top & bottom borders
-                if ($bp["top"]["style"] !== "none" && $bp["top"]["color"] !== "transparent" && $bp["top"]["width"] > 0) {
-                    $method = "_border_" . $bp["top"]["style"];
-                    $this->$method($x, $y, $w + $widths[1] + $widths[3], $bp["top"]["color"], $widths, "top");
-                }
-
-                if ($bp["bottom"]["style"] !== "none" && $bp["bottom"]["color"] !== "transparent" && $bp["bottom"]["width"] > 0) {
-                    $method = "_border_" . $bp["bottom"]["style"];
-                    $this->$method($x, $y + $h + $widths[0] + $widths[2], $w + $widths[1] + $widths[3], $bp["bottom"]["color"], $widths, "bottom");
-                }
-
-                // Handle anchors & links
-                $link_node = null;
-                if ($frame->get_node()->nodeName === "a") {
-                    $link_node = $frame->get_node();
-                } else if ($frame->get_parent()->get_node()->nodeName === "a") {
-                    $link_node = $frame->get_parent()->get_node();
-                }
-
-                if ($link_node && $href = $link_node->getAttribute("href")) {
-                    $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
-                    $this->_canvas->add_link($href, $x, $y, $w, $h);
-                }
-
-                $x = $child_x;
-                $y = $child_y;
-                $w = (float)$child_w;
-                $h = (float)$child_h;
-                continue;
-            }
-
             if (is_null($w)) {
                 $w = (float)$child_w;
-            }else {
+            } else {
                 $w += (float)$child_w;
             }
-
             $h = max($h, $child_h);
 
             if ($DEBUGLAYOUTINLINE) {
@@ -130,6 +66,10 @@ class Inline extends AbstractRenderer
                 }
             }
         }
+
+        // make sure the border and background start inside the left margin
+        $left_margin = (float)$style->length_in_pt($style->margin_left);
+        $x += $left_margin;
 
         // Handle the last child
         if (($bg = $style->background_color) !== "transparent") {
@@ -152,12 +92,8 @@ class Inline extends AbstractRenderer
         $w += (float)$widths[1] + (float)$widths[3];
         $h += (float)$widths[0] + (float)$widths[2];
 
-        // make sure the border and background start inside the left margin
-        $left_margin = (float)$style->length_in_pt($style->margin_left);
-        $x += $left_margin;
-
         // If this is the first row, draw the left border too
-        if ($first_row && $bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $widths[3] > 0) {
+        if ($bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $widths[3] > 0) {
             $method = "_border_" . $bp["left"]["style"];
             $this->$method($x, $y, $h, $bp["left"]["color"], $widths, "left");
         }

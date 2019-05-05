@@ -118,9 +118,9 @@ class Text extends AbstractFrameDecorator
      */
     function get_padding_box()
     {
+        $style = $this->_frame->get_style();
         $pb = $this->_frame->get_padding_box();
-        $pb[3] = $pb["h"] = $this->_frame->get_style()->height;
-
+        $pb[3] = $pb["h"] = $style->length_in_pt($style->height);
         return $pb;
     }
 
