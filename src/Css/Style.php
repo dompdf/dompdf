@@ -1591,13 +1591,10 @@ class Style
      */
     function get_outline_color()
     {
-        if ($this->_props["outline_color"] === "") {
-            //see __set and __get, on all assignments clear cache!
-            $this->_prop_cache["outline_color"] = null;
-            $this->_props["outline_color"] = $this->__get("color");
+        if ($this->_props_computed["outline_color"] === "") {
+            $this->__set("outline_color", $this->__get("color"));
         }
-
-        return $this->munge_color($this->_props["outline_color"]);
+        return $this->munge_color($this->_props_computed["outline_color"]);
     }
 
     /**#@+
@@ -1607,7 +1604,7 @@ class Style
     function get_outline_width()
     {
         $style = $this->__get("outline_style");
-        return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props["outline_width"]) : 0;
+        return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props_computed["outline_width"]) : 0;
     }
 
     /**#@+
@@ -1747,9 +1744,9 @@ class Style
                 $this->_important_props[$prop] = true;
             }
             if (
-                ($style === "border" && $type === "width" && strpos($val, "%") !== false)
+                (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") !== false)
                 ||
-                (($style === "border" || $style === "padding") && $val_computed < 0)
+                (($style === "border" || $style === "padding" || $style === "outline") && $val_computed < 0)
             ) {
                 return;
             } elseif (($style === "margin" || $style === "padding") && (strpos($val, "%") !== false || $val === "auto")) {
@@ -2623,6 +2620,7 @@ class Style
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
         $this->_prop_cache["outline"] = null;
         $this->_props["outline"] = $val;
+        $this->_props_computed["outline"] = $val;
     }
 
     /**
@@ -2630,7 +2628,7 @@ class Style
      */
     function set_outline_width($val)
     {
-        $this->_set_style_type_important('outline', '_width', $val);
+        $this->_set_style_side_type("outline", null, "width", $val, isset($this->_important_props["outline_width"]));
     }
 
     /**
@@ -2638,7 +2636,7 @@ class Style
      */
     function set_outline_color($val)
     {
-        $this->_set_style_type_important('outline', '_color', $val);
+        $this->_set_style_side_type("outline", null, "color", $val, isset($this->_important_props["outline_color"]));
     }
 
     /**
@@ -2646,7 +2644,7 @@ class Style
      */
     function set_outline_style($val)
     {
-        $this->_set_style_type_important('outline', '_style', $val);
+        $this->_set_style_side_type("outline", null, "style", $val, isset($this->_important_props["outline_style"]));
     }
 
     /**
