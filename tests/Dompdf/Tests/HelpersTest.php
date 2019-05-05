@@ -14,8 +14,7 @@ class HelpersTest extends TestCase
 AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
 9TXL0Y4OHwAAAABJRU5ErkJggg=='
         );
-        $helpers = new Helpers();
-        $result = $helpers->parse_data_uri(implode('', $imageParts));
+        $result = Helpers::parse_data_uri(implode('', $imageParts));
         $this->assertEquals(
             $result['data'],
             base64_decode($imageParts['data'])
