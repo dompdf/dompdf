@@ -174,11 +174,20 @@ class Style
 
     static protected $_dependency_map = array(
         "font_size" => array(
-            "line_height",
             "border_top_width",
             "border_right_width",
             "border_bottom_width", 
-            "border_left_width"
+            "border_left_width",
+            "line_height",
+            "margin_top",
+            "margin_right",
+            "margin_bottom",
+            "margin_left",
+            "outline_width",
+            "padding_top",
+            "padding_right",
+            "padding_bottom",
+            "padding_left"
         )
     );
 
