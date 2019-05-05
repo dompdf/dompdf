@@ -1894,6 +1894,22 @@ class Style
 
     /*======================*/
 
+    protected function set_prop_color($prop, $color)
+    {
+        $this->_props[$prop] = $color;
+        $this->_props_computed[$prop] = null;
+        $this->_prop_cache[$prop] = null;
+
+        $munged_color = $this->munge_color($color);
+
+        if (is_null($munged_color)) {
+            $this->_props_computed[$prop] = "inherit";
+            return;
+        }
+
+        $this->_props_computed[$prop] = is_array($munged_color) ? $munged_color["hex"] : $munged_color;
+    }
+
     /**
      * Sets color
      *
@@ -1904,17 +1920,7 @@ class Style
      */
     function set_color($color)
     {
-        $this->_props["color"] = $color;
-        $this->_props_computed["color"] = null;
-        $this->_prop_cache["color"] = null;
-
-        $munged_color = $this->munge_color($color);
-
-        if (is_null($munged_color) || !isset($munged_color["hex"])) {
-            $this->_props_computed["color"] = "inherit";
-        } else {
-            $this->_props_computed["color"] = $munged_color["hex"];
-        }
+        $this->set_prop_color("color", $color);
     }
 
     /**
@@ -1925,23 +1931,7 @@ class Style
      */
     function set_background_color($color)
     {
-        $this->_props["background_color"] = $color;
-        $this->_props_computed["background_color"] = null;
-        $this->_prop_cache["background_color"] = null;
-
-        $munged_color = $this->munge_color($color);
-
-        if (is_null($munged_color) || !isset($munged_color["hex"])) {
-            $this->_props_computed["color"] = "inherit";
-        } else {
-            $this->_props_computed["color"] = $munged_color["hex"];
-        }
-
-        if (is_null($munged_color)) {
-            return;
-        }
-
-        $this->_props_computed["background_color"] = is_array($munged_color) ? $munged_color["hex"] : $munged_color;
+        $this->set_prop_color("background_color", $color);
     }
 
     /**
