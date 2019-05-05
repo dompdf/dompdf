@@ -1739,16 +1739,25 @@ class Style
         $this->_prop_cache[$prop] = null;
 
         if (!isset($this->_important_props[$prop]) || $important) {
+            $val_computed = (float)$this->length_in_pt($val);
             if ($side === "bottom") {
                 $this->_computed_bottom_spacing = null; //reset computed cache, border style can disable/enable border calculations
             }
-            //see __set and __get, on all assignments clear cache!
-            $this->_prop_cache[$prop] = null;
             if ($important) {
                 $this->_important_props[$prop] = true;
             }
-            if ($type === "width") {
-                $this->_props_computed[$prop] = $style !== "none" && $style !== "hidden" ? ((float)$this->length_in_pt($val)) . "pt" : 0;
+            if (
+                ($style === "border" && $type === "width" && strpos($val, "%") !== false)
+                ||
+                (($style === "border" || $style === "padding") && $val_computed < 0)
+            ) {
+                return;
+            } elseif (($style === "margin" || $style === "padding") && (strpos($val, "%") !== false || $val === "auto")) {
+                $this->_props_computed[$prop] = $val;
+            } elseif ($style === "margin" || $style === "padding" && $val !== "inherit") {
+                $this->_props_computed[$prop] = ($val !== "none" && $val !== "hidden" ? $val_computed . "pt" : 0);
+            } elseif ($style === "color") {
+                $this->set_prop_color($prop, $val);
             } else {
                 $this->_props_computed[$prop] = $val;
             }
@@ -1819,13 +1828,7 @@ class Style
      */
     protected function _set_style_side_width_important($style, $side, $val)
     {
-        if ($side === "bottom") {
-            $this->_computed_bottom_spacing = null; //reset cache for any bottom width changes
-        }
-        //see __set and __get, on all assignments clear cache!
-        $this->_prop_cache[$style . '_' . $side] = null;
-        $this->_props[$style . '_' . $side] = str_replace("none", "0px", $val);
-        $this->_props_computed[$style . '_' . $side] = str_replace("none", "0px", $val);
+        $this->_set_style_side_type($style, $side, "", $val, isset($this->_important_props[$style . $side]));
     }
 
     /**
@@ -2284,7 +2287,6 @@ class Style
      */
     function set_margin($val)
     {
-        $val = str_replace("none", "0px", $val);
         $this->_set_style_type_important('margin', '', $val);
     }
 
@@ -2328,7 +2330,6 @@ class Style
      */
     function set_padding($val)
     {
-        $val = str_replace("none", "0px", $val);
         $this->_set_style_type_important('padding', '', $val);
     }
     /**#@-*/
