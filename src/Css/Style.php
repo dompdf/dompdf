@@ -1942,9 +1942,9 @@ class Style
      */
     function set_background_image($val)
     {
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+        $this->_props["background_image"] = $val;
+        $this->_props_computed["background_image"] = $this->_image($val);
         $this->_prop_cache["background_image"] = null;
-        $this->_props["background_image"] = $this->_image($val);
     }
 
     /**
@@ -2019,7 +2019,7 @@ class Style
 
             foreach ($tmp as $attr) {
                 if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
-                    $this->_set_style("background_image", $this->_image($attr), $important);
+                    $this->_set_style("background_image", $attr, $important);
                 } elseif ($attr === "fixed" || $attr === "scroll") {
                     $this->_set_style("background_attachment", $attr, $important);
                 } elseif ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
@@ -2037,8 +2037,9 @@ class Style
         }
 
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["background"] = null;
         $this->_props["background"] = $val;
+        $this->_props_computed["background"] = $val;
+        $this->_prop_cache["background"] = null;
     }
 
     /**
