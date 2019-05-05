@@ -1170,7 +1170,7 @@ class Style
         if (!isset($this->_props["line_height"]) || $this->_props["line_height"] === "inherit") {
             $this->__set("line_height", self::$_defaults["line_height"]);
         }
-        if (isset($this->_props_computed["line_height"]) === false) {
+        if (!isset($this->_props_computed["line_height"])) {
             $this->__set("line_height", $this->_props["line_height"]);
         }
         $line_height = $this->_props_computed["line_height"];
@@ -1532,6 +1532,54 @@ class Style
     function get_border_left()
     {
         return $this->_get_border("left");
+    }
+
+    private function _get_width($prop)
+    {
+        if (!isset($this->_props[$prop]) || $this->_props[$prop] === "inherit") {
+            $this->__set($prop, self::$_defaults[$prop]);
+        }
+        if (!isset($this->_props_computed[$prop])) {
+            $this->__set($prop, $this->_props[$prop]);
+        }
+        if (strpos($this->_props_computed[$prop], "%") !== false) {
+            // calculate against width of containing block, needs to be done outside the style class
+            return $this->_props_computed[$prop];
+        }
+        return $this->length_in_pt($this->_props_computed[$prop], $this->__get("font_size"));
+    }
+
+    function get_margin_top()
+    {
+        return $this->_get_width("margin_top");
+    }
+    function get_margin_right()
+    {
+        return $this->_get_width("margin_right");
+    }
+    function get_margin_bottom()
+    {
+        return $this->_get_width("margin_bottom");
+    }
+    function get_margin_left()
+    {
+        return $this->_get_width("margin_left");
+    }
+    function get_padding_top()
+    {
+        return $this->_get_width("padding_top");
+    }
+    function get_padding_right()
+    {
+        return $this->_get_width("padding_right");
+    }
+    function get_padding_bottom()
+    {
+        return $this->_get_width("padding_bottom");
+    }
+    function get_padding_left()
+    {
+        return $this->_get_width("padding_left");
     }
 
     /**
