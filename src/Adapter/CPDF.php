@@ -194,7 +194,7 @@ class CPDF implements Canvas
         }
 
         $this->_dompdf = $dompdf;
-        $cpdf_class_var = \Cpdf;
+        $cpdf_class_var = "\Cpdf";
         $this->_pdf = new $cpdf_class_var(
             $size,
             true,
