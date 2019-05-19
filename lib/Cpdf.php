@@ -1835,10 +1835,10 @@ EOT;
                     }
 
                     switch ($options['channels']) {
-                        case  1:
+                        case 1:
                             $info['ColorSpace'] = '/DeviceGray';
                             break;
-                        case  4:
+                        case 4:
                             $info['ColorSpace'] = '/DeviceCMYK';
                             break;
                         default:
@@ -2311,7 +2311,7 @@ EOT;
         }
 
         if ($this->fileIdentifier === '') {
-            $tmp = implode('',  $this->objects[$this->infoObject]['info']);
+            $tmp = implode('', $this->objects[$this->infoObject]['info']);
             $this->fileIdentifier = md5('DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
         }
 
@@ -3344,7 +3344,8 @@ EOT;
 
     /**
      * draw a bezier curve based on 4 control points
-     */    function quadTo($cpx, $cpy, $x, $y)
+     */
+    function quadTo($cpx, $cpy, $x, $y)
     {
         $this->addContent(sprintf("\n%.3F %.3F %.3F %.3F v", $cpx, $cpy, $x, $y));
     }
@@ -4072,7 +4073,7 @@ EOT;
                     for ($j = 1; $j < $numbytes; $j++) {
                         $c += ($bytes[$j] << (($numbytes - $j - 1) * 0x06));
                     }
-                    if ((($c >= 0xD800) AND ($c <= 0xDFFF)) OR ($c >= 0x10FFFF)) {
+                    if ((($c >= 0xD800) and ($c <= 0xDFFF)) or ($c >= 0x10FFFF)) {
                         // The definition of UTF-8 prohibits encoding character numbers between
                         // U+D800 and U+DFFF, which are reserved for use with the UTF-16
                         // encoding form (as surrogate pairs) and do not directly represent
