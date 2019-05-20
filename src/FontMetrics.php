@@ -185,7 +185,7 @@ class FontMetrics
 
         $fontDir = $this->getOptions()->getFontDir();
         $remoteHash = md5($remoteFile);
-        $localFile = $fontDir . DIRECTORY_SEPARATOR . $remoteHash;
+        $localFile = $fontDir . '/' . $remoteHash;
 
         $cacheEntry = $localFile;
         $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH), PATHINFO_EXTENSION));
@@ -495,7 +495,7 @@ class FontMetrics
      */
     public function getCacheFile()
     {
-        return $this->getOptions()->getFontDir() . DIRECTORY_SEPARATOR . self::CACHE_FILE;
+        return $this->getOptions()->getFontDir() . '/' . self::CACHE_FILE;
     }
 
     /**
