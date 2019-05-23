@@ -1052,8 +1052,8 @@ class Style
         $weight = $this->__get("font_weight");
         if ($weight === 'bold') {
             $weight = 700;
-        } elseif (preg_match('/^[0-9]+$/', $weight)) {
-            $weight = (int)$weight;
+        } elseif (preg_match('/^[0-9]+$/', $weight, $match)) {
+            $weight = (int)$match[0];
         } else {
             $weight = 400;
         }
