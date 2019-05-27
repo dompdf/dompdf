@@ -1062,12 +1062,6 @@ class Style
         $font_style = $this->__get("font_style");
         $subtype = $this->getFontMetrics()->getType($weight.' '.$font_style);
 
-        // Resolve the font family
-        if ($DEBUGCSS) {
-            print "<pre>[get_font_family:";
-            print '(' . $this->_props["font_family"] . '.' . $font_style . '.' . $this->__get("font_weight") . '.' . $weight . '.' . $subtype . ')';
-        }
-
         $families = preg_split("/\s*,\s*/", $this->_props["font_family"]);
 
         $font = null;
@@ -1082,6 +1076,8 @@ class Style
 
             if ($font) {
                 if ($DEBUGCSS) {
+                    print "<pre>[get_font_family:";
+                    print '(' . $this->_props["font_family"] . '.' . $font_style . '.' . $weight . '.' . $subtype . ')';
                     print '(' . $font . ")get_font_family]\n</pre>";
                 }
                 return $font;
@@ -2140,6 +2136,30 @@ class Style
         }
         
         $this->_props_computed["font_size"] = $fs;
+    }
+
+    /**
+     * Sets the font weight
+     *
+     * @param string|int $weight
+     */
+    function set_font_weight($weight)
+    {
+        $this->_props["font_weight"] = $weight;
+        $this->_props_computed["font_size"] = null;
+        $this->_prop_cache["font_weight"] = null;
+
+        $computed_weight = $weight;
+
+        if ($weight === "bolder") {
+            //TODO: One font weight heavier than the parent element (among the available weights of the font).
+            $computed_weight = "bold";
+        } elseif ($weight === "lighter") {
+            //TODO: One font weight lighter than the parent element (among the available weights of the font).
+            $computed_weight = "normal";
+        }
+
+        $this->_props_computed["font_weight"] = $computed_weight;
     }
 
     /**
