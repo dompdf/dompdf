@@ -1934,11 +1934,10 @@ class Style
         $munged_color = $this->munge_color($color);
 
         if (is_null($munged_color)) {
-            $this->_props_computed[$prop] = "inherit";
             return;
         }
 
-        $this->_props_computed[$prop] = is_array($munged_color) ? $munged_color["hex"] : $munged_color;
+        $this->_props_computed[$prop] = (is_array($munged_color) ? $munged_color["hex"] : $munged_color);
     }
 
     /**
