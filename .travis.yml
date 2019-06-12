@@ -21,5 +21,4 @@ matrix:
   allow_failures:
     - php: nightly
     - php: hhvm
-    - php: 7.3
   fast_finish: true
