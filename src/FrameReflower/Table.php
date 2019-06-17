@@ -433,7 +433,7 @@ class Table extends AbstractFrameReflower
         $left = $style->margin_left;
         $right = $style->margin_right;
 
-        $diff = $cb["w"] - $width;
+        $diff = (float)$cb["w"] - (float)$width;
 
         if ($left === "auto" && $right === "auto") {
             if ($diff < 0) {
