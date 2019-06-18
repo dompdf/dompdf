@@ -204,7 +204,7 @@ class Style
      *
      * @var float
      */
-    protected $_parent_font_size; // Font size of parent element
+    protected $_parent_font_size;
 
     /**
      * @var Frame
@@ -2146,7 +2146,7 @@ class Style
     function set_font_weight($weight)
     {
         $this->_props["font_weight"] = $weight;
-        $this->_props_computed["font_size"] = null;
+        $this->_props_computed["font_weight"] = null;
         $this->_prop_cache["font_weight"] = null;
 
         $computed_weight = $weight;
@@ -2207,15 +2207,11 @@ class Style
         if (preg_match("/^(italic|oblique|normal)\s*(.*)$/i", $val, $match)) {
             $this->_set_style("font_style", $match[1], $important);
             $val = $match[2];
-        } else {
-            $this->_set_style("font_style", self::$_defaults["font_style"], $important);
         }
 
         if (preg_match("/^(small-caps|normal)\s*(.*)$/i", $val, $match)) {
             $this->_set_style("font_variant", $match[1], $important);
             $val = $match[2];
-        } else {
-            $this->_set_style("font_variant", self::$_defaults["font_variant"], $important);
         }
 
         //matching numeric value followed by unit -> this is indeed a subsequent font size. Skip!
@@ -2224,8 +2220,6 @@ class Style
         ) {
             $this->_set_style("font_weight", $match[1], $important);
             $val = $match[2];
-        } else {
-            $this->_set_style("font_weight", self::$_defaults["font_weight"], $important);
         }
 
         if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))(?:\/|\s*)(.*)$/i", $val, $match)) {
@@ -2234,18 +2228,11 @@ class Style
             if (preg_match("/^(?:\/|\s*)(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
                 $this->_set_style("line_height", $match[1], $important);
                 $val = $match[2];
-            } else {
-                $this->_set_style("line_height", self::$_defaults["line_height"], $important);
             }
-        } else {
-            $this->_set_style("font_size", self::$_defaults["font_size"], $important);
-            $this->_set_style("line_height", self::$_defaults["line_height"], $important);
         }
         
         if (strlen($val) != 0) {
             $this->_set_style("font_family", $val, $important);
-        } else {
-            $this->_set_style("font_family", self::$_defaults["font_family"], $important);
         }
     }
 
