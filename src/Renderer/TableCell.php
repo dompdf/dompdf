@@ -60,8 +60,6 @@ class TableCell extends Block
         $background_position_x = $x; $background_position_y = $y; $background_width = (float)$w; $background_height = (float)$h;
         $border_right_width = 0; $border_left_width = 0; $border_top_width = 0; $border_bottom_width = 0;
         $border_right_length = 0; $border_left_length = 0; $border_top_length = 0; $border_bottom_length = 0;
-        $horizontal_shared_borders = 1;
-        $vertical_shared_borders = 1;
 
         $cellmap = $table->get_cellmap();
         $cells = $cellmap->get_spanned_cells($frame);
@@ -126,10 +124,12 @@ class TableCell extends Block
 
                 $y = $bottom_row["y"] + $bottom_row["height"] + $bp["bottom"]["width"] / 2;
                 $border_bottom_width = max($border_bottom_width, $widths[2]);
-                $horizontal_shared_borders = 2;
 
                 $method = "_border_" . $bp["bottom"]["style"];
                 $border_function_calls[] = array($method, [$x, $y, $w, $bp["bottom"]["color"], $widths, "bottom", "square"]);
+            } else {
+                $adjacent_bp = $cellmap->get_border_properties($i+1, $j);
+                $border_bottom_width = max($border_bottom_width, $adjacent_bp["top"]["width"]);
             }
         }
 
@@ -182,10 +182,12 @@ class TableCell extends Block
 
                 $x = $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;
                 $border_right_width = max($border_right_width, $widths[1]);
-                $vertical_shared_borders = 2;
 
                 $method = "_border_" . $bp["right"]["style"];
                 $border_function_calls[] = array($method, [$x, $y, $h, $bp["right"]["color"], $widths, "right", "square"]);
+            } else {
+                $adjacent_bp = $cellmap->get_border_properties($i, $j+1);
+                $border_right_width = max($border_right_width, $adjacent_bp["left"]["width"]);
             }
         }
 
@@ -194,8 +196,8 @@ class TableCell extends Block
             $this->_canvas->filled_rectangle(
                 $background_position_x + ($border_left_width/2),
                 $background_position_y + ($border_top_width/2),
-                (float)$background_width - (($border_left_width + $border_right_width)/$vertical_shared_borders),
-                (float)$background_height - (($border_top_width + $border_bottom_width)/$horizontal_shared_borders),
+                (float)$background_width - (($border_left_width + $border_right_width)/2),
+                (float)$background_height - (($border_top_width + $border_bottom_width)/2),
                 $bg
             );
         }
