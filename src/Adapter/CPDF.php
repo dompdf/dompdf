@@ -215,7 +215,7 @@ class CPDF implements Canvas
 
         $this->_pages = array($this->_pdf->getFirstPageId());
 
-        $this->_image_cache = array();
+        $this->_image_cache = array(); 
     }
 
     /**
