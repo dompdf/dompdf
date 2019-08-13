@@ -4859,7 +4859,7 @@ EOT;
             // the first version containing it was 3.0.1RC1
             static $imagickClonable = null;
             if ($imagickClonable === null) {
-                $imagickClonable = version_compare(Imagick::IMAGICK_EXTVER, '3.0.1rc1') > 0;
+                $imagickClonable = version_compare(\Imagick::IMAGICK_EXTVER, '3.0.1rc1') > 0;
             }
 
             $imagick = new \Imagick($file);
