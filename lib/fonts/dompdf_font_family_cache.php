@@ -1,9 +1,9 @@
 <?php return array (
   'sans-serif' => array(
-    'normal' => $fontDir . '/Helvetica',
-    'bold' => $fontDir . '/Helvetica-Bold',
-    'italic' => $fontDir . '/Helvetica-Oblique',
-    'bold_italic' => $fontDir . '/Helvetica-BoldOblique',
+    'normal' => $fontDir . '/Roboto',
+    'bold' => $fontDir . '/Roboto-Bold',
+    'italic' => $fontDir . '/Roboto-Italic',
+    'bold_italic' => $fontDir . '/Roboto-BoldItalic',
   ),
   'times' => array(
     'normal' => $fontDir . '/Times-Roman',
