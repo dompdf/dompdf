@@ -20,6 +20,10 @@ use Dompdf\Helpers;
  */
 class Text extends AbstractFrameReflower
 {
+    /**
+     * PHP string represantation of HTML entity <shy>
+     */
+    const SOFT_HYPHEN = "\xC2\xAD";
 
     /**
      * @var BlockFrameDecorator
@@ -36,7 +40,7 @@ class Text extends AbstractFrameReflower
     public static $_whitespace_pattern = '/([^\S\xA0]+)/u';
     // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
     // This currently excludes the "narrow nbsp" character
-    public static $_wordbreak_pattern = '/([^\S\xA0]+|-+)/u';
+    public static $_wordbreak_pattern = '/([^\S\xA0]+|\-+|\xAD+)/u';
 
     /**
      * @var FontMetrics
@@ -84,7 +88,8 @@ class Text extends AbstractFrameReflower
         $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
         // Determine the frame width including margin, padding & border
-        $text_width = $this->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
+        $visible_text = preg_replace('/\xAD/u', '', $text);
+        $text_width = $this->getFontMetrics()->getTextWidth($visible_text, $font, $size, $word_spacing, $char_spacing);
         $mbp_width =
             (float)$style->length_in_pt([$style->margin_left,
                 $style->border_left_width,
@@ -119,15 +124,29 @@ class Text extends AbstractFrameReflower
         $str = "";
         reset($words);
 
-        // @todo support <shy>, <wbr>
+        $shy_width = $this->getFontMetrics()->getTextWidth(self::SOFT_HYPHEN, $font, $size);
+
+        // @todo support <wbr>
         for ($i = 0; $i < $wc; $i += 2) {
             $word = $words[$i] . (isset($words[$i + 1]) ? $words[$i + 1] : "");
             $word_width = $this->getFontMetrics()->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
             if ($width + $word_width + $mbp_width > $available_width) {
+                // If the previous split happened by soft hyphen, we have to append its width again
+                // because the last hyphen of a line won't be removed.
+                if (isset($words[$i - 1]) && self::SOFT_HYPHEN === $words[$i - 1]) {
+                    $width += $shy_width;
+                }
                 break;
             }
 
-            $width += $word_width;
+            // If the word is splitted by soft hyphen, but no line break is needed
+            // we have to reduce the width. But the str is not modified, otherwise
+            // the wrong offset is calculated at the end of this method.
+            if (isset($words[$i + 1]) && self::SOFT_HYPHEN === $words[$i + 1]) {
+                $width += $word_width - $shy_width;
+            } else {
+                $width += $word_width;
+            }
             $str .= $word;
         }
 
@@ -294,6 +313,15 @@ class Text extends AbstractFrameReflower
                 // split the line if required
                 $frame->split_text($split);
 
+                $t = $frame->get_text();
+
+                // Remove inner shoft hyphens
+                $shyPosition = mb_strpos($t, self::SOFT_HYPHEN);
+                if (false !== $shyPosition && $shyPosition < mb_strlen($t) - 1) {
+                    $t = str_replace(self::SOFT_HYPHEN, '', mb_substr($t, 0, -1)) . mb_substr($t, -1);
+                    $frame->set_text($t);
+                }
+
                 // Do we need to trim spaces on wrapped lines? This might be desired, however, we
                 // can't trim the lines here or the layout will be affected if trimming the line
                 // leaves enough space to fit the next word in the text stream (because pdf layout
@@ -330,6 +358,9 @@ class Text extends AbstractFrameReflower
             ) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
                 $t = ltrim($t);
             }
+
+            // Remove soft hyphens
+            $t = str_replace(self::SOFT_HYPHEN, '', $t);
 
             $frame->set_text($t);
         }
