@@ -110,9 +110,9 @@ class Style
      *
      * @var array
      */
-    static protected $_props_shorthand = array("background", "border", 
-        "border_bottom", "border_color", "border_left", "border_radius", 
-        "border_right", "border_style", "border_top", "border_width", 
+    protected static $_props_shorthand = array("background", "border",
+        "border_bottom", "border_color", "border_left", "border_radius",
+        "border_right", "border_style", "border_top", "border_width",
         "flex", "font", "list_style", "margin", "padding");
 
     /**
@@ -122,7 +122,7 @@ class Style
      *
      * @var array
      */
-    static protected $_defaults = null;
+    protected static $_defaults = null;
 
     /**
      * List of inherited properties
@@ -131,14 +131,14 @@ class Style
      *
      * @var array
      */
-    static protected $_inherited = null;
+    protected static $_inherited = null;
 
     /**
      * Caches method_exists result
      *
      * @var array<bool>
      */
-    static protected $_methods_cache = array();
+    protected static $_methods_cache = array();
 
     /**
      * The stylesheet this style belongs to
@@ -172,11 +172,11 @@ class Style
      */
     protected $_props_computed = array();
 
-    static protected $_dependency_map = array(
+    protected static $_dependency_map = array(
         "font_size" => array(
             "border_top_width",
             "border_right_width",
-            "border_bottom_width", 
+            "border_bottom_width",
             "border_left_width",
             "line_height",
             "margin_top",
@@ -890,7 +890,7 @@ class Style
         if (!isset(self::$_defaults[$prop])) {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
-        
+
         if (isset($this->_prop_cache[$prop])) {
             return $this->_prop_cache[$prop];
         }
@@ -898,7 +898,7 @@ class Style
         $method = "get_$prop";
 
         $retval = null;
-        // Preview the value based on the default if the property's computed value has not 
+        // Preview the value based on the default if the property's computed value has not
         // yet been set or the current value is "inherit" (the computed value will be based
         // on the parent's value if inheritance has been applied).
         // Reset the specified property afterwards so that we don't block inheritance later.
@@ -934,7 +934,7 @@ class Style
             $this->_props[$prop] = $specified_value;
             $this->_props_computed[$prop] = $computed_value;
         }
-        
+
         return $retval;
     }
 
@@ -1474,7 +1474,7 @@ class Style
     {
         $color = $this->__get("border_" . $side . "_color");
 
-        return $this->__get("border_" . $side . "_width") . " " . 
+        return $this->__get("border_" . $side . "_width") . " " .
             $this->__get("border_" . $side . "_style") . " " . $color["hex"];
     }
 
@@ -1682,7 +1682,7 @@ class Style
     {
         $val = trim($this->_props_computed["counter_increment"]);
         $value = null;
-        
+
         if (in_array($val, array("none", "inherit"))) {
             $value = $val;
         } else {
@@ -2134,7 +2134,7 @@ class Style
             //FIXME: prefer just calling length_in_pt, when we provide a ref size to length_in_pt should em and ex use that instead of the current font size?
             $fs = (float)$this->length_in_pt($fs, $this->_parent_font_size);
         }
-        
+
         $this->_props_computed["font_size"] = $fs;
     }
 
@@ -2230,7 +2230,7 @@ class Style
                 $val = $match[2];
             }
         }
-        
+
         if (strlen($val) != 0) {
             $this->_set_style("font_family", $val, $important);
         }
@@ -2238,7 +2238,7 @@ class Style
 
     /**
      * Sets line height property
-     * 
+     *
      * @link http://www.w3.org/TR/CSS21/visudet.html#propdef-line-height
      * @param $val
      */
@@ -2786,7 +2786,7 @@ class Style
         $this->_props["size"] = $val;
         $this->_props_computed["size"] = null;
         $this->_prop_cache["size"] = null;
-        
+
         $length_re = "/(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))/";
 
         $val = mb_strtolower($val);

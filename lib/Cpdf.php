@@ -309,12 +309,12 @@ class Cpdf
     /**
      * @var string The target internal encoding
      */
-    static protected $targetEncoding = 'Windows-1252';
+    protected static $targetEncoding = 'Windows-1252';
 
     /**
      * @var array The list of the core fonts
      */
-    static protected $coreFonts = array(
+    protected static $coreFonts = array(
         'courier',
         'courier-bold',
         'courier-oblique',
