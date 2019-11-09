@@ -25,8 +25,7 @@ release. For released code please
 question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
 on the [Google Groups](http://groups.google.com/group/dompdf).**
 
-Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf) or 
-[![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-16.png)](https://plus.google.com/108710008521858993320?prsrc=3).
+Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf).
 
 ---
 

@@ -199,7 +199,7 @@ class Dompdf
     private $defaultViewOptions = array();
 
     /**
-     * Tells wether the DOM document is in quirksmode (experimental)
+     * Tells whether the DOM document is in quirksmode (experimental)
      *
      * @var bool
      */
