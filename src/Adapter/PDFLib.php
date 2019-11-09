@@ -39,7 +39,7 @@ class PDFLib implements Canvas
      *
      * @var array;
      */
-    static public $PAPER_SIZES = array(); // Set to Dompdf\Adapter\CPDF::$PAPER_SIZES below.
+    public static $PAPER_SIZES = array(); // Set to Dompdf\Adapter\CPDF::$PAPER_SIZES below.
 
     /**
      * Whether to create PDFs in memory or on disk
@@ -53,7 +53,7 @@ class PDFLib implements Canvas
      *
      * @var null|int
      */
-    static private $MAJOR_VERSION = null;
+    private static $MAJOR_VERSION = null;
 
 
     /**
@@ -61,7 +61,7 @@ class PDFLib implements Canvas
      *
      * @var array
      */
-    static public $nativeFontsTpPDFLib = array(
+    public static $nativeFontsTpPDFLib = array(
         "courier"               => "Courier",
         "courier-bold"          => "Courier-Bold",
         "courier-oblique"       => "Courier-Oblique",
