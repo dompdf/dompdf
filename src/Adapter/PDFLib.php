@@ -1282,8 +1282,8 @@ class PDFLib implements Canvas
 
         $this->_pdf->setfont($fh, $size);
 
-        $asc = $this->_pdf->get_value("ascender", $fh);
-        $desc = $this->_pdf->get_value("descender", $fh);
+	$asc = $this->_pdf->info_font($fh, "ascender",  "fontsize=$size") / $size;
+	$desc = $this->_pdf->info_font($fh, "descender", "fontsize=$size") / $size;
 
         // $desc is usually < 0,
         $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
