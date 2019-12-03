@@ -314,62 +314,12 @@ class Options
             $attributes = array($attributes => $value);
         }
         foreach ($attributes as $key => $value) {
-            if ($key === 'tempDir' || $key === 'temp_dir') {
-                $this->setTempDir($value);
-            } elseif ($key === 'fontDir' || $key === 'font_dir') {
-                $this->setFontDir($value);
-            } elseif ($key === 'fontCache' || $key === 'font_cache') {
-                $this->setFontCache($value);
-            } elseif ($key === 'chroot') {
-                $this->setChroot($value);
-            } elseif ($key === 'logOutputFile' || $key === 'log_output_file') {
-                $this->setLogOutputFile($value);
-            } elseif ($key === 'defaultMediaType' || $key === 'default_media_type') {
-                $this->setDefaultMediaType($value);
-            } elseif ($key === 'defaultPaperSize' || $key === 'default_paper_size') {
-                $this->setDefaultPaperSize($value);
-            } elseif ($key === 'defaultPaperOrientation' || $key === 'default_paper_orientation') {
-                $this->setDefaultPaperOrientation($value);
-            } elseif ($key === 'defaultFont' || $key === 'default_font') {
-                $this->setDefaultFont($value);
-            } elseif ($key === 'dpi') {
-                $this->setDpi($value);
-            } elseif ($key === 'fontHeightRatio' || $key === 'font_height_ratio') {
-                $this->setFontHeightRatio($value);
-            } elseif ($key === 'isPhpEnabled' || $key === 'is_php_enabled' || $key === 'enable_php') {
-                $this->setIsPhpEnabled($value);
-            } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
-                $this->setIsRemoteEnabled($value);
-            } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
-                $this->setIsJavascriptEnabled($value);
-            } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
-                $this->setIsHtml5ParserEnabled($value);
-            } elseif ($key === 'isFontSubsettingEnabled' || $key === 'is_font_subsetting_enabled' || $key === 'enable_font_subsetting') {
-                $this->setIsFontSubsettingEnabled($value);
-            } elseif ($key === 'debugPng' || $key === 'debug_png') {
-                $this->setDebugPng($value);
-            } elseif ($key === 'debugKeepTemp' || $key === 'debug_keep_temp') {
-                $this->setDebugKeepTemp($value);
-            } elseif ($key === 'debugCss' || $key === 'debug_css') {
-                $this->setDebugCss($value);
-            } elseif ($key === 'debugLayout' || $key === 'debug_layout') {
-                $this->setDebugLayout($value);
-            } elseif ($key === 'debugLayoutLines' || $key === 'debug_layout_lines') {
-                $this->setDebugLayoutLines($value);
-            } elseif ($key === 'debugLayoutBlocks' || $key === 'debug_layout_blocks') {
-                $this->setDebugLayoutBlocks($value);
-            } elseif ($key === 'debugLayoutInline' || $key === 'debug_layout_inline') {
-                $this->setDebugLayoutInline($value);
-            } elseif ($key === 'debugLayoutPaddingBox' || $key === 'debug_layout_padding_box') {
-                $this->setDebugLayoutPaddingBox($value);
-            } elseif ($key === 'pdfBackend' || $key === 'pdf_backend') {
-                $this->setPdfBackend($value);
-            } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
-                $this->setPdflibLicense($value);
-            } elseif ($key === 'adminUsername' || $key === 'admin_username') {
-                $this->setAdminUsername($value);
-            } elseif ($key === 'adminPassword' || $key === 'admin_password') {
-                $this->setAdminPassword($value);
+            $key = $this->convertKeySynonyms($key);
+            $key = str_replace('_', '', $key);
+            $methodName = "set$key";
+
+            if (method_exists($this, $methodName)) {
+                $this->$methodName($value);
             }
         }
         return $this;
@@ -381,63 +331,14 @@ class Options
      */
     public function get($key)
     {
-        if ($key === 'tempDir' || $key === 'temp_dir') {
-            return $this->getTempDir();
-        } elseif ($key === 'fontDir' || $key === 'font_dir') {
-            return $this->getFontDir();
-        } elseif ($key === 'fontCache' || $key === 'font_cache') {
-            return $this->getFontCache();
-        } elseif ($key === 'chroot') {
-            return $this->getChroot();
-        } elseif ($key === 'logOutputFile' || $key === 'log_output_file') {
-            return $this->getLogOutputFile();
-        } elseif ($key === 'defaultMediaType' || $key === 'default_media_type') {
-            return $this->getDefaultMediaType();
-        } elseif ($key === 'defaultPaperSize' || $key === 'default_paper_size') {
-            return $this->getDefaultPaperSize();
-        } elseif ($key === 'defaultPaperOrientation' || $key === 'default_paper_orientation') {
-            return $this->getDefaultPaperOrientation();
-        } elseif ($key === 'defaultFont' || $key === 'default_font') {
-            return $this->getDefaultFont();
-        } elseif ($key === 'dpi') {
-            return $this->getDpi();
-        } elseif ($key === 'fontHeightRatio' || $key === 'font_height_ratio') {
-            return $this->getFontHeightRatio();
-        } elseif ($key === 'isPhpEnabled' || $key === 'is_php_enabled' || $key === 'enable_php') {
-            return $this->getIsPhpEnabled();
-        } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
-            return $this->getIsRemoteEnabled();
-        } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
-            return $this->getIsJavascriptEnabled();
-        } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
-            return $this->getIsHtml5ParserEnabled();
-        } elseif ($key === 'isFontSubsettingEnabled' || $key === 'is_font_subsetting_enabled' || $key === 'enable_font_subsetting') {
-            return $this->getIsFontSubsettingEnabled();
-        } elseif ($key === 'debugPng' || $key === 'debug_png') {
-            return $this->getDebugPng();
-        } elseif ($key === 'debugKeepTemp' || $key === 'debug_keep_temp') {
-            return $this->getDebugKeepTemp();
-        } elseif ($key === 'debugCss' || $key === 'debug_css') {
-            return $this->getDebugCss();
-        } elseif ($key === 'debugLayout' || $key === 'debug_layout') {
-            return $this->getDebugLayout();
-        } elseif ($key === 'debugLayoutLines' || $key === 'debug_layout_lines') {
-            return $this->getDebugLayoutLines();
-        } elseif ($key === 'debugLayoutBlocks' || $key === 'debug_layout_blocks') {
-            return $this->getDebugLayoutBlocks();
-        } elseif ($key === 'debugLayoutInline' || $key === 'debug_layout_inline') {
-            return $this->getDebugLayoutInline();
-        } elseif ($key === 'debugLayoutPaddingBox' || $key === 'debug_layout_padding_box') {
-            return $this->getDebugLayoutPaddingBox();
-        } elseif ($key === 'pdfBackend' || $key === 'pdf_backend') {
-            return $this->getPdfBackend();
-        } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
-            return $this->getPdflibLicense();
-        } elseif ($key === 'adminUsername' || $key === 'admin_username') {
-            return $this->getAdminUsername();
-        } elseif ($key === 'adminPassword' || $key === 'admin_password') {
-            return $this->getAdminPassword();
+        $key = $this->convertKeySynonyms($key);
+        $key = str_replace('_', '', $key);
+        $methodName = "get$key";
+
+        if (method_exists($this, $methodName)) {
+            return $this->$methodName();
         }
+
         return null;
     }
 
@@ -1001,5 +902,21 @@ class Options
     public function getRootDir()
     {
         return $this->rootDir;
+    }
+
+    /**
+     * @return array
+     */
+    private function convertKeySynonyms($key)
+    {
+        $map = array(
+            'enable_php' => 'is_php_enabled',
+            'enable_remote' => 'is_remote_enabled',
+            'enable_javascript' => 'is_javascript_enabled',
+            'enable_html5_parser' => 'is_html5_parser_enabled',
+            'enable_font_subsetting' => 'is_font_subsetting_enabled',
+        );
+
+        return isset($map[$key]) ? $map[$key] : $key;
     }
 }
