@@ -179,13 +179,23 @@ class FontMetrics
         }
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
-        if (isset($entry[$styleString])) {
-            return true;
-        }
 
         $fontDir = $this->getOptions()->getFontDir();
         $remoteHash = md5($remoteFile);
-        $localFile = $fontDir . '/' . $remoteHash;
+
+        $prefix = $fontname . "_" . $styleString;
+        $prefix = preg_replace("/[^\\pL\d]+/u", "-", $prefix);
+        $prefix = trim($prefix, "-");
+        if (function_exists(iconv)) {
+            $prefix = iconv('utf-8', 'us-ascii//TRANSLIT', $prefix);
+        }
+        $prefix = preg_replace("/[^-\w]+/", "", $prefix);
+        
+        $localFile = $fontDir . "/" . $prefix . "_" . $remoteHash;
+
+        if (isset($entry[$styleString]) && $localFile == $entry[$styleString]) {
+            return true;
+        }
 
         $cacheEntry = $localFile;
         $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH), PATHINFO_EXTENSION));
