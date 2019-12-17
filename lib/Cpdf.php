@@ -2838,7 +2838,8 @@ EOT;
 
                         // Write new font
                         $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
-                        $font_obj->open($tmp_name, BinaryStream::modeWrite);
+                        touch($tmp_name);
+                        $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
                         $font_obj->encode(array("OS/2"));
                         $font_obj->close();
 
