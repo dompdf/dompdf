@@ -286,11 +286,6 @@ class Dompdf
             $this->setOptions(new Options());
         }
 
-        $versionFile = realpath(__DIR__ . '/../VERSION');
-        if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false && $version !== '$Format:<%h>$') {
-          $this->version = sprintf('dompdf %s', $version);
-        }
-
         $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
         $this->saveLocale();
         $this->paperSize = $this->options->getDefaultPaperSize();
