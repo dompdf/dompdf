@@ -135,7 +135,7 @@ class ListBullet extends AbstractRenderer
     {
         $style = $frame->get_style();
         $font_size = $style->font_size;
-        $line_height = (float)$style->length_in_pt($style->line_height, $frame->get_containing_block("h"));
+        $line_height = $style->line_height;
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
@@ -235,6 +235,8 @@ class ListBullet extends AbstractRenderer
                     $x -= $this->_dompdf->getFontMetrics()->getTextWidth($text, $font_family, $font_size, $spacing);
 
                     // Take line-height into account
+                    // TODO: should the line height take into account the line height of the containing block (per previous logic)
+                    // $line_height = (float)$style->length_in_pt($style->line_height, $frame->get_containing_block("h"));
                     $line_height = $style->line_height;
                     $y += ($line_height - $font_size) / 4; // FIXME I thought it should be 2, but 4 gives better results
 

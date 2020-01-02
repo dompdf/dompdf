@@ -73,7 +73,7 @@ abstract class AbstractFrameReflower
         $style = $frame->get_style();
 
         // Margins of float/absolutely positioned/inline-block elements do not collapse.
-        if (!$frame->is_in_flow() || $frame->is_inline_block()) {
+        if (!$frame->is_in_flow() || $frame->is_inline_block() || $frame->get_root() == $frame || $frame->get_parent() == $frame->get_root()) {
             return;
         }
 

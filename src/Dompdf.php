@@ -199,7 +199,7 @@ class Dompdf
     private $defaultViewOptions = array();
 
     /**
-     * Tells wether the DOM document is in quirksmode (experimental)
+     * Tells whether the DOM document is in quirksmode (experimental)
      *
      * @var bool
      */
@@ -384,6 +384,9 @@ class Dompdf
         }
 
         list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
+        if (empty($contents)) {
+            throw new Exception("File '$file' not found.");
+        }
         $encoding = 'UTF-8';
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
@@ -476,7 +479,7 @@ class Dompdf
             $doc = $tokenizer->save();
 
             // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = array("html", "table", "tbody", "thead", "tfoot", "tr");
+            $tag_names = array("html", "head", "table", "tbody", "thead", "tfoot", "tr");
             foreach ($tag_names as $tag_name) {
                 $nodes = $doc->getElementsByTagName($tag_name);
 
@@ -496,7 +499,7 @@ class Dompdf
             $doc->encoding = $encoding;
 
             // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = array("html", "table", "tbody", "thead", "tfoot", "tr");
+            $tag_names = array("html", "head", "table", "tbody", "thead", "tfoot", "tr");
             foreach ($tag_names as $tag_name) {
                 $nodes = $doc->getElementsByTagName($tag_name);
 
@@ -840,7 +843,7 @@ class Dompdf
             }
         }
 
-        $root->set_containing_block(0, 0,$canvas->get_width(), $canvas->get_height());
+        $root->set_containing_block(0, 0, $canvas->get_width(), $canvas->get_height());
         $root->set_renderer(new Renderer($this));
 
         // This is where the magic happens:

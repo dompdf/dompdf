@@ -195,7 +195,7 @@ class CPDF implements Canvas
 
         $this->_dompdf = $dompdf;
 
-        $this->_pdf = new \Cpdf(
+        $this->_pdf = new \Dompdf\Cpdf(
             $size,
             true,
             $dompdf->getOptions()->getFontCache(),
@@ -215,7 +215,7 @@ class CPDF implements Canvas
 
         $this->_pages = array($this->_pdf->getFirstPageId());
 
-        $this->_image_cache = array();
+        $this->_image_cache = array(); 
     }
 
     /**

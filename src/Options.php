@@ -294,9 +294,9 @@ class Options
         $this->setChroot(realpath(__DIR__ . "/../"));
         $this->setRootDir($this->getChroot());
         $this->setTempDir(sys_get_temp_dir());
-        $this->setFontDir($this->chroot . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "fonts");
+        $this->setFontDir($this->chroot . "/lib/fonts");
         $this->setFontCache($this->getFontDir());
-        $this->setLogOutputFile($this->getTempDir() . DIRECTORY_SEPARATOR . "log.htm");
+        $this->setLogOutputFile($this->getTempDir() . "/log.htm");
 
         if (null !== $attributes) {
             $this->set($attributes);
