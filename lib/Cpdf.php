@@ -2587,6 +2587,9 @@ EOT;
                             }
 
                             $c = (int)$dtmp['U'];
+                            
+                            if(!isset($dtmp['N']))
+                                break;
                             $n = $dtmp['N'];
                             $glyph = $dtmp['G'];
                             $width = floatval($dtmp['WX']);
