@@ -2520,7 +2520,7 @@ EOT;
                         //C 39 ; WX 222 ; N quoteright ; B 53 463 157 718 ;
                         case 'C': // Found in AFM files
                             $bits = explode(';', trim($row));
-                            $dtmp = array();
+                            $dtmp = array('C' => null, 'N' => null, 'WX' => null, 'B' => array());
 
                             foreach ($bits as $bit) {
                                 $bits2 = explode(' ', trim($bit));
@@ -2549,11 +2549,11 @@ EOT;
                                     $data['codeToName'][$c] = $n;
                                 }
                                 $data['C'][$c] = $width;
-                            } else {
+                            } elseif (isset($n)) {
                                 $data['C'][$n] = $width;
                             }
 
-                            if (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
+                            if (!isset($data['MissingWidth']) && $c === -1 && $n === '.notdef') {
                                 $data['MissingWidth'] = $width;
                             }
 
@@ -2566,7 +2566,7 @@ EOT;
                             }
 
                             $bits = explode(';', trim($row));
-                            $dtmp = array();
+                            $dtmp = array('G' => null, 'N' => null, 'U' => null, 'WX' => null);
 
                             foreach ($bits as $bit) {
                                 $bits2 = explode(' ', trim($bit));
@@ -2587,9 +2587,6 @@ EOT;
                             }
 
                             $c = (int)$dtmp['U'];
-                            
-                            if(!isset($dtmp['N']))
-                                break;
                             $n = $dtmp['N'];
                             $glyph = $dtmp['G'];
                             $width = floatval($dtmp['WX']);
@@ -2605,11 +2602,11 @@ EOT;
                                     $data['codeToName'][$c] = $n;
                                 }
                                 $data['C'][$c] = $width;
-                            } else {
+                            } elseif (isset($n)) {
                                 $data['C'][$n] = $width;
                             }
 
-                            if (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
+                            if (!isset($data['MissingWidth']) && $c === -1 && $n === '.notdef') {
                                 $data['MissingWidth'] = $width;
                             }
 
