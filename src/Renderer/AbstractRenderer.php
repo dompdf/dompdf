@@ -287,8 +287,9 @@ abstract class AbstractRenderer
             //However on transparent image preset the composed image with the transparency color,
             //to keep the transparency when copying over the non transparent parts of the tiles.
             $ti = imagecolortransparent($src);
+            $palletsize = imagecolorstotal($src);
 
-            if ($ti >= 0) {
+            if ($ti >= 0 && $ti < $palletsize) {
                 $tc = imagecolorsforindex($src, $ti);
                 $ti = imagecolorallocate($bg, $tc['red'], $tc['green'], $tc['blue']);
                 imagefill($bg, 0, 0, $ti);
@@ -692,7 +693,6 @@ abstract class AbstractRenderer
         $this->_apply_ratio($side, 0.5, $top, $right, $bottom, $left, $x, $y, $length, $r1, $r2);
 
         $this->_border_outset($x, $y, $length, $color, $half_widths, $side, $corner_style, $r1, $r2);
-
     }
 
     /**
@@ -717,7 +717,6 @@ abstract class AbstractRenderer
         $this->_apply_ratio($side, 0.5, $top, $right, $bottom, $left, $x, $y, $length, $r1, $r2);
 
         $this->_border_inset($x, $y, $length, $color, $half_widths, $side, $corner_style, $r1, $r2);
-
     }
 
     /**

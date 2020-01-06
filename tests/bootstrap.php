@@ -11,10 +11,10 @@ if (!@include_once __DIR__ . '/../vendor/autoload.php') {
 
 // Add test autoloader
 spl_autoload_register(function ($class) {
-    $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+    $class = str_replace('\\', '/', $class);
     $class = preg_replace('/^Dompdf/', 'Dompdf/Tests/_includes', $class);
-    if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . $class . '.php')) {
-        require_once __DIR__ . DIRECTORY_SEPARATOR . $class . '.php';
+    if (file_exists(__DIR__ . '/' . $class . '.php')) {
+        require_once __DIR__ . '/' . $class . '.php';
     }
 });
 

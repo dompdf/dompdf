@@ -170,6 +170,10 @@ class Color
      */
     static function parse($color)
     {
+        if ($color === null) {
+            return null;
+        }
+
         if (is_array($color)) {
             // Assume the array has the right format...
             // FIXME: should/could verify this.

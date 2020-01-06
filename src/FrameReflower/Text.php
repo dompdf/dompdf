@@ -54,9 +54,6 @@ class Text extends AbstractFrameReflower
      */
     protected function _collapse_white_space($text)
     {
-        //$text = $this->_frame->get_text();
-//     if ( $this->_block_parent->get_current_line_box->w == 0 )
-//       $text = ltrim($text, " \n\r\t");
         return preg_replace(self::$_whitespace_pattern, " ", $text);
     }
 
@@ -109,7 +106,9 @@ class Text extends AbstractFrameReflower
         }
 
         // split the text into words
-        $words = preg_split('/([\s-]+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
+        // This currently excludes the "narrow nbsp" character
+        $words = preg_split('/([^\S\xA0]+|-+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         $wc = count($words);
 
         // Determine the split point
@@ -405,10 +404,10 @@ class Text extends AbstractFrameReflower
 
                 // Find the longest word (i.e. minimum length)
 
-                // This technique (using arrays & an anonymous function) is actually
-                // faster than doing a single-pass character by character scan.  Heh,
-                // yes I took the time to bench it ;)
-                $words = array_flip(preg_split("/[\s-]+/u", $str, -1, PREG_SPLIT_DELIM_CAPTURE));
+                // split the text into words
+                // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
+                // This currently excludes the "narrow nbsp" character
+                $words = array_flip(preg_split('/([^\S\xA0]+|-+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE));
                 $root = $this;
                 array_walk($words, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
                     $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
@@ -419,7 +418,7 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "pre":
-                $lines = array_flip(preg_split("/\n/u", $str));
+                $lines = array_flip(preg_split("/\R/u", $str));
                 $root = $this;
                 array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
                     $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
@@ -447,7 +446,7 @@ class Text extends AbstractFrameReflower
 
             case "pre-wrap":
                 // Find the longest word (i.e. minimum length)
-                $lines = array_flip(preg_split("/\n/", $text));
+                $lines = array_flip(preg_split("/\R/u", $text));
                 $root = $this;
                 array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
                     $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);

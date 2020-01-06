@@ -25,8 +25,7 @@ release. For released code please
 question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
 on the [Google Groups](http://groups.google.com/group/dompdf).**
 
-Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf) or 
-[![Follow us on Google+](https://ssl.gstatic.com/images/icons/gplus-16.png)](https://plus.google.com/108710008521858993320?prsrc=3).
+Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf).
 
 ---
 
@@ -50,14 +49,16 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
 
  * PHP version 5.4.0 or higher
  * DOM extension
- * GD extension
  * MBString extension
  * php-font-lib
  * php-svg-lib
+ 
+Note that some required dependencies may have further dependencies (notably php-svg-lib requires sabberworm/php-css-parser).
 
 ### Recommendations
 
  * OPcache (OPcache, XCache, APC, etc.): improves performance
+ * GD (for image processing)
  * IMagick or GMagick extension: improves image processing performance
 
 Visit the wiki for more information:
@@ -74,7 +75,7 @@ reference in CSS @font-face rules. See the
 [font overview](https://github.com/dompdf/dompdf/wiki/About-Fonts-and-Character-Encoding)
 for more information on how to use fonts.
 
-The [DejaVu TrueType fonts](http://dejavu-fonts.org) have been pre-installed
+The [DejaVu TrueType fonts](https://dejavu-fonts.github.io/) have been pre-installed
 to give dompdf decent Unicode character coverage by default. To use the DejaVu
 fonts reference the font in your stylesheet, e.g. `body { font-family: DejaVu
 Sans; }` (for DejaVu Sans). The following DejaVu 2.34 fonts are available:
@@ -102,8 +103,9 @@ require 'vendor/autoload.php';
 
 ### Download and install
 
-Download an archive of dompdf and extract it into the directory where dompdf
-will reside
+Download a packaged archive of dompdf and extract it into the 
+directory where dompdf will reside
+
  * You can download stable copies of dompdf from
    https://github.com/dompdf/dompdf/releases
  * Or download a nightly (the latest, unreleased code) from
@@ -117,34 +119,37 @@ and helper functions in your PHP:
 require_once 'dompdf/autoload.inc.php';
 ```
 
+Note: packaged releases are named according using semantic
+versioning (_dompdf_MAJOR-MINOR-PATCH.zip_). So the 1.0.0 
+release would be dompdf_1-0-0.zip. This is the only download
+that includes the autoloader for Dompdf and all its dependencies.
+
 ### Install with git
 
-From the command line, switch to the directory where dompdf will reside and run
-the following commands:
+From the command line, switch to the directory where dompdf will
+reside and run the following commands:
 
 ```sh
 git clone https://github.com/dompdf/dompdf.git
-cd dompdf
+cd dompdf/lib
 
-git clone https://github.com/PhenX/php-font-lib.git lib/php-font-lib
-cd lib/php-font-lib
+git clone https://github.com/PhenX/php-font-lib.git php-font-lib
+cd php-font-lib
 git checkout 0.5.1
 cd ..
 
 git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
 cd php-svg-lib
-git checkout v0.3
+git checkout v0.3.2
+cd ..
+
+git clone https://github.com/sabberworm/PHP-CSS-Parser.git php-css-parser
+cd php-css-parser
+git checkout 8.1.0
 ```
 
-Require dompdf, libraries, and helper functions in your PHP:
-
-```php
-require_once 'dompdf/lib/html5lib/Parser.php';
-require_once 'dompdf/lib/php-font-lib/src/FontLib/Autoloader.php';
-require_once 'dompdf/lib/php-svg-lib/src/autoload.php';
-require_once 'dompdf/src/Autoloader.php';
-Dompdf\Autoloader::register();
-```
+Require dompdf and it's dependencies in your PHP.
+For details see the [autoloader in the utils project](https://github.com/dompdf/utils/blob/master/autoload.inc.php).
 
 ## Quick Start
 
@@ -201,8 +206,8 @@ See [Dompdf\Options](src/Options.php) for a list of available options.
    or run your HTML through a HTML validator/cleaner (such as
    [Tidy](http://tidy.sourceforge.net) or the
    [W3C Markup Validation Service](http://validator.w3.org)).
- * Large files or large tables can take a while to render.
- * CSS float is in development and may not produce the desired result
+ * Table cells are not pageable, meaning a table row must fit on a single page.
+ * Elements are rendered on the active page when they are parsed.
 
 ---
 
