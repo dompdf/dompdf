@@ -338,7 +338,11 @@ class PDFLib implements Canvas
     public function open_object()
     {
         $this->_pdf->suspend_page("");
-        $ret = $this->_pdf->begin_template($this->_width, $this->_height);
+        if ($this->getPDFLibMajorVersion() >= 7) {
+            $ret = $this->_pdf->begin_template_ext($this->_width, $this->_height, null);
+        } else {
+            $ret = $this->_pdf->begin_template($this->_width, $this->_height);
+        }
         $this->_pdf->save();
         $this->_objs[$ret] = array("start_page" => $this->_page_number);
 
@@ -367,7 +371,11 @@ class PDFLib implements Canvas
     public function close_object()
     {
         $this->_pdf->restore();
-        $this->_pdf->end_template();
+        if ($this->getPDFLibMajorVersion() >= 7) {
+            $this->_pdf->end_template_ext($this->_width, $this->_height);
+        } else {
+            $this->_pdf->end_template();
+        }
         $this->_pdf->resume_page("pagenumber=" . $this->_page_number);
     }
 
