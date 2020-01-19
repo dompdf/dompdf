@@ -37,7 +37,7 @@ class Absolute extends AbstractPositioner
             list($x, $y, $w, $h) = $p->get_padding_box();
         }
 
-        list($width, $height) = array($frame->get_margin_width(), $frame->get_margin_height());
+        list($width, $height) = [$frame->get_margin_width(), $frame->get_margin_height()];
 
         $orig_style = $frame->get_original_style();
         $orig_width = $orig_style->width;

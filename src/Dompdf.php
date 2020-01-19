@@ -123,7 +123,7 @@ class Dompdf
      *
      * @var array
      */
-    private $callbacks = array();
+    private $callbacks = [];
 
     /**
      * Experimental caching capability
@@ -196,7 +196,7 @@ class Dompdf
      *
      * @var array
      */
-    private $defaultViewOptions = array();
+    private $defaultViewOptions = [];
 
     /**
      * Tells whether the DOM document is in quirksmode (experimental)
@@ -213,7 +213,7 @@ class Dompdf
     *
     * @var array
     */
-    private $allowedProtocols = array(null, "", "file://", "http://", "https://");
+    private $allowedProtocols = [null, "", "file://", "http://", "https://"];
 
     /**
     * Local file extension whitelist
@@ -222,12 +222,12 @@ class Dompdf
     *
     * @var array
     */
-    private $allowedLocalFileExtensions = array("htm", "html");
+    private $allowedLocalFileExtensions = ["htm", "html"];
 
     /**
      * @var array
      */
-    private $messages = array();
+    private $messages = [];
 
     /**
      * @var Options
@@ -245,24 +245,24 @@ class Dompdf
      * @var array
      * @deprecated
      */
-    public static $native_fonts = array(
+    public static $native_fonts = [
         "courier", "courier-bold", "courier-oblique", "courier-boldoblique",
         "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
         "times-roman", "times-bold", "times-italic", "times-bolditalic",
         "symbol", "zapfdinbats"
-    );
+    ];
 
     /**
      * The list of built-in fonts
      *
      * @var array
      */
-    public static $nativeFonts = array(
+    public static $nativeFonts = [
         "courier", "courier-bold", "courier-oblique", "courier-boldoblique",
         "helvetica", "helvetica-bold", "helvetica-oblique", "helvetica-boldoblique",
         "times-roman", "times-bold", "times-italic", "times-bolditalic",
         "symbol", "zapfdinbats"
-    );
+    ];
 
     /**
      * Class constructor
@@ -432,15 +432,15 @@ class Dompdf
         if (($file_encoding = mb_detect_encoding($str, null, true)) === false) {
             $file_encoding = "auto";
         }
-        if (in_array(strtoupper($file_encoding), array('UTF-8','UTF8')) === false) {
+        if (in_array(strtoupper($file_encoding), ['UTF-8','UTF8']) === false) {
             $str = mb_convert_encoding($str, 'UTF-8', $file_encoding);
         }
 
-        $metatags = array(
+        $metatags = [
             '@<meta\s+http-equiv="Content-Type"\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))?@i',
             '@<meta\s+content="(?:[\w/]+)(?:;\s*?charset=([^\s"]+))"?\s+http-equiv="Content-Type"@i',
             '@<meta [^>]*charset\s*=\s*["\']?\s*([^"\' ]+)@i',
-        );
+        ];
         foreach ($metatags as $metatag) {
             if (preg_match($metatag, $str, $matches)) {
                 if (isset($matches[1]) && in_array($matches[1], $known_encodings)) {
@@ -449,7 +449,7 @@ class Dompdf
                 }
             }
         }
-        if (isset($document_encoding) && in_array(strtoupper($document_encoding), array('UTF-8','UTF8')) === false) {
+        if (isset($document_encoding) && in_array(strtoupper($document_encoding), ['UTF-8','UTF8']) === false) {
             $str = preg_replace('/charset=([^\s"]+)/i', 'charset=UTF-8', $str);
         } elseif (isset($document_encoding) === false && strpos($str, '<head>') !== false) {
             $str = str_replace('<head>', '<head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">', $str);
@@ -466,7 +466,7 @@ class Dompdf
         }
 
         // Store parsing warnings as messages
-        set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
+        set_error_handler(["\\Dompdf\\Helpers", "record_warnings"]);
 
         // @todo Take the quirksmode into account
         // http://hsivonen.iki.fi/doctype/
@@ -479,7 +479,7 @@ class Dompdf
             $doc = $tokenizer->save();
 
             // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = array("html", "head", "table", "tbody", "thead", "tfoot", "tr");
+            $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
             foreach ($tag_names as $tag_name) {
                 $nodes = $doc->getElementsByTagName($tag_name);
 
@@ -499,7 +499,7 @@ class Dompdf
             $doc->encoding = $encoding;
 
             // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = array("html", "head", "table", "tbody", "thead", "tfoot", "tr");
+            $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
             foreach ($tag_names as $tag_name) {
                 $nodes = $doc->getElementsByTagName($tag_name);
 
@@ -551,7 +551,7 @@ class Dompdf
      */
     public static function removeTextNodes(DOMNode $node)
     {
-        $children = array();
+        $children = [];
         for ($i = 0; $i < $node->childNodes->length; $i++) {
             $child = $node->childNodes->item($i);
             if ($child->nodeName === "#text") {
@@ -691,7 +691,7 @@ class Dompdf
      */
     public function parseDefaultView($value)
     {
-        $valid = array("XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV");
+        $valid = ["XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV"];
 
         $options = preg_split("/\s*,\s*/", trim($value));
         $defaultView = array_shift($options);
@@ -742,7 +742,7 @@ class Dompdf
         // recreation need
         if (is_array($basePageStyle->size)) {
             $basePageStyleSize = $basePageStyle->size;
-            $this->setPaper(array(0, 0, $basePageStyleSize[0], $basePageStyleSize[1]));
+            $this->setPaper([0, 0, $basePageStyleSize[0], $basePageStyleSize[1]]);
         }
 
         $paperSize = $this->getPaperSize();
@@ -823,11 +823,11 @@ class Dompdf
         }
 
         $metas = $this->dom->getElementsByTagName("meta");
-        $labels = array(
+        $labels = [
             "author" => "Author",
             "keywords" => "Keywords",
             "description" => "Subject",
-        );
+        ];
         /** @var \DOMElement $meta */
         foreach ($metas as $meta) {
             $name = mb_strtolower($meta->getAttribute("name"));
@@ -931,7 +931,7 @@ class Dompdf
      * @param string $filename the name of the streamed file
      * @param array $options header options (see above)
      */
-    public function stream($filename = "document.pdf", $options = array())
+    public function stream($filename = "document.pdf", $options = [])
     {
         $this->saveLocale();
 
@@ -955,7 +955,7 @@ class Dompdf
      *
      * @return string|null
      */
-    public function output($options = array())
+    public function output($options = [])
     {
         $this->saveLocale();
 
@@ -1445,7 +1445,7 @@ class Dompdf
     public function setCallbacks($callbacks)
     {
         if (is_array($callbacks)) {
-            $this->callbacks = array();
+            $this->callbacks = [];
             foreach ($callbacks as $c) {
                 if (is_array($c) && isset($c['event']) && isset($c['f'])) {
                     $event = $c['event'];

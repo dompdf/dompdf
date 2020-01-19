@@ -22,7 +22,7 @@ class FrameTreeIterator implements Iterator
     /**
      * @var array
      */
-    protected $_stack = array();
+    protected $_stack = [];
 
     /**
      * @var int
@@ -43,7 +43,7 @@ class FrameTreeIterator implements Iterator
      */
     public function rewind()
     {
-        $this->_stack = array($this->_root);
+        $this->_stack = [$this->_root];
         $this->_num = 0;
     }
 

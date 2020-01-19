@@ -81,12 +81,12 @@ class Text extends AbstractFrameReflower
         // Determine the frame width including margin, padding & border
         $text_width = $this->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
         $mbp_width =
-            (float)$style->length_in_pt(array($style->margin_left,
+            (float)$style->length_in_pt([$style->margin_left,
                 $style->border_left_width,
                 $style->padding_left,
                 $style->padding_right,
                 $style->border_right_width,
-                $style->margin_right), $line_width);
+                $style->margin_right], $line_width);
 
         $frame_width = $text_width + $mbp_width;
 
@@ -459,12 +459,12 @@ class Text extends AbstractFrameReflower
 
         $max = $this->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
 
-        $delta = (float)$style->length_in_pt(array($style->margin_left,
+        $delta = (float)$style->length_in_pt([$style->margin_left,
             $style->border_left_width,
             $style->padding_left,
             $style->padding_right,
             $style->border_right_width,
-            $style->margin_right), $line_width);
+            $style->margin_right], $line_width);
         $min += $delta;
         $min_word = $min;
         $max += $delta;
@@ -477,7 +477,7 @@ class Text extends AbstractFrameReflower
             $min = $delta + $min_char;
         }
 
-        return $this->_min_max_cache = array($min, $max, $min_word, "min" => $min, "max" => $max, 'min_word' => $min_word);
+        return $this->_min_max_cache = [$min, $max, $min_word, "min" => $min, "max" => $max, 'min_word' => $min_word];
     }
 
     /**

@@ -31,7 +31,7 @@ class DompdfTest extends TestCase
         $dompdf = new Dompdf();
         $dompdf->setBaseHost('test1');
         $dompdf->setBasePath('test2');
-        $dompdf->setCallbacks(array('test' => array('event' => 'test', 'f' => function() {})));
+        $dompdf->setCallbacks(['test' => ['event' => 'test', 'f' => function() {}]]);
         $dompdf->setCss(new Stylesheet($dompdf));
         $dompdf->setDom(new DOMDocument());
         $dompdf->setHttpContext(fopen(__DIR__ . "/_files/jamaica.jpg", 'r'));
@@ -70,13 +70,13 @@ class DompdfTest extends TestCase
 
     public function testSpaceAtStartOfSecondInlineTag()
     {
-        $text_frame_contents = array();
+        $text_frame_contents = [];
 
         $dompdf = new Dompdf();
 
         // Use a callback to inspect the frame tree; otherwise FrameReflower\Page::reflow()
         // will dispose of it before dompdf->render finishes
-        $dompdf->setCallbacks(array('test' => array(
+        $dompdf->setCallbacks(['test' => [
             'event' => 'end_page_render',
             'f' => function($params) use (&$text_frame_contents) {
                 $frame = $params["frame"];
@@ -86,7 +86,7 @@ class DompdfTest extends TestCase
                     }
                 }
             }
-        )));
+        ]]);
 
         $dompdf->loadHtml('<html><body><span>one</span><span> - two</span></body></html>');
         $dompdf->render();

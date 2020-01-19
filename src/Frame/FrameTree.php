@@ -34,7 +34,7 @@ class FrameTree
      *
      * @var array
      */
-    protected static $HIDDEN_TAGS = array(
+    protected static $HIDDEN_TAGS = [
         "area",
         "base",
         "basefont",
@@ -46,7 +46,7 @@ class FrameTree
         "noembed",
         "param",
         "#comment"
-    );
+    ];
 
     /**
      * The main DomDocument
@@ -86,7 +86,7 @@ class FrameTree
     {
         $this->_dom = $dom;
         $this->_root = null;
-        $this->_registry = array();
+        $this->_registry = [];
     }
 
     /**
@@ -239,7 +239,7 @@ class FrameTree
         }
 
         // Store the children in an array so that the tree can be modified
-        $children = array();
+        $children = [];
         $length = $node->childNodes->length;
         for ($i = 0; $i < $length; $i++) {
             $children[] = $node->childNodes->item($i);
