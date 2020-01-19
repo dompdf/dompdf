@@ -512,6 +512,11 @@ class PDFLib implements Canvas
      */
     protected function _set_line_style($width, $cap, $join, $dash)
     {
+        if (!is_array($dash))
+        {
+            $dash = array();
+        }
+
         if (count($dash) == 1) {
             $dash[] = $dash[0];
         }
@@ -1363,7 +1368,7 @@ class PDFLib implements Canvas
      */
     protected function _add_page_text()
     {
-        if (!count($this->_page_text)) {
+        if (count($this->_page_text) === 0) {
             return;
         }
 
