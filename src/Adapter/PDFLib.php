@@ -611,7 +611,11 @@ class PDFLib implements Canvas
      */
     protected function _set_stroke_color($color)
     {
+        // TODO: we should check the current PDF stroke color
+        // instead of the cached value
         if ($this->_last_stroke_color == $color) {
+            // FIXME: do nothing, this optimization is broken by the
+            // stroke being set as a side effect of other operations
             //return;
         }
 
@@ -644,8 +648,12 @@ class PDFLib implements Canvas
      */
     protected function _set_fill_color($color)
     {
+        // TODO: we should check the current PDF fill color
+        // instead of the cached value
         if ($this->_last_fill_color == $color) {
-            return;
+            // FIXME: do nothing, this optimization is broken by the
+            // fill being set as a side effect of other operations
+            //return;
         }
 
         $alpha = isset($color["alpha"]) ? $color["alpha"] : 1;
