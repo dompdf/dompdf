@@ -2029,19 +2029,6 @@ class Style
     }
 
     /**
-     * Sets the background size
-     *
-     * @link https://www.w3.org/TR/css-backgrounds-3/#the-background-size
-     * @param string $val
-     */
-    function set_background_size($val)
-    {
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["background_size"] = null;
-        $this->_props["background_size"] = $val;
-    }
-
-    /**
      * Sets the background - combined options
      *
      * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background
