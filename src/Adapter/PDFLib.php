@@ -637,7 +637,7 @@ class PDFLib implements Canvas
             list($c1, $c2, $c3, $c4) = array($color[0], $color[1], null, null);
         }
 
-        $this->_set_stroke_opacity($alpha);
+        $this->_set_stroke_opacity($alpha, "Normal");
         $this->_pdf->setcolor("stroke", $type, $c1, $c2, $c3, $c4);
     }
 
@@ -674,7 +674,7 @@ class PDFLib implements Canvas
             list($c1, $c2, $c3, $c4) = array($color[0], $color[1], null, null);
         }
 
-        $this->_set_fill_opacity($alpha);
+        $this->_set_fill_opacity($alpha, "Normal");
         $this->_pdf->setcolor("fill", $type, $c1, $c2, $c3, $c4);
     }
 
