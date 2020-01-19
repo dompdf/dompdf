@@ -997,10 +997,16 @@ class PDFLib implements Canvas
      */
     public function clipping_roundrectangle($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL)
     {
+        if ($this->getPDFLibMajorVersion() < 9) {
+            //TODO: add PDFLib7 support
+            $this->clipping_rectangle($x1, $y1, $w, $h);
+            return;
+        }
+
         $this->_pdf->save();
 
         // we use 0,0 for the base coordinates for the path points
-        // since we're drawing the path at at the $x1,$y1 coordinates
+        // since we're drawing the path at the $x1,$y1 coordinates
 
         $path = 0;
         //start: left edge, top end
