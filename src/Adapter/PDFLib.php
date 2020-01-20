@@ -520,8 +520,7 @@ class PDFLib implements Canvas
      */
     protected function _set_line_style($width, $cap, $join, $dash)
     {
-        if (!is_array($dash))
-        {
+        if (!is_array($dash)) {
             $dash = array();
         }
 
