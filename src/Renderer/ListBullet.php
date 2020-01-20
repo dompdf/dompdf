@@ -230,7 +230,11 @@ class ListBullet extends AbstractRenderer
                     $font_family = $style->font_family;
 
                     $line = $li->get_containing_line();
-                    list($x, $y) = array($frame->get_position("x"), $line->y);
+                    if ($line) {
+                        list($x, $y) = array($frame->get_position("x"), $line->y);
+                    } else {
+                        list($x, $y) = $frame->get_position();
+                    }
 
                     $x -= $this->_dompdf->getFontMetrics()->getTextWidth($text, $font_family, $font_size, $spacing);
 
