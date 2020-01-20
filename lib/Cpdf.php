@@ -2520,7 +2520,7 @@ EOT;
                         //C 39 ; WX 222 ; N quoteright ; B 53 463 157 718 ;
                         case 'C': // Found in AFM files
                             $bits = explode(';', trim($row));
-                            $dtmp = array();
+                            $dtmp = array('C' => null, 'N' => null, 'WX' => null, 'B' => array());
 
                             foreach ($bits as $bit) {
                                 $bits2 = explode(' ', trim($bit));
@@ -2549,11 +2549,11 @@ EOT;
                                     $data['codeToName'][$c] = $n;
                                 }
                                 $data['C'][$c] = $width;
-                            } else {
+                            } elseif (isset($n)) {
                                 $data['C'][$n] = $width;
                             }
 
-                            if (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
+                            if (!isset($data['MissingWidth']) && $c === -1 && $n === '.notdef') {
                                 $data['MissingWidth'] = $width;
                             }
 
@@ -2566,7 +2566,7 @@ EOT;
                             }
 
                             $bits = explode(';', trim($row));
-                            $dtmp = array();
+                            $dtmp = array('G' => null, 'N' => null, 'U' => null, 'WX' => null);
 
                             foreach ($bits as $bit) {
                                 $bits2 = explode(' ', trim($bit));
@@ -2602,11 +2602,11 @@ EOT;
                                     $data['codeToName'][$c] = $n;
                                 }
                                 $data['C'][$c] = $width;
-                            } else {
+                            } elseif (isset($n)) {
                                 $data['C'][$n] = $width;
                             }
 
-                            if (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
+                            if (!isset($data['MissingWidth']) && $c === -1 && $n === '.notdef') {
                                 $data['MissingWidth'] = $width;
                             }
 
@@ -2838,7 +2838,8 @@ EOT;
 
                         // Write new font
                         $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
-                        $font_obj->open($tmp_name, BinaryStream::modeWrite);
+                        touch($tmp_name);
+                        $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
                         $font_obj->encode(array("OS/2"));
                         $font_obj->close();
 
