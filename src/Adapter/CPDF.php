@@ -254,7 +254,7 @@ class CPDF implements Canvas
     /**
      * Returns the Cpdf instance
      *
-     * @return \Cpdf
+     * @return \Dompdf\Cpdf
      */
     public function get_cpdf()
     {
