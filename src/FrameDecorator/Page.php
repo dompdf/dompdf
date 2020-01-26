@@ -55,7 +55,7 @@ class Page extends AbstractFrameDecorator
      *
      * @var array
      */
-    protected $_floating_frames = array();
+    protected $_floating_frames = [];
 
     //........................................................................
 
@@ -125,7 +125,7 @@ class Page extends AbstractFrameDecorator
      */
     function next_page()
     {
-        $this->_floating_frames = array();
+        $this->_floating_frames = [];
         $this->_renderer->new_page();
         $this->_page_full = false;
     }
@@ -174,8 +174,8 @@ class Page extends AbstractFrameDecorator
             return null;
         }
 
-        $block_types = array("block", "list-item", "table", "inline");
-        $page_breaks = array("always", "left", "right");
+        $block_types = ["block", "list-item", "table", "inline"];
+        $page_breaks = ["always", "left", "right"];
 
         $style = $frame->get_style();
 
@@ -282,7 +282,7 @@ class Page extends AbstractFrameDecorator
      */
     protected function _page_break_allowed(Frame $frame)
     {
-        $block_types = array("block", "list-item", "table", "-dompdf-image");
+        $block_types = ["block", "list-item", "table", "-dompdf-image"];
         Helpers::dompdf_debug("page-break", "_page_break_allowed(" . $frame->get_node()->nodeName . ")");
         $display = $frame->get_style()->display;
 

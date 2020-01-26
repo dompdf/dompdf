@@ -55,7 +55,7 @@ class FontMetrics
      *
      * @var array
      */
-    protected $fontLookup = array();
+    protected $fontLookup = [];
 
     /**
      * @var Options
@@ -139,7 +139,7 @@ class FontMetrics
 
         $cacheData = require $this->getCacheFile();
 
-        $this->fontLookup = array();
+        $this->fontLookup = [];
         if (is_array($this->fontLookup)) {
             foreach ($cacheData as $key => $value) {
                 $this->fontLookup[stripslashes($key)] = $value;
@@ -173,7 +173,7 @@ class FontMetrics
         $fontname = mb_strtolower($style["family"]);
         $families = $this->getFontFamilies();
 
-        $entry = array();
+        $entry = [];
         if (isset($families[$fontname])) {
             $entry = $families[$fontname];
         }
@@ -272,7 +272,7 @@ class FontMetrics
     public function getTextWidth($text, $font, $size, $wordSpacing = 0.0, $charSpacing = 0.0)
     {
         // @todo Make sure this cache is efficient before enabling it
-        static $cache = array();
+        static $cache = [];
 
         if ($text === "") {
             return 0;
@@ -345,7 +345,7 @@ class FontMetrics
      */
     public function getFont($familyRaw, $subtypeRaw = "normal")
     {
-        static $cache = array();
+        static $cache = [];
 
         if (isset($cache[$familyRaw][$subtypeRaw])) {
             return $cache[$familyRaw][$subtypeRaw];
@@ -362,7 +362,7 @@ class FontMetrics
         $subtype = strtolower($subtypeRaw);
 
         if ($familyRaw) {
-            $family = str_replace(array("'", '"'), "", strtolower($familyRaw));
+            $family = str_replace(["'", '"'], "", strtolower($familyRaw));
 
             if (isset($this->fontLookup[$family][$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $this->fontLookup[$family][$subtype];
@@ -422,7 +422,7 @@ class FontMetrics
      */
     public function getFamily($family)
     {
-        $family = str_replace(array("'", '"'), "", mb_strtolower($family));
+        $family = str_replace(["'", '"'], "", mb_strtolower($family));
 
         if (isset($this->fontLookup[$family])) {
             return $this->fontLookup[$family];

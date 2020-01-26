@@ -145,7 +145,7 @@ class Frame
     /**
      * @var array
      */
-    protected $_is_cache = array();
+    protected $_is_cache = [];
 
     /**
      * Tells whether the frame was already pushed to the next page
@@ -188,22 +188,22 @@ class Frame
         $this->_style = null;
         $this->_original_style = null;
 
-        $this->_containing_block = array(
+        $this->_containing_block = [
             "x" => null,
             "y" => null,
             "w" => null,
             "h" => null,
-        );
+        ];
 
         $this->_containing_block[0] =& $this->_containing_block["x"];
         $this->_containing_block[1] =& $this->_containing_block["y"];
         $this->_containing_block[2] =& $this->_containing_block["w"];
         $this->_containing_block[3] =& $this->_containing_block["h"];
 
-        $this->_position = array(
+        $this->_position = [
             "x" => null,
             "y" => null,
-        );
+        ];
 
         $this->_position[0] =& $this->_position["x"];
         $this->_position[1] =& $this->_position["y"];
@@ -240,7 +240,7 @@ class Frame
     {
         $whitespace = $this->get_style()->white_space;
 
-        return in_array($whitespace, array("pre", "pre-wrap", "pre-line"));
+        return in_array($whitespace, ["pre", "pre-wrap", "pre-line"]);
     }
 
     /**
@@ -476,19 +476,19 @@ class Frame
 
         return (
             (float)$style->length_in_pt(
-                array(
+                [
                     $style->height,
                     (float)$style->length_in_pt(
-                        array(
+                        [
                             $style->border_top_width,
                             $style->border_bottom_width,
                             $style->margin_top,
                             $style->margin_bottom,
                             $style->padding_top,
                             $style->padding_bottom
-                        ), $this->_containing_block["w"]
+                        ], $this->_containing_block["w"]
                     )
-                ),
+                ],
                 $this->_containing_block["h"]
             )
         );
@@ -504,7 +504,7 @@ class Frame
     {
         $style = $this->_style;
 
-        return (float)$style->length_in_pt(array(
+        return (float)$style->length_in_pt([
             $style->width,
             $style->margin_left,
             $style->margin_right,
@@ -512,7 +512,7 @@ class Frame
             $style->border_right_width,
             $style->padding_left,
             $style->padding_right
-        ), $this->_containing_block["w"]);
+        ], $this->_containing_block["w"]);
     }
 
     /**
@@ -524,19 +524,19 @@ class Frame
 
         return (
             (float)$style->length_in_pt(
-                array(
+                [
                     //$style->height,
                     (float)$style->length_in_pt(
-                        array(
+                        [
                             $style->border_top_width,
                             $style->border_bottom_width,
                             $style->margin_top,
                             $style->margin_bottom,
                             $style->padding_top,
                             $style->padding_bottom
-                        ), $this->_containing_block["w"]
+                        ], $this->_containing_block["w"]
                     )
-                ),
+                ],
                 $this->_containing_block["h"]
             )
         );
@@ -554,31 +554,31 @@ class Frame
 
         $x = $this->_position["x"] +
             (float)$style->length_in_pt(
-                array(
+                [
                     $style->margin_left,
                     $style->border_left_width,
                     $style->padding_left
-                ),
+                ],
                 $cb["w"]
             );
 
         $y = $this->_position["y"] +
             (float)$style->length_in_pt(
-                array(
+                [
                     $style->margin_top,
                     $style->border_top_width,
                     $style->padding_top
-                ),
+                ],
                 $cb["w"]);
 
         $w = $style->length_in_pt($style->width, $cb["w"]);
 
         $h = $style->length_in_pt($style->height, $cb["h"]);
 
-        return array(0 => $x, "x" => $x,
+        return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
             2 => $w, "w" => $w,
-            3 => $h, "h" => $h);
+            3 => $h, "h" => $h];
     }
 
     /**
@@ -593,43 +593,43 @@ class Frame
 
         $x = $this->_position["x"] +
             (float)$style->length_in_pt(
-                array(
+                [
                     $style->margin_left,
                     $style->border_left_width
-                ),
+                ],
                 $cb["w"]);
 
         $y = $this->_position["y"] +
             (float)$style->length_in_pt(
-                array(
+                [
                     $style->margin_top,
                     $style->border_top_width
-                ),
+                ],
                 $cb["h"]
             );
 
         $w = $style->length_in_pt(
-                array(
+                [
                     $style->padding_left,
                     $style->width,
                     $style->padding_right
-                ),
+                ],
                 $cb["w"]
             );
 
         $h = $style->length_in_pt(
-                array(
+                [
                     $style->padding_top,
                     $style->padding_bottom,
                     $style->length_in_pt($style->height, $cb["h"])
-                ),
+                ],
                 $cb["w"]
             );
 
-        return array(0 => $x, "x" => $x,
+        return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
             2 => $w, "w" => $w,
-            3 => $h, "h" => $h);
+            3 => $h, "h" => $h];
     }
 
     /**
@@ -647,29 +647,29 @@ class Frame
         $y = $this->_position["y"] + (float)$style->length_in_pt($style->margin_top, $cb["w"]);
 
         $w = $style->length_in_pt(
-            array(
+            [
                 $style->border_left_width,
                 $style->padding_left,
                 $style->width,
                 $style->padding_right,
                 $style->border_right_width
-            ),
+            ],
             $cb["w"]);
 
         $h = $style->length_in_pt(
-            array(
+            [
                 $style->border_top_width,
                 $style->padding_top,
                 $style->padding_bottom,
                 $style->border_bottom_width,
                 $style->length_in_pt($style->height, $cb["h"])
-            ),
+            ],
             $cb["w"]);
 
-        return array(0 => $x, "x" => $x,
+        return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
             2 => $w, "w" => $w,
-            3 => $h, "h" => $h);
+            3 => $h, "h" => $h];
     }
 
     /**
@@ -771,7 +771,7 @@ class Frame
     public function set_position($x = null, $y = null)
     {
         if (is_array($x)) {
-            list($x, $y) = array($x["x"], $x["y"]);
+            list($x, $y) = [$x["x"], $x["y"]];
         }
 
         if (is_numeric($x)) {
@@ -812,7 +812,7 @@ class Frame
 
         return in_array(
             "auto",
-            array(
+            [
                 $style->height,
                 $style->margin_top,
                 $style->margin_bottom,
@@ -821,7 +821,7 @@ class Frame
                 $style->padding_top,
                 $style->padding_bottom,
                 $this->_containing_block["h"]
-            ),
+            ],
             true
         );
     }
@@ -837,7 +837,7 @@ class Frame
 
         return in_array(
             "auto",
-            array(
+            [
                 $style->width,
                 $style->margin_left,
                 $style->margin_right,
@@ -846,7 +846,7 @@ class Frame
                 $style->padding_left,
                 $style->padding_right,
                 $this->_containing_block["w"]
-            ),
+            ],
             true
         );
     }
@@ -939,7 +939,7 @@ class Frame
 
         $white_space = $this->get_style()->white_space;
 
-        return $this->_is_cache["pre"] = in_array($white_space, array("pre", "pre-wrap"));
+        return $this->_is_cache["pre"] = in_array($white_space, ["pre", "pre-wrap"]);
     }
 
     /**
@@ -1251,8 +1251,8 @@ class Frame
 
         $str .= "\n";
         if (php_sapi_name() === "cli") {
-            $str = strip_tags(str_replace(array("<br/>", "<b>", "</b>"),
-                array("\n", "", ""),
+            $str = strip_tags(str_replace(["<br/>", "<b>", "</b>"],
+                ["\n", "", ""],
                 $str));
         }
 

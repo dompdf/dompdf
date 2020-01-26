@@ -32,13 +32,13 @@ class TableRowGroup extends Block
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutBlocks()) {
             $this->_debug_layout($frame->get_border_box(), "red");
             if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                $this->_debug_layout($frame->get_padding_box(), "red", array(0.5, 0.5));
+                $this->_debug_layout($frame->get_padding_box(), "red", [0.5, 0.5]);
             }
         }
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutLines() && $frame->get_decorator()) {
             foreach ($frame->get_decorator()->get_line_boxes() as $line) {
-                $frame->_debug_layout(array($line->x, $line->y, $line->w, $line->h), "orange");
+                $frame->_debug_layout([$line->x, $line->y, $line->w, $line->h], "orange");
             }
         }
 

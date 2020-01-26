@@ -25,7 +25,7 @@ class Cellmap
      *
      * @var array
      */
-    protected static $_BORDER_STYLE_SCORE = array(
+    protected static $_BORDER_STYLE_SCORE = [
         "inset"  => 1,
         "groove" => 2,
         "outset" => 3,
@@ -36,7 +36,7 @@ class Cellmap
         "double" => 8,
         "hidden" => 9,
         "none"   => 0,
-    );
+    ];
 
     /**
      * The table object this cellmap is attached to.
@@ -139,16 +139,16 @@ class Cellmap
         $this->_num_rows = 0;
         $this->_num_cols = 0;
 
-        $this->_cells = array();
-        $this->_frames = array();
+        $this->_cells = [];
+        $this->_frames = [];
 
         if (!$this->_columns_locked) {
-            $this->_columns = array();
+            $this->_columns = [];
         }
 
-        $this->_rows = array();
+        $this->_rows = [];
 
-        $this->_borders = array();
+        $this->_borders = [];
 
         $this->__col = $this->__row = 0;
     }
@@ -225,7 +225,7 @@ class Cellmap
     public function &get_column($i)
     {
         if (!isset($this->_columns[$i])) {
-            $this->_columns[$i] = array(
+            $this->_columns[$i] = [
                 "x"          => 0,
                 "min-width"  => 0,
                 "max-width"  => 0,
@@ -233,7 +233,7 @@ class Cellmap
                 "absolute"   => 0,
                 "percent"    => 0,
                 "auto"       => true,
-            );
+            ];
         }
 
         return $this->_columns[$i];
@@ -255,11 +255,11 @@ class Cellmap
     public function &get_row($j)
     {
         if (!isset($this->_rows[$j])) {
-            $this->_rows[$j] = array(
+            $this->_rows[$j] = [
                 "y"            => 0,
                 "first-column" => 0,
                 "height"       => null,
-            );
+            ];
         }
 
         return $this->_rows[$j];
@@ -276,11 +276,11 @@ class Cellmap
     public function get_border($i, $j, $h_v, $prop = null)
     {
         if (!isset($this->_borders[$i][$j][$h_v])) {
-            $this->_borders[$i][$j][$h_v] = array(
+            $this->_borders[$i][$j][$h_v] = [
                 "width" => 0,
                 "style" => "solid",
                 "color" => "black",
-            );
+            ];
         }
 
         if (isset($prop)) {
@@ -298,12 +298,12 @@ class Cellmap
      */
     public function get_border_properties($i, $j)
     {
-        return array(
+        return [
             "top"    => $this->get_border($i, $j, "horizontal"),
             "right"  => $this->get_border($i, $j + 1, "vertical"),
             "bottom" => $this->get_border($i + 1, $j, "horizontal"),
             "left"   => $this->get_border($i, $j, "vertical"),
-        );
+        ];
     }
 
     /**
@@ -367,7 +367,7 @@ class Cellmap
             $y = $this->_rows[$row]["y"];
         }
 
-        return array($x, $y, "x" => $x, "y" => $y);
+        return [$x, $y, "x" => $x, "y" => $y];
     }
 
     /**
@@ -639,7 +639,7 @@ class Cellmap
         if (!$this->_columns_locked) {
             // Resolve the frame's width
             if ($this->_fixed_layout) {
-                list($frame_min, $frame_max) = array(0, 10e-10);
+                list($frame_min, $frame_max) = [0, 10e-10];
             } else {
                 list($frame_min, $frame_max) = $frame->get_min_max_width();
             }
@@ -895,16 +895,16 @@ class Cellmap
         $str .= Helpers::pre_r($this->_rows, true);
 
         $str .= "Frames:<br/>";
-        $arr = array();
+        $arr = [];
         foreach ($this->_frames as $key => $val) {
-            $arr[$key] = array("columns" => $val["columns"], "rows" => $val["rows"]);
+            $arr[$key] = ["columns" => $val["columns"], "rows" => $val["rows"]];
         }
 
         $str .= Helpers::pre_r($arr, true);
 
         if (php_sapi_name() == "cli") {
-            $str = strip_tags(str_replace(array("<br/>", "<b>", "</b>"),
-                array("\n", chr(27) . "[01;33m", chr(27) . "[0m"),
+            $str = strip_tags(str_replace(["<br/>", "<b>", "</b>"],
+                ["\n", chr(27) . "[01;33m", chr(27) . "[0m"],
                 $str));
         }
 

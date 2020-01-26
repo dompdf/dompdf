@@ -215,27 +215,27 @@ abstract class AbstractFrameReflower
         $style = $this->_frame->get_style();
 
         // Account for margins & padding
-        $dims = array($style->padding_left,
+        $dims = [$style->padding_left,
             $style->padding_right,
             $style->border_left_width,
             $style->border_right_width,
             $style->margin_left,
-            $style->margin_right);
+            $style->margin_right];
 
         $cb_w = $this->_frame->get_containing_block("w");
         $delta = (float)$style->length_in_pt($dims, $cb_w);
 
         // Handle degenerate case
         if (!$this->_frame->get_first_child()) {
-            return $this->_min_max_cache = array(
+            return $this->_min_max_cache = [
                 $delta, $delta,
                 "min" => $delta,
                 "max" => $delta,
-            );
+            ];
         }
 
-        $low = array();
-        $high = array();
+        $low = [];
+        $high = [];
 
         for ($iter = $this->_frame->get_children()->getIterator(); $iter->valid(); $iter->next()) {
             $inline_min = 0;
@@ -247,7 +247,7 @@ abstract class AbstractFrameReflower
 
                 $minmax = $child->get_min_max_width();
 
-                if (in_array($iter->current()->get_style()->white_space, array("pre", "nowrap"))) {
+                if (in_array($iter->current()->get_style()->white_space, ["pre", "nowrap"])) {
                     $inline_min += $minmax["min"];
                 } else {
                     $low[] = $minmax["min"];
@@ -287,7 +287,7 @@ abstract class AbstractFrameReflower
 
         $min += $delta;
         $max += $delta;
-        return $this->_min_max_cache = array($min, $max, "min" => $min, "max" => $max);
+        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
     }
 
     /**
@@ -306,8 +306,8 @@ abstract class AbstractFrameReflower
             $string = trim($string, "'\"");
         }
 
-        $string = str_replace(array("\\\n", '\\"', "\\'"),
-            array("", '"', "'"), $string);
+        $string = str_replace(["\\\n", '\\"', "\\'"],
+            ["", '"', "'"], $string);
 
         // Convert escaped hex characters into ascii characters (e.g. \A => newline)
         $string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
@@ -333,13 +333,13 @@ abstract class AbstractFrameReflower
             return null;
         }
 
-        $quotes_array = array();
+        $quotes_array = [];
         foreach ($matches as $_quote) {
             $quotes_array[] = $this->_parse_string($_quote[0], true);
         }
 
         if (empty($quotes_array)) {
-            $quotes_array = array('"', '"');
+            $quotes_array = ['"', '"'];
         }
 
         return array_chunk($quotes_array, 2);
@@ -426,7 +426,7 @@ abstract class AbstractFrameReflower
                     }
 
                     $p = $this->_frame->lookup_counter_frame($counter_id);
-                    $tmp = array();
+                    $tmp = [];
                     while ($p) {
                         // We only want to use the counter values when they actually increment the counter
                         if (array_key_exists($counter_id, $p->_counters)) {

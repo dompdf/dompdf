@@ -93,7 +93,7 @@ class Inline extends AbstractFrameDecorator
             $split->append_child($frame);
         }
 
-        $page_breaks = array("always", "left", "right");
+        $page_breaks = ["always", "left", "right"];
         $frame_style = $frame->get_style();
         if ($force_pagebreak ||
             in_array($frame_style->page_break_before, $page_breaks) ||

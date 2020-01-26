@@ -27,7 +27,7 @@ class ListBullet extends AbstractRenderer
      */
     static function get_counter_chars($type)
     {
-        static $cache = array();
+        static $cache = [];
 
         if (isset($cache[$type])) {
             return $cache[$type];
@@ -230,7 +230,7 @@ class ListBullet extends AbstractRenderer
                     $font_family = $style->font_family;
 
                     $line = $li->get_containing_line();
-                    list($x, $y) = array($frame->get_position("x"), $line->y);
+                    list($x, $y) = [$frame->get_position("x"), $line->y];
 
                     $x -= $this->_dompdf->getFontMetrics()->getTextWidth($text, $font_family, $font_size, $spacing);
 

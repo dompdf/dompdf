@@ -10,7 +10,7 @@ class HTML5_Data
     // codepoints
     // XXX: Not quite sure why it's named this; this is
     // actually the numeric entity dereference table.
-    protected static $realCodepointTable = array(
+    protected static $realCodepointTable = [
         0x00 => 0xFFFD, // REPLACEMENT CHARACTER
         0x0D => 0x000A, // LINE FEED (LF)
         0x80 => 0x20AC, // EURO SIGN ('€')
@@ -45,7 +45,7 @@ class HTML5_Data
         0x9D => 0x009D, // <control>
         0x9E => 0x017E, // LATIN SMALL LETTER Z WITH CARON ('ž')
         0x9F => 0x0178, // LATIN CAPITAL LETTER Y WITH DIAERESIS ('Ÿ')
-    );
+    ];
 
     protected static $namedCharacterReferences;
 

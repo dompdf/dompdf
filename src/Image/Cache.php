@@ -27,7 +27,7 @@ class Cache
      *
      * @var array
      */
-    protected static $_cache = array();
+    protected static $_cache = [];
 
     /**
      * The url to the "broken image" used when images can't be loaded
@@ -131,7 +131,7 @@ class Cache
                 list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $dompdf->getHttpContext());
 
                 // Known image type
-                if ($width && $height && in_array($type, array("gif", "png", "jpeg", "bmp", "svg"))) {
+                if ($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg"])) {
                     //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
                     //Only execute on successful caching of remote image.
                     if ($enable_remote && $remote || $data_uri) {
@@ -149,7 +149,7 @@ class Cache
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
         }
 
-        return array($resolved_url, $type, $message);
+        return [$resolved_url, $type, $message];
     }
 
     /**
@@ -169,7 +169,7 @@ class Cache
             unlink($file);
         }
 
-        self::$_cache = array();
+        self::$_cache = [];
     }
 
     static function detect_type($file, $context = null)

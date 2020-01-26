@@ -32,12 +32,12 @@ class Inline extends AbstractRenderer
 
         // Draw the left border if applicable
         $bp = $style->get_border_properties();
-        $widths = array(
+        $widths = [
             (float)$style->length_in_pt($bp["top"]["width"]),
             (float)$style->length_in_pt($bp["right"]["width"]),
             (float)$style->length_in_pt($bp["bottom"]["width"]),
             (float)$style->length_in_pt($bp["left"]["width"])
-        );
+        ];
 
         // Draw the background & border behind each child.  To do this we need
         // to figure out just how much space each child takes:
@@ -62,7 +62,7 @@ class Inline extends AbstractRenderer
             if ($DEBUGLAYOUTINLINE) {
                 $this->_debug_layout($child->get_border_box(), "blue");
                 if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                    $this->_debug_layout($child->get_padding_box(), "blue", array(0.5, 0.5));
+                    $this->_debug_layout($child->get_padding_box(), "blue", [0.5, 0.5]);
                 }
             }
         }
