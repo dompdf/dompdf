@@ -59,6 +59,44 @@ abstract class AbstractRenderer
      */
     abstract function render(Frame $frame);
 
+    private function _resize_background_image(
+        $img_width,
+        $img_height,
+        $container_width,
+        $container_height,
+        $bg_resize
+    ) {
+        if (is_array($bg_resize)) {
+            $new_img_width = $bg_resize[0] !== '' ? $bg_resize[0] : $img_width;
+            $new_img_height = $bg_resize[1] !== '' ? $bg_resize[1] : $img_height;
+        } else {
+            if ($bg_resize === 'cover' || $bg_resize === 'contain') {
+                $img_ratio = $img_height / $img_width;
+                $container_ratio = $container_height / $container_width;
+
+                if (
+                    ($bg_resize === 'cover' && $container_ratio > $img_ratio) ||
+                    ($bg_resize === 'contain' && $container_ratio < $img_ratio)
+                ) {
+                    $new_img_height = $container_height;
+                    $new_img_width = round($container_height * $img_ratio , 0);
+                } else {
+                    $new_img_width = $container_width;
+                    $new_img_height = round($container_width / $img_ratio, 0);
+                }
+            } else {
+                $new_img_width = $img_width;
+                $new_img_height = $img_height;
+            }
+        }
+
+        return [
+            $new_img_width,
+            $new_img_height,
+        ];
+    }
+
+
     /**
      * Render a background image over a rectangular area
      *
@@ -116,6 +154,10 @@ abstract class AbstractRenderer
             return;
         }
 
+        // save for later check if file needs to be resized.
+        $org_img_w = $img_w;
+        $org_img_h = $img_h;
+
         $repeat = $style->background_repeat;
         $dpi = $this->_dompdf->getOptions()->getDpi();
 
@@ -123,6 +165,26 @@ abstract class AbstractRenderer
         //Then image can be copied in without resize
         $bg_width = round((float)($width * $dpi) / 72);
         $bg_height = round((float)($height * $dpi) / 72);
+
+        list($img_w, $img_h) = $this->_resize_background_image(
+            $img_w,
+            $img_h,
+            $bg_width,
+            $bg_height,
+            $style->get_background_size(),
+        );
+
+        if (Helpers::is_percent($img_w)) {
+            $img_w  = round(($bg_width / 100) * (float)$img_w);
+        } else {
+            $img_w = round((float)($style->length_in_pt($img_w) * $dpi) / 72);
+        }
+
+        if (Helpers::is_percent($img_h)) {
+            $img_h = round(($bg_height / 100) * (float)$img_h);
+        }  else {
+            $img_h = round((float)($style->length_in_pt($img_h) * $dpi) / 72);
+        }
 
         //Need %bg_x, $bg_y as background pos, where img starts, converted to pixel
 
@@ -275,6 +337,16 @@ abstract class AbstractRenderer
 
                 default:
                     return; // Unsupported image type
+            }
+
+            if ($src == null) {
+                return;
+            }
+
+            if ($img_w != $org_img_w || $img_h != $org_img_h) {
+                $newSrc = imagescale($src, $img_w, $img_h);
+                imagedestroy($src);
+                $src = $newSrc;
             }
 
             if ($src == null) {
