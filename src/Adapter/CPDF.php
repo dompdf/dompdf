@@ -107,70 +107,70 @@ class CPDF implements Canvas
      *
      * @var Dompdf
      */
-    private $_dompdf;
+    protected $_dompdf;
 
     /**
      * Instance of Cpdf class
      *
      * @var Cpdf
      */
-    private $_pdf;
+    protected $_pdf;
 
     /**
      * PDF width, in points
      *
      * @var float
      */
-    private $_width;
+    protected $_width;
 
     /**
      * PDF height, in points
      *
      * @var float;
      */
-    private $_height;
+    protected $_height;
 
     /**
      * Current page number
      *
      * @var int
      */
-    private $_page_number;
+    protected $_page_number;
 
     /**
      * Total number of pages
      *
      * @var int
      */
-    private $_page_count;
+    protected $_page_count;
 
     /**
      * Text to display on every page
      *
      * @var array
      */
-    private $_page_text;
+    protected $_page_text;
 
     /**
      * Array of pages for accessing after rendering is initially complete
      *
      * @var array
      */
-    private $_pages;
+    protected $_pages;
 
     /**
      * Array of temporary cached images to be deleted when processing is complete
      *
      * @var array
      */
-    private $_image_cache;
+    protected $_image_cache;
 
     /**
      * Currently-applied opacity level (0 - 1)
      *
      * @var float
      */
-    private $_current_opacity = 1;
+    protected $_current_opacity = 1;
 
     /**
      * Class constructor
