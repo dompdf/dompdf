@@ -190,7 +190,7 @@ class CPDF implements Canvas
         }
 
         if (mb_strtolower($orientation) === "landscape") {
-            list($size[2], $size[3]) = [$size[3], $size[2]];
+            [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 
         $this->_dompdf = $dompdf;
@@ -614,31 +614,34 @@ class CPDF implements Canvas
         $func_name = "imagecreatefrom$type";
 
         if (!function_exists($func_name)) {
-            if (!method_exists("Dompdf\Helpers", $func_name)) {
+            if (!method_exists(Helpers::class, $func_name)) {
                 throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
             }
             $func_name = "\\Dompdf\\Helpers::" . $func_name;
         }
 
-        set_error_handler(["\\Dompdf\\Helpers", "record_warnings"]);
-        $im = call_user_func($func_name, $image_url);
+        set_error_handler([Helpers::class, 'record_warnings']);
 
-        if ($im) {
-            imageinterlace($im, false);
+        try {
+            $im = call_user_func($func_name, $image_url);
 
-            $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-            $tmp_name = @tempnam($tmp_dir, "{$type}dompdf_img_");
-            @unlink($tmp_name);
-            $filename = "$tmp_name.png";
-            $this->_image_cache[] = $filename;
+            if ($im) {
+                imageinterlace($im, false);
 
-            imagepng($im, $filename);
-            imagedestroy($im);
-        } else {
-            $filename = Cache::$broken_image;
+                $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
+                $tmp_name = @tempnam($tmp_dir, "{$type}dompdf_img_");
+                @unlink($tmp_name);
+                $filename = "$tmp_name.png";
+                $this->_image_cache[] = $filename;
+
+                imagepng($im, $filename);
+                imagedestroy($im);
+            } else {
+                $filename = Cache::$broken_image;
+            }
+        } finally {
+            restore_error_handler();
         }
-
-        restore_error_handler();
 
         return $filename;
     }
@@ -835,7 +838,7 @@ class CPDF implements Canvas
      */
     public function image($img, $x, $y, $w, $h, $resolution = "normal")
     {
-        list($width, $height, $type) = Helpers::dompdf_getimagesize($img, $this->get_dompdf()->getHttpContext());
+        [$width, $height, $type] = Helpers::dompdf_getimagesize($img, $this->get_dompdf()->getHttpContext());
 
         $debug_png = $this->_dompdf->getOptions()->getDebugPng();
 
