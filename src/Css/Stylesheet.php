@@ -450,9 +450,8 @@ class Stylesheet
      * @throws Exception
      * @return array
      */
-    private function _css_selector_to_xpath($selector, $first_pass = false)
+    private function _css_selector_to_xpath(string $selector, bool $first_pass = false): array
     {
-
         // Collapse white space and strip whitespace around delimiters
         //$search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
         //$replace = array(" ", "\\1");
@@ -892,7 +891,7 @@ class Stylesheet
             $query = rtrim($query, "/");
         }
 
-        return ["query" => $query, "pseudo_elements" => $pseudo_elements];
+        return ['query' => $query, 'pseudo_elements' => $pseudo_elements];
     }
 
     /**
