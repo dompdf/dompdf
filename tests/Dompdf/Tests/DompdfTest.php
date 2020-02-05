@@ -54,8 +54,11 @@ class DompdfTest extends TestCase
     {
         $dompdf = new Dompdf();
         $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
-        $dom = $dompdf->getDom();
-        $this->assertEquals('Hello', $dom->textContent);
+        $this->assertEquals('Hello', $dompdf->getDom()->textContent);
+
+        //Test when encoding parameter is used
+        $dompdf->loadHtml(mb_convert_encoding('<html><body><strong>Hello</strong></body></html>', 'windows-1252'), 'windows-1252');
+        $this->assertEquals('Hello', $dompdf->getDom()->textContent);
     }
 
     public function testRender()
@@ -64,8 +67,7 @@ class DompdfTest extends TestCase
         $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
         $dompdf->render();
 
-        $dom = $dompdf->getDom();
-        $this->assertEquals('', $dom->textContent);
+        $this->assertEquals('', $dompdf->getDom()->textContent);
     }
 
     public function testSpaceAtStartOfSecondInlineTag()
