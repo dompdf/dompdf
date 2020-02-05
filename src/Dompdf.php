@@ -343,10 +343,11 @@ class Dompdf
      * Parse errors are stored in the global array _dompdf_warnings.
      *
      * @param string $file a filename or url to load
+     * @param string $encoding Encoding of $file
      *
      * @throws Exception
      */
-    public function loadHtmlFile($file)
+    public function loadHtmlFile($file, $encoding = null)
     {
         $this->saveLocale();
 
@@ -384,10 +385,10 @@ class Dompdf
         }
 
         list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
+
         if (empty($contents)) {
             throw new Exception("File '$file' not found.");
         }
-        $encoding = 'UTF-8';
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
         if (isset($http_response_header)) {
@@ -409,7 +410,7 @@ class Dompdf
      * @param string $encoding
      * @deprecated
      */
-    public function load_html($str, $encoding = 'UTF-8')
+    public function load_html($str, $encoding = null)
     {
         $this->loadHtml($str, $encoding);
     }
@@ -417,23 +418,29 @@ class Dompdf
     /**
      * Loads an HTML string
      * Parse errors are stored in the global array _dompdf_warnings.
-     * @todo use the $encoding variable
      *
      * @param string $str HTML text to load
-     * @param string $encoding Not used yet
+     * @param string $encoding Encoding of $str
      */
-    public function loadHtml($str, $encoding = 'UTF-8')
+    public function loadHtml($str, $encoding = null)
     {
         $this->saveLocale();
 
-        // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
-        $known_encodings = mb_list_encodings();
-        mb_detect_order('auto');
-        if (($file_encoding = mb_detect_encoding($str, null, true)) === false) {
-            $file_encoding = "auto";
+        // Determine character encoding when $encoding parameter not used
+        if ($encoding === null) {
+            mb_detect_order('auto');
+            if (($encoding = mb_detect_encoding($str, null, true)) === false) {
+
+                //"auto" is expanded to "ASCII,JIS,UTF-8,EUC-JP,SJIS"
+                $encoding = "auto";
+            }
         }
-        if (in_array(strtoupper($file_encoding), ['UTF-8','UTF8']) === false) {
-            $str = mb_convert_encoding($str, 'UTF-8', $file_encoding);
+
+        if (in_array(strtoupper($encoding), array('UTF-8','UTF8')) === false) {
+            $str = mb_convert_encoding($str, 'UTF-8', $encoding);
+
+            //Update encoding after converting
+            $encoding = 'UTF-8';
         }
 
         $metatags = [
@@ -443,7 +450,7 @@ class Dompdf
         ];
         foreach ($metatags as $metatag) {
             if (preg_match($metatag, $str, $matches)) {
-                if (isset($matches[1]) && in_array($matches[1], $known_encodings)) {
+                if (isset($matches[1]) && in_array($matches[1], mb_list_encodings())) {
                     $document_encoding = $matches[1];
                     break;
                 }
@@ -456,8 +463,6 @@ class Dompdf
         } elseif (isset($document_encoding) === false) {
             $str = '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">' . $str;
         }
-        //FIXME: since we're not using this just yet
-        $encoding = 'UTF-8';
 
         // remove BOM mark from UTF-8, it's treated as document text by DOMDocument
         // FIXME: roll this into the encoding detection using UTF-8/16/32 BOM (http://us2.php.net/manual/en/function.mb-detect-encoding.php#91051)?
