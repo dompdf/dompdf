@@ -173,7 +173,7 @@ abstract class AbstractRenderer
             $img_h,
             $bg_width,
             $bg_height,
-            $_background_size,
+            $_background_size
         );
 
         if (Helpers::is_percent($img_w)) {
