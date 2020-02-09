@@ -166,23 +166,25 @@ abstract class AbstractRenderer
         $bg_width = round((float)($width * $dpi) / 72);
         $bg_height = round((float)($height * $dpi) / 72);
 
+        $_background_size = $style->get_background_size();
+        $is_calculated_background = ! is_array($_background_size);
         list($img_w, $img_h) = $this->_resize_background_image(
             $img_w,
             $img_h,
             $bg_width,
             $bg_height,
-            $style->get_background_size(),
+            $_background_size,
         );
 
         if (Helpers::is_percent($img_w)) {
             $img_w  = round(($bg_width / 100) * (float)$img_w);
-        } else {
+        } elseif (! $is_calculated_background) {
             $img_w = round((float)($style->length_in_pt($img_w) * $dpi) / 72);
         }
 
         if (Helpers::is_percent($img_h)) {
             $img_h = round(($bg_height / 100) * (float)$img_h);
-        }  else {
+        } elseif (! $is_calculated_background) {
             $img_h = round((float)($style->length_in_pt($img_h) * $dpi) / 72);
         }
 

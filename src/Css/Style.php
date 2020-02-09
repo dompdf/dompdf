@@ -1291,12 +1291,12 @@ class Style
 
 
     /**
-     * Returns the background position as an array
+     * Returns the background size as an array
      *
      * The return value has one of the following formats:
      * <code>"cover"</code>
      * <code>"contain"</code>
-     * <code>array(x,y)</code>
+     * <code>array(width,height)</code>
      *
      * @link https://www.w3.org/TR/css3-background/#background-size
      * @return string|array
