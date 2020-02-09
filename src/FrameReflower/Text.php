@@ -441,8 +441,8 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "pre-line":
-                //XXX: Is this correct?
                 $str = preg_replace("/[ \t]+/u", " ", $text);
+                break;
 
             case "pre-wrap":
                 // Find the longest word (i.e. minimum length)
