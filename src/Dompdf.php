@@ -19,6 +19,7 @@ use HTML5_TreeBuilder;
 use Dompdf\Image\Cache;
 use Dompdf\Renderer\ListBullet;
 use Dompdf\Css\Stylesheet;
+use Dompdf\Helpers;
 
 /**
  * Dompdf - PHP5 HTML to PDF renderer
@@ -352,7 +353,7 @@ class Dompdf
         $this->saveLocale();
 
         if (!$this->protocol && !$this->baseHost && !$this->basePath) {
-            list($this->protocol, $this->baseHost, $this->basePath) = Helpers::explode_url($file);
+            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
         }
         $protocol = strtolower($this->protocol);
 
@@ -384,8 +385,7 @@ class Dompdf
             $file = $realfile;
         }
 
-        list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
-
+        [$contents, $http_response_header] = Helpers::getFileContent($file, $this->httpContext);
         if (empty($contents)) {
             throw new Exception("File '$file' not found.");
         }
@@ -471,75 +471,76 @@ class Dompdf
         }
 
         // Store parsing warnings as messages
-        set_error_handler(["\\Dompdf\\Helpers", "record_warnings"]);
+        set_error_handler([Helpers::class, 'record_warnings']);
 
-        // @todo Take the quirksmode into account
-        // http://hsivonen.iki.fi/doctype/
-        // https://developer.mozilla.org/en/mozilla's_quirks_mode
-        $quirksmode = false;
+        try {
+            // @todo Take the quirksmode into account
+            // http://hsivonen.iki.fi/doctype/
+            // https://developer.mozilla.org/en/mozilla's_quirks_mode
+            $quirksmode = false;
 
-        if ($this->options->isHtml5ParserEnabled() && class_exists("HTML5_Tokenizer")) {
-            $tokenizer = new HTML5_Tokenizer($str);
-            $tokenizer->parse();
-            $doc = $tokenizer->save();
+            if ($this->options->isHtml5ParserEnabled() && class_exists(HTML5_Tokenizer::class)) {
+                $tokenizer = new HTML5_Tokenizer($str);
+                $tokenizer->parse();
+                $doc = $tokenizer->save();
 
-            // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-            foreach ($tag_names as $tag_name) {
-                $nodes = $doc->getElementsByTagName($tag_name);
+                // Remove #text children nodes in nodes that shouldn't have
+                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+                foreach ($tag_names as $tag_name) {
+                    $nodes = $doc->getElementsByTagName($tag_name);
 
-                foreach ($nodes as $node) {
-                    self::removeTextNodes($node);
+                    foreach ($nodes as $node) {
+                        self::removeTextNodes($node);
+                    }
                 }
-            }
 
-            $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
-        } else {
-            // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
-            // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
-            // http://stackoverflow.com/a/11310258/264628
-            $doc = new DOMDocument("1.0", $encoding);
-            $doc->preserveWhiteSpace = true;
-            $doc->loadHTML($str);
-            $doc->encoding = $encoding;
-
-            // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-            foreach ($tag_names as $tag_name) {
-                $nodes = $doc->getElementsByTagName($tag_name);
-
-                foreach ($nodes as $node) {
-                    self::removeTextNodes($node);
-                }
-            }
-
-            // If some text is before the doctype, we are in quirksmode
-            if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
-                $quirksmode = true;
-            } // If no doctype is provided, we are in quirksmode
-            elseif (!preg_match("/^<!doctype/i", ltrim($str), $matches)) {
-                $quirksmode = true;
+                $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
             } else {
-                // HTML5 <!DOCTYPE html>
-                if (!$doc->doctype->publicId && !$doc->doctype->systemId) {
-                    $quirksmode = false;
+                // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
+                // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
+                // http://stackoverflow.com/a/11310258/264628
+                $doc = new DOMDocument("1.0", $encoding);
+                $doc->preserveWhiteSpace = true;
+                $doc->loadHTML($str);
+                $doc->encoding = $encoding;
+
+                // Remove #text children nodes in nodes that shouldn't have
+                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+                foreach ($tag_names as $tag_name) {
+                    $nodes = $doc->getElementsByTagName($tag_name);
+
+                    foreach ($nodes as $node) {
+                        self::removeTextNodes($node);
+                    }
                 }
 
-                // not XHTML
-                if (!preg_match("/xhtml/i", $doc->doctype->publicId)) {
+                // If some text is before the doctype, we are in quirksmode
+                if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
                     $quirksmode = true;
+                } // If no doctype is provided, we are in quirksmode
+                elseif (!preg_match("/^<!doctype/i", ltrim($str), $matches)) {
+                    $quirksmode = true;
+                } else {
+                    // HTML5 <!DOCTYPE html>
+                    if (!$doc->doctype->publicId && !$doc->doctype->systemId) {
+                        $quirksmode = false;
+                    }
+
+                    // not XHTML
+                    if (!preg_match("/xhtml/i", $doc->doctype->publicId)) {
+                        $quirksmode = true;
+                    }
                 }
             }
+
+            $this->dom = $doc;
+            $this->quirksmode = $quirksmode;
+
+            $this->tree = new FrameTree($this->dom);
+        } finally {
+            restore_error_handler();
+            $this->restoreLocale();
         }
-
-        $this->dom = $doc;
-        $this->quirksmode = $quirksmode;
-
-        $this->tree = new FrameTree($this->dom);
-
-        restore_error_handler();
-
-        $this->restoreLocale();
     }
 
     /**
@@ -585,7 +586,7 @@ class Dompdf
         // <base href="" />
         $base_nodes = $this->dom->getElementsByTagName("base");
         if ($base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href"))) {
-            list($this->protocol, $this->baseHost, $this->basePath) = Helpers::explode_url($href);
+            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($href);
         }
 
         // Set the base path of the Stylesheet to that of the file being processed
