@@ -748,7 +748,7 @@ class Style
             if (isset($style->_important_props[$prop])) {
                 $this->_important_props[$prop] = true;
                 $can_merge = true;
-            } else if (!isset($this->_important_props[$prop])) {
+            } else if (isset($val) && !isset($this->_important_props[$prop])) {
                 $can_merge = true;
             }
 
