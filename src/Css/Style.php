@@ -3127,27 +3127,29 @@ class Style
     /*DEBUGCSS*/
     function debug_print()
     {
-        print "parent_font_size:" . $this->_parent_font_size . ";\n";
-        print "[Props\n";
+        print "    parent_font_size:" . $this->_parent_font_size . ";\n";
+        print "    Props [\n";
+        print "      specified [\n";
         foreach ($this->_props as $prop => $val) {
-            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             if (isset($this->_important_props[$prop])) {
-                print '!important';
+                print ' !important';
             }
             print ";\n";
         }
-        print "[computed\n";
+        print "      ]\n";
+        print "      computed [\n";
         foreach ($this->_props_computed as $prop => $val) {
-            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             print ";\n";
         }
-        print "/computed]\n";
-        print "[cached\n";
+        print "      ]\n";
+        print "      cached [\n";
         foreach ($this->_prop_cache as $prop => $val) {
-            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             print ";\n";
         }
-        print "/cached]\n";
-        print "/Props]\n";
+        print "      ]\n";
+        print "    ]\n";
     }
 }
