@@ -26,98 +26,98 @@ class GD implements Canvas
     /**
      * @var Dompdf
      */
-    private $_dompdf;
+    protected $_dompdf;
 
     /**
      * Resource handle for the image
      *
      * @var resource
      */
-    private $_img;
+    protected $_img;
 
     /**
      * Resource handle for the image
      *
      * @var resource[]
      */
-    private $_imgs;
+    protected $_imgs;
 
     /**
      * Apparent canvas width in pixels
      *
      * @var int
      */
-    private $_width;
+    protected $_width;
 
     /**
      * Apparent canvas height in pixels
      *
      * @var int
      */
-    private $_height;
+    protected $_height;
 
     /**
      * Actual image width in pixels
      *
      * @var int
      */
-    private $_actual_width;
+    protected $_actual_width;
 
     /**
      * Actual image height in pixels
      *
      * @var int
      */
-    private $_actual_height;
+    protected $_actual_height;
 
     /**
      * Current page number
      *
      * @var int
      */
-    private $_page_number;
+    protected $_page_number;
 
     /**
      * Total number of pages
      *
      * @var int
      */
-    private $_page_count;
+    protected $_page_count;
 
     /**
      * Image antialias factor
      *
      * @var float
      */
-    private $_aa_factor;
+    protected $_aa_factor;
 
     /**
      * Allocated colors
      *
      * @var array
      */
-    private $_colors;
+    protected $_colors;
 
     /**
      * Background color
      *
      * @var int
      */
-    private $_bg_color;
+    protected $_bg_color;
 
     /**
      * Background color array
      *
      * @var int
      */
-    private $_bg_color_array;
+    protected $_bg_color_array;
 
     /**
      * Actual DPI
      *
      * @var int
      */
-    private $dpi;
+    protected $dpi;
 
     /**
      * Amount to scale font sizes
@@ -176,7 +176,7 @@ class GD implements Canvas
 
         $this->_page_number = $this->_page_count = 1;
         $this->_page_text = [];
-        
+
         if (is_null($bg_color) || !is_array($bg_color)) {
             // Pure white bg
             $bg_color = [1, 1, 1, 0];
@@ -281,7 +281,7 @@ class GD implements Canvas
      * @param array $color The new current color
      * @return int           The allocated color
      */
-    private function _allocate_color($color)
+    protected function _allocate_color($color)
     {
         $a = isset($color["alpha"]) ? $color["alpha"] : 1;
 
@@ -328,7 +328,7 @@ class GD implements Canvas
      * @param float $length
      * @return float
      */
-    private function _upscale($length)
+    protected function _upscale($length)
     {
         return ($length * $this->dpi) / 72 * $this->_aa_factor;
     }
@@ -339,7 +339,7 @@ class GD implements Canvas
      * @param float $length
      * @return float
      */
-    private function _downscale($length)
+    protected function _downscale($length)
     {
         return ($length / $this->dpi * 72) / $this->_aa_factor;
     }
@@ -920,7 +920,7 @@ class GD implements Canvas
         return $this->_downscale($height);
     }
 
-    private function get_font_height_actual($font, $size)
+    protected function get_font_height_actual($font, $size)
     {
         $font = $this->get_ttf_file($font);
         $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
@@ -1049,7 +1049,7 @@ class GD implements Canvas
      * @param array $options Associative array: 'type' => jpeg|jpg|png; 'quality' => 0 - 100 (JPEG only);
      *     'page' => Number of the page to output (defaults to the first).
      */
-    private function _output($options = [])
+    protected function _output($options = [])
     {
         if (!isset($options["type"])) $options["type"] = "png";
         if (!isset($options["page"])) $options["page"] = 1;
