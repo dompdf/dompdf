@@ -415,7 +415,7 @@ class Frame
     }
 
     /**
-     * @return FrameList|Frame[]
+     * @return FrameList|Frame[] !! TODO fixup doc. It never returns Frame[]
      */
     public function get_children()
     {
