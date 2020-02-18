@@ -10,6 +10,7 @@
 namespace Dompdf\Css;
 
 use DOMElement;
+use Dompdf\Options;
 use DOMXPath;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
@@ -1680,11 +1681,12 @@ class Stylesheet
     }
 
     /**
+     * @param Options $options
      * @return string
      */
-    public static function getDefaultStylesheet()
+    public static function getDefaultStylesheet(Options $options = null)
     {
-        $dir = realpath(__DIR__ . "/../..");
+        $dir = $options instanceof Options ? $options->getRootDir() : __DIR__ . "/../..";
         return $dir . self::DEFAULT_STYLESHEET;
     }
 
