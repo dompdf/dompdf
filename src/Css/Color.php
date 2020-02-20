@@ -14,7 +14,7 @@ use Dompdf\Helpers;
 
 class Color
 {
-    static $cssColorNames = array(
+    static $cssColorNames = [
         "aliceblue" => "F0F8FF",
         "antiquewhite" => "FAEBD7",
         "aqua" => "00FFFF",
@@ -162,7 +162,7 @@ class Color
         "whitesmoke" => "F5F5F5",
         "yellow" => "FFFF00",
         "yellowgreen" => "9ACD32",
-    );
+    ];
 
     /**
      * @param $color
@@ -180,7 +180,7 @@ class Color
             return $color;
         }
 
-        static $cache = array();
+        static $cache = [];
 
         $color = strtolower($color);
 
@@ -188,7 +188,7 @@ class Color
             return $cache[$color];
         }
 
-        if (in_array($color, array("transparent", "inherit"))) {
+        if (in_array($color, ["transparent", "inherit"])) {
             return $cache[$color] = $color;
         }
 
@@ -285,7 +285,7 @@ class Color
      */
     static function getArray($color, $alpha = 1.0)
     {
-        $c = array(null, null, null, null, "alpha" => $alpha, "hex" => null);
+        $c = [null, null, null, null, "alpha" => $alpha, "hex" => null];
 
         if (is_array($color)) {
             $c = $color;

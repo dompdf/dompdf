@@ -66,7 +66,7 @@ class Text extends AbstractRenderer
             $bl = 0;
         }
 
-        $x += (float)$style->length_in_pt(array($ml, $pl, $bl), $cb["w"]);
+        $x += (float)$style->length_in_pt([$ml, $pl, $bl], $cb["w"]);
 
         $font = $style->font_family;
         $size = $style->font_size;
@@ -121,7 +121,7 @@ class Text extends AbstractRenderer
 
         // Draw all applicable text-decorations.  Start with the root and work our way down.
         $p = $frame;
-        $stack = array();
+        $stack = [];
         while ($p = $p->get_parent()) {
             $stack[] = $p;
         }
@@ -161,7 +161,7 @@ class Text extends AbstractRenderer
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutLines()) {
             $text_width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $size);
-            $this->_debug_layout(array($x, $y, $text_width + ($line->wc - 1) * $word_spacing, $frame_font_size), "orange", array(0.5, 0.5));
+            $this->_debug_layout([$x, $y, $text_width + ($line->wc - 1) * $word_spacing, $frame_font_size], "orange", [0.5, 0.5]);
         }
     }
 }

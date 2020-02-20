@@ -201,6 +201,6 @@ class Image extends AbstractFrameReflower
         $style->min_height = "none";
         $style->max_height = "none";
 
-        return array($width, $width, "min" => $width, "max" => $width);
+        return [$width, $width, "min" => $width, "max" => $width];
     }
 }

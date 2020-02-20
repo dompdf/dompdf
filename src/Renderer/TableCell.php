@@ -96,17 +96,17 @@ class TableCell extends Block
             $w = $col["used-width"] + ($bp["left"]["width"] + $bp["right"]["width"]) / 2;
 
             if ($bp["top"]["width"] > 0) {
-                $widths = array(
+                $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],
                     (float)$bp["bottom"]["width"],
                     (float)$bp["left"]["width"]
-                );
+                ];
 
                 $border_top_width = max($border_top_width, $widths[0]);
                 
                 $method = "_border_" . $bp["top"]["style"];
-                $border_function_calls[] = array($method, [$x, $y, $w, $bp["top"]["color"], $widths, "top", "square"]);
+                $border_function_calls[] = [$method, [$x, $y, $w, $bp["top"]["color"], $widths, "top", "square"]];
             }
 
             if ($draw_bottom) {
@@ -115,18 +115,18 @@ class TableCell extends Block
                     continue;
                 }
                 
-                $widths = array(
+                $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],
                     (float)$bp["bottom"]["width"],
                     (float)$bp["left"]["width"]
-                );
+                ];
 
                 $y = $bottom_row["y"] + $bottom_row["height"] + $bp["bottom"]["width"] / 2;
                 $border_bottom_width = max($border_bottom_width, $widths[2]);
 
                 $method = "_border_" . $bp["bottom"]["style"];
-                $border_function_calls[] = array($method, [$x, $y, $w, $bp["bottom"]["color"], $widths, "bottom", "square"]);
+                $border_function_calls[] = [$method, [$x, $y, $w, $bp["bottom"]["color"], $widths, "bottom", "square"]];
             } else {
                 $adjacent_bp = $cellmap->get_border_properties($i+1, $j);
                 $border_bottom_width = max($border_bottom_width, $adjacent_bp["top"]["width"]);
@@ -154,17 +154,17 @@ class TableCell extends Block
             $h = $row["height"] + ($bp["top"]["width"] + $bp["bottom"]["width"]) / 2;
 
             if ($bp["left"]["width"] > 0) {
-                $widths = array(
+                $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],
                     (float)$bp["bottom"]["width"],
                     (float)$bp["left"]["width"]
-                );
+                ];
 
                 $border_left_width = max($border_left_width, $widths[3]);
 
                 $method = "_border_" . $bp["left"]["style"];
-                $border_function_calls[] = array($method, [$x, $y, $h, $bp["left"]["color"], $widths, "left", "square"]);
+                $border_function_calls[] = [$method, [$x, $y, $h, $bp["left"]["color"], $widths, "left", "square"]];
             }
 
             if ($draw_right) {
@@ -173,18 +173,18 @@ class TableCell extends Block
                     continue;
                 }
 
-                $widths = array(
+                $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],
                     (float)$bp["bottom"]["width"],
                     (float)$bp["left"]["width"]
-                );
+                ];
 
                 $x = $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;
                 $border_right_width = max($border_right_width, $widths[1]);
 
                 $method = "_border_" . $bp["right"]["style"];
-                $border_function_calls[] = array($method, [$x, $y, $h, $bp["right"]["color"], $widths, "right", "square"]);
+                $border_function_calls[] = [$method, [$x, $y, $h, $bp["right"]["color"], $widths, "right", "square"]];
             } else {
                 $adjacent_bp = $cellmap->get_border_properties($i, $j+1);
                 $border_right_width = max($border_right_width, $adjacent_bp["left"]["width"]);
@@ -213,7 +213,7 @@ class TableCell extends Block
         }
         foreach ($border_function_calls as $border_function_call_params)
         {
-            call_user_func_array(array($this, $border_function_call_params[0]), $border_function_call_params[1]);
+            call_user_func_array([$this, $border_function_call_params[0]], $border_function_call_params[1]);
         }
     }
 }

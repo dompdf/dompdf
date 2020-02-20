@@ -32,11 +32,11 @@ class Block extends AbstractRenderer
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         if ($node->nodeName === "body") {
-            $h = $frame->get_containing_block("h") - (float)$style->length_in_pt(array(
+            $h = $frame->get_containing_block("h") - (float)$style->length_in_pt([
                         $style->margin_top,
                         $style->border_top_width,
                         $style->border_bottom_width,
-                        $style->margin_bottom),
+                        $style->margin_bottom],
                     (float)$style->length_in_pt($style->width));
         }
 
@@ -65,20 +65,20 @@ class Block extends AbstractRenderer
             $this->_canvas->clipping_end();
         }
 
-        $border_box = array($x, $y, $w, $h);
+        $border_box = [$x, $y, $w, $h];
         $this->_render_border($frame, $border_box);
         $this->_render_outline($frame, $border_box);
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutBlocks()) {
             $this->_debug_layout($frame->get_border_box(), "red");
             if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                $this->_debug_layout($frame->get_padding_box(), "red", array(0.5, 0.5));
+                $this->_debug_layout($frame->get_padding_box(), "red", [0.5, 0.5]);
             }
         }
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutLines() && $frame->get_decorator()) {
             foreach ($frame->get_decorator()->get_line_boxes() as $line) {
-                $frame->_debug_layout(array($line->x, $line->y, $line->w, $line->h), "orange");
+                $frame->_debug_layout([$line->x, $line->y, $line->w, $line->h], "orange");
             }
         }
 
@@ -107,7 +107,7 @@ class Block extends AbstractRenderer
 
         // Short-cut: If all the borders are "solid" with the same color and style, and no radius, we'd better draw a rectangle
         if (
-            in_array($bp["top"]["style"], array("solid", "dashed", "dotted")) &&
+            in_array($bp["top"]["style"], ["solid", "dashed", "dotted"]) &&
             $bp["top"] == $bp["right"] &&
             $bp["right"] == $bp["bottom"] &&
             $bp["bottom"] == $bp["left"] &&
@@ -126,12 +126,12 @@ class Block extends AbstractRenderer
         }
 
         // Do it the long way
-        $widths = array(
+        $widths = [
             (float)$style->length_in_pt($bp["top"]["width"]),
             (float)$style->length_in_pt($bp["right"]["width"]),
             (float)$style->length_in_pt($bp["bottom"]["width"]),
             (float)$style->length_in_pt($bp["left"]["width"])
-        );
+        ];
 
         foreach ($bp as $side => $props) {
             list($x, $y, $w, $h) = $border_box;
@@ -192,11 +192,11 @@ class Block extends AbstractRenderer
     {
         $style = $frame->get_style();
 
-        $props = array(
+        $props = [
             "width" => $style->outline_width,
             "style" => $style->outline_style,
             "color" => $style->outline_color,
-        );
+        ];
 
         if (!$props["style"] || $props["style"] === "none" || $props["width"] <= 0) {
             return;
@@ -210,7 +210,7 @@ class Block extends AbstractRenderer
         $pattern = $this->_get_dash_pattern($props["style"], $offset);
 
         // If the outline style is "solid" we'd better draw a rectangle
-        if (in_array($props["style"], array("solid", "dashed", "dotted"))) {
+        if (in_array($props["style"], ["solid", "dashed", "dotted"])) {
             $border_box[0] -= $offset / 2;
             $border_box[1] -= $offset / 2;
             $border_box[2] += $offset;
@@ -228,7 +228,7 @@ class Block extends AbstractRenderer
 
         $method = "_border_" . $props["style"];
         $widths = array_fill(0, 4, (float)$style->length_in_pt($props["width"]));
-        $sides = array("top", "right", "left", "bottom");
+        $sides = ["top", "right", "left", "bottom"];
         $length = 0;
 
         foreach ($sides as $side) {

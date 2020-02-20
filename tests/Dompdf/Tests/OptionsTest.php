@@ -36,14 +36,14 @@ class OptionsTest extends TestCase
         $this->assertEquals('user', $option->getAdminUsername());
         $this->assertEquals('password', $option->getAdminPassword());
 
-        $option = new Options(array('tempDir' => 'test1'));
+        $option = new Options(['tempDir' => 'test1']);
         $this->assertEquals('test1', $option->getTempDir());
     }
 
     public function testSetters()
     {
         $option = new Options();
-        $option->set(array(
+        $option->set([
             'tempDir' => 'test1',
             'fontDir' => 'test2',
             'fontCache' => 'test3',
@@ -69,7 +69,7 @@ class OptionsTest extends TestCase
             'debugLayoutPaddingBox' => false,
             'adminUsername' => 'test9',
             'adminPassword' => 'test10',
-        ));
+        ]);
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
         $this->assertEquals('test3', $option->getFontCache());

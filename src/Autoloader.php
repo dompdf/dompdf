@@ -15,7 +15,7 @@ class Autoloader
      */
     public static function register()
     {
-        spl_autoload_register(array(new self, 'autoload'));
+        spl_autoload_register([new self, 'autoload']);
     }
 
     /**

@@ -29,7 +29,7 @@ class LineBox
     /**
      * @var Frame[]
      */
-    protected $_frames = array();
+    protected $_frames = [];
 
     /**
      * @var integer
@@ -69,7 +69,7 @@ class LineBox
     /**
      * @var bool[]
      */
-    public $floating_blocks = array();
+    public $floating_blocks = [];
 
     /**
      * @var bool
@@ -85,7 +85,7 @@ class LineBox
     public function __construct(Block $frame, $y = 0)
     {
         $this->_block_frame = $frame;
-        $this->_frames = array();
+        $this->_frames = [];
         $this->y = $y;
 
         $this->get_float_offsets();
@@ -124,7 +124,7 @@ class LineBox
 
         $parent = $p;
 
-        $childs = array();
+        $childs = [];
 
         foreach ($floating_frames as $_floating) {
             $p = $_floating->get_parent();
@@ -279,7 +279,7 @@ class LineBox
      */
     public function __toString()
     {
-        $props = array("wc", "y", "w", "h", "left", "right", "br");
+        $props = ["wc", "y", "w", "h", "left", "right", "br"];
         $s = "";
         foreach ($props as $prop) {
             $s .= "$prop: " . $this->$prop . "\n";

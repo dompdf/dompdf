@@ -51,7 +51,7 @@ class Style
      * http://www.w3.org/TR/css3-fonts/#font-size-the-font-size-property
      * @var array<float>
      */
-    static $font_size_keywords = array(
+    static $font_size_keywords = [
         "xx-small" => 0.6, // 3/5
         "x-small" => 0.75, // 3/4
         "small" => 0.889, // 8/9
@@ -59,61 +59,61 @@ class Style
         "large" => 1.2, // 6/5
         "x-large" => 1.5, // 3/2
         "xx-large" => 2.0, // 2/1
-    );
+    ];
 
     /**
      * List of valid vertical-align keywords.  Should also really be a constant.
      *
      * @var array
      */
-    static $vertical_align_keywords = array("baseline", "bottom", "middle", "sub",
-        "super", "text-bottom", "text-top", "top");
+    static $vertical_align_keywords = ["baseline", "bottom", "middle", "sub",
+        "super", "text-bottom", "text-top", "top"];
 
     /**
      * List of all inline types.  Should really be a constant.
      *
      * @var array
      */
-    static $INLINE_TYPES = array("inline");
+    static $INLINE_TYPES = ["inline"];
 
     /**
      * List of all block types.  Should really be a constant.
      *
      * @var array
      */
-    static $BLOCK_TYPES = array("block", "inline-block", "table-cell", "list-item");
+    static $BLOCK_TYPES = ["block", "inline-block", "table-cell", "list-item"];
 
     /**
      * List of all positionned types.  Should really be a constant.
      *
      * @var array
      */
-    static $POSITIONNED_TYPES = array("relative", "absolute", "fixed");
+    static $POSITIONNED_TYPES = ["relative", "absolute", "fixed"];
 
     /**
      * List of all table types.  Should really be a constant.
      *
      * @var array;
      */
-    static $TABLE_TYPES = array("table", "inline-table");
+    static $TABLE_TYPES = ["table", "inline-table"];
 
     /**
      * List of valid border styles.  Should also really be a constant.
      *
      * @var array
      */
-    static $BORDER_STYLES = array("none", "hidden", "dotted", "dashed", "solid",
-        "double", "groove", "ridge", "inset", "outset");
+    static $BORDER_STYLES = ["none", "hidden", "dotted", "dashed", "solid",
+        "double", "groove", "ridge", "inset", "outset"];
 
     /**
      * List of CSS shorthand properties
      *
      * @var array
      */
-    protected static $_props_shorthand = array("background", "border",
+    protected static $_props_shorthand = ["background", "border",
         "border_bottom", "border_color", "border_left", "border_radius",
         "border_right", "border_style", "border_top", "border_width",
-        "flex", "font", "list_style", "margin", "padding");
+        "flex", "font", "list_style", "margin", "padding"];
 
     /**
      * Default style values.
@@ -138,7 +138,7 @@ class Style
      *
      * @var array<bool>
      */
-    protected static $_methods_cache = array();
+    protected static $_methods_cache = [];
 
     /**
      * The stylesheet this style belongs to
@@ -160,20 +160,20 @@ class Style
      *
      * @var array
      */
-    protected $_props = array();
+    protected $_props = [];
 
     /* var instead of protected would allow access outside of class */
-    protected $_important_props = array();
+    protected $_important_props = [];
 
     /**
      * The computed values of the CSS property
      *
      * @var array
      */
-    protected $_props_computed = array();
+    protected $_props_computed = [];
 
-    protected static $_dependency_map = array(
-        "font_size" => array(
+    protected static $_dependency_map = [
+        "font_size" => [
             "border_top_width",
             "border_right_width",
             "border_bottom_width",
@@ -188,15 +188,15 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left"
-        )
-    );
+        ]
+    ];
 
     /**
      * The used values of the CSS property
      *
      * @var array
      */
-    protected $_prop_cache = array();
+    protected $_prop_cache = [];
 
     /**
      * Font size of parent element in document tree.  Used for relative font
@@ -249,10 +249,10 @@ class Style
     {
         $this->setFontMetrics($stylesheet->getFontMetrics());
 
-        $this->_props = array();
-        $this->_important_props = array();
+        $this->_props = [];
+        $this->_important_props = [];
         $this->_stylesheet = $stylesheet;
-        $this->_media_queries = array();
+        $this->_media_queries = [];
         $this->_origin = $origin;
         $this->_parent_font_size = null;
 
@@ -400,7 +400,7 @@ class Style
             $d["unicode_range"] = "";
 
             // Properties that inherit by default
-            self::$_inherited = array(
+            self::$_inherited = [
                 "azimuth",
                 "background_image_resolution",
                 "border_collapse",
@@ -446,7 +446,7 @@ class Style
                 "word_wrap",
                 "widows",
                 "word_spacing",
-            );
+            ];
         }
     }
 
@@ -532,7 +532,7 @@ class Style
      */
     function length_in_pt($length, $ref_size = null)
     {
-        static $cache = array();
+        static $cache = [];
 
         if (!isset($ref_size)) {
             $ref_size = self::$default_font_size;
@@ -544,7 +544,7 @@ class Style
             if (isset($cache[$key])) {
                 return $cache[$key];
             }
-            $length = array($length);
+            $length = [$length];
         } else {
             $key = implode("@", $length) . "/$ref_size";
             if (isset($cache[$key])) {
@@ -748,7 +748,7 @@ class Style
             if (isset($style->_important_props[$prop])) {
                 $this->_important_props[$prop] = true;
                 $can_merge = true;
-            } else if (!isset($this->_important_props[$prop])) {
+            } else if (isset($val) && !isset($this->_important_props[$prop])) {
                 $can_merge = true;
             }
 
@@ -840,7 +840,7 @@ class Style
         }
 
         if ($prop !== "content" && is_string($val) && strlen($val) > 5 && mb_strpos($val, "url") === false) {
-            $val = mb_strtolower(trim(str_replace(array("\n", "\t"), array(" "), $val)));
+            $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
@@ -958,7 +958,7 @@ class Style
 
         // clean up the value
         if ($prop !== "content" && is_string($val) && strlen($val) > 5 && mb_strpos($val, "url") === false) {
-            $val = mb_strtolower(trim(str_replace(array("\n", "\t"), array(" "), $val)));
+            $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
@@ -1014,11 +1014,11 @@ class Style
             return $this->_computed_bottom_spacing;
         }
         return $this->_computed_bottom_spacing = $this->length_in_pt(
-            array(
+            [
                 $this->margin_bottom,
                 $this->padding_bottom,
                 $this->border_bottom_width
-            )
+            ]
         );
     }
 
@@ -1281,10 +1281,10 @@ class Style
             $y = "0%";
         }
 
-        return array(
+        return [
             0 => $x, "x" => $x,
             1 => $y, "y" => $y,
-        );
+        ];
     }
 
 
@@ -1439,28 +1439,28 @@ class Style
      */
     function get_border_properties()
     {
-        return array(
-            "top" => array(
+        return [
+            "top" => [
                 "width" => $this->__get("border_top_width"),
                 "style" => $this->__get("border_top_style"),
                 "color" => $this->__get("border_top_color"),
-            ),
-            "bottom" => array(
+            ],
+            "bottom" => [
                 "width" => $this->__get("border_bottom_width"),
                 "style" => $this->__get("border_bottom_style"),
                 "color" => $this->__get("border_bottom_color"),
-            ),
-            "right" => array(
+            ],
+            "right" => [
                 "width" => $this->__get("border_right_width"),
                 "style" => $this->__get("border_right_style"),
                 "color" => $this->__get("border_right_color"),
-            ),
-            "left" => array(
+            ],
+            "left" => [
                 "width" => $this->__get("border_left_width"),
                 "style" => $this->__get("border_left_style"),
                 "color" => $this->__get("border_left_color"),
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -1584,13 +1584,13 @@ class Style
         $rBR = (float)$this->__get("border_bottom_right_radius");
 
         if ($rTL + $rTR + $rBL + $rBR == 0) {
-            return $this->_computed_border_radius = array(
+            return $this->_computed_border_radius = [
                 0, 0, 0, 0,
                 "top-left" => 0,
                 "top-right" => 0,
                 "bottom-right" => 0,
                 "bottom-left" => 0,
-            );
+            ];
         }
 
         $t = (float)$this->__get("border_top_width");
@@ -1603,13 +1603,13 @@ class Style
         $rBL = min($rBL, $h - $rTL - $t / 2 - $b / 2, $w - $rBR - $l / 2 - $r / 2);
         $rBR = min($rBR, $h - $rTR - $t / 2 - $b / 2, $w - $rBL - $l / 2 - $r / 2);
 
-        return $this->_computed_border_radius = array(
+        return $this->_computed_border_radius = [
             $rTL, $rTR, $rBR, $rBL,
             "top-left" => $rTL,
             "top-right" => $rTR,
             "bottom-right" => $rBR,
             "bottom-left" => $rBL,
-        );
+        ];
     }
 
     /**
@@ -1683,11 +1683,11 @@ class Style
         $val = trim($this->_props_computed["counter_increment"]);
         $value = null;
 
-        if (in_array($val, array("none", "inherit"))) {
+        if (in_array($val, ["none", "inherit"])) {
             $value = $val;
         } else {
             if (preg_match_all("/(" . self::CSS_IDENTIFIER . ")(?:\s+(" . self::CSS_INTEGER . "))?/", $val, $matches, PREG_SET_ORDER)) {
-                $value = array();
+                $value = [];
                 foreach ($matches as $match) {
                     $value[$match[1]] = isset($match[2]) ? $match[2] : 1;
                 }
@@ -2043,7 +2043,7 @@ class Style
             $this->_set_style("background_image", "none", $important);
             $this->_set_style("background_color", "transparent", $important);
         } else {
-            $pos = array();
+            $pos = [];
             $tmp = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
             $tmp = preg_split("/\s+/", $tmp);
 
@@ -2625,11 +2625,11 @@ class Style
     {
         $important = isset($this->_important_props["outline"]);
 
-        $props = array(
+        $props = [
             "outline_style",
             "outline_width",
             "outline_color",
-        );
+        ];
 
         foreach ($props as $prop) {
             $_val = self::$_defaults[$prop];
@@ -2732,7 +2732,7 @@ class Style
         $important = isset($this->_important_props["list_style"]);
         $arr = explode(" ", str_replace(",", " ", $val));
 
-        static $types = array(
+        static $types = [
             "disc", "circle", "square",
             "decimal-leading-zero", "decimal", "1",
             "lower-roman", "upper-roman", "a", "A",
@@ -2742,9 +2742,9 @@ class Style
             "armenian", "georgian", "hebrew",
             "cjk-ideographic", "hiragana", "katakana",
             "hiragana-iroha", "katakana-iroha", "none"
-        );
+        ];
 
-        static $positions = array("inside", "outside");
+        static $positions = ["inside", "outside"];
 
         foreach ($arr as $value) {
             /* http://www.w3.org/TR/CSS21/generate.html#list-style
@@ -2798,7 +2798,7 @@ class Style
 
         $parts = preg_split("/\s+/", $val);
 
-        $computed = array();
+        $computed = [];
         if (preg_match($length_re, $parts[0])) {
             $computed[] = $this->length_in_pt($parts[0]);
 
@@ -2840,7 +2840,7 @@ class Style
             return null;
         }
 
-        $functions = array(
+        $functions = [
             //"matrix"     => "\($number,$number,$number,$number,$number,$number\)",
 
             "translate" => "\($tr_value(?:,$tr_value)?\)",
@@ -2856,9 +2856,9 @@ class Style
             "skew" => "\($angle(?:,$angle)?\)",
             "skewX" => "\($angle\)",
             "skewY" => "\($angle\)",
-        );
+        ];
 
-        $transforms = array();
+        $transforms = [];
 
         foreach ($parts as $part) {
             $t = $part[0];
@@ -2890,11 +2890,11 @@ class Style
                                     break;
                                 case "skewX":
                                     $name = "skew";
-                                    $values = array($values[0], 0);
+                                    $values = [$values[0], 0];
                                     break;
                                 case "skewY":
                                     $name = "skew";
-                                    $values = array(0, $values[0]);
+                                    $values = [0, $values[0]];
                                     break;
                             }
                             break;
@@ -2912,12 +2912,12 @@ class Style
 
                         case "translateX":
                             $name = "translate";
-                            $values = array($this->length_in_pt($values[0], (float)$this->length_in_pt($this->width)), 0);
+                            $values = [$this->length_in_pt($values[0], (float)$this->length_in_pt($this->width)), 0];
                             break;
 
                         case "translateY":
                             $name = "translate";
-                            $values = array(0, $this->length_in_pt($values[0], (float)$this->length_in_pt($this->height)));
+                            $values = [0, $this->length_in_pt($values[0], (float)$this->length_in_pt($this->height))];
                             break;
 
                         // <number> units
@@ -2929,19 +2929,19 @@ class Style
 
                         case "scaleX":
                             $name = "scale";
-                            $values = array($values[0], 1.0);
+                            $values = [$values[0], 1.0];
                             break;
 
                         case "scaleY":
                             $name = "scale";
-                            $values = array(1.0, $values[0]);
+                            $values = [1.0, $values[0]];
                             break;
                     }
 
-                    $transforms[] = array(
+                    $transforms[] = [
                         $name,
                         $values,
-                    );
+                    ];
                 }
             }
         }
@@ -3002,9 +3002,9 @@ class Style
         }
 
         $values = array_map(function($value) {
-            if (in_array($value, array("top", "left"))) {
+            if (in_array($value, ["top", "left"])) {
                 return 0;
-            } else if (in_array($value, array("bottom", "right"))) {
+            } else if (in_array($value, ["bottom", "right"])) {
                 return "100%";
             } else {
                 return $value;
@@ -3120,34 +3120,36 @@ class Style
     /*DEBUGCSS print: see below additional debugging util*/
     function __toString()
     {
-        return print_r(array_merge(array("parent_font_size" => $this->_parent_font_size),
+        return print_r(array_merge(["parent_font_size" => $this->_parent_font_size],
             $this->_props), true);
     }
 
     /*DEBUGCSS*/
     function debug_print()
     {
-        print "parent_font_size:" . $this->_parent_font_size . ";\n";
-        print "[Props\n";
+        print "    parent_font_size:" . $this->_parent_font_size . ";\n";
+        print "    Props [\n";
+        print "      specified [\n";
         foreach ($this->_props as $prop => $val) {
-            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             if (isset($this->_important_props[$prop])) {
-                print '!important';
+                print ' !important';
             }
             print ";\n";
         }
-        print "[computed\n";
+        print "      ]\n";
+        print "      computed [\n";
         foreach ($this->_props_computed as $prop => $val) {
-            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             print ";\n";
         }
-        print "/computed]\n";
-        print "[cached\n";
+        print "      ]\n";
+        print "      cached [\n";
         foreach ($this->_prop_cache as $prop => $val) {
-            print $prop . ':' . preg_replace("/\r\n/", ' ', print_r($val, true));
+            print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             print ";\n";
         }
-        print "/cached]\n";
-        print "/Props]\n";
+        print "      ]\n";
+        print "    ]\n";
     }
 }

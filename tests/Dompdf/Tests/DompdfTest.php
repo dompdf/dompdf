@@ -31,7 +31,7 @@ class DompdfTest extends TestCase
         $dompdf = new Dompdf();
         $dompdf->setBaseHost('test1');
         $dompdf->setBasePath('test2');
-        $dompdf->setCallbacks(array('test' => array('event' => 'test', 'f' => function() {})));
+        $dompdf->setCallbacks(['test' => ['event' => 'test', 'f' => function() {}]]);
         $dompdf->setCss(new Stylesheet($dompdf));
         $dompdf->setDom(new DOMDocument());
         $dompdf->setHttpContext(fopen(__DIR__ . "/_files/jamaica.jpg", 'r'));
@@ -54,8 +54,11 @@ class DompdfTest extends TestCase
     {
         $dompdf = new Dompdf();
         $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
-        $dom = $dompdf->getDom();
-        $this->assertEquals('Hello', $dom->textContent);
+        $this->assertEquals('Hello', $dompdf->getDom()->textContent);
+
+        //Test when encoding parameter is used
+        $dompdf->loadHtml(mb_convert_encoding('<html><body><strong>Hello</strong></body></html>', 'windows-1252'), 'windows-1252');
+        $this->assertEquals('Hello', $dompdf->getDom()->textContent);
     }
 
     public function testRender()
@@ -64,19 +67,18 @@ class DompdfTest extends TestCase
         $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
         $dompdf->render();
 
-        $dom = $dompdf->getDom();
-        $this->assertEquals('', $dom->textContent);
+        $this->assertEquals('', $dompdf->getDom()->textContent);
     }
 
     public function testSpaceAtStartOfSecondInlineTag()
     {
-        $text_frame_contents = array();
+        $text_frame_contents = [];
 
         $dompdf = new Dompdf();
 
         // Use a callback to inspect the frame tree; otherwise FrameReflower\Page::reflow()
         // will dispose of it before dompdf->render finishes
-        $dompdf->setCallbacks(array('test' => array(
+        $dompdf->setCallbacks(['test' => [
             'event' => 'end_page_render',
             'f' => function($params) use (&$text_frame_contents) {
                 $frame = $params["frame"];
@@ -86,7 +88,7 @@ class DompdfTest extends TestCase
                     }
                 }
             }
-        )));
+        ]]);
 
         $dompdf->loadHtml('<html><body><span>one</span><span> - two</span></body></html>');
         $dompdf->render();
