@@ -861,7 +861,7 @@ class Helpers
                 $data = curl_exec($curl);
 
                 if ($data !== false && !curl_errno($curl)) {
-                    switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) {
+                    switch ($http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE)) {
                         case 200:
                             $raw_headers = substr($data, 0, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
                             $headers = preg_split("/[\n\r]+/", trim($raw_headers));
