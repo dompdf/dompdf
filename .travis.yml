@@ -20,3 +20,5 @@ matrix:
     - php: hhvm
 
   fast_finish: true
+
+dist: trusty
