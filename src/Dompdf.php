@@ -19,6 +19,7 @@ use HTML5_TreeBuilder;
 use Dompdf\Image\Cache;
 use Dompdf\Renderer\ListBullet;
 use Dompdf\Css\Stylesheet;
+use Dompdf\Helpers;
 
 /**
  * Dompdf - PHP5 HTML to PDF renderer
@@ -343,15 +344,16 @@ class Dompdf
      * Parse errors are stored in the global array _dompdf_warnings.
      *
      * @param string $file a filename or url to load
+     * @param string $encoding Encoding of $file
      *
      * @throws Exception
      */
-    public function loadHtmlFile($file)
+    public function loadHtmlFile($file, $encoding = null)
     {
         $this->saveLocale();
 
         if (!$this->protocol && !$this->baseHost && !$this->basePath) {
-            list($this->protocol, $this->baseHost, $this->basePath) = Helpers::explode_url($file);
+            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
         }
         $protocol = strtolower($this->protocol);
 
@@ -383,11 +385,10 @@ class Dompdf
             $file = $realfile;
         }
 
-        list($contents, $http_response_header) = Helpers::getFileContent($file, $this->httpContext);
+        [$contents, $http_response_header] = Helpers::getFileContent($file, $this->httpContext);
         if (empty($contents)) {
             throw new Exception("File '$file' not found.");
         }
-        $encoding = 'UTF-8';
 
         // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
         if (isset($http_response_header)) {
@@ -409,7 +410,7 @@ class Dompdf
      * @param string $encoding
      * @deprecated
      */
-    public function load_html($str, $encoding = 'UTF-8')
+    public function load_html($str, $encoding = null)
     {
         $this->loadHtml($str, $encoding);
     }
@@ -417,23 +418,29 @@ class Dompdf
     /**
      * Loads an HTML string
      * Parse errors are stored in the global array _dompdf_warnings.
-     * @todo use the $encoding variable
      *
      * @param string $str HTML text to load
-     * @param string $encoding Not used yet
+     * @param string $encoding Encoding of $str
      */
-    public function loadHtml($str, $encoding = 'UTF-8')
+    public function loadHtml($str, $encoding = null)
     {
         $this->saveLocale();
 
-        // FIXME: Determine character encoding, switch to UTF8, update meta tag. Need better http/file stream encoding detection, currently relies on text or meta tag.
-        $known_encodings = mb_list_encodings();
-        mb_detect_order('auto');
-        if (($file_encoding = mb_detect_encoding($str, null, true)) === false) {
-            $file_encoding = "auto";
+        // Determine character encoding when $encoding parameter not used
+        if ($encoding === null) {
+            mb_detect_order('auto');
+            if (($encoding = mb_detect_encoding($str, null, true)) === false) {
+
+                //"auto" is expanded to "ASCII,JIS,UTF-8,EUC-JP,SJIS"
+                $encoding = "auto";
+            }
         }
-        if (in_array(strtoupper($file_encoding), ['UTF-8','UTF8']) === false) {
-            $str = mb_convert_encoding($str, 'UTF-8', $file_encoding);
+
+        if (in_array(strtoupper($encoding), array('UTF-8','UTF8')) === false) {
+            $str = mb_convert_encoding($str, 'UTF-8', $encoding);
+
+            //Update encoding after converting
+            $encoding = 'UTF-8';
         }
 
         $metatags = [
@@ -443,7 +450,7 @@ class Dompdf
         ];
         foreach ($metatags as $metatag) {
             if (preg_match($metatag, $str, $matches)) {
-                if (isset($matches[1]) && in_array($matches[1], $known_encodings)) {
+                if (isset($matches[1]) && in_array($matches[1], mb_list_encodings())) {
                     $document_encoding = $matches[1];
                     break;
                 }
@@ -456,8 +463,6 @@ class Dompdf
         } elseif (isset($document_encoding) === false) {
             $str = '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">' . $str;
         }
-        //FIXME: since we're not using this just yet
-        $encoding = 'UTF-8';
 
         // remove BOM mark from UTF-8, it's treated as document text by DOMDocument
         // FIXME: roll this into the encoding detection using UTF-8/16/32 BOM (http://us2.php.net/manual/en/function.mb-detect-encoding.php#91051)?
@@ -466,75 +471,76 @@ class Dompdf
         }
 
         // Store parsing warnings as messages
-        set_error_handler(["\\Dompdf\\Helpers", "record_warnings"]);
+        set_error_handler([Helpers::class, 'record_warnings']);
 
-        // @todo Take the quirksmode into account
-        // http://hsivonen.iki.fi/doctype/
-        // https://developer.mozilla.org/en/mozilla's_quirks_mode
-        $quirksmode = false;
+        try {
+            // @todo Take the quirksmode into account
+            // http://hsivonen.iki.fi/doctype/
+            // https://developer.mozilla.org/en/mozilla's_quirks_mode
+            $quirksmode = false;
 
-        if ($this->options->isHtml5ParserEnabled() && class_exists("HTML5_Tokenizer")) {
-            $tokenizer = new HTML5_Tokenizer($str);
-            $tokenizer->parse();
-            $doc = $tokenizer->save();
+            if ($this->options->isHtml5ParserEnabled() && class_exists(HTML5_Tokenizer::class)) {
+                $tokenizer = new HTML5_Tokenizer($str);
+                $tokenizer->parse();
+                $doc = $tokenizer->save();
 
-            // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-            foreach ($tag_names as $tag_name) {
-                $nodes = $doc->getElementsByTagName($tag_name);
+                // Remove #text children nodes in nodes that shouldn't have
+                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+                foreach ($tag_names as $tag_name) {
+                    $nodes = $doc->getElementsByTagName($tag_name);
 
-                foreach ($nodes as $node) {
-                    self::removeTextNodes($node);
+                    foreach ($nodes as $node) {
+                        self::removeTextNodes($node);
+                    }
                 }
-            }
 
-            $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
-        } else {
-            // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
-            // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
-            // http://stackoverflow.com/a/11310258/264628
-            $doc = new DOMDocument("1.0", $encoding);
-            $doc->preserveWhiteSpace = true;
-            $doc->loadHTML($str);
-            $doc->encoding = $encoding;
-
-            // Remove #text children nodes in nodes that shouldn't have
-            $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-            foreach ($tag_names as $tag_name) {
-                $nodes = $doc->getElementsByTagName($tag_name);
-
-                foreach ($nodes as $node) {
-                    self::removeTextNodes($node);
-                }
-            }
-
-            // If some text is before the doctype, we are in quirksmode
-            if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
-                $quirksmode = true;
-            } // If no doctype is provided, we are in quirksmode
-            elseif (!preg_match("/^<!doctype/i", ltrim($str), $matches)) {
-                $quirksmode = true;
+                $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
             } else {
-                // HTML5 <!DOCTYPE html>
-                if (!$doc->doctype->publicId && !$doc->doctype->systemId) {
-                    $quirksmode = false;
+                // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
+                // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
+                // http://stackoverflow.com/a/11310258/264628
+                $doc = new DOMDocument("1.0", $encoding);
+                $doc->preserveWhiteSpace = true;
+                $doc->loadHTML($str);
+                $doc->encoding = $encoding;
+
+                // Remove #text children nodes in nodes that shouldn't have
+                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+                foreach ($tag_names as $tag_name) {
+                    $nodes = $doc->getElementsByTagName($tag_name);
+
+                    foreach ($nodes as $node) {
+                        self::removeTextNodes($node);
+                    }
                 }
 
-                // not XHTML
-                if (!preg_match("/xhtml/i", $doc->doctype->publicId)) {
+                // If some text is before the doctype, we are in quirksmode
+                if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
                     $quirksmode = true;
+                } // If no doctype is provided, we are in quirksmode
+                elseif (!preg_match("/^<!doctype/i", ltrim($str), $matches)) {
+                    $quirksmode = true;
+                } else {
+                    // HTML5 <!DOCTYPE html>
+                    if (!$doc->doctype->publicId && !$doc->doctype->systemId) {
+                        $quirksmode = false;
+                    }
+
+                    // not XHTML
+                    if (!preg_match("/xhtml/i", $doc->doctype->publicId)) {
+                        $quirksmode = true;
+                    }
                 }
             }
+
+            $this->dom = $doc;
+            $this->quirksmode = $quirksmode;
+
+            $this->tree = new FrameTree($this->dom);
+        } finally {
+            restore_error_handler();
+            $this->restoreLocale();
         }
-
-        $this->dom = $doc;
-        $this->quirksmode = $quirksmode;
-
-        $this->tree = new FrameTree($this->dom);
-
-        restore_error_handler();
-
-        $this->restoreLocale();
     }
 
     /**
@@ -580,7 +586,7 @@ class Dompdf
         // <base href="" />
         $base_nodes = $this->dom->getElementsByTagName("base");
         if ($base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href"))) {
-            list($this->protocol, $this->baseHost, $this->basePath) = Helpers::explode_url($href);
+            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($href);
         }
 
         // Set the base path of the Stylesheet to that of the file being processed

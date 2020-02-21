@@ -53,7 +53,7 @@ class PDFLib implements Canvas
      *
      * @var null|int
      */
-    private static $MAJOR_VERSION = null;
+    protected static $MAJOR_VERSION = null;
 
 
     /**
@@ -83,119 +83,119 @@ class PDFLib implements Canvas
     /**
      * @var \Dompdf\Dompdf
      */
-    private $_dompdf;
+    protected $_dompdf;
 
     /**
      * Instance of PDFLib class
      *
      * @var \PDFLib
      */
-    private $_pdf;
+    protected $_pdf;
 
     /**
      * Name of temporary file used for PDFs created on disk
      *
      * @var string
      */
-    private $_file;
+    protected $_file;
 
     /**
      * PDF width, in points
      *
      * @var float
      */
-    private $_width;
+    protected $_width;
 
     /**
      * PDF height, in points
      *
      * @var float
      */
-    private $_height;
+    protected $_height;
 
     /**
      * Last fill color used
      *
      * @var array
      */
-    private $_last_fill_color;
+    protected $_last_fill_color;
 
     /**
      * Last stroke color used
      *
      * @var array
      */
-    private $_last_stroke_color;
+    protected $_last_stroke_color;
 
     /**
      * The current opacity level
      *
      * @var array
      */
-    private $_current_opacity;
+    protected $_current_opacity;
 
     /**
      * Cache of image handles
      *
      * @var array
      */
-    private $_imgs;
+    protected $_imgs;
 
     /**
      * Cache of font handles
      *
      * @var array
      */
-    private $_fonts;
+    protected $_fonts;
 
     /**
      * Cache of fontFile checks
      *
      * @var array
      */
-    private $_fontsFiles;
+    protected $_fontsFiles;
 
     /**
      * List of objects (templates) to add to multiple pages
      *
      * @var array
      */
-    private $_objs;
+    protected $_objs;
 
     /**
      * List of gstate objects created for this PDF (for reuse)
      *
      * @var array
      */
-    private $_gstates = [];
+    protected $_gstates = [];
 
     /**
      * Current page number
      *
      * @var int
      */
-    private $_page_number;
+    protected $_page_number;
 
     /**
      * Total number of pages
      *
      * @var int
      */
-    private $_page_count;
+    protected $_page_count;
 
     /**
      * Text to display on every page
      *
      * @var array
      */
-    private $_page_text;
+    protected $_page_text;
 
     /**
      * Array of pages for accesing after rendering is initially complete
      *
      * @var array
      */
-    private $_pages;
+    protected $_pages;
 
     /**
      * Class constructor
@@ -1644,7 +1644,7 @@ class PDFLib implements Canvas
     /**
      * @return int
      */
-    private function getPDFLibMajorVersion()
+    protected function getPDFLibMajorVersion()
     {
         if (is_null(self::$MAJOR_VERSION)) {
             if (method_exists($this->_pdf, "get_option")) {

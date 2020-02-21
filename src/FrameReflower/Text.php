@@ -395,6 +395,7 @@ class Text extends AbstractFrameReflower
         $word_spacing = (float)$style->length_in_pt($style->word_spacing);
         $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
+        // determine minimum text width based on the whitespace setting
         switch ($style->white_space) {
             default:
             case "normal":
@@ -407,10 +408,10 @@ class Text extends AbstractFrameReflower
                 // split the text into words
                 // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
                 // This currently excludes the "narrow nbsp" character
-                $words = array_flip(preg_split('/([^\S\xA0]+|-+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE));
+                $words = array_flip(preg_split('/([^\S\xA0]+|-+)/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE));
                 $root = $this;
-                array_walk($words, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
+                array_walk($words, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
+                    $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($words);
@@ -420,8 +421,8 @@ class Text extends AbstractFrameReflower
             case "pre":
                 $lines = array_flip(preg_split("/\R/u", $str));
                 $root = $this;
-                array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
+                array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
+                    $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($lines);
@@ -433,6 +434,7 @@ class Text extends AbstractFrameReflower
                 break;
         }
 
+        // clean up the frame text based on the whitespace setting and use to determine maximum text width
         switch ($style->white_space) {
             default:
             case "normal":
@@ -441,22 +443,21 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "pre-line":
-                //XXX: Is this correct?
                 $str = preg_replace("/[ \t]+/u", " ", $text);
+                break;
 
             case "pre-wrap":
                 // Find the longest word (i.e. minimum length)
                 $lines = array_flip(preg_split("/\R/u", $text));
                 $root = $this;
-                array_walk($lines, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
+                array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
+                    $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
                 arsort($lines);
                 reset($lines);
                 $str = key($lines);
                 break;
         }
-
         $max = $this->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
 
         $delta = (float)$style->length_in_pt([$style->margin_left,

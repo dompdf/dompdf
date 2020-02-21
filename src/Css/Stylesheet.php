@@ -1099,14 +1099,14 @@ class Stylesheet
 
                 if ($DEBUGCSS) {
                     $debug_nodename = $frame->get_node()->nodeName;
-                    print "<pre>\n[$debug_nodename\n";
+                    print "<pre>\n$debug_nodename [\n";
                     foreach ($applied_styles as $spec => $arr) {
-                        printf("specificity: 0x%08x\n", $spec);
+                        printf("  specificity 0x%08x\n", $spec);
                         /** @var Style $s */
                         foreach ($arr as $s) {
-                            print "[\n";
+                            print "  [\n";
                             $s->debug_print();
-                            print "]\n";
+                            print "  ]\n";
                         }
                     }
                 }
@@ -1180,20 +1180,18 @@ class Stylesheet
             // Inherit parent's styles if parent exists
             if ($p) {
                 if ($DEBUGCSS) {
-                    print "inherit:\n";
-                    print "[\n";
+                    print "  inherit [\n";
                     $p->get_style()->debug_print();
-                    print "]\n";
+                    print "  ]\n";
                 }
                 $style->inherit($p->get_style());
             }
 
             if ($DEBUGCSS) {
-                print "DomElementStyle:\n";
-                print "[\n";
+                print "  DomElementStyle [\n";
                 $style->debug_print();
-                print "]\n";
-                print "/$debug_nodename]\n</pre>";
+                print "  ]\n";
+                print "]\n</pre>";
             }
 
             /*DEBUGCSS print: see below different print debugging method
@@ -1677,7 +1675,7 @@ class Stylesheet
         }
 
         if ($DEBUGCSS) {
-            print '_parse_sections]';
+            print "_parse_sections]\n";
         }
     }
 

@@ -47,7 +47,7 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  
 ## Requirements
 
- * PHP version 5.4.0 or higher
+ * PHP version 7.1 or higher
  * DOM extension
  * MBString extension
  * php-font-lib
