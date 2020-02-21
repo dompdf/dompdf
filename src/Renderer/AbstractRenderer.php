@@ -59,44 +59,6 @@ abstract class AbstractRenderer
      */
     abstract function render(Frame $frame);
 
-    private function _resize_background_image(
-        $img_width,
-        $img_height,
-        $container_width,
-        $container_height,
-        $bg_resize
-    ) {
-        if (is_array($bg_resize)) {
-            $new_img_width = $bg_resize[0] !== '' ? $bg_resize[0] : $img_width;
-            $new_img_height = $bg_resize[1] !== '' ? $bg_resize[1] : $img_height;
-        } else {
-            if ($bg_resize === 'cover' || $bg_resize === 'contain') {
-                $img_ratio = $img_height / $img_width;
-                $container_ratio = $container_height / $container_width;
-
-                if (
-                    ($bg_resize === 'cover' && $container_ratio > $img_ratio) ||
-                    ($bg_resize === 'contain' && $container_ratio < $img_ratio)
-                ) {
-                    $new_img_height = $container_height;
-                    $new_img_width = round($container_height * $img_ratio , 0);
-                } else {
-                    $new_img_width = $container_width;
-                    $new_img_height = round($container_width / $img_ratio, 0);
-                }
-            } else {
-                $new_img_width = $img_width;
-                $new_img_height = $img_height;
-            }
-        }
-
-        return [
-            $new_img_width,
-            $new_img_height,
-        ];
-    }
-
-
     /**
      * Render a background image over a rectangular area
      *
@@ -166,28 +128,14 @@ abstract class AbstractRenderer
         $bg_width = round((float)($width * $dpi) / 72);
         $bg_height = round((float)($height * $dpi) / 72);
 
-        $_background_size = $style->get_background_size();
-        $is_calculated_background = ! is_array($_background_size);
         list($img_w, $img_h) = $this->_resize_background_image(
             $img_w,
             $img_h,
             $bg_width,
             $bg_height,
-            $_background_size
+            $style->get_background_size(),
+            $dpi
         );
-
-        if (Helpers::is_percent($img_w)) {
-            $img_w  = round(($bg_width / 100) * (float)$img_w);
-        } elseif (! $is_calculated_background) {
-            $img_w = round((float)($style->length_in_pt($img_w) * $dpi) / 72);
-        }
-
-        if (Helpers::is_percent($img_h)) {
-            $img_h = round(($bg_height / 100) * (float)$img_h);
-        } elseif (! $is_calculated_background) {
-            $img_h = round((float)($style->length_in_pt($img_h) * $dpi) / 72);
-        }
-
         //Need %bg_x, $bg_y as background pos, where img starts, converted to pixel
 
         list($bg_x, $bg_y) = $style->background_position;
@@ -992,5 +940,79 @@ abstract class AbstractRenderer
     protected function _debug_layout($box, $color = "red", $style = [])
     {
         $this->_canvas->rectangle($box[0], $box[1], $box[2], $box[3], Color::parse($color), 0.1, $style);
+    }
+
+    /**
+     * @param float $img_width
+     * @param float $img_height
+     * @param float $container_width
+     * @param float $container_height
+     * @param array|string $bg_resize
+     * @param int $dpi
+     * @return array
+     */
+    protected function _resize_background_image(
+        $img_width,
+        $img_height,
+        $container_width,
+        $container_height,
+        $bg_resize,
+        $dpi
+    ) {
+        $img_ratio = $img_height / $img_width;
+
+        if (is_array($bg_resize)) {
+            $is_auto_width = $bg_resize[0] === 'auto';
+            if ($is_auto_width) {
+                $new_img_width = $img_width;
+            } else {
+                $new_img_width = $bg_resize[0];
+                if (Helpers::is_percent($new_img_width)) {
+                    $new_img_width = round(($container_width / 100) * (float)$new_img_width);
+                } else {
+                    $new_img_width = round($new_img_width * $dpi / 72);
+                }
+            }
+
+            $is_auto_height = $bg_resize[1] === 'auto';
+            if ($is_auto_height) {
+                $new_img_height = $img_height;
+            } else {
+                $new_img_height = $bg_resize[1];
+                if (Helpers::is_percent($new_img_height)) {
+                    $new_img_height = round(($container_height / 100) * (float)$new_img_height);
+                } else {
+                    $new_img_height = round($new_img_height * $dpi / 72);
+                }
+            }
+
+            if ($is_auto_width !== $is_auto_height) {
+                if ($is_auto_height) {
+                    $new_img_height = round($new_img_width * ($img_height / $img_width));
+                } else {
+                    $new_img_width = round($new_img_height * ($img_width / $img_height));
+                }
+            }
+        } else {
+            $container_ratio = $container_height / $container_width;
+
+            if ($bg_resize === 'cover' || $bg_resize === 'contain') {
+                if (
+                    ($bg_resize === 'cover' && $container_ratio > $img_ratio) ||
+                    ($bg_resize === 'contain' && $container_ratio < $img_ratio)
+                ) {
+                    $new_img_height = $container_height;
+                    $new_img_width = round($container_height / $img_ratio , 0);
+                } else {
+                    $new_img_width = $container_width;
+                    $new_img_height = round($container_width * $img_ratio, 0);
+                }
+            } else {
+                $new_img_width = $img_width;
+                $new_img_height = $img_height;
+            }
+        }
+
+        return [$new_img_width, $new_img_height];
     }
 }

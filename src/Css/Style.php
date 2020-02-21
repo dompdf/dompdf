@@ -270,7 +270,7 @@ class Style
             $d["background_image_resolution"] = "normal";
             $d["_dompdf_background_image_resolution"] = $d["background_image_resolution"];
             $d["background_position"] = "0% 0%";
-            $d["background_size"] = "auto"; // CSS3
+            $d["background_size"] = "auto auto"; // CSS3
             $d["background_repeat"] = "repeat";
             $d["background"] = "";
             $d["border_collapse"] = "separate";
@@ -1303,22 +1303,33 @@ class Style
      */
     function get_background_size()
     {
-        $result = explode(" ", $this->_props["background_size"]);
+        if (!isset($this->_props["background_size"])) {
+            return explode(" ", self::$_defaults["background_size"]);
+        }
 
-        switch ($result[0]) {
+        $result = explode(" ", $this->_props["background_size"]);
+        $width = $result[0];
+
+        switch ($width) {
             case "cover":
-                return 'cover';
+                return "cover";
             case "contain":
-                return 'contain';
+                return "contain";
             default:
                 break;
         }
 
-        if (!isset($result[1])) {
-            $result[1] = '';
+        if ($width !== "auto" && strpos($width, "%") === false) {
+            $width = (float)self::length_in_pt($width);
         }
 
-        return $result;
+        if (!isset($result[1])) {
+            $height = "auto";
+        } else if (($height = $result[1]) !== "auto" && strpos($height, "%") === false) {
+            $height = (float)self::length_in_pt($height);
+        }
+
+        return [$width, $height];
     }
 
 
