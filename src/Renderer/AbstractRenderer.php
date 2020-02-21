@@ -133,7 +133,7 @@ abstract class AbstractRenderer
             $img_h,
             $bg_width,
             $bg_height,
-            $style->get_background_size(),
+            $style->background_size,
             $dpi
         );
         //Need %bg_x, $bg_y as background pos, where img starts, converted to pixel
