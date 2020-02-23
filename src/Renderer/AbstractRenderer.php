@@ -959,8 +959,7 @@ abstract class AbstractRenderer
         $bg_resize,
         $dpi
     ) {
-        $img_ratio = $img_height / $img_width;
-
+        // We got two some specific numbers and/or auto definitions
         if (is_array($bg_resize)) {
             $is_auto_width = $bg_resize[0] === 'auto';
             if ($is_auto_width) {
@@ -986,6 +985,7 @@ abstract class AbstractRenderer
                 }
             }
 
+            // if one of both was set to auto the other one needs to scale proportionally
             if ($is_auto_width !== $is_auto_height) {
                 if ($is_auto_height) {
                     $new_img_height = round($new_img_width * ($img_height / $img_width));
@@ -997,15 +997,17 @@ abstract class AbstractRenderer
             $container_ratio = $container_height / $container_width;
 
             if ($bg_resize === 'cover' || $bg_resize === 'contain') {
+                $img_ratio = $img_height / $img_width;
+
                 if (
                     ($bg_resize === 'cover' && $container_ratio > $img_ratio) ||
                     ($bg_resize === 'contain' && $container_ratio < $img_ratio)
                 ) {
                     $new_img_height = $container_height;
-                    $new_img_width = round($container_height / $img_ratio , 0);
+                    $new_img_width = round($container_height / $img_ratio);
                 } else {
                     $new_img_width = $container_width;
-                    $new_img_height = round($container_width * $img_ratio, 0);
+                    $new_img_height = round($container_width * $img_ratio);
                 }
             } else {
                 $new_img_width = $img_width;
