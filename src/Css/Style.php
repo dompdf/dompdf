@@ -1320,13 +1320,13 @@ class Style
         }
 
         if ($width !== "auto" && strpos($width, "%") === false) {
-            $width = (float)self::length_in_pt($width);
+            $width = (float)$this->length_in_pt($width);
         }
 
         if (!isset($result[1])) {
             $height = "auto";
         } else if (($height = $result[1]) !== "auto" && strpos($height, "%") === false) {
-            $height = (float)self::length_in_pt($height);
+            $height = (float)$this->length_in_pt($height);
         }
 
         return [$width, $height];
