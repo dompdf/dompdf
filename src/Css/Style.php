@@ -7,13 +7,14 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Css;
 
 use Dompdf\Adapter\CPDF;
 use Dompdf\Exception;
-use Dompdf\Helpers;
 use Dompdf\FontMetrics;
 use Dompdf\Frame;
+use Dompdf\Helpers;
 
 /**
  * Represents CSS properties.
@@ -269,6 +270,7 @@ class Style
             $d["background_image_resolution"] = "normal";
             $d["_dompdf_background_image_resolution"] = $d["background_image_resolution"];
             $d["background_position"] = "0% 0%";
+            $d["background_size"] = "auto auto"; // CSS3
             $d["background_repeat"] = "repeat";
             $d["background"] = "";
             $d["border_collapse"] = "separate";
@@ -754,8 +756,8 @@ class Style
 
             if ($can_merge) {
                 // Clear out "inherit" shorthand properties if a more specific property value has been set
-                $shorthands = array_filter(self::$_props_shorthand, function($el) use ($prop) {
-                    return ( strpos($prop, $el."_") !== false );
+                $shorthands = array_filter(self::$_props_shorthand, function ($el) use ($prop) {
+                    return (strpos($prop, $el . "_") !== false);
                 });
                 foreach ($shorthands as $shorthand) {
                     if (array_key_exists($shorthand, $this->_props) && $this->_props[$shorthand] === "inherit") {
@@ -881,8 +883,8 @@ class Style
      *
      * @param string $prop
      *
-     * @throws Exception
      * @return mixed
+     * @throws Exception
      */
     function __get($prop)
     {
@@ -1061,7 +1063,7 @@ class Style
 
         // Resolve font-style
         $font_style = $this->__get("font_style");
-        $subtype = $this->getFontMetrics()->getType($weight.' '.$font_style);
+        $subtype = $this->getFontMetrics()->getType($weight . ' ' . $font_style);
 
         $families = preg_split("/\s*,\s*/", $this->_props["font_family"]);
 
@@ -1163,7 +1165,7 @@ class Style
         }
 
         if (is_numeric($line_height)) {
-            return $line_height  * $this->__get("font_size");
+            return $line_height * $this->__get("font_size");
         }
 
         return (float)$this->length_in_pt($line_height, $this->__get("font_size"));
@@ -1285,6 +1287,49 @@ class Style
             0 => $x, "x" => $x,
             1 => $y, "y" => $y,
         ];
+    }
+
+
+    /**
+     * Returns the background size as an array
+     *
+     * The return value has one of the following formats:
+     * <code>"cover"</code>
+     * <code>"contain"</code>
+     * <code>array(width,height)</code>
+     *
+     * @link https://www.w3.org/TR/css3-background/#background-size
+     * @return string|array
+     */
+    function get_background_size()
+    {
+        if (!isset($this->_props["background_size"])) {
+            return explode(" ", self::$_defaults["background_size"]);
+        }
+
+        $result = explode(" ", $this->_props["background_size"]);
+        $width = $result[0];
+
+        switch ($width) {
+            case "cover":
+                return "cover";
+            case "contain":
+                return "contain";
+            default:
+                break;
+        }
+
+        if ($width !== "auto" && strpos($width, "%") === false) {
+            $width = (float)$this->length_in_pt($width);
+        }
+
+        if (!isset($result[1])) {
+            $height = "auto";
+        } else if (($height = $result[1]) !== "auto" && strpos($height, "%") === false) {
+            $height = (float)$this->length_in_pt($height);
+        }
+
+        return [$width, $height];
     }
 
 
@@ -1536,30 +1581,37 @@ class Style
     {
         return $this->_get_width("margin_top");
     }
+
     function get_margin_right()
     {
         return $this->_get_width("margin_right");
     }
+
     function get_margin_bottom()
     {
         return $this->_get_width("margin_bottom");
     }
+
     function get_margin_left()
     {
         return $this->_get_width("margin_left");
     }
+
     function get_padding_top()
     {
         return $this->_get_width("padding_top");
     }
+
     function get_padding_right()
     {
         return $this->_get_width("padding_right");
     }
+
     function get_padding_bottom()
     {
         return $this->_get_width("padding_bottom");
     }
+
     function get_padding_left()
     {
         return $this->_get_width("padding_left");
@@ -1758,10 +1810,10 @@ class Style
     {
         $prop = $style;
         if (!empty($side)) {
-            $prop .=  "_" . $side;
+            $prop .= "_" . $side;
         };
         if (!empty($type)) {
-            $prop .=  "_" . $type;
+            $prop .= "_" . $type;
         };
         $this->_props[$prop] = $val;
         $this->_prop_cache[$prop] = null;
@@ -2026,6 +2078,23 @@ class Style
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
         $this->_prop_cache["background_position"] = null;
         $this->_props["background_position"] = $val;
+    }
+
+    /**
+     * Sets the background size
+     *
+     * @link https://www.w3.org/TR/css3-background/#background-size
+     * @param string $val
+     */
+    function set_background_size($val)
+    {
+        if (is_null($val)) {
+            $val = self::$_defaults["background_size"];
+        }
+
+        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+        $this->_prop_cache["background_size"] = null;
+        $this->_props["background_size"] = $val;
     }
 
     /**
@@ -2994,14 +3063,15 @@ class Style
      * @link http://www.w3.org/TR/css3-2d-transforms/#transform-origin
      * @return mixed[]
      */
-    function get_transform_origin() {
+    function get_transform_origin()
+    {
         $values = preg_split("/\s+/", $this->_props['transform_origin']);
 
         if (count($values) === 0) {
             $values = preg_split("/\s+/", self::$_defaults["transform_origin"]);
         }
 
-        $values = array_map(function($value) {
+        $values = array_map(function ($value) {
             if (in_array($value, ["top", "left"])) {
                 return 0;
             } else if (in_array($value, ["bottom", "right"])) {
