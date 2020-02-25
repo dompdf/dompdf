@@ -408,7 +408,7 @@ class Text extends AbstractFrameReflower
                 // split the text into words
                 // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
                 // This currently excludes the "narrow nbsp" character
-                $words = array_flip(preg_split('/([^\S\xA0]+|-+)/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE));
+                $words = array_flip(preg_split('/[^\S\xA0]+/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE));
                 $root = $this;
                 array_walk($words, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
                     $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
