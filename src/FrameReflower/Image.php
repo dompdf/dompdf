@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Frame;
 use Dompdf\Helpers;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
@@ -85,13 +86,9 @@ class Image extends AbstractFrameReflower
         $width = ($style->width > 0 ? $style->width : 0);
         if (Helpers::is_percent($width)) {
             $t = 0.0;
-            for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
-                $f_style = $f->get_style();
-                $t = $f_style->length_in_pt($f_style->width);
-                if ($t != 0) {
-                    break;
-                }
-            }
+
+            $t = $this->get_size($this->_frame);
+
             $width = ((float)rtrim($width, "%") * $t) / 100; //maybe 0
         } else {
             // Don't set image original size if "%" branch was 0 or size not given.
@@ -202,5 +199,31 @@ class Image extends AbstractFrameReflower
         $style->max_height = "none";
 
         return [$width, $width, "min" => $width, "max" => $width];
+    }
+
+    private function get_size(Frame $frame)
+    {
+        $ref_stack = [];
+        $t = 0.0;
+        for ($f = $frame->get_parent(); $f; $f = $f->get_parent()) {
+            $f_style = $f->get_style();
+            $w = $f_style->width;
+            if (Helpers::is_percent($w)) {
+                $ref_stack[] = $w;
+            } else {
+                $t = $f_style->length_in_pt($w);
+                if ($t != 0) {
+                    break;
+                }
+            }
+        }
+        if (count($ref_stack) > 0) {
+            $t = $w;
+            while (($ref = array_pop($ref_stack))) {
+                $t = $f_style->length_in_pt($ref, $t);
+            }
+        }
+
+        return $t;
     }
 }
