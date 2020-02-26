@@ -83,39 +83,8 @@ class Image extends AbstractFrameReflower
         //
         //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
 
-        $width = ($style->width > 0 ? $style->width : 0);
-        if (Helpers::is_percent($width)) {
-            $t = 0.0;
-
-            $t = $this->get_size($this->_frame);
-
-            $width = ((float)rtrim($width, "%") * $t) / 100; //maybe 0
-        } else {
-            // Don't set image original size if "%" branch was 0 or size not given.
-            // Otherwise aspect changed on %/auto combination for width/height
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            $width = $style->length_in_pt($width);
-        }
-
-        $height = ($style->height > 0 ? $style->height : 0);
-        if (Helpers::is_percent($height)) {
-            $t = 0.0;
-            for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
-                $f_style = $f->get_style();
-                $t = (float)$f_style->length_in_pt($f_style->height);
-                if ($t != 0) {
-                    break;
-                }
-            }
-            $height = ((float)rtrim($height, "%") * $t) / 100; //maybe 0
-        } else {
-            // Don't set image original size if "%" branch was 0 or size not given.
-            // Otherwise aspect changed on %/auto combination for width/height
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            $height = $style->length_in_pt($height);
-        }
+        $width = $this->get_size($this->_frame, 'width');
+        $height = $this->get_size($this->_frame, 'height');
 
         if ($width == 0 || $height == 0) {
             // Determine the image's size. Time consuming. Only when really needed!
@@ -201,22 +170,23 @@ class Image extends AbstractFrameReflower
         return [$width, $width, "min" => $width, "max" => $width];
     }
 
-    private function get_size(Frame $frame)
+    private function get_size(Frame $f, string $type)
     {
         $ref_stack = [];
         $t = 0.0;
-        for ($f = $frame->get_parent(); $f; $f = $f->get_parent()) {
+        do {
             $f_style = $f->get_style();
-            $w = $f_style->width;
+            $w = $f_style->$type;
             if (Helpers::is_percent($w)) {
-                $ref_stack[] = $w;
+                $ref_stack[] = str_replace('%px', '%', $w);
             } else {
                 $t = $f_style->length_in_pt($w);
                 if ($t != 0) {
                     break;
                 }
             }
-        }
+        } while (($f = $f->get_parent()));
+
         if (count($ref_stack) > 0) {
             $t = $w;
             while (($ref = array_pop($ref_stack))) {
