@@ -173,27 +173,28 @@ class Image extends AbstractFrameReflower
     private function get_size(Frame $f, string $type)
     {
         $ref_stack = [];
-        $t = 0.0;
+        $result_size = 0.0;
         do {
             $f_style = $f->get_style();
-            $w = $f_style->$type;
-            if (Helpers::is_percent($w)) {
-                $ref_stack[] = str_replace('%px', '%', $w);
+            $current_size = $f_style->$type;
+            if (Helpers::is_percent($current_size)) {
+                $ref_stack[] = str_replace('%px', '%', $current_size);
             } else {
-                $t = $f_style->length_in_pt($w);
-                if ($t != 0) {
+                $result_size = $f_style->length_in_pt($current_size);
+                if ($result_size != 0) {
                     break;
                 }
             }
         } while (($f = $f->get_parent()));
 
+        // if we built a percentage stack walk up to find the real size
         if (count($ref_stack) > 0) {
-            $t = $w;
+            $result_size = $current_size;
             while (($ref = array_pop($ref_stack))) {
-                $t = $f_style->length_in_pt($ref, $t);
+                $result_size = $f_style->length_in_pt($ref, $result_size);
             }
         }
 
-        return $t;
+        return $result_size;
     }
 }
