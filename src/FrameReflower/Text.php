@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Com\Tecnick\Unicode\Bidi;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\FontMetrics;
@@ -219,7 +220,15 @@ class Text extends AbstractFrameReflower
         switch ($style->white_space) {
             default:
             case "normal":
-                $frame->set_text($text = $this->_collapse_white_space($text));
+                $text = $this->_collapse_white_space($text);
+
+                if ($style->direction === 'rtl') {
+                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $text = $bidi->getString();
+                }
+
+                $frame->set_text($text);
+
                 if ($text == "") {
                     break;
                 }
@@ -228,15 +237,32 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "pre":
+                if ($style->direction === 'rtl') {
+                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $text = $bidi->getString();
+                }
+
                 $split = $this->_newline_break($text);
                 $add_line = $split !== false;
                 break;
 
             case "nowrap":
-                $frame->set_text($text = $this->_collapse_white_space($text));
+                $text = $this->_collapse_white_space($text);
+
+                if ($style->direction === 'rtl') {
+                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $text = $bidi->getString();
+                }
+
+                $frame->set_text($text);
                 break;
 
             case "pre-wrap":
+                if ($style->direction === 'rtl') {
+                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $text = $bidi->getString();
+                }
+
                 $split = $this->_newline_break($text);
 
                 if (($tmp = $this->_line_break($text)) !== false) {
@@ -249,7 +275,13 @@ class Text extends AbstractFrameReflower
 
             case "pre-line":
                 // Collapse white-space except for \n
-                $frame->set_text($text = preg_replace("/[ \t]+/u", " ", $text));
+                $text = preg_replace("/[ \t]+/u", " ", $text);
+
+                if ($style->direction === 'rtl') {
+                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $text = $bidi->getString();
+                }
+                $frame->set_text($text);
 
                 if ($text == "") {
                     break;
