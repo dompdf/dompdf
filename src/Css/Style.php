@@ -1998,7 +1998,7 @@ class Style
             return $this->_props['text_align'];
         }
 
-        $value = $this->direction === 'rtl' ? 'right' : self::$_defaults['text_align'];
+        $value = $this->direction === 'rtl' ? 'right' : 'left';
 
         $this->_props['text_align'] = $value;
         $this->_prop_cache['text_align'] = null;
