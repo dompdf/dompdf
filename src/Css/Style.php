@@ -1475,7 +1475,7 @@ class Style
         $color = $this->__get("border_" . $side . "_color");
 
         return $this->__get("border_" . $side . "_width") . " " .
-            $this->__get("border_" . $side . "_style") . " " . $color["hex"];
+            $this->__get("border_" . $side . "_style") . " " . (isset($color["hex"]) ? $color["hex"] : '#ffffff');
     }
 
     /**#@+
