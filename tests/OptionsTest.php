@@ -8,7 +8,7 @@ class OptionsTest extends TestCase
 {
     public function testConstructor()
     {
-        $root = realpath(__DIR__ . "/../../..");
+        $root = realpath(dirname(__DIR__));
         $option = new Options();
         $this->assertEquals(sys_get_temp_dir(), $option->getTempDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
