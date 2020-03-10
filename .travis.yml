@@ -4,14 +4,17 @@ php:
   - 7.1
   - 7.2
   - 7.3
-  - 7.4snapshot
+  - 7.4
   - nightly
   - hhvm
 
 install: travis_retry composer install --no-interaction --prefer-source
 
+before_script:
+  - composer require php-coveralls/php-coveralls --no-interaction
+
 script:
-  - vendor/bin/phpunit
+  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
   - vendor/bin/phpcs --standard=phpcs.xml src
 
 matrix:
@@ -20,3 +23,6 @@ matrix:
     - php: hhvm
 
   fast_finish: true
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls
