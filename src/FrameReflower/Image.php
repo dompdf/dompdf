@@ -115,7 +115,7 @@ class Image extends AbstractFrameReflower
             $style->max_height !== "none"
         ) {
 
-            list( /*$x*/, /*$y*/, $w, $h) = $this->_frame->get_containing_block();
+            list($w, $h) = $this->_frame->get_containing_block();
 
             $min_width = $style->length_in_pt($style->min_width, $w);
             $max_width = $style->length_in_pt($style->max_width, $w);
@@ -189,7 +189,6 @@ class Image extends AbstractFrameReflower
 
         // if we built a percentage stack walk up to find the real size
         if (count($ref_stack) > 0) {
-            $result_size = $current_size;
             while (($ref = array_pop($ref_stack))) {
                 $result_size = $f_style->length_in_pt($ref, $result_size);
             }
