@@ -3,7 +3,7 @@ namespace Dompdf\Tests;
 
 use Dompdf\Frame\FrameTree;
 use Dompdf\Options;
-use PHPUnit\Framework\TestCase;
+use Dompdf\Tests\TestCase;
 use Dompdf\Dompdf;
 use Dompdf\Css\Stylesheet;
 use DOMDocument;

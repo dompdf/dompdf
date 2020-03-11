@@ -5,7 +5,7 @@ namespace Dompdf\Renderer;
 use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Renderer;
-use PHPUnit\Framework\TestCase;
+use Dompdf\Tests\TestCase;
 
 class RendererTest extends TestCase
 {

@@ -2,7 +2,7 @@
 namespace Dompdf\Tests;
 
 use Dompdf\Options;
-use PHPUnit\Framework\TestCase;
+use Dompdf\Tests\TestCase;
 
 class OptionsTest extends TestCase
 {

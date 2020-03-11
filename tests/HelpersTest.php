@@ -2,7 +2,7 @@
 namespace Dompdf\Tests;
 
 use Dompdf\Helpers;
-use PHPUnit\Framework\TestCase;
+use Dompdf\Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
