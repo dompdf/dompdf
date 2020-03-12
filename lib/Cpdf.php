@@ -521,7 +521,7 @@ class Cpdf
                     }
                     $res .= "\n/$k $v";
                 }
-                $res .= "\n>>\n";
+                $res .= "\n>>\nendobj";
 
                 return $res;
         }
@@ -1258,7 +1258,7 @@ EOT;
                 $res .= "/Supplement 0\n"; // The supplement number of the character collection.
                 $res .= ">>";
 
-                $res .= "\nendobj";;
+                $res .= "\nendobj";
 
                 return $res;
         }
