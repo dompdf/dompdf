@@ -2326,7 +2326,7 @@ EOT;
         $this->checkAllHere();
 
         $xref = [];
-        $content = '%PDF-1.3';
+        $content = '%PDF-1.7';
         $pos = mb_strlen($content, '8bit');
 
         foreach ($this->objects as $k => $v) {
