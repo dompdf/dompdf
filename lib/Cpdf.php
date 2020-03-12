@@ -487,7 +487,7 @@ class Cpdf
                             break;
 
                         case 'Duplex':
-                            if (!in_array($v, ['None', 'AppDefault'])) {
+                            if (!in_array($v, ['None', 'Simplex', 'DuplexFlipShortEdge', 'DuplexFlipLongEdge'])) {
                                 break;
                             }
                             $o['info'][$k] = $v;
