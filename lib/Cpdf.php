@@ -972,13 +972,13 @@ class Cpdf
             case 'add':
                 break;
             case 'out':
-                $ordering = '(UCS)';
-                $registry = '(Adobe)';
+                $ordering = 'UCS';
+                $registry = 'Adobe';
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
                     $ordering = $this->ARC4($ordering);
-                    $registry = $this->ARC4($registry);
+                    $registry = $this->filterText($this->ARC4($registry), false, false);
                 }
 
                 $stream = <<<EOT
@@ -986,8 +986,8 @@ class Cpdf
 12 dict begin
 begincmap
 /CIDSystemInfo
-<</Registry $registry
-/Ordering $ordering
+<</Registry ($registry)
+/Ordering ($ordering)
 /Supplement 0
 >> def
 /CMapName /Adobe-Identity-UCS def
@@ -1241,8 +1241,8 @@ EOT;
             case 'add':
                 break;
             case 'out':
-                $ordering = '(UCS)';
-                $registry = '(Adobe)';
+                $ordering = 'UCS';
+                $registry = 'Adobe';
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
@@ -1253,8 +1253,8 @@ EOT;
 
                 $res = "\n$id 0 obj\n";
 
-                $res .= '<</Registry ' . $registry . "\n"; // A string identifying an issuer of character collections
-                $res .= '/Ordering ' . $ordering . "\n"; // A string that uniquely names a character collection issued by a specific registry
+                $res .= '<</Registry (' . $registry . ")\n"; // A string identifying an issuer of character collections
+                $res .= '/Ordering (' . $ordering . ")\n"; // A string that uniquely names a character collection issued by a specific registry
                 $res .= "/Supplement 0\n"; // The supplement number of the character collection.
                 $res .= ">>";
 
