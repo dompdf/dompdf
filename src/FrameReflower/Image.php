@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Frame;
 use Dompdf\Helpers;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
@@ -82,43 +83,8 @@ class Image extends AbstractFrameReflower
         //
         //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
 
-        $width = ($style->width > 0 ? $style->width : 0);
-        if (Helpers::is_percent($width)) {
-            $t = 0.0;
-            for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
-                $f_style = $f->get_style();
-                $t = $f_style->length_in_pt($f_style->width);
-                if ($t != 0) {
-                    break;
-                }
-            }
-            $width = ((float)rtrim($width, "%") * $t) / 100; //maybe 0
-        } else {
-            // Don't set image original size if "%" branch was 0 or size not given.
-            // Otherwise aspect changed on %/auto combination for width/height
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            $width = $style->length_in_pt($width);
-        }
-
-        $height = ($style->height > 0 ? $style->height : 0);
-        if (Helpers::is_percent($height)) {
-            $t = 0.0;
-            for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
-                $f_style = $f->get_style();
-                $t = (float)$f_style->length_in_pt($f_style->height);
-                if ($t != 0) {
-                    break;
-                }
-            }
-            $height = ((float)rtrim($height, "%") * $t) / 100; //maybe 0
-        } else {
-            // Don't set image original size if "%" branch was 0 or size not given.
-            // Otherwise aspect changed on %/auto combination for width/height
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            $height = $style->length_in_pt($height);
-        }
+        $width = $this->get_size($this->_frame, 'width');
+        $height = $this->get_size($this->_frame, 'height');
 
         if ($width == 0 || $height == 0) {
             // Determine the image's size. Time consuming. Only when really needed!
@@ -149,7 +115,7 @@ class Image extends AbstractFrameReflower
             $style->max_height !== "none"
         ) {
 
-            list( /*$x*/, /*$y*/, $w, $h) = $this->_frame->get_containing_block();
+            list($w, $h) = $this->_frame->get_containing_block();
 
             $min_width = $style->length_in_pt($style->min_width, $w);
             $max_width = $style->length_in_pt($style->max_width, $w);
@@ -202,5 +168,32 @@ class Image extends AbstractFrameReflower
         $style->max_height = "none";
 
         return [$width, $width, "min" => $width, "max" => $width];
+    }
+
+    private function get_size(Frame $f, string $type)
+    {
+        $ref_stack = [];
+        $result_size = 0.0;
+        do {
+            $f_style = $f->get_style();
+            $current_size = $f_style->$type;
+            if (Helpers::is_percent($current_size)) {
+                $ref_stack[] = str_replace('%px', '%', $current_size);
+            } else {
+                $result_size = $f_style->length_in_pt($current_size);
+                if ($result_size != 0) {
+                    break;
+                }
+            }
+        } while (($f = $f->get_parent()));
+
+        // if we built a percentage stack walk up to find the real size
+        if (count($ref_stack) > 0) {
+            while (($ref = array_pop($ref_stack))) {
+                $result_size = $f_style->length_in_pt($ref, $result_size);
+            }
+        }
+
+        return $result_size;
     }
 }
