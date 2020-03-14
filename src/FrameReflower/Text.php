@@ -223,7 +223,7 @@ class Text extends AbstractFrameReflower
                 $text = $this->_collapse_white_space($text);
 
                 if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $bidi = new Bidi($text, null, null, 'R', true);
                     $text = $bidi->getString();
                 }
 
@@ -238,7 +238,7 @@ class Text extends AbstractFrameReflower
 
             case "pre":
                 if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $bidi = new Bidi($text, null, null, 'R', true);
                     $text = $bidi->getString();
                 }
 
@@ -250,7 +250,7 @@ class Text extends AbstractFrameReflower
                 $text = $this->_collapse_white_space($text);
 
                 if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $bidi = new Bidi($text, null, null, 'R', true);
                     $text = $bidi->getString();
                 }
 
@@ -259,7 +259,7 @@ class Text extends AbstractFrameReflower
 
             case "pre-wrap":
                 if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $bidi = new Bidi($text, null, null, 'R', true);
                     $text = $bidi->getString();
                 }
 
@@ -278,7 +278,7 @@ class Text extends AbstractFrameReflower
                 $text = preg_replace("/[ \t]+/u", " ", $text);
 
                 if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', false);
+                    $bidi = new Bidi($text, null, null, 'R', true);
                     $text = $bidi->getString();
                 }
                 $frame->set_text($text);
