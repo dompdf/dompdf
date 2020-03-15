@@ -487,7 +487,7 @@ class Cpdf
                             break;
 
                         case 'Duplex':
-                            if (!in_array($v, ['None', 'AppDefault'])) {
+                            if (!in_array($v, ['None', 'Simplex', 'DuplexFlipShortEdge', 'DuplexFlipLongEdge'])) {
                                 break;
                             }
                             $o['info'][$k] = $v;
@@ -2326,7 +2326,7 @@ EOT;
         $this->checkAllHere();
 
         $xref = [];
-        $content = '%PDF-1.3';
+        $content = '%PDF-1.7';
         $pos = mb_strlen($content, '8bit');
 
         foreach ($this->objects as $k => $v) {
