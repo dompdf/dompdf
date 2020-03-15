@@ -63,6 +63,16 @@ class Cpdf
     public $catalogId;
 
     /**
+     * @var integer The objectId (number within the objects array) of indirect references (Javascript EmbeddedFiles)
+     */
+    protected $indirectReferenceId = 0;
+
+    /**
+     * @var integer The objectId (number within the objects array)
+     */
+    protected $embeddedFilesId = 0;
+
+    /**
      * AcroForm objectId
      *
      * @var integer
@@ -593,7 +603,7 @@ class Cpdf
             case 'outlines':
             case 'pages':
             case 'openHere':
-            case 'javascript':
+            case 'names':
                 $o['info'][$action] = $options;
                 break;
 
@@ -630,8 +640,8 @@ class Cpdf
                             $res .= "\n/OpenAction $v 0 R";
                             break;
 
-                        case 'javascript':
-                            $res .= "\n/Names <</JavaScript $v 0 R>>";
+                        case 'names':
+                            $res .= "\n/Names $v 0 R";
                             break;
 
                         case 'acroform':
@@ -2807,6 +2817,154 @@ EOT;
         return null;
     }
 
+    protected function o_indirect_references($id, $action, $options = null)
+    {
+        switch ($action) {
+            case 'new':
+            case 'add':
+                if ($id === 0) {
+                    $id = ++$this->numObj;
+                    $this->o_catalog($this->catalogId, 'names', $id);
+                    $this->objects[$id] = ['t' => 'indirect_references', 'info' => $options];
+                    $this->indirectReferenceId = $id;
+                } else {
+                    $this->objects[$id]['info'] = array_merge($this->objects[$id]['info'], $options);
+                }
+                break;
+            case 'out':
+                $res = "\n$id 0 obj << ";
+
+                foreach($this->objects[$id]['info'] as $referenceObjName => $referenceObjId) {
+                    $res .= "/$referenceObjName $referenceObjId 0 R ";
+                }
+
+                $res .= ">> endobj";
+                return $res;
+        }
+
+        return null;
+    }
+
+    protected function o_names($id, $action, $options = null)
+    {
+        switch ($action) {
+            case 'new':
+            case 'add':
+                if ($id === 0) {
+                    $id = ++$this->numObj;
+                    $this->objects[$id] = ['t' => 'names', 'info' => [$options]];
+                    $this->o_indirect_references($this->indirectReferenceId, 'add', ['EmbeddedFiles' => $id]);
+                    $this->embeddedFilesId = $id;
+                } else {
+                    $this->objects[$id]['info'][] = $options;
+                }
+                break;
+            case 'out':
+                $info = &$this->objects[$id]['info'];
+                $res = '';
+                if (count($info) > 0) {
+                    $res = "\n$id 0 obj << /Names [ ";
+
+                    if ($this->encrypted) {
+                        $this->encryptInit($id);
+                    }
+
+                    foreach ($info as $entry) {
+                        if ($this->encrypted) {
+                            $filename = $this->ARC4($entry['filename']);
+                        } else {
+                            $filename = $entry['filename'];
+                        }
+
+                        $res .= "($filename) " . $entry['dict_reference'] . " 0 R ";
+                    }
+
+                    $res .= "] >> endobj";
+                }
+                return $res;
+        }
+
+        return null;
+    }
+
+    protected function o_embedded_file_dictionary($id, $action, $options = null)
+    {
+        switch ($action) {
+            case 'new':
+                $embeddedFileId = ++$this->numObj;
+                $options['embedded_reference'] = $embeddedFileId;
+                $this->objects[$id] = ['t' => 'embedded_file_dictionary', 'info' => $options];
+                $this->o_embedded_file($embeddedFileId, 'new', $options);
+                $options['dict_reference'] = $id;
+                $this->o_names($this->embeddedFilesId, 'add', $options);
+                break;
+            case 'out':
+                $info = &$this->objects[$id]['info'];
+
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                    $filename = $this->ARC4($info['filename']);
+                    $description = $this->ARC4($info['description']);
+                } else {
+                    $filename = $info['filename'];
+                    $description = $info['description'];
+                }
+
+                $res = "\n$id 0 obj <</Type /Filespec /EF";
+                $res .= " <</F " . $info['embedded_reference'] . " 0 R >>";
+                $res .= " /F ($filename) /UF ($filename) /Desc ($description)";
+                $res .= " >> endobj";
+                return $res;
+        }
+
+        return null;
+    }
+
+    protected function o_embedded_file($id, $action, $options = null): ?string
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'embedded_file', 'info' => $options];
+                break;
+            case 'out':
+                $info = &$this->objects[$id]['info'];
+
+                if ($this->compressionReady) {
+                    $filepath = $info['filepath'];
+                    $checksum = md5_file($filepath);
+                    $f = fopen($filepath, "rb");
+
+                    $file_content_compressed = '';
+                    $deflateContext = deflate_init(ZLIB_ENCODING_DEFLATE, ['level' => 6]);
+                    while (($block = fread($f, 8192))) {
+                        $file_content_compressed .= deflate_add($deflateContext, $block, ZLIB_NO_FLUSH);
+                    }
+                    $file_content_compressed .= deflate_add($deflateContext, '', ZLIB_FINISH);
+                    $file_size_uncompressed = ftell($f);
+                    fclose($f);
+                } else {
+                    $file_content = file_get_contents($info['filepath']);
+                    $file_size_uncompressed = mb_strlen($file_content, '8bit');
+                    $checksum = md5($file_content);
+                }
+
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                    $checksum = $this->ARC4($checksum);
+                    $file_content_compressed = $this->ARC4($file_content_compressed);
+                }
+                $file_size_compressed = mb_strlen($file_content_compressed, '8bit');
+
+                $res = "\n$id 0 obj <</Params <</Size $file_size_uncompressed /CheckSum ($checksum) >>" .
+                    " /Type/EmbeddedFile /Filter/FlateDecode" .
+                    " /Length $file_size_compressed >> stream\n$file_content_compressed\nendstream\nendobj";
+
+                return $res;
+        }
+
+        return null;
+    }
+
     /**
      * ARC4 functions
      * A series of function to implement ARC4 encoding in PHP
@@ -3013,7 +3171,7 @@ EOT;
 
             $id = $this->catalogId;
 
-            $this->o_catalog($id, 'javascript', $js_id);
+            $this->o_indirect_references($this->indirectReferenceId, 'add', ['Javascript' => $js_id]);
         }
 
         if ($this->fileIdentifier === '') {
@@ -5265,7 +5423,7 @@ EOT;
     }
 
     /**
-     * restore an object from its stored representation.  returns its new object id.
+     * restore an object from its stored representation. Returns its new object id.
      *
      * @param $obj
      * @return int
@@ -5277,6 +5435,27 @@ EOT;
         $this->closeObject();
 
         return $obj_id;
+    }
+
+    /**
+     * Embeds a file inside the PDF
+     *
+     * @param string $filepath path to the file to store inside the PDF
+     * @param string $embeddedFilename the filename displayed in the list of embedded files
+     * @param string $description a description in the list of embedded files
+     */
+    public function addEmbeddedFile(string $filepath, string $embeddedFilename, string $description): void
+    {
+        $this->numObj++;
+        $this->o_embedded_file_dictionary(
+            $this->numObj,
+            'new',
+            [
+                'filepath' => $filepath,
+                'filename' => $embeddedFilename,
+                'description' => $description
+            ]
+        );
     }
 
     /**
