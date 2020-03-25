@@ -18,10 +18,6 @@ use Dompdf\Helpers;
  */
 class Inline extends AbstractRenderer
 {
-
-    /**
-     * @param Frame $frame
-     */
     function render(Frame $frame)
     {
         $style = $frame->get_style();
@@ -42,30 +38,12 @@ class Inline extends AbstractRenderer
         // Draw the background & border behind each child.  To do this we need
         // to figure out just how much space each child takes:
         list($x, $y) = $frame->get_first_child()->get_position();
-        $w = null;
-        $h = 0;
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
+        $do_debug_layout_line = $this->_dompdf->getOptions()->getDebugLayout()
+            && $this->_dompdf->getOptions()->getDebugLayoutInline();
 
-        $DEBUGLAYOUTINLINE = $this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutInline();
-
-        foreach ($frame->get_children() as $child) {
-            list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
-
-            if (is_null($w)) {
-                $w = (float)$child_w;
-            } else {
-                $w += (float)$child_w;
-            }
-            $h = max($h, $child_h);
-
-            if ($DEBUGLAYOUTINLINE) {
-                $this->_debug_layout($child->get_border_box(), "blue");
-                if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                    $this->_debug_layout($child->get_padding_box(), "blue", [0.5, 0.5]);
-                }
-            }
-        }
+        list($w, $h) = $this->get_child_size($frame, $do_debug_layout_line);
 
         // make sure the border and background start inside the left margin
         $left_margin = (float)$style->length_in_pt($style->margin_left);
@@ -143,5 +121,38 @@ class Inline extends AbstractRenderer
                 $this->_canvas->add_link($href, $x, $y, $w, $h);
             }
         }
+    }
+
+    protected function get_child_size(Frame $frame, bool $do_debug_layout_line): array {
+        $w = 0.0;
+        $h = 0.0;
+
+        foreach ($frame->get_children() as $child) {
+            if ($child->get_node()->nodeValue === ' ' && $child->get_prev_sibling() && !$child->get_next_sibling()) {
+                break;
+            }
+            list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
+
+            $child_h2 = 0.0;
+
+            if ($child_w === 'auto') {
+                $children = $frame->get_children($child);
+                list($child_w, $child_h2) = $this->get_child_size($child, $do_debug_layout_line);
+                $w += $child_w;
+            } else {
+                $w += (float)$child_w;
+            }
+
+            $h = max($h, $child_h, $child_h2);
+
+            if ($do_debug_layout_line) {
+                $this->_debug_layout($child->get_border_box(), "blue");
+                if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
+                    $this->_debug_layout($child->get_padding_box(), "blue", [0.5, 0.5]);
+                }
+            }
+        }
+
+        return [$w, $h];
     }
 }
