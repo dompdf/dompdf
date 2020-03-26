@@ -241,9 +241,10 @@ class Text extends AbstractFrameReflower
 
                 if (($tmp = $this->_line_break($text)) !== false) {
                     $add_line = $split < $tmp;
-                    $split = min($tmp, $split);
-                } else
+                    $split = $split === false ? $tmp : min($tmp, $split);
+                } else {
                     $add_line = true;
+                }
 
                 break;
 
@@ -339,7 +340,7 @@ class Text extends AbstractFrameReflower
         }
 
         // Set our new width
-        $width = $frame->recalculate_width();
+        $frame->recalculate_width();
     }
 
     /**
@@ -398,6 +399,7 @@ class Text extends AbstractFrameReflower
         // determine minimum text width based on the whitespace setting
         switch ($style->white_space) {
             default:
+            /** @noinspection PhpMissingBreakStatementInspection */
             case "normal":
                 $str = preg_replace(self::$_whitespace_pattern, " ", $str);
             case "pre-wrap":
