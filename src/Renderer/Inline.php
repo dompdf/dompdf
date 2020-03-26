@@ -20,11 +20,12 @@ class Inline extends AbstractRenderer
 {
     function render(Frame $frame)
     {
-        $style = $frame->get_style();
-
         if (!$frame->get_first_child()) {
             return; // No children, no service
         }
+
+        $style = $frame->get_style();
+        $dompdf = $this->_dompdf;
 
         // Draw the left border if applicable
         $bp = $style->get_border_properties();
@@ -40,8 +41,9 @@ class Inline extends AbstractRenderer
         list($x, $y) = $frame->get_first_child()->get_position();
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
-        $do_debug_layout_line = $this->_dompdf->getOptions()->getDebugLayout()
-            && $this->_dompdf->getOptions()->getDebugLayoutInline();
+
+        $do_debug_layout_line = $dompdf->getOptions()->getDebugLayout()
+            && $dompdf->getOptions()->getDebugLayoutInline();
 
         list($w, $h) = $this->get_child_size($frame, $do_debug_layout_line);
 
@@ -87,25 +89,24 @@ class Inline extends AbstractRenderer
             $this->$method($x, $y + $h, $w, $bp["bottom"]["color"], $widths, "bottom");
         }
 
-        //    Helpers::var_dump(get_class($frame->get_next_sibling()));
-        //    $last_row = get_class($frame->get_next_sibling()) !== 'Inline';
+        // Helpers::var_dump(get_class($frame->get_next_sibling()));
+        // $last_row = get_class($frame->get_next_sibling()) !== 'Inline';
         // Draw the right border if this is the last row
         if ($bp["right"]["style"] !== "none" && $bp["right"]["color"] !== "transparent" && $widths[1] > 0) {
             $method = "_border_" . $bp["right"]["style"];
             $this->$method($x + $w, $y, $h, $bp["right"]["color"], $widths, "right");
         }
 
-        $id = $frame->get_node()->getAttribute("id");
+        $node = $frame->get_node();
+        $id = $node->getAttribute("id");
         if (strlen($id) > 0)  {
             $this->_canvas->add_named_dest($id);
         }
 
         // Only two levels of links frames
-        $link_node = null;
-        if ($frame->get_node()->nodeName === "a") {
-            $link_node = $frame->get_node();
-
-            if (($name = $link_node->getAttribute("name"))) {
+        $is_link_node = $node->nodeName === "a";
+        if ($is_link_node) {
+            if (($name = $node->getAttribute("name"))) {
                 $this->_canvas->add_named_dest($name);
             }
         }
@@ -115,9 +116,9 @@ class Inline extends AbstractRenderer
         }
 
         // Handle anchors & links
-        if ($link_node) {
-            if ($href = $link_node->getAttribute("href")) {
-                $href = Helpers::build_url($this->_dompdf->getProtocol(), $this->_dompdf->getBaseHost(), $this->_dompdf->getBasePath(), $href);
+        if ($is_link_node) {
+            if ($href = $node->getAttribute("href")) {
+                $href = Helpers::build_url($dompdf->getProtocol(), $dompdf->getBaseHost(), $dompdf->getBasePath(), $href);
                 $this->_canvas->add_link($href, $x, $y, $w, $h);
             }
         }
@@ -136,9 +137,8 @@ class Inline extends AbstractRenderer
             $child_h2 = 0.0;
 
             if ($child_w === 'auto') {
-                $children = $frame->get_children($child);
                 list($child_w, $child_h2) = $this->get_child_size($child, $do_debug_layout_line);
-                $w += $child_w;
+                $w += (float)$child_w;
             } else {
                 $w += (float)$child_w;
             }
