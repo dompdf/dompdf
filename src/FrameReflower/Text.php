@@ -61,7 +61,7 @@ class Text extends AbstractFrameReflower
      * @param $text
      * @return bool|int
      */
-    protected function _line_break($text)
+    protected function _line_break($text): bool
     {
         $style = $this->_frame->get_style();
         $size = $style->font_size;
@@ -261,14 +261,14 @@ class Text extends AbstractFrameReflower
 
         // Handle degenerate case
         if ($text === "") {
-            return;
+            return $add_line;
         }
 
         if ($split !== false) {
             // Handle edge cases
             if ($split == 0 && $text === " ") {
                 $frame->set_text("");
-                return;
+                return $add_line;
             }
 
             if ($split == 0) {
@@ -280,7 +280,7 @@ class Text extends AbstractFrameReflower
                 $frame->position();
 
                 // Layout the new line
-                $this->_layout_line();
+                $add_line = $this->_layout_line();
             } else if ($split < mb_strlen($frame->get_text())) {
                 // split the line if required
                 $frame->split_text($split);
@@ -300,11 +300,6 @@ class Text extends AbstractFrameReflower
                   $t = $this->_frame->get_text();
                   $this->_frame->set_text( trim($t) );
                 }*/
-            }
-
-            if ($add_line) {
-                $this->_block_parent->add_line();
-                $frame->position();
             }
         } else {
             // Remove empty space from start and end of line, but only where there isn't an inline sibling
@@ -331,6 +326,8 @@ class Text extends AbstractFrameReflower
 
         // Set our new width
         $frame->recalculate_width();
+
+        return $add_line;
     }
 
     /**
@@ -359,10 +356,14 @@ class Text extends AbstractFrameReflower
 
         $frame->position();
 
-        $this->_layout_line();
+        $add_line = $this->_layout_line();
 
         if ($block) {
             $block->add_frame_to_line($frame);
+
+            if ($add_line) {
+                $block->add_line();
+            }
         }
     }
 
