@@ -220,7 +220,7 @@ class Text extends AbstractFrameReflower
             default:
             case "normal":
                 $frame->set_text($text = $this->_collapse_white_space($text));
-                if ($text == "") {
+                if ($text === "") {
                     break;
                 }
 
@@ -235,38 +235,28 @@ class Text extends AbstractFrameReflower
             case "nowrap":
                 $frame->set_text($text = $this->_collapse_white_space($text));
                 break;
-
-            case "pre-wrap":
-                $split = $this->_newline_break($text);
-
-                if (($tmp = $this->_line_break($text)) !== false) {
-                    $add_line = $split < $tmp;
-                    $split = $split === false ? $tmp : min($tmp, $split);
-                } else {
-                    $add_line = true;
-                }
-
-                break;
-
+            /** @noinspection PhpMissingBreakStatementInspection */
             case "pre-line":
                 // Collapse white-space except for \n
                 $frame->set_text($text = preg_replace("/[ \t]+/u", " ", $text));
 
-                if ($text == "") {
+                if ($text === "") {
                     break;
                 }
-
+            case "pre-wrap":
                 $split = $this->_newline_break($text);
 
                 if (($tmp = $this->_line_break($text)) !== false) {
-                    $add_line = $split < $tmp;
-                    $split = min($tmp, $split);
-                } else {
+                    if ($split === false || $tmp < $split) {
+                        $split = $tmp;
+                    } else {
+                        $add_line = true;
+                    }
+                } else if ($split === true) {
                     $add_line = true;
                 }
 
                 break;
-
         }
 
         // Handle degenerate case
