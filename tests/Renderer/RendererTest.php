@@ -1,8 +1,7 @@
 <?php
 
-namespace Dompdf\Renderer;
+namespace Dompdf\Tests\Renderer;
 
-use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Renderer;
 use Dompdf\Tests\TestCase;
