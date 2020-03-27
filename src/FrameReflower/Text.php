@@ -61,7 +61,7 @@ class Text extends AbstractFrameReflower
      * @param $text
      * @return bool|int
      */
-    protected function _line_break($text): bool
+    protected function _line_break($text)
     {
         $style = $this->_frame->get_style();
         $size = $style->font_size;
@@ -181,10 +181,7 @@ class Text extends AbstractFrameReflower
         return $i + 1;
     }
 
-    /**
-     *
-     */
-    protected function _layout_line()
+    protected function _layout_line(): bool
     {
         $frame = $this->_frame;
         $style = $frame->get_style();
