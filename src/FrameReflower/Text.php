@@ -249,7 +249,7 @@ class Text extends AbstractFrameReflower
                     } else {
                         $add_line = true;
                     }
-                } else if ($split === true) {
+                } else if ($split !== false) {
                     $add_line = true;
                 }
 
