@@ -296,6 +296,7 @@ class Color
             $c["alpha"] = $alpha;
             $c["hex"] = "cmyk($c[0],$c[1],$c[2],$c[3])";
         } else {
+            $color = preg_replace("/[^0-9A-Fa-f]/", "", $color);
             $c[0] = hexdec(mb_substr($color, 0, 2)) / 0xff;
             $c[1] = hexdec(mb_substr($color, 2, 2)) / 0xff;
             $c[2] = hexdec(mb_substr($color, 4, 2)) / 0xff;
