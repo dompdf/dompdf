@@ -1192,9 +1192,6 @@ class Style
      */
     function get_color()
     {
-        if (!isset($this->_props["color"]) || $this->_props["color"] === "inherit") {
-            return $this->munge_color(self::$_defaults["color"]);
-        }
         return $this->munge_color($this->_props_computed["color"]);
     }
 
@@ -1761,10 +1758,6 @@ class Style
             if ($important) {
                 $this->_important_props[$style] = true;
             }
-            //see __set and __get, on all assignments clear cache!
-            //$this->_prop_cache[$style] = null;
-            //$this->_props_computed[$style] = $val;
-            //$this->_props[$style] = $val;
             $this->__set($style, $val);
         }
     }
@@ -1818,15 +1811,15 @@ class Style
 
     protected function set_prop_color($prop, $color)
     {
-        $this->_props[$prop] = $color;
-        $this->_props_computed[$prop] = null;
-        $this->_prop_cache[$prop] = null;
-
         $munged_color = $this->munge_color($color);
 
         if (is_null($munged_color)) {
             return;
         }
+
+        $this->_props[$prop] = $color;
+        $this->_props_computed[$prop] = null;
+        $this->_prop_cache[$prop] = null;
 
         $this->_props_computed[$prop] = (is_array($munged_color) ? $munged_color["hex"] : $munged_color);
     }
@@ -2306,13 +2299,19 @@ class Style
      */
     function set_page_break_before($break)
     {
+        $this->_props["page_break_before"] = $break;
+        $this->_props_computed["page_break_before"] = null;
+        $this->_prop_cache["page_break_before"] = null;
+
+        if ($break === 'inherit') {
+            return;
+        }
+
         if ($break === "left" || $break === "right") {
             $break = "always";
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["page_break_before"] = null;
-        $this->_props["page_break_before"] = $break;
+        $this->_props_computed["page_break_before"] = $break;
     }
 
     /**
@@ -2320,13 +2319,19 @@ class Style
      */
     function set_page_break_after($break)
     {
+        $this->_props["page_break_after"] = $break;
+        $this->_props_computed["page_break_after"] = null;
+        $this->_prop_cache["page_break_after"] = null;
+
+        if ($break === 'inherit') {
+            return;
+        }
+
         if ($break === "left" || $break === "right") {
             $break = "always";
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["page_break_after"] = null;
-        $this->_props["page_break_after"] = $break;
+        $this->_props_computed["page_break_after"] = $break;
     }
 
     /**
@@ -2850,9 +2855,9 @@ class Style
      */
     function set_list_style_image($val)
     {
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+        $this->_props["list_style_image"] = $val;
+        $this->_props_computed["list_style_image"] = $this->_image($val);
         $this->_prop_cache["list_style_image"] = null;
-        $this->_props["list_style_image"] = $this->_image($val);
     }
 
     /**
@@ -2907,9 +2912,9 @@ class Style
             }
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["list_style"] = null;
         $this->_props["list_style"] = $val;
+        $this->_props_computed["list_style"] = null;
+        $this->_prop_cache["list_style"] = null;
     }
 
     /**
@@ -2966,11 +2971,13 @@ class Style
      */
     function get_transform()
     {
+        //TODO: should be handled in setter (lengths set to absolute)
+
         $number = "\s*([^,\s]+)\s*";
         $tr_value = "\s*([^,\s]+)\s*";
         $angle = "\s*([^,\s]+(?:deg|rad)?)\s*";
 
-        if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $this->_props["transform"], $parts, PREG_SET_ORDER)) {
+        if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $this->_props_computed["transform"], $parts, PREG_SET_ORDER)) {
             return null;
         }
 
@@ -3089,8 +3096,15 @@ class Style
     function set_transform($val)
     {
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["transform"] = null;
         $this->_props["transform"] = $val;
+        $this->_props_computed["transform"] = null;
+        $this->_prop_cache["transform"] = null;
+
+        if ($val === 'inherit') {
+            return;
+        }
+        
+        $this->_props_computed["transform"] = $val;
     }
 
     /**
@@ -3117,9 +3131,15 @@ class Style
      */
     function set_transform_origin($val)
     {
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["transform_origin"] = null;
         $this->_props["transform_origin"] = $val;
+        $this->_props_computed["transform_origin"] = null;
+        $this->_prop_cache["transform_origin"] = null;
+
+        if ($val === 'inherit') {
+            return;
+        }
+
+        $this->_props_computed["transform_origin"] = $val;
     }
 
     /**
@@ -3130,11 +3150,9 @@ class Style
      */
     function get_transform_origin()
     {
-        $values = preg_split("/\s+/", $this->_props['transform_origin']);
-
-        if (count($values) === 0) {
-            $values = preg_split("/\s+/", self::$_defaults["transform_origin"]);
-        }
+        //TODO: should be handled in setter
+        
+        $values = preg_split("/\s+/", $this->_props_computed['transform_origin']);
 
         $values = array_map(function ($value) {
             if (in_array($value, ["top", "left"])) {
@@ -3194,10 +3212,13 @@ class Style
      */
     function set_image_resolution($val)
     {
+        $this->_props["image_resolution"] = $val;
+        $this->_props_computed["image_resolution"] = null;
+        $this->_prop_cache["image_resolution"] = null;
+
         $parsed = $this->parse_image_resolution($val);
 
-        $this->_prop_cache["image_resolution"] = null;
-        $this->_props["image_resolution"] = $parsed;
+        $this->_props_computed["image_resolution"] = $parsed;
     }
 
     /**
@@ -3221,12 +3242,15 @@ class Style
      */
     function set_z_index($val)
     {
+        $this->_props["z_index"] = $val;
+        $this->_props_computed["z_index"] = null;
+        $this->_prop_cache["z_index"] = null;
+
         if (round($val) != $val && $val !== "auto") {
             return;
         }
 
-        $this->_prop_cache["z_index"] = null;
-        $this->_props["z_index"] = $val;
+        $this->_props_computed["z_index"] = $val;
     }
 
     /**
