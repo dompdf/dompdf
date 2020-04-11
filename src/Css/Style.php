@@ -555,7 +555,7 @@ class Style
         static $cache = [];
 
         if (!isset($ref_size)) {
-            $ref_size = self::$default_font_size;
+            $ref_size = $this->__get("font_size");
         }
 
         if (!is_array($length)) {
