@@ -877,7 +877,7 @@ class Style
         if (self::$_methods_cache[$method]) {
             $this->$method($val);
         }
-        if (isset($this->_props_computed[$prop]) === false) {
+        if (isset($this->_props_computed[$prop]) === false && isset($val) && $val !== '' && $val !== 'inherit') {
             $this->_props_computed[$prop] = $val;
         }
 
@@ -918,14 +918,13 @@ class Style
         $method = "get_$prop";
 
         $retval = null;
-        // Preview the value based on the default if the property's computed value has not
-        // yet been set or the current value is "inherit" (the computed value will be based
-        // on the parent's value if inheritance has been applied).
-        // Reset the specified property afterwards so that we don't block inheritance later.
+
+        // Preview the value based on the default if the property is not cached 
+        // and the computed value has not yet been set.
         $reset_value = false;
         $specified_value = null;
         $computed_value = null;
-        if (!isset($this->_props_computed[$prop]) || $this->_props_computed[$prop] === "inherit") {
+        if (!isset($this->_prop_cache[$prop]) && !isset($this->_props_computed[$prop])) {
             $reset_value = true;
             if (isset($this->_props[$prop])) {
                 $specified_value = $this->_props[$prop];
@@ -933,8 +932,13 @@ class Style
             if (isset($this->_props_computed[$prop])) {
                 $computed_value = $this->_props_computed[$prop];
             }
-            if (!in_array($prop, self::$_props_shorthand)) {
-                $this->__set($prop, self::$_defaults[$prop]);
+            $default_value = self::$_defaults[$prop];
+            if (empty($this->_props[$prop])) {
+                $this->__set($prop, $default_value);
+            }
+            if (empty($this->_props_computed[$prop])) {
+                // computed value should be set if the property is set, we'll recalculate it
+                $this->__set($prop, $this->_props[$prop]);
             }
         }
 
@@ -950,9 +954,12 @@ class Style
             $retval = $this->_prop_cache[$prop] = $this->_props_computed[$prop];
         }
 
+        // When previewing the value reset the specified and computed properties
+        // so that we don't interfere with inheritance.
         if ($reset_value) {
             $this->_props[$prop] = $specified_value;
             $this->_props_computed[$prop] = $computed_value;
+            $this->_prop_cache[$prop] = null;
         }
 
         return $retval;
