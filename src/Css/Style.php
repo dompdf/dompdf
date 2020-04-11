@@ -3041,7 +3041,7 @@ class Style
      */
     function set__webkit_transform($val)
     {
-        $this->set_transform($val);
+        $this->__set("transform", $val);
     }
 
     /**
@@ -3049,7 +3049,7 @@ class Style
      */
     function set__webkit_transform_origin($val)
     {
-        $this->set_transform_origin($val);
+        $this->__set("transform_origin", $val);
     }
 
     /**
@@ -3145,7 +3145,7 @@ class Style
      */
     function set__dompdf_background_image_resolution($val)
     {
-        $this->set_background_image_resolution($val);
+        $this->__set("background_image_resolution", $val);
     }
 
     /**
@@ -3153,7 +3153,7 @@ class Style
      */
     function set__dompdf_image_resolution($val)
     {
-        $this->set_image_resolution($val);
+        $this->__set("image_resolution", $val);
     }
 
     /**
