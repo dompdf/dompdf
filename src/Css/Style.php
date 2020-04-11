@@ -1222,80 +1222,14 @@ class Style
      */
     function get_background_position()
     {
-        $tmp = explode(" ", $this->_props["background_position"]);
-
-        switch ($tmp[0]) {
-            case "left":
-                $x = "0%";
-                break;
-
-            case "right":
-                $x = "100%";
-                break;
-
-            case "top":
-                $y = "0%";
-                break;
-
-            case "bottom":
-                $y = "100%";
-                break;
-
-            case "center":
-                $x = "50%";
-                $y = "50%";
-                break;
-
-            default:
-                $x = $tmp[0];
-                break;
+        if (strpos($this->_props_computed["background_position"], " ") === false) {
+            $this->__set("background_position", $this->_props["background_position"]);
         }
-
-        if (isset($tmp[1])) {
-            switch ($tmp[1]) {
-                case "left":
-                    $x = "0%";
-                    break;
-
-                case "right":
-                    $x = "100%";
-                    break;
-
-                case "top":
-                    $y = "0%";
-                    break;
-
-                case "bottom":
-                    $y = "100%";
-                    break;
-
-                case "center":
-                    if ($tmp[0] === "left" || $tmp[0] === "right" || $tmp[0] === "center") {
-                        $y = "50%";
-                    } else {
-                        $x = "50%";
-                    }
-                    break;
-
-                default:
-                    $y = $tmp[1];
-                    break;
-            }
-        } else {
-            $y = "50%";
-        }
-
-        if (!isset($x)) {
-            $x = "0%";
-        }
-
-        if (!isset($y)) {
-            $y = "0%";
-        }
+        $tmp = explode(" ", $this->_props_computed["background_position"]);
 
         return [
-            0 => $x, "x" => $x,
-            1 => $y, "y" => $y,
+            0 => $tmp[0], "x" => $tmp[0],
+            1 => $tmp[1], "y" => $tmp[1],
         ];
     }
 
@@ -1313,14 +1247,7 @@ class Style
      */
     function get_background_size()
     {
-        if (!isset($this->_props["background_size"])) {
-            return explode(" ", self::$_defaults["background_size"]);
-        }
-
-        $result = explode(" ", $this->_props["background_size"]);
-        $width = $result[0];
-
-        switch ($width) {
+        switch ($this->_props_computed["background_size"]) {
             case "cover":
                 return "cover";
             case "contain":
@@ -1329,64 +1256,12 @@ class Style
                 break;
         }
 
-        if ($width !== "auto" && strpos($width, "%") === false) {
-            $width = (float)$this->length_in_pt($width);
+        if (strpos($this->_props_computed["background_size"], " ") === false) {
+            $this->__set("background_size", $this->_props["background_size"]);
         }
-
-        if (!isset($result[1])) {
-            $height = "auto";
-        } else if (($height = $result[1]) !== "auto" && strpos($height, "%") === false) {
-            $height = (float)$this->length_in_pt($height);
-        }
-
-        return [$width, $height];
+        $result = explode(" ", $this->_props_computed["background_size"]);
+        return [$result[0], $result[1]];
     }
-
-
-    /**
-     * Returns the background as it is currently stored
-     *
-     * (currently anyway only for completeness.
-     * not used for further processing)
-     *
-     * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background-attachment
-     * @return string
-     */
-    function get_background_attachment()
-    {
-        return $this->_props["background_attachment"];
-    }
-
-
-    /**
-     * Returns the background_repeat as it is currently stored
-     *
-     * (currently anyway only for completeness.
-     * not used for further processing)
-     *
-     * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background-repeat
-     * @return string
-     */
-    function get_background_repeat()
-    {
-        return $this->_props["background_repeat"];
-    }
-
-
-    /**
-     * Returns the background as it is currently stored
-     *
-     * (currently anyway only for completeness.
-     * not used for further processing, but the individual get_background_xxx)
-     *
-     * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background
-     * @return string
-     */
-    function get_background()
-    {
-        return $this->_props["background"];
-    }
-
 
     /**#@+
      * Returns the border color as an array
@@ -2047,13 +1922,15 @@ class Style
      */
     function set_background_repeat($val)
     {
-        if (is_null($val)) {
-            $val = self::$_defaults["background_repeat"];
+        $this->_props["background_repeat"] = $val;
+        $this->_props_computed["background_repeat"] = null;
+        $this->_prop_cache["background_repeat"] = null;
+
+        if ($val === 'inherit') {
+            return;
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["background_repeat"] = null;
-        $this->_props["background_repeat"] = $val;
+        $this->_props_computed["background_repeat"] = $val;
     }
 
     /**
@@ -2064,13 +1941,15 @@ class Style
      */
     function set_background_attachment($val)
     {
-        if (is_null($val)) {
-            $val = self::$_defaults["background_attachment"];
+        $this->_props["background_attachment"] = $val;
+        $this->_props_computed["background_attachment"] = null;
+        $this->_prop_cache["background_attachment"] = null;
+        
+        if ($val === 'inherit') {
+            return;
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["background_attachment"] = null;
-        $this->_props["background_attachment"] = $val;
+        $this->_props_computed["background_attachment"] = $val;
     }
 
     /**
@@ -2081,13 +1960,81 @@ class Style
      */
     function set_background_position($val)
     {
-        if (is_null($val)) {
-            $val = self::$_defaults["background_position"];
+        $this->_props["background_position"] = $val;
+
+        $tmp = explode(" ", $val);
+
+        switch ($tmp[0]) {
+            case "left":
+                $x = "0%";
+                break;
+
+            case "right":
+                $x = "100%";
+                break;
+
+            case "top":
+                $y = "0%";
+                break;
+
+            case "bottom":
+                $y = "100%";
+                break;
+
+            case "center":
+                $x = "50%";
+                $y = "50%";
+                break;
+
+            default:
+                $x = $tmp[0];
+                break;
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+        if (isset($tmp[1])) {
+            switch ($tmp[1]) {
+                case "left":
+                    $x = "0%";
+                    break;
+
+                case "right":
+                    $x = "100%";
+                    break;
+
+                case "top":
+                    $y = "0%";
+                    break;
+
+                case "bottom":
+                    $y = "100%";
+                    break;
+
+                case "center":
+                    if ($tmp[0] === "left" || $tmp[0] === "right" || $tmp[0] === "center") {
+                        $y = "50%";
+                    } else {
+                        $x = "50%";
+                    }
+                    break;
+
+                default:
+                    $y = $tmp[1];
+                    break;
+            }
+        } else {
+            $y = "50%";
+        }
+
+        if (!isset($x)) {
+            $x = "0%";
+        }
+
+        if (!isset($y)) {
+            $y = "0%";
+        }
+        
+        $this->_props_computed["background_position"] = "$x $y";
         $this->_prop_cache["background_position"] = null;
-        $this->_props["background_position"] = $val;
     }
 
     /**
@@ -2098,13 +2045,30 @@ class Style
      */
     function set_background_size($val)
     {
-        if (is_null($val)) {
-            $val = self::$_defaults["background_size"];
+        $this->_props["background_size"] = $val;
+        $this->_prop_cache["background_size"] = null;
+
+        $result = explode(" ", $val);
+        $width = $result[0];
+
+        switch ($width) {
+            case "cover":
+            case "contain":
+            case "inherit":
+                $this->_props_computed["background_size"] = $width;
+                return;
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["background_size"] = null;
-        $this->_props["background_size"] = $val;
+        if ($width !== "auto" && strpos($width, "%") === false) {
+            $width = (float)$this->length_in_pt($width);
+        }
+
+        $height = $result[1] ?? "auto";
+        if ($height !== "auto" && strpos($height, "%") === false) {
+            $height = (float)$this->length_in_pt($height);
+        }
+
+        $this->_props_computed["background_size"] = "$width $height";
     }
 
     /**
@@ -2147,7 +2111,7 @@ class Style
 
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
         $this->_props["background"] = $val;
-        $this->_props_computed["background"] = $val;
+        $this->_props_computed["background"] = null;
         $this->_prop_cache["background"] = null;
     }
 
@@ -3169,10 +3133,13 @@ class Style
      */
     function set_background_image_resolution($val)
     {
+        $this->_props["background_image_resolution"] = $val;
+        $this->_props_computed["background_image_resolution"] = null;
+        $this->_prop_cache["background_image_resolution"] = null;
+
         $parsed = $this->parse_image_resolution($val);
 
-        $this->_prop_cache["background_image_resolution"] = null;
-        $this->_props["background_image_resolution"] = $parsed;
+        $this->_props_computed["background_image_resolution"] = $parsed;
     }
 
     /**
