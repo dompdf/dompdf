@@ -282,9 +282,7 @@ class Style
             $d["background_color"] = "transparent";
             $d["background_image"] = "none";
             $d["background_image_resolution"] = "normal";
-            $d["_dompdf_background_image_resolution"] = $d["background_image_resolution"];
             $d["background_position"] = "0% 0%";
-            $d["background_size"] = "auto auto"; // CSS3
             $d["background_repeat"] = "repeat";
             $d["background"] = "";
             $d["border_collapse"] = "separate";
@@ -339,8 +337,6 @@ class Style
             $d["font"] = "";
             $d["height"] = "auto";
             $d["image_resolution"] = "normal";
-            $d["_dompdf_image_resolution"] = $d["image_resolution"];
-            $d["_dompdf_keep"] = "";
             $d["left"] = "auto";
             $d["letter_spacing"] = "normal";
             $d["line_height"] = "normal";
@@ -357,7 +353,6 @@ class Style
             $d["max_width"] = "none";
             $d["min_height"] = "0";
             $d["min_width"] = "0";
-            $d["opacity"] = "1.0"; // CSS3
             $d["orphans"] = "2";
             $d["outline_color"] = ""; // "invert" special color is not supported
             $d["outline_style"] = "none";
@@ -395,10 +390,6 @@ class Style
             $d["text_indent"] = "0";
             $d["text_transform"] = "none";
             $d["top"] = "auto";
-            $d["transform"] = "none"; // CSS3
-            $d["transform_origin"] = "50% 50%"; // CSS3
-            $d["_webkit_transform"] = $d["transform"]; // CSS3
-            $d["_webkit_transform_origin"] = $d["transform_origin"]; // CSS3
             $d["unicode_bidi"] = "normal";
             $d["vertical_align"] = "baseline";
             $d["visibility"] = "visible";
@@ -411,9 +402,22 @@ class Style
             $d["word_spacing"] = "normal";
             $d["z_index"] = "auto";
 
+            // CSS3
+            $d["opacity"] = "1.0";
+            $d["background_size"] = "auto auto";
+            $d["transform"] = "none";
+            $d["transform_origin"] = "50% 50%";
+
             // for @font-face
             $d["src"] = "";
             $d["unicode_range"] = "";
+
+            // vendor-previxed properties
+            $d["_dompdf_background_image_resolution"] = &$d["background_image_resolution"];
+            $d["_dompdf_image_resolution"] = &$d["image_resolution"];
+            $d["_dompdf_keep"] = "";
+            $d["_webkit_transform"] = &$d["transform"];
+            $d["_webkit_transform_origin"] = &$d["transform_origin"];
 
             // Properties that inherit by default
             self::$_inherited = [
