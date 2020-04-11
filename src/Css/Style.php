@@ -1090,7 +1090,7 @@ class Style
         $font_style = $this->__get("font_style");
         $subtype = $this->getFontMetrics()->getType($weight . ' ' . $font_style);
 
-        $families = preg_split("/\s*,\s*/", $this->_props["font_family"]);
+        $families = preg_split("/\s*,\s*/", $this->_props_computed["font_family"]);
 
         $font = null;
         foreach ($families as $family) {
@@ -1105,7 +1105,7 @@ class Style
             if ($font) {
                 if ($DEBUGCSS) {
                     print "<pre>[get_font_family:";
-                    print '(' . $this->_props["font_family"] . '.' . $font_style . '.' . $weight . '.' . $subtype . ')';
+                    print '(' . $this->_props_computed["font_family"] . '.' . $font_style . '.' . $weight . '.' . $subtype . ')';
                     print '(' . $font . ")get_font_family]\n</pre>";
                 }
                 return $font;
@@ -1125,24 +1125,7 @@ class Style
             return $font;
         }
 
-        throw new Exception("Unable to find a suitable font replacement for: '" . $this->_props["font_family"] . "'");
-    }
-
-    /**
-     * Returns the resolved font size, in points
-     *
-     * @link http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
-     * @return float
-     */
-    function get_font_size()
-    {
-        if (!isset($this->_parent_font_size)) {
-            $this->_parent_font_size = self::$default_font_size;
-        }
-        if (!isset($this->_props["font_size"]) || $this->_props["font_size"] === "inherit") {
-            return $this->_parent_font_size;
-        }
-        return $this->_props_computed["font_size"];
+        throw new Exception("Unable to find a suitable font replacement for: '" . $this->_props_computed["font_family"] . "'");
     }
 
     /**
@@ -2181,7 +2164,6 @@ class Style
         $this->_prop_cache["font_size"] = null;
 
         if ($size === "inherit") {
-            $this->_props_computed["font_size"] = $size;
             return;
         }
         if (!isset($this->_parent_font_size)) {
@@ -2285,6 +2267,7 @@ class Style
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
         $this->_prop_cache["font"] = null;
         $this->_props["font"] = $val;
+        $this->_props_computed["font"] = null;
 
         $important = isset($this->_important_props["font"]);
 
