@@ -1134,11 +1134,17 @@ class Style
      */
     function get_word_spacing()
     {
-        if ($this->_props["word_spacing"] === "normal") {
+        $word_spacing = $this->_props_computed["word_spacing"];
+
+        if ($word_spacing === "normal") {
             return 0;
         }
 
-        return $this->_props["word_spacing"];
+        if (strpos($word_spacing, "%") !== false) {
+            return $word_spacing;
+        }
+
+        return (float)$this->length_in_pt($word_spacing, $this->__get("font_size"));
     }
 
     /**
@@ -1147,11 +1153,13 @@ class Style
      */
     function get_letter_spacing()
     {
-        if ($this->_props["letter_spacing"] === "normal") {
+        $letter_spacing = $this->_props_computed["letter_spacing"];
+
+        if ($letter_spacing === "normal") {
             return 0;
         }
 
-        return $this->_props["letter_spacing"];
+        return (float)$this->length_in_pt($letter_spacing, $this->__get("font_size"));
     }
 
     /**
@@ -1160,12 +1168,6 @@ class Style
      */
     function get_line_height()
     {
-        if (!isset($this->_props["line_height"]) || $this->_props["line_height"] === "inherit") {
-            $this->__set("line_height", self::$_defaults["line_height"]);
-        }
-        if (!isset($this->_props_computed["line_height"])) {
-            $this->__set("line_height", $this->_props["line_height"]);
-        }
         $line_height = $this->_props_computed["line_height"];
 
         if ($line_height === "normal") {
@@ -2314,6 +2316,48 @@ class Style
     }
 
     /**
+     * Sets word spacing property
+     *
+     * @link http://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
+     * @return float
+     */
+    function set_word_spacing()
+    {
+        $this->_props["word_spacing"] = $val;
+        $this->_props_computed["word_spacing"] = null;
+        $this->_prop_cache["word_spacing"] = null;
+
+        if ($val === 'inherit') {
+            return;
+        }
+
+        if ($val !== "normal" && strpos($val, "%") === false) {
+            $this->_props_computed["word_spacing"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
+        }
+    }
+
+    /**
+     * Sets letter spacing property
+     *
+     * @link http://www.w3.org/TR/CSS21/text.html#propdef-letter-spacing
+     * @return float
+     */
+    function set_letter_spacing()
+    {
+        $this->_props["letter_spacing"] = $val;
+        $this->_props_computed["letter_spacing"] = null;
+        $this->_prop_cache["letter_spacing"] = null;
+
+        if ($val === 'inherit') {
+            return;
+        }
+
+        if ($val !== "normal") {
+            $this->_props_computed["letter_spacing"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
+        }
+    }
+
+    /**
      * Sets line height property
      *
      * @link http://www.w3.org/TR/CSS21/visudet.html#propdef-line-height
@@ -2325,7 +2369,11 @@ class Style
         $this->_props_computed["line_height"] = null;
         $this->_prop_cache["line_height"] = null;
 
-        if ($val === "inherit" || $val === "normal" || is_numeric($val)) {
+        if ($val === 'inherit') {
+            return;
+        }
+
+        if ($val === "normal" || is_numeric($val)) {
             $this->_props_computed["line_height"] = $val;
         } else {
             $this->_props_computed["line_height"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
