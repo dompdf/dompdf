@@ -1273,9 +1273,6 @@ class Style
      */
     function get_border_top_color()
     {
-        if ($this->_props_computed["border_top_color"] === "") {
-            $this->__set("border_top_color", $this->__get("color"));
-        }
         return $this->munge_color($this->_props_computed["border_top_color"]);
     }
 
@@ -1284,9 +1281,6 @@ class Style
      */
     function get_border_right_color()
     {
-        if ($this->_props_computed["border_right_color"] === "") {
-            $this->__set("border_right_color", $this->__get("color"));
-        }
         return $this->munge_color($this->_props_computed["border_right_color"]);
     }
 
@@ -1295,9 +1289,6 @@ class Style
      */
     function get_border_bottom_color()
     {
-        if ($this->_props_computed["border_bottom_color"] === "") {
-            $this->__set("border_bottom_color", $this->__get("color"));
-        }
         return $this->munge_color($this->_props_computed["border_bottom_color"]);
     }
 
@@ -1306,52 +1297,9 @@ class Style
      */
     function get_border_left_color()
     {
-        if ($this->_props_computed["border_left_color"] === "") {
-            $this->__set("border_left_color", $this->__get("color"));
-        }
         return $this->munge_color($this->_props_computed["border_left_color"]);
     }
 
-    /**#@-*/
-
-    /**#@+
-     * Returns the border width, as it is currently stored
-     *
-     * @link http://www.w3.org/TR/CSS21/box.html#border-width-properties
-     * @return float|string
-     */
-    function get_border_top_width()
-    {
-        $style = $this->__get("border_top_style");
-        return $style !== "none" && $style !== "hidden" ? (float)$this->length_in_pt($this->_props_computed["border_top_width"]) : 0;
-    }
-
-    /**
-     * @return float|int|string
-     */
-    function get_border_right_width()
-    {
-        $style = $this->__get("border_right_style");
-        return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props_computed["border_right_width"]) : 0;
-    }
-
-    /**
-     * @return float|int|string
-     */
-    function get_border_bottom_width()
-    {
-        $style = $this->__get("border_bottom_style");
-        return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props_computed["border_bottom_width"]) : 0;
-    }
-
-    /**
-     * @return float|int|string
-     */
-    function get_border_left_width()
-    {
-        $style = $this->__get("border_left_style");
-        return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props_computed["border_left_width"]) : 0;
-    }
     /**#@-*/
 
     /**
@@ -1449,12 +1397,7 @@ class Style
 
     private function _get_width($prop)
     {
-        if (!isset($this->_props[$prop]) || $this->_props[$prop] === "inherit") {
-            $this->__set($prop, self::$_defaults[$prop]);
-        }
-        if (!isset($this->_props_computed[$prop])) {
-            $this->__set($prop, $this->_props[$prop]);
-        }
+        //TODO: should be handled in setter
         if (strpos($this->_props_computed[$prop], "%") !== false) {
             // calculate against width of containing block, needs to be done outside the style class
             return $this->_props_computed[$prop];
@@ -1559,9 +1502,6 @@ class Style
      */
     function get_outline_color()
     {
-        if ($this->_props_computed["outline_color"] === "") {
-            $this->__set("outline_color", $this->__get("color"));
-        }
         return $this->munge_color($this->_props_computed["outline_color"]);
     }
 
@@ -1605,7 +1545,7 @@ class Style
      */
     function get_border_spacing()
     {
-        $arr = explode(" ", $this->_props["border_spacing"]);
+        $arr = explode(" ", $this->_props_computed["border_spacing"]);
         if (count($arr) == 1) {
             $arr[1] = $arr[0];
         }
@@ -1703,6 +1643,11 @@ class Style
         $this->_props[$prop] = $val;
         $this->_prop_cache[$prop] = null;
 
+        if ($val === "inherit") {
+            $this->_props_computed[$prop] = null;
+            return;
+        }
+
         if (!isset($this->_important_props[$prop]) || $important) {
             $val_computed = (float)$this->length_in_pt($val);
             if ($side === "bottom") {
@@ -1711,19 +1656,28 @@ class Style
             if ($important) {
                 $this->_important_props[$prop] = true;
             }
-            if (
+
+            if (($style === "border" || $style === "padding" || $style === "outline") && $val_computed < 0) {
+                $this->_props[$prop] = null; // passed-in value is invalid
+            } else if (
                 (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") !== false)
                 ||
-                (($style === "border" || $style === "padding" || $style === "outline") && $val_computed < 0)
+                (($style === "margin" || $style === "padding") && (strpos($val, "%") !== false || $val === "auto"))
             ) {
-                return;
-            } elseif (($style === "margin" || $style === "padding") && (strpos($val, "%") !== false || $val === "auto")) {
                 $this->_props_computed[$prop] = $val;
-            } elseif ($style === "margin" || $style === "padding" && $val !== "inherit") {
-                $this->_props_computed[$prop] = ($val !== "none" && $val !== "hidden" ? $val_computed . "pt" : 0);
-            } elseif ($style === "color") {
+            } elseif (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") === false) {
+                $line_style_prop = $style;
+                if (!empty($side)) {
+                    $line_style_prop .= "_" . $side;
+                };
+                $line_style_prop .= "_style";
+                $line_style = $this->__get($line_style_prop);
+                $this->_props_computed[$prop] = ($line_style !== "none" && $line_style !== "hidden" ? $val_computed : 0);
+            } elseif (($style === "margin" || $style === "padding")) {
+                $this->_props_computed[$prop] = ($val !== "none" && $val !== "hidden" ? $val_computed : 0);
+            } elseif ($type === "color") {
                 $this->set_prop_color($prop, $val);
-            } else {
+            } elseif (!empty($val)) {
                 $this->_props_computed[$prop] = $val;
             }
         }
@@ -2476,19 +2430,22 @@ class Style
         $arr = explode(" ", $border_spec);
 
         // FIXME: handle partial values
-
         //For consistency of individual and combined properties, and with ie8 and firefox3
         //reset all attributes, even if only partially given
-        $this->_set_style_side_type('border', $side, 'style', self::$_defaults['border_' . $side . '_style'], $important);
-        $this->_set_style_side_type('border', $side, 'width', self::$_defaults['border_' . $side . '_width'], $important);
-        $this->_set_style_side_type('border', $side, 'color', self::$_defaults['border_' . $side . '_color'], $important);
+        //$this->_set_style_side_type('border', $side, 'style', self::$_defaults['border_' . $side . '_style'], $important);
+        //$this->_set_style_side_type('border', $side, 'width', self::$_defaults['border_' . $side . '_width'], $important);
+        //$this->_set_style_side_type('border', $side, 'color', self::$_defaults['border_' . $side . '_color'], $important);
 
         foreach ($arr as $value) {
             $value = trim($value);
             if (in_array($value, self::$BORDER_STYLES)) {
                 $this->_set_style_side_type('border', $side, 'style', $value, $important);
-            } else if (preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
+            } elseif (preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
                 $this->_set_style_side_type('border', $side, 'width', $value, $important);
+            } elseif ($value === "inherit") {
+                $this->_set_style_side_type('border', $side, 'style', $value, $important);
+                $this->_set_style_side_type('border', $side, 'width', $value, $important);
+                $this->_set_style_side_type('border', $side, 'color', $value, $important);
             } else {
                 // must be color
                 $this->_set_style_side_type('border', $side, 'color', $this->munge_color($value), $important);
@@ -2507,12 +2464,50 @@ class Style
         $this->_set_border("top", $val, isset($this->_important_props['border_top']));
     }
 
+    function set_border_top_color($val)
+    {
+        $color = $val;
+        if ($val === "") {
+            $color = $this->__get("color");
+        }
+        $this->_set_style_side_type('border', 'top', 'color', $color, isset($this->_important_props['border_top_color']));
+    }
+
+    function set_border_top_style($val)
+    {
+        $this->_set_style_side_type('border', 'top', 'style', $val, isset($this->_important_props['border_top_style']));
+    }
+
+    function set_border_top_width($val)
+    {
+        $this->_set_style_side_type('border', 'top', 'width', $val, isset($this->_important_props['border_top_width']));
+    }
+
     /**
      * @param $val
      */
     function set_border_right($val)
     {
         $this->_set_border("right", $val, isset($this->_important_props['border_right']));
+    }
+
+    function set_border_right_color($val)
+    {
+        $color = $val;
+        if ($val === "") {
+            $color = $this->__get("color");
+        }
+        $this->_set_style_side_type('border', 'right', 'color', $color, isset($this->_important_props['border_right_color']));
+    }
+
+    function set_border_right_style($val)
+    {
+        $this->_set_style_side_type('border', 'right', 'style', $val, isset($this->_important_props['border_right_style']));
+    }
+
+    function set_border_right_width($val)
+    {
+        $this->_set_style_side_type('border', 'right', 'width', $val, isset($this->_important_props['border_right_width']));
     }
 
     /**
@@ -2523,6 +2518,25 @@ class Style
         $this->_set_border("bottom", $val, isset($this->_important_props['border_bottom']));
     }
 
+    function set_border_bottom_color($val)
+    {
+        $color = $val;
+        if ($val === "") {
+            $color = $this->__get("color");
+        }
+        $this->_set_style_side_type('border', 'bottom', 'color', $color, isset($this->_important_props['border_bottom_color']));
+    }
+
+    function set_border_bottom_style($val)
+    {
+        $this->_set_style_side_type('border', 'bottom', 'style', $val, isset($this->_important_props['border_bottom_style']));
+    }
+
+    function set_border_bottom_width($val)
+    {
+        $this->_set_style_side_type('border', 'bottom', 'width', $val, isset($this->_important_props['border_bottom_width']));
+    }
+
     /**
      * @param $val
      */
@@ -2531,14 +2545,30 @@ class Style
         $this->_set_border("left", $val, isset($this->_important_props['border_left']));
     }
 
+    function set_border_left_color($val)
+    {
+        $color = $val;
+        if ($val === "") {
+            $color = $this->__get("color");
+        }
+        $this->_set_style_side_type('border', 'left', 'color', $color, isset($this->_important_props['border_left_color']));
+    }
+
+    function set_border_left_style($val)
+    {
+        $this->_set_style_side_type('border', 'left', 'style', $val, isset($this->_important_props['border_left_style']));
+    }
+
+    function set_border_left_width($val)
+    {
+        $this->_set_style_side_type('border', 'left', 'width', $val, isset($this->_important_props['border_left_width']));
+    }
+
     /**
      * @param $val
      */
     function set_border($val)
     {
-        $this->_prop_cache["border"] = null;
-        $this->_props["border"] = $val;
-        $this->_props_computed["border"] = $val;
         $important = isset($this->_important_props["border"]);
 
         $this->_set_border("top", $val, $important);
@@ -2653,10 +2683,15 @@ class Style
     {
         $this->_has_border_radius = true;
 
-        //see __set and __get, on all assignments clear cache!
+        $this->_props["border_" . $corner . "_radius"] = $val;
+        $this->_props_computed["border_" . $corner . "_radius"] = null;
         $this->_prop_cache["border_" . $corner . "_radius"] = null;
 
-        $this->_props["border_" . $corner . "_radius"] = $val;
+        if ($val === 'inherit') {
+            return;
+        }
+
+        $this->_props_computed["border_" . $corner . "_radius"] = $val;
     }
 
     /**
@@ -2697,11 +2732,11 @@ class Style
      */
     protected function _get_border_radius_corner($corner)
     {
-        if (!isset($this->_props["border_" . $corner . "_radius"]) || empty($this->_props["border_" . $corner . "_radius"])) {
+        if (!isset($this->_props_computed["border_" . $corner . "_radius"]) || empty($this->_props_computed["border_" . $corner . "_radius"])) {
             return 0;
         }
 
-        return $this->length_in_pt($this->_props["border_" . $corner . "_radius"]);
+        return $this->length_in_pt($this->_props_computed["border_" . $corner . "_radius"]);
     }
 
     /**
@@ -2739,19 +2774,19 @@ class Style
             $value = trim($value);
 
             if (in_array($value, self::$BORDER_STYLES)) {
-                $this->set_outline_style($value);
+                $this->__set("outline_style", $value);
             } else if (preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
-                $this->set_outline_width($value);
+                $this->__set("outline_width", $value);
             } else {
                 // must be color
-                $this->set_outline_color($value);
+                $this->__set("outline_color", $value);
             }
         }
 
         //see __set and __get, on all assignments clear cache, not needed on direct set through __set
-        $this->_prop_cache["outline"] = null;
         $this->_props["outline"] = $val;
-        $this->_props_computed["outline"] = $val;
+        $this->_props_computed["outline"] = null;
+        $this->_prop_cache["outline"] = null;
     }
 
     /**
@@ -2767,7 +2802,11 @@ class Style
      */
     function set_outline_color($val)
     {
-        $this->_set_style_side_type("outline", null, "color", $val, isset($this->_important_props["outline_color"]));
+        $color = $val;
+        if ($val === "") {
+            $color = $this->__get("color");
+        }
+        $this->_set_style_side_type("outline", null, "color", $color, isset($this->_important_props["outline_color"]));
     }
 
     /**
@@ -2792,9 +2831,15 @@ class Style
             $arr[1] = $arr[0];
         }
 
-        //see __set and __get, on all assignments clear cache, not needed on direct set through __set
+        $this->_props["border_spacing"] = $val;
+        $this->_props_computed["border_spacing"] = null;
         $this->_prop_cache["border_spacing"] = null;
-        $this->_props["border_spacing"] = "$arr[0] $arr[1]";
+
+        if ($val === 'inherit') {
+            return;
+        }
+
+        $this->_props_computed["border_spacing"] = "$arr[0] $arr[1]";
     }
 
     /**
