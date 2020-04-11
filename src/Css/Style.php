@@ -175,6 +175,8 @@ class Style
 
     protected static $_dependency_map = [
         "font_size" => [
+            "background_position",
+            "background_size",
             "border_top_width",
             "border_right_width",
             "border_bottom_width",
@@ -189,6 +191,18 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left"
+        ],
+        "border_top_style" => [
+            "border_top_width"
+        ],
+        "border_bottom_style" => [
+            "border_bottom_width"
+        ],
+        "border_left_style" => [
+            "border_left_width"
+        ],
+        "border_right_style" => [
+            "border_right_width"
         ]
     ];
 
