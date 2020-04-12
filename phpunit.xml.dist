@@ -1,6 +1,6 @@
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="vendor/autoload.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -9,7 +9,12 @@
          stopOnFailure="false">
     <testsuites>
         <testsuite name="Dompdf Test Suite">
-            <directory>./tests/Dompdf/</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix="php">src</directory>
+        </whitelist>
+    </filter>
 </phpunit>
