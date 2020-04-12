@@ -1829,7 +1829,9 @@ class Style
         $this->_props["direction"] = $direction;
         $this->_prop_cache["direction"] = null;
         if ($direction === 'rtl') {
-            $this->text_align = 'right';
+            if (!isset($this->_props['text_align'])) {
+                $this->text_align = 'right';
+            }
         }
     }
 
