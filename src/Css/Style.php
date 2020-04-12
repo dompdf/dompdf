@@ -385,7 +385,7 @@ class Style
             $d["speech_rate"] = "medium";
             $d["stress"] = "50";
             $d["table_layout"] = "auto";
-            $d["text_align"] = "initial";
+            $d["text_align"] = "left";
             $d["text_decoration"] = "none";
             $d["text_indent"] = "0";
             $d["text_transform"] = "none";
@@ -1824,18 +1824,13 @@ class Style
         $this->_props_computed[$prop] = (is_array($munged_color) ? $munged_color["hex"] : $munged_color);
     }
 
-    public function get_text_align(): string
+    public function set_direction($direction)
     {
-        if ($this->_props['text_align'] !== 'initial') {
-            return $this->_props['text_align'];
+        $this->_props["direction"] = $direction;
+        $this->_prop_cache["direction"] = null;
+        if ($direction === 'rtl') {
+            $this->text_align = 'right';
         }
-
-        $value = $this->direction === 'rtl' ? 'right' : 'left';
-
-        $this->_props['text_align'] = $value;
-        $this->_prop_cache['text_align'] = null;
-
-        return $value;
     }
 
     /**
