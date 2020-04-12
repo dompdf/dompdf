@@ -385,7 +385,7 @@ class Style
             $d["speech_rate"] = "medium";
             $d["stress"] = "50";
             $d["table_layout"] = "auto";
-            $d["text_align"] = "left";
+            $d["text_align"] = "";
             $d["text_decoration"] = "none";
             $d["text_indent"] = "0";
             $d["text_transform"] = "none";
@@ -2226,6 +2226,27 @@ class Style
         }
     }
 
+    /**
+     * Sets the text alignment
+     * 
+     * If no alignment is set on the element and the direction is rtl then
+     * the property is set to "right", otherwise it is set to "left".
+     *
+     * @link https://www.w3.org/TR/CSS21/text.html#propdef-text-align
+     */
+    public function set_text_align($val)
+    {
+        $alignment = $val;
+        if ($val === "") {
+            $alignment = "left";
+            if ($this->__get("direction") === "rtl") {
+                $alignment = "right";
+            }
+
+        }
+        $this->_props_computed["text_align"] = $alignment;
+    }
+    
     /**
      * Sets word spacing property
      *
