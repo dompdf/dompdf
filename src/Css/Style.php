@@ -63,6 +63,13 @@ class Style
     ];
 
     /**
+     * List of valid text-align keywords.  Should also really be a constant.
+     *
+     * @var array
+     */
+    static $text_align_keywords = ["left", "right", "center", "justify"];
+
+        /**
      * List of valid vertical-align keywords.  Should also really be a constant.
      *
      * @var array
@@ -174,6 +181,21 @@ class Style
     protected $_props_computed = [];
 
     protected static $_dependency_map = [
+        "border_top_style" => [
+            "border_top_width"
+        ],
+        "border_bottom_style" => [
+            "border_bottom_width"
+        ],
+        "border_left_style" => [
+            "border_left_width"
+        ],
+        "border_right_style" => [
+            "border_right_width"
+        ],
+        "direction" => [
+            "text_align"
+        ],
         "font_size" => [
             "background_position",
             "background_size",
@@ -191,18 +213,6 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left"
-        ],
-        "border_top_style" => [
-            "border_top_width"
-        ],
-        "border_bottom_style" => [
-            "border_bottom_width"
-        ],
-        "border_left_style" => [
-            "border_left_width"
-        ],
-        "border_right_style" => [
-            "border_right_width"
         ]
     ];
 
@@ -385,7 +395,7 @@ class Style
             $d["speech_rate"] = "medium";
             $d["stress"] = "50";
             $d["table_layout"] = "auto";
-            $d["text_align"] = "left";
+            $d["text_align"] = "";
             $d["text_decoration"] = "none";
             $d["text_indent"] = "0";
             $d["text_transform"] = "none";
@@ -2238,12 +2248,36 @@ class Style
     }
 
     /**
+     * Sets the text alignment
+     * 
+     * If no alignment is set on the element and the direction is rtl then
+     * the property is set to "right", otherwise it is set to "left".
+     *
+     * @link https://www.w3.org/TR/CSS21/text.html#propdef-text-align
+     */
+    public function set_text_align($val)
+    {
+        $alignment = "";
+        if (in_array($val, self::$text_align_keywords)) {
+            $alignment = $val;
+        }
+        if ($alignment === "") {
+            $alignment = "left";
+            if ($this->__get("direction") === "rtl") {
+                $alignment = "right";
+            }
+
+        }
+        $this->_props_computed["text_align"] = $alignment;
+    }
+    
+    /**
      * Sets word spacing property
      *
      * @link http://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
-     * @return float
+     * @param $val
      */
-    function set_word_spacing()
+    function set_word_spacing($val)
     {
         $this->_props["word_spacing"] = $val;
         $this->_props_computed["word_spacing"] = null;
@@ -2253,7 +2287,9 @@ class Style
             return;
         }
 
-        if ($val !== "normal" && strpos($val, "%") === false) {
+        if ($val === "normal" || strpos($val, "%") !== false) {
+            $this->_props_computed["word_spacing"] = $val;
+        } else {
             $this->_props_computed["word_spacing"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
         }
     }
@@ -2262,9 +2298,9 @@ class Style
      * Sets letter spacing property
      *
      * @link http://www.w3.org/TR/CSS21/text.html#propdef-letter-spacing
-     * @return float
+     * @param $val
      */
-    function set_letter_spacing()
+    function set_letter_spacing($val)
     {
         $this->_props["letter_spacing"] = $val;
         $this->_props_computed["letter_spacing"] = null;
@@ -2274,7 +2310,9 @@ class Style
             return;
         }
 
-        if ($val !== "normal") {
+        if ($val === "normal") {
+            $this->_props_computed["letter_spacing"] = $val;
+        } else {
             $this->_props_computed["letter_spacing"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
         }
     }
