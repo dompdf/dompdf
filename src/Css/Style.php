@@ -1834,17 +1834,6 @@ class Style
         $this->_props_computed[$prop] = (is_array($munged_color) ? $munged_color["hex"] : $munged_color);
     }
 
-    public function set_direction($direction)
-    {
-        $this->_props["direction"] = $direction;
-        $this->_prop_cache["direction"] = null;
-        if ($direction === 'rtl') {
-            if (!isset($this->_props['text_align'])) {
-                $this->text_align = 'right';
-            }
-        }
-    }
-
     /**
      * Sets color
      *
