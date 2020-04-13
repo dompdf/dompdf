@@ -63,6 +63,13 @@ class Style
     ];
 
     /**
+     * List of valid text-align keywords.  Should also really be a constant.
+     *
+     * @var array
+     */
+    static $text_align_keywords = ["left", "right", "center", "justify"];
+
+        /**
      * List of valid vertical-align keywords.  Should also really be a constant.
      *
      * @var array
@@ -174,6 +181,21 @@ class Style
     protected $_props_computed = [];
 
     protected static $_dependency_map = [
+        "border_top_style" => [
+            "border_top_width"
+        ],
+        "border_bottom_style" => [
+            "border_bottom_width"
+        ],
+        "border_left_style" => [
+            "border_left_width"
+        ],
+        "border_right_style" => [
+            "border_right_width"
+        ],
+        "direction" => [
+            "text_align"
+        ],
         "font_size" => [
             "background_position",
             "background_size",
@@ -191,18 +213,6 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left"
-        ],
-        "border_top_style" => [
-            "border_top_width"
-        ],
-        "border_bottom_style" => [
-            "border_bottom_width"
-        ],
-        "border_left_style" => [
-            "border_left_width"
-        ],
-        "border_right_style" => [
-            "border_right_width"
         ]
     ];
 
@@ -2236,8 +2246,11 @@ class Style
      */
     public function set_text_align($val)
     {
-        $alignment = $val;
-        if ($val === "") {
+        $alignment = "";
+        if (in_array($val, self::$text_align_keywords)) {
+            $alignment = $val;
+        }
+        if ($alignment === "") {
             $alignment = "left";
             if ($this->__get("direction") === "rtl") {
                 $alignment = "right";
