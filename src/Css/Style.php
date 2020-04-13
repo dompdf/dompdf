@@ -2251,9 +2251,9 @@ class Style
      * Sets word spacing property
      *
      * @link http://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
-     * @return float
+     * @param $val
      */
-    function set_word_spacing()
+    function set_word_spacing($val)
     {
         $this->_props["word_spacing"] = $val;
         $this->_props_computed["word_spacing"] = null;
@@ -2263,7 +2263,9 @@ class Style
             return;
         }
 
-        if ($val !== "normal" && strpos($val, "%") === false) {
+        if ($val === "normal" || strpos($val, "%") !== false) {
+            $this->_props_computed["word_spacing"] = $val;
+        } else {
             $this->_props_computed["word_spacing"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
         }
     }
@@ -2272,9 +2274,9 @@ class Style
      * Sets letter spacing property
      *
      * @link http://www.w3.org/TR/CSS21/text.html#propdef-letter-spacing
-     * @return float
+     * @param $val
      */
-    function set_letter_spacing()
+    function set_letter_spacing($val)
     {
         $this->_props["letter_spacing"] = $val;
         $this->_props_computed["letter_spacing"] = null;
@@ -2284,7 +2286,9 @@ class Style
             return;
         }
 
-        if ($val !== "normal") {
+        if ($val === "normal") {
+            $this->_props_computed["letter_spacing"] = $val;
+        } else {
             $this->_props_computed["letter_spacing"] = ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
         }
     }
