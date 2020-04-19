@@ -187,7 +187,7 @@ class FontMetrics
         $prefix = preg_replace("/[^\\pL\d]+/u", "-", $prefix);
         $prefix = trim($prefix, "-");
         if (function_exists('iconv')) {
-            $prefix = iconv('utf-8', 'us-ascii//TRANSLIT', $prefix);
+            $prefix = @iconv('utf-8', 'us-ascii//TRANSLIT', $prefix);
         }
         $prefix = preg_replace("/[^-\w]+/", "", $prefix);
         
