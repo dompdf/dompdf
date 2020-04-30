@@ -30,6 +30,10 @@ class Image extends Block
         $cb = $frame->get_containing_block();
         list($x, $y, $w, $h) = $frame->get_border_box();
 
+        if ($w === 0.0 || $h === 0.0) {
+            return;
+        }
+
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
