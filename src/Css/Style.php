@@ -942,9 +942,8 @@ class Style
             if (isset($this->_props_computed[$prop])) {
                 $computed_value = $this->_props_computed[$prop];
             }
-            $default_value = self::$_defaults[$prop];
             if (empty($this->_props[$prop])) {
-                $this->__set($prop, $default_value);
+                $this->__set($prop, self::$_defaults[$prop]);
             }
             if (empty($this->_props_computed[$prop])) {
                 // computed value should be set if the property is set, we'll recalculate it
@@ -1664,7 +1663,7 @@ class Style
                 $this->_important_props[$prop] = true;
             }
 
-            if (($style === "border" || $style === "padding" || $style === "outline") && $val_computed < 0) {
+            if ($val_computed < 0 && ($style === "border" || $style === "padding" || $style === "outline")) {
                 $this->_props[$prop] = null; // passed-in value is invalid
             } else if (
                 (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") !== false)
