@@ -944,7 +944,7 @@ class Style
             if (isset($this->_props_computed[$prop])) {
                 $computed_value = $this->_props_computed[$prop];
             }
-            if (empty($this->_props[$prop])) {
+            if (empty($this->_props[$prop]) || $this->_props[$prop] === "inherit") {
                 $this->__set($prop, self::$_defaults[$prop]);
             }
             if (empty($this->_props_computed[$prop])) {
