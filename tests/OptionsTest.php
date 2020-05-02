@@ -2,13 +2,13 @@
 namespace Dompdf\Tests;
 
 use Dompdf\Options;
-use PHPUnit\Framework\TestCase;
+use Dompdf\Tests\TestCase;
 
 class OptionsTest extends TestCase
 {
     public function testConstructor()
     {
-        $root = realpath(__DIR__ . "/../../..");
+        $root = realpath(dirname(__DIR__));
         $option = new Options();
         $this->assertEquals(sys_get_temp_dir(), $option->getTempDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
