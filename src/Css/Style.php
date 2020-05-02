@@ -69,7 +69,7 @@ class Style
      */
     static $text_align_keywords = ["left", "right", "center", "justify"];
 
-        /**
+    /**
      * List of valid vertical-align keywords.  Should also really be a constant.
      *
      * @var array
@@ -891,11 +891,13 @@ class Style
             $this->_props_computed[$prop] = $val;
         }
 
-        //FIXME: need to catch for circular dependencies because oops
-        if (array_key_exists($prop, self::$_dependency_map)) {
-            foreach (self::$_dependency_map[$prop] as $dependent) {
-                if (isset($this->_props[$dependent]) === true) {
-                    $this->__set($dependent, $this->_props[$dependent]);
+        if (isset($this->_props_computed[$prop])) {
+            //FIXME: need to catch for circular dependencies because oops
+            if (array_key_exists($prop, self::$_dependency_map)) {
+                foreach (self::$_dependency_map[$prop] as $dependent) {
+                    if (isset($this->_props[$dependent]) === true) {
+                        $this->__set($dependent, $this->_props[$dependent]);
+                    }
                 }
             }
         }
