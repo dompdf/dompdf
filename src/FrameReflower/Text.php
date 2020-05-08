@@ -224,11 +224,6 @@ class Text extends AbstractFrameReflower
             case "normal":
                 $text = $this->_collapse_white_space($text);
 
-                if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', true);
-                    $text = $bidi->getString();
-                }
-
                 $frame->set_text($text);
 
                 if ($text == "") {
@@ -239,11 +234,6 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "pre":
-                if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', true);
-                    $text = $bidi->getString();
-                }
-
                 $split = $this->_newline_break($text);
                 $add_line = $split !== false;
                 break;
@@ -251,20 +241,10 @@ class Text extends AbstractFrameReflower
             case "nowrap":
                 $text = $this->_collapse_white_space($text);
 
-                if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', true);
-                    $text = $bidi->getString();
-                }
-
                 $frame->set_text($text);
                 break;
 
             case "pre-wrap":
-                if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', true);
-                    $text = $bidi->getString();
-                }
-
                 $split = $this->_newline_break($text);
 
                 if (($tmp = $this->_line_break($text)) !== false) {
@@ -280,10 +260,6 @@ class Text extends AbstractFrameReflower
                 // Collapse white-space except for \n
                 $text = preg_replace("/[ \t]+/u", " ", $text);
 
-                if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($text, null, null, 'R', true);
-                    $text = $bidi->getString();
-                }
                 $frame->set_text($text);
 
                 if ($text == "") {
@@ -330,10 +306,22 @@ class Text extends AbstractFrameReflower
                 $frame->split_text($split);
 
                 $t = $frame->get_text();
+                $replaceText = false;
 
                 // Remove any trailing newlines
                 if ($split > 1 && $t[$split - 1] === "\n" && !$frame->is_pre()) {
-                    $frame->set_text(mb_substr($t, 0, -1));
+                    $t = mb_substr($t, 0, -1);
+                    $replaceText = true;
+                }
+
+                if ($style->direction === 'rtl') {
+                    $bidi = new Bidi($t, null, null, 'R', true);
+                    $t = $bidi->getString();
+                    $replaceText = true;
+                }
+
+                if ($replaceText) {
+                    $frame->set_text($t);
                 }
 
                 // Do we need to trim spaces on wrapped lines? This might be desired, however, we
@@ -368,6 +356,11 @@ class Text extends AbstractFrameReflower
             ( $is_inline_frame && !$parent->get_prev_sibling())*/
             ) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
                 $t = ltrim($t);
+            }
+
+            if ($style->direction === 'rtl') {
+                $bidi = new Bidi($t, null, null, 'R', true);
+                $t = $bidi->getString();
             }
 
             $frame->set_text($t);
