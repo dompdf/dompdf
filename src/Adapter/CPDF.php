@@ -895,7 +895,9 @@ class CPDF implements Canvas
 
         $this->_set_fill_color($color);
 
-        $pdf->registerText($font, $text);
+        if ($this->_dompdf->getOptions()->getIsFontSubsettingEnabled()) {
+            $pdf->registerText($font, $text);
+        }
 
         $pdf->selectFont($font . '.afm');
 
