@@ -36,7 +36,7 @@
         "ext-dom": "*",
         "ext-mbstring": "*",
         "phenx/php-font-lib": "^0.5.1",
-        "phenx/php-svg-lib": "^0.3.3"
+        "phenx/php-svg-lib": "^0.3.3",
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5",
@@ -46,7 +46,8 @@
     "suggest": {
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
-        "ext-gmagick": "Improves image processing performance"
+        "ext-gmagick": "Improves image processing performance",
+        "ext-zlib": "Needed for pdf stream compression"
     },
     "extra": {
         "branch-alias": {
