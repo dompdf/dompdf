@@ -40,6 +40,11 @@ class Cpdf
     public $catalogId;
 
     /**
+     * @var integer[]
+     */
+    public $acroFormFields;
+
+    /**
      * @var array Array carrying information about the fonts that the system currently knows about
      * Used to ensure that a font is not loaded twice, among other things
      */
@@ -315,6 +320,11 @@ class Cpdf
     protected static $targetEncoding = 'Windows-1252';
 
     /**
+     * @var array
+     */
+    protected $byteRange = array();
+
+    /**
      * @var array The list of the core fonts
      */
     protected static $coreFonts = [
@@ -549,6 +559,7 @@ class Cpdf
                 $this->catalogId = $id;
                 break;
 
+            case 'acroform':
             case 'outlines':
             case 'pages':
             case 'openHere':
@@ -591,6 +602,10 @@ class Cpdf
 
                         case 'javascript':
                             $res .= "\n/Names <</JavaScript $v 0 R>>";
+                            break;
+
+                        case 'acroform':
+                            $res .= "\n/AcroForm $v 0 R";
                             break;
                     }
                 }
@@ -2015,6 +2030,181 @@ EOT;
         return null;
     }
 
+    protected function o_acroform($id, $action, $options = '')
+    {
+        switch ($action) {
+            case "new":
+                $this->o_catalog($this->catalogId, 'acroform', $id);
+                $this->objects[$id] = array('t' => 'acroform', 'info' => $options);
+                break;
+
+            case "out":
+                $o = &$this->objects[$id];
+                $res = "\n$id 0 obj\n<<";
+                foreach ($o["info"] as $k => $v) {
+                    switch ($k) {
+                        case 'Fields':
+                            $res .= " /Fields [";
+                            foreach ($v as $i) {
+                                $res .= "$i 0 R ";
+                            }
+                            $res .= "]\n";
+                            break;
+
+                        default:
+                            $res .= "/$k $v\n";
+                            break;
+                    }
+                }
+                $res .= ">>\nendobj";
+
+                return $res;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $id
+     * @param $action
+     * @param mixed $options
+     * @return null|string
+     */
+    protected function o_field($id, $action, $options = '')
+    {
+        switch ($action) {
+            case "new":
+                $this->acroFormFields[] = $id;
+                $this->o_page($options['pageid'], 'annot', $id);
+                $this->objects[$id] = array('t' => 'field', 'info' => $options);
+                break;
+
+            case 'set':
+                $this->objects[$id]['info'] = array_merge($this->objects[$id]['info'], $options);
+                break;
+
+            case "out":
+                $o = &$this->objects[$id];
+                $res = "\n$id 0 obj\n<< /Type /Annot /Subtype /Widget \n";
+
+                foreach ($o["info"] as $k => $v) {
+                    switch ($k) {
+                        case 'pageid':
+                            $res .= "/P $v 0 R\n";
+                            break;
+                        case 'value':
+                            $res .= "/V $v\n";
+                            break;
+                        case 'options':
+                            $res .= "/Opt [\n";
+                            foreach ($v as $opt) {
+                                $res .= "($opt)\n";
+                            }
+                            $res .= "]\n";
+                            break;
+                        case 'rect':
+                            $res .= "/Rect [";
+                            foreach ($v as $value) {
+                                $res .= sprintf("%.4F ", $value);
+                            }
+                            $res .= "]\n";
+                            break;
+
+                        default:
+                            $res .= "/$k $v\n";
+                    }
+
+                }
+
+                $res .= ">>\nendobj";
+
+                return $res;
+        }
+
+        return null;
+
+    }
+
+    /**
+     *
+     * @param $id
+     * @param $action
+     * @param string $options
+     * @return null|string
+     */
+    protected function o_sig($id, $action, $options = '')
+    {
+        $sign_maxlen = 5000;
+
+        switch ($action) {
+            case "new":
+                $this->objects[$id] = array('t' => 'sig', 'info' => $options);
+                $this->byteRange[$id] = ['t' => 'sig'];
+                break;
+
+            case 'byterange':
+                $content =& $options['content'];
+                $content_len = strlen($content);
+                $pos = strpos($content, sprintf("/ByteRange [ %'.010d", $id));
+                $len = strlen('/ByteRange [ ********** ********** ********** ********** ]');
+                $rangeStartPos = $pos + $len + 1 + 10; // before '<'
+                $content = substr_replace($content, str_pad(sprintf('/ByteRange [ 0 %u %u %u ]', $rangeStartPos, $rangeStartPos + $sign_maxlen + 2, $content_len - 2 - $sign_maxlen - $rangeStartPos ), $len, ' ', STR_PAD_RIGHT), $pos, $len);
+
+                $fuid = uniqid();
+                $tmpInput = $this->tmp . "/pkcs7.tmp." . $fuid . '.in';
+                $tmpOutput = $this->tmp . "/pkcs7.tmp." . $fuid . '.out';
+
+                file_put_contents($tmpInput, substr($content, 0, $rangeStartPos));
+                file_put_contents($tmpInput, substr($content, $rangeStartPos + 2 + $sign_maxlen), FILE_APPEND);
+
+                $signOptions = $this->objects[$id]['info'];
+                openssl_pkcs7_sign($tmpInput, $tmpOutput, $signOptions['signcert'], array($signOptions['privkey'], $signOptions['password']), array(), PKCS7_BINARY | PKCS7_DETACHED);
+
+                $signature = file_get_contents($tmpOutput);
+
+                unlink($tmpInput);
+                unlink($tmpOutput);
+
+                $sign = substr($signature, (strpos($signature, "%%EOF\n\n------") + 13));
+                list($head, $signature) = explode("\n\n", $sign);
+
+                $signature = base64_decode(trim($signature));
+
+                $signature = current(unpack('H*', $signature));
+                $signature = str_pad($signature, $sign_maxlen, '0');
+
+                $content = substr_replace($content, $signature, $rangeStartPos + 1, $sign_maxlen);
+                break;
+
+            case "out":
+                $signOptions = $this->objects[$id]['info'];
+
+                $res = "\n$id 0 obj\n<<\n";
+                $res .= "/ByteRange " .sprintf("[ %'.010d ********** ********** ********** ]\n", $id);
+                $res .= "/Contents <" . str_pad('', $sign_maxlen, '0') . ">\n";
+                $res .= "/Filter/Adobe.PPKLite \n"; //PPKMS \n";
+                $res .= "/Type/Sig/SubFilter/adbe.pkcs7.detached \n";
+                $res .= "/M (D:" . substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'' . ")\n";
+                if (array_key_exists('name', $signOptions)) {
+                    $res .= "/Name (" . $signOptions['name'] . ") \n";
+                }
+                if (array_key_exists('location', $signOptions)) {
+                    $res .= "/Location (" . $signOptions['location'] . ") \n";
+                }
+                if (array_key_exists('reason', $signOptions)) {
+                    $res .= "/Reason (" . $signOptions['reason'] . ") \n";
+                }
+                if (array_key_exists('contactinfo', $signOptions)) {
+                    $res .= "/ContactInfo (" . $signOptions['contactinfo'] . ") \n";
+                }
+                $res .= ">>\nendobj";
+
+                return $res;
+        }
+
+        return null;
+    }
+
     /**
      * encryption object.
      *
@@ -2360,6 +2550,13 @@ EOT;
         $pos++;
 
         $content .= ">>\nstartxref\n$pos\n%%EOF\n";
+
+        if (count($this->byteRange) > 0) {
+            foreach ($this->byteRange as $k => $v) {
+                $tmp = 'o_' . $v['t'];
+                $this->$tmp($k, 'byterange', ['content' => &$content]);
+            }
+        }
 
         return $content;
     }
@@ -3612,6 +3809,116 @@ EOT;
     function fillStroke()
     {
         $this->addContent("\nb" . ($this->fillRule === "evenodd" ? "*" : ""));
+    }
+
+    /**
+     * add signature
+     *
+     * $fieldSigId = $cpdf->addFormField('Sig', 'Signature1', 0, 0, 0, 0, 0);
+     *
+     * $signatureId = $cpdf->addSignature([
+     *   'signcert' => file_get_contents('dompdf.crt'),
+     *   'privkey' => file_get_contents('dompdf.key'),
+     *   'password' => 'password',
+     *   'name' => 'DomPDF DEMO',
+     *   'location' => 'Home',
+     *   'reason' => 'First Form',
+     *   'contactinfo' => 'info'
+     * ]);
+     * $cpdf->setFormFieldValue($fieldSigId, "$signatureId 0 R");
+     * $cpdf->addForm([$fieldSigId], 3);
+     *
+     * @param array $certInfo (signcert, privkey, password, name, location, reason, contactinfo)
+     * @return int
+     */
+    function addSignature($certInfo = [])
+    {
+        $sigId = ++$this->numObj;
+        $this->o_sig($sigId, 'new', $certInfo);
+
+        return $sigId;
+    }
+
+    /**
+     * add field to form
+     * - type
+     *   Btn => Button Field
+     *   Tx =>  Text Field
+     *   Ch =>  Choice Field
+     *   Sig => Signature
+     *
+     * @param string $type
+     * @param string $name
+     * @param integer $pageNum if 0 then currentpage
+     * @param $x0
+     * @param $y0
+     * @param $x1
+     * @param $y1
+     * @param integer $ff Field Flag
+     * @return int
+     */
+    public function addFormField($type, $name, $pageNum, $x0, $y0, $x1, $y1, $ff = 0)
+    {
+        if ($pageNum > 0) {
+            $pagesObjId = $this->objects[$this->catalogId]['info']['pages'];
+            $pageId = $this->objects[$pagesObjId]['info']['pages'][$pageNum - 1];
+        } else {
+            $pageId = $this->currentPage;
+        }
+
+        $fieldId = ++$this->numObj;
+        $this->o_field($fieldId, 'new', [
+          'rect' => [$x0, $y0, $x1, $y1],
+          'F' => 4,
+          'FT' => "/$type",
+          'T' => "($name)",
+          'Ff' => $ff,
+          'pageid' => $pageId
+        ]);
+
+        return $fieldId;
+    }
+
+    /**
+     * set Field value
+     *
+     * @param $formFieldId
+     * @param $value
+     */
+    public function setFormFieldValue($formFieldId, $value)
+    {
+        $this->o_field($formFieldId, 'set', ['value' => $value]);
+    }
+
+    /**
+     * set Choice Field option values
+     *
+     * @param $formFieldId
+     * @param $value
+     */
+    public function setFormFieldOpt($formFieldId, $value)
+    {
+        $this->o_field($formFieldId, 'set', ['options' => $value]);
+    }
+
+    /**
+     * add form to document
+     *
+     * @param array $fields
+     * @param string $sigFlags
+     * @param string $needAppearances
+     * @return int
+     */
+    public function addForm($fields = [], $sigFlags = '0', $needAppearances = 'false')
+    {
+        $this->numObj++;
+        $this->o_acroform($this->numObj, 'new', [
+          'Fields' => $fields,
+          'NeedAppearances' => $needAppearances,
+          'SigFlags' => $sigFlags
+        ]);
+
+        return $this->numObj;
     }
 
     /**
