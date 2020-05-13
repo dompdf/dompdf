@@ -24,6 +24,20 @@ use FontLib\BinaryStream;
 class Cpdf
 {
 
+    const ACROFORM_FIELD_BUTTON = 'Btn';
+    const ACROFORM_FIELD_TEXT = 'Tx';
+    const ACROFORM_FIELD_CHOICE = 'Ch';
+    const ACROFORM_FIELD_SIG = 'Sig';
+
+    const ACROFORM_FIELD_TEXT_MULTILINE =         0x1000;
+    const ACROFORM_FIELD_TEXT_PASSWORD =          0x2000;
+    const ACROFORM_FIELD_TEXT_RICHTEXT =         0x10000;
+
+    const ACROFORM_FIELD_CHOICE_COMBO =          0x20000;
+    const ACROFORM_FIELD_CHOICE_EDIT =           0x40000;
+    const ACROFORM_FIELD_CHOICE_SORT =           0x80000;
+    const ACROFORM_FIELD_CHOICE_MULTISELECT =   0x200000;
+
     /**
      * @var integer The current number of pdf objects in the document
      */
@@ -38,6 +52,11 @@ class Cpdf
      * @var integer The objectId (number within the objects array) of the document catalog
      */
     public $catalogId;
+
+    /**
+     * @var integer
+     */
+    public $acroFormId;
 
     /**
      * @var integer[]
@@ -2038,11 +2057,16 @@ EOT;
                 $this->objects[$id] = array('t' => 'acroform', 'info' => $options);
                 break;
 
+            case 'addfield':
+                $this->objects[$id]['info']['Fields'][] = $options;
+                break;
+
             case "out":
                 $o = &$this->objects[$id];
                 $res = "\n$id 0 obj\n<<";
+
                 foreach ($o["info"] as $k => $v) {
-                    switch ($k) {
+                    switch($k) {
                         case 'Fields':
                             $res .= " /Fields [";
                             foreach ($v as $i) {
@@ -2050,10 +2074,8 @@ EOT;
                             }
                             $res .= "]\n";
                             break;
-
                         default:
                             $res .= "/$k $v\n";
-                            break;
                     }
                 }
                 $res .= ">>\nendobj";
@@ -2074,9 +2096,9 @@ EOT;
     {
         switch ($action) {
             case "new":
-                $this->acroFormFields[] = $id;
                 $this->o_page($options['pageid'], 'annot', $id);
-                $this->objects[$id] = array('t' => 'field', 'info' => $options);
+                $this->o_acroform($this->acroFormId, 'addfield', $id);
+                $this->objects[$id] = ['t' => 'field', 'info' => $options];
                 break;
 
             case 'set':
@@ -2087,17 +2109,31 @@ EOT;
                 $o = &$this->objects[$id];
                 $res = "\n$id 0 obj\n<< /Type /Annot /Subtype /Widget \n";
 
+                $encrypted = $this->encrypted;
+                if ($encrypted) {
+                    $this->encryptInit($id);
+                }
+
                 foreach ($o["info"] as $k => $v) {
                     switch ($k) {
                         case 'pageid':
                             $res .= "/P $v 0 R\n";
                             break;
                         case 'value':
-                            $res .= "/V $v\n";
+                            if ($encrypted) {
+                                $v = $this->ARC4($v);
+                            }
+                            $res .= "/V ($v)\n";
+                            break;
+                        case 'refvalue':
+                            $res .= "/V $v 0 R\n";
                             break;
                         case 'options':
                             $res .= "/Opt [\n";
                             foreach ($v as $opt) {
+                                if ($encrypted) {
+                                    $opt = $this->ARC4($opt);
+                                }
                                 $res .= "($opt)\n";
                             }
                             $res .= "]\n";
@@ -2109,7 +2145,12 @@ EOT;
                             }
                             $res .= "]\n";
                             break;
-
+                        case 'T':
+                            if($encrypted) {
+                                $v = $this->ARC4($v);
+                            }
+                            $res .= "/T ($v)\n";
+                            break;
                         default:
                             $res .= "/$k $v\n";
                     }
@@ -2143,6 +2184,7 @@ EOT;
                 break;
 
             case 'byterange':
+                $o = &$this->objects[$id];
                 $content =& $options['content'];
                 $content_len = strlen($content);
                 $pos = strpos($content, sprintf("/ByteRange [ %'.010d", $id));
@@ -2157,8 +2199,7 @@ EOT;
                 file_put_contents($tmpInput, substr($content, 0, $rangeStartPos));
                 file_put_contents($tmpInput, substr($content, $rangeStartPos + 2 + $sign_maxlen), FILE_APPEND);
 
-                $signOptions = $this->objects[$id]['info'];
-                openssl_pkcs7_sign($tmpInput, $tmpOutput, $signOptions['signcert'], array($signOptions['privkey'], $signOptions['password']), array(), PKCS7_BINARY | PKCS7_DETACHED);
+                openssl_pkcs7_sign($tmpInput, $tmpOutput, $o['info']['SignCert'], array($o['info']['PrivKey'], $o['info']['Password']), array(), PKCS7_BINARY | PKCS7_DETACHED);
 
                 $signature = file_get_contents($tmpOutput);
 
@@ -2177,25 +2218,30 @@ EOT;
                 break;
 
             case "out":
-                $signOptions = $this->objects[$id]['info'];
-
                 $res = "\n$id 0 obj\n<<\n";
                 $res .= "/ByteRange " .sprintf("[ %'.010d ********** ********** ********** ]\n", $id);
                 $res .= "/Contents <" . str_pad('', $sign_maxlen, '0') . ">\n";
                 $res .= "/Filter/Adobe.PPKLite \n"; //PPKMS \n";
                 $res .= "/Type/Sig/SubFilter/adbe.pkcs7.detached \n";
                 $res .= "/M (D:" . substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'' . ")\n";
-                if (array_key_exists('name', $signOptions)) {
-                    $res .= "/Name (" . $signOptions['name'] . ") \n";
+
+                $encrypted = $this->encrypted;
+                if ($encrypted) {
+                    $this->encryptInit($id);
                 }
-                if (array_key_exists('location', $signOptions)) {
-                    $res .= "/Location (" . $signOptions['location'] . ") \n";
-                }
-                if (array_key_exists('reason', $signOptions)) {
-                    $res .= "/Reason (" . $signOptions['reason'] . ") \n";
-                }
-                if (array_key_exists('contactinfo', $signOptions)) {
-                    $res .= "/ContactInfo (" . $signOptions['contactinfo'] . ") \n";
+
+                $o = &$this->objects[$id];
+                foreach ($o['info'] as $k => $v) {
+                    switch($k) {
+                        case 'Name':
+                        case 'Location':
+                        case 'Reason':
+                        case 'ContactInfo':
+                            if ($v !== null && $v !== '') {
+                                $res .= "/$k (" . ($encrypted ? $this->ARC4($v) : $v) . ") \n";
+                            }
+                            break;
+                    }
                 }
                 $res .= ">>\nendobj";
 
@@ -3826,35 +3872,44 @@ EOT;
      *   'contactinfo' => 'info'
      * ]);
      * $cpdf->setFormFieldValue($fieldSigId, "$signatureId 0 R");
-     * $cpdf->addForm([$fieldSigId], 3);
      *
-     * @param array $certInfo (signcert, privkey, password, name, location, reason, contactinfo)
+     * @param string $signcert
+     * @param string $privkey
+     * @param string $password
+     * @param null $name
+     * @param null $location
+     * @param null $reason
+     * @param null $contactinfo
      * @return int
      */
-    function addSignature($certInfo = [])
-    {
+    function addSignature($signcert, $privkey, $password = '',
+      $name = null, $location = null, $reason = null, $contactinfo = null
+    ) {
         $sigId = ++$this->numObj;
-        $this->o_sig($sigId, 'new', $certInfo);
+        $this->o_sig($sigId, 'new', [
+          'SignCert' => $signcert,
+          'PrivKey' => $privkey,
+          'Password' => $password,
+          'Name' => $name,
+          'Location' => $location,
+          'Reason' => $reason,
+          'ContactInfo' => $contactinfo
+        ]);
 
         return $sigId;
     }
 
     /**
      * add field to form
-     * - type
-     *   Btn => Button Field
-     *   Tx =>  Text Field
-     *   Ch =>  Choice Field
-     *   Sig => Signature
      *
-     * @param string $type
+     * @param string $type ACROFORM_FIELD_*
      * @param string $name
      * @param integer $pageNum if 0 then currentpage
      * @param $x0
      * @param $y0
      * @param $x1
      * @param $y1
-     * @param integer $ff Field Flag
+     * @param integer $ff Field Flag ACROFORM_FIELD_*_*
      * @return int
      */
     public function addFormField($type, $name, $pageNum, $x0, $y0, $x1, $y1, $ff = 0)
@@ -3871,7 +3926,7 @@ EOT;
           'rect' => [$x0, $y0, $x1, $y1],
           'F' => 4,
           'FT' => "/$type",
-          'T' => "($name)",
+          'T' => $name,
           'Ff' => $ff,
           'pageid' => $pageId
         ]);
@@ -3882,12 +3937,23 @@ EOT;
     /**
      * set Field value
      *
-     * @param $formFieldId
-     * @param $value
+     * @param integer $formFieldId
+     * @param string $value
      */
     public function setFormFieldValue($formFieldId, $value)
     {
         $this->o_field($formFieldId, 'set', ['value' => $value]);
+    }
+
+    /**
+     * set Field value (reference)
+     *
+     * @param integer $numFieldObj
+     * @param integer $numObj Object number
+     */
+    public function setFormFieldRefValue($numFieldObj, $numObj)
+    {
+        $this->o_field($numFieldObj, 'set', ['refvalue' => $numObj]);
     }
 
     /**
@@ -3904,21 +3970,16 @@ EOT;
     /**
      * add form to document
      *
-     * @param array $fields
      * @param string $sigFlags
      * @param string $needAppearances
-     * @return int
      */
-    public function addForm($fields = [], $sigFlags = '0', $needAppearances = 'false')
+    public function addForm($sigFlags = '0', $needAppearances = 'false')
     {
-        $this->numObj++;
-        $this->o_acroform($this->numObj, 'new', [
-          'Fields' => $fields,
+        $this->acroFormId = ++$this->numObj;
+        $this->o_acroform($this->acroFormId, 'new', [
           'NeedAppearances' => $needAppearances,
           'SigFlags' => $sigFlags
         ]);
-
-        return $this->numObj;
     }
 
     /**
