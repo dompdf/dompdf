@@ -46,7 +46,8 @@
     "suggest": {
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
-        "ext-gmagick": "Improves image processing performance"
+        "ext-gmagick": "Improves image processing performance",
+        "ext-zlib": "Needed for pdf stream compression"
     },
     "extra": {
         "branch-alias": {

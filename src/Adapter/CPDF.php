@@ -18,6 +18,7 @@ use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\Image\Cache;
 use Dompdf\PhpEvaluator;
+use FontLib\Exception\FontNotFoundException;
 
 /**
  * PDF rendering interface
@@ -895,38 +896,9 @@ class CPDF implements Canvas
 
         $this->_set_fill_color($color);
 
-        $font .= ".afm";
-        $pdf->selectFont($font);
+        $is_font_subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
+        $pdf->selectFont($font . '.afm', '', true, $is_font_subsetting);
 
-        //FontMetrics::getFontHeight($font, $size) ==
-        //$this->getFontHeight($font, $size) ==
-        //$this->_pdf->selectFont($font),$this->_pdf->getFontHeight($size)
-        //- FontBBoxheight+FontHeightOffset, scaled to $size, in pt
-        //$this->_pdf->getFontDescender($size)
-        //- Descender scaled to size
-        //
-        //$this->_pdf->fonts[$this->_pdf->currentFont] sizes:
-        //['FontBBox'][0] left, ['FontBBox'][1] bottom, ['FontBBox'][2] right, ['FontBBox'][3] top
-        //Maximum extent of all glyphs of the font from the baseline point
-        //['Ascender'] maximum height above baseline except accents
-        //['Descender'] maximum depth below baseline, negative number means below baseline
-        //['FontHeightOffset'] manual enhancement of .afm files to trim windows fonts. currently not used.
-        //Values are in 1/1000 pt for a font size of 1 pt
-        //
-        //['FontBBox'][1] should be close to ['Descender']
-        //['FontBBox'][3] should be close to ['Ascender']+Accents
-        //in practice, FontBBox values are a little bigger
-        //
-        //The text position is referenced to the baseline, not to the lower corner of the FontBBox,
-        //for what the left,top corner is given.
-        //FontBBox spans also the background box for the text.
-        //If the lower corner would be used as reference point, the Descents of the glyphs would
-        //hang over the background box border.
-        //Therefore compensate only the extent above the Baseline.
-        //
-        //print '<pre>['.$font.','.$size.','.$pdf->getFontHeight($size).','.$pdf->getFontDescender($size).','.$pdf->fonts[$pdf->currentFont]['FontBBox'][3].','.$pdf->fonts[$pdf->currentFont]['FontBBox'][1].','.$pdf->fonts[$pdf->currentFont]['FontHeightOffset'].','.$pdf->fonts[$pdf->currentFont]['Ascender'].','.$pdf->fonts[$pdf->currentFont]['Descender'].']</pre>';
-        //
-        //$pdf->addText($x, $this->y($y) - ($pdf->fonts[$pdf->currentFont]['FontBBox'][3]*$size)/1000, $size, $text, $angle, $word_space, $char_space);
         $pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size), $size, $text, $angle, $word_space, $char_space);
 
         $this->_set_fill_transparency("Normal", $this->_current_opacity);
@@ -986,7 +958,7 @@ class CPDF implements Canvas
      */
     public function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0)
     {
-        $this->_pdf->selectFont($font);
+        $this->_pdf->selectFont($font, '', true, $this->_dompdf->getOptions()->getIsFontSubsettingEnabled());
         return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
     }
 
@@ -1003,13 +975,14 @@ class CPDF implements Canvas
      * @param string $font
      * @param float $size
      * @return float|int
+     * @throws FontNotFoundException
      */
     public function get_font_height($font, $size)
     {
-        $this->_pdf->selectFont($font);
+        $options = $this->_dompdf->getOptions();
+        $this->_pdf->selectFont($font, '', true, $options->getIsFontSubsettingEnabled());
 
-        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
-        return $this->_pdf->getFontHeight($size) * $ratio;
+        return $this->_pdf->getFontHeight($size) * $options->getFontHeightRatio();
     }
 
     /*function get_font_x_height($font, $size) {
