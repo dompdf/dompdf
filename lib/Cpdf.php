@@ -874,7 +874,7 @@ class Cpdf
                 break;
 
             case 'add':
-                $font_options = $this->process_font($id, $o['info']);
+                $font_options = $this->processFont($id, $o['info']);
 
                 if ($font_options !== false) {
                     foreach ($font_options as $k => $v) {
@@ -983,7 +983,7 @@ class Cpdf
      * @return array|false
      * @throws FontNotFoundException
      */
-    private function process_font(int $fontObjId, array $object_info)
+    private function processFont(int $fontObjId, array $object_info)
     {
         $fontFileName = $object_info['fontFileName'];
         if (!isset($this->fonts[$fontFileName])) {
@@ -1108,8 +1108,7 @@ class Cpdf
             // note that pdf supports only binary format type 1 font files, though there is a
             // simple utility to convert them from pfa to pfb.
             if (
-                !$this->isUnicode
-                || strtolower($fbtype) !== 'ttf'
+                strtolower($fbtype) !== 'ttf'
                 || !$font['isSubsetting']
             ) {
                 $data = file_get_contents($fbfile);
@@ -3020,7 +3019,7 @@ EOT;
 
                 $this->o_font($this->numObj, 'new', $options);
                 $font['fontNum'] = $this->numFonts;
-                $font['isSubsetting'] = $isSubsetting;
+                $font['isSubsetting'] = $isSubsetting && !$font['isUnicode'];
 
                 // also set the differences here, note that this means that these will take effect only the
                 //first time that a font is selected, else they are ignored
