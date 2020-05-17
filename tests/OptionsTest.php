@@ -24,7 +24,7 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getIsRemoteEnabled());
         $this->assertTrue($option->getIsJavascriptEnabled());
         $this->assertFalse($option->getIsHtml5ParserEnabled());
-        $this->assertFalse($option->getIsFontSubsettingEnabled());
+        $this->assertTrue($option->getIsFontSubsettingEnabled());
         $this->assertFalse($option->getDebugPng());
         $this->assertFalse($option->getDebugKeepTemp());
         $this->assertFalse($option->getDebugCss());
@@ -58,7 +58,7 @@ class OptionsTest extends TestCase
             'isRemoteEnabled' => true,
             'isJavascriptEnabled' => false,
             'isHtml5ParserEnabled' => true,
-            'isFontSubsettingEnabled' => true,
+            'isFontSubsettingEnabled' => false,
             'debugPng' => true,
             'debugKeepTemp' => true,
             'debugCss' => true,
@@ -84,7 +84,7 @@ class OptionsTest extends TestCase
         $this->assertTrue($option->getIsRemoteEnabled());
         $this->assertFalse($option->getIsJavascriptEnabled());
         $this->assertTrue($option->getIsHtml5ParserEnabled());
-        $this->assertTrue($option->getIsFontSubsettingEnabled());
+        $this->assertFalse($option->getIsFontSubsettingEnabled());
         $this->assertTrue($option->getDebugPng());
         $this->assertTrue($option->getDebugKeepTemp());
         $this->assertTrue($option->getDebugCss());
