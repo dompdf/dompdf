@@ -992,22 +992,15 @@ class Cpdf
 
         $font = &$this->fonts[$fontFileName];
 
-        $fbtype = '';
-        if (file_exists("$fontFileName.ttf")) {
-            $fbtype = 'ttf';
-        } elseif (file_exists("$fontFileName.TTF")) {
-            $fbtype = 'TTF';
-        } elseif (file_exists("$fontFileName.pfb")) {
-            $fbtype = 'pfb';
-        } elseif (file_exists("$fontFileName.PFB")) {
-            $fbtype = 'PFB';
-        }
-
-        $fbfile = "$fontFileName.$fbtype";
+        $fileSuffix = $font['fileSuffix'];
+        $fileSuffixLower = strtolower($font['fileSuffix']);
+        $fbfile = "$fontFileName.$fileSuffix";
+        $isTtfFont = $fileSuffixLower === 'ttf';
+        $isPfbFont = $fileSuffixLower === 'pfb';
 
         $this->addMessage('selectFont: checking for - ' . $fbfile);
 
-        if (!$fbtype) {
+        if (!$fileSuffix) {
             $this->addMessage(
                 'selectFont: pfb or ttf file not found, ok if this is one of the 14 standard fonts'
             );
@@ -1107,10 +1100,7 @@ class Cpdf
             // load the pfb file, and put that into an object too.
             // note that pdf supports only binary format type 1 font files, though there is a
             // simple utility to convert them from pfa to pfb.
-            if (
-                strtolower($fbtype) !== 'ttf'
-                || !$font['isSubsetting']
-            ) {
+            if (!$font['isSubsetting']) {
                 $data = file_get_contents($fbfile);
             } else {
                 $adobeFontName = $this->getFontSubsettingTag($font) . '+' . $adobeFontName;
@@ -1215,9 +1205,9 @@ class Cpdf
                 }
             }
 
-            if (strtolower($fbtype) === 'pfb') {
+            if ($isPfbFont) {
                 $fdopt['FontFile'] = $pfbid;
-            } elseif (strtolower($fbtype) === 'ttf') {
+            } elseif ($isTtfFont) {
                 $fdopt['FontFile2'] = $pfbid;
             }
 
@@ -1228,7 +1218,7 @@ class Cpdf
             $this->objects[$pfbid]['c'] .= $data;
 
             // determine the cruicial lengths within this file
-            if (strtolower($fbtype) === 'pfb') {
+            if ($isPfbFont) {
                 $l1 = strpos($data, 'eexec') + 6;
                 $l2 = strpos($data, '00000000') - $l1;
                 $l3 = mb_strlen($data, '8bit') - $l2 - $l1;
@@ -1237,7 +1227,7 @@ class Cpdf
                     'add',
                     ['Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3]
                 );
-            } elseif (strtolower($fbtype) == 'ttf') {
+            } elseif ($isTtfFont) {
                 $l1 = mb_strlen($data, '8bit');
                 $this->o_contents($this->numObj, 'add', ['Length1' => $l1]);
             }
@@ -1252,7 +1242,7 @@ class Cpdf
                 'FontDescriptor' => $fontDescriptorId
             ];
 
-            if (strtolower($fbtype) === 'ttf') {
+            if ($isTtfFont) {
                 $options['SubType'] = 'TrueType';
             }
 
@@ -3018,8 +3008,23 @@ EOT;
                 }
 
                 $this->o_font($this->numObj, 'new', $options);
+
+                if (file_exists("$fontName.ttf")) {
+                    $fileSuffix = 'ttf';
+                } elseif (file_exists("$fontName.TTF")) {
+                    $fileSuffix = 'TTF';
+                } elseif (file_exists("$fontName.pfb")) {
+                    $fileSuffix = 'pfb';
+                } elseif (file_exists("$fontName.PFB")) {
+                    $fileSuffix = 'PFB';
+                } else {
+                    $fileSuffix = '';
+                }
+
+                $font['fileSuffix'] = $fileSuffix;
+
                 $font['fontNum'] = $this->numFonts;
-                $font['isSubsetting'] = $isSubsetting && !$font['isUnicode'];
+                $font['isSubsetting'] = $isSubsetting && $font['isUnicode'] && strtolower($fileSuffix) === 'ttf';
 
                 // also set the differences here, note that this means that these will take effect only the
                 //first time that a font is selected, else they are ignored
