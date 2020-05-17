@@ -816,7 +816,8 @@ class Cpdf
                     'info' => [
                         'name'         => $options['name'],
                         'fontFileName' => $options['fontFileName'],
-                        'SubType'      => 'Type1'
+                        'SubType'      => 'Type1',
+                        'isSubsetting'   => $options['isSubsetting']
                     ]
                 ];
                 $fontNum = $this->numFonts;
@@ -960,6 +961,22 @@ class Cpdf
         return null;
     }
 
+    protected function getFontSubsettingTag(array $font): string
+    {
+        // convert font num to hexavigesimal numeral system letters A - Z only
+        $base_26 = strtoupper(base_convert($font['fontNum'], 10, 26));
+        for ($i = 0; $i < strlen($base_26); $i++) {
+            $char = $base_26[$i];
+            if ($char <= "9") {
+                $base_26[$i] = chr(65 + intval($char));
+            } else {
+                $base_26[$i] = chr(ord($char) + 10);
+            }
+        }
+
+        return 'SUB' . str_pad($base_26,3 , 'A', STR_PAD_LEFT);
+    }
+
     /**
      * @param int $fontObjId
      * @param array $object_info
@@ -1090,10 +1107,14 @@ class Cpdf
             // load the pfb file, and put that into an object too.
             // note that pdf supports only binary format type 1 font files, though there is a
             // simple utility to convert them from pfa to pfb.
-            // FIXME: should we move font subset creation to CPDF::output? See notes in issue #750.
-            if (!$this->isUnicode || strtolower($fbtype) !== 'ttf' || empty($this->stringSubsets)) {
+            if (
+                !$this->isUnicode
+                || strtolower($fbtype) !== 'ttf'
+                || !$font['isSubsetting']
+            ) {
                 $data = file_get_contents($fbfile);
             } else {
+                $adobeFontName = $this->getFontSubsettingTag($font) . '+' . $adobeFontName;
                 $this->stringSubsets[$fontFileName][] = 32; // Force space if not in yet
 
                 $subset = $this->stringSubsets[$fontFileName];
@@ -2955,9 +2976,11 @@ EOT;
      * @param $fontName
      * @param string $encoding
      * @param bool $set
+     * @param bool $isSubsetting
      * @return int
+     * @throws FontNotFoundException
      */
-    function selectFont($fontName, $encoding = '', $set = true)
+    function selectFont($fontName, $encoding = '', $set = true, $isSubsetting = true)
     {
         $ext = substr($fontName, -4);
         if ($ext === '.afm' || $ext === '.ufm') {
@@ -2977,7 +3000,7 @@ EOT;
                 $font = &$this->fonts[$fontName];
 
                 $name = basename($fontName);
-                $options = ['name' => $name, 'fontFileName' => $fontName];
+                $options = ['name' => $name, 'fontFileName' => $fontName, 'isSubsetting' => $isSubsetting];
 
                 if (is_array($encoding)) {
                     // then encoding and differences might be set
@@ -2997,6 +3020,7 @@ EOT;
 
                 $this->o_font($this->numObj, 'new', $options);
                 $font['fontNum'] = $this->numFonts;
+                $font['isSubsetting'] = $isSubsetting;
 
                 // also set the differences here, note that this means that these will take effect only the
                 //first time that a font is selected, else they are ignored
@@ -4300,8 +4324,7 @@ EOT;
             $part = $text; // OAR - Don't need this anymore, given that $start always equals zero.  substr($text, $start);
             $place_text = $this->filterText($part, false);
             // modify unicode text so that extra word spacing is manually implemented (bug #)
-            $cf = $this->currentFont;
-            if ($this->fonts[$cf]['isUnicode'] && $wordSpaceAdjust != 0) {
+            if ($this->fonts[$this->currentFont]['isUnicode'] && $wordSpaceAdjust != 0) {
                 $space_scale = 1000 / $size;
                 $place_text = str_replace("\x00\x20", "\x00\x20)\x00\x20" . (-round($space_scale * $wordSpaceAdjust)) . "\x00\x20(", $place_text);
             }
@@ -4337,6 +4360,10 @@ EOT;
                 $func = $this->callback[$i]['f'];
                 $this->$func($info);
             }
+        }
+
+        if ($this->fonts[$this->currentFont]['isSubsetting']) {
+            $this->registerText($this->currentFont, $text);
         }
     }
 

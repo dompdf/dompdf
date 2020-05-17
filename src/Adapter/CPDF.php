@@ -18,6 +18,7 @@ use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\Image\Cache;
 use Dompdf\PhpEvaluator;
+use FontLib\Exception\FontNotFoundException;
 
 /**
  * PDF rendering interface
@@ -895,11 +896,8 @@ class CPDF implements Canvas
 
         $this->_set_fill_color($color);
 
-        if ($this->_dompdf->getOptions()->getIsFontSubsettingEnabled()) {
-            $pdf->registerText($font, $text);
-        }
-
-        $pdf->selectFont($font . '.afm');
+        $is_font_subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
+        $pdf->selectFont($font . '.afm','', true, $is_font_subsetting);
 
         $pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size), $size, $text, $angle, $word_space, $char_space);
 
@@ -960,7 +958,7 @@ class CPDF implements Canvas
      */
     public function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0)
     {
-        $this->_pdf->selectFont($font);
+        $this->_pdf->selectFont($font, '', true, $this->_dompdf->getOptions()->getIsFontSubsettingEnabled());
         return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
     }
 
@@ -977,13 +975,14 @@ class CPDF implements Canvas
      * @param string $font
      * @param float $size
      * @return float|int
+     * @throws FontNotFoundException
      */
     public function get_font_height($font, $size)
     {
-        $this->_pdf->selectFont($font);
+        $options = $this->_dompdf->getOptions();
+        $this->_pdf->selectFont($font, '', true, $options->getIsFontSubsettingEnabled());
 
-        $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
-        return $this->_pdf->getFontHeight($size) * $ratio;
+        return $this->_pdf->getFontHeight($size) * $options->getFontHeightRatio();
     }
 
     /*function get_font_x_height($font, $size) {
