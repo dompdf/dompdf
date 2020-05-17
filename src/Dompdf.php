@@ -763,52 +763,6 @@ class Dompdf
 
         $canvas = $this->getCanvas();
 
-        if ($options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
-            foreach ($this->tree->get_frames() as $frame) {
-                $style = $frame->get_style();
-                $node = $frame->get_node();
-
-                // Handle text nodes
-                if ($node->nodeName === "#text") {
-                    $chars = mb_strtoupper($node->nodeValue) . mb_strtolower($node->nodeValue);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    continue;
-                }
-
-                // Handle generated content (list items)
-                if ($style->display === "list-item") {
-                    $chars = ListBullet::get_counter_chars($style->list_style_type);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $canvas->register_string_subset($style->font_family, '.');
-                    continue;
-                }
-
-                // Handle other generated content (pseudo elements)
-                // FIXME: This only captures the text of the stylesheet declaration,
-                //        not the actual generated content, and forces all possible counter
-                //        values. See notes in issue #750.
-                if ($frame->get_node()->nodeName == "dompdf_generated") {
-                    // all possible counter values, just in case
-                    $chars = ListBullet::get_counter_chars('decimal');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('upper-alpha');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('lower-alpha');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('lower-greek');
-                    $canvas->register_string_subset($style->font_family, $chars);
-
-                    // the hex-decoded text of the content property, duplicated from AbstrctFrameReflower::_parse_string
-                    $decoded_string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
-                        function ($matches) { return \Dompdf\Helpers::unichr(hexdec($matches[1])); },
-                        $style->content);
-                    $chars = mb_strtoupper($style->content) . mb_strtolower($style->content) . mb_strtoupper($decoded_string) . mb_strtolower($decoded_string);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    continue;
-                }
-            }
-        }
-
         $root = null;
 
         foreach ($this->tree->get_frames() as $frame) {

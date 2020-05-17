@@ -18,6 +18,7 @@
 
 namespace Dompdf;
 
+use FontLib\Exception\FontNotFoundException;
 use FontLib\Font;
 use FontLib\BinaryStream;
 
@@ -800,6 +801,7 @@ class Cpdf
      * @param $action
      * @param string|array $options
      * @return string|null
+     * @throws FontNotFoundException
      */
     protected function o_font($id, $action, $options = '')
     {
@@ -814,7 +816,8 @@ class Cpdf
                     'info' => [
                         'name'         => $options['name'],
                         'fontFileName' => $options['fontFileName'],
-                        'SubType'      => 'Type1'
+                        'SubType'      => 'Type1',
+                        'isSubsetting'   => $options['isSubsetting']
                     ]
                 ];
                 $fontNum = $this->numFonts;
@@ -871,25 +874,29 @@ class Cpdf
                 break;
 
             case 'add':
-                foreach ($options as $k => $v) {
-                    switch ($k) {
-                        case 'BaseFont':
-                            $o['info']['name'] = $v;
-                            break;
-                        case 'FirstChar':
-                        case 'LastChar':
-                        case 'Widths':
-                        case 'FontDescriptor':
-                        case 'SubType':
-                            $this->addMessage('o_font ' . $k . " : " . $v);
-                            $o['info'][$k] = $v;
-                            break;
-                    }
-                }
+                $font_options = $this->processFont($id, $o['info']);
 
-                // pass values down to descendent font
-                if (isset($o['info']['cidFont'])) {
-                    $this->o_fontDescendentCID($o['info']['cidFont'], 'add', $options);
+                if ($font_options !== false) {
+                    foreach ($font_options as $k => $v) {
+                        switch ($k) {
+                            case 'BaseFont':
+                                $o['info']['name'] = $v;
+                                break;
+                            case 'FirstChar':
+                            case 'LastChar':
+                            case 'Widths':
+                            case 'FontDescriptor':
+                            case 'SubType':
+                                $this->addMessage('o_font ' . $k . " : " . $v);
+                                $o['info'][$k] = $v;
+                                break;
+                        }
+                    }
+
+                    // pass values down to descendent font
+                    if (isset($o['info']['cidFont'])) {
+                        $this->o_fontDescendentCID($o['info']['cidFont'], 'add', $font_options);
+                    }
                 }
                 break;
 
@@ -952,6 +959,301 @@ class Cpdf
         }
 
         return null;
+    }
+
+    protected function getFontSubsettingTag(array $font): string
+    {
+        // convert font num to hexavigesimal numeral system letters A - Z only
+        $base_26 = strtoupper(base_convert($font['fontNum'], 10, 26));
+        for ($i = 0; $i < strlen($base_26); $i++) {
+            $char = $base_26[$i];
+            if ($char <= "9") {
+                $base_26[$i] = chr(65 + intval($char));
+            } else {
+                $base_26[$i] = chr(ord($char) + 10);
+            }
+        }
+
+        return 'SUB' . str_pad($base_26,3 , 'A', STR_PAD_LEFT);
+    }
+
+    /**
+     * @param int $fontObjId
+     * @param array $object_info
+     * @return array|false
+     * @throws FontNotFoundException
+     */
+    private function processFont(int $fontObjId, array $object_info)
+    {
+        $fontFileName = $object_info['fontFileName'];
+        if (!isset($this->fonts[$fontFileName])) {
+            return false;
+        }
+
+        $font = &$this->fonts[$fontFileName];
+
+        $fileSuffix = $font['fileSuffix'];
+        $fileSuffixLower = strtolower($font['fileSuffix']);
+        $fbfile = "$fontFileName.$fileSuffix";
+        $isTtfFont = $fileSuffixLower === 'ttf';
+        $isPfbFont = $fileSuffixLower === 'pfb';
+
+        $this->addMessage('selectFont: checking for - ' . $fbfile);
+
+        if (!$fileSuffix) {
+            $this->addMessage(
+                'selectFont: pfb or ttf file not found, ok if this is one of the 14 standard fonts'
+            );
+
+            return false;
+        } else {
+            $adobeFontName = isset($font['PostScriptName']) ? $font['PostScriptName'] : $font['FontName'];
+            //        $fontObj = $this->numObj;
+            $this->addMessage("selectFont: adding font file - $fbfile - $adobeFontName");
+
+            // find the array of font widths, and put that into an object.
+            $firstChar = -1;
+            $lastChar = 0;
+            $widths = [];
+            $cid_widths = [];
+
+            foreach ($font['C'] as $num => $d) {
+                if (intval($num) > 0 || $num == '0') {
+                    if (!$font['isUnicode']) {
+                        // With Unicode, widths array isn't used
+                        if ($lastChar > 0 && $num > $lastChar + 1) {
+                            for ($i = $lastChar + 1; $i < $num; $i++) {
+                                $widths[] = 0;
+                            }
+                        }
+                    }
+
+                    $widths[] = $d;
+
+                    if ($font['isUnicode']) {
+                        $cid_widths[$num] = $d;
+                    }
+
+                    if ($firstChar == -1) {
+                        $firstChar = $num;
+                    }
+
+                    $lastChar = $num;
+                }
+            }
+
+            // also need to adjust the widths for the differences array
+            if (isset($object['differences'])) {
+                foreach ($object['differences'] as $charNum => $charName) {
+                    if ($charNum > $lastChar) {
+                        if (!$object['isUnicode']) {
+                            // With Unicode, widths array isn't used
+                            for ($i = $lastChar + 1; $i <= $charNum; $i++) {
+                                $widths[] = 0;
+                            }
+                        }
+
+                        $lastChar = $charNum;
+                    }
+
+                    if (isset($font['C'][$charName])) {
+                        $widths[$charNum - $firstChar] = $font['C'][$charName];
+                        if ($font['isUnicode']) {
+                            $cid_widths[$charName] = $font['C'][$charName];
+                        }
+                    }
+                }
+            }
+
+            if ($font['isUnicode']) {
+                $font['CIDWidths'] = $cid_widths;
+            }
+
+            $this->addMessage('selectFont: FirstChar = ' . $firstChar);
+            $this->addMessage('selectFont: LastChar = ' . $lastChar);
+
+            $widthid = -1;
+
+            if (!$font['isUnicode']) {
+                // With Unicode, widths array isn't used
+
+                $this->numObj++;
+                $this->o_contents($this->numObj, 'new', 'raw');
+                $this->objects[$this->numObj]['c'] .= '[' . implode(' ', $widths) . ']';
+                $widthid = $this->numObj;
+            }
+
+            $missing_width = 500;
+            $stemV = 70;
+
+            if (isset($font['MissingWidth'])) {
+                $missing_width = $font['MissingWidth'];
+            }
+            if (isset($font['StdVW'])) {
+                $stemV = $font['StdVW'];
+            } else {
+                if (isset($font['Weight']) && preg_match('!(bold|black)!i', $font['Weight'])) {
+                    $stemV = 120;
+                }
+            }
+
+            // load the pfb file, and put that into an object too.
+            // note that pdf supports only binary format type 1 font files, though there is a
+            // simple utility to convert them from pfa to pfb.
+            if (!$font['isSubsetting']) {
+                $data = file_get_contents($fbfile);
+            } else {
+                $adobeFontName = $this->getFontSubsettingTag($font) . '+' . $adobeFontName;
+                $this->stringSubsets[$fontFileName][] = 32; // Force space if not in yet
+
+                $subset = $this->stringSubsets[$fontFileName];
+                sort($subset);
+
+                // Load font
+                $font_obj = Font::load($fbfile);
+                $font_obj->parse();
+
+                // Define subset
+                $font_obj->setSubset($subset);
+                $font_obj->reduce();
+
+                // Write new font
+                $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
+                touch($tmp_name);
+                $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
+                $font_obj->encode(["OS/2"]);
+                $font_obj->close();
+
+                // Parse the new font to get cid2gid and widths
+                $font_obj = Font::load($tmp_name);
+
+                // Find Unicode char map table
+                $subtable = null;
+                foreach ($font_obj->getData("cmap", "subtables") as $_subtable) {
+                    if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
+                        $subtable = $_subtable;
+                        break;
+                    }
+                }
+
+                if ($subtable) {
+                    $glyphIndexArray = $subtable["glyphIndexArray"];
+                    $hmtx = $font_obj->getData("hmtx");
+
+                    unset($glyphIndexArray[0xFFFF]);
+
+                    $cidtogid = str_pad('', max(array_keys($glyphIndexArray)) * 2 + 1, "\x00");
+                    $font['CIDWidths'] = [];
+                    foreach ($glyphIndexArray as $cid => $gid) {
+                        if ($cid >= 0 && $cid < 0xFFFF && $gid) {
+                            $cidtogid[$cid * 2] = chr($gid >> 8);
+                            $cidtogid[$cid * 2 + 1] = chr($gid & 0xFF);
+                        }
+
+                        $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
+                        $font['CIDWidths'][$cid] = $width;
+                    }
+
+                    $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
+                    $font['CIDtoGID_Compressed'] = true;
+
+                    $data = file_get_contents($tmp_name);
+                } else {
+                    $data = file_get_contents($fbfile);
+                }
+
+                $font_obj->close();
+                unlink($tmp_name);
+            }
+
+            // create the font descriptor
+            $this->numObj++;
+            $fontDescriptorId = $this->numObj;
+
+            $this->numObj++;
+            $pfbid = $this->numObj;
+
+            // determine flags (more than a little flakey, hopefully will not matter much)
+            $flags = 0;
+
+            if ($font['ItalicAngle'] != 0) {
+                $flags += pow(2, 6);
+            }
+
+            if ($font['IsFixedPitch'] === 'true') {
+                $flags += 1;
+            }
+
+            $flags += pow(2, 5); // assume non-sybolic
+            $list = [
+                'Ascent'       => 'Ascender',
+                'CapHeight'    => 'Ascender', //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
+                'MissingWidth' => 'MissingWidth',
+                'Descent'      => 'Descender',
+                'FontBBox'     => 'FontBBox',
+                'ItalicAngle'  => 'ItalicAngle'
+            ];
+            $fdopt = [
+                'Flags'    => $flags,
+                'FontName' => $adobeFontName,
+                'StemV'    => $stemV
+            ];
+
+            foreach ($list as $k => $v) {
+                if (isset($font[$v])) {
+                    $fdopt[$k] = $font[$v];
+                }
+            }
+
+            if ($isPfbFont) {
+                $fdopt['FontFile'] = $pfbid;
+            } elseif ($isTtfFont) {
+                $fdopt['FontFile2'] = $pfbid;
+            }
+
+            $this->o_fontDescriptor($fontDescriptorId, 'new', $fdopt);
+
+            // embed the font program
+            $this->o_contents($this->numObj, 'new');
+            $this->objects[$pfbid]['c'] .= $data;
+
+            // determine the cruicial lengths within this file
+            if ($isPfbFont) {
+                $l1 = strpos($data, 'eexec') + 6;
+                $l2 = strpos($data, '00000000') - $l1;
+                $l3 = mb_strlen($data, '8bit') - $l2 - $l1;
+                $this->o_contents(
+                    $this->numObj,
+                    'add',
+                    ['Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3]
+                );
+            } elseif ($isTtfFont) {
+                $l1 = mb_strlen($data, '8bit');
+                $this->o_contents($this->numObj, 'add', ['Length1' => $l1]);
+            }
+
+            // tell the font object about all this new stuff
+            $options = [
+                'BaseFont'       => $adobeFontName,
+                'MissingWidth'   => $missing_width,
+                'Widths'         => $widthid,
+                'FirstChar'      => $firstChar,
+                'LastChar'       => $lastChar,
+                'FontDescriptor' => $fontDescriptorId
+            ];
+
+            if ($isTtfFont) {
+                $options['SubType'] = 'TrueType';
+            }
+
+            $this->addMessage("adding extra info to font.($fontObjId)");
+
+            foreach ($options as $fk => $fv) {
+                $this->addMessage("$fk : $fv");
+            }
+        }
+
+        return $options;
     }
 
     /**
@@ -2329,6 +2631,13 @@ EOT;
         $content = '%PDF-1.7';
         $pos = mb_strlen($content, '8bit');
 
+        // pre-process o_font objects before output of all objects
+        foreach ($this->objects as $k => $v) {
+            if ($v['t'] === 'font') {
+                $this->o_font($k, 'add');
+            }
+        }
+
         foreach ($this->objects as $k => $v) {
             $tmp = 'o_' . $v['t'];
             $cont = $this->$tmp($k, 'out');
@@ -2656,9 +2965,11 @@ EOT;
      * @param $fontName
      * @param string $encoding
      * @param bool $set
+     * @param bool $isSubsetting
      * @return int
+     * @throws FontNotFoundException
      */
-    function selectFont($fontName, $encoding = '', $set = true)
+    function selectFont($fontName, $encoding = '', $set = true, $isSubsetting = true)
     {
         $ext = substr($fontName, -4);
         if ($ext === '.afm' || $ext === '.ufm') {
@@ -2678,8 +2989,7 @@ EOT;
                 $font = &$this->fonts[$fontName];
 
                 $name = basename($fontName);
-                $dir = dirname($fontName) . '/';
-                $options = ['name' => $name, 'fontFileName' => $fontName];
+                $options = ['name' => $name, 'fontFileName' => $fontName, 'isSubsetting' => $isSubsetting];
 
                 if (is_array($encoding)) {
                     // then encoding and differences might be set
@@ -2697,286 +3007,24 @@ EOT;
                     }
                 }
 
-                $fontObj = $this->numObj;
                 $this->o_font($this->numObj, 'new', $options);
-                $font['fontNum'] = $this->numFonts;
 
-                // if this is a '.afm' font, and there is a '.pfa' file to go with it (as there
-                // should be for all non-basic fonts), then load it into an object and put the
-                // references into the font object
-                $basefile = $fontName;
-
-                $fbtype = '';
-                if (file_exists("$basefile.ttf")) {
-                    $fbtype = 'ttf';
-                } elseif (file_exists("$basefile.TTF")) {
-                    $fbtype = 'TTF';
-                } elseif (file_exists("$basefile.pfb")) {
-                    $fbtype = 'pfb';
-                } elseif (file_exists("$basefile.PFB")) {
-                    $fbtype = 'PFB';
-                }
-
-                $fbfile = "$basefile.$fbtype";
-
-                //      $pfbfile = substr($fontName,0,strlen($fontName)-4).'.pfb';
-                //      $ttffile = substr($fontName,0,strlen($fontName)-4).'.ttf';
-                $this->addMessage('selectFont: checking for - ' . $fbfile);
-
-                // OAR - I don't understand this old check
-                // if (substr($fontName, -4) ===  '.afm' &&  strlen($fbtype)) {
-                if ($fbtype) {
-                    $adobeFontName = isset($font['PostScriptName']) ? $font['PostScriptName'] : $font['FontName'];
-                    //        $fontObj = $this->numObj;
-                    $this->addMessage("selectFont: adding font file - $fbfile - $adobeFontName");
-
-                    // find the array of font widths, and put that into an object.
-                    $firstChar = -1;
-                    $lastChar = 0;
-                    $widths = [];
-                    $cid_widths = [];
-
-                    foreach ($font['C'] as $num => $d) {
-                        if (intval($num) > 0 || $num == '0') {
-                            if (!$font['isUnicode']) {
-                                // With Unicode, widths array isn't used
-                                if ($lastChar > 0 && $num > $lastChar + 1) {
-                                    for ($i = $lastChar + 1; $i < $num; $i++) {
-                                        $widths[] = 0;
-                                    }
-                                }
-                            }
-
-                            $widths[] = $d;
-
-                            if ($font['isUnicode']) {
-                                $cid_widths[$num] = $d;
-                            }
-
-                            if ($firstChar == -1) {
-                                $firstChar = $num;
-                            }
-
-                            $lastChar = $num;
-                        }
-                    }
-
-                    // also need to adjust the widths for the differences array
-                    if (isset($options['differences'])) {
-                        foreach ($options['differences'] as $charNum => $charName) {
-                            if ($charNum > $lastChar) {
-                                if (!$font['isUnicode']) {
-                                    // With Unicode, widths array isn't used
-                                    for ($i = $lastChar + 1; $i <= $charNum; $i++) {
-                                        $widths[] = 0;
-                                    }
-                                }
-
-                                $lastChar = $charNum;
-                            }
-
-                            if (isset($font['C'][$charName])) {
-                                $widths[$charNum - $firstChar] = $font['C'][$charName];
-                                if ($font['isUnicode']) {
-                                    $cid_widths[$charName] = $font['C'][$charName];
-                                }
-                            }
-                        }
-                    }
-
-                    if ($font['isUnicode']) {
-                        $font['CIDWidths'] = $cid_widths;
-                    }
-
-                    $this->addMessage('selectFont: FirstChar = ' . $firstChar);
-                    $this->addMessage('selectFont: LastChar = ' . $lastChar);
-
-                    $widthid = -1;
-
-                    if (!$font['isUnicode']) {
-                        // With Unicode, widths array isn't used
-
-                        $this->numObj++;
-                        $this->o_contents($this->numObj, 'new', 'raw');
-                        $this->objects[$this->numObj]['c'] .= '[' . implode(' ', $widths) . ']';
-                        $widthid = $this->numObj;
-                    }
-
-                    $missing_width = 500;
-                    $stemV = 70;
-
-                    if (isset($font['MissingWidth'])) {
-                        $missing_width = $font['MissingWidth'];
-                    }
-                    if (isset($font['StdVW'])) {
-                        $stemV = $font['StdVW'];
-                    } else {
-                        if (isset($font['Weight']) && preg_match('!(bold|black)!i', $font['Weight'])) {
-                            $stemV = 120;
-                        }
-                    }
-
-                    // load the pfb file, and put that into an object too.
-                    // note that pdf supports only binary format type 1 font files, though there is a
-                    // simple utility to convert them from pfa to pfb.
-                    // FIXME: should we move font subset creation to CPDF::output? See notes in issue #750.
-                    if (!$this->isUnicode || strtolower($fbtype) !== 'ttf' || empty($this->stringSubsets)) {
-                        $data = file_get_contents($fbfile);
-                    } else {
-                        $this->stringSubsets[$fontName][] = 32; // Force space if not in yet
-
-                        $subset = $this->stringSubsets[$fontName];
-                        sort($subset);
-
-                        // Load font
-                        $font_obj = Font::load($fbfile);
-                        $font_obj->parse();
-
-                        // Define subset
-                        $font_obj->setSubset($subset);
-                        $font_obj->reduce();
-
-                        // Write new font
-                        $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
-                        touch($tmp_name);
-                        $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
-                        $font_obj->encode(["OS/2"]);
-                        $font_obj->close();
-
-                        // Parse the new font to get cid2gid and widths
-                        $font_obj = Font::load($tmp_name);
-
-                        // Find Unicode char map table
-                        $subtable = null;
-                        foreach ($font_obj->getData("cmap", "subtables") as $_subtable) {
-                            if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
-                                $subtable = $_subtable;
-                                break;
-                            }
-                        }
-
-                        if ($subtable) {
-                            $glyphIndexArray = $subtable["glyphIndexArray"];
-                            $hmtx = $font_obj->getData("hmtx");
-
-                            unset($glyphIndexArray[0xFFFF]);
-
-                            $cidtogid = str_pad('', max(array_keys($glyphIndexArray)) * 2 + 1, "\x00");
-                            $font['CIDWidths'] = [];
-                            foreach ($glyphIndexArray as $cid => $gid) {
-                                if ($cid >= 0 && $cid < 0xFFFF && $gid) {
-                                    $cidtogid[$cid * 2] = chr($gid >> 8);
-                                    $cidtogid[$cid * 2 + 1] = chr($gid & 0xFF);
-                                }
-
-                                $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
-                                $font['CIDWidths'][$cid] = $width;
-                            }
-
-                            $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
-                            $font['CIDtoGID_Compressed'] = true;
-
-                            $data = file_get_contents($tmp_name);
-                        } else {
-                            $data = file_get_contents($fbfile);
-                        }
-
-                        $font_obj->close();
-                        unlink($tmp_name);
-                    }
-
-                    // create the font descriptor
-                    $this->numObj++;
-                    $fontDescriptorId = $this->numObj;
-
-                    $this->numObj++;
-                    $pfbid = $this->numObj;
-
-                    // determine flags (more than a little flakey, hopefully will not matter much)
-                    $flags = 0;
-
-                    if ($font['ItalicAngle'] != 0) {
-                        $flags += pow(2, 6);
-                    }
-
-                    if ($font['IsFixedPitch'] === 'true') {
-                        $flags += 1;
-                    }
-
-                    $flags += pow(2, 5); // assume non-sybolic
-                    $list = [
-                        'Ascent'       => 'Ascender',
-                        'CapHeight'    => 'Ascender', //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
-                        'MissingWidth' => 'MissingWidth',
-                        'Descent'      => 'Descender',
-                        'FontBBox'     => 'FontBBox',
-                        'ItalicAngle'  => 'ItalicAngle'
-                    ];
-                    $fdopt = [
-                        'Flags'    => $flags,
-                        'FontName' => $adobeFontName,
-                        'StemV'    => $stemV
-                    ];
-
-                    foreach ($list as $k => $v) {
-                        if (isset($font[$v])) {
-                            $fdopt[$k] = $font[$v];
-                        }
-                    }
-
-                    if (strtolower($fbtype) === 'pfb') {
-                        $fdopt['FontFile'] = $pfbid;
-                    } elseif (strtolower($fbtype) === 'ttf') {
-                        $fdopt['FontFile2'] = $pfbid;
-                    }
-
-                    $this->o_fontDescriptor($fontDescriptorId, 'new', $fdopt);
-
-                    // embed the font program
-                    $this->o_contents($this->numObj, 'new');
-                    $this->objects[$pfbid]['c'] .= $data;
-
-                    // determine the cruicial lengths within this file
-                    if (strtolower($fbtype) === 'pfb') {
-                        $l1 = strpos($data, 'eexec') + 6;
-                        $l2 = strpos($data, '00000000') - $l1;
-                        $l3 = mb_strlen($data, '8bit') - $l2 - $l1;
-                        $this->o_contents(
-                            $this->numObj,
-                            'add',
-                            ['Length1' => $l1, 'Length2' => $l2, 'Length3' => $l3]
-                        );
-                    } elseif (strtolower($fbtype) == 'ttf') {
-                        $l1 = mb_strlen($data, '8bit');
-                        $this->o_contents($this->numObj, 'add', ['Length1' => $l1]);
-                    }
-
-                    // tell the font object about all this new stuff
-                    $tmp = [
-                        'BaseFont'       => $adobeFontName,
-                        'MissingWidth'   => $missing_width,
-                        'Widths'         => $widthid,
-                        'FirstChar'      => $firstChar,
-                        'LastChar'       => $lastChar,
-                        'FontDescriptor' => $fontDescriptorId
-                    ];
-
-                    if (strtolower($fbtype) === 'ttf') {
-                        $tmp['SubType'] = 'TrueType';
-                    }
-
-                    $this->addMessage("adding extra info to font.($fontObj)");
-
-                    foreach ($tmp as $fk => $fv) {
-                        $this->addMessage("$fk : $fv");
-                    }
-
-                    $this->o_font($fontObj, 'add', $tmp);
+                if (file_exists("$fontName.ttf")) {
+                    $fileSuffix = 'ttf';
+                } elseif (file_exists("$fontName.TTF")) {
+                    $fileSuffix = 'TTF';
+                } elseif (file_exists("$fontName.pfb")) {
+                    $fileSuffix = 'pfb';
+                } elseif (file_exists("$fontName.PFB")) {
+                    $fileSuffix = 'PFB';
                 } else {
-                    $this->addMessage(
-                        'selectFont: pfb or ttf file not found, ok if this is one of the 14 standard fonts'
-                    );
+                    $fileSuffix = '';
                 }
+
+                $font['fileSuffix'] = $fileSuffix;
+
+                $font['fontNum'] = $this->numFonts;
+                $font['isSubsetting'] = $isSubsetting && $font['isUnicode'] && strtolower($fileSuffix) === 'ttf';
 
                 // also set the differences here, note that this means that these will take effect only the
                 //first time that a font is selected, else they are ignored
@@ -2994,12 +3042,9 @@ EOT;
             // applied to it as well.
             $this->currentFont = $this->currentBaseFont;
             $this->currentFontNum = $this->fonts[$this->currentFont]['fontNum'];
-
-            //$this->setCurrentFont();
         }
 
         return $this->currentFontNum;
-        //return $this->numObj;
     }
 
     /**
@@ -4283,8 +4328,7 @@ EOT;
             $part = $text; // OAR - Don't need this anymore, given that $start always equals zero.  substr($text, $start);
             $place_text = $this->filterText($part, false);
             // modify unicode text so that extra word spacing is manually implemented (bug #)
-            $cf = $this->currentFont;
-            if ($this->fonts[$cf]['isUnicode'] && $wordSpaceAdjust != 0) {
+            if ($this->fonts[$this->currentFont]['isUnicode'] && $wordSpaceAdjust != 0) {
                 $space_scale = 1000 / $size;
                 $place_text = str_replace("\x00\x20", "\x00\x20)\x00\x20" . (-round($space_scale * $wordSpaceAdjust)) . "\x00\x20(", $place_text);
             }
@@ -4320,6 +4364,10 @@ EOT;
                 $func = $this->callback[$i]['f'];
                 $this->$func($info);
             }
+        }
+
+        if ($this->fonts[$this->currentFont]['isSubsetting']) {
+            $this->registerText($this->currentFont, $text);
         }
     }
 
