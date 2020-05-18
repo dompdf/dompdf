@@ -61,7 +61,7 @@ class Cpdf
     /**
      * @var integer[]
      */
-    public $acroFormFields;
+    public $acroFormFonts;
 
     /**
      * @var array Array carrying information about the fonts that the system currently knows about
@@ -2078,6 +2078,20 @@ EOT;
                             $res .= "/$k $v\n";
                     }
                 }
+
+                $res .= "/DR << /Font << ";
+                $numPages = $this->objects[$this->catalogId]['info']['pages'];
+                foreach($this->objects[$numPages]['info']['fonts'] as $item)
+                {
+                    if (in_array($item['fontNum'], $this->acroFormFonts))
+                    {
+                        $objNum = $item['objNum'];
+                        $fontNum = $item['fontNum'];
+                        $res .= "/F$fontNum $objNum 0 R ";
+                    }
+                }
+                $res .= " >> >>\n";
+
                 $res .= ">>\nendobj";
 
                 return $res;
@@ -3904,22 +3918,23 @@ EOT;
      *
      * @param string $type ACROFORM_FIELD_*
      * @param string $name
-     * @param integer $pageNum if 0 then currentpage
      * @param $x0
      * @param $y0
      * @param $x1
      * @param $y1
      * @param integer $ff Field Flag ACROFORM_FIELD_*_*
+     * @param float $size
+     * @param array $color
      * @return int
      */
-    public function addFormField($type, $name, $pageNum, $x0, $y0, $x1, $y1, $ff = 0)
+    public function addFormField($type, $name, $x0, $y0, $x1, $y1, $ff = 0, $size, $color)
     {
-        if ($pageNum > 0) {
-            $pagesObjId = $this->objects[$this->catalogId]['info']['pages'];
-            $pageId = $this->objects[$pagesObjId]['info']['pages'][$pageNum - 1];
-        } else {
-            $pageId = $this->currentPage;
+        if (!$this->numFonts) {
+            $this->selectFont($this->defaultFont);
         }
+
+        $color = implode(' ', $color) . ' rg';
+        $this->acroFormFonts[] = $this->currentFontNum;
 
         $fieldId = ++$this->numObj;
         $this->o_field($fieldId, 'new', [
@@ -3928,7 +3943,8 @@ EOT;
           'FT' => "/$type",
           'T' => $name,
           'Ff' => $ff,
-          'pageid' => $pageId
+          'pageid' => $this->currentPage,
+          'DA' => "($color /F$this->currentFontNum " . sprintf('%.1F Tf ', $size) . ")"
         ]);
 
         return $fieldId;
