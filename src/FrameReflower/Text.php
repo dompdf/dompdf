@@ -315,8 +315,7 @@ class Text extends AbstractFrameReflower
                 }
 
                 if ($style->direction === 'rtl') {
-                    $bidi = new Bidi($t, null, null, 'R', true);
-                    $t = $bidi->getString();
+                    $t = $this->bidi_transform($t);
                     $replaceText = true;
                 }
 
@@ -359,8 +358,7 @@ class Text extends AbstractFrameReflower
             }
 
             if ($style->direction === 'rtl') {
-                $bidi = new Bidi($t, null, null, 'R', true);
-                $t = $bidi->getString();
+                $t = $this->bidi_transform($t);
             }
 
             $frame->set_text($t);
@@ -536,5 +534,21 @@ class Text extends AbstractFrameReflower
     public function calculate_auto_width()
     {
         return $this->_frame->recalculate_width();
+    }
+
+    protected function bidi_transform(string $text): string
+    {
+        // match (multiple) whitespace chars or one non whitespace char at start and end
+        $matched = preg_match('/^(\s+|[^\s]).*(\s+|[^\s])$/', $text, $keepWhitespace);
+
+        $bidi = new Bidi($text, null, null, 'R', true);
+        $text = $bidi->getString();
+
+        if ($matched) {
+            $text = (ctype_space($keepWhitespace[1]) ? $keepWhitespace[1] : '') . ltrim($text);
+            $text = rtrim($text) . (ctype_space($keepWhitespace[2]) ? $keepWhitespace[2] : '');
+        }
+
+        return $text;
     }
 }
