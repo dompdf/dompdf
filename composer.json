@@ -36,7 +36,8 @@
         "ext-dom": "*",
         "ext-mbstring": "*",
         "phenx/php-font-lib": "^0.5.1",
-        "phenx/php-svg-lib": "^0.3.3"
+        "phenx/php-svg-lib": "^0.3.3",
+        "tecnickcom/tc-lib-unicode": "~1.3.11"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5",

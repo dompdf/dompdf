@@ -61,6 +61,7 @@ class AttributeTranslator
             ],
             'rules' => '!set_table_rules',
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
         'hr' => [
             'align' => '!set_hr_align', // Need to grab width to set 'left' & 'right' correctly
@@ -70,6 +71,7 @@ class AttributeTranslator
         ],
         'div' => [
             'align' => 'text-align: %s;',
+            'dir' => 'direction: %s;'
         ],
         'h1' => [
             'align' => 'text-align: %s;',
@@ -95,6 +97,7 @@ class AttributeTranslator
         ],
         'p' => [
             'align' => 'text-align: %s;',
+            'dir' => 'direction: %s;'
         ],
 //    'col' => array(
 //      'align'  => '',
@@ -115,6 +118,7 @@ class AttributeTranslator
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
         'tfoot' => [
             'align' => '!set_table_row_align',
@@ -127,6 +131,7 @@ class AttributeTranslator
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
         'thead' => [
             'align' => '!set_table_row_align',
@@ -142,6 +147,7 @@ class AttributeTranslator
             'bgcolor' => '!set_background_color',
             'link' => '!set_body_link',
             'text' => '!set_color',
+            'dir' => 'direction: %s;'
         ],
         'br' => [
             'clear' => 'clear: %s;',
@@ -177,6 +183,7 @@ class AttributeTranslator
         'li' => [
             'type' => 'list-style-type: %s;',
             'value' => 'counter-reset: -dompdf-default-counter %d;',
+            'dir' => 'direction: %s;'
         ],
         'pre' => [
             'width' => 'width: %s;',

@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Com\Tecnick\Unicode\Bidi;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\FontMetrics;
@@ -221,7 +222,10 @@ class Text extends AbstractFrameReflower
         switch ($style->white_space) {
             default:
             case "normal":
-                $frame->set_text($text = $this->_collapse_white_space($text));
+                $text = $this->_collapse_white_space($text);
+
+                $frame->set_text($text);
+
                 if ($text == "") {
                     break;
                 }
@@ -235,7 +239,9 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "nowrap":
-                $frame->set_text($text = $this->_collapse_white_space($text));
+                $text = $this->_collapse_white_space($text);
+
+                $frame->set_text($text);
                 break;
 
             case "pre-wrap":
@@ -252,7 +258,9 @@ class Text extends AbstractFrameReflower
 
             case "pre-line":
                 // Collapse white-space except for \n
-                $frame->set_text($text = preg_replace("/[ \t]+/u", " ", $text));
+                $text = preg_replace("/[ \t]+/u", " ", $text);
+
+                $frame->set_text($text);
 
                 if ($text == "") {
                     break;
@@ -298,10 +306,21 @@ class Text extends AbstractFrameReflower
                 $frame->split_text($split);
 
                 $t = $frame->get_text();
+                $replaceText = false;
 
                 // Remove any trailing newlines
                 if ($split > 1 && $t[$split - 1] === "\n" && !$frame->is_pre()) {
-                    $frame->set_text(mb_substr($t, 0, -1));
+                    $t = mb_substr($t, 0, -1);
+                    $replaceText = true;
+                }
+
+                if ($style->direction === 'rtl') {
+                    $t = $this->bidi_transform($t);
+                    $replaceText = true;
+                }
+
+                if ($replaceText) {
+                    $frame->set_text($t);
                 }
 
                 // Do we need to trim spaces on wrapped lines? This might be desired, however, we
@@ -336,6 +355,10 @@ class Text extends AbstractFrameReflower
             ( $is_inline_frame && !$parent->get_prev_sibling())*/
             ) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
                 $t = ltrim($t);
+            }
+
+            if ($style->direction === 'rtl') {
+                $t = $this->bidi_transform($t);
             }
 
             $frame->set_text($t);
@@ -511,5 +534,21 @@ class Text extends AbstractFrameReflower
     public function calculate_auto_width()
     {
         return $this->_frame->recalculate_width();
+    }
+
+    protected function bidi_transform(string $text): string
+    {
+        // match (multiple) whitespace chars or one non whitespace char at start and end
+        $matched = preg_match('/^(\s+|[^\s]).*(\s+|[^\s])$/', $text, $keepWhitespace);
+
+        $bidi = new Bidi($text, null, null, 'R', true);
+        $text = $bidi->getString();
+
+        if ($matched) {
+            $text = (ctype_space($keepWhitespace[1]) ? $keepWhitespace[1] : '') . ltrim($text);
+            $text = rtrim($text) . (ctype_space($keepWhitespace[2]) ? $keepWhitespace[2] : '');
+        }
+
+        return $text;
     }
 }
