@@ -183,10 +183,7 @@ class Text extends AbstractFrameReflower
         return $i + 1;
     }
 
-    /**
-     *
-     */
-    protected function _layout_line()
+    protected function _layout_line(): bool
     {
         $frame = $this->_frame;
         $style = $frame->get_style();
@@ -222,7 +219,7 @@ class Text extends AbstractFrameReflower
             default:
             case "normal":
                 $frame->set_text($text = $this->_collapse_white_space($text));
-                if ($text == "") {
+                if ($text === "") {
                     break;
                 }
 
@@ -237,50 +234,40 @@ class Text extends AbstractFrameReflower
             case "nowrap":
                 $frame->set_text($text = $this->_collapse_white_space($text));
                 break;
-
-            case "pre-wrap":
-                $split = $this->_newline_break($text);
-
-                if (($tmp = $this->_line_break($text)) !== false) {
-                    $add_line = $split < $tmp;
-                    $split = $split === false ? $tmp : min($tmp, $split);
-                } else {
-                    $add_line = true;
-                }
-
-                break;
-
+            /** @noinspection PhpMissingBreakStatementInspection */
             case "pre-line":
                 // Collapse white-space except for \n
                 $frame->set_text($text = preg_replace("/[ \t]+/u", " ", $text));
 
-                if ($text == "") {
+                if ($text === "") {
                     break;
                 }
-
+            case "pre-wrap":
                 $split = $this->_newline_break($text);
 
                 if (($tmp = $this->_line_break($text)) !== false) {
-                    $add_line = $split < $tmp;
-                    $split = min($tmp, $split);
-                } else {
+                    if ($split === false || $tmp < $split) {
+                        $split = $tmp;
+                    } else {
+                        $add_line = true;
+                    }
+                } else if ($split !== false) {
                     $add_line = true;
                 }
 
                 break;
-
         }
 
         // Handle degenerate case
         if ($text === "") {
-            return;
+            return $add_line;
         }
 
         if ($split !== false) {
             // Handle edge cases
             if ($split == 0 && $text === " ") {
                 $frame->set_text("");
-                return;
+                return $add_line;
             }
 
             if ($split == 0) {
@@ -292,7 +279,7 @@ class Text extends AbstractFrameReflower
                 $frame->position();
 
                 // Layout the new line
-                $this->_layout_line();
+                $add_line = $this->_layout_line();
             } else if ($split < mb_strlen($frame->get_text())) {
                 // split the line if required
                 $frame->split_text($split);
@@ -312,11 +299,6 @@ class Text extends AbstractFrameReflower
                   $t = $this->_frame->get_text();
                   $this->_frame->set_text( trim($t) );
                 }*/
-            }
-
-            if ($add_line) {
-                $this->_block_parent->add_line();
-                $frame->position();
             }
         } else {
             // Remove empty space from start and end of line, but only where there isn't an inline sibling
@@ -343,6 +325,8 @@ class Text extends AbstractFrameReflower
 
         // Set our new width
         $frame->recalculate_width();
+
+        return $add_line;
     }
 
     /**
@@ -371,10 +355,14 @@ class Text extends AbstractFrameReflower
 
         $frame->position();
 
-        $this->_layout_line();
+        $add_line = $this->_layout_line();
 
         if ($block) {
             $block->add_frame_to_line($frame);
+
+            if ($add_line) {
+                $block->add_line();
+            }
         }
     }
 
