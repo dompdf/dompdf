@@ -24,10 +24,16 @@ use FontLib\BinaryStream;
 class Cpdf
 {
 
-    const ACROFORM_FIELD_BUTTON = 'Btn';
-    const ACROFORM_FIELD_TEXT = 'Tx';
-    const ACROFORM_FIELD_CHOICE = 'Ch';
-    const ACROFORM_FIELD_SIG = 'Sig';
+    const ACROFORM_SIG_SIGNATURESEXISTS = 0x0001;
+    const ACROFORM_SIG_APPENDONLY =       0x0002;
+
+    const ACROFORM_FIELD_BUTTON =   'Btn';
+    const ACROFORM_FIELD_TEXT =     'Tx';
+    const ACROFORM_FIELD_CHOICE =   'Ch';
+    const ACROFORM_FIELD_SIG =      'Sig';
+
+    const ACROFORM_FIELD_READONLY =               0x0001;
+    const ACROFORM_FIELD_REQUIRED =               0x0002;
 
     const ACROFORM_FIELD_TEXT_MULTILINE =         0x1000;
     const ACROFORM_FIELD_TEXT_PASSWORD =          0x2000;
@@ -37,6 +43,8 @@ class Cpdf
     const ACROFORM_FIELD_CHOICE_EDIT =           0x40000;
     const ACROFORM_FIELD_CHOICE_SORT =           0x80000;
     const ACROFORM_FIELD_CHOICE_MULTISELECT =   0x200000;
+
+    const XOBJECT_SUBTYPE_FORM = 'Form';
 
     /**
      * @var integer The current number of pdf objects in the document
@@ -54,14 +62,16 @@ class Cpdf
     public $catalogId;
 
     /**
+     * AcroForm objectId
+     *
      * @var integer
      */
     public $acroFormId;
 
     /**
-     * @var integer[]
+     * @var int
      */
-    public $acroFormFonts;
+    public $signatureMaxLen = 5000;
 
     /**
      * @var array Array carrying information about the fonts that the system currently knows about
@@ -2049,6 +2059,107 @@ EOT;
         return null;
     }
 
+    /**
+     * @param integer $id
+     * @param string $action
+     * @param mixed $options
+     * @return string
+     */
+    protected function o_xobject($id, $action, $options = '')
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'xobject', 'info' => $options, 'c' => ''];
+                break;
+
+            case 'procset':
+                $this->objects[$id]['procset'] = $options;
+                break;
+
+            case 'font':
+                $this->objects[$id]['fonts'][$options['fontNum']] = [
+                  'objNum' => $options['objNum'],
+                  'fontNum' => $options['fontNum']
+                ];
+                break;
+
+            case 'xObject':
+                $this->objects[$id]['xObjects'][] = ['objNum' => $options['objNum'], 'label' => $options['label']];
+                break;
+
+            case 'out':
+                $o = &$this->objects[$id];
+                $res = "\n$id 0 obj\n<< /Type /XObject\n";
+
+                foreach ($o["info"] as $k => $v) {
+                    switch($k)
+                    {
+                        case 'Subtype':
+                            $res .= "/Subtype /$v\n";
+                            break;
+                        case 'bbox':
+                            $res .= "/BBox [";
+                            foreach ($v as $value) {
+                                $res .= sprintf("%.4F ", $value);
+                            }
+                            $res .= "]\n";
+                            break;
+                        default:
+                            $res .= "/$k $v\n";
+                            break;
+                    }
+                }
+                $res .= "/Matrix[1.0 0.0 0.0 1.0 0.0 0.0]\n";
+
+                $res .= "/Resources <<";
+                if (isset($o['procset'])) {
+                    $res .= "\n/ProcSet " . $o['procset'] . " 0 R";
+                } else {
+                    $res .= "\n/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]";
+                }
+                if (isset($o['fonts']) && count($o['fonts'])) {
+                    $res .= "\n/Font << ";
+                    foreach ($o['fonts'] as $finfo) {
+                        $res .= "\n/F" . $finfo['fontNum'] . " " . $finfo['objNum'] . " 0 R";
+                    }
+                    $res .= "\n>>";
+                }
+                if (isset($o['xObjects']) && count($o['xObjects'])) {
+                    $res .= "\n/XObject << ";
+                    foreach ($o['xObjects'] as $finfo) {
+                        $res .= "\n/" . $finfo['label'] . " " . $finfo['objNum'] . " 0 R";
+                    }
+                    $res .= "\n>>";
+                }
+                $res .= "\n>>\n";
+
+                $tmp = $o["c"];
+                if ($this->compressionReady && $this->options['compression']) {
+                    // then implement ZLIB based compression on this content stream
+                    $res .= " /Filter /FlateDecode\n";
+                    $tmp = gzcompress($tmp, 6);
+                }
+
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                    $tmp = $this->ARC4($tmp);
+                }
+
+                $res .= "/Length " . mb_strlen($tmp, '8bit') . " >>\n";
+                $res .= "stream\n" . $tmp . "\nendstream" . "\nendobj";;
+
+                return $res;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $id
+     * @param $action
+     * @param string $options
+     * @return null|string
+     */
     protected function o_acroform($id, $action, $options = '')
     {
         switch ($action) {
@@ -2059,6 +2170,13 @@ EOT;
 
             case 'addfield':
                 $this->objects[$id]['info']['Fields'][] = $options;
+                break;
+
+            case 'font':
+                $this->objects[$id]['fonts'][$options['fontNum']] = [
+                  'objNum' => $options['objNum'],
+                  'fontNum' => $options['fontNum']
+                ];
                 break;
 
             case "out":
@@ -2079,18 +2197,15 @@ EOT;
                     }
                 }
 
-                $res .= "/DR << /Font << ";
-                $numPages = $this->objects[$this->catalogId]['info']['pages'];
-                foreach($this->objects[$numPages]['info']['fonts'] as $item)
-                {
-                    if (in_array($item['fontNum'], $this->acroFormFonts))
-                    {
-                        $objNum = $item['objNum'];
-                        $fontNum = $item['fontNum'];
-                        $res .= "/F$fontNum $objNum 0 R ";
+                $res .= "/DR <<\n";
+                if (isset($o['fonts']) && count($o['fonts'])) {
+                    $res .= "/Font << \n";
+                    foreach ($o['fonts'] as $finfo) {
+                        $res .= "/F" . $finfo['fontNum'] . " " . $finfo['objNum'] . " 0 R\n";
                     }
+                    $res .= ">>\n";
                 }
-                $res .= " >> >>\n";
+                $res .= ">>\n";
 
                 $res .= ">>\nendobj";
 
@@ -2135,18 +2250,24 @@ EOT;
                             break;
                         case 'value':
                             if ($encrypted) {
-                                $v = $this->ARC4($v);
+                                $v = $this->filterText($this->ARC4($v), false, false);
                             }
                             $res .= "/V ($v)\n";
                             break;
                         case 'refvalue':
                             $res .= "/V $v 0 R\n";
                             break;
+                        case 'da':
+                            if ($encrypted) {
+                                $v = $this->filterText($this->ARC4($v), false, false);
+                            }
+                            $res .= "/DA ($v)\n";
+                            break;
                         case 'options':
                             $res .= "/Opt [\n";
                             foreach ($v as $opt) {
                                 if ($encrypted) {
-                                    $opt = $this->ARC4($opt);
+                                    $opt = $this->filterText($this->ARC4($opt), false, false);
                                 }
                                 $res .= "($opt)\n";
                             }
@@ -2159,9 +2280,16 @@ EOT;
                             }
                             $res .= "]\n";
                             break;
+                        case 'appearance':
+                            $res .= "/AP << ";
+                            foreach ($v as $a => $ref) {
+                                $res .= "/$a $ref 0 R ";
+                            }
+                            $res .= ">>\n";
+                            break;
                         case 'T':
                             if($encrypted) {
-                                $v = $this->ARC4($v);
+                                $v = $this->filterText($this->ARC4($v), false, false);
                             }
                             $res .= "/T ($v)\n";
                             break;
@@ -2189,7 +2317,7 @@ EOT;
      */
     protected function o_sig($id, $action, $options = '')
     {
-        $sign_maxlen = 5000;
+        $sign_maxlen = $this->signatureMaxLen;
 
         switch ($action) {
             case "new":
@@ -2233,16 +2361,24 @@ EOT;
 
             case "out":
                 $res = "\n$id 0 obj\n<<\n";
-                $res .= "/ByteRange " .sprintf("[ %'.010d ********** ********** ********** ]\n", $id);
-                $res .= "/Contents <" . str_pad('', $sign_maxlen, '0') . ">\n";
-                $res .= "/Filter/Adobe.PPKLite \n"; //PPKMS \n";
-                $res .= "/Type/Sig/SubFilter/adbe.pkcs7.detached \n";
-                $res .= "/M (D:" . substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'' . ")\n";
 
                 $encrypted = $this->encrypted;
                 if ($encrypted) {
                     $this->encryptInit($id);
                 }
+
+                $res .= "/ByteRange " .sprintf("[ %'.010d ********** ********** ********** ]\n", $id);
+                $res .= "/Contents <" . str_pad('', $sign_maxlen, '0') . ">\n";
+                $res .= "/Filter/Adobe.PPKLite\n"; //PPKMS \n";
+                $res .= "/Type/Sig/SubFilter/adbe.pkcs7.detached \n";
+
+                $date = "D:" . substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'';
+                if ($encrypted) {
+                    $date = $this->ARC4($date);
+                }
+
+                $res .= "/M ($date)\n";
+                $res .= "/Prop_Build << /App << /Name /DomPDF >> /Filter << /Name /Adobe.PPKLite >> >>\n";
 
                 $o = &$this->objects[$id];
                 foreach ($o['info'] as $k => $v) {
@@ -2252,7 +2388,8 @@ EOT;
                         case 'Reason':
                         case 'ContactInfo':
                             if ($v !== null && $v !== '') {
-                                $res .= "/$k (" . ($encrypted ? $this->ARC4($v) : $v) . ") \n";
+                                $res .= "/$k (" .
+                                  ($encrypted ? $this->filterText($this->ARC4($v), false, false) : $v) . ") \n";
                             }
                             break;
                     }
@@ -3872,9 +4009,36 @@ EOT;
     }
 
     /**
+     * @param string $subtype
+     * @param integer $x
+     * @param integer $y
+     * @param integer $w
+     * @param integer $h
+     * @return int
+     */
+    function addXObject($subtype, $x, $y, $w, $h)
+    {
+        $id = ++$this->numObj;
+        $this->o_xobject($id, 'new', ['Subtype' => $subtype, 'bbox' => [$x, $y, $w, $h]]);
+        return $id;
+    }
+
+    /**
+     * @param integer $numXObject
+     * @param string $type
+     * @param array $options
+     */
+    function setXObjectResource($numXObject, $type, $options)
+    {
+        if (in_array($type, ['procset', 'font', 'xObject'])) {
+            $this->o_xobject($numXObject, $type, $options);
+        }
+    }
+
+    /**
      * add signature
      *
-     * $fieldSigId = $cpdf->addFormField('Sig', 'Signature1', 0, 0, 0, 0, 0);
+     * $fieldSigId = $cpdf->addFormField(Cpdf::ACROFORM_FIELD_SIG, 'Signature1', 0, 0, 0, 0, 0);
      *
      * $signatureId = $cpdf->addSignature([
      *   'signcert' => file_get_contents('dompdf.crt'),
@@ -3890,10 +4054,10 @@ EOT;
      * @param string $signcert
      * @param string $privkey
      * @param string $password
-     * @param null $name
-     * @param null $location
-     * @param null $reason
-     * @param null $contactinfo
+     * @param string|null $name
+     * @param string|null $location
+     * @param string|null $reason
+     * @param string|null $contactinfo
      * @return int
      */
     function addSignature($signcert, $privkey, $password = '',
@@ -3927,14 +4091,20 @@ EOT;
      * @param array $color
      * @return int
      */
-    public function addFormField($type, $name, $x0, $y0, $x1, $y1, $ff = 0, $size, $color)
+    public function addFormField($type, $name, $x0, $y0, $x1, $y1, $ff = 0, $size = 10.0, $color = [0, 0, 0])
     {
         if (!$this->numFonts) {
             $this->selectFont($this->defaultFont);
         }
 
         $color = implode(' ', $color) . ' rg';
-        $this->acroFormFonts[] = $this->currentFontNum;
+
+        $currentFontNum = $this->currentFontNum;
+        $font = array_filter($this->objects[$this->currentNode]['info']['fonts'],
+          function($item) use ($currentFontNum) { return $item['fontNum'] == $currentFontNum; });
+
+        $this->o_acroform($this->acroFormId, 'font',
+          ['objNum' => $font[0]['objNum'], 'fontNum' => $font[0]['fontNum']]);
 
         $fieldId = ++$this->numObj;
         $this->o_field($fieldId, 'new', [
@@ -3944,7 +4114,7 @@ EOT;
           'T' => $name,
           'Ff' => $ff,
           'pageid' => $this->currentPage,
-          'DA' => "($color /F$this->currentFontNum " . sprintf('%.1F Tf ', $size) . ")"
+          'da' => "$color /F$this->currentFontNum " . sprintf('%.1F Tf ', $size)
         ]);
 
         return $fieldId;
@@ -3953,12 +4123,12 @@ EOT;
     /**
      * set Field value
      *
-     * @param integer $formFieldId
+     * @param integer $numFieldObj
      * @param string $value
      */
-    public function setFormFieldValue($formFieldId, $value)
+    public function setFormFieldValue($numFieldObj, $value)
     {
-        $this->o_field($formFieldId, 'set', ['value' => $value]);
+        $this->o_field($numFieldObj, 'set', ['value' => $value]);
     }
 
     /**
@@ -3973,27 +4143,50 @@ EOT;
     }
 
     /**
+     * set Field Appearanc (reference)
+     *
+     * @param integer $numFieldObj
+     * @param integer $normalNumObj
+     * @param integer|null $rolloverNumObj
+     * @param integer|null $downNumObj
+     */
+    public function setFormFieldAppearance($numFieldObj, $normalNumObj, $rolloverNumObj = null, $downNumObj = null)
+    {
+        $appearance['N'] = $normalNumObj;
+
+        if ($rolloverNumObj !== null) {
+            $appearance['R'] = $rolloverNumObj;
+        }
+
+        if ($downNumObj !== null) {
+            $appearance['D'] = $downNumObj;
+        }
+
+        $this->o_field($numFieldObj, 'set', ['appearance' => $appearance]);
+    }
+
+    /**
      * set Choice Field option values
      *
-     * @param $formFieldId
-     * @param $value
+     * @param integer $numFieldObj
+     * @param array $value
      */
-    public function setFormFieldOpt($formFieldId, $value)
+    public function setFormFieldOpt($numFieldObj, $value)
     {
-        $this->o_field($formFieldId, 'set', ['options' => $value]);
+        $this->o_field($numFieldObj, 'set', ['options' => $value]);
     }
 
     /**
      * add form to document
      *
-     * @param string $sigFlags
-     * @param string $needAppearances
+     * @param integer $sigFlags
+     * @param boolean $needAppearances
      */
-    public function addForm($sigFlags = '0', $needAppearances = 'false')
+    public function addForm($sigFlags = 0, $needAppearances = false)
     {
         $this->acroFormId = ++$this->numObj;
         $this->o_acroform($this->acroFormId, 'new', [
-          'NeedAppearances' => $needAppearances,
+          'NeedAppearances' => $needAppearances ? 'true' : 'false',
           'SigFlags' => $sigFlags
         ]);
     }

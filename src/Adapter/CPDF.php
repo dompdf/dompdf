@@ -924,11 +924,6 @@ class CPDF implements Canvas
             $pdf->addForm();
         }
 
-//        $h = ($pdf-> / ($font_size > 0 ? $font_size : 1)) * $this->_dompdf->getFontMetrics()->getFontHeight($font_family, $font_size);
-        // fwrite(STDOUT, $style->get_line_height());
-
-
-
         $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
         $ff = 0;
 
