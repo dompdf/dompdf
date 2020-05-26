@@ -2338,10 +2338,20 @@ EOT;
                 $tmpInput = $this->tmp . "/pkcs7.tmp." . $fuid . '.in';
                 $tmpOutput = $this->tmp . "/pkcs7.tmp." . $fuid . '.out';
 
-                file_put_contents($tmpInput, substr($content, 0, $rangeStartPos));
-                file_put_contents($tmpInput, substr($content, $rangeStartPos + 2 + $sign_maxlen), FILE_APPEND);
+                if (file_put_contents($tmpInput, substr($content, 0, $rangeStartPos)) === false) {
+                    throw new \Exception("Unable to write temporary file for signing.");
+                }
+                if (file_put_contents($tmpInput, substr($content, $rangeStartPos + 2 + $sign_maxlen),
+                    FILE_APPEND) === false) {
+                    throw new \Exception("Unable to write temporary file for signing.");
+                }
 
-                openssl_pkcs7_sign($tmpInput, $tmpOutput, $o['info']['SignCert'], array($o['info']['PrivKey'], $o['info']['Password']), array(), PKCS7_BINARY | PKCS7_DETACHED);
+                if (openssl_pkcs7_sign($tmpInput, $tmpOutput,
+                    $o['info']['SignCert'],
+                    array($o['info']['PrivKey'], $o['info']['Password']),
+                    array(), PKCS7_BINARY | PKCS7_DETACHED) === false) {
+                    throw new \Exception("Failed to prepare signature.");
+                }
 
                 $signature = file_get_contents($tmpOutput);
 
@@ -2355,6 +2365,10 @@ EOT;
 
                 $signature = current(unpack('H*', $signature));
                 $signature = str_pad($signature, $sign_maxlen, '0');
+                $siglen = strlen($signature);
+                if (strlen($signature) > $sign_maxlen) {
+                    throw new \Exception("Signature length ($siglen) exceeds the $sign_maxlen limit.");
+                }
 
                 $content = substr_replace($content, $signature, $rangeStartPos + 1, $sign_maxlen);
                 break;
