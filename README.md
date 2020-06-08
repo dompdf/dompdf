@@ -43,7 +43,7 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  * Image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
  * No dependencies on external PDF libraries, thanks to the R&OS PDF class
  * Inline PHP support
- * Basic SVG support
+ * Basic SVG support (see "Limitations" below)
  
 ## Requirements
 
@@ -208,6 +208,12 @@ See [Dompdf\Options](src/Options.php) for a list of available options.
    [W3C Markup Validation Service](http://validator.w3.org)).
  * Table cells are not pageable, meaning a table row must fit on a single page.
  * Elements are rendered on the active page when they are parsed.
+ * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet, you need to
+   either link to an external SVG file, or use a DataURI like this:
+     ```php
+     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
+     ```
+     Watch https://github.com/dompdf/dompdf/issues/320 for progress
 
 ---
 
