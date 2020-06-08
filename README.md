@@ -208,7 +208,8 @@ See [Dompdf\Options](src/Options.php) for a list of available options.
    [W3C Markup Validation Service](http://validator.w3.org)).
  * Table cells are not pageable, meaning a table row must fit on a single page.
  * Elements are rendered on the active page when they are parsed.
- * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet, you need to use a DataURI, like this:
+ * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet, you need to
+   either link to an external SVG file, or use a DataURI like this:
      ```php
      $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
      ```
