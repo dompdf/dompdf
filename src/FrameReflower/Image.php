@@ -58,21 +58,23 @@ class Image extends AbstractFrameReflower
      */
     function get_min_max_width()
     {
+        $frame = $this->_frame;
+
         if ($this->get_dompdf()->getOptions()->getDebugPng()) {
             // Determine the image's size. Time consuming. Only when really needed?
-            list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url(), $this->get_dompdf()->getHttpContext());
+            list($img_width, $img_height) = Helpers::dompdf_getimagesize($frame->get_image_url(), $this->get_dompdf()->getHttpContext());
             print "get_min_max_width() " .
-                $this->_frame->get_style()->width . ' ' .
-                $this->_frame->get_style()->height . ';' .
-                $this->_frame->get_parent()->get_style()->width . " " .
-                $this->_frame->get_parent()->get_style()->height . ";" .
-                $this->_frame->get_parent()->get_parent()->get_style()->width . ' ' .
-                $this->_frame->get_parent()->get_parent()->get_style()->height . ';' .
+                $frame->get_style()->width . ' ' .
+                $frame->get_style()->height . ';' .
+                $frame->get_parent()->get_style()->width . " " .
+                $frame->get_parent()->get_style()->height . ";" .
+                $frame->get_parent()->get_parent()->get_style()->width . ' ' .
+                $frame->get_parent()->get_parent()->get_style()->height . ';' .
                 $img_width . ' ' .
                 $img_height . '|';
         }
 
-        $style = $this->_frame->get_style();
+        $style = $frame->get_style();
 
         $width_forced = true;
         $height_forced = true;
@@ -83,26 +85,26 @@ class Image extends AbstractFrameReflower
         //
         //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
 
-        $width = $this->get_size($this->_frame, 'width');
-        $height = $this->get_size($this->_frame, 'height');
+        $width = $this->get_size($frame, 'width');
+        $height = $this->get_size($frame, 'height');
 
-        if ($width == 0 || $height == 0) {
+        if ($width === 'auto' || $height === 'auto') {
             // Determine the image's size. Time consuming. Only when really needed!
-            list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url(), $this->get_dompdf()->getHttpContext());
+            list($img_width, $img_height) = Helpers::dompdf_getimagesize($frame->get_image_url(), $this->get_dompdf()->getHttpContext());
 
             // don't treat 0 as error. Can be downscaled or can be catched elsewhere if image not readable.
             // Resample according to px per inch
             // See also ListBulletImage::__construct
-            if ($width == 0 && $height == 0) {
-                $dpi = $this->_frame->get_dompdf()->getOptions()->getDpi();
+            if ($width === 'auto' && $height === 'auto') {
+                $dpi = $frame->get_dompdf()->getOptions()->getDpi();
                 $width = (float)($img_width * 72) / $dpi;
                 $height = (float)($img_height * 72) / $dpi;
                 $width_forced = false;
                 $height_forced = false;
-            } elseif ($height == 0 && $width != 0) {
+            } elseif ($height === 'auto') {
                 $height_forced = false;
                 $height = ($width / $img_width) * $img_height; //keep aspect ratio
-            } elseif ($width == 0 && $height != 0) {
+            } else {
                 $width_forced = false;
                 $width = ($height / $img_height) * $img_width; //keep aspect ratio
             }
@@ -115,7 +117,7 @@ class Image extends AbstractFrameReflower
             $style->max_height !== "none"
         ) {
 
-            list($w, $h) = $this->_frame->get_containing_block();
+            list( /*$x*/, /*$y*/, $w, $h) = $frame->get_containing_block();
 
             $min_width = $style->length_in_pt($style->min_width, $w);
             $max_width = $style->length_in_pt($style->max_width, $w);
@@ -180,8 +182,9 @@ class Image extends AbstractFrameReflower
             if (Helpers::is_percent($current_size)) {
                 $ref_stack[] = str_replace('%px', '%', $current_size);
             } else {
-                $result_size = $f_style->length_in_pt($current_size);
-                if ($result_size != 0) {
+                // auto is a valid first result. In case of previous percentage values we need a real size
+                if ($current_size !== 'auto' || count($ref_stack) === 0) {
+                    $result_size = $f_style->length_in_pt($current_size);
                     break;
                 }
             }

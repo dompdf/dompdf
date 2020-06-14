@@ -12,7 +12,24 @@ use Mockery;
 
 class ImageTest extends TestCase
 {
-    public function testGetMinMaxWidthBasic(): void
+    public function testGetMinMaxContainerWidthAuto(): void
+    {
+        $frame = $this->getImageMock(['width' => 'auto', 'height' => 'auto']);
+
+        $image = new Image($frame);
+        $result = $image->get_min_max_width();
+
+        $style = $frame->get_style();
+
+        $expectedWidth = 1966.08;
+
+        $this->assertEquals($expectedWidth . 'pt', $style->width);
+        $this->assertEquals('1474.56' . 'pt', $style->height);
+
+        $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
+    }
+
+    public function testGetMinMaxContainerWidthBasic(): void
     {
         $frame = $this->getImageMock(['width' => '100px', 'height' => '200px']);
 
@@ -59,10 +76,10 @@ class ImageTest extends TestCase
 
         $style = $frame->get_style();
 
-        $expectedWidth = 1966.08;
+        $expectedWidth = 0;
 
         $this->assertEquals($expectedWidth . 'pt', $style->width);
-        $this->assertEquals('1474.56' . 'pt', $style->height);
+        $this->assertEquals(0 . 'pt', $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -119,7 +136,7 @@ class ImageTest extends TestCase
             ]
         );
 
-        $frame->shouldReceive('get_containing_block')->andReturn([400, 400]);
+        $frame->shouldReceive('get_containing_block')->andReturn([0, 0, 400, 400]);
 
         return $frame;
     }
