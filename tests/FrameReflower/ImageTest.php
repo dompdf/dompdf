@@ -136,7 +136,7 @@ class ImageTest extends TestCase
             ]
         );
 
-        $frame->shouldReceive('get_containing_block')->andReturn([400, 400]);
+        $frame->shouldReceive('get_containing_block')->andReturn([0, 0, 400, 400]);
 
         return $frame;
     }

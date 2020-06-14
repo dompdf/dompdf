@@ -117,7 +117,7 @@ class Image extends AbstractFrameReflower
             $style->max_height !== "none"
         ) {
 
-            list($w, $h) = $frame->get_containing_block();
+            list( /*$x*/, /*$y*/, $w, $h) = $frame->get_containing_block();
 
             $min_width = $style->length_in_pt($style->min_width, $w);
             $max_width = $style->length_in_pt($style->max_width, $w);
