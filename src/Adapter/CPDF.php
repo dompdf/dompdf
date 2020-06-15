@@ -879,6 +879,71 @@ class CPDF implements Canvas
         }
     }
 
+    public function select($x, $y, $w, $h, $font, $size, $color = [0, 0, 0], $opts = [])
+    {
+        $pdf = $this->_pdf;
+
+        $font .= ".afm";
+        $pdf->selectFont($font);
+
+        if (!isset($pdf->acroFormId)) {
+            $pdf->addForm();
+        }
+
+        $ft = \Dompdf\Cpdf::ACROFORM_FIELD_CHOICE;
+        $ff = \Dompdf\Cpdf::ACROFORM_FIELD_CHOICE_COMBO;
+
+        $id = $pdf->addFormField($ft, rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
+        $pdf->setFormFieldOpt($id, $opts);
+    }
+
+    public function textarea($x, $y, $w, $h, $font, $size, $color = [0, 0, 0])
+    {
+        $pdf = $this->_pdf;
+
+        $font .= ".afm";
+        $pdf->selectFont($font);
+
+        if (!isset($pdf->acroFormId)) {
+            $pdf->addForm();
+        }
+
+        $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
+        $ff = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT_MULTILINE;
+
+        $pdf->addFormField($ft, rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
+    }
+
+    public function input($x, $y, $w, $h, $type, $font, $size, $color = [0, 0, 0])
+    {
+        $pdf = $this->_pdf;
+
+        $font .= ".afm";
+        $pdf->selectFont($font);
+
+        if (!isset($pdf->acroFormId)) {
+            $pdf->addForm();
+        }
+
+        $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
+        $ff = 0;
+
+        switch($type) {
+            case 'text':
+                $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
+                break;
+            case 'password':
+                $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
+                $ff = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT_PASSWORD;
+                break;
+            case 'submit':
+                $ft = \Dompdf\Cpdf::ACROFORM_FIELD_BUTTON;
+                break;
+        }
+
+        $pdf->addFormField($ft, rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
+    }
+
     /**
      * @param float $x
      * @param float $y
