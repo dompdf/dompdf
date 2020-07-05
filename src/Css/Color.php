@@ -228,7 +228,11 @@ class Color
             // FIXME: not currently using transparency
             $alpha = 1.0;
             if (count($triplet) == 4) {
-                $alpha = (float)(trim(array_pop($triplet)));
+                $alpha = (trim(array_pop($triplet)));
+                if (Helpers::is_percent($alpha)) {
+                    $alpha = round((float)$alpha / 100, 2);
+                }
+                $alpha = (float)$alpha;
                 // bad value, set to fully opaque
                 if ($alpha > 1.0 || $alpha < 0.0) {
                     $alpha = 1.0;
