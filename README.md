@@ -192,7 +192,9 @@ or at run time
 use Dompdf\Dompdf;
 
 $dompdf = new Dompdf();
-$dompdf->set_option('defaultFont', 'Courier');
+$options = $dompdf->getOptions();
+$options->setDefaultFont('Courier');
+$dompdf->setOptions($options);
 ```
 
 See [Dompdf\Options](src/Options.php) for a list of available options.
@@ -202,7 +204,7 @@ See [Dompdf\Options](src/Options.php) for a list of available options.
 
  * Dompdf is not particularly tolerant to poorly-formed HTML input. To avoid
    any unexpected rendering issues you should either enable the built-in HTML5
-   parser at runtime (`$dompdf->set_option('isHtml5ParserEnabled', true);`) 
+   parser at runtime (`$options->setIsHtml5ParserEnabled(true);`) 
    or run your HTML through a HTML validator/cleaner (such as
    [Tidy](http://tidy.sourceforge.net) or the
    [W3C Markup Validation Service](http://validator.w3.org)).
