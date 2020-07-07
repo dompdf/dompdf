@@ -415,6 +415,24 @@ class Dompdf
         $this->loadHtml($str, $encoding);
     }
 
+    public function loadDOM($doc, $quirksmode = false) {
+        $this->saveLocale();
+
+        // Remove #text children nodes in nodes that shouldn't have
+        $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+        foreach ($tag_names as $tag_name) {
+            $nodes = $doc->getElementsByTagName($tag_name);
+
+            foreach ($nodes as $node) {
+                self::removeTextNodes($node);
+            }
+        }
+
+        $this->dom = $doc;
+        $this->quirksmode = $quirksmode;
+        $this->tree = new FrameTree($this->dom);
+    }
+
     /**
      * Loads an HTML string
      * Parse errors are stored in the global array _dompdf_warnings.
@@ -484,16 +502,6 @@ class Dompdf
                 $tokenizer->parse();
                 $doc = $tokenizer->save();
 
-                // Remove #text children nodes in nodes that shouldn't have
-                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-                foreach ($tag_names as $tag_name) {
-                    $nodes = $doc->getElementsByTagName($tag_name);
-
-                    foreach ($nodes as $node) {
-                        self::removeTextNodes($node);
-                    }
-                }
-
                 $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
             } else {
                 // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
@@ -503,16 +511,6 @@ class Dompdf
                 $doc->preserveWhiteSpace = true;
                 $doc->loadHTML($str);
                 $doc->encoding = $encoding;
-
-                // Remove #text children nodes in nodes that shouldn't have
-                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-                foreach ($tag_names as $tag_name) {
-                    $nodes = $doc->getElementsByTagName($tag_name);
-
-                    foreach ($nodes as $node) {
-                        self::removeTextNodes($node);
-                    }
-                }
 
                 // If some text is before the doctype, we are in quirksmode
                 if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
@@ -533,10 +531,7 @@ class Dompdf
                 }
             }
 
-            $this->dom = $doc;
-            $this->quirksmode = $quirksmode;
-
-            $this->tree = new FrameTree($this->dom);
+            $this->loadDOM($doc, $quirksmode);
         } finally {
             restore_error_handler();
             $this->restoreLocale();
