@@ -416,8 +416,6 @@ class Dompdf
     }
 
     public function loadDOM($doc, $quirksmode = false) {
-        $this->saveLocale();
-
         // Remove #text children nodes in nodes that shouldn't have
         $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
         foreach ($tag_names as $tag_name) {
