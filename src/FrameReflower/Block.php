@@ -492,7 +492,7 @@ class Block extends AbstractFrameReflower
 
                     // Set the spacing for each child
                     if ($line->wc > 1) {
-                        $spacing = ($width - ($line->left + $line->w + $line->right) + $space_width) / ($line->wc - 1);
+                        $spacing = ($width - ($line->left + $line->w + $line->right)) / ($line->wc - 1);
                     } else {
                         $spacing = 0;
                     }
