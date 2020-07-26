@@ -267,7 +267,6 @@ class Text extends AbstractFrameReflower
         if ($split !== false) {
             // Handle edge cases
             if ($split == 0 && !$frame->is_pre() && empty(trim($text))) {
-            if ($split == 0 && $text === " ") {
                 $frame->set_text("");
             } else if ($split === 0) {
                 // Remove any trailing white space from the previous sibling
