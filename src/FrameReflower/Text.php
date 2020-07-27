@@ -271,7 +271,7 @@ class Text extends AbstractFrameReflower
             } else if ($split === 0) {
                 // Remove any trailing white space from the previous sibling
                 if (($sibling = $frame->get_prev_sibling()) !== null) {
-                    if ($sibling instanceof Dompdf\FrameDecorator\Text && !$sibling->is_pre()) {
+                    if ($sibling instanceof \Dompdf\FrameDecorator\Text && !$sibling->is_pre()) {
                         $st = $sibling->get_text();
                         if (preg_match(self::$_whitespace_pattern, mb_substr($st, -1))) {
                             $sibling->set_text(mb_substr($st, 0, -1));
