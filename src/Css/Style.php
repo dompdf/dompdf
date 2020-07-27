@@ -970,7 +970,6 @@ class Style
         if ($reset_value) {
             $this->_props[$prop] = $specified_value;
             $this->_props_computed[$prop] = $computed_value;
-            $this->_prop_cache[$prop] = null;
         }
 
         return $retval;
@@ -985,8 +984,6 @@ class Style
     function set_prop($prop, $val)
     {
         $prop = str_replace("-", "_", $prop);
-        $this->_props_computed[$prop] = null;
-        $this->_prop_cache[$prop] = null;
 
         if (!isset(self::$_defaults[$prop])) {
             global $_dompdf_warnings;
@@ -994,13 +991,16 @@ class Style
             return;
         }
 
-        // clean up the value
         if ($prop !== "content" && is_string($val) && strlen($val) > 5 && mb_strpos($val, "url") === false) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
         $this->_props[$prop] = $val;
+        $this->_props_computed[$prop] = null;
+        $this->_prop_cache[$prop] = null;
+
+        //FIXME: this doesn't work for shorthand properties
     }
 
     /**
