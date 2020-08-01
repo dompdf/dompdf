@@ -31,7 +31,12 @@ class Text extends AbstractFrameReflower
      */
     protected $_frame;
 
-    public static $_whitespace_pattern = "/[ \t\r\n\f]+/u";
+    // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0)
+    // This currently excludes the "narrow nbsp" character
+    public static $_whitespace_pattern = '/([^\S\xA0]+)/u';
+    // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
+    // This currently excludes the "narrow nbsp" character
+    public static $_wordbreak_pattern = '/([^\S\xA0]+|-+)/u';
 
     /**
      * @var FontMetrics
@@ -106,9 +111,7 @@ class Text extends AbstractFrameReflower
         }
 
         // split the text into words
-        // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
-        // This currently excludes the "narrow nbsp" character
-        $words = preg_split('/([^\S\xA0]+|-+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $words = preg_split(self::$_wordbreak_pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         $wc = count($words);
 
         // Determine the split point
@@ -155,8 +158,6 @@ class Text extends AbstractFrameReflower
                 $str .= $word;
             }
         }
-
-        $str = rtrim($str);
 
         $offset = mb_strlen($str);
 
@@ -260,17 +261,26 @@ class Text extends AbstractFrameReflower
 
         // Handle degenerate case
         if ($text === "") {
-            return $add_line;
+            $split = 0;
         }
 
         if ($split !== false) {
             // Handle edge cases
-            if ($split == 0 && $text === " ") {
+            if ($split == 0 && !$frame->is_pre() && empty(trim($text))) {
                 $frame->set_text("");
-                return $add_line;
-            }
+            } else if ($split === 0) {
+                // Remove any trailing white space from the previous sibling
+                if (($sibling = $frame->get_prev_sibling()) !== null) {
+                    if ($sibling instanceof \Dompdf\FrameDecorator\Text && !$sibling->is_pre()) {
+                        $st = $sibling->get_text();
+                        if (preg_match(self::$_whitespace_pattern, mb_substr($st, -1))) {
+                            $sibling->set_text(mb_substr($st, 0, -1));
+                            $sibling->recalculate_width();
+                            $this->_block_parent->get_current_line_box()->recalculate_width();
+                        }
+                    }
+                }
 
-            if ($split == 0) {
                 // Trim newlines from the beginning of the line
                 //$this->_frame->set_text(ltrim($text, "\n\r"));
 
@@ -284,13 +294,6 @@ class Text extends AbstractFrameReflower
                 // split the line if required
                 $frame->split_text($split);
 
-                $t = $frame->get_text();
-
-                // Remove any trailing newlines
-                if ($split > 1 && $t[$split - 1] === "\n" && !$frame->is_pre()) {
-                    $frame->set_text(mb_substr($t, 0, -1));
-                }
-
                 // Do we need to trim spaces on wrapped lines? This might be desired, however, we
                 // can't trim the lines here or the layout will be affected if trimming the line
                 // leaves enough space to fit the next word in the text stream (because pdf layout
@@ -299,6 +302,14 @@ class Text extends AbstractFrameReflower
                   $t = $this->_frame->get_text();
                   $this->_frame->set_text( trim($t) );
                 }*/
+            }
+
+            // Remove any trailing white space
+            if (!$frame->is_pre() && $add_line) {
+                $t = $frame->get_text();
+                if (preg_match(self::$_whitespace_pattern, mb_substr($t, -1))) {
+                    $frame->set_text(mb_substr($t, 0, -1));
+                }
             }
         } else {
             // Remove empty space from start and end of line, but only where there isn't an inline sibling
@@ -360,7 +371,7 @@ class Text extends AbstractFrameReflower
         if ($block) {
             $block->add_frame_to_line($frame);
 
-            if ($add_line) {
+            if ($add_line === true) {
                 $block->add_line();
             }
         }
@@ -398,9 +409,7 @@ class Text extends AbstractFrameReflower
                 // Find the longest word (i.e. minimum length)
 
                 // split the text into words
-                // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
-                // This currently excludes the "narrow nbsp" character
-                $words = array_flip(preg_split('/([^\S\xA0]+|-+)/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE));
+                $words = array_flip(preg_split(self::$_wordbreak_pattern, $str, -1, PREG_SPLIT_DELIM_CAPTURE));
                 $root = $this;
                 array_walk($words, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
                     $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
