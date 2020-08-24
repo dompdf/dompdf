@@ -203,6 +203,30 @@ class FontMetrics
         $entry[$styleString] = $cacheEntry;
 
         // Download the remote file
+        [$protocol, $baseHost, $basePath] = Helpers::explode_url($remoteFile);
+        if (!$this->options->isRemoteEnabled() && ($protocol != "" && $protocol !== "file://")) {
+            Helpers::record_warnings(E_USER_WARNING, "Remote font resource $remoteFile referenced, but remote file download is disabled.", __FILE__, __LINE__);
+            return false;
+        }
+        if ($protocol == "" || $protocol === "file://") {
+            $realfile = realpath($remoteFile);
+
+            $rootDir = realpath($this->options->getRootDir());
+            if (strpos($realfile, $rootDir) !== 0) {
+                $chroot = realpath($this->options->getChroot());
+                if (!$chroot || strpos($realfile, $chroot) !== 0) {
+                    Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The file could not be found under the directory specified by Options::chroot.", __FILE__, __LINE__);
+                    return false;
+                }
+            }
+
+            if (!$realfile) {
+                Helpers::record_warnings(E_USER_WARNING, "File '$realfile' not found.", __FILE__, __LINE__);
+                return false;
+            }
+
+            $remoteFile = $realfile;
+        }
         list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
         if (empty($remoteFileContent)) {
             return false;
