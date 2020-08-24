@@ -63,11 +63,20 @@ class Helpers
         }
 
         // Is the url already fully qualified, a Data URI, or a reference to a named anchor?
-        if (mb_strpos($url, "://") !== false || mb_substr($url, 0, 1) === "#" || mb_strpos($url, "data:") === 0 || mb_strpos($url, "mailto:") === 0 || mb_strpos($url, "tel:") === 0) {
+        // File-protocol URLs may require additional processing (e.g. for URLs with a relative path)
+        if ((mb_strpos($url, "://") !== false && substr($url, 0, 7) !== "file://") || mb_substr($url, 0, 1) === "#" || mb_strpos($url, "data:") === 0 || mb_strpos($url, "mailto:") === 0 || mb_strpos($url, "tel:") === 0) {
             return $url;
         }
 
-        $ret = $protocol;
+        if (strpos($url, "file://") === 0) {
+            $url = substr($url, 7);
+            $protocol = "";
+        }
+
+        $ret = "";
+        if ($protocol != "file://") {
+            $ret = $protocol;
+        }
 
         if (!in_array(mb_strtolower($protocol), ["http://", "https://", "ftp://", "ftps://"])) {
             //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
@@ -75,7 +84,7 @@ class Helpers
             //not known in php app code, treat as abs path
             //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
             if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || (mb_strlen($url) > 1 && $url[0] !== '\\' && $url[1] !== ':'))) {
-                // For rel path and local acess we ignore the host, and run the path through realpath()
+                // For rel path and local access we ignore the host, and run the path through realpath()
                 $ret .= realpath($base_path) . '/';
             }
             $ret .= $url;
