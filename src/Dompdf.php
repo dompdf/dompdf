@@ -651,9 +651,19 @@ class Dompdf
                         $css = $tag->nodeValue;
                     }
 
+                    // Set the base path of the Stylesheet to that of the file being processed
+                    $this->css->set_protocol($this->protocol);
+                    $this->css->set_host($this->baseHost);
+                    $this->css->set_base_path($this->basePath);
+
                     $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
+
+            // Set the base path of the Stylesheet to that of the file being processed
+            $this->css->set_protocol($this->protocol);
+            $this->css->set_host($this->baseHost);
+            $this->css->set_base_path($this->basePath);
         }
     }
 
