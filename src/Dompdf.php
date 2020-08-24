@@ -573,7 +573,7 @@ class Dompdf
     {
         $this->tree->build_tree();
 
-        $this->css->load_css_file(Stylesheet::getDefaultStylesheet(), Stylesheet::ORIG_UA);
+        $this->css->load_css_file($this->css->getDefaultStylesheet(), Stylesheet::ORIG_UA);
 
         $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
         $acceptedmedia[] = $this->options->getDefaultMediaType();

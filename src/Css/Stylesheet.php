@@ -1706,10 +1706,11 @@ class Stylesheet
     /**
      * @return string
      */
-    public static function getDefaultStylesheet()
+    public function getDefaultStylesheet()
     {
-        $dir = realpath(__DIR__ . "/../..");
-        return $dir . self::DEFAULT_STYLESHEET;
+        $options = $this->_dompdf->getOptions();
+        $rootDir = realpath($options->getRootDir());
+        return $rootDir . self::DEFAULT_STYLESHEET;
     }
 
     /**
