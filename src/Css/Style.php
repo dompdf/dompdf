@@ -620,23 +620,23 @@ class Style
                 continue;
             }
 
-            if (($i = mb_strpos($l, "px")) !== false) {
+            if (($i = mb_stripos($l, "px")) !== false) {
                 $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
                 $ret += ((float)mb_substr($l, 0, $i) * 72) / $dpi;
                 continue;
             }
 
-            if (($i = mb_strpos($l, "pt")) !== false) {
+            if (($i = mb_stripos($l, "pt")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i);
                 continue;
             }
 
-            if (($i = mb_strpos($l, "%")) !== false) {
+            if (($i = mb_stripos($l, "%")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) / 100 * (float)$ref_size;
                 continue;
             }
 
-            if (($i = mb_strpos($l, "rem")) !== false) {
+            if (($i = mb_stripos($l, "rem")) !== false) {
                 if ($this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style() === null) {
                     // Interpreting it as "em", see https://github.com/dompdf/dompdf/issues/1406
                     $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size");
@@ -646,33 +646,33 @@ class Style
                 continue;
             }
 
-            if (($i = mb_strpos($l, "em")) !== false) {
+            if (($i = mb_stripos($l, "em")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size");
                 continue;
             }
 
-            if (($i = mb_strpos($l, "cm")) !== false) {
+            if (($i = mb_stripos($l, "cm")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) * 72 / 2.54;
                 continue;
             }
 
-            if (($i = mb_strpos($l, "mm")) !== false) {
+            if (($i = mb_stripos($l, "mm")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) * 72 / 25.4;
                 continue;
             }
 
             // FIXME: em:ex ratio?
-            if (($i = mb_strpos($l, "ex")) !== false) {
+            if (($i = mb_stripos($l, "ex")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size") / 2;
                 continue;
             }
 
-            if (($i = mb_strpos($l, "in")) !== false) {
+            if (($i = mb_stripos($l, "in")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) * 72;
                 continue;
             }
 
-            if (($i = mb_strpos($l, "pc")) !== false) {
+            if (($i = mb_stripos($l, "pc")) !== false) {
                 $ret += (float)mb_substr($l, 0, $i) * 12;
                 continue;
             }
