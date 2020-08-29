@@ -87,7 +87,7 @@ class ListBulletImage extends AbstractFrameDecorator
         //for proper alignment of bullet image and text. Allow image to not fitting on left border.
         //This controls the distance between bullet image and text
         //return $this->_width;
-        return $this->_frame->get_style()->get_font_size() * ListBullet::BULLET_SIZE +
+        return $this->_frame->get_style()->font_size * ListBullet::BULLET_SIZE +
         2 * ListBullet::BULLET_PADDING;
     }
 
@@ -113,7 +113,7 @@ class ListBulletImage extends AbstractFrameDecorator
         //for proper alignment of bullet image and text. Allow image to not fitting on left border.
         //This controls the extra indentation of text to make room for the bullet image.
         //Here use actual image size, not predefined bullet size
-        //return $this->_frame->get_style()->get_font_size()*ListBullet::BULLET_SIZE +
+        //return $this->_frame->get_style()->font_size*ListBullet::BULLET_SIZE +
         //  2 * ListBullet::BULLET_PADDING;
 
         // Small hack to prevent indenting of list text
