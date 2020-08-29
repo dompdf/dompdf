@@ -1220,6 +1220,17 @@ class Style
     }
 
     /**
+     * Returns the background image URI, or "none"
+     * 
+     * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-image
+     * @return string
+     */
+    function get_background_image()
+    {
+        return $this->_image($this->_props_computed["background_image"]);
+    }
+
+    /**
      * Returns the background position as an array
      *
      * The returned array has the following format:
@@ -1561,6 +1572,17 @@ class Style
     }
 
     /**
+     * Returns the list style image URI, or "none"
+     * 
+     * @link http://www.w3.org/TR/CSS21/generate.html#propdef-list-style-image
+     * @return string
+     */
+    function get_list_style_image()
+    {
+        return $this->_image($this->_props_computed["list_style_image"]);
+    }
+
+    /**
      * @param $val
      */
     function get_counter_increment()
@@ -1861,14 +1883,14 @@ class Style
 
     /**
      * Set the background image url
-     * @link     http://www.w3.org/TR/CSS21/colors.html#background-properties
+     * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-image
      *
      * @param string $val
      */
     function set_background_image($val)
     {
         $this->_props["background_image"] = $val;
-        $this->_props_computed["background_image"] = $this->_image($val);
+        $this->_props_computed["background_image"] = "url(" . $this->_image($val) . ")";
         $this->_prop_cache["background_image"] = null;
     }
 
@@ -2895,7 +2917,7 @@ class Style
     function set_list_style_image($val)
     {
         $this->_props["list_style_image"] = $val;
-        $this->_props_computed["list_style_image"] = $this->_image($val);
+        $this->_props_computed["list_style_image"] = "url(" . $this->_image($val) . ")";
         $this->_prop_cache["list_style_image"] = null;
     }
 
@@ -2940,7 +2962,7 @@ class Style
             //Internet Explorer 7/8 and dompdf is right.
 
             if (mb_substr($value, 0, 3) === "url") {
-                $this->_set_style("list_style_image", $this->_image($value), $important);
+                $this->_set_style("list_style_image", $value, $important);
                 continue;
             }
 
