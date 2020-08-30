@@ -11,6 +11,7 @@ namespace Dompdf\FrameDecorator;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\Helpers;
+use Dompdf\Image\Cache;
 
 /**
  * Decorates frames for list bullets with custom images
@@ -54,7 +55,13 @@ class ListBulletImage extends AbstractFrameDecorator
         $frame->get_node()->setAttribute("src", $url);
         $this->_img = new Image($frame, $dompdf);
         parent::__construct($this->_img, $dompdf);
-        list($width, $height) = Helpers::dompdf_getimagesize($this->_img->get_image_url(), $dompdf->getHttpContext());
+
+        if (Cache::is_broken($this->_img->get_image_url())) {
+            $width = 0;
+            $height = 0;
+        } else {
+            list($width, $height) = Helpers::dompdf_getimagesize($this->_img->get_image_url(), $dompdf->getHttpContext());
+        }
 
         // Resample the bullet image to be consistent with 'auto' sized images
         // See also Image::get_min_max_width
@@ -87,7 +94,7 @@ class ListBulletImage extends AbstractFrameDecorator
         //for proper alignment of bullet image and text. Allow image to not fitting on left border.
         //This controls the distance between bullet image and text
         //return $this->_width;
-        return $this->_frame->get_style()->get_font_size() * ListBullet::BULLET_SIZE +
+        return $this->_frame->get_style()->font_size * ListBullet::BULLET_SIZE +
         2 * ListBullet::BULLET_PADDING;
     }
 
@@ -99,7 +106,17 @@ class ListBulletImage extends AbstractFrameDecorator
     function get_height()
     {
         //based on image height
-        return $this->_height;
+        if ($this->_height == 0) {
+            $style = $this->_frame->get_style();
+
+            if ($style->list_style_type === "none") {
+                return 0;
+            }
+    
+            return $style->font_size * ListBullet::BULLET_SIZE + 2 * ListBullet::BULLET_PADDING;
+        } else {
+            return $this->_height;
+        }
     }
 
     /**
@@ -113,11 +130,11 @@ class ListBulletImage extends AbstractFrameDecorator
         //for proper alignment of bullet image and text. Allow image to not fitting on left border.
         //This controls the extra indentation of text to make room for the bullet image.
         //Here use actual image size, not predefined bullet size
-        //return $this->_frame->get_style()->get_font_size()*ListBullet::BULLET_SIZE +
+        //return $this->_frame->get_style()->font_size*ListBullet::BULLET_SIZE +
         //  2 * ListBullet::BULLET_PADDING;
 
         // Small hack to prevent indenting of list text
-        // Image Might not exist, then position like on list_bullet_frame_decorator fallback to none.
+        // Image might not exist, then position like on list_bullet_frame_decorator fallback to none.
         if ($this->_frame->get_style()->list_style_position === "outside" || $this->_width == 0) {
             return 0;
         }
