@@ -3,6 +3,7 @@ composer.phar
 composer.lock
 phpunit.xml
 vendor
+build
 .idea
 .project
 lib/fonts/*.afm.php

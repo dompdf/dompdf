@@ -43,7 +43,7 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
  * Image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
  * No dependencies on external PDF libraries, thanks to the R&OS PDF class
  * Inline PHP support
- * Basic SVG support
+ * Basic SVG support (see "Limitations" below)
  
 ## Requirements
 
@@ -192,7 +192,9 @@ or at run time
 use Dompdf\Dompdf;
 
 $dompdf = new Dompdf();
-$dompdf->set_option('defaultFont', 'Courier');
+$options = $dompdf->getOptions();
+$options->setDefaultFont('Courier');
+$dompdf->setOptions($options);
 ```
 
 See [Dompdf\Options](src/Options.php) for a list of available options.
@@ -202,12 +204,18 @@ See [Dompdf\Options](src/Options.php) for a list of available options.
 
  * Dompdf is not particularly tolerant to poorly-formed HTML input. To avoid
    any unexpected rendering issues you should either enable the built-in HTML5
-   parser at runtime (`$dompdf->set_option('isHtml5ParserEnabled', true);`) 
+   parser at runtime (`$options->setIsHtml5ParserEnabled(true);`) 
    or run your HTML through a HTML validator/cleaner (such as
    [Tidy](http://tidy.sourceforge.net) or the
    [W3C Markup Validation Service](http://validator.w3.org)).
  * Table cells are not pageable, meaning a table row must fit on a single page.
  * Elements are rendered on the active page when they are parsed.
+ * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet, you need to
+   either link to an external SVG file, or use a DataURI like this:
+     ```php
+     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
+     ```
+     Watch https://github.com/dompdf/dompdf/issues/320 for progress
 
 ---
 

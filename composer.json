@@ -26,21 +26,28 @@
             "lib/"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Dompdf\\Tests\\": "tests/"
+        }
+    },
     "require": {
         "php": "^7.1",
         "ext-dom": "*",
         "ext-mbstring": "*",
-        "phenx/php-font-lib": "^0.5.1",
+        "phenx/php-font-lib": "^0.5.2",
         "phenx/php-svg-lib": "^0.3.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5",
-        "squizlabs/php_codesniffer": "^3.5"
+        "squizlabs/php_codesniffer": "^3.5",
+        "mockery/mockery": "^1.3"
     },
     "suggest": {
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
-        "ext-gmagick": "Improves image processing performance"
+        "ext-gmagick": "Improves image processing performance",
+        "ext-zlib": "Needed for pdf stream compression"
     },
     "extra": {
         "branch-alias": {

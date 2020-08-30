@@ -211,7 +211,7 @@ class Color
         } // #rrggbbaa format
         else if ($length == 9 && $color[0] === "#") {
             $alpha = round(hexdec(mb_substr($color, 7, 2))/255, 2);
-            return $cache[$color] = self::getArray(mb_substr($color, 1, 8), $alpha);
+            return $cache[$color] = self::getArray(mb_substr($color, 1, 6), $alpha);
         } // rgb( r,g,b ) / rgba( r,g,b,α ) format
         else if (mb_strpos($color, "rgb") !== false) {
             $i = mb_strpos($color, "(");
@@ -228,7 +228,11 @@ class Color
             // FIXME: not currently using transparency
             $alpha = 1.0;
             if (count($triplet) == 4) {
-                $alpha = (float)(trim(array_pop($triplet)));
+                $alpha = (trim(array_pop($triplet)));
+                if (Helpers::is_percent($alpha)) {
+                    $alpha = round((float)$alpha / 100, 2);
+                }
+                $alpha = (float)$alpha;
                 // bad value, set to fully opaque
                 if ($alpha > 1.0 || $alpha < 0.0) {
                     $alpha = 1.0;
@@ -275,7 +279,7 @@ class Color
             return $cache[$color] = self::getArray($values);
         }
 
-        return null;
+        return self::getArray($color);
     }
 
     /**
@@ -296,6 +300,10 @@ class Color
             $c["alpha"] = $alpha;
             $c["hex"] = "cmyk($c[0],$c[1],$c[2],$c[3])";
         } else {
+            if (ctype_xdigit($color) === false || mb_strlen($color) !== 6) {
+                // invalid color value ... expected 6-character hex
+                return $c;
+            }
             $c[0] = hexdec(mb_substr($color, 0, 2)) / 0xff;
             $c[1] = hexdec(mb_substr($color, 2, 2)) / 0xff;
             $c[2] = hexdec(mb_substr($color, 4, 2)) / 0xff;
@@ -303,7 +311,7 @@ class Color
             $c["g"] = $c[1];
             $c["b"] = $c[2];
             $c["alpha"] = $alpha;
-            $c["hex"] = sprintf("#%s%02X", mb_substr($color, 0, 6), round($alpha * 255));
+            $c["hex"] = sprintf("#%s%02X", $color, round($alpha * 255));
         }
 
         return $c;

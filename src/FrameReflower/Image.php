@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Frame;
 use Dompdf\Helpers;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
@@ -57,21 +58,23 @@ class Image extends AbstractFrameReflower
      */
     function get_min_max_width()
     {
+        $frame = $this->_frame;
+
         if ($this->get_dompdf()->getOptions()->getDebugPng()) {
             // Determine the image's size. Time consuming. Only when really needed?
-            list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url(), $this->get_dompdf()->getHttpContext());
+            list($img_width, $img_height) = Helpers::dompdf_getimagesize($frame->get_image_url(), $this->get_dompdf()->getHttpContext());
             print "get_min_max_width() " .
-                $this->_frame->get_style()->width . ' ' .
-                $this->_frame->get_style()->height . ';' .
-                $this->_frame->get_parent()->get_style()->width . " " .
-                $this->_frame->get_parent()->get_style()->height . ";" .
-                $this->_frame->get_parent()->get_parent()->get_style()->width . ' ' .
-                $this->_frame->get_parent()->get_parent()->get_style()->height . ';' .
+                $frame->get_style()->width . ' ' .
+                $frame->get_style()->height . ';' .
+                $frame->get_parent()->get_style()->width . " " .
+                $frame->get_parent()->get_style()->height . ";" .
+                $frame->get_parent()->get_parent()->get_style()->width . ' ' .
+                $frame->get_parent()->get_parent()->get_style()->height . ';' .
                 $img_width . ' ' .
                 $img_height . '|';
         }
 
-        $style = $this->_frame->get_style();
+        $style = $frame->get_style();
 
         $width_forced = true;
         $height_forced = true;
@@ -82,61 +85,26 @@ class Image extends AbstractFrameReflower
         //
         //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
 
-        $width = ($style->width > 0 ? $style->width : 0);
-        if (Helpers::is_percent($width)) {
-            $t = 0.0;
-            for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
-                $f_style = $f->get_style();
-                $t = $f_style->length_in_pt($f_style->width);
-                if ($t != 0) {
-                    break;
-                }
-            }
-            $width = ((float)rtrim($width, "%") * $t) / 100; //maybe 0
-        } else {
-            // Don't set image original size if "%" branch was 0 or size not given.
-            // Otherwise aspect changed on %/auto combination for width/height
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            $width = $style->length_in_pt($width);
-        }
+        $width = $this->get_size($frame, 'width');
+        $height = $this->get_size($frame, 'height');
 
-        $height = ($style->height > 0 ? $style->height : 0);
-        if (Helpers::is_percent($height)) {
-            $t = 0.0;
-            for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
-                $f_style = $f->get_style();
-                $t = (float)$f_style->length_in_pt($f_style->height);
-                if ($t != 0) {
-                    break;
-                }
-            }
-            $height = ((float)rtrim($height, "%") * $t) / 100; //maybe 0
-        } else {
-            // Don't set image original size if "%" branch was 0 or size not given.
-            // Otherwise aspect changed on %/auto combination for width/height
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            $height = $style->length_in_pt($height);
-        }
-
-        if ($width == 0 || $height == 0) {
+        if ($width === 'auto' || $height === 'auto') {
             // Determine the image's size. Time consuming. Only when really needed!
-            list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url(), $this->get_dompdf()->getHttpContext());
+            list($img_width, $img_height) = Helpers::dompdf_getimagesize($frame->get_image_url(), $this->get_dompdf()->getHttpContext());
 
             // don't treat 0 as error. Can be downscaled or can be catched elsewhere if image not readable.
             // Resample according to px per inch
             // See also ListBulletImage::__construct
-            if ($width == 0 && $height == 0) {
-                $dpi = $this->_frame->get_dompdf()->getOptions()->getDpi();
+            if ($width === 'auto' && $height === 'auto') {
+                $dpi = $frame->get_dompdf()->getOptions()->getDpi();
                 $width = (float)($img_width * 72) / $dpi;
                 $height = (float)($img_height * 72) / $dpi;
                 $width_forced = false;
                 $height_forced = false;
-            } elseif ($height == 0 && $width != 0) {
+            } elseif ($height === 'auto') {
                 $height_forced = false;
                 $height = ($width / $img_width) * $img_height; //keep aspect ratio
-            } elseif ($width == 0 && $height != 0) {
+            } else {
                 $width_forced = false;
                 $width = ($height / $img_height) * $img_width; //keep aspect ratio
             }
@@ -149,7 +117,7 @@ class Image extends AbstractFrameReflower
             $style->max_height !== "none"
         ) {
 
-            list( /*$x*/, /*$y*/, $w, $h) = $this->_frame->get_containing_block();
+            list( /*$x*/, /*$y*/, $w, $h) = $frame->get_containing_block();
 
             $min_width = $style->length_in_pt($style->min_width, $w);
             $max_width = $style->length_in_pt($style->max_width, $w);
@@ -202,5 +170,33 @@ class Image extends AbstractFrameReflower
         $style->max_height = "none";
 
         return [$width, $width, "min" => $width, "max" => $width];
+    }
+
+    private function get_size(Frame $f, string $type)
+    {
+        $ref_stack = [];
+        $result_size = 0.0;
+        do {
+            $f_style = $f->get_style();
+            $current_size = $f_style->$type;
+            if (Helpers::is_percent($current_size)) {
+                $ref_stack[] = str_replace('%px', '%', $current_size);
+            } else {
+                // auto is a valid first result. In case of previous percentage values we need a real size
+                if ($current_size !== 'auto' || count($ref_stack) === 0) {
+                    $result_size = $f_style->length_in_pt($current_size);
+                    break;
+                }
+            }
+        } while (($f = $f->get_parent()));
+
+        // if we built a percentage stack walk up to find the real size
+        if (count($ref_stack) > 0) {
+            while (($ref = array_pop($ref_stack))) {
+                $result_size = $f_style->length_in_pt($ref, $result_size);
+            }
+        }
+
+        return $result_size;
     }
 }

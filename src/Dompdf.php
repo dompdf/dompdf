@@ -150,7 +150,7 @@ class Dompdf
     private $basePath = "";
 
     /**
-     * Protcol used to request file (file://, http://, etc)
+     * Protocol used to request file (file://, http://, etc)
      *
      * @var string
      */
@@ -210,7 +210,7 @@ class Dompdf
     * Protocol whitelist
     *
     * Protocols and PHP wrappers allowed in URLs. Full support is not
-    * guarantee for the protocols/wrappers contained in this array.
+    * guaranteed for the protocols/wrappers contained in this array.
     *
     * @var array
     */
@@ -356,6 +356,8 @@ class Dompdf
             [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
         }
         $protocol = strtolower($this->protocol);
+        
+        $uri = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $file);
 
         if ( !in_array($protocol, $this->allowedProtocols) ) {
             throw new Exception("Permission denied on $file. The communication protocol is not supported.");
@@ -366,7 +368,7 @@ class Dompdf
         }
 
         if ($protocol == "" || $protocol === "file://") {
-            $realfile = realpath($file);
+            $realfile = realpath($uri);
 
             $chroot = realpath($this->options->getChroot());
             if ($chroot && strpos($realfile, $chroot) !== 0) {
@@ -382,10 +384,10 @@ class Dompdf
                 throw new Exception("File '$file' not found.");
             }
 
-            $file = $realfile;
+            $uri = $realfile;
         }
 
-        [$contents, $http_response_header] = Helpers::getFileContent($file, $this->httpContext);
+        [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->httpContext);
         if (empty($contents)) {
             throw new Exception("File '$file' not found.");
         }
@@ -413,6 +415,22 @@ class Dompdf
     public function load_html($str, $encoding = null)
     {
         $this->loadHtml($str, $encoding);
+    }
+
+    public function loadDOM($doc, $quirksmode = false) {
+        // Remove #text children nodes in nodes that shouldn't have
+        $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+        foreach ($tag_names as $tag_name) {
+            $nodes = $doc->getElementsByTagName($tag_name);
+
+            foreach ($nodes as $node) {
+                self::removeTextNodes($node);
+            }
+        }
+
+        $this->dom = $doc;
+        $this->quirksmode = $quirksmode;
+        $this->tree = new FrameTree($this->dom);
     }
 
     /**
@@ -484,16 +502,6 @@ class Dompdf
                 $tokenizer->parse();
                 $doc = $tokenizer->save();
 
-                // Remove #text children nodes in nodes that shouldn't have
-                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-                foreach ($tag_names as $tag_name) {
-                    $nodes = $doc->getElementsByTagName($tag_name);
-
-                    foreach ($nodes as $node) {
-                        self::removeTextNodes($node);
-                    }
-                }
-
                 $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
             } else {
                 // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
@@ -503,16 +511,6 @@ class Dompdf
                 $doc->preserveWhiteSpace = true;
                 $doc->loadHTML($str);
                 $doc->encoding = $encoding;
-
-                // Remove #text children nodes in nodes that shouldn't have
-                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-                foreach ($tag_names as $tag_name) {
-                    $nodes = $doc->getElementsByTagName($tag_name);
-
-                    foreach ($nodes as $node) {
-                        self::removeTextNodes($node);
-                    }
-                }
 
                 // If some text is before the doctype, we are in quirksmode
                 if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
@@ -533,10 +531,7 @@ class Dompdf
                 }
             }
 
-            $this->dom = $doc;
-            $this->quirksmode = $quirksmode;
-
-            $this->tree = new FrameTree($this->dom);
+            $this->loadDOM($doc, $quirksmode);
         } finally {
             restore_error_handler();
             $this->restoreLocale();
@@ -578,7 +573,7 @@ class Dompdf
     {
         $this->tree->build_tree();
 
-        $this->css->load_css_file(Stylesheet::getDefaultStylesheet(), Stylesheet::ORIG_UA);
+        $this->css->load_css_file($this->css->getDefaultStylesheet(), Stylesheet::ORIG_UA);
 
         $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
         $acceptedmedia[] = $this->options->getDefaultMediaType();
@@ -656,9 +651,19 @@ class Dompdf
                         $css = $tag->nodeValue;
                     }
 
+                    // Set the base path of the Stylesheet to that of the file being processed
+                    $this->css->set_protocol($this->protocol);
+                    $this->css->set_host($this->baseHost);
+                    $this->css->set_base_path($this->basePath);
+
                     $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
+
+            // Set the base path of the Stylesheet to that of the file being processed
+            $this->css->set_protocol($this->protocol);
+            $this->css->set_host($this->baseHost);
+            $this->css->set_base_path($this->basePath);
         }
     }
 
@@ -762,52 +767,6 @@ class Dompdf
         }
 
         $canvas = $this->getCanvas();
-
-        if ($options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
-            foreach ($this->tree->get_frames() as $frame) {
-                $style = $frame->get_style();
-                $node = $frame->get_node();
-
-                // Handle text nodes
-                if ($node->nodeName === "#text") {
-                    $chars = mb_strtoupper($node->nodeValue) . mb_strtolower($node->nodeValue);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    continue;
-                }
-
-                // Handle generated content (list items)
-                if ($style->display === "list-item") {
-                    $chars = ListBullet::get_counter_chars($style->list_style_type);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $canvas->register_string_subset($style->font_family, '.');
-                    continue;
-                }
-
-                // Handle other generated content (pseudo elements)
-                // FIXME: This only captures the text of the stylesheet declaration,
-                //        not the actual generated content, and forces all possible counter
-                //        values. See notes in issue #750.
-                if ($frame->get_node()->nodeName == "dompdf_generated") {
-                    // all possible counter values, just in case
-                    $chars = ListBullet::get_counter_chars('decimal');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('upper-alpha');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('lower-alpha');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('lower-greek');
-                    $canvas->register_string_subset($style->font_family, $chars);
-
-                    // the hex-decoded text of the content property, duplicated from AbstrctFrameReflower::_parse_string
-                    $decoded_string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
-                        function ($matches) { return \Dompdf\Helpers::unichr(hexdec($matches[1])); },
-                        $style->content);
-                    $chars = mb_strtoupper($style->content) . mb_strtolower($style->content) . mb_strtoupper($decoded_string) . mb_strtolower($decoded_string);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    continue;
-                }
-            }
-        }
 
         $root = null;
 

@@ -63,11 +63,20 @@ class Helpers
         }
 
         // Is the url already fully qualified, a Data URI, or a reference to a named anchor?
-        if (mb_strpos($url, "://") !== false || mb_substr($url, 0, 1) === "#" || mb_strpos($url, "data:") === 0 || mb_strpos($url, "mailto:") === 0 || mb_strpos($url, "tel:") === 0) {
+        // File-protocol URLs may require additional processing (e.g. for URLs with a relative path)
+        if ((mb_strpos($url, "://") !== false && substr($url, 0, 7) !== "file://") || mb_substr($url, 0, 1) === "#" || mb_strpos($url, "data:") === 0 || mb_strpos($url, "mailto:") === 0 || mb_strpos($url, "tel:") === 0) {
             return $url;
         }
 
-        $ret = $protocol;
+        if (strpos($url, "file://") === 0) {
+            $url = substr($url, 7);
+            $protocol = "";
+        }
+
+        $ret = "";
+        if ($protocol != "file://") {
+            $ret = $protocol;
+        }
 
         if (!in_array(mb_strtolower($protocol), ["http://", "https://", "ftp://", "ftps://"])) {
             //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
@@ -75,7 +84,7 @@ class Helpers
             //not known in php app code, treat as abs path
             //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
             if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || (mb_strlen($url) > 1 && $url[0] !== '\\' && $url[1] !== ':'))) {
-                // For rel path and local acess we ignore the host, and run the path through realpath()
+                // For rel path and local access we ignore the host, and run the path through realpath()
                 $ret .= realpath($base_path) . '/';
             }
             $ret .= $url;
@@ -95,6 +104,27 @@ class Helpers
             //$base_path = $base_path !== "" ? rtrim($base_path, "/\\") . "/" : "";
             $ret .= $host . $base_path . $url;
         }
+
+        // URL should now be complete, final cleanup
+        $parsed_url = parse_url($ret);
+
+        // reproduced from https://www.php.net/manual/en/function.parse-url.php#106731
+        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $pass     = ($user || $pass) ? "$pass@" : '';
+        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+        
+        // partially reproduced from https://stackoverflow.com/a/1243431/264628
+        /* replace '//' or '/./' or '/foo/../' with '/' */
+        $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
+        for($n=1; $n>0; $path=preg_replace($re, '/', $path, -1, $n)) {}
+
+        $ret = "$scheme$user$pass$host$port$path$query$fragment";
 
         return $ret;
     }

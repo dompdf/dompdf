@@ -360,13 +360,38 @@ class Stylesheet
 
             list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
-            // Fix submitted by Nick Oostveen for aliased directory support:
             if ($this->_protocol == "") {
                 $file = $this->_base_path . $filename;
             } else {
                 $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
             }
 
+            $options = $this->_dompdf->getOptions();
+            // Download the remote file
+            if (!$options->isRemoteEnabled() && ($this->_protocol != "" && $this->_protocol !== "file://")) {
+                Helpers::record_warnings(E_USER_WARNING, "Remote CSS resource '$file' referenced, but remote file download is disabled.", __FILE__, __LINE__);
+                return;
+            }
+            if ($this->_protocol == "" || $this->_protocol === "file://") {
+                $realfile = realpath($file);
+
+                $rootDir = realpath($options->getRootDir());
+                if (strpos($realfile, $rootDir) !== 0) {
+                    $chroot = realpath($options->getChroot());
+                    if (!$chroot || strpos($realfile, $chroot) !== 0) {
+                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the directory specified by Options::chroot.", __FILE__, __LINE__);
+                        return;
+                    }
+                }
+
+                if (!$realfile) {
+                    Helpers::record_warnings(E_USER_WARNING, "File '$realfile' not found.", __FILE__, __LINE__);
+                    return;
+                }
+
+                $file = $realfile;
+            }
+            
             list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
@@ -1616,7 +1641,6 @@ class Stylesheet
             }
             //For easier debugging, don't use overloading of assignments with __set
             $style->$prop_name = $value;
-            //$style->props_set($prop_name, $value);
         }
         if ($DEBUGCSS) print '_parse_properties]';
 
@@ -1682,10 +1706,11 @@ class Stylesheet
     /**
      * @return string
      */
-    public static function getDefaultStylesheet()
+    public function getDefaultStylesheet()
     {
-        $dir = realpath(__DIR__ . "/../..");
-        return $dir . self::DEFAULT_STYLESHEET;
+        $options = $this->_dompdf->getOptions();
+        $rootDir = realpath($options->getRootDir());
+        return $rootDir . self::DEFAULT_STYLESHEET;
     }
 
     /**
