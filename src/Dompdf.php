@@ -370,8 +370,19 @@ class Dompdf
         if ($protocol == "" || $protocol === "file://") {
             $realfile = realpath($uri);
 
-            $chroot = realpath($this->options->getChroot());
-            if ($chroot && strpos($realfile, $chroot) !== 0) {
+            $chroot = $this->options->getChroot();
+            $chrootError = false;
+            if (!is_array($chroot) || count($chroot)<1){
+                $chrootError = true;
+            } else {
+                foreach($chroot as $chrootPath){
+                    $chrootPath = realpath($chrootPath);
+                    if($chroot && strpos($realfile, $chrootPath) !== 0) {
+                        $chrootError = true;
+                    }
+                }
+            }
+            if($chrootError){
                 throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
             }
 

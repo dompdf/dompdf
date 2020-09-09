@@ -127,9 +127,20 @@ class Cache
         
                     $rootDir = realpath($dompdf->getOptions()->getRootDir());
                     if (strpos($realfile, $rootDir) !== 0) {
-                        $chroot = realpath($dompdf->getOptions()->getChroot());
-                        if (!$chroot || strpos($realfile, $chroot) !== 0) {
-                            throw new ImageException("Permission denied on $resolved_url. The file could not be found under the directory specified by Options::chroot.", E_WARNING);
+                        $chroot = $dompdf->getOptions()->getChroot();
+                        $chrootError = false;
+                        if (!is_array($chroot) || count($chroot)<1){
+                            $chrootError = true;
+                        } else {
+                            foreach($chroot as $chrootPath){
+                                $chrootPath = realpath($chrootPath);
+                                if(!$chroot || strpos($realfile, $chrootPath) !== 0) {
+                                    $chrootError = true;
+                                }
+                            }
+                        }
+                        if($chrootError){
+                            throw new ImageException("Permission denied on $resolved_url. The file could not be found under the directory's specified by Options::chroot.", E_WARNING);
                         }
                     }
         

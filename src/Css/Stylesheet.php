@@ -377,9 +377,20 @@ class Stylesheet
 
                 $rootDir = realpath($options->getRootDir());
                 if (strpos($realfile, $rootDir) !== 0) {
-                    $chroot = realpath($options->getChroot());
-                    if (!$chroot || strpos($realfile, $chroot) !== 0) {
-                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the directory specified by Options::chroot.", __FILE__, __LINE__);
+                    $chroot = $options->getChroot();
+                    $chrootError = false;
+                    if (!is_array($chroot) || count($chroot)<1){
+                        $chrootError = true;
+                    } else {
+                        foreach($chroot as $chrootPath){
+                            $chrootPath = realpath($chrootPath);
+                            if(strpos($realfile, $chrootPath) !== 0) {
+                                $chrootError = true;
+                            }
+                        }
+                    }
+                    if($chrootError){
+                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the directory's specified by Options::chroot.", __FILE__, __LINE__);
                         return;
                     }
                 }

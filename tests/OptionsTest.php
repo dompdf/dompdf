@@ -13,7 +13,7 @@ class OptionsTest extends TestCase
         $this->assertEquals(sys_get_temp_dir(), $option->getTempDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontCache());
-        $this->assertEquals($root, $option->getChroot());
+        $this->assertEquals([$root], $option->getChroot());
         $this->assertEquals(sys_get_temp_dir() . "/log.htm", $option->getLogOutputFile());
         $this->assertEquals('screen', $option->getDefaultMediaType());
         $this->assertEquals('letter', $option->getDefaultPaperSize());
@@ -47,7 +47,7 @@ class OptionsTest extends TestCase
             'tempDir' => 'test1',
             'fontDir' => 'test2',
             'fontCache' => 'test3',
-            'chroot' => 'test4',
+            'chroot' => ['test4'],
             'logOutputFile' => 'test5',
             'defaultMediaType' => 'test6',
             'defaultPaperSize' => 'test7',
@@ -73,7 +73,7 @@ class OptionsTest extends TestCase
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
         $this->assertEquals('test3', $option->getFontCache());
-        $this->assertEquals('test4', $option->getChroot());
+        $this->assertEquals(['test4'], $option->getChroot());
         $this->assertEquals('test5', $option->getLogOutputFile());
         $this->assertEquals('test6', $option->getDefaultMediaType());
         $this->assertEquals('test7', $option->getDefaultPaperSize());

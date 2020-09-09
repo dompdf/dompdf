@@ -57,7 +57,7 @@ class Options
      * documentation is available on the dompdf wiki at:
      * https://github.com/dompdf/dompdf/wiki
      *
-     * @var string
+     * @var array
      */
     private $chroot;
 
@@ -291,10 +291,11 @@ class Options
      */
     public function __construct(array $attributes = null)
     {
-        $this->setChroot(realpath(__DIR__ . "/../"));
-        $this->setRootDir($this->getChroot());
+        $rootDir = realpath(__DIR__ . "/../");
+        $this->setChroot(array($rootDir));
+        $this->setRootDir($rootDir);
         $this->setTempDir(sys_get_temp_dir());
-        $this->setFontDir($this->chroot . "/lib/fonts");
+        $this->setFontDir($rootDir . "/lib/fonts");
         $this->setFontCache($this->getFontDir());
         $this->setLogOutputFile($this->getTempDir() . "/log.htm");
 
@@ -514,7 +515,7 @@ class Options
     }
 
     /**
-     * @param string $chroot
+     * @param array $chroot
      * @return $this
      */
     public function setChroot($chroot)
@@ -524,7 +525,7 @@ class Options
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getChroot()
     {
