@@ -47,7 +47,8 @@ class Options
      * dompdf's "chroot"
      *
      * Prevents dompdf from accessing system files or other files on the webserver.
-     * All local files opened by dompdf must be in a subdirectory of this directory.
+     * All local files opened by dompdf must be in a subdirectory of this directory
+     * or array of directories.
      * DO NOT set it to '/' since this could allow an attacker to use dompdf to
      * read any files on the server.  This should be an absolute path.
      *
@@ -518,8 +519,11 @@ class Options
      * @param array $chroot
      * @return $this
      */
-    public function setChroot($chroot)
+    public function setChroot($chroot,$delimiter=',')
     {
+        if(is_string($chroot)){
+            $chroot = explode($delimiter,$chroot);
+        }
         $this->chroot = $chroot;
         return $this;
     }

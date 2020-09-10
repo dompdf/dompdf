@@ -68,7 +68,8 @@ class OptionsTest extends TestCase
             'debugLayoutInline' => false,
             'debugLayoutPaddingBox' => false,
             'adminUsername' => 'test9',
-            'adminPassword' => 'test10',
+			'adminPassword' => 'test10',
+			'chroot' => 'test11,test11a',
         ]);
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
@@ -95,5 +96,6 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getDebugLayoutPaddingBox());
         $this->assertEquals('test9', $option->getAdminUsername());
         $this->assertEquals('test10', $option->getAdminPassword());
+        $this->assertEquals(['test11','test11a'], $option->getChroot());
     }
 }
