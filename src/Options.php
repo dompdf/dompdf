@@ -516,7 +516,7 @@ class Options
     }
 
     /**
-     * @param array $chroot
+     * @param array|string $chroot
      * @return $this
      */
     public function setChroot($chroot,$delimiter=',')
