@@ -377,7 +377,7 @@ class Dompdf
             } else {
                 foreach($chroot as $chrootPath){
                     $chrootPath = realpath($chrootPath);
-                    if($chroot && strpos($realfile, $chrootPath) !== 0) {
+                    if(!$chrootPath && strpos($realfile, $chrootPath) !== 0) {
                         $chrootError = true;
                     }
                 }
