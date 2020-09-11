@@ -384,7 +384,7 @@ class Stylesheet
                     } else {
                         foreach($chroot as $chrootPath){
                             $chrootPath = realpath($chrootPath);
-                            if(!$chrootPath || strpos($realfile, $chrootPath) !== 0) {
+                            if ($chrootPath === false || strpos($realfile, $chrootPath) !== 0) {
                                 $chrootError = true;
                             }
                         }
