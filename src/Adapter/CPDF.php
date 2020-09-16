@@ -551,11 +551,12 @@ class CPDF implements Canvas
      * @param array $color
      * @param float $width
      * @param array $style
+     * @param array $cap
      */
-    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [])
+    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [], $cap = "butt")
     {
         $this->_set_stroke_color($color);
-        $this->_set_line_style($width, "butt", "", $style);
+        $this->_set_line_style($width, $cap, "", $style);
 
         $this->_pdf->line($x1, $this->y($y1),
             $x2, $this->y($y2));
@@ -656,10 +657,10 @@ class CPDF implements Canvas
      * @param float $width
      * @param array $style
      */
-    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [])
+    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [], $cap ="butt")
     {
         $this->_set_stroke_color($color);
-        $this->_set_line_style($width, "butt", "", $style);
+        $this->_set_line_style($width, $cap, "", $style);
         $this->_pdf->rectangle($x1, $this->y($y1) - $h, $w, $h);
         $this->_set_line_transparency("Normal", $this->_current_opacity);
     }

@@ -57,7 +57,7 @@ interface Canvas
      *
      * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
-     * $style parameter (aka dash).
+     * $cap and $style parameter (aka cap and dash).
      *
      * @param float $x1
      * @param float $y1
@@ -66,15 +66,16 @@ interface Canvas
      * @param array $color
      * @param float $width
      * @param array $style
+     * @param string $cap
      */
-    function line($x1, $y1, $x2, $y2, $color, $width, $style = null);
+    function line($x1, $y1, $x2, $y2, $color, $width, $style = null, $cap = "butt");
 
     /**
      * Draws a rectangle at x1,y1 with width w and height h
      *
      * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
+     * See {@link Cpdf::setLineStyle()} for a description of the $cap and
+     * $style parameter (aka cap and dash)
      *
      * @param float $x1
      * @param float $y1
@@ -83,8 +84,9 @@ interface Canvas
      * @param array $color
      * @param float $width
      * @param array $style
+     * @param array $cap
      */
-    function rectangle($x1, $y1, $w, $h, $color, $width, $style = null);
+    function rectangle($x1, $y1, $w, $h, $color, $width, $style = null, $cap = "butt");
 
     /**
      * Draws a filled rectangle at x1,y1 with width w and height h

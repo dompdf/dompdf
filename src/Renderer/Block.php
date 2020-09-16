@@ -125,7 +125,8 @@ class Block extends AbstractRenderer
             list($x, $y, $w, $h) = $border_box;
             $width = (float)$style->length_in_pt($props["width"]);
             $pattern = $this->_get_dash_pattern($props["style"], $width);
-            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, (float)$w - $width, (float)$h - $width, $props["color"], $width, $pattern);
+            $cap = $this->_get_cap($props['style']);
+            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, (float)$w - $width, (float)$h - $width, $props["color"], $width, $pattern, $cap);
             return;
         }
 
@@ -212,6 +213,7 @@ class Block extends AbstractRenderer
 
         $offset = (float)$style->length_in_pt($props["width"]);
         $pattern = $this->_get_dash_pattern($props["style"], $offset);
+        $cap = $this->_get_cap($props["stye"]);
 
         // If the outline style is "solid" we'd better draw a rectangle
         if (in_array($props["style"], ["solid", "dashed", "dotted"])) {
@@ -221,7 +223,7 @@ class Block extends AbstractRenderer
             $border_box[3] += $offset;
 
             list($x, $y, $w, $h) = $border_box;
-            $this->_canvas->rectangle($x, $y, (float)$w, (float)$h, $props["color"], $offset, $pattern);
+            $this->_canvas->rectangle($x, $y, (float)$w, (float)$h, $props["color"], $offset, $pattern, $cap);
             return;
         }
 
