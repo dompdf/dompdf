@@ -120,7 +120,11 @@ class Cache
                 }
             } // Not remote, local image
             else {
-                $resolved_url = Helpers::build_url($protocol, $host, $base_path, $url);
+                if ('' === $protocol && '' === $host && '' === $base_path && !is_file($url)) {
+                    $resolved_url = $dompdf->getOptions()->getChroot().$url;
+                } else {
+                    $resolved_url = Helpers::build_url($protocol, $host, $base_path, $url);
+                }
 
                 if ($protocol == "" || $protocol === "file://") {
                     $realfile = realpath($resolved_url);
