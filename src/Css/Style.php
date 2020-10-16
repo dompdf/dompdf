@@ -1221,13 +1221,18 @@ class Style
 
     /**
      * Returns the background image URI, or "none"
-     * 
+     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-image
      * @return string
      */
     function get_background_image()
     {
-        return $this->_image($this->_props_computed["background_image"]);
+        $tmp = $this->_props_computed["background_image"];
+        // url(none) is a non-valid CSS value for background-image, but widely used.
+        if ($tmp == "url(none)") {
+          $tmp = "none";
+        }
+        return $this->_image($tmp);
     }
 
     /**
