@@ -3171,7 +3171,7 @@ EOT;
 
             $id = $this->catalogId;
 
-            $this->o_indirect_references($this->indirectReferenceId, 'add', ['Javascript' => $js_id]);
+            $this->o_indirect_references($this->indirectReferenceId, 'add', ['JavaScript' => $js_id]);
         }
 
         if ($this->fileIdentifier === '') {
