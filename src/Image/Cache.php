@@ -165,6 +165,7 @@ class Cache
             $type = "png";
             $message = self::$error_message;
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
+            self::$_cache[$full_url] = $resolved_url;
         }
 
         return [$resolved_url, $type, $message];
@@ -172,7 +173,7 @@ class Cache
 
     /**
      * Unlink all cached images (i.e. temporary images either downloaded
-     * or converted)
+     * or converted) except for the bundled "broken image"
      */
     static function clear()
     {
@@ -181,6 +182,9 @@ class Cache
         }
 
         foreach (self::$_cache as $file) {
+            if ($file === self::$broken_image) {
+                continue;
+            }
             if (self::$_dompdf->getOptions()->getDebugPng()) {
                 print "[clear unlink $file]";
             }
