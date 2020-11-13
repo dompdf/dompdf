@@ -1884,7 +1884,12 @@ class Style
     function set_background_image($val)
     {
         $this->_props["background_image"] = $val;
-        $this->_props_computed["background_image"] = "url(" . $this->_image($val) . ")";
+        $parsed_val = $this->_image($val);
+        if ($parsed_val === "none") {
+            $this->_props_computed["list_style_image"] = "none";
+        } else {
+            $this->_props_computed["list_style_image"] = "url(" . $parsed_val . ")";
+        }
         $this->_prop_cache["background_image"] = null;
     }
 
@@ -2911,7 +2916,12 @@ class Style
     function set_list_style_image($val)
     {
         $this->_props["list_style_image"] = $val;
-        $this->_props_computed["list_style_image"] = "url(" . $this->_image($val) . ")";
+        $parsed_val = $this->_image($val);
+        if ($parsed_val === "none") {
+            $this->_props_computed["list_style_image"] = "none";
+        } else {
+            $this->_props_computed["list_style_image"] = "url(" . $parsed_val . ")";
+        }
         $this->_prop_cache["list_style_image"] = null;
     }
 
