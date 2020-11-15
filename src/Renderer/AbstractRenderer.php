@@ -421,7 +421,7 @@ abstract class AbstractRenderer
         //don't create temp file, but place gd object directly into the pdf
         if (!$is_png && $this->_canvas instanceof CPDF) {
             // Note: CPDF_Adapter image converts y position
-            $this->_canvas->get_cpdf()->addImagePng($filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
+            $this->_canvas->get_cpdf()->addImagePng($bg, $filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height);
         } else {
             $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
             $tmp_name = @tempnam($tmp_dir, "bg_dompdf_img_");
