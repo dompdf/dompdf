@@ -3301,7 +3301,7 @@ class Style
         $this->_props_computed["z_index"] = null;
         $this->_prop_cache["z_index"] = null;
 
-        if (round($val) != $val && $val !== "auto") {
+        if ($val !== "auto" && round($val) != $val) {
             return;
         }
 
