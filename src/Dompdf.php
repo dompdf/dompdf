@@ -179,11 +179,18 @@ class Dompdf
     private $systemLocale = null;
 
     /**
-     * Tells if the system's locale is the C standard one
+     * The system's mbstring internal encoding
      *
-     * @var bool
+     * @var string
      */
-    private $localeStandard = false;
+    private $mbstringEncoding = null;
+
+    /**
+     * The system's PCRE JIT configuration
+     *
+     * @var string
+     */
+    private $pcreJit = null;
 
     /**
      * The default view of the PDF in the viewer
@@ -272,13 +279,6 @@ class Dompdf
      */
     public function __construct($options = null)
     {
-        mb_internal_encoding('UTF-8');
-
-        if (version_compare(PHP_VERSION, '7.0.0') >= 0)
-        {
-            @ini_set('pcre.jit', 0);
-        }
-
         if (isset($options) && $options instanceof Options) {
             $this->setOptions($options);
         } elseif (is_array($options)) {
@@ -292,8 +292,8 @@ class Dompdf
           $this->version = sprintf('dompdf %s', $version);
         }
 
-        $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
-        $this->saveLocale();
+        $this->setPhpConfig();
+
         $this->paperSize = $this->options->getDefaultPaperSize();
         $this->paperOrientation = $this->options->getDefaultPaperOrientation();
 
@@ -301,33 +301,48 @@ class Dompdf
         $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
         $this->css = new Stylesheet($this);
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
     }
 
     /**
-     * Save the system's locale configuration and
-     * set the right value for numeric formatting
+     * Save the system's existing locale, PCRE JIT, and MBString encoding
+     * configuration and configure the system for Dompdf processing
      */
-    private function saveLocale()
+    private function setPhpConfig()
     {
-        if ($this->localeStandard) {
-            return;
+        if (sprintf('%.1f', 1.0) !== '1.0') {
+            $this->systemLocale = setlocale(LC_NUMERIC, "0");
+            setlocale(LC_NUMERIC, "C");
         }
 
-        $this->systemLocale = setlocale(LC_NUMERIC, "0");
-        setlocale(LC_NUMERIC, "C");
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+            $this->pcreJit = @ini_get('pcre.jit');
+            @ini_set('pcre.jit', '0');
+        }
+
+        $this->mbstringEncoding = mb_internal_encoding();
+        mb_internal_encoding('UTF-8');
     }
 
     /**
      * Restore the system's locale configuration
      */
-    private function restoreLocale()
+    private function restorePhpConfig()
     {
-        if ($this->localeStandard) {
-            return;
+        if (!empty($this->systemLocale)) {
+            setlocale(LC_NUMERIC, $this->systemLocale);
+            $this->systemLocale = null;
         }
 
-        setlocale(LC_NUMERIC, $this->systemLocale);
+        if (!empty($this->pcreJit)) {
+            @ini_set('pcre.jit', $this->pcreJit);
+            $this->pcreJit = null;
+        }
+
+        if (!empty($this->mbstringEncoding)) {
+            mb_internal_encoding($this->mbstringEncoding);
+            $this->mbstringEncoding = null;
+        }
     }
 
     /**
@@ -350,7 +365,7 @@ class Dompdf
      */
     public function loadHtmlFile($file, $encoding = null)
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         if (!$this->protocol && !$this->baseHost && !$this->basePath) {
             [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
@@ -402,7 +417,7 @@ class Dompdf
             }
         }
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
 
         $this->loadHtml($contents, $encoding);
     }
@@ -442,7 +457,7 @@ class Dompdf
      */
     public function loadHtml($str, $encoding = null)
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         // Determine character encoding when $encoding parameter not used
         if ($encoding === null) {
@@ -534,7 +549,7 @@ class Dompdf
             $this->loadDOM($doc, $quirksmode);
         } finally {
             restore_error_handler();
-            $this->restoreLocale();
+            $this->restorePhpConfig();
         }
     }
 
@@ -720,7 +735,7 @@ class Dompdf
      */
     public function render()
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
         $options = $this->options;
 
         $logOutputFile = $options->getLogOutputFile();
@@ -836,7 +851,7 @@ class Dompdf
             ob_end_clean();
         }
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
     }
 
     /**
@@ -898,14 +913,14 @@ class Dompdf
      */
     public function stream($filename = "document.pdf", $options = [])
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         $canvas = $this->getCanvas();
         if (!is_null($canvas)) {
             $canvas->stream($filename, $options);
         }
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
     }
 
     /**
@@ -922,7 +937,7 @@ class Dompdf
      */
     public function output($options = [])
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         $canvas = $this->getCanvas();
         if (is_null($canvas)) {
@@ -931,7 +946,7 @@ class Dompdf
 
         $output = $canvas->output($options);
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
 
         return $output;
     }
