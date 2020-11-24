@@ -439,19 +439,16 @@ class Cellmap
 
     /**
      * @param int $i
-     * @param mixed $height
+     * @param long $height
      */
     public function set_row_height($i, $height)
     {
         $row =& $this->get_row($i);
-
-        if ($row["height"] !== null && $height <= $row["height"]) {
-            return;
+        if ($height > $row["height"]) {
+            $row["height"] = $height;
         }
-
-        $row["height"] = $height;
         $next_row =& $this->get_row($i + 1);
-        $next_row["y"] = $row["y"] + $height;
+        $next_row["y"] = $row["y"] + $row["height"];
     }
 
     /**
