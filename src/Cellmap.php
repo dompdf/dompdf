@@ -644,12 +644,12 @@ class Cellmap
             $width = $style->width;
 
             $val = null;
-            if (Helpers::is_percent($width)) {
+            if (Helpers::is_percent($width) && $colspan === 1) {
                 $var = "percent";
                 $val = (float)rtrim($width, "% ") / $colspan;
-            } else if ($width !== "auto") {
+            } else if ($width !== "auto" && $colspan === 1) {
                 $var = "absolute";
-                $val = $style->length_in_pt($frame_min) / $colspan;
+                $val = $style->length_in_pt($frame_min);
             }
 
             $min = 0;
@@ -671,10 +671,10 @@ class Cellmap
                 $max += $col["max-width"];
             }
 
-            if ($frame_min > $min) {
+            if ($frame_min > $min && $colspan === 1) {
                 // The frame needs more space.  Expand each sub-column
                 // FIXME try to avoid putting this dummy value when table-layout:fixed
-                $inc = ($this->is_layout_fixed() ? 10e-10 : ($frame_min - $min) / $colspan);
+                $inc = ($this->is_layout_fixed() ? 10e-10 : ($frame_min - $min));
                 for ($c = 0; $c < $colspan; $c++) {
                     $col =& $this->get_column($this->__col + $c);
                     $col["min-width"] += $inc;
