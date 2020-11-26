@@ -434,7 +434,7 @@ class Cellmap
         $col =& $this->get_column($j);
         $col["used-width"] = $width;
         $next_col =& $this->get_column($j + 1);
-        $next_col["x"] = $next_col["x"] + $width;
+        $next_col["x"] = $col["x"] + $width;
     }
 
     /**
