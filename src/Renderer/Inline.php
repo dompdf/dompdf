@@ -69,10 +69,14 @@ class Inline extends AbstractRenderer
         }
 
         // Add the border widths
-        if ($w != 'auto') {
+        if ($w == 'auto') {
+            $w = (float)$widths[1] + (float)$widths[3]; // Mimics PHP 7 behaviour in PHP 8
+        } else {
             $w += (float)$widths[1] + (float)$widths[3];
         }
-        if ($h != 'auto') {
+        if ($h == 'auto') {
+            $h = (float)$widths[0] + (float)$widths[2]; // Mimics PHP 7 behaviour in PHP 8
+        } else {
             $h += (float)$widths[0] + (float)$widths[2];
         }
 
