@@ -69,8 +69,12 @@ class Inline extends AbstractRenderer
         }
 
         // Add the border widths
-        $w += (float)$widths[1] + (float)$widths[3];
-        $h += (float)$widths[0] + (float)$widths[2];
+        if ($w != 'auto') {
+            $w += (float)$widths[1] + (float)$widths[3];
+        }
+        if ($h != 'auto') {
+            $h += (float)$widths[0] + (float)$widths[2];
+        }
 
         // If this is the first row, draw the left border too
         if ($bp["left"]["style"] !== "none" && $bp["left"]["color"] !== "transparent" && $widths[3] > 0) {
