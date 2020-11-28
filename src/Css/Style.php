@@ -1811,7 +1811,7 @@ class Style
 
         if (empty($val) || $val === "none") {
             $path = "none";
-        } else if (mb_strpos($val, "url") === false) {
+        } else if (mb_strpos($val, "url") == false) {
             $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
         } else {
             $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
