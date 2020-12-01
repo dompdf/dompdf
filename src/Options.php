@@ -47,7 +47,8 @@ class Options
      * dompdf's "chroot"
      *
      * Prevents dompdf from accessing system files or other files on the webserver.
-     * All local files opened by dompdf must be in a subdirectory of this directory.
+     * All local files opened by dompdf must be in a subdirectory of this directory
+     * or array of directories.
      * DO NOT set it to '/' since this could allow an attacker to use dompdf to
      * read any files on the server.  This should be an absolute path.
      *
@@ -57,7 +58,7 @@ class Options
      * documentation is available on the dompdf wiki at:
      * https://github.com/dompdf/dompdf/wiki
      *
-     * @var string
+     * @var array
      */
     private $chroot;
 
@@ -291,10 +292,11 @@ class Options
      */
     public function __construct(array $attributes = null)
     {
-        $this->setChroot(realpath(__DIR__ . "/../"));
-        $this->setRootDir($this->getChroot());
+        $rootDir = realpath(__DIR__ . "/../");
+        $this->setChroot(array($rootDir));
+        $this->setRootDir($rootDir);
         $this->setTempDir(sys_get_temp_dir());
-        $this->setFontDir($this->chroot . "/lib/fonts");
+        $this->setFontDir($rootDir . "/lib/fonts");
         $this->setFontCache($this->getFontDir());
         $this->setLogOutputFile($this->getTempDir() . "/log.htm");
 
@@ -514,17 +516,20 @@ class Options
     }
 
     /**
-     * @param string $chroot
+     * @param array|string $chroot
      * @return $this
      */
-    public function setChroot($chroot)
+    public function setChroot($chroot,$delimiter=',')
     {
+        if(is_string($chroot)){
+            $chroot = explode($delimiter,$chroot);
+        }
         $this->chroot = $chroot;
         return $this;
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getChroot()
     {
