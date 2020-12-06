@@ -184,12 +184,17 @@ class FontMetrics
         $remoteHash = md5($remoteFile);
 
         $prefix = $fontname . "_" . $styleString;
-        $prefix = preg_replace("/[^\\pL\d]+/u", "-", $prefix);
         $prefix = trim($prefix, "-");
         if (function_exists('iconv')) {
             $prefix = @iconv('utf-8', 'us-ascii//TRANSLIT', $prefix);
         }
-        $prefix = preg_replace("/[^-\w]+/", "", $prefix);
+        $prefix_encoding = mb_detect_encoding($prefix, mb_detect_order(), true);
+        $substchar = mb_substitute_character();
+        mb_substitute_character(0x005F);
+        $prefix = mb_convert_encoding($prefix, "ISO-8859-1", $prefix_encoding);
+        mb_substitute_character($substchar);
+        $prefix = preg_replace("[\W]", "_", $prefix);
+        $prefix = preg_replace("/[^-_\w]+/", "", $prefix);
         
         $localFile = $fontDir . "/" . $prefix . "_" . $remoteHash;
 
