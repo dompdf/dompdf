@@ -2505,7 +2505,7 @@ class Style
             $value = trim($value);
             if (in_array($value, self::$BORDER_STYLES)) {
                 $this->_set_style_side_type('border', $side, 'style', $value, $important);
-            } elseif (preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
+            } elseif ($value === "0" || preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
                 $this->_set_style_side_type('border', $side, 'width', $value, $important);
             } elseif ($value === "inherit") {
                 $this->_set_style_side_type('border', $side, 'style', $value, $important);
@@ -2840,7 +2840,7 @@ class Style
 
             if (in_array($value, self::$BORDER_STYLES)) {
                 $this->__set("outline_style", $value);
-            } else if (preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
+            } else if ($value === "0" || preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
                 $this->__set("outline_width", $value);
             } else {
                 // must be color
