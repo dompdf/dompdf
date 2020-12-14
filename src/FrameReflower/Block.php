@@ -208,7 +208,7 @@ class Block extends AbstractFrameReflower
         $max_width = $style->length_in_pt($style->max_width, $cb["w"]);
 
         if ($max_width !== "none" && $min_width > $max_width) {
-            [$max_width, $min_width] = [$min_width, $max_width];
+            list($max_width, $min_width) = [$min_width, $max_width];
         }
 
         if ($max_width !== "none" && $width > $max_width) {
@@ -407,7 +407,7 @@ class Block extends AbstractFrameReflower
 
                 if ($max_height !== "none" && $min_height > $max_height) {
                     // Swap 'em
-                    [$max_height, $min_height] = [$min_height, $max_height];
+                    list($max_height, $min_height) = [$min_height, $max_height];
                 }
 
                 if ($max_height !== "none" && $height > $max_height) {
@@ -726,7 +726,7 @@ class Block extends AbstractFrameReflower
             }
 
             $line_box = $this->_frame->get_current_line_box();
-            [$old_x, $old_y] = $child->get_position();
+            list($old_x, $old_y) = $child->get_position();
 
             $float_x = $cb_x;
             $float_y = $old_y;
@@ -793,7 +793,7 @@ class Block extends AbstractFrameReflower
 
         // Determine the constraints imposed by this frame: calculate the width
         // of the content area:
-        [$w, $left_margin, $right_margin, $left, $right] = $this->_calculate_restricted_width();
+        list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
 
         // Store the calculated properties
         $style->width = $w;
@@ -804,7 +804,7 @@ class Block extends AbstractFrameReflower
 
         // Update the position
         $this->_frame->position();
-        [$x, $y] = $this->_frame->get_position();
+        list($x, $y) = $this->_frame->get_position();
 
         // Adjust the first line based on the text-indent property
         $indent = (float)$style->length_in_pt($style->text_indent, $cb["w"]);
@@ -854,7 +854,7 @@ class Block extends AbstractFrameReflower
         }
 
         // Determine our height
-        [$height, $margin_top, $margin_bottom, $top, $bottom] = $this->_calculate_restricted_height();
+        list($height, $margin_top, $margin_bottom, $top, $bottom) = $this->_calculate_restricted_height();
         $style->height = $height;
         $style->margin_top = $margin_top;
         $style->margin_bottom = $margin_bottom;
@@ -903,9 +903,9 @@ class Block extends AbstractFrameReflower
 
         // Absolute positioning
         if ($needs_reposition) {
-            [$x, $y] = $this->_frame->get_position();
+            list($x, $y) = $this->_frame->get_position();
             $this->_frame->position();
-            [$new_x, $new_y] = $this->_frame->get_position();
+            list($new_x, $new_y) = $this->_frame->get_position();
             $this->_frame->move($new_x - $x, $new_y - $y, true);
         }
 
