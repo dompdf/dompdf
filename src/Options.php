@@ -276,18 +276,6 @@ class Options
     private $pdflibLicense = "";
 
     /**
-     * @var string
-     * @deprecated
-     */
-    private $adminUsername = "user";
-
-    /**
-     * @var string
-     * @deprecated
-     */
-    private $adminPassword = "password";
-
-    /**
      * @param array $attributes
      */
     public function __construct(array $attributes = null)
@@ -368,10 +356,6 @@ class Options
                 $this->setPdfBackend($value);
             } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
                 $this->setPdflibLicense($value);
-            } elseif ($key === 'adminUsername' || $key === 'admin_username') {
-                $this->setAdminUsername($value);
-            } elseif ($key === 'adminPassword' || $key === 'admin_password') {
-                $this->setAdminPassword($value);
             }
         }
         return $this;
@@ -435,48 +419,8 @@ class Options
             return $this->getPdfBackend();
         } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
             return $this->getPdflibLicense();
-        } elseif ($key === 'adminUsername' || $key === 'admin_username') {
-            return $this->getAdminUsername();
-        } elseif ($key === 'adminPassword' || $key === 'admin_password') {
-            return $this->getAdminPassword();
         }
         return null;
-    }
-
-    /**
-     * @param string $adminPassword
-     * @return $this
-     */
-    public function setAdminPassword($adminPassword)
-    {
-        $this->adminPassword = $adminPassword;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAdminPassword()
-    {
-        return $this->adminPassword;
-    }
-
-    /**
-     * @param string $adminUsername
-     * @return $this
-     */
-    public function setAdminUsername($adminUsername)
-    {
-        $this->adminUsername = $adminUsername;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAdminUsername()
-    {
-        return $this->adminUsername;
     }
 
     /**
@@ -519,10 +463,10 @@ class Options
      * @param array|string $chroot
      * @return $this
      */
-    public function setChroot($chroot,$delimiter=',')
+    public function setChroot($chroot, $delimiter = ',')
     {
         if(is_string($chroot)){
-            $chroot = explode($delimiter,$chroot);
+            $chroot = explode($delimiter, $chroot);
         }
         $this->chroot = $chroot;
         return $this;
