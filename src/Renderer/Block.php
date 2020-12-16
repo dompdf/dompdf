@@ -73,9 +73,11 @@ class Block extends AbstractRenderer
 
         if ($options->getDebugLayout()) {
             if ($options->getDebugLayoutBlocks()) {
-                $this->_debug_layout($frame->get_border_box(), "red");
+                $debug_border_box = $frame->get_border_box();
+                $this->_debug_layout([$debug_border_box['x'], $debug_border_box['y'], (float)$debug_border_box['w'], (float)$debug_border_box['h']], "red");
                 if ($options->getDebugLayoutPaddingBox()) {
-                    $this->_debug_layout($frame->get_padding_box(), "red", [0.5, 0.5]);
+                    $debug_padding_box = $frame->get_padding_box();
+                    $this->_debug_layout([$debug_padding_box['x'], $debug_padding_box['y'], (float)$debug_padding_box['w'], (float)$debug_padding_box['h']], "red", [0.5, 0.5]);
                 }
             }
 

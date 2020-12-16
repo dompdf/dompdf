@@ -1692,7 +1692,9 @@ class Style
             } else if (
                 (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") !== false)
                 ||
-                (($style === "margin" || $style === "padding") && (strpos($val, "%") !== false || $val === "auto"))
+                ($style === "padding" && strpos($val, "%") !== false)
+                ||
+                ($style === "margin" && (strpos($val, "%") !== false || $val === "auto"))
             ) {
                 $this->_props_computed[$prop] = $val;
             } elseif (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") === false) {
@@ -3311,7 +3313,7 @@ class Style
         $this->_props_computed["z_index"] = null;
         $this->_prop_cache["z_index"] = null;
 
-        if (round($val) != $val && $val !== "auto") {
+        if ($val !== "auto" && round($val) != $val) {
             return;
         }
 
