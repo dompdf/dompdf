@@ -33,8 +33,6 @@ class OptionsTest extends TestCase
         $this->assertTrue($option->getDebugLayoutBlocks());
         $this->assertTrue($option->getDebugLayoutInline());
         $this->assertTrue($option->getDebugLayoutPaddingBox());
-        $this->assertEquals('user', $option->getAdminUsername());
-        $this->assertEquals('password', $option->getAdminPassword());
 
         $option = new Options(['tempDir' => 'test1']);
         $this->assertEquals('test1', $option->getTempDir());
@@ -66,9 +64,7 @@ class OptionsTest extends TestCase
             'debugLayoutLines' => false,
             'debugLayoutBlocks' => false,
             'debugLayoutInline' => false,
-            'debugLayoutPaddingBox' => false,
-            'adminUsername' => 'test9',
-            'adminPassword' => 'test10',
+            'debugLayoutPaddingBox' => false
         ]);
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
@@ -93,8 +89,6 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getDebugLayoutBlocks());
         $this->assertFalse($option->getDebugLayoutInline());
         $this->assertFalse($option->getDebugLayoutPaddingBox());
-        $this->assertEquals('test9', $option->getAdminUsername());
-        $this->assertEquals('test10', $option->getAdminPassword());
 
         $option->setChroot(['test11']);
         $this->assertEquals(['test11'], $option->getChroot());

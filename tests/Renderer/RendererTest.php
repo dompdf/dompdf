@@ -14,7 +14,7 @@ class RendererTest extends TestCase
     /** @var \ReflectionMethod */
     private $resizeBackgroundImageMethod;
 
-    public function setUp()
+    public function setUp() : void
     {
         $dompdf = new Dompdf();
         $this->renderer = new Renderer($dompdf);

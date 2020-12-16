@@ -16,7 +16,7 @@ class DompdfTest extends TestCase
         $this->assertInstanceOf('Dompdf\Adapter\Cpdf', $dompdf->getCanvas());
         $this->assertEquals('', $dompdf->getBaseHost());
         $this->assertEquals('', $dompdf->getBasePath());
-        $this->assertInternalType('array', $dompdf->getCallbacks());
+        $this->assertIsArray($dompdf->getCallbacks()); 
         $this->assertInstanceOf('Dompdf\Css\Stylesheet', $dompdf->getCss());
         $this->assertNull($dompdf->getDom());
         $this->assertNull($dompdf->getHttpContext());
@@ -44,7 +44,7 @@ class DompdfTest extends TestCase
         $this->assertCount(1, $dompdf->getCallbacks());
         $this->assertInstanceOf('Dompdf\Css\Stylesheet', $dompdf->getCss());
         $this->assertInstanceOf('DOMDocument', $dompdf->getDom());
-        $this->assertInternalType('resource', $dompdf->getHttpContext());
+        $this->assertIsResource($dompdf->getHttpContext());
         $this->assertInstanceOf('Dompdf\Options', $dompdf->getOptions());
         $this->assertEquals('test3', $dompdf->getProtocol());
         $this->assertInstanceOf('Dompdf\Frame\FrameTree', $dompdf->getTree());
