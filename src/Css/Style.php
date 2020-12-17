@@ -1808,7 +1808,7 @@ class Style
 
         if (empty($val) || $val === "none") {
             $path = "none";
-        } else if (mb_strpos($val, "url") === false) {
+        } elseif (mb_strpos($val, "url") === false) {
             $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
         } else {
             $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
@@ -1819,7 +1819,7 @@ class Style
                 $this->_stylesheet->get_host(),
                 $this->_stylesheet->get_base_path(),
                 $val);
-            if ($parsed_url["protocol"] == "" && $this->_stylesheet->get_protocol() == "") {
+            if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_stylesheet->get_protocol() == "" || $this->_stylesheet->get_protocol() == "file://")) {
                 $path = realpath($path);
                 // If realpath returns FALSE then specifically state that there is no background image
                 if (!$path) {
