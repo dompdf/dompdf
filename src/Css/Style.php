@@ -1888,9 +1888,9 @@ class Style
         $this->_props["background_image"] = $val;
         $parsed_val = $this->_image($val);
         if ($parsed_val === "none") {
-            $this->_props_computed["list_style_image"] = "none";
+            $this->_props_computed["background_image"] = "none";
         } else {
-            $this->_props_computed["list_style_image"] = "url(" . $parsed_val . ")";
+            $this->_props_computed["background_image"] = "url(" . $parsed_val . ")";
         }
         $this->_prop_cache["background_image"] = null;
     }
