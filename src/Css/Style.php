@@ -422,7 +422,7 @@ class Style
             $d["src"] = "";
             $d["unicode_range"] = "";
 
-            // vendor-previxed properties
+            // vendor-prefixed properties
             $d["_dompdf_background_image_resolution"] = &$d["background_image_resolution"];
             $d["_dompdf_image_resolution"] = &$d["image_resolution"];
             $d["_dompdf_keep"] = "";
@@ -794,7 +794,12 @@ class Style
                         unset($this->_prop_cache[$shorthand]);
                     }
                 }
-                $this->__set($prop, $val);
+                if (isset($style->_props_computed[$prop])) {
+                    $this->__set($prop, $style->_props_computed[$prop]);
+                } else {
+                    // computed value not set, recompute use the specified value
+                    $this->__set($prop, $val);
+                }
             }
         }
     }
