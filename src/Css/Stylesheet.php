@@ -360,11 +360,7 @@ class Stylesheet
 
             list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
-            if ($this->_protocol == "") {
-                $file = $this->_base_path . $filename;
-            } else {
-                $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
-            }
+            $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
 
             $options = $this->_dompdf->getOptions();
             // Download the remote file
@@ -377,9 +373,20 @@ class Stylesheet
 
                 $rootDir = realpath($options->getRootDir());
                 if (strpos($realfile, $rootDir) !== 0) {
-                    $chroot = realpath($options->getChroot());
-                    if (!$chroot || strpos($realfile, $chroot) !== 0) {
-                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the directory specified by Options::chroot.", __FILE__, __LINE__);
+                    $chroot = $options->getChroot();
+                    $chrootError = false;
+                    if (!is_array($chroot) || count($chroot)<1){
+                        $chrootError = true;
+                    } else {
+                        foreach ($chroot as $chrootPath) {
+                            $chrootPath = realpath($chrootPath);
+                            if ($chrootPath === false || strpos($realfile, $chrootPath) !== 0) {
+                                $chrootError = true;
+                            }
+                        }
+                    }
+                    if ($chrootError) {
+                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the directory's specified by Options::chroot.", __FILE__, __LINE__);
                         return;
                     }
                 }
@@ -1424,42 +1431,33 @@ class Stylesheet
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
 
-        if (mb_strpos($val, "url") === false) {
+        if (empty($val) || $val === "none") {
+            $path = "none";
+        } elseif (mb_strpos($val, "url") === false) {
             $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
         } else {
             $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
             $parsed_url = Helpers::explode_url($val);
-            if ($parsed_url["protocol"] == "" && $this->get_protocol() == "") {
-                if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
-                    $path = $_SERVER["DOCUMENT_ROOT"] . '/';
-                } else {
-                    $path = $this->get_base_path();
-                }
-
-                $path .= $parsed_url["path"] . $parsed_url["file"];
+            $path = Helpers::build_url($this->_stylesheet->get_protocol(),
+                $this->_base_host,
+                $this->_base_path,
+                $val);
+            if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_protocol == "" || $this->_protocol == "file://")) {
                 $path = realpath($path);
                 // If realpath returns FALSE then specifically state that there is no background image
-                // FIXME: Is this causing problems for imported CSS files? There are some './none' references when running the test cases.
                 if (!$path) {
                     $path = 'none';
                 }
-            } else {
-                $path = Helpers::build_url($this->get_protocol(),
-                    $this->get_host(),
-                    $this->get_base_path(),
-                    $val);
             }
         }
-
         if ($DEBUGCSS) {
             print "<pre>[_image\n";
             print_r($parsed_url);
-            print $this->get_protocol() . "\n" . $this->get_base_path() . "\n" . $path . "\n";
-            print "_image]</pre>";;
+            print $this->_protocol . "\n" . $this->_base_path . "\n" . $path . "\n";
+            print "_image]</pre>";
         }
-
         return $path;
     }
 

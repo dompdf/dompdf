@@ -13,7 +13,7 @@ class OptionsTest extends TestCase
         $this->assertEquals(sys_get_temp_dir(), $option->getTempDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontCache());
-        $this->assertEquals($root, $option->getChroot());
+        $this->assertEquals([$root], $option->getChroot());
         $this->assertEquals(sys_get_temp_dir() . "/log.htm", $option->getLogOutputFile());
         $this->assertEquals('screen', $option->getDefaultMediaType());
         $this->assertEquals('letter', $option->getDefaultPaperSize());
@@ -33,8 +33,6 @@ class OptionsTest extends TestCase
         $this->assertTrue($option->getDebugLayoutBlocks());
         $this->assertTrue($option->getDebugLayoutInline());
         $this->assertTrue($option->getDebugLayoutPaddingBox());
-        $this->assertEquals('user', $option->getAdminUsername());
-        $this->assertEquals('password', $option->getAdminPassword());
 
         $option = new Options(['tempDir' => 'test1']);
         $this->assertEquals('test1', $option->getTempDir());
@@ -47,7 +45,7 @@ class OptionsTest extends TestCase
             'tempDir' => 'test1',
             'fontDir' => 'test2',
             'fontCache' => 'test3',
-            'chroot' => 'test4',
+            'chroot' => 'test4,test4a',
             'logOutputFile' => 'test5',
             'defaultMediaType' => 'test6',
             'defaultPaperSize' => 'test7',
@@ -66,14 +64,12 @@ class OptionsTest extends TestCase
             'debugLayoutLines' => false,
             'debugLayoutBlocks' => false,
             'debugLayoutInline' => false,
-            'debugLayoutPaddingBox' => false,
-            'adminUsername' => 'test9',
-            'adminPassword' => 'test10',
+            'debugLayoutPaddingBox' => false
         ]);
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
         $this->assertEquals('test3', $option->getFontCache());
-        $this->assertEquals('test4', $option->getChroot());
+        $this->assertEquals(['test4','test4a'], $option->getChroot());
         $this->assertEquals('test5', $option->getLogOutputFile());
         $this->assertEquals('test6', $option->getDefaultMediaType());
         $this->assertEquals('test7', $option->getDefaultPaperSize());
@@ -93,7 +89,8 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getDebugLayoutBlocks());
         $this->assertFalse($option->getDebugLayoutInline());
         $this->assertFalse($option->getDebugLayoutPaddingBox());
-        $this->assertEquals('test9', $option->getAdminUsername());
-        $this->assertEquals('test10', $option->getAdminPassword());
+
+        $option->setChroot(['test11']);
+        $this->assertEquals(['test11'], $option->getChroot());
     }
 }

@@ -127,9 +127,20 @@ class Cache
         
                     $rootDir = realpath($dompdf->getOptions()->getRootDir());
                     if (strpos($realfile, $rootDir) !== 0) {
-                        $chroot = realpath($dompdf->getOptions()->getChroot());
-                        if (!$chroot || strpos($realfile, $chroot) !== 0) {
-                            throw new ImageException("Permission denied on $resolved_url. The file could not be found under the directory specified by Options::chroot.", E_WARNING);
+                        $chroot = $dompdf->getOptions()->getChroot();
+                        $chrootError = false;
+                        if (!is_array($chroot) || count($chroot)<1){
+                            $chrootError = true;
+                        } else {
+                            foreach($chroot as $chrootPath){
+                                $chrootPath = realpath($chrootPath);
+                                if ($chrootPath === false || strpos($realfile, $chrootPath) !== 0) {
+                                    $chrootError = true;
+                                }
+                            }
+                        }
+                        if($chrootError){
+                            throw new ImageException("Permission denied on $resolved_url. The file could not be found under the directory's specified by Options::chroot.", E_WARNING);
                         }
                     }
         
@@ -165,6 +176,7 @@ class Cache
             $type = "png";
             $message = self::$error_message;
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
+            self::$_cache[$full_url] = $resolved_url;
         }
 
         return [$resolved_url, $type, $message];
@@ -172,7 +184,7 @@ class Cache
 
     /**
      * Unlink all cached images (i.e. temporary images either downloaded
-     * or converted)
+     * or converted) except for the bundled "broken image"
      */
     static function clear()
     {
@@ -181,6 +193,9 @@ class Cache
         }
 
         foreach (self::$_cache as $file) {
+            if ($file === self::$broken_image) {
+                continue;
+            }
             if (self::$_dompdf->getOptions()->getDebugPng()) {
                 print "[clear unlink $file]";
             }

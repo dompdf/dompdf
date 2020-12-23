@@ -124,36 +124,36 @@ class Image extends AbstractFrameReflower
             $min_height = $style->length_in_pt($style->min_height, $h);
             $max_height = $style->length_in_pt($style->max_height, $h);
 
-            if ($max_width !== "none" && $width > $max_width) {
+            if ($max_width !== "none" && $max_width !== "auto" && $width > (float)$max_width) {
                 if (!$height_forced) {
-                    $height *= $max_width / $width;
+                    $height *= (float)$max_width / $width;
                 }
 
-                $width = $max_width;
+                $width = (float)$max_width;
             }
 
-            if ($min_width !== "none" && $width < $min_width) {
+            if ($min_width !== "none" && $min_width !== "auto" && $width < (float)$min_width) {
                 if (!$height_forced) {
-                    $height *= $min_width / $width;
+                    $height *= (float)$min_width / $width;
                 }
 
-                $width = $min_width;
+                $width = (float)$min_width;
             }
 
-            if ($max_height !== "none" && $height > $max_height) {
+            if ($max_height !== "none" && $max_height !== "auto" && $height > (float)$max_height) {
                 if (!$width_forced) {
-                    $width *= $max_height / $height;
+                    $width *= (float)$max_height / $height;
                 }
 
-                $height = $max_height;
+                $height = (float)$max_height;
             }
 
-            if ($min_height !== "none" && $height < $min_height) {
+            if ($min_height !== "none" && $min_height !== "auto" && $height < (float)$min_height) {
                 if (!$width_forced) {
-                    $width *= $min_height / $height;
+                    $width *= (float)$min_height / $height;
                 }
 
-                $height = $min_height;
+                $height = (float)$min_height;
             }
         }
 

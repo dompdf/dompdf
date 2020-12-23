@@ -171,7 +171,10 @@ class Text extends AbstractFrameDecorator
         }
 
         $split = $this->_frame->get_node()->splitText($offset);
-
+        if ($split === false) {
+            return null;
+        }
+        
         $deco = $this->copy($split);
 
         $p = $this->get_parent();

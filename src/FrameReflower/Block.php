@@ -375,7 +375,7 @@ class Block extends AbstractFrameReflower
 
         } else {
             // Expand the height if overflow is visible
-            if ($height === "auto" && $content_height > $height /* && $style->overflow === "visible" */) {
+            if ($height === "auto" && $content_height > 0 /* && $style->overflow === "visible" */) {
                 $height = $content_height;
             }
 
@@ -404,16 +404,16 @@ class Block extends AbstractFrameReflower
                     }
                 }
 
-                if ($max_height !== "none" && $min_height > $max_height) {
+                if ($max_height !== "none" && $max_height !== "auto" && (float)$min_height > (float)$max_height) {
                     // Swap 'em
                     list($max_height, $min_height) = [$min_height, $max_height];
                 }
 
-                if ($max_height !== "none" && $height > $max_height) {
+                if ($max_height !== "none" && $max_height !== "auto" && $height > (float)$max_height) {
                     $height = $max_height;
                 }
 
-                if ($height < $min_height) {
+                if ($height < (float)$min_height) {
                     $height = $min_height;
                 }
             }

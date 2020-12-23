@@ -1028,7 +1028,7 @@ class Cpdf
             }
         }
 
-        return 'SUB' . str_pad($base_26,3 , 'A', STR_PAD_LEFT);
+        return 'SUB' . str_pad($base_26, 3 , 'A', STR_PAD_LEFT);
     }
 
     /**
@@ -2617,7 +2617,6 @@ EOT;
         }
 
         return null;
-
     }
 
     /**
@@ -3171,7 +3170,7 @@ EOT;
 
             $id = $this->catalogId;
 
-            $this->o_indirect_references($this->indirectReferenceId, 'add', ['Javascript' => $js_id]);
+            $this->o_indirect_references($this->indirectReferenceId, 'add', ['JavaScript' => $js_id]);
         }
 
         if ($this->fileIdentifier === '') {
@@ -4277,9 +4276,7 @@ EOT;
      * @param string|null $contactinfo
      * @return int
      */
-    function addSignature($signcert, $privkey, $password = '',
-      $name = null, $location = null, $reason = null, $contactinfo = null
-    ) {
+    function addSignature($signcert, $privkey, $password = '', $name = null, $location = null, $reason = null, $contactinfo = null) {
         $sigId = ++$this->numObj;
         $this->o_sig($sigId, 'new', [
           'SignCert' => $signcert,
@@ -5533,17 +5530,17 @@ EOT;
      * add a PNG image into the document, from a GD object
      * this should work with remote files
      *
+     * @param resource $img A GD resource
      * @param string $file The PNG file
      * @param float $x X position
      * @param float $y Y position
      * @param float $w Width
      * @param float $h Height
-     * @param resource $img A GD resource
      * @param bool $is_mask true if the image is a mask
      * @param bool $mask true if the image is masked
      * @throws Exception
      */
-    function addImagePng($file, $x, $y, $w = 0.0, $h = 0.0, &$img, $is_mask = false, $mask = null)
+    function addImagePng(&$img, $file, $x, $y, $w = 0.0, $h = 0.0, $is_mask = false, $mask = null)
     {
         if (!function_exists("imagepng")) {
             throw new \Exception("The PHP GD extension is required, but is not installed.");
@@ -5595,7 +5592,7 @@ EOT;
             }
         }  //End isset($this->imagelist[$file]) (png Duplicate removal)
 
-        $this->addPngFromBuf($file, $x, $y, $w, $h, $data, $is_mask, $mask);
+        $this->addPngFromBuf($data, $file, $x, $y, $w, $h, $is_mask, $mask);
     }
 
     /**
@@ -5759,12 +5756,12 @@ EOT;
 
         // embed mask image
         if ($tempfile_alpha) {
-            $this->addImagePng($tempfile_alpha, $x, $y, $w, $h, $imgalpha, true);
+            $this->addImagePng($imgalpha, $tempfile_alpha, $x, $y, $w, $h, true);
             imagedestroy($imgalpha);
         }
 
         // embed image, masked with previously embedded mask
-        $this->addImagePng($tempfile_plain, $x, $y, $w, $h, $imgplain, false, ($tempfile_alpha !== null));
+        $this->addImagePng($imgplain, $tempfile_plain, $x, $y, $w, $h, false, ($tempfile_alpha !== null));
         imagedestroy($imgplain);
 
         // remove temp files
@@ -5844,7 +5841,7 @@ EOT;
             imagecopy($img, $imgtmp, 0, 0, 0, 0, $sx, $sy);
             imagedestroy($imgtmp);
         }
-        $this->addImagePng($file, $x, $y, $w, $h, $img);
+        $this->addImagePng($img, $file, $x, $y, $w, $h);
 
         if ($img) {
             imagedestroy($img);
@@ -5880,16 +5877,16 @@ EOT;
     /**
      * add a PNG image into the document, from a memory buffer of the file
      *
+     * @param $data
      * @param $file
      * @param $x
      * @param $y
      * @param float $w
      * @param float $h
-     * @param $data
      * @param bool $is_mask
      * @param null $mask
      */
-    function addPngFromBuf($file, $x, $y, $w = 0.0, $h = 0.0, &$data, $is_mask = false, $mask = null)
+    function addPngFromBuf(&$data, $file, $x, $y, $w = 0.0, $h = 0.0, $is_mask = false, $mask = null)
     {
         if (isset($this->imagelist[$file])) {
             $data = null;
@@ -6218,31 +6215,31 @@ EOT;
             $h = $w * $imageHeight / $imageWidth;
         }
 
-        $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $channels, $img);
+        $this->addJpegImage_common($data, $img, $imageWidth, $imageHeight, $x, $y, $w, $h, $channels);
     }
 
     /**
      * common code used by the two JPEG adding functions
      * @param $data
+     * @param $imgname
+     * @param $imageWidth
+     * @param $imageHeight
      * @param $x
      * @param $y
      * @param int $w
      * @param int $h
-     * @param $imageWidth
-     * @param $imageHeight
      * @param int $channels
-     * @param $imgname
      */
     private function addJpegImage_common(
         &$data,
+        $imgname,
+        $imageWidth,
+        $imageHeight,
         $x,
         $y,
         $w = 0,
         $h = 0,
-        $imageWidth,
-        $imageHeight,
-        $channels = 3,
-        $imgname
+        $channels = 3
     ) {
         if ($this->image_iscached($imgname)) {
             $label = $this->imagelist[$imgname]['label'];
