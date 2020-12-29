@@ -794,7 +794,8 @@ class Style
                         unset($this->_prop_cache[$shorthand]);
                     }
                 }
-                if (isset($style->_props_computed[$prop])) {
+                //FIXME: temporary hack around lack of persistence of base href for URLs
+                if (($prop === "background_image" || $prop === "list_style_image") && isset($style->_props_computed[$prop])) {
                     $this->__set($prop, $style->_props_computed[$prop]);
                 } else {
                     // computed value not set, recompute use the specified value
