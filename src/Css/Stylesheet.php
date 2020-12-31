@@ -1440,7 +1440,7 @@ class Stylesheet
 
             // Resolve the url now in the context of the current stylesheet
             $parsed_url = Helpers::explode_url($val);
-            $path = Helpers::build_url($this->_stylesheet->get_protocol(),
+            $path = Helpers::build_url($this->_protocol,
                 $this->_base_host,
                 $this->_base_path,
                 $val);

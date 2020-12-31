@@ -794,7 +794,8 @@ class Style
                         unset($this->_prop_cache[$shorthand]);
                     }
                 }
-                if (isset($style->_props_computed[$prop])) {
+                //FIXME: temporary hack around lack of persistence of base href for URLs
+                if (($prop === "background_image" || $prop === "list_style_image") && isset($style->_props_computed[$prop])) {
                     $this->__set($prop, $style->_props_computed[$prop]);
                 } else {
                     // computed value not set, recompute use the specified value
@@ -2498,30 +2499,29 @@ class Style
     protected function _set_border($side, $border_spec, $important)
     {
         $border_spec = preg_replace("/\s*\,\s*/", ",", $border_spec);
-        //$border_spec = str_replace(",", " ", $border_spec); // Why did we have this ?? rbg(10, 102, 10) > rgb(10  102  10)
         $arr = explode(" ", $border_spec);
-
-        // FIXME: handle partial values
-        //For consistency of individual and combined properties, and with ie8 and firefox3
-        //reset all attributes, even if only partially given
-        //$this->_set_style_side_type('border', $side, 'style', self::$_defaults['border_' . $side . '_style'], $important);
-        //$this->_set_style_side_type('border', $side, 'width', self::$_defaults['border_' . $side . '_width'], $important);
-        //$this->_set_style_side_type('border', $side, 'color', self::$_defaults['border_' . $side . '_color'], $important);
 
         foreach ($arr as $value) {
             $value = trim($value);
-            if (in_array($value, self::$BORDER_STYLES)) {
-                $this->_set_style_side_type('border', $side, 'style', $value, $important);
+            $prop = "";
+            if (strtolower($value) === "inherit") {
+                $this->__set("border_${side}_color", "inherit");
+                $this->__set("border_${side}_style", "inherit");
+                $this->__set("border_${side}_width", "inherit");
+                continue;
+            } elseif (in_array($value, self::$BORDER_STYLES)) {
+                $prop = "border_${side}_style";
             } elseif ($value === "0" || preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
-                $this->_set_style_side_type('border', $side, 'width', $value, $important);
-            } elseif ($value === "inherit") {
-                $this->_set_style_side_type('border', $side, 'style', $value, $important);
-                $this->_set_style_side_type('border', $side, 'width', $value, $important);
-                $this->_set_style_side_type('border', $side, 'color', $value, $important);
+                $prop = "border_${side}_width";
             } else {
                 // must be color
-                $this->_set_style_side_type('border', $side, 'color', $this->munge_color($value), $important);
+                $prop = "border_${side}_color";
             }
+
+            if ($important) {
+                $this->_important_props[$prop] = true;
+            }
+            $this->__set($prop, $value);
         }
     }
 
