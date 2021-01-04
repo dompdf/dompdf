@@ -386,19 +386,16 @@ class Dompdf
             $realfile = realpath($uri);
 
             $chroot = $this->options->getChroot();
-            $chrootError = false;
-            if (!is_array($chroot) || count($chroot)<1){
-                $chrootError = true;
-            } else {
-                foreach($chroot as $chrootPath){
-                    $chrootPath = realpath($chrootPath);
-                    if ($chrootPath === false || strpos($realfile, $chrootPath) !== 0) {
-                        $chrootError = true;
-                    }
+            $chrootValid = false;
+            foreach($chroot as $chrootPath) {
+                $chrootPath = realpath($chrootPath);
+                if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
+                    $chrootValid = true;
+                    break;
                 }
             }
-            if($chrootError){
-                throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
+            if ($chrootValid !== true) {
+                throw new Exception("Permission denied on $file. The file could not be found under the paths specified by Options::chroot.");
             }
 
             $ext = strtolower(pathinfo($realfile, PATHINFO_EXTENSION));
