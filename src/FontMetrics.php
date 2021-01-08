@@ -219,19 +219,16 @@ class FontMetrics
             $rootDir = realpath($this->options->getRootDir());
             if (strpos($realfile, $rootDir) !== 0) {
                 $chroot = $this->options->getChroot();
-                $chrootError = false;
-                if (!is_array($chroot) || count($chroot)<1){
-                    $chrootError = true;
-                } else {
-                    foreach($chroot as $chrootPath){
-                        $chrootPath = realpath($chrootPath);
-                        if ($chrootPath === false || strpos($realfile, $chrootPath) !== 0) {
-                            $chrootError = true;
-                        }
+                $chrootValid = false;
+                foreach($chroot as $chrootPath) {
+                    $chrootPath = realpath($chrootPath);
+                    if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
+                        $chrootValid = true;
+                        break;
                     }
                 }
-                if($chrootError){
-                    Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The file could not be found under the directory specified by Options::chroot.", __FILE__, __LINE__);
+                if ($chrootValid !== true) {    
+                    Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The file could not be found under the paths specified by Options::chroot.", __FILE__, __LINE__);
                     return false;
                 }
             }

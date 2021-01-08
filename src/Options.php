@@ -465,10 +465,11 @@ class Options
      */
     public function setChroot($chroot, $delimiter = ',')
     {
-        if(is_string($chroot)){
-            $chroot = explode($delimiter, $chroot);
+        if (is_string($chroot)) {
+            $this->chroot = explode($delimiter, $chroot);
+        } elseif (is_array($chroot)) {
+            $this->chroot = $chroot;
         }
-        $this->chroot = $chroot;
         return $this;
     }
 
@@ -477,7 +478,11 @@ class Options
      */
     public function getChroot()
     {
-        return $this->chroot;
+        $chroot = [];
+        if (is_array($this->chroot)) {
+            $chroot = $this->chroot;
+        }
+        return $chroot;
     }
 
     /**
