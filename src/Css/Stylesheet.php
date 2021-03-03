@@ -1012,7 +1012,7 @@ class Stylesheet
                             continue;
                         }
 
-                        if (($src = $this->_resolve_url($style->get_prop('content'))) !== "none") {
+                        if (($src = $this->resolve_url($style->get_prop('content'))) !== "none") {
                             $new_node = $node->ownerDocument->createElement("img_generated");
                             $new_node->setAttribute("src", $src);
                         } else {
@@ -1423,7 +1423,7 @@ class Stylesheet
      * @return string The resolved URL, or `none`, if the value is `none`,
      *         invalid, or points to a non-existent local file.
      */
-    protected function _resolve_url($val): string
+    public function resolve_url($val): string
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
@@ -1498,7 +1498,7 @@ class Stylesheet
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
-            $url = $this->_resolve_url($url);
+            $url = $this->resolve_url($url);
 
             $this->load_css_file($url);
 
