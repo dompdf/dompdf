@@ -1012,7 +1012,7 @@ class Stylesheet
                             continue;
                         }
 
-                        if (($src = $this->_image($style->get_prop('content'))) !== "none") {
+                        if (($src = $this->_resolve_url($style->get_prop('content'))) !== "none") {
                             $new_node = $node->ownerDocument->createElement("img_generated");
                             $new_node->setAttribute("src", $src);
                         } else {
@@ -1417,12 +1417,13 @@ class Stylesheet
     }
 
     /**
-     * See also style.cls Style::_image(), refactoring?, works also for imported css files
+     * Resolve the given `url()` declaration to an absolute URL.
      *
-     * @param $val
-     * @return string
+     * @param string|null $val The declaration to resolve in the context of the stylesheet.
+     * @return string The resolved URL, or `none`, if the value is `none`,
+     *         invalid, or points to a non-existent local file.
      */
-    protected function _image($val)
+    protected function _resolve_url($val): string
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
@@ -1443,8 +1444,8 @@ class Stylesheet
             if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_protocol == "" || $this->_protocol == "file://")) {
                 $path = realpath($path);
                 // If realpath returns FALSE then specifically state that there is no background image
-                if (!$path) {
-                    $path = 'none';
+                if ($path === false) {
+                    $path = "none";
                 }
             }
         }
@@ -1497,7 +1498,7 @@ class Stylesheet
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
-            $url = $this->_image($url);
+            $url = $this->_resolve_url($url);
 
             $this->load_css_file($url);
 
