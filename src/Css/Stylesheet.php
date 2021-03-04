@@ -994,7 +994,7 @@ class Stylesheet
                 // Retrieve the nodes, limit to body for generated content
                 //TODO: If we use a context node can we remove the leading dot?
                 $nodes = @$xp->query('.' . $query["query"]);
-                if ($nodes == null) {
+                if ($nodes === false) {
                     Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                     continue;
                 }
@@ -1035,7 +1035,7 @@ class Stylesheet
 
                 // Retrieve the nodes
                 $nodes = @$xp->query($query["query"]);
-                if ($nodes == null) {
+                if ($nodes === false) {
                     Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                     continue;
                 }
