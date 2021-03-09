@@ -97,8 +97,8 @@ class FontMetrics
             $cacheData .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
             foreach ($variants as $variant => $path) {
                 $path = sprintf("'%s'", $path);
-                $path = str_replace('\'' . $this->getOptions()->getFontDir() , '$fontDir . \'' , $path);
-                $path = str_replace('\'' . $this->getOptions()->getRootDir() , '$rootDir . \'' , $path);
+                $path = str_replace('\'' . $this->options->getFontDir() , '$fontDir . \'' , $path);
+                $path = str_replace('\'' . $this->options->getRootDir() , '$rootDir . \'' , $path);
                 $cacheData .= sprintf("    '%s' => %s,%s", $variant, $path, PHP_EOL);
             }
             $cacheData .= sprintf("  ),%s", PHP_EOL);
@@ -122,8 +122,8 @@ class FontMetrics
      */
     public function loadFontFamilies()
     {
-        $fontDir = $this->getOptions()->getFontDir();
-        $rootDir = $this->getOptions()->getRootDir();
+        $fontDir = $this->options->getFontDir();
+        $rootDir = $this->options->getRootDir();
 
         // FIXME: temporarily define constants for cache files <= v0.6.2
         if (!defined("DOMPDF_DIR")) { define("DOMPDF_DIR", $rootDir); }
@@ -180,7 +180,7 @@ class FontMetrics
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
-        $fontDir = $this->getOptions()->getFontDir();
+        $fontDir = $this->options->getFontDir();
         $remoteHash = md5($remoteFile);
 
         $prefix = $fontname . "_" . $styleString;
@@ -357,7 +357,7 @@ class FontMetrics
      */
     public function getFontHeight($font, $size)
     {
-        return $this->getCanvas()->get_font_height($font, $size);
+        return $this->canvas->get_font_height($font, $size);
     }
 
     /**
@@ -551,7 +551,7 @@ class FontMetrics
      */
     public function getCacheFile()
     {
-        return $this->getOptions()->getFontDir() . '/' . self::CACHE_FILE;
+        return $this->options->getFontDir() . '/' . self::CACHE_FILE;
     }
 
     /**
