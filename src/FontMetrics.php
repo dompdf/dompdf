@@ -318,13 +318,16 @@ class FontMetrics
         // Don't cache long strings
         $useCache = !isset($text[50]); // Faster than strlen
 
-        $key = "$font/$size/$wordSpacing/$charSpacing";
+        // Text-size calculations depend on the canvas used. Make sure to not
+        // return wrong values when switching canvas backends
+        $canvasClass = get_class($this->canvas);
+        $key = "$canvasClass/$font/$size/$wordSpacing/$charSpacing";
 
         if ($useCache && isset($cache[$key][$text])) {
-            return $cache[$key]["$text"];
+            return $cache[$key][$text];
         }
 
-        $width = $this->getCanvas()->get_text_width($text, $font, $size, $wordSpacing, $charSpacing);
+        $width = $this->canvas->get_text_width($text, $font, $size, $wordSpacing, $charSpacing);
 
         if ($useCache) {
             $cache[$key][$text] = $width;
