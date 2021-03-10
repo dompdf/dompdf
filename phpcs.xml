@@ -21,9 +21,6 @@
  <rule ref="PSR2.ControlStructures.SwitchDeclaration.TerminatingComment">
   <severity>0</severity>
  </rule>
- <rule ref="PEAR.Functions.ValidDefaultValue.NotAtEnd">
-  <severity>0</severity>
- </rule>
  <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
   <severity>0</severity>
  </rule>
@@ -31,12 +28,6 @@
   <severity>0</severity>
  </rule>
  <!-- These can be fixed automatically by phpcbf -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
-  <severity>0</severity>
- </rule>
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
-  <severity>0</severity>
- </rule>
  <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen">
   <severity>0</severity>
  </rule>
@@ -49,9 +40,6 @@
  <rule ref="Squiz.ControlStructures.ControlSignature.SpaceBeforeSemicolon">
   <severity>0</severity>
  </rule>
- <rule ref="PSR2.Files.EndFileNewline.NoneFound">
-  <severity>0</severity>
- </rule>
  <rule ref="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody">
   <severity>0</severity>
  </rule>
@@ -62,9 +50,6 @@
   <severity>0</severity>
  </rule>
  <rule ref="PSR2.Methods.FunctionCallSignature.Indent">
-  <severity>0</severity>
- </rule>
- <rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace">
@@ -83,9 +68,6 @@
   <severity>0</severity>
  </rule>
  <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace">
-  <severity>0</severity>
- </rule>
- <rule ref="Generic.Functions.FunctionCallArgumentSpacing.SpaceBeforeComma">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore">
@@ -109,31 +91,16 @@
  <rule ref="PSR2.Methods.FunctionCallSignature.SpaceAfterOpenBracket">
   <severity>0</severity>
  </rule>
- <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
-  <severity>0</severity>
- </rule>
  <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword">
-  <severity>0</severity>
- </rule>
- <rule ref="PSR2.Classes.ClassDeclaration.OpenBraceNewLine">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction">
   <severity>0</severity>
  </rule>
- <rule ref="Generic.Formatting.DisallowMultipleStatements.SameLine">
-  <severity>0</severity>
- </rule>
  <rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE">
   <severity>0</severity>
  </rule>
- <rule ref="PSR2.Files.EndFileNewline.TooMany">
-  <severity>0</severity>
- </rule>
  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace">
-  <severity>0</severity>
- </rule>
- <rule ref="PSR2.Methods.MethodDeclaration.StaticBeforeVisibility">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine">
