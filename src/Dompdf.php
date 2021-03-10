@@ -288,7 +288,7 @@ class Dompdf
 
         $versionFile = realpath(__DIR__ . '/../VERSION');
         if (file_exists($versionFile) && ($version = trim(file_get_contents($versionFile))) !== false && $version !== '$Format:<%h>$') {
-          $this->version = sprintf('dompdf %s', $version);
+            $this->version = sprintf('dompdf %s', $version);
         }
 
         $this->setPhpConfig();

@@ -97,8 +97,8 @@ class FontMetrics
             $cacheData .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
             foreach ($variants as $variant => $path) {
                 $path = sprintf("'%s'", $path);
-                $path = str_replace('\'' . $this->getOptions()->getFontDir() , '$fontDir . \'' , $path);
-                $path = str_replace('\'' . $this->getOptions()->getRootDir() , '$rootDir . \'' , $path);
+                $path = str_replace('\'' . $this->getOptions()->getFontDir(), '$fontDir . \'', $path);
+                $path = str_replace('\'' . $this->getOptions()->getRootDir(), '$rootDir . \'', $path);
                 $cacheData .= sprintf("    '%s' => %s,%s", $variant, $path, PHP_EOL);
             }
             $cacheData .= sprintf("  ),%s", PHP_EOL);
@@ -227,7 +227,7 @@ class FontMetrics
                         break;
                     }
                 }
-                if ($chrootValid !== true) {    
+                if ($chrootValid !== true) {
                     Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The file could not be found under the paths specified by Options::chroot.", __FILE__, __LINE__);
                     return false;
                 }

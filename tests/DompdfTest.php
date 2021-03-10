@@ -16,7 +16,7 @@ class DompdfTest extends TestCase
         $this->assertInstanceOf('Dompdf\Adapter\Cpdf', $dompdf->getCanvas());
         $this->assertEquals('', $dompdf->getBaseHost());
         $this->assertEquals('', $dompdf->getBasePath());
-        $this->assertIsArray($dompdf->getCallbacks()); 
+        $this->assertIsArray($dompdf->getCallbacks());
         $this->assertInstanceOf('Dompdf\Css\Stylesheet', $dompdf->getCss());
         $this->assertNull($dompdf->getDom());
         $this->assertNull($dompdf->getHttpContext());
