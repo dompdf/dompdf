@@ -32,6 +32,29 @@ class Inline extends AbstractFrameDecorator
         parent::__construct($frame, $dompdf);
     }
 
+    /**
+     * Vertical padding, border, and margin do not apply when determining the
+     * height for inline frames.
+     *
+     * http://www.w3.org/TR/CSS21/visudet.html#inline-non-replaced
+     *
+     * The vertical padding, border and margin of an inline, non-replaced box
+     * start at the top and bottom of the content area, not the
+     * 'line-height'. But only the 'line-height' is used to calculate the
+     * height of the line box.
+     *
+     * @return float
+     */
+    public function get_margin_height(): float
+    {
+        $style = $this->get_style();
+        $font = $style->font_family;
+        $size = $style->font_size;
+        $fontHeight = $this->_dompdf->getFontMetrics()->getFontHeight($font, $size);
+
+        return ($style->line_height / ($size > 0 ? $size : 1)) * $fontHeight;
+    }
+
     public function split(Frame $child = null, bool $force_pagebreak = false)
     {
         if (is_null($child)) {
