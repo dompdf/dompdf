@@ -21,7 +21,7 @@ use Dompdf\Helpers;
 class Text extends AbstractFrameReflower
 {
     /**
-     * PHP string represantation of HTML entity <shy>
+     * PHP string representation of HTML entity <shy>
      */
     const SOFT_HYPHEN = "\xC2\xAD";
 
@@ -58,12 +58,12 @@ class Text extends AbstractFrameReflower
     }
 
     /**
-     * @param $text
-     * @return mixed
+     * @param string $text
+     * @return string
      */
-    protected function _collapse_white_space($text)
+    protected function _collapse_white_space(string $text): string
     {
-        return preg_replace(self::$_whitespace_pattern, " ", $text);
+        return preg_replace(self::$_whitespace_pattern, " ", $text) ?? "";
     }
 
     /**
@@ -410,8 +410,6 @@ class Text extends AbstractFrameReflower
 
     //........................................................................
 
-    // Returns an array(0 => min, 1 => max, "min" => min, "max" => max) of the
-    // minimum and maximum widths of this frame
     function get_min_max_width()
     {
         /*if ( !is_null($this->_min_max_cache)  )
@@ -420,6 +418,7 @@ class Text extends AbstractFrameReflower
         $style = $frame->get_style();
         $this->_block_parent = $frame->find_block_parent();
         $line_width = $frame->get_containing_block("w");
+        $fontMetrics = $this->getFontMetrics();
 
         $str = $text = $frame->get_text();
         $size = $style->font_size;
@@ -433,17 +432,14 @@ class Text extends AbstractFrameReflower
             default:
             /** @noinspection PhpMissingBreakStatementInspection */
             case "normal":
-                $str = preg_replace(self::$_whitespace_pattern, " ", $str);
+                $str = $this->_collapse_white_space($str);
             case "pre-wrap":
             case "pre-line":
-
                 // Find the longest word (i.e. minimum length)
-
                 // split the text into words
                 $words = array_flip(preg_split(self::$_wordbreak_pattern, $str, -1, PREG_SPLIT_DELIM_CAPTURE));
-                $root = $this;
-                array_walk($words, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
+                array_walk($words, function(&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
+                    $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($words);
@@ -452,9 +448,8 @@ class Text extends AbstractFrameReflower
 
             case "pre":
                 $lines = array_flip(preg_split("/\R/u", $str));
-                $root = $this;
-                array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
+                array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
+                    $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
 
                 arsort($lines);
@@ -462,7 +457,7 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "nowrap":
-                $min = $this->getFontMetrics()->getTextWidth($this->_collapse_white_space($str), $font, $size, $word_spacing, $char_spacing);
+                $min = $fontMetrics->getTextWidth($this->_collapse_white_space($str), $font, $size, $word_spacing, $char_spacing);
                 break;
         }
 
@@ -471,7 +466,7 @@ class Text extends AbstractFrameReflower
             default:
             case "normal":
             case "nowrap":
-                $str = preg_replace(self::$_whitespace_pattern, " ", $text);
+                $str = $this->_collapse_white_space($text);
                 break;
 
             case "pre-line":
@@ -481,16 +476,15 @@ class Text extends AbstractFrameReflower
             case "pre-wrap":
                 // Find the longest word (i.e. minimum length)
                 $lines = array_flip(preg_split("/\R/u", $text));
-                $root = $this;
-                array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($font, $size, $word_spacing, $char_spacing, $root) {
-                    $chunked_text_width = $root->getFontMetrics()->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
+                array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
+                    $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
                 arsort($lines);
                 reset($lines);
                 $str = key($lines);
                 break;
         }
-        $max = $this->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
+        $max = $fontMetrics->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
 
         $delta = (float)$style->length_in_pt([$style->margin_left,
             $style->border_left_width,
@@ -506,7 +500,7 @@ class Text extends AbstractFrameReflower
             // If it is allowed to break words, the min width is the widest character.
             // But for performance reasons, we only check the first character.
             $char = mb_substr($str, 0, 1);
-            $min_char = $this->getFontMetrics()->getTextWidth($char, $font, $size, $word_spacing, $char_spacing);
+            $min_char = $fontMetrics->getTextWidth($char, $font, $size, $word_spacing, $char_spacing);
             $min = $delta + $min_char;
         }
 
