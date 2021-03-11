@@ -3783,7 +3783,8 @@ EOT;
         }
 
         // Only create a new graphics state if required
-        if ($mode === $this->currentLineTransparency["mode"] &&
+        if (null !== $this->currentLineTransparency &&
+            $mode === $this->currentLineTransparency["mode"] &&
             $opacity == $this->currentLineTransparency["opacity"]
         ) {
             return;
@@ -3833,7 +3834,8 @@ EOT;
             $mode = "Normal";
         }
 
-        if ($mode === $this->currentFillTransparency["mode"] &&
+        if (null !== $this->currentFillTransparency &&
+            $mode === $this->currentFillTransparency["mode"] &&
             $opacity == $this->currentFillTransparency["opacity"]
         ) {
             return;
