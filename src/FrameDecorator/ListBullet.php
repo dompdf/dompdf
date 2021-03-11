@@ -38,14 +38,14 @@ class ListBullet extends AbstractFrameDecorator
     }
 
     /**
-     * @return float|int
+     * @return float
      */
-    function get_margin_width()
+    public function get_margin_width(): float
     {
         $style = $this->_frame->get_style();
 
         if ($style->list_style_type === "none") {
-            return 0;
+            return 0.0;
         }
 
         return $style->font_size * self::BULLET_SIZE + 2 * self::BULLET_PADDING;
@@ -54,14 +54,14 @@ class ListBullet extends AbstractFrameDecorator
     /**
      * hits only on "inset" lists items, to increase height of box
      *
-     * @return float|int
+     * @return float
      */
-    function get_margin_height()
+    public function get_margin_height(): float
     {
         $style = $this->_frame->get_style();
 
         if ($style->list_style_type === "none") {
-            return 0;
+            return 0.0;
         }
 
         return $style->font_size * self::BULLET_SIZE + 2 * self::BULLET_PADDING;

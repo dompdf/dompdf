@@ -258,20 +258,14 @@ abstract class AbstractFrameDecorator extends Frame
         return $this->_dompdf;
     }
 
-    /**
-     * @return float
-     */
-    function get_margin_height()
-    {
-        return $this->_frame->get_margin_height();
-    }
-
-    /**
-     * @return float
-     */
-    function get_margin_width()
+    public function get_margin_width(): float
     {
         return $this->_frame->get_margin_width();
+    }
+
+    public function get_margin_height(): float
+    {
+        return $this->_frame->get_margin_height();
     }
 
     /**
