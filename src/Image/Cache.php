@@ -171,14 +171,14 @@ class Cache
                 }
             }
         } catch (ImageException $e) {
+            if ($tempfile) {
+                unlink($tempfile);
+            }
             $resolved_url = self::$broken_image;
             $type = "png";
             $message = self::$error_message;
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
             self::$_cache[$full_url] = $resolved_url;
-        }
-        if ($tempfile) {
-          @unlink($tempfile);
         }
 
         return [$resolved_url, $type, $message];
