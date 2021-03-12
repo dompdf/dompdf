@@ -9,7 +9,7 @@
 namespace Dompdf\Positioner;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
-use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
+use Dompdf\FrameReflower\Inline as InlineFrameReflower;
 use Dompdf\Exception;
 
 /**
@@ -44,34 +44,31 @@ class Inline extends AbstractPositioner
             throw new Exception("No block-level parent found.  Not good.");
         }
 
-        $f = $frame;
-
-        $cb = $f->get_containing_block();
+        $cb = $frame->get_containing_block();
         $line = $p->get_current_line_box();
+        $reflower = $frame->get_reflower();
 
-        // Skip the page break if in a fixed position element
-        $is_fixed = false;
-        while ($f = $f->get_parent()) {
-            if ($f->get_style()->position === "fixed") {
-                $is_fixed = true;
-                break;
+        if ($reflower instanceof InlineFrameReflower && $frame->get_node()->nodeName !== "br") {
+            [$min] = $reflower->get_min_first_line_width();
+
+            // If no parts of the inline frame fit in the current line, it
+            // should break to a new line
+            if ($min > ($cb["w"] - $line->left - $line->w - $line->right)) {
+                $p->add_line();
+                $line = $p->get_current_line_box();
             }
-        }
+        } elseif ($frame->is_inline_block()) {
+            $min_max = $reflower->get_min_max_width();
 
-        $f = $frame;
-
-        if (!$is_fixed && $f->get_parent() &&
-            $f->get_parent() instanceof InlineFrameDecorator &&
-            $f->is_text_node()
-        ) {
-            $min_max = $f->get_reflower()->get_min_max_width();
-
-            // If the frame doesn't fit in the current line, a line break occurs
+            // If an inline-block frame doesn't fit in the current line, it
+            // should break to a new line. Inline-block elements are formatted
+            // as atomic inline boxes
             if ($min_max["min"] > ($cb["w"] - $line->left - $line->w - $line->right)) {
                 $p->add_line();
+                $line = $p->get_current_line_box();
             }
         }
 
-        $f->set_position($cb["x"] + $line->w, $line->y);
+        $frame->set_position($cb["x"] + $line->w, $line->y);
     }
 }

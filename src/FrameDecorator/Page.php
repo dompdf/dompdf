@@ -174,7 +174,7 @@ class Page extends AbstractFrameDecorator
             return null;
         }
 
-        $block_types = ["block", "list-item", "table", "table-row", "inline"];
+        $block_types = ["block", "list-item", "table", "table-row", "inline", "inline-block"];
         $page_breaks = ["always", "left", "right"];
 
         $style = $frame->get_style();
@@ -353,7 +353,7 @@ class Page extends AbstractFrameDecorator
 
         } // Inline frames (2):
         else {
-            if (in_array($display, Style::$INLINE_TYPES)) {
+            if (in_array($display, ["inline", "inline-block"], true)) {
 
                 // Avoid breaks within table-cells
                 if ($this->_in_table) {
