@@ -32,19 +32,14 @@ class Inline extends AbstractFrameDecorator
         parent::__construct($frame, $dompdf);
     }
 
-    /**
-     * @param Frame|null $frame
-     * @param bool $force_pagebreak
-     * @throws Exception
-     */
-    function split(Frame $frame = null, $force_pagebreak = false)
+    public function split(Frame $child = null, bool $force_pagebreak = false)
     {
-        if (is_null($frame)) {
+        if (is_null($child)) {
             $this->get_parent()->split($this, $force_pagebreak);
             return;
         }
 
-        if ($frame->get_parent() !== $this) {
+        if ($child->get_parent() !== $this) {
             throw new Exception("Unable to split: frame is not a child of this one.");
         }
 
@@ -76,16 +71,16 @@ class Inline extends AbstractFrameDecorator
         $style->border_left_width = 0;
 
         //On continuation of inline element on next line,
-        //don't repeat non-vertically repeatble background images
-        //See e.g. in testcase image_variants, long desriptions
+        //don't repeat non-vertically repeatable background images
+        //See e.g. in testcase image_variants, long descriptions
         if (($url = $style->background_image) && $url !== "none"
             && ($repeat = $style->background_repeat) && $repeat !== "repeat" && $repeat !== "repeat-y"
         ) {
             $style->background_image = "none";
         }
 
-        // Add $frame and all following siblings to the new split node
-        $iter = $frame;
+        // Add $child and all following siblings to the new split node
+        $iter = $child;
         while ($iter) {
             $frame = $iter;
             $iter = $iter->get_next_sibling();

@@ -110,16 +110,16 @@ class Table extends AbstractFrameDecorator
     //........................................................................
 
     /**
-     * split the table at $row.  $row and all subsequent rows will be
-     * added to the clone.  This method is overidden in order to remove
+     * Split the table at $row.  $row and all subsequent rows will be
+     * added to the clone.  This method is overridden in order to remove
      * frames from the cellmap properly.
      *
-     * @param Frame $child
+     * @param Frame|null $child
      * @param bool $force_pagebreak
      *
      * @return void
      */
-    public function split(Frame $child = null, $force_pagebreak = false)
+    public function split(Frame $child = null, bool $force_pagebreak = false)
     {
         if (is_null($child)) {
             parent::split();

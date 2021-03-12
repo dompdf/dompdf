@@ -638,18 +638,18 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * split this frame at $child.
+     * Split this frame at $child.
      * The current frame is cloned and $child and all children following
      * $child are added to the clone.  The clone is then passed to the
      * current frame's parent->split() method.
      *
-     * @param Frame $child
-     * @param boolean $force_pagebreak
+     * @param Frame|null $child
+     * @param bool $force_pagebreak
      *
      * @throws Exception
      * @return void
      */
-    function split(Frame $child = null, $force_pagebreak = false)
+    public function split(Frame $child = null, bool $force_pagebreak = false)
     {
         // decrement any counters that were incremented on the current node, unless that node is the body
         $style = $this->_frame->get_style();
