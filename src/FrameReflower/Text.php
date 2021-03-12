@@ -9,6 +9,7 @@
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
+use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\FontMetrics;
 use Dompdf\Helpers;
@@ -288,16 +289,23 @@ class Text extends AbstractFrameReflower
             if ($split == 0 && !$frame->is_pre() && empty(trim($text))) {
                 $frame->set_text("");
             } else if ($split === 0) {
+                $sibling = $frame->get_prev_sibling();
+
                 // Remove any trailing white space from the previous sibling
-                if (($sibling = $frame->get_prev_sibling()) !== null) {
-                    if ($sibling instanceof \Dompdf\FrameDecorator\Text && !$sibling->is_pre()) {
-                        $st = $sibling->get_text();
-                        if (preg_match(self::$_whitespace_pattern, mb_substr($st, -1))) {
-                            $sibling->set_text(mb_substr($st, 0, -1));
-                            $sibling->recalculate_width();
-                            $this->_block_parent->get_current_line_box()->recalculate_width();
-                        }
+                if ($sibling !== null && $sibling instanceof TextFrameDecorator
+                    && !$sibling->is_pre()
+                ) {
+                    $st = $sibling->get_text();
+                    if (preg_match(self::$_whitespace_pattern, mb_substr($st, -1))) {
+                        $sibling->set_text(mb_substr($st, 0, -1));
+                        $sibling->recalculate_width();
+                        $this->_block_parent->get_current_line_box()->recalculate_width();
                     }
+                }
+
+                $p = $frame->get_parent();
+                if ($sibling !== null && $p instanceof InlineFrameDecorator) {
+                    $p->split($frame);
                 }
 
                 // Trim newlines from the beginning of the line
@@ -315,7 +323,7 @@ class Text extends AbstractFrameReflower
 
                 $t = $frame->get_text();
 
-                // Remove inner shoft hyphens
+                // Remove inner soft hyphens
                 $shyPosition = mb_strpos($t, self::SOFT_HYPHEN);
                 if (false !== $shyPosition && $shyPosition < mb_strlen($t) - 1) {
                     $t = str_replace(self::SOFT_HYPHEN, '', mb_substr($t, 0, -1)) . mb_substr($t, -1);
@@ -505,6 +513,81 @@ class Text extends AbstractFrameReflower
         }
 
         return $this->_min_max_cache = [$min, $max, $min_word, "min" => $min, "max" => $max, 'min_word' => $min_word];
+    }
+
+    /**
+     * Get the minimum width needed for the the first line of the text.
+     *
+     * @return array A triple of values: The minimum width, whether that
+     * includes all text of the frame, and the margin-box delta of the width.
+     */
+    public function get_min_first_line_width(): array
+    {
+        $frame = $this->_frame;
+        $style = $frame->get_style();
+        $line_width = $frame->get_containing_block("w");
+        $fontMetrics = $this->getFontMetrics();
+
+        $str = $frame->get_node()->textContent;
+        $size = $style->font_size;
+        $font = $style->font_family;
+
+        $word_spacing = (float)$style->length_in_pt($style->word_spacing);
+        $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
+
+        if ($style->word_wrap === 'break-word' && !in_array($style->white_space, ["pre", "nowrap"], true)) {
+            // If it is allowed to break words, the min width is the widest character.
+            // But for performance reasons, we only check the first character.
+            $char = mb_substr($str, 0, 1);
+            $min = $fontMetrics->getTextWidth($char, $font, $size, $word_spacing, $char_spacing);
+            $includesAll = mb_strlen($str) <= 1;
+        } else {
+            switch ($style->white_space) {
+                default:
+                /** @noinspection PhpMissingBreakStatementInspection */
+                // no break
+                case "normal":
+                    $str = $this->_collapse_white_space($str);
+                    // no break
+                case "pre-wrap":
+                case "pre-line":
+                    // Find the first word
+                    $words = preg_split(self::$_wordbreak_pattern, $str, 2, PREG_SPLIT_DELIM_CAPTURE);
+                    // `_line_break()` also considers trailing whitespace for
+                    // checking the width
+                    $firstWord = $words[0] . ($words[1] ?? "");
+                    $min = $fontMetrics->getTextWidth($firstWord, $font, $size, $word_spacing, $char_spacing);
+                    $includesAll = count($words) <= 2;
+                    break;
+
+                case "pre":
+                    $lines = preg_split("/\R/u", $str, 2);
+                    $min = $fontMetrics->getTextWidth($lines[0], $font, $size, $word_spacing, $char_spacing);
+                    $includesAll = count($lines) <= 1;
+                    break;
+
+                case "nowrap":
+                    $min = $fontMetrics->getTextWidth($this->_collapse_white_space($str), $font, $size, $word_spacing, $char_spacing);
+                    $includesAll = true;
+                    break;
+            }
+        }
+
+        $widths = $includesAll ? [
+            $style->margin_left,
+            $style->border_left_width,
+            $style->padding_left,
+            $style->padding_right,
+            $style->border_right_width,
+            $style->margin_right
+        ] : [
+            $style->margin_left,
+            $style->border_left_width,
+            $style->padding_left
+        ];
+        $delta = (float) $style->length_in_pt($widths, $line_width);
+
+        return [$min + $delta, $includesAll, $delta];
     }
 
     /**
