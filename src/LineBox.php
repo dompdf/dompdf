@@ -259,6 +259,38 @@ class LineBox
     }
 
     /**
+     * Remove the frame at the given index and all following frames from the
+     * line.
+     *
+     * @param int $index
+     */
+    public function remove_frames(int $index): void
+    {
+        $lastIndex = count($this->_frames) - 1;
+
+        if ($index < 0 || $index > $lastIndex) {
+            return;
+        }
+
+        for ($i = $lastIndex; $i >= $index; $i--) {
+            $f = $this->_frames[$i];
+            unset($this->_frames[$i]);
+            $this->w -= $f->get_margin_width();
+        }
+
+        // Reset array indices
+        $this->_frames = array_values($this->_frames);
+
+        // Recalculate the height of the line
+        $h = 0.0;
+        foreach ($this->_frames as $f) {
+            $h = max($h, $f->get_margin_height());
+        }
+
+        $this->h = $h;
+    }
+
+    /**
      * Recalculate LineBox width based on the contained frames total width.
      *
      * @return float
