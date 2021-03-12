@@ -10,6 +10,7 @@ namespace Dompdf\FrameReflower;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
+use Dompdf\FrameReflower\Text as TextFrameReflower;
 
 /**
  * Reflows inline frames
@@ -57,10 +58,6 @@ class Inline extends AbstractFrameReflower
             $style->margin_right = 0;
         }
 
-        $frame->position();
-
-        $cb = $frame->get_containing_block();
-
         // Add our margin, padding & border to the first and last children
         if (($f = $frame->get_first_child()) && $f instanceof TextFrameDecorator) {
             $f_style = $f->get_style();
@@ -75,6 +72,10 @@ class Inline extends AbstractFrameReflower
             $l_style->padding_right = $style->padding_right;
             $l_style->border_right = $style->border_right;
         }
+
+        $frame->position();
+
+        $cb = $frame->get_containing_block();
 
         if ($block) {
             $block->add_frame_to_line($this->_frame);
@@ -113,5 +114,64 @@ class Inline extends AbstractFrameReflower
         $this->_frame->get_style()->width = $width;
 
         return $this->_frame->get_margin_width();
+    }
+
+    /**
+     * Get the minimum width needed for the first line of the frame, including
+     * the margin box.
+     *
+     * @return array A pair of values: The minimum width, and whether it
+     * includes the right margin box because the entire frame is covered.
+     */
+    public function get_min_first_line_width(): array
+    {
+        // FIXME This should not be completely correct: White-space styling
+        // might affect the layout, such that several children have to be
+        // considered. The right way to do this would probably be a (partial)
+        // reflow of the frame
+        $frame = $this->_frame;
+        $firstChild = $frame->get_first_child();
+
+        if ($firstChild === null) {
+            return [0.0, true];
+        }
+
+        $hasSibling = $firstChild->get_next_sibling() !== null;
+        $reflower = $firstChild->get_reflower();
+
+        if ($reflower instanceof TextFrameReflower) {
+            [$min, $includesAll, $childDelta] = $reflower->get_min_first_line_width();
+            $applyRightWidths = $includesAll && !$hasSibling;
+        } elseif ($reflower instanceof self) {
+            [$min, $includesAll] = $reflower->get_min_first_line_width();
+            $applyRightWidths = $includesAll && !$hasSibling;
+        } else {
+            [$min] = $reflower->get_min_max_width();
+            $applyRightWidths = !$hasSibling;
+        }
+
+        // Because currently margin, border, and padding are not handled on the
+        // inline frame itself, but applied to first resp. last text child, we
+        // only want to add these here if they have not been applied to the
+        // children yet (which can happen in case of nested inline children)
+        $style = $frame->get_style();
+        $line_width = $frame->get_containing_block("w");
+        $widths = $applyRightWidths ? [
+            $style->margin_left,
+            $style->border_left_width,
+            $style->padding_left,
+            $style->padding_right,
+            $style->border_right_width,
+            $style->margin_right
+        ] : [
+            $style->margin_left,
+            $style->border_left_width,
+            $style->padding_left
+        ];
+        $delta = isset($childDelta) && $childDelta === 0.0
+            ? (float) $style->length_in_pt($widths, $line_width)
+            : 0.0;
+
+        return [$min + $delta, $applyRightWidths];
     }
 }
