@@ -5161,7 +5161,6 @@ EOT;
         $cf = $this->currentFont;
         $current_font = $this->fonts[$cf];
         $space_scale = 1000 / ($size > 0 ? $size : 1);
-        $n_spaces = 0;
 
         if ($current_font['isUnicode']) {
             // for Unicode, use the code points array to calculate width rather
@@ -5183,14 +5182,13 @@ EOT;
                     // add additional padding for space
                     if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
                         $w += $word_spacing * $space_scale;
-                        $n_spaces++;
                     }
                 }
             }
 
             // add additional char spacing
             if ($char_spacing != 0) {
-                $w += $char_spacing * $space_scale * (count($unicode) + $n_spaces);
+                $w += $char_spacing * $space_scale * count($unicode);
             }
 
         } else {
@@ -5219,14 +5217,13 @@ EOT;
                     // add additional padding for space
                     if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
                         $w += $word_spacing * $space_scale;
-                        $n_spaces++;
                     }
                 }
             }
 
             // add additional char spacing
             if ($char_spacing != 0) {
-                $w += $char_spacing * $space_scale * ($len + $n_spaces);
+                $w += $char_spacing * $space_scale * $len;
             }
         }
 
