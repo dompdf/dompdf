@@ -5131,11 +5131,11 @@ EOT;
      * calculate how wide a given text string will be on a page, at a given size.
      * this can be called externally, but is also used by the other class functions
      *
-     * @param $size
-     * @param $text
-     * @param int $word_spacing
-     * @param int $char_spacing
-     * @return float|int
+     * @param float $size
+     * @param string $text
+     * @param float $word_spacing
+     * @param float $char_spacing
+     * @return float
      */
     function getTextWidth($size, $text, $word_spacing = 0, $char_spacing = 0)
     {
