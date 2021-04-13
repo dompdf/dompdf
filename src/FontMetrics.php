@@ -548,7 +548,7 @@ class FontMetrics
      */
     public function getCacheFile()
     {
-        return $this->getOptions()->getFontDir() . '/' . self::CACHE_FILE;
+        return $this->getOptions()->getFontCache() . '/' . self::CACHE_FILE;
     }
 
     /**
