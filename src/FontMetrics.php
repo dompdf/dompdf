@@ -572,8 +572,6 @@ class FontMetrics
             }
         }
         $this->fontFamilies = $fontFamilies;
-        // echo "<pre>";
-        // var_dump($fontFamilies);die();
     }
 
     /**
