@@ -3340,7 +3340,7 @@ EOT;
 
         if (file_exists($fontcache . '/' . $cache_name)) {
             $this->addMessage("openFont: json metrics file exists $fontcache/$cache_name");
-            $this->fonts[$font] = json_decode(file_get_contents( $fontcache . '/' . $cache_name ), true);
+            $this->fonts[$font] = json_decode(file_get_contents($fontcache . '/' . $cache_name), true);
 
             if (!isset($this->fonts[$font]['_version_']) || $this->fonts[$font]['_version_'] != $this->fontcacheVersion) {
                 // if the font file is old, then clear it out and prepare for re-creation
@@ -6523,16 +6523,4 @@ EOT;
                 break;
         }
     }
-
-    /**
-     * get font metrics cache from JSON file
-     *
-     * @param $filepath
-     */
-    function getFontMetricsJson($filepath)
-    {
-        $this->messages .= $message . "\n";
-    }
-
-
 }
