@@ -3331,12 +3331,16 @@ EOT;
             $metrics_name = "$name.ufm";
         }
 
-        $cache_name = "$metrics_name.php";
+        $cache_name = "$metrics_name.json";
         $this->addMessage("metrics: $metrics_name, cache: $cache_name");
+        
+        // legacy metrics files for backwards compatibility
+        $php_cache_name = "$metrics_name.php";
+        $old_cache_name = "php_$metrics_name";
 
         if (file_exists($fontcache . '/' . $cache_name)) {
-            $this->addMessage("openFont: php file exists $fontcache/$cache_name");
-            $this->fonts[$font] = require($fontcache . '/' . $cache_name);
+            $this->addMessage("openFont: json metrics file exists $fontcache/$cache_name");
+            $this->fonts[$font] = json_decode(file_get_contents( $fontcache . '/' . $cache_name ), true);
 
             if (!isset($this->fonts[$font]['_version_']) || $this->fonts[$font]['_version_'] != $this->fontcacheVersion) {
                 // if the font file is old, then clear it out and prepare for re-creation
@@ -3344,18 +3348,27 @@ EOT;
                 $this->fonts[$font] = null;
                 unset($this->fonts[$font]);
             }
-        } else {
-            $old_cache_name = "php_$metrics_name";
-            if (file_exists($fontcache . '/' . $old_cache_name)) {
-                $this->addMessage(
-                    "openFont: php file doesn't exist $fontcache/$cache_name, creating it from the old format"
-                );
-                $old_cache = file_get_contents($fontcache . '/' . $old_cache_name);
-                file_put_contents($fontcache . '/' . $cache_name, '<?php return ' . $old_cache . ';');
+        } elseif (file_exists($fontcache . '/' . $php_cache_name)) {
+            $this->addMessage(
+                "openFont: json file doesn't exist $fontcache/$cache_name, creating it from the php format"
+            );
+            $old_cache = require($fontcache . '/' . $php_cache_name);
+            file_put_contents($fontcache . '/' . $cache_name, json_encode($old_cache));
 
-                $this->openFont($font);
-                return;
-            }
+            $this->openFont($font);
+            return;
+        } elseif (file_exists($fontcache . '/' . $old_cache_name)) {
+            // this legacy format was used in version 0.5 and lower (2009)
+            // the below method will cause this legacy font cache to be
+            // processed twice (converting to php first), to avoid using eval
+            $this->addMessage(
+                "openFont: json or php file doesn't exist $fontcache/$cache_name, creating it from the old format"
+            );
+            $old_cache = file_get_contents($fontcache . '/' . $old_cache_name);
+            file_put_contents($fontcache . '/' . $cache_name, '<?php return ' . $old_cache . ';');
+
+            $this->openFont($font);
+            return;
         }
 
         if (!isset($this->fonts[$font]) && file_exists($dir . $metrics_name)) {
@@ -3529,7 +3542,7 @@ EOT;
             //Because of potential trouble with php safe mode, expect that the folder already exists.
             //If not existing, this will hit performance because of missing cached results.
             if (is_dir($fontcache) && is_writable($fontcache)) {
-                file_put_contents($fontcache . '/' . $cache_name, '<?php return ' . var_export($data, true) . ';');
+                file_put_contents($fontcache . '/' . $cache_name, json_encode($data));
             }
             $data = null;
         }
@@ -6510,4 +6523,16 @@ EOT;
                 break;
         }
     }
+
+    /**
+     * get font metrics cache from JSON file
+     *
+     * @param $filepath
+     */
+    function getFontMetricsJson($filepath)
+    {
+        $this->messages .= $message . "\n";
+    }
+
+
 }
