@@ -25,7 +25,7 @@ use FontLib\Font;
 class FontMetrics
 {
     /**
-     * Name of the font cache file
+     * Name of the user font families file
      *
      * This file must be writable by the webserver process only to update it
      * with save_font_families() after adding the .afm file references of a new font family
@@ -33,7 +33,7 @@ class FontMetrics
      * This is typically done only from command line with load_font.php on converting
      * ttf fonts to ufm with php-font-lib.
      */
-    const CACHE_FILE = "dompdf_font_family_cache.json";
+    const USER_FONTS_FILE = "font-families.json";
 
     /**
      * @var Canvas
@@ -53,7 +53,7 @@ class FontMetrics
      *
      * @var array
      */
-    protected $distFonts = [];
+    protected $bundledFonts = [];
 
     /**
      * Array of user defined font family names to variants
@@ -97,14 +97,14 @@ class FontMetrics
      * Saves the stored font family cache
      *
      * The name and location of the cache file are determined by {@link
-     * FontMetrics::CACHE_FILE}. This file should be writable by the
+     * FontMetrics::USER_FONTS_FILE}. This file should be writable by the
      * webserver process.
      *
      * @see FontMetrics::loadFontFamilies()
      */
     public function saveFontFamilies()
     {
-        file_put_contents($this->getCacheFile(), json_encode($this->userFonts,JSON_PRETTY_PRINT));
+        file_put_contents($this->getUserFontsFilePath(), json_encode($this->userFonts,JSON_PRETTY_PRINT));
     }
 
     /**
@@ -122,11 +122,11 @@ class FontMetrics
      */
     public function loadFontFamilies()
     {
-        $file = $this->getOptions()->getRootDir() . "/lib/fonts/dompdf_font_family_cache.dist.json";
-        $this->distFonts = json_decode(file_get_contents($file), true);
+        $file = $this->getOptions()->getRootDir() . "/lib/fonts/font-families-bundled.json";
+        $this->bundledFonts = json_decode(file_get_contents($file), true);
 
-        if (is_readable($this->getCacheFile())) {
-            $this->userFonts = json_decode(file_get_contents($this->getCacheFile()), true);
+        if (is_readable($this->getUserFontsFilePath())) {
+            $this->userFonts = json_decode(file_get_contents($this->getUserFontsFilePath()), true);
         }
 
         $this->loadFontFamiliesLegacy();
@@ -147,10 +147,10 @@ class FontMetrics
             $foundNewFonts = false;
             if (is_array($cacheData)) {
                 foreach ($cacheData as $family => $variants) {
-                    if (!isset($this->distFonts[$family]) && !isset($this->userFonts['fontDir'][$family]) && is_array($variants)) {
+                    if (!isset($this->bundledFonts[$family]) && !isset($this->userFonts['fontDir'][$family]) && is_array($variants)) {
                         foreach ($variants as $variant => $variantPath) {
                             if (strpos($variantPath, $rootDir) === 0) {
-                                $this->distFonts[$family][$variant] = ltrim(str_replace($rootDir,'',$variantPath), '/\\');
+                                $this->bundledFonts[$family][$variant] = ltrim(str_replace($rootDir,'',$variantPath), '/\\');
                             } elseif (strpos($variantPath, $fontDir) === 0) {
                                 $this->userFonts['fontDir'][$family][$variant] = ltrim(str_replace($fontDir,'',$variantPath), '/\\');
                                 $foundNewFonts = true;
@@ -562,8 +562,8 @@ class FontMetrics
         if (isset($this->userFonts['absolute']) && is_array($this->userFonts['absolute'])) {
             $fontFamilies += $this->userFonts['absolute'];
         }
-        if (isset($this->distFonts) && is_array($this->distFonts)) {
-            foreach ($this->distFonts as $family => $variants) {
+        if (isset($this->bundledFonts) && is_array($this->bundledFonts)) {
+            foreach ($this->bundledFonts as $family => $variants) {
                 if (!isset($fontFamilies[$family])) {
                     $fontFamilies[$family] = array_map(function($variant){
                         return $this->getOptions()->getRootDir() . DIRECTORY_SEPARATOR . $variant;
@@ -599,9 +599,9 @@ class FontMetrics
     /**
      * @return string
      */
-    public function getCacheFile()
+    public function getUserFontsFilePath()
     {
-        return $this->getOptions()->getFontDir() . '/' . self::CACHE_FILE;
+        return $this->getOptions()->getFontDir() . '/' . self::USER_FONTS_FILE;
     }
 
     /**
