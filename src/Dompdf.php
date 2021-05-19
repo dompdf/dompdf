@@ -601,16 +601,20 @@ class Dompdf
         $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
         $acceptedmedia[] = $this->options->getDefaultMediaType();
 
+        $protocol = $this->getProtocol();
+        $baseHost = $this->getBaseHost();
+        $basePath = $this->getBasePath();
+
         // <base href="" />
         $base_nodes = $this->dom->getElementsByTagName("base");
         if ($base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href"))) {
-            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($href);
+            [$protocol, $baseHost, $basePath] = Helpers::explode_url($href);
         }
 
         // Set the base path of the Stylesheet to that of the file being processed
-        $this->css->set_protocol($this->protocol);
-        $this->css->set_host($this->baseHost);
-        $this->css->set_base_path($this->basePath);
+        $this->css->set_protocol($protocol);
+        $this->css->set_host($baseHost);
+        $this->css->set_base_path($basePath);
 
         // Get all the stylesheets so that they are processed in document order
         $xpath = new DOMXPath($this->dom);
@@ -644,7 +648,7 @@ class Dompdf
                         }
 
                         $url = $tag->getAttribute("href");
-                        $url = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $url);
+                        $url = Helpers::build_url($protocol, $baseHost, $basePath, $url);
 
                         $this->css->load_css_file($url, Stylesheet::ORIG_AUTHOR);
                     }
@@ -675,18 +679,18 @@ class Dompdf
                     }
 
                     // Set the base path of the Stylesheet to that of the file being processed
-                    $this->css->set_protocol($this->protocol);
-                    $this->css->set_host($this->baseHost);
-                    $this->css->set_base_path($this->basePath);
+                    $this->css->set_protocol($protocol);
+                    $this->css->set_host($baseHost);
+                    $this->css->set_base_path($basePath);
 
                     $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
 
             // Set the base path of the Stylesheet to that of the file being processed
-            $this->css->set_protocol($this->protocol);
-            $this->css->set_host($this->baseHost);
-            $this->css->set_base_path($this->basePath);
+            $this->css->set_protocol($protocol);
+            $this->css->set_host($baseHost);
+            $this->css->set_base_path($basePath);
         }
     }
 
