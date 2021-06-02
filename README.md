@@ -21,9 +21,9 @@ release. For released code please
 
 ----
 
-**Check out the [demo](https://dompdf.net/examples.php) and ask any
-question on [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf) or
-on the [Google Groups](http://groups.google.com/group/dompdf).**
+**Check out the [demo](http://eclecticgeek.com/dompdf/debug.php) and ask any
+question on [StackOverflow](https://stackoverflow.com/questions/tagged/dompdf) or
+in [Discussions](https://github.com/dompdf/dompdf/discussions).**
 
 Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf).
 
