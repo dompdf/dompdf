@@ -474,7 +474,7 @@ abstract class AbstractRenderer
                 if ($width <= 1) {
                     $pattern = [$width, $width * 2];
                 } else {
-                    $pattern = [$width];
+                    $pattern = [0.4, $width * 2];
                 }
                 break;
 
@@ -852,6 +852,7 @@ abstract class AbstractRenderer
         $width = $$side;
 
         $pattern = $this->_get_dash_pattern($pattern_name, $width);
+        $cap = $this->_get_cap($pattern_name);
 
         $half_width = $width / 2;
         $r1 -= $half_width;
@@ -868,7 +869,7 @@ abstract class AbstractRenderer
                     $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 90 - $adjust, 135 + $adjust, $color, $width, $pattern);
                 }
 
-                $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern, $cap);
 
                 if ($r2 > 0) {
                     $this->_canvas->arc($x + $length - $r2, $y + $r2, $r2, $r2, 45 - $adjust, 90 + $adjust, $color, $width, $pattern);
@@ -883,7 +884,7 @@ abstract class AbstractRenderer
                     $this->_canvas->arc($x + $r1, $y - $r1, $r1, $r1, 225 - $adjust, 270 + $adjust, $color, $width, $pattern);
                 }
 
-                $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern, $cap);
 
                 if ($r2 > 0) {
                     $this->_canvas->arc($x + $length - $r2, $y - $r2, $r2, $r2, 270 - $adjust, 315 + $adjust, $color, $width, $pattern);
@@ -898,7 +899,7 @@ abstract class AbstractRenderer
                     $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 135 - $adjust, 180 + $adjust, $color, $width, $pattern);
                 }
 
-                $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern, $cap);
 
                 if ($r2 > 0) {
                     $this->_canvas->arc($x + $r2, $y + $length - $r2, $r2, $r2, 180 - $adjust, 225 + $adjust, $color, $width, $pattern);
@@ -913,7 +914,7 @@ abstract class AbstractRenderer
                     $this->_canvas->arc($x - $r1, $y + $r1, $r1, $r1, 0 - $adjust, 45 + $adjust, $color, $width, $pattern);
                 }
 
-                $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern, $cap);
 
                 if ($r2 > 0) {
                     $this->_canvas->arc($x - $r2, $y + $length - $r2, $r2, $r2, 315 - $adjust, 360 + $adjust, $color, $width, $pattern);
@@ -1016,5 +1017,18 @@ abstract class AbstractRenderer
         }
 
         return [$new_img_width, $new_img_height];
+    }
+
+    /**
+     * @param $pattern_name
+     */
+    protected function _get_cap($pattern_name)
+    {
+        switch ($pattern_name) {
+            default:
+                return "butt";
+            case "dotted":
+                return "round";
+        }
     }
 }
