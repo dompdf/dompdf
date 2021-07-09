@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data file="ArSoundex">
+  <!--
+  The asoundex method is based on the 7 phonetic classifications of human speech 
+  sounds, which in turn are based on where you put your lips and tongue to make 
+  the sounds.
+
+  Map each normalized Arabic letter (no hamza and tah marbouta) represented in 
+  the content of the item tag and classification id (as value of the id property)
+  -->
+  <asoundexCode>
+    <item id="0">ا</item>
+    <item id="0">و</item>
+    <item id="0">ي</item>
+    <item id="0">ع</item>
+    <item id="0">ح</item>
+    <item id="0">ه</item>
+    <item id="1">ف</item>
+    <item id="1">ب</item>
+    <item id="2">خ</item>
+    <item id="2">ج</item>
+    <item id="2">ز</item>
+    <item id="2">س</item>
+    <item id="2">ص</item>
+    <item id="2">ظ</item>
+    <item id="2">ق</item>
+    <item id="2">ك</item>
+    <item id="2">غ</item>
+    <item id="2">ش</item>
+    <item id="3">ت</item>
+    <item id="3">ث</item>
+    <item id="3">د</item>
+    <item id="3">ذ</item>
+    <item id="3">ض</item>
+    <item id="3">ط</item>
+    <item id="3">ة</item>
+    <item id="4">ل</item>
+    <item id="5">م</item>
+    <item id="5">ن</item>
+    <item id="6">ر</item>
+  </asoundexCode>
+  
+  <!--
+  The aphonix method is based on the 9 phonetic classifications of human speech 
+  sounds, which in turn are based on where you put your lips and tongue to make 
+  the sounds.
+
+  Map each normalized Arabic letter (no hamza and tah marbouta) represented in 
+  the content of the item tag and classification id (as value of the id property)
+  -->
+  <aphonixCode>
+    <item id="0">ا</item>
+    <item id="0">و</item>
+    <item id="0">ي</item>
+    <item id="0">ع</item>
+    <item id="0">ح</item>
+    <item id="0">ه</item>
+    <item id="1">ب</item>
+    <item id="2">خ</item>
+    <item id="2">ج</item>
+    <item id="2">ص</item>
+    <item id="2">ظ</item>
+    <item id="2">ق</item>
+    <item id="2">ك</item>
+    <item id="2">غ</item>
+    <item id="2">ش</item>
+    <item id="3">ت</item>
+    <item id="3">ث</item>
+    <item id="3">د</item>
+    <item id="3">ذ</item>
+    <item id="3">ض</item>
+    <item id="3">ط</item>
+    <item id="3">ة</item>
+    <item id="4">ل</item>
+    <item id="5">ن</item>
+    <item id="5">م</item>
+    <item id="6">ر</item>
+    <item id="7">ف</item>
+    <item id="8">ز</item>
+    <item id="8">س</item>
+  </aphonixCode>
+  
+  <!-- 
+  Transliteration map (one to one mode) between each normalized Arabic letter 
+  (no hamza and tah marbouta) represented in the id property and English letter 
+  (capital letter) in the content of the item tag
+  -->
+  <transliteration>
+    <item id="ا">A</item>
+    <item id="ب">B</item>
+    <item id="ت">T</item>
+    <item id="ث">T</item>
+    <item id="ج">J</item>
+    <item id="ح">H</item>
+    <item id="خ">K</item>
+    <item id="د">D</item>
+    <item id="ذ">Z</item>
+    <item id="ر">R</item>
+    <item id="ز">Z</item>
+    <item id="س">S</item>
+    <item id="ش">S</item>
+    <item id="ص">S</item>
+    <item id="ض">D</item>
+    <item id="ط">T</item>
+    <item id="ظ">Z</item>
+    <item id="ع">A</item>
+    <item id="غ">G</item>
+    <item id="ف">F</item>
+    <item id="ق">Q</item>
+    <item id="ك">K</item>
+    <item id="ل">L</item>
+    <item id="م">M</item>
+    <item id="ن">N</item>
+    <item id="ه">H</item>
+    <item id="و">W</item>
+    <item id="ي">Y</item>
+  </transliteration>
+</data>

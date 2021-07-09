@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?> 
+
+<!--
+Set of regular expressions patterns (for the child pair/search nodes within 
+preg_replace node) and associated replacements string (pair/replace) to perform 
+pre-defined Arabic lexical rules
+-->
+
+<data file="ArQuery"> 
+  <preg_replace function="__construct"> 
+    <!-- Prefix's -->
+    <pair> 
+      <search>/^ال/</search> 
+      <replace>(ال)?</replace> 
+    </pair> 
+
+    <!-- Singular -->
+    <pair> 
+      <search>/(\S{3,})تين$/</search> 
+      <replace>\1(تين|ة)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ين$/</search> 
+      <replace>\1(ين)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ون$/</search> 
+      <replace>\1(ون)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ان$/</search> 
+      <replace>\1(ان)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})تا$/</search> 
+      <replace>\1(تا)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ا$/</search> 
+      <replace>\1(ا)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})(ة|ات)$/</search> 
+      <replace>\1(ة|ات)?</replace> 
+    </pair> 
+
+    <!-- Postfix's -->
+    <pair> 
+      <search>/(\S{3,})هما$/</search> 
+      <replace>\1(هما)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})كما$/</search> 
+      <replace>\1(كما)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ني$/</search> 
+      <replace>\1(ني)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})كم$/</search> 
+      <replace>\1(كم)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})تم$/</search> 
+      <replace>\1(تم)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})كن$/</search> 
+      <replace>\1(كن)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})تن$/</search> 
+      <replace>\1(تن)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})نا$/</search> 
+      <replace>\1(نا)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ها$/</search> 
+      <replace>\1(ها)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})هم$/</search> 
+      <replace>\1(هم)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})هن$/</search> 
+      <replace>\1(هن)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})وا$/</search> 
+      <replace>\1(وا)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ية$/</search> 
+      <replace>\1(ي|ية)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/(\S{3,})ن$/</search> 
+      <replace>\1(ن)?</replace> 
+    </pair> 
+
+    <!-- Writing errors -->
+    <pair> 
+      <search>/(ة|ه)$/</search> 
+      <replace>(ة|ه)</replace> 
+    </pair> 
+    <pair> 
+      <search>/(ة|ت)$/</search> 
+      <replace>(ة|ت)</replace> 
+    </pair> 
+    <pair> 
+      <search>/(ي|ى)$/</search> 
+      <replace>(ي|ى)</replace> 
+    </pair> 
+    <pair> 
+      <search>/(ا|ى)$/</search> 
+      <replace>(ا|ى)</replace> 
+    </pair> 
+    <pair> 
+      <search>/(ئ|ىء|ؤ|وء|ء)/</search> 
+      <replace>(ئ|ىء|ؤ|وء|ء)</replace> 
+    </pair> 
+    <pair> 
+      <search>/(ظ|ض)/</search> 
+      <replace>(ظ|ض)</replace> 
+    </pair> 
+    <pair>
+      <search>/ڨ/</search> 
+      <replace>(ف|ڨ)</replace> 
+    </pair> 
+    <pair>
+      <search>/پ/</search> 
+      <replace>(ب|پ)</replace> 
+    </pair> 
+    <pair>
+      <search>/چ/</search> 
+      <replace>(ج|چ)</replace> 
+    </pair> 
+    <pair>
+      <search>/ژ/</search> 
+      <replace>(ز|ژ)</replace> 
+    </pair> 
+    <pair>
+      <search>/(ڪ|گ)/</search> 
+      <replace>(ڪ|ك|گ)</replace> 
+    </pair> 
+
+    <!-- Normalization -->
+    <pair> 
+      <search>/ّ|َ|ً|ُ|ٌ|ِ|ٍ|ْ/</search> 
+      <replace>(ّ|َ|ً|ُ|ٌ|ِ|ٍ|ْ)?</replace> 
+    </pair> 
+    <pair> 
+      <search>/ا|أ|إ|آ/</search> 
+      <replace>(ا|أ|إ|آ)</replace> 
+    </pair> 
+  </preg_replace> 
+</data> 

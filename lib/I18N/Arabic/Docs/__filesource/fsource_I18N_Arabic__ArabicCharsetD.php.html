@@ -1,0 +1,206 @@
+<html>
+<head>
+<title>File Source for CharsetD.php</title>
+<link rel="stylesheet" type="text/css" href="../media/style.css">
+</head>
+<body>
+
+<table border="0" cellspacing="0" cellpadding="0" height="48" width="100%">
+  <tr>
+    <td class="header_top">I18N_Arabic</td>
+  </tr>
+  <tr><td class="header_line"><img src="../media/empty.png" width="1" height="1" border="0" alt=""  /></td></tr>
+  <tr>
+    <td class="header_menu">
+        
+                                    
+                              		  [ <a href="../classtrees_I18N_Arabic.html" class="menu">class tree: I18N_Arabic</a> ]
+		  [ <a href="../elementindex_I18N_Arabic.html" class="menu">index: I18N_Arabic</a> ]
+		  	    [ <a href="../elementindex.html" class="menu">all elements</a> ]
+    </td>
+  </tr>
+  <tr><td class="header_line"><img src="../media/empty.png" width="1" height="1" border="0" alt=""  /></td></tr>
+</table>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="200" class="menu">
+      <b>Packages:</b><br />
+              <a href="../li_I18N_Arabic.html">I18N_Arabic</a><br />
+            <br /><br />
+                  
+      
+                </td>
+    <td>
+      <table cellpadding="10" cellspacing="0" width="100%" border="0"><tr><td valign="top">
+
+<h1 align="center">Source for file CharsetD.php</h1>
+<p>Documentation is available at <a href="../I18N_Arabic/_Arabic---CharsetD.php.html">CharsetD.php</a></p>
+<div class="src-code">
+<ol><li><div class="src-line"><a name="a1"></a><span class="src-php">&lt;?php</span></div></li>
+<li><div class="src-line"><a name="a2"></a><span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a3"></a><span class="src-doc">&nbsp;*&nbsp;----------------------------------------------------------------------</span></div></li>
+<li><div class="src-line"><a name="a4"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a5"></a><span class="src-doc">&nbsp;*&nbsp;Copyright&nbsp;(c)&nbsp;2006-2016&nbsp;Khaled&nbsp;Al-Sham'aa.</span></div></li>
+<li><div class="src-line"><a name="a6"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a7"></a><span class="src-doc">&nbsp;*&nbsp;http://www.ar-php.org</span></div></li>
+<li><div class="src-line"><a name="a8"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a9"></a><span class="src-doc">&nbsp;*&nbsp;PHP&nbsp;Version&nbsp;5</span></div></li>
+<li><div class="src-line"><a name="a10"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a11"></a><span class="src-doc">&nbsp;*&nbsp;----------------------------------------------------------------------</span></div></li>
+<li><div class="src-line"><a name="a12"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a13"></a><span class="src-doc">&nbsp;*&nbsp;LICENSE</span></div></li>
+<li><div class="src-line"><a name="a14"></a><span class="src-doc">&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a15"></a><span class="src-doc">&nbsp;*&nbsp;This&nbsp;program&nbsp;is&nbsp;open&nbsp;source&nbsp;product;&nbsp;you&nbsp;can&nbsp;redistribute&nbsp;it&nbsp;and/or</span></div></li>
+<li><div class="src-line"><a name="a16"></a><span class="src-doc">&nbsp;*&nbsp;modify&nbsp;it&nbsp;under&nbsp;the&nbsp;terms&nbsp;of&nbsp;the&nbsp;GNU&nbsp;Lesser&nbsp;General&nbsp;Public&nbsp;License&nbsp;(LGPL)</span></div></li>
+<li><div class="src-line"><a name="a17"></a><span class="src-doc">&nbsp;*&nbsp;as&nbsp;published&nbsp;by&nbsp;the&nbsp;Free&nbsp;Software&nbsp;Foundation;&nbsp;either&nbsp;version&nbsp;3</span></div></li>
+<li><div class="src-line"><a name="a18"></a><span class="src-doc">&nbsp;*&nbsp;of&nbsp;the&nbsp;License,&nbsp;or&nbsp;(at&nbsp;your&nbsp;option)&nbsp;any&nbsp;later&nbsp;version.</span></div></li>
+<li><div class="src-line"><a name="a19"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a20"></a><span class="src-doc">&nbsp;*&nbsp;This&nbsp;program&nbsp;is&nbsp;distributed&nbsp;in&nbsp;the&nbsp;hope&nbsp;that&nbsp;it&nbsp;will&nbsp;be&nbsp;useful,</span></div></li>
+<li><div class="src-line"><a name="a21"></a><span class="src-doc">&nbsp;*&nbsp;but&nbsp;WITHOUT&nbsp;ANY&nbsp;WARRANTY;&nbsp;without&nbsp;even&nbsp;the&nbsp;implied&nbsp;warranty&nbsp;of</span></div></li>
+<li><div class="src-line"><a name="a22"></a><span class="src-doc">&nbsp;*&nbsp;MERCHANTABILITY&nbsp;or&nbsp;FITNESS&nbsp;FOR&nbsp;A&nbsp;PARTICULAR&nbsp;PURPOSE.&nbsp;&nbsp;See&nbsp;the</span></div></li>
+<li><div class="src-line"><a name="a23"></a><span class="src-doc">&nbsp;*&nbsp;GNU&nbsp;Lesser&nbsp;General&nbsp;Public&nbsp;License&nbsp;for&nbsp;more&nbsp;details.</span></div></li>
+<li><div class="src-line"><a name="a24"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a25"></a><span class="src-doc">&nbsp;*&nbsp;You&nbsp;should&nbsp;have&nbsp;received&nbsp;a&nbsp;copy&nbsp;of&nbsp;the&nbsp;GNU&nbsp;Lesser&nbsp;General&nbsp;Public&nbsp;License</span></div></li>
+<li><div class="src-line"><a name="a26"></a><span class="src-doc">&nbsp;*&nbsp;along&nbsp;with&nbsp;this&nbsp;program.&nbsp;&nbsp;If&nbsp;not,&nbsp;see&nbsp;&lt;http://www.gnu.org/licenses/lgpl.txt&gt;.</span></div></li>
+<li><div class="src-line"><a name="a27"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a28"></a><span class="src-doc">&nbsp;*&nbsp;----------------------------------------------------------------------</span></div></li>
+<li><div class="src-line"><a name="a29"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a30"></a><span class="src-doc">&nbsp;*&nbsp;Class&nbsp;Name:&nbsp;Detect&nbsp;Arabic&nbsp;String&nbsp;Character&nbsp;Set</span></div></li>
+<li><div class="src-line"><a name="a31"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a32"></a><span class="src-doc">&nbsp;*&nbsp;Filename:&nbsp;&nbsp;&nbsp;CharsetD.php</span></div></li>
+<li><div class="src-line"><a name="a33"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a34"></a><span class="src-doc">&nbsp;*&nbsp;Original&nbsp;&nbsp;&nbsp;&nbsp;Author(s):&nbsp;Khaled&nbsp;Al-Sham'aa&nbsp;&lt;khaled@ar-php.org&gt;</span></div></li>
+<li><div class="src-line"><a name="a35"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a36"></a><span class="src-doc">&nbsp;*&nbsp;Purpose:&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;class&nbsp;will&nbsp;return&nbsp;Arabic&nbsp;character&nbsp;set&nbsp;that&nbsp;used&nbsp;for</span></div></li>
+<li><div class="src-line"><a name="a37"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;given&nbsp;Arabic&nbsp;string&nbsp;passing&nbsp;into&nbsp;this&nbsp;class,&nbsp;those&nbsp;available</span></div></li>
+<li><div class="src-line"><a name="a38"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;character&nbsp;sets&nbsp;that&nbsp;can&nbsp;be&nbsp;detected&nbsp;by&nbsp;this&nbsp;class&nbsp;includes</span></div></li>
+<li><div class="src-line"><a name="a39"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;most&nbsp;popular&nbsp;three:&nbsp;Windows-1256,&nbsp;ISO&nbsp;8859-6,&nbsp;and&nbsp;UTF-8.</span></div></li>
+<li><div class="src-line"><a name="a40"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a41"></a><span class="src-doc">&nbsp;*&nbsp;----------------------------------------------------------------------</span></div></li>
+<li><div class="src-line"><a name="a42"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a43"></a><span class="src-doc">&nbsp;*&nbsp;Detect&nbsp;Arabic&nbsp;String&nbsp;Character&nbsp;Set</span></div></li>
+<li><div class="src-line"><a name="a44"></a><span class="src-doc">&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a45"></a><span class="src-doc">&nbsp;*&nbsp;The&nbsp;last&nbsp;step&nbsp;of&nbsp;the&nbsp;Information&nbsp;Retrieval&nbsp;process&nbsp;is&nbsp;to&nbsp;display&nbsp;the&nbsp;found</span></div></li>
+<li><div class="src-line"><a name="a46"></a><span class="src-doc">&nbsp;*&nbsp;documents&nbsp;to&nbsp;the&nbsp;user.&nbsp;However,&nbsp;some&nbsp;difficulties&nbsp;might&nbsp;occur&nbsp;at&nbsp;that&nbsp;point.</span></div></li>
+<li><div class="src-line"><a name="a47"></a><span class="src-doc">&nbsp;*&nbsp;English&nbsp;texts&nbsp;are&nbsp;usually&nbsp;written&nbsp;in&nbsp;the&nbsp;ASCII&nbsp;standard.&nbsp;Unlike&nbsp;the&nbsp;English</span></div></li>
+<li><div class="src-line"><a name="a48"></a><span class="src-doc">&nbsp;*&nbsp;language,&nbsp;many&nbsp;languages&nbsp;have&nbsp;different&nbsp;character&nbsp;sets,&nbsp;and&nbsp;do&nbsp;not&nbsp;have&nbsp;one</span></div></li>
+<li><div class="src-line"><a name="a49"></a><span class="src-doc">&nbsp;*&nbsp;standard.&nbsp;This&nbsp;plurality&nbsp;of&nbsp;standards&nbsp;causes&nbsp;problems,&nbsp;especially&nbsp;in&nbsp;a&nbsp;web</span></div></li>
+<li><div class="src-line"><a name="a50"></a><span class="src-doc">&nbsp;*&nbsp;environment.</span></div></li>
+<li><div class="src-line"><a name="a51"></a><span class="src-doc">&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a52"></a><span class="src-doc">&nbsp;*&nbsp;This&nbsp;PHP&nbsp;class&nbsp;will&nbsp;return&nbsp;Arabic&nbsp;character&nbsp;set&nbsp;that&nbsp;used&nbsp;for&nbsp;a&nbsp;given</span></div></li>
+<li><div class="src-line"><a name="a53"></a><span class="src-doc">&nbsp;*&nbsp;Arabic&nbsp;string&nbsp;passing&nbsp;into&nbsp;this&nbsp;class,&nbsp;those&nbsp;available&nbsp;character&nbsp;sets&nbsp;that&nbsp;can</span></div></li>
+<li><div class="src-line"><a name="a54"></a><span class="src-doc">&nbsp;*&nbsp;be&nbsp;detected&nbsp;by&nbsp;this&nbsp;class&nbsp;includes&nbsp;the&nbsp;most&nbsp;popular&nbsp;three:&nbsp;Windows-1256,</span></div></li>
+<li><div class="src-line"><a name="a55"></a><span class="src-doc">&nbsp;*&nbsp;ISO&nbsp;8859-6,&nbsp;and&nbsp;UTF-8.</span></div></li>
+<li><div class="src-line"><a name="a56"></a><span class="src-doc">&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a57"></a><span class="src-doc">&nbsp;*&nbsp;Example:</span></div></li>
+<li><div class="src-line"><a name="a58"></a><span class="src-doc">&nbsp;*&nbsp;&lt;code&gt;</span></div></li>
+<li><div class="src-line"><a name="a59"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;include('./I18N/Arabic.php');</span></div></li>
+<li><div class="src-line"><a name="a60"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;$obj&nbsp;=&nbsp;new&nbsp;I18N_Arabic('CharsetD');</span></div></li>
+<li><div class="src-line"><a name="a61"></a><span class="src-doc">&nbsp;*&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a62"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;$charset&nbsp;=&nbsp;$obj-&gt;getCharset($text);</span></div></li>
+<li><div class="src-line"><a name="a63"></a><span class="src-doc">&nbsp;*&nbsp;&lt;/code&gt;</span></div></li>
+<li><div class="src-line"><a name="a64"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a65"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@category</span><span class="src-doc">&nbsp;&nbsp;I18N</span></div></li>
+<li><div class="src-line"><a name="a66"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@package</span><span class="src-doc">&nbsp;&nbsp;&nbsp;I18N_Arabic</span></div></li>
+<li><div class="src-line"><a name="a67"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@author</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;Khaled&nbsp;Al-Sham'aa&nbsp;&lt;khaled@ar-php.org&gt;</span></div></li>
+<li><div class="src-line"><a name="a68"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@copyright</span><span class="src-doc">&nbsp;2006-2016&nbsp;Khaled&nbsp;Al-Sham'aa</span></div></li>
+<li><div class="src-line"><a name="a69"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a70"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@license</span><span class="src-doc">&nbsp;&nbsp;&nbsp;LGPL&nbsp;&lt;http://www.gnu.org/licenses/lgpl.txt&gt;</span></div></li>
+<li><div class="src-line"><a name="a71"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@link</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://www.ar-php.org</span></div></li>
+<li><div class="src-line"><a name="a72"></a><span class="src-doc">&nbsp;*/</span></div></li>
+<li><div class="src-line"><a name="a73"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a74"></a><span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a75"></a><span class="src-doc">&nbsp;*&nbsp;This&nbsp;PHP&nbsp;class&nbsp;detect&nbsp;Arabic&nbsp;string&nbsp;character&nbsp;set</span></div></li>
+<li><div class="src-line"><a name="a76"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a77"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@category</span><span class="src-doc">&nbsp;&nbsp;I18N</span></div></li>
+<li><div class="src-line"><a name="a78"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@package</span><span class="src-doc">&nbsp;&nbsp;&nbsp;I18N_Arabic</span></div></li>
+<li><div class="src-line"><a name="a79"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@author</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;Khaled&nbsp;Al-Sham'aa&nbsp;&lt;khaled@ar-php.org&gt;</span></div></li>
+<li><div class="src-line"><a name="a80"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@copyright</span><span class="src-doc">&nbsp;2006-2016&nbsp;Khaled&nbsp;Al-Sham'aa</span></div></li>
+<li><div class="src-line"><a name="a81"></a><span class="src-doc">&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a82"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@license</span><span class="src-doc">&nbsp;&nbsp;&nbsp;LGPL&nbsp;&lt;http://www.gnu.org/licenses/lgpl.txt&gt;</span></div></li>
+<li><div class="src-line"><a name="a83"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@link</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://www.ar-php.org</span></div></li>
+<li><div class="src-line"><a name="a84"></a><span class="src-doc">&nbsp;*/&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a85"></a><span class="src-key">class&nbsp;</span><a href="../I18N_Arabic/I18N_Arabic_CharsetD.html">I18N_Arabic_CharsetD</a></div></li>
+<li><div class="src-line"><a name="a86"></a><span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a87"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a88"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;Loads&nbsp;initialize&nbsp;values</span></div></li>
+<li><div class="src-line"><a name="a89"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a90"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@ignore</span></div></li>
+<li><div class="src-line"><a name="a91"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a92"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">public&nbsp;</span><span class="src-key">function&nbsp;</span><span class="src-id">__construct</span><span class="src-sym">(</span><span class="src-sym">)</span></div></li>
+<li><div class="src-line"><a name="a93"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a94"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a95"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a96"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a97"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;Count&nbsp;number&nbsp;of&nbsp;hits&nbsp;for&nbsp;the&nbsp;most&nbsp;frequented&nbsp;letters&nbsp;in&nbsp;Arabic&nbsp;language</span></div></li>
+<li><div class="src-line"><a name="a98"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;(Alef,&nbsp;Lam&nbsp;and&nbsp;Yaa),&nbsp;then&nbsp;calculate&nbsp;association&nbsp;ratio&nbsp;with&nbsp;each&nbsp;of</span></div></li>
+<li><div class="src-line"><a name="a99"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;possible&nbsp;character&nbsp;set&nbsp;(UTF-8,&nbsp;Windows-1256&nbsp;and&nbsp;ISO-8859-6)</span></div></li>
+<li><div class="src-line"><a name="a100"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a101"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@param&nbsp;</span><span class="src-doc-type">String&nbsp;</span><span class="src-doc-var">$string&nbsp;</span><span class="src-doc">Arabic&nbsp;string&nbsp;in&nbsp;unknown&nbsp;format</span></div></li>
+<li><div class="src-line"><a name="a102"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a103"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@return&nbsp;</span><span class="src-doc-type">Array&nbsp;</span><span class="src-doc">Character&nbsp;set&nbsp;as&nbsp;key&nbsp;and&nbsp;string&nbsp;association&nbsp;ratio&nbsp;as&nbsp;value</span></div></li>
+<li><div class="src-line"><a name="a104"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@author</span><span class="src-doc">&nbsp;Khaled&nbsp;Al-Sham'aa&nbsp;&lt;khaled@ar-php.org&gt;</span></div></li>
+<li><div class="src-line"><a name="a105"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/</span></div></li>
+<li><div class="src-line"><a name="a106"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">public&nbsp;</span><span class="src-key">function&nbsp;</span><a href="../I18N_Arabic/I18N_Arabic_CharsetD.html#methodguess">guess</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">)</span></div></li>
+<li><div class="src-line"><a name="a107"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a108"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-comm">//&nbsp;The&nbsp;most&nbsp;frequent&nbsp;Arabic&nbsp;letters&nbsp;are&nbsp;Alef,&nbsp;Lam,&nbsp;and&nbsp;Yeh</span></div></li>
+<li><div class="src-line"><a name="a109"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'windows-1256'</span><span class="src-sym">]&nbsp;&nbsp;</span>=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">199</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a110"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'windows-1256'</span><span class="src-sym">]&nbsp;</span>+=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">225</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a111"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'windows-1256'</span><span class="src-sym">]&nbsp;</span>+=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">237</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a112"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a113"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'iso-8859-6'</span><span class="src-sym">]&nbsp;&nbsp;</span>=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">199</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a114"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'iso-8859-6'</span><span class="src-sym">]&nbsp;</span>+=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">228</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a115"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'iso-8859-6'</span><span class="src-sym">]&nbsp;</span>+=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">234</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a116"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></li>
+<li><div class="src-line"><a name="a117"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'utf-8'</span><span class="src-sym">]&nbsp;&nbsp;</span>=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">216</span><span class="src-sym">)</span>.<a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">167</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a118"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'utf-8'</span><span class="src-sym">]&nbsp;</span>+=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">217</span><span class="src-sym">)</span>.<a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">132</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a119"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'utf-8'</span><span class="src-sym">]&nbsp;</span>+=&nbsp;<a href="http://www.php.net/substr_count">substr_count</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">217</span><span class="src-sym">)</span>.<a href="http://www.php.net/chr">chr</a><span class="src-sym">(</span><span class="src-num">138</span><span class="src-sym">))</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a120"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></li>
+<li><div class="src-line"><a name="a121"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$total&nbsp;</span>=&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'windows-1256'</span><span class="src-sym">]&nbsp;</span>+&nbsp;</div></li>
+<li><div class="src-line"><a name="a122"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'iso-8859-6'</span><span class="src-sym">]&nbsp;</span>+&nbsp;</div></li>
+<li><div class="src-line"><a name="a123"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'utf-8'</span><span class="src-sym">]&nbsp;</span>+&nbsp;<span class="src-num">1</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a124"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></li>
+<li><div class="src-line"><a name="a125"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'windows-1256'</span><span class="src-sym">]&nbsp;</span>=&nbsp;<a href="http://www.php.net/round">round</a><span class="src-sym">(</span><span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'windows-1256'</span><span class="src-sym">]&nbsp;</span>*&nbsp;<span class="src-num">100&nbsp;</span>/&nbsp;<span class="src-var">$total</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a126"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'iso-8859-6'</span><span class="src-sym">]&nbsp;&nbsp;&nbsp;</span>=&nbsp;<a href="http://www.php.net/round">round</a><span class="src-sym">(</span><span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'iso-8859-6'</span><span class="src-sym">]&nbsp;</span>*&nbsp;<span class="src-num">100&nbsp;</span>/&nbsp;<span class="src-var">$total</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a127"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'utf-8'</span><span class="src-sym">]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>=&nbsp;<a href="http://www.php.net/round">round</a><span class="src-sym">(</span><span class="src-var">$charset</span><span class="src-sym">[</span><span class="src-str">'utf-8'</span><span class="src-sym">]&nbsp;</span>*&nbsp;<span class="src-num">100&nbsp;</span>/&nbsp;<span class="src-var">$total</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a128"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></li>
+<li><div class="src-line"><a name="a129"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">return&nbsp;</span><span class="src-var">$charset</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a130"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a131"></a>&nbsp;&nbsp;&nbsp;&nbsp;</div></li>
+<li><div class="src-line"><a name="a132"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a133"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;Find&nbsp;the&nbsp;most&nbsp;possible&nbsp;character&nbsp;set&nbsp;for&nbsp;given&nbsp;Arabic&nbsp;string&nbsp;in&nbsp;unknown</span></div></li>
+<li><div class="src-line"><a name="a134"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;format</span></div></li>
+<li><div class="src-line"><a name="a135"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a136"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@param&nbsp;</span><span class="src-doc-type">String&nbsp;</span><span class="src-doc-var">$string&nbsp;</span><span class="src-doc">Arabic&nbsp;string&nbsp;in&nbsp;unknown&nbsp;format</span></div></li>
+<li><div class="src-line"><a name="a137"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a138"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@return&nbsp;</span><span class="src-doc-type">String&nbsp;</span><span class="src-doc">The&nbsp;most&nbsp;possible&nbsp;character&nbsp;set&nbsp;for&nbsp;given&nbsp;Arabic&nbsp;string&nbsp;in</span></div></li>
+<li><div class="src-line"><a name="a139"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unknown&nbsp;format[utf-8|windows-1256|iso-8859-6]</span></div></li>
+<li><div class="src-line"><a name="a140"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@author</span><span class="src-doc">&nbsp;Khaled&nbsp;Al-Sham'aa&nbsp;&lt;khaled@ar-php.org&gt;</span></div></li>
+<li><div class="src-line"><a name="a141"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/</span></div></li>
+<li><div class="src-line"><a name="a142"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">public&nbsp;</span><span class="src-key">function&nbsp;</span><a href="../I18N_Arabic/I18N_Arabic_CharsetD.html#methodgetCharset">getCharset</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">)</span></div></li>
+<li><div class="src-line"><a name="a143"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a144"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">if&nbsp;</span><span class="src-sym">(</span><a href="http://www.php.net/preg_match">preg_match</a><span class="src-sym">(</span><span class="src-str">'/&lt;meta&nbsp;.*&nbsp;charset=([^\&quot;]+)&quot;.*&gt;/sim'</span><span class="src-sym">,&nbsp;</span><span class="src-var">$string</span><span class="src-sym">,&nbsp;</span><span class="src-var">$matches</span><span class="src-sym">))&nbsp;</span><span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a145"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$value&nbsp;</span>=&nbsp;<span class="src-var">$matches</span><span class="src-sym">[</span><span class="src-num">1</span><span class="src-sym">]</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a146"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">}&nbsp;</span><span class="src-key">else&nbsp;</span><span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a147"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$charset&nbsp;</span>=&nbsp;<span class="src-var">$this</span><span class="src-sym">-&gt;</span><a href="../I18N_Arabic/I18N_Arabic_CharsetD.html#methodguess">guess</a><span class="src-sym">(</span><span class="src-var">$string</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a148"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.php.net/arsort">arsort</a><span class="src-sym">(</span><span class="src-var">$charset</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a149"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$value&nbsp;</span>=&nbsp;<a href="http://www.php.net/key">key</a><span class="src-sym">(</span><span class="src-var">$charset</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a150"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a151"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a152"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">return&nbsp;</span><span class="src-var">$value</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a153"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a154"></a><span class="src-sym">}</span></div></li>
+</ol>
+</div>
+        <div class="credit">
+		    <hr />
+		    Documentation generated on Fri, 01 Jan 2016 10:25:53 +0200 by <a href="http://www.phpdoc.org">phpDocumentor 1.4.0</a>
+	      </div>
+      </td></tr></table>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

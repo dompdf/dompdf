@@ -1,0 +1,16 @@
+#VRML V2.0 utf8
+# The VRML 2.0 Sourcebook
+# Copyright [1997] By
+# Andrea L. Ames, David R. Nadeau, and John L. Moreland
+LOD {
+	center 0.0 0.0 0.0
+	range [ 7.5, 12.0 ]
+	level [
+	# High-detail
+		Inline { url "torch1.wrl" },
+	# Medium-detail
+		Inline { url "torch2.wrl" },
+	# Low-detail
+		Inline { url "torch3.wrl" }
+	]
+}

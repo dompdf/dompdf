@@ -1,0 +1,64 @@
+#VRML V2.0 utf8
+# The VRML 2.0 Sourcebook
+# Copyright [1997] By
+# Andrea L. Ames, David R. Nadeau, and John L. Moreland
+Transform {
+	translation 0.0 0.0 0.2
+	scale 0.5 0.5 0.5
+	children [
+	# Torch handle (simplified)
+		Shape {
+			appearance DEF Gray Appearance {
+				material Material { diffuseColor 0.4 0.4 0.4 }
+			}
+			geometry IndexedFaceSet {
+				coord Coordinate {
+					point [
+						-0.15 0.0 0.0,  0.0 -1.5 0.0,
+						 0.15 0.0 0.0,
+					]
+				}
+				coordIndex [ 0, 1, 2 ]
+			}
+		},
+	# Fire pot (simplified)
+		DEF Ring Shape {
+			appearance USE Gray
+			geometry IndexedFaceSet {
+				coord Coordinate {
+					point [
+					# First ring
+						-0.40 -0.05 0.1,  0.40 -0.05 0.1,
+						 0.40  0.05 0.1, -0.40  0.05 0.1,
+					# Second ring
+						-0.40  0.15 0.1,  0.40  0.15 0.1,
+						 0.40  0.25 0.1, -0.40  0.25 0.1,
+					]
+				}
+				coordIndex [ 0, 1, 2, 3, -1,  4, 5, 6, 7, -1 ]
+			}
+		},
+	# Fire pot detail (eliminated)
+	# Mounting bracket (eliminated)
+	# Flames (simplified)
+		DEF Flames Shape {
+			# No appearance, use emissive shading
+			geometry IndexedFaceSet {
+				coord Coordinate {
+					point [
+						0.18 0.0 0.05,  0.00 1.2 0.05,
+						-0.18 0.0 0.05,
+					]
+				}
+				color Color {
+					color [
+						1.0 0.0 0.0,  0.9 0.5 0.0,
+						1.0 0.0 0.0,
+					]
+				}
+				coordIndex [ 0, 1, 2 ]
+			}
+		}
+	# Additional Flames (eliminated)
+	]
+}

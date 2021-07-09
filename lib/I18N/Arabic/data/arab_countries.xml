@@ -1,0 +1,882 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<countries>
+  <country>
+    <name>
+      <english>Algeria</english>
+      <arabic>الجزائر</arabic>
+    </name>
+    <longname>
+      <english>People’s Democratic Republic of Algeria</english>
+      <arabic>الجمهورية الجزائرية الديمقراطية الشعبية</arabic>
+    </longname>
+    <capital>
+      <english>Algiers</english>
+      <arabic>الجزائر</arabic>
+      <latitude>36.77</latitude>
+      <longitude>3.04</longitude>
+	  <elevation>131</elevation>
+    </capital>
+    <iso3166>
+      <a2>DZ</a2>
+      <a3>DZA</a3>
+      <number>012</number>
+    </iso3166>
+    <timezone>+1</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>213</dialcode>
+    <currency>
+      <iso>DZD</iso>
+      <arabic>دينار جزائري</arabic>
+      <english>Algerian dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Bahrain</english>
+      <arabic>البحرين</arabic>
+    </name>
+    <longname>
+      <english>Kingdom of Bahrain</english>
+      <arabic>مملكة البحرين</arabic>
+    </longname>
+    <capital>
+      <english>Manama</english>
+      <arabic>المنامة</arabic>
+      <latitude>26.21</latitude>
+      <longitude>50.58</longitude>
+	  <elevation>9</elevation>
+    </capital>
+    <iso3166>
+      <a2>BH</a2>
+      <a3>BHR</a3>
+      <number>048</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>973</dialcode>
+    <currency>
+      <iso>BHD</iso>
+      <arabic>دينار بحريني</arabic>
+      <english>Bahraini dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Djibouti</english>
+      <arabic>جيبوتي</arabic>
+    </name>
+    <longname>
+      <english>Republic of Djibouti</english>
+      <arabic>جمهورية جيبوتي</arabic>
+    </longname>
+    <capital>
+      <english>Djibouti</english>
+      <arabic>جيبوتي</arabic>
+      <latitude>11.59</latitude>
+      <longitude>43.15</longitude>
+	  <elevation>7</elevation>
+    </capital>
+    <iso3166>
+      <a2>DJ</a2>
+      <a3>DJI</a3>
+      <number>262</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>253</dialcode>
+    <currency>
+      <iso>DJF</iso>
+      <arabic>فرنك جيبوتي</arabic>
+      <english>Djiboutian franc</english>
+      <money>
+        <arabic>
+          <basic>فرنك</basic>
+          <fraction>سنتيم</fraction>
+        </arabic>
+        <english>
+          <basic>Franc</basic>
+          <fraction>Centime</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Egypt</english>
+      <arabic>مصر</arabic>
+    </name>
+    <longname>
+      <english>Arab Republic of Egypt</english>
+      <arabic>جمهورية مصر العربية</arabic>
+    </longname>
+    <capital>
+      <english>Cairo</english>
+      <arabic>القاهرة</arabic>
+      <latitude>30.06</latitude>
+      <longitude>31.25</longitude>
+	  <elevation>26</elevation>
+    </capital>
+    <iso3166>
+      <a2>EG</a2>
+      <a3>EGY</a3>
+      <number>818</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="true">
+      <start>Last Friday of April</start>
+      <end>Last Friday of September</end>
+    </summertime>
+    <dialcode>20</dialcode>
+    <currency>
+      <iso>EGP</iso>
+      <arabic>جنيه مصري</arabic>
+      <english>Egyptian pound</english>
+      <money>
+        <arabic>
+          <basic>جنيه</basic>
+          <fraction>قرش</fraction>
+        </arabic>
+        <english>
+          <basic>Pound</basic>
+          <fraction>Piastre</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Iraq</english>
+      <arabic>العراق</arabic>
+    </name>
+    <longname>
+      <english>Republic of Iraq</english>
+      <arabic>جمهورية العـراق</arabic>
+    </longname>
+    <capital>
+      <english>Bagdād</english>
+      <arabic>بغداد</arabic>
+      <latitude>33.33</latitude>
+      <longitude>44.44</longitude>
+	  <elevation>46</elevation>
+    </capital>
+    <iso3166>
+      <a2>IQ</a2>
+      <a3>IRQ</a3>
+      <number>368</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="true">
+      <start>1 April</start>
+      <end>1 October</end>
+    </summertime>
+    <dialcode>964</dialcode>
+    <currency>
+      <iso>IQD</iso>
+      <arabic>دينار عراقي</arabic>
+      <english>Iraqi dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Jordan</english>
+      <arabic>الأردن</arabic>
+    </name>
+    <longname>
+      <english>Hashemite Kingdom of Jordan</english>
+      <arabic>المملكة الأردنية الهاشمية</arabic>
+    </longname>
+    <capital>
+      <english>Ammān</english>
+      <arabic>عمان</arabic>
+      <latitude>31.95</latitude>
+      <longitude>35.93</longitude>
+	  <elevation>1100</elevation>
+    </capital>
+    <iso3166>
+      <a2>JO</a2>
+      <a3>JOR</a3>
+      <number>400</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="true">
+      <start>Last Thursday of March</start>
+      <end>30 September</end>
+    </summertime>
+    <dialcode>962</dialcode>
+    <currency>
+      <iso>JOD</iso>
+      <arabic>دينار أردني</arabic>
+      <english>Jordanian dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Kuwait</english>
+      <arabic>الكويت</arabic>
+    </name>
+    <longname>
+      <english>State of Kuwait</english>
+      <arabic>دولة الكويت</arabic>
+    </longname>
+    <capital>
+      <english>Al-Kuwayt</english>
+      <arabic>الكويت</arabic>
+      <latitude>29.38</latitude>
+      <longitude>47.99</longitude>
+	  <elevation>15</elevation>
+    </capital>
+    <iso3166>
+      <a2>KW</a2>
+      <a3>KWT</a3>
+      <number>414</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>965</dialcode>
+    <currency>
+      <iso>KWD</iso>
+      <arabic>دينار كويتي</arabic>
+      <english>Kuwaiti dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Lebanon</english>
+      <arabic>لبنان</arabic>
+    </name>
+    <longname>
+      <english>Lebanese Republic</english>
+      <arabic>الجمهورية اللبنانية</arabic>
+    </longname>
+    <capital>
+      <english>Bayrūt</english>
+      <arabic>بيروت</arabic>
+      <latitude>33.89</latitude>
+      <longitude>35.50</longitude>
+	  <elevation>46</elevation>
+    </capital>
+    <iso3166>
+      <a2>LB</a2>
+      <a3>LBN</a3>
+      <number>422</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="true">
+      <start>Last Sunday of March</start>
+      <end>Last Sunday of October</end>
+    </summertime>
+    <dialcode>961</dialcode>
+    <currency>
+      <iso>LBP</iso>
+      <arabic>ليرة لبنانية</arabic>
+      <english>Lebanese lira</english>
+      <money>
+        <arabic>
+          <basic>ليرة</basic>
+          <fraction>قرش</fraction>
+        </arabic>
+        <english>
+          <basic>Pound</basic>
+          <fraction>Piastre</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Libya</english>
+      <arabic>ليبيا</arabic>
+    </name>
+    <longname>
+      <english>Libya</english>
+      <arabic>ليبيا</arabic>
+    </longname>
+    <capital>
+      <english>Tripoli</english>
+      <arabic>طرابلس</arabic>
+      <latitude>32.87</latitude>
+      <longitude>13.18</longitude>
+	  <elevation>7</elevation>
+    </capital>
+    <iso3166>           
+      <a2>LY</a2>
+      <a3>LBY</a3>
+      <number>434</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>218</dialcode>
+    <currency>
+      <iso>LYD</iso>
+      <arabic>دينار ليبي</arabic>
+      <english>Libyan dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>درهم</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Dirham</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Mauritania</english>
+      <arabic>موريتانيا</arabic>
+    </name>
+    <longname>
+      <english>Islamic Republic of Mauritania</english>
+      <arabic>الجمهورية الإسلامية الموريتانية</arabic>
+    </longname>
+    <capital>
+      <english>Nouakchott</english>
+      <arabic>نواكشوط</arabic>
+      <latitude>18.09</latitude>
+      <longitude>-15.98</longitude>
+	  <elevation>3</elevation>
+    </capital>
+    <iso3166>
+      <a2>MR</a2>
+      <a3>MRT</a3>
+      <number>478</number>
+    </iso3166>
+    <timezone>0</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>222</dialcode>
+    <currency>
+      <iso>MRO</iso>
+      <arabic>أوقية موريتانية</arabic>
+      <english>Mauritanian ouguiya</english>
+      <money>
+        <arabic>
+          <basic>أوقية</basic>
+          <fraction></fraction>
+        </arabic>
+        <english>
+          <basic>Ouguiya</basic>
+          <fraction></fraction>
+        </english>
+        <decimals>0</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Morocco</english>
+      <arabic>المغرب</arabic>
+    </name>
+    <longname>
+      <english>Kingdom of Morocco</english>
+      <arabic>المملكة المغربية</arabic>
+    </longname>
+    <capital>
+      <english>Rabat</english>
+      <arabic>الرباط</arabic>
+      <latitude>34.02</latitude>
+      <longitude>-6.84</longitude>
+	  <elevation>23</elevation>
+    </capital>
+    <iso3166>
+      <a2>MA</a2>
+      <a3>MAR</a3>
+      <number>504</number>
+    </iso3166>
+    <timezone>0</timezone>
+    <summertime used="true">
+      <start>First Sunday of May</start>
+      <end>27 September</end>
+    </summertime>
+    <dialcode>212</dialcode>
+    <currency>
+      <iso>MAD</iso>
+      <arabic>درهم مغربي</arabic>
+      <english>Moroccan dirham</english>
+      <money>
+        <arabic>
+          <basic>درهم</basic>
+          <fraction>سنتيم</fraction>
+        </arabic>
+        <english>
+          <basic>Dirham</basic>
+          <fraction>Centime</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Oman</english>
+      <arabic>عمان</arabic>
+    </name>
+    <longname>
+      <english>Sultanate of Oman</english>
+      <arabic>سلطنة عمان</arabic>
+    </longname>
+    <capital>
+      <english>Muscat</english>
+      <arabic>مسقط</arabic>
+      <latitude>23.61</latitude>
+      <longitude>58.54</longitude>
+	  <elevation>21</elevation>
+    </capital>
+    <iso3166>
+      <a2>OM</a2>
+      <a3>OMN</a3>
+      <number>512</number>
+    </iso3166>
+    <timezone>+4</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>968</dialcode>
+    <currency>
+      <iso>OMR</iso>
+      <arabic>ريال عماني</arabic>
+      <english>Omani rial</english>
+      <money>
+        <arabic>
+          <basic>ريال</basic>
+          <fraction>بايزاس</fraction>
+        </arabic>
+        <english>
+          <basic>Rial</basic>
+          <fraction>Baisa</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Palestine</english>
+      <arabic>فلسطين</arabic>
+    </name>
+    <longname>
+      <english>Palestinian National Authority</english>
+      <arabic>السلطة الفلسطينية</arabic>
+    </longname>
+    <capital>
+      <english>Jerusalem</english>
+      <arabic>القدس</arabic>
+      <latitude>31.78</latitude>
+      <longitude>35.22</longitude>
+	  <elevation>819</elevation>
+    </capital>
+    <iso3166>
+      <a2>PS</a2>
+      <a3>PSE</a3>
+      <number>275</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>970</dialcode>
+    <currency>
+      <iso>USD</iso>
+      <arabic>دولار أمريكي</arabic>
+      <english>US Dollar</english>
+      <money>
+        <arabic>
+          <basic>دولار</basic>
+          <fraction>سنت</fraction>
+        </arabic>
+        <english>
+          <basic>Dollar</basic>
+          <fraction>Cent</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Qatar</english>
+      <arabic>قطر</arabic>
+    </name>
+    <longname>
+      <english>State of Qatar</english>
+      <arabic>دولة قطر</arabic>
+    </longname>
+    <capital>
+      <english>Doha</english>
+      <arabic>الدوحة</arabic>
+      <latitude>25.30</latitude>
+      <longitude>51.51</longitude>
+	  <elevation>31</elevation>
+    </capital>
+    <iso3166>
+      <a2>QA</a2>
+      <a3>QAT</a3>
+      <number>634</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>974</dialcode>
+    <currency>
+      <iso>QAR</iso>
+      <arabic>ريال قطري</arabic>
+      <english>Qatari riyal</english>
+      <money>
+        <arabic>
+          <basic>ريال</basic>
+          <fraction>درهم</fraction>
+        </arabic>
+        <english>
+          <basic>Riyal</basic>
+          <fraction>Dirham</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Saudi Arabia</english>
+      <arabic>السعودية</arabic>
+    </name>
+    <longname>
+      <english>Kingdom of Saudi Arabia</english>
+      <arabic>المملكة العربية السعودية</arabic>
+    </longname>
+    <capital>			
+      <english>Riyadh</english>
+      <arabic>الرياض</arabic>
+      <latitude>24.65</latitude>
+      <longitude>46.77</longitude>
+	  <elevation>610</elevation>
+    </capital>
+    <iso3166>
+      <a2>SA</a2>
+      <a3>SAU</a3>
+      <number>682</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>966</dialcode>
+    <currency>
+      <iso>SAR</iso>
+      <arabic>ريال سعودي</arabic>
+      <english>Saudi riyal</english>
+      <money>
+        <arabic>
+          <basic>ريال</basic>
+          <fraction>هللة</fraction>
+        </arabic>
+        <english>
+          <basic>Riyal</basic>
+          <fraction>Halala</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Somalia</english>
+      <arabic>الصومال</arabic>
+    </name>
+    <longname>
+      <english>Somali Republic</english>
+      <arabic>جمهورية الصومال</arabic>
+    </longname>
+    <capital>
+      <english>Muqdisho</english>
+      <arabic>مقديشو</arabic>
+      <latitude>2.05</latitude>
+      <longitude>45.33</longitude>
+	  <elevation>57</elevation>
+    </capital>
+    <iso3166>
+      <a2>SO</a2>
+      <a3>SOM</a3>
+      <number>706</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>252</dialcode>
+    <currency>
+      <iso>SOS</iso>
+      <arabic>شلن صومالي</arabic>
+      <english>Somali shilling</english>
+      <money>
+        <arabic>
+          <basic>شلن</basic>
+          <fraction>سنتسيمي</fraction>
+        </arabic>
+        <english>
+          <basic>Shilling</basic>
+          <fraction>Cent</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Sudan</english>
+      <arabic>السودان</arabic>
+    </name>
+    <longname>
+      <english>Republic of the Sudan</english>
+      <arabic>جمهورية السودان</arabic>
+    </longname>
+    <capital>
+      <english>Khartoum</english>
+      <arabic>الخرطوم</arabic>
+      <latitude>15.58</latitude>
+      <longitude>32.52</longitude>
+	  <elevation>385</elevation>
+    </capital>
+    <iso3166>
+      <a2>SD</a2>
+      <a3>SDN</a3>
+      <number>736</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>249</dialcode>
+    <currency>
+      <iso>SDG</iso>
+      <arabic>جنيه سوداني</arabic>
+      <english>Sudanese pound</english>
+      <money>
+        <arabic>
+          <basic>جنيه</basic>
+          <fraction>قرش</fraction>
+        </arabic>
+        <english>
+          <basic>Pound</basic>
+          <fraction>Piastre</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Syria</english>
+      <arabic>سوريا</arabic>
+    </name>
+    <longname>
+      <english>Syrian Arab Republic</english>
+      <arabic>الجمهورية العربية السورية</arabic>
+    </longname>
+    <capital>
+      <english>Damascus</english>
+      <arabic>دمشق</arabic>
+      <latitude>33.50</latitude>
+      <longitude>36.32</longitude>
+	  <elevation>691</elevation>
+    </capital>
+    <iso3166>
+      <a2>SY</a2>
+      <a3>SYR</a3>
+      <number>760</number>
+    </iso3166>
+    <timezone>+2</timezone>
+    <summertime used="true">
+      <start>1 April</start>
+      <end>1 October</end>
+    </summertime>
+    <dialcode>963</dialcode>
+    <currency>
+      <iso>SYP</iso>
+      <arabic>ليرة سورية</arabic>
+      <english>Syrian pound</english>
+      <money>
+        <arabic>
+          <basic>ليرة</basic>
+          <fraction>قرش</fraction>
+        </arabic>
+        <english>
+          <basic>Pound</basic>
+          <fraction>Piastre</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Tunisia</english>
+      <arabic>تونس</arabic>
+    </name>
+    <longname>
+      <english>Republic of Tunisia</english>
+      <arabic>الجمهورية التونسية</arabic>
+    </longname>
+    <capital>
+      <english>Tunis</english>
+      <arabic>تونس</arabic>
+      <latitude>36.84</latitude>
+      <longitude>10.22</longitude>
+	  <elevation>8</elevation>
+    </capital>
+    <iso3166>
+      <a2>TN</a2>
+      <a3>TUN</a3>
+      <number>788</number>
+    </iso3166>
+    <timezone>+1</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>216</dialcode>
+    <currency>
+      <iso>TND</iso>
+      <arabic>دينار تونسي</arabic>
+      <english>Tunisian dinar</english>
+      <money>
+        <arabic>
+          <basic>دينار</basic>
+          <fraction>مليم</fraction>
+        </arabic>
+        <english>
+          <basic>Dinar</basic>
+          <fraction>Millime</fraction>
+        </english>
+        <decimals>3</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>UAE</english>
+      <arabic>الإمارات</arabic>
+    </name>
+    <longname>
+      <english>United Arab Emirates</english>
+      <arabic>الإمارات العربية المتحدة</arabic>
+    </longname>
+    <capital>
+      <english>Abu Dhabi</english>
+      <arabic>أبو ظبى</arabic>
+      <latitude>24.48</latitude>
+      <longitude>54.37</longitude>
+	  <elevation>150</elevation>
+    </capital>
+    <iso3166>
+      <a2>AE</a2>
+      <a3>ARE</a3>
+      <number>784</number>
+    </iso3166>
+    <timezone>+4</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>971</dialcode>
+    <currency>
+      <iso>AED</iso>
+      <arabic>درهم إماراتي</arabic>
+      <english>United Arab Emirates dirham</english>
+      <money>
+        <arabic>
+          <basic>درهم</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Dirham</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+  <country>
+    <name>
+      <english>Yemen</english>
+      <arabic>اليمن</arabic>
+    </name>
+    <longname>
+      <english>Republic of Yemen</english>
+      <arabic>الجمهورية اليمنية</arabic>
+    </longname>
+    <capital>
+      <english>Şan'ā</english>
+      <arabic>صنعاء</arabic>
+      <latitude>15.38</latitude>
+      <longitude>44.21</longitude>
+	  <elevation>2972</elevation>
+    </capital>
+    <iso3166>           
+      <a2>YE</a2>
+      <a3>YEM</a3>
+      <number>887</number>
+    </iso3166>
+    <timezone>+3</timezone>
+    <summertime used="false"></summertime>
+    <dialcode>967</dialcode>
+    <currency>
+      <iso>YER</iso>
+      <arabic>ريال يمني</arabic>
+      <english>Yemeni rial</english>
+      <money>
+        <arabic>
+          <basic>ريال</basic>
+          <fraction>فلس</fraction>
+        </arabic>
+        <english>
+          <basic>Rial</basic>
+          <fraction>Fils</fraction>
+        </english>
+        <decimals>2</decimals>
+      </money>
+    </currency>
+  </country>
+</countries>

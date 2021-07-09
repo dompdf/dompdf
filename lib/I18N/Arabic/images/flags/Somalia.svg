@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200px" height="800px" viewBox="0 0 81 54" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect fill="#4189DD" width="81" height="54"/>
+<g transform="translate(40.5 27) scale(13)">
+<g id="t">
+<polygon id="w" fill="#fff" points="0,0 0,1 .5,1" transform="translate(0 -1) rotate(18)"/>
+<use xlink:href="#w" transform="scale(-1 1)"/>
+</g>
+<use xlink:href="#t" transform="rotate(72)"/>
+<use xlink:href="#t" transform="rotate(-72)"/>
+<use xlink:href="#t" transform="rotate(144)"/>
+<use xlink:href="#t" transform="rotate(-144)"/>
+</g>
+</svg>

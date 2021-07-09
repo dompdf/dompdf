@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data file="ArNumbers">
+  <!--
+  Content of number tag is the Arabic representation of the number define in the 
+  value property and counted object feminine in the gender property [male for 
+  masculine and female for feminine], also in some cases grammar position of 
+  counted object may affected Arabic representation, so number tag may have 
+  grammar property where 1 refer to Marfoua and 2 refer to Mansoub or Majrour.
+  -->
+  <individual>
+    <number value="1" gender="male">واحد</number>
+    <number value="1" gender="female">واحدة</number>
+
+    <number value="2" gender="male" grammar="1">إثنان</number>
+    <number value="2" gender="male" grammar="2">إثنين</number>
+    <number value="2" gender="female" grammar="1">إثنتان</number>
+    <number value="2" gender="female" grammar="2">إثنتين</number>
+
+    <number value="3" gender="male">ثلاث</number>
+    <number value="4" gender="male">أربع</number>
+    <number value="5" gender="male">خمس</number>
+    <number value="6" gender="male">ست</number>
+    <number value="7" gender="male">سبع</number>
+    <number value="8" gender="male">ثماني</number>
+    <number value="9" gender="male">تسع</number>
+    <number value="10" gender="male">عشر</number>
+
+    <number value="3" gender="female">ثلاثة</number>
+    <number value="4" gender="female">أربعة</number>
+    <number value="5" gender="female">خمسة</number>
+    <number value="6" gender="female">ستة</number>
+    <number value="7" gender="female">سبعة</number>
+    <number value="8" gender="female">ثمانية</number>
+    <number value="9" gender="female">تسعة</number>
+    <number value="10" gender="female">عشرة</number>
+
+    <number value="11" gender="male">أحد عشر</number>
+    <number value="11" gender="female">إحدى عشرة</number>
+
+    <number value="12" gender="male" grammar="1">إثنا عشر</number>
+    <number value="12" gender="male" grammar="2">إثني عشر</number>
+    <number value="12" gender="female" grammar="1">إثنتا عشرة</number>
+    <number value="12" gender="female" grammar="2">إثنتي عشرة</number>
+
+    <number value="13" gender="male">ثلاث عشرة</number>
+    <number value="14" gender="male">أربع عشرة</number>
+    <number value="15" gender="male">خمس عشرة</number>
+    <number value="16" gender="male">ست عشرة</number>
+    <number value="17" gender="male">سبع عشرة</number>
+    <number value="18" gender="male">ثماني عشرة</number>
+    <number value="19" gender="male">تسع عشرة</number>
+    <number value="13" gender="female">ثلاثة عشر</number>
+    <number value="14" gender="female">أربعة عشر</number>
+    <number value="15" gender="female">خمسة عشر</number>
+    <number value="16" gender="female">ستة عشر</number>
+    <number value="17" gender="female">سبعة عشر</number>
+    <number value="18" gender="female">ثمانية عشر</number>
+    <number value="19" gender="female">تسعة عشر</number>
+
+    <number value="20" grammar="1">عشرون</number>
+    <number value="30" grammar="1">ثلاثون</number>
+    <number value="40" grammar="1">أربعون</number>
+    <number value="50" grammar="1">خمسون</number>
+    <number value="60" grammar="1">ستون</number>
+    <number value="70" grammar="1">سبعون</number>
+    <number value="80" grammar="1">ثمانون</number>
+    <number value="90" grammar="1">تسعون</number>
+    <number value="20" grammar="2">عشرين</number>
+    <number value="30" grammar="2">ثلاثين</number>
+    <number value="40" grammar="2">أربعين</number>
+    <number value="50" grammar="2">خمسين</number>
+    <number value="60" grammar="2">ستين</number>
+    <number value="70" grammar="2">سبعين</number>
+    <number value="80" grammar="2">ثمانين</number>
+    <number value="90" grammar="2">تسعين</number>
+
+    <number value="200" grammar="1">مئتان</number>
+    <number value="200" grammar="2">مئتين</number>
+
+    <number value="100">مئة</number>
+    <number value="300">ثلاثمئة</number>
+    <number value="400">أربعمئة</number>
+    <number value="500">خمسمئة</number>
+    <number value="600">ستمئة</number>
+    <number value="700">سبعمئة</number>
+    <number value="800">ثمانمئة</number>
+    <number value="900">تسعمئة</number>
+  </individual>
+  
+  <!--
+  Extra Arabic words to represent each number block (three digits) that refer to 
+  the scale which provided in several formats.
+  -->
+  <complications>
+    <number scale="1" format="1">ألفان</number>
+    <number scale="1" format="2">ألفين</number>
+    <number scale="1" format="3">آلاف</number>
+    <number scale="1" format="4">ألف</number>
+
+    <number scale="2" format="1">مليونان</number>
+    <number scale="2" format="2">مليونين</number>
+    <number scale="2" format="3">ملايين</number>
+    <number scale="2" format="4">مليون</number>
+
+    <number scale="3" format="1">ملياران</number>
+    <number scale="3" format="2">مليارين</number>
+    <number scale="3" format="3">مليارات</number>
+    <number scale="3" format="4">مليار</number>
+
+    <number scale="4" format="1">تريليونان</number>
+    <number scale="4" format="2">تريليونين</number>
+    <number scale="4" format="3">تريليونات</number>
+    <number scale="4" format="4">تريليون</number>
+  </complications>
+  
+  <!--
+  Map integer digits to the Arabic-Indic digits using HTML entities 
+  -->
+  <arabicIndic>
+    <number value="0">&#1632;</number>
+    <number value="1">&#1633;</number>
+    <number value="2">&#1634;</number>
+    <number value="3">&#1635;</number>
+    <number value="4">&#1636;</number>
+    <number value="5">&#1637;</number>
+    <number value="6">&#1638;</number>
+    <number value="7">&#1639;</number>
+    <number value="8">&#1640;</number>
+    <number value="9">&#1641;</number>
+  </arabicIndic>
+  
+  <order>
+    <number value="1" gender="male">حادي</number>
+    <number value="2" gender="male">ثاني</number>
+    <number value="3" gender="male">ثالث</number>
+    <number value="4" gender="male">رابع</number>
+    <number value="5" gender="male">خامس</number>
+    <number value="6" gender="male">سادس</number>
+    <number value="7" gender="male">سابع</number>
+    <number value="8" gender="male">ثامن</number>
+    <number value="9" gender="male">تاسع</number>
+    <number value="10" gender="male">عاشر</number>
+
+    <number value="1" gender="female">حادية</number>
+    <number value="2" gender="female">ثانية</number>
+    <number value="3" gender="female">ثالثة</number>
+    <number value="4" gender="female">رابعة</number>
+    <number value="5" gender="female">خامسة</number>
+    <number value="6" gender="female">سادسة</number>
+    <number value="7" gender="female">سابعة</number>
+    <number value="8" gender="female">ثامنة</number>
+    <number value="9" gender="female">تاسعة</number>
+    <number value="10" gender="female">عاشرة</number>
+  </order>
+</data>

@@ -1,0 +1,67 @@
+#VRML V2.0 utf8
+# The VRML 2.0 Sourcebook
+# Copyright [1997] By
+# Andrea L. Ames, David R. Nadeau, and John L. Moreland
+Group {
+	children [
+	# Floor (two strips)
+		Transform {
+			translation 0.0 0.0 2.5
+			children DEF Floor Inline { url "dfloor.wrl" }
+		},
+		Transform { translation 0.0 0.0 -2.5 children USE Floor },
+	# Ceiling (two strips)
+		Transform {
+			translation 0.0 3.5 2.5
+			children DEF Ceiling Inline { url "dceiling.wrl" }
+		},
+		Transform { translation 0.0 3.5 -2.5 children USE Ceiling },
+	# Left wall with torch
+		Transform {
+			translation -5.0 0.0 0.0
+			children [
+				Transform {
+					translation 0.0 0.0 2.5
+					children DEF Wall Inline { url "dwall.wrl" }
+				},
+				Transform { translation 0.0 0.0 -2.5 children USE Wall },
+				Transform {
+					translation 0.0 2.25 0.0
+					rotation 0.0 1.0 0.0 1.57
+					children [
+						PointLight {
+							location 0.0 0.25 0.2
+							color 1.0 1.0 1.0
+							intensity 1.0
+							attenuation 0.0 0.6 0.0
+							radius 100.0
+						},
+						DEF Torch Inline { url "torches.wrl" }
+					]
+				}
+			]
+		},
+	# Right wall with torch
+		Transform {
+			translation 5.0 0.0 0.0
+			children [
+				Transform { translation 0.0 0.0  2.5 children USE Wall },
+				Transform { translation 0.0 0.0 -2.5 children USE Wall },
+				Transform {
+					translation 0.0 2.25 0.0
+					rotation 0.0 1.0 0.0 -1.57
+					children [
+						PointLight {
+							location 0.0 0.25 0.2
+							color 1.0 1.0 1.0
+							intensity 1.0
+							attenuation 0.0 0.6 0.0
+							radius 100.0
+						},
+						USE Torch
+					]
+				}
+			]
+		}
+	]
+}

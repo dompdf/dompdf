@@ -1,0 +1,75 @@
+#VRML V2.0 utf8
+# The VRML 2.0 Sourcebook
+# Copyright [1997] By
+# Andrea L. Ames, David R. Nadeau, and John L. Moreland
+Group {
+	children [
+	# First room
+		LOD {
+			range [ 20.0 ]
+			level [
+				Inline { url "droom.wrl" },
+				Group { }
+			]
+		},
+	# Second room
+		Transform {
+			translation 0.0 0.0 -10.0
+			children LOD {
+				range [ 20.0 ]
+				level [
+					Inline { url "droom.wrl" },
+					Group { }
+				]
+			}
+		},
+	# Wall between first and second rooms
+		Transform {
+			translation 0.0 0.0 -5.0
+			children Inline { url "dwall2.wrl" }
+		},
+	# Left and right door panels
+		Transform {
+			translation 0.0 0.0 -4.95
+			children [
+				DEF LeftDoor Transform {
+					children Transform {
+						translation -0.75 0.0 0.0
+						children DEF Door Inline { url "ddoor.wrl" }
+					}
+				},
+				DEF RightDoor Transform {
+					children Transform {
+						translation 0.75 0.0 0.0
+						children USE Door
+					}
+				},
+				DEF TouchDoor TouchSensor { }
+			]
+		},
+	# Animation clock
+		DEF Clock TimeSensor {
+			cycleInterval 5.0
+		},
+	# Animation paths for the left and right doors
+		DEF LeftOpen PositionInterpolator {
+			key [ 0.0, 0.1, 0.9, 1.0 ]
+			keyValue [
+				 0.0 0.0 0.0, -1.3 0.0 0.0,
+				-1.3 0.0 0.0,  0.0 0.0 0.0
+			]
+		},
+		DEF RightOpen PositionInterpolator {
+			key [ 0.0, 0.1, 0.9, 1.0 ]
+			keyValue [
+				 0.0 0.0 0.0,  1.3 0.0 0.0,
+				 1.3 0.0 0.0,  0.0 0.0 0.0
+			]
+		}
+	]
+}
+ROUTE TouchDoor.touchTime     TO Clock.set_startTime
+ROUTE Clock.fraction_changed  TO LeftOpen.set_fraction
+ROUTE Clock.fraction_changed  TO RightOpen.set_fraction
+ROUTE LeftOpen.value_changed  TO LeftDoor.set_translation
+ROUTE RightOpen.value_changed TO RightDoor.set_translation

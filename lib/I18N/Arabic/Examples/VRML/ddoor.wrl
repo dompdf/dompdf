@@ -1,0 +1,25 @@
+#VRML V2.0 utf8
+# The VRML 2.0 Sourcebook
+# Copyright [1997] By
+# Andrea L. Ames, David R. Nadeau, and John L. Moreland
+Shape {
+	appearance Appearance {
+		material Material { diffuseColor 1.0 1.0 1.0 }
+		texture ImageTexture { url "panel.jpg" }
+	}
+	geometry IndexedFaceSet {
+		coord Coordinate {
+			point [
+				-0.75 0.0 0.0,  0.75 0.0 0.0,
+				 0.75 2.5 0.0, -0.75 2.5 0.0,
+			]
+		}
+		texCoord TextureCoordinate {
+			point [
+				0.0 0.0,  1.0 0.0, 1.0 2.0,  0.0 2.0,
+			]
+		}
+		coordIndex [ 0, 1, 2, 3 ]
+		solid FALSE
+	}
+}

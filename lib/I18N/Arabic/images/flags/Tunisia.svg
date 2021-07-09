@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="800" viewBox="-60,-40 120,80">
+	<g fill="#e70013">
+		<rect x="-60" y="-40" width="120" height="80"/>
+		<circle r="20" fill="#fff"/>
+		<circle r="15"/>
+		<circle cx="4" r="12" fill="#fff"/>   
+		<g id="star" transform="translate(4)">
+			<g id="c">
+				<path id="t" d="M -9,0 h 9 v -4.5" transform="rotate(18 -9,0)"/>
+				<use xlink:href="#t" transform="scale(1,-1)"/>
+			</g>
+			<use xlink:href="#c" transform="rotate(72)"/>
+			<use xlink:href="#c" transform="rotate(144)"/>
+			<use xlink:href="#c" transform="rotate(216)"/>
+			<use xlink:href="#c" transform="rotate(288)"/>
+		</g>
+	</g>
+</svg>

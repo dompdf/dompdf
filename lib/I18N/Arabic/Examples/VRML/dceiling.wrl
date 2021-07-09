@@ -1,0 +1,33 @@
+#VRML V2.0 utf8
+# The VRML 2.0 Sourcebook
+# Copyright [1997] By
+# Andrea L. Ames, David R. Nadeau, and John L. Moreland
+Transform {
+	translation -5.0 0.0 -2.5
+	children Shape {
+		appearance Appearance {
+			material Material { diffuseColor 1.0 1.0 1.0 }
+			texture ImageTexture { url "ceiling.jpg" }
+			textureTransform TextureTransform {
+				scale 4.0 4.0
+			}
+		}
+		geometry ElevationGrid {
+			xDimension 8
+			zDimension 8
+			xSpacing   1.4285714
+			zSpacing   0.7142857
+			solid      FALSE
+			height [
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+			]
+		}
+	}
+}

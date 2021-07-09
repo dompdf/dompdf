@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data file="ArSort">
+  <!-- Old Arabic Alphabet, modern one set by نصر بن عاصم الليثي -->
+  <order mode="east">
+    <char word="1" value="1">أ</char>
+    <char word="1" value="2">ب</char>
+    <char word="1" value="3">ج</char>
+    <char word="1" value="4">د</char>
+    <char word="2" value="5">ه</char>
+    <char word="2" value="6">و</char>
+    <char word="2" value="7">ز</char>
+    <char word="3" value="8">ح</char>
+    <char word="3" value="9">ط</char>
+    <char word="3" value="10">ي</char>
+    <char word="4" value="20">ك</char>
+    <char word="4" value="30">ل</char>
+    <char word="4" value="40">م</char>
+    <char word="4" value="50">ن</char>
+    <char word="5" value="60">س</char>
+    <char word="5" value="70">ع</char>
+    <char word="5" value="80">ف</char>
+    <char word="5" value="90">ص</char>
+    <char word="6" value="100">ق</char>
+    <char word="6" value="200">ر</char>
+    <char word="6" value="300">ش</char>
+    <char word="6" value="400">ت</char>
+    <char word="7" value="500">ث</char>
+    <char word="7" value="600">خ</char>
+    <char word="7" value="700">ذ</char>
+    <char word="7" value="800">ض</char>
+    <char word="7" value="900">ظ</char>
+    <char word="7" value="1000">غ</char>
+  </order>
+  
+  <order mode="west">
+    <char word="1" value="1">أ</char>
+    <char word="1" value="2">ب</char>
+    <char word="1" value="3">ج</char>
+    <char word="1" value="4">د</char>
+    <char word="2" value="5">ه</char>
+    <char word="2" value="6">و</char>
+    <char word="2" value="7">ز</char>
+    <char word="3" value="8">ح</char>
+    <char word="3" value="9">ط</char>
+    <char word="3" value="10">ي</char>
+    <char word="4" value="20">ك</char>
+    <char word="4" value="30">ل</char>
+    <char word="4" value="40">م</char>
+    <char word="4" value="50">ن</char>
+    <char word="5" value="60">ص</char>
+    <char word="5" value="70">ع</char>
+    <char word="5" value="80">ف</char>
+    <char word="5" value="90">ض</char>
+    <char word="6" value="100">ق</char>
+    <char word="6" value="200">ر</char>
+    <char word="6" value="300">س</char>
+    <char word="6" value="400">ت</char>
+    <char word="7" value="500">ث</char>
+    <char word="7" value="600">خ</char>
+    <char word="7" value="700">ذ</char>
+    <char word="7" value="800">ظ</char>
+    <char word="7" value="900">غ</char>
+    <char word="7" value="1000">ش</char>
+  </order>
+
+  <preg_replace function="normalize"> 
+    <pair> 
+      <search>/ه$/</search> 
+      <replace>ة</replace> 
+    </pair> 
+    <pair> 
+      <search>/ى$/</search> 
+      <replace>ا</replace> 
+    </pair> 
+    <pair> 
+      <search>/ا|أ|إ|آ/</search> 
+      <replace>ا</replace> 
+    </pair> 
+    <pair> 
+      <search>/(ئ|ىء|ؤ|وء|ء)/</search> 
+      <replace>أ</replace> 
+    </pair> 
+    <pair> 
+      <search>/ّ|َ|ً|ُ|ٌ|ِ|ٍ|ْ/</search> 
+      <replace></replace> 
+    </pair> 
+  </preg_replace> 
+</data>

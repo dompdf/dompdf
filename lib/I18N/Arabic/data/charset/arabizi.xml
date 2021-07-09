@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data file="KeySwap">
+  <!-- 
+  Transliteration map (one to one mode) between each normalized Arabic letter 
+  (no hamza and tah marbouta) represented in the id property and Arabizi letter 
+  (small letter) in the content of the item tag
+  -->
+  <transliteration>
+    <item id="ا">a</item>
+    <item id="ب">b</item>
+    <item id="ت">t</item>
+    <item id="ث">t'</item>
+    <item id="ث">th</item>
+    <item id="ج">j</item>
+    <item id="ح">7</item>
+    <item id="خ">5</item>
+    <item id="خ">7'</item>
+    <item id="خ">kh</item>
+    <item id="د">d</item>
+    <item id="ذ">d'</item>
+    <item id="ر">r</item>
+    <item id="ز">z</item>
+    <item id="س">s</item>
+    <item id="ش">s^</item>
+    <item id="ش">ch</item>
+    <item id="ش">$</item>
+    <item id="ش">sh</item>
+    <item id="ص">S</item>
+    <item id="ص">9</item>
+    <item id="ض">D</item>
+    <item id="ض">9'</item>
+    <item id="ط">6</item>
+    <item id="ظ">Z</item>
+    <item id="ظ">6'</item>
+    <item id="ع">3</item>
+    <item id="غ">3'</item>
+    <item id="غ">gh</item>
+    <item id="ف">f</item>
+    <item id="ق">8</item>
+    <item id="ق">q</item>
+    <item id="ك">k</item>
+    <item id="ل">l</item>
+    <item id="م">m</item>
+    <item id="ن">n</item>
+    <item id="ه">h</item>
+    <item id="و">w</item>
+    <item id="ي">i</item>
+  </transliteration>
+</data>

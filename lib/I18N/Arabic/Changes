@@ -1,0 +1,722 @@
+What's new in ArPHP 4.0 (release date: Jan 8, 2016)
+-----------------------------------------------------
+
+* Implement the lazy loading technique (i.e. include/load sub class file automatically when 
+  detect first time call for any related method).
+
+* Rewrite "KeySwap" sub class to move data out of the code. It is now supports AZERTY French 
+  keyboard layout/mapping where we add two methods "swapAf" and "swapFa".
+
+* Add "fixKeyboardLang" method to the "KeySwap" sub class to detect the language automatically 
+  of content supplied, currently it supports only Arabic and English language.
+
+* Add new option to the "date" method in the "Date" sub class which presents date in Hijri format 
+  from (i.e. Islamic calendar) using in English language. Thanks to Cédric Dupont <lunarok@gmail.com>.
+
+* Deprecate "CharsetC" sub class and simplify the internal chartset conversion mechanism using "iconv" 
+  function to be more efficient.
+  
+* Fix the "en2ar" method in the "Transliteration" sub class when a character isn't plan ASCII, 
+  it will be approximated through one or several similarly looking characters.
+
+* Fix the "money2str" method in the "Numbers" sub class to omit print money units when basic 
+  or fraction value is zero. Thanks to Abdulmajeed Alharbi <abosami2000@gmail.com>.
+
+* Fix "CompressStr" sub class bug related to implement charset encoding conversion on binary 
+  input/output arguments in the "compress", "decompress", "search", and "length" methods.
+
+* Fix the compatibility issues with PHP 5.3, 5.4, and 5.5 reported by PHP_CodeSniffer using 
+  PHPCompatibility standards.
+
+* Fix an issue of static methods use reference to $this object! Thanks to Damien Seguy 
+  <damien.seguy@gmail.com> to highlight this bug.
+  
+* Fix the "getPrayTime" method in the "Salat" sub class to avoid wired negative time resulted
+  in some cases (e.g. Mar 21 and 22). Thanks to Mawakitt developers <mawakitt@gmail.com>.
+
+* Fix the bug of not always defined $chars[$i + 1] in the method "preConvert" at "Glyphs.php" file.
+  Thanks to Mustapha Al-Sahli <mustapha.sahli.1993@gmail.com>.
+
+* Check and fix warnings of the PEAR coding standard.
+
+* Improve "City" example by add link to show city location at Google maps.
+
+* Fix deprecated functions issue in both "Query" sub class and "SafeUploadTransliter" example.
+
+* Upgrade FPDF library from version 1.52 to 1.7 which used in the glyphs PDF example.
+
+
+What's new in ArPHP 3.6.0 (release date: Jan 20, 2013)
+-----------------------------------------------------
+
+* Implement more accurate algorithm to convert from/to Hijri calendar (published in
+  the Islamic Crescents' Observation Project <http://www.icoproject.org>) in both "Mktime" 
+  and "Date" sub classes, thanks to Mohammed Al-Shehri <moh.alshehri@gmail.com>.
+  
+* Extend the "Numbers" sub class functionality by add "money2str" method to spell 
+  provided price in Arabic idiom by define value, Arabic currency ISO code, and
+  language. Thanks to <msme@arabteam2000-forum.com> who developed the first draft.
+
+* Add "str2int" method to the "Numbers" sub class to convert Arabic string back into integer,
+  (output limits are +/- 2.15e+9 on 32-bit platforms and +/- 9.22e+18 on 64-bit platforms).
+
+* Add one more method to the "Mktime" sub class called "hijriMonthDays" returns how many
+  days are there in a given Hijri month, thanks to Mr. Mouayed Al-Mohammadi for the idea.
+  
+* Fix the "Glyphs" sub class bug when renders the shape of the first letter in the input string 
+  just like letter in the middle of word! Thanks to Mr. Shady Massalha <massalha@yahoo.com>.
+  
+* Fix the "Glyphs" sub class bug when we have Tashkeel within لا, لآ, لأ, or لإ which rendered 
+  incorrectly by add extra Lam before it, thanks to Mr. Said Bakr <saidbakr2@users.sourceforge.net> 
+  who reported this bug and help in fix it.
+
+* Fix the "Glyphs" sub class bug when handle the Arabic letter superscript Alef if it is 
+  supported by used the font (i.e. just like what we have in مُوسَىٰ وَعِيسَىٰ) which was presented 
+  as Tanween before!
+
+* Extend writing error rules using in the "ArQuery" sub class by add cases to handle
+  extended Arabic letters (i.e. ژ, ڨ, پ, چ, گ, and ڪ), thanks to Ammar Abdelhamid 
+  <flashpack@gmail.com> who suggest this.
+
+* Reduce the size of the "Salat" sub class by 20%, removed deprecated "getPrayTime" method, 
+  that method name is now just an alias of the new "getPrayTime2" method.
+
+* Drop the "pregPattern" method from the main "I18N_Arabic" class, it is too basic to 
+  handle it in a standalone method, instead of that users may consult this FAQ page: 
+  (http://www.ar-php.org/faq-php-arabic.html#regexp).
+
+* Minor library examples enhancements includes: 
+    - Check for MING extension in the "Glyphs_SWF" example.
+    - Check for SQLite PDO driver in the "City" example.
+    - Some SQL example implements Celko visitation model features in the "City" example.
+    - "SafeUpload" example will show how to upload file but keep the example directory clean.
+    - Rename "SafeUpload" example as "SafeUploadTransliteration" to refer to the used sub class.
+    - Remove "Glyphs_SVG example" because current browsers don't have Arabic Glyphs problem anymore.
+    - "Moon" example has day default value now.
+
+  
+What's new in ArPHP 3.5.0 (release date: Sep 1, 2012)
+-----------------------------------------------------
+
+* More accurate gender detection by add some formats like إفتعال and إفعال as 
+  well as check the list of most common irregular Arabic female names.
+
+* Transliteration from Arabic to English supports now: UNGEGN, UNGEGN+ (i.e. with
+  diacritical marks), RJGC, SES, and ISO 233 standards.
+
+* Enhance "Numbers" sub class to spell ordering numbers in Arabic idiom also.
+  
+* Add two extra methods to the "CharsetC" sub class to convert Arabic text from UTF-8 
+  and ISO-8859-6 charset into HTML entities named as "iso2html" and "utf2html".
+  
+* "Salat" sub class delivers now extra output format by present times in UNIX timestamp 
+  to provide users more flexibility in handle it.
+
+* Tag HTML content if it is belong to a forum using the new "isForum" method in the 
+  main "I18N_Arabic" class, currently it recognize only vBulletin.
+  
+* Fix the transliteration issue of ال precedes a word beginning with one of the
+  "sun letters", and issue of ة when it used in combined words to Romanized as 
+  t instead of h.
+
+* Fix the question mark issue in the "swapEa" method in the "KeySwap" sub class, thanks
+  to Al-Kindi project team <http://www.ar-php.org/stats/al-kindi> who reported this bug.
+
+* Fix the losing new line issue in the "standard" method in the "Standard" sub class, thanks
+  to Al-Kindi project team <http://www.ar-php.org/stats/al-kindi> who reported this bug.
+
+* Move out "js" sub directory and keyboard example to keep ArPHP pure PHP library.
+
+* Replace PNG version of Arabic countries flags by higher resolution SVG version 
+  from Wikipedia.
+
+* Add countries full/long name to the "arab_countries.xml" file.
+  
+* Convert time presented in the "Info.php" example to GMT based on the server time 
+  zone offset.
+
+  
+What's new in ArPHP 3.0.0 beta (release date: Feb 5, 2012)
+-----------------------------------------------------
+
+* Implement PEAR structure and naming style.
+
+* Convert all internal encoding for sub classes into UTF-8.
+  
+* Standardize "Salat" sub class methods, the "setDate" method parameters order (it is 
+  now: Month, Day, and Year), and the "setLocation" method parameters order (it is 
+  now: Latitude, Longitude, and Zone).
+
+* Review Salat time's calculations in the "getPrayTimes2" method and fix few bugs
+  (i.e. missing decimals in rounded numbers, RA rounded rule), we also added elevation
+  parameter which may affect sunrise and sunset estimation in the high lands.
+  
+* Add new method "int2indic" to the "Numbers" sub class to represent integer numbers 
+  in Arabic-Indic digits using HTML entities.
+
+* Add new method "header" to the main "I18N_Arabic" class to set/send output charset in 
+  several output media in a proper way (this includes http, html, text_email, 
+  html_email, mysql, mysqli, and pdo).
+
+* Add new method "getBrowserLang" to the main "I18N_Arabic" class to detect chosen/default 
+  browser language using ISO 639-1 2-letter codes (i.e ar, en, fr, ...)
+
+* Enhance "Normalise" sub class by import set of Mr. Taha Zerrouki <taha.zerrouki@gmail.com> 
+  PyArabic library functions (this includes: isTashkeel, isHaraka, isShortharaka, 
+  isTanwin, isLigature, isHamza, isAlef, isWeak, isYehlike, isWawlike, isTehlike, 
+  isSmall, isMoon, isSun, and charName).
+
+* Add "pregPattern" method to render regular expression pattern using an enhanced 
+  version of syntax and semantics to support Arabic language by specify generic 
+  character sets.
+
+* Better ratio estimation in the "AutoSummarize" sub class build on number of 
+  chars instead of number of sentences.
+
+* New Glyphs/SVG example has been added (this fix bidi bug on some browsers like 
+  Firefox 3.6 but not others like Chrome 10).
+  
+* Better example for "Normalise" and "AutoSummarize" sub classes.
+
+* Enhance "Date" sub class example by show tonight moon phase image.
+
+* New Libyan flag in the images/flags directory, and update Sudan cities information 
+  in the data/cities.db.
+
+* Fix Qibla direction calculation in the "Salat" sub class.
+
+* Fix issue of handle left zeros after decimal point in the "Numbers" sub class, thanks 
+  to Jnom <jnom23@gmail.com> who referred to this bug and provides its solution.
+
+* Fix Tanwin Dam and Kaser issue in the "Transliteration" sub class, they are 
+  Romanized now as "un" and "in" respectively.
+  
+* Fix render issue of digits attached to English letters in the "Glyphs" sub class, 
+  they was converted into Hindo style before!
+
+* Fix grammar configuration bug for number 12 in the "ArNumbers.xml" file.
+
+* Add Arabic to Arabizi mapping XML file into "Arabic/data/charset" directory.
+  
+* Back to the use "heredoc" in the examples as string delimiter instead of the 
+  "nowdoc" that used in the version 2.8 examples, this will keep examples 
+  compatible with all PHP 5 versions before 5.3 when "nowdoc" string delimiter 
+  introduced.
+
+
+What's new in ArPHP 2.8 (release date: Apr 14, 2011)
+-----------------------------------------------------
+
+* Add more accurate method called "getPrayTime2" to the "Salat" sub class to 
+  calculate Salat times using algorithm presented by Mr. Hamid Zarrabi-Zadeh 
+  (http://www.praytimes.org).
+
+* Add support to the Phoenician language in the "Hiero" sub class.
+
+* Convert internal encoding of the following sub classes into UTF-8:
+  "ArGender", "Hiero", "ArStemmer", "ArSoundex", "ArCompressStr", and "ArCharsetD".
+  
+* Improve writing error rules used in the "ArQuery" sub class by add case to 
+  handle confusing between ظ and ض.
+
+* Improve the "ArIdentifier" sub class by ignoring the following symbols
+  ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 :
+  if they come in the Arabic context, thanks to Mr. Emiel Polman <e1polman@live.nl>
+
+* Update stopwords list provided by Mr. Taha Zerrouki <taha.zerrouki@gmail.com>
+
+* Fix issues of TAB "\t" and URL rendering in the "ArGlyphs" sub class 
+  (i.e. http://www.example.com)
+
+* Fix Qibla angle calculation from the north direction for locations exists above 
+  Makkah latitude line, then add a small script in the "Examples" directory to 
+  enhance "Salat" example and present this information in SVG visual format.
+  
+* Fix strict error standards of accessing static property in the "ArGlyphs" 
+  sub class as non static.
+
+* Fix all reported notices error in the classes.
+
+* Add comments/documentation to the XML files in the sub/data directory.
+
+
+What's new in ArPHP 2.7.1 (release date: Aug 23, 2010)
+-----------------------------------------------------
+
+* Fix name of extra charset files in the "ArCharsetC" sub class.
+
+* Fix calculation of time zone adjusted by summer time in the "Info" example.
+
+* Fix re-declares issue of the "ArCharsetC" sub class in the main "Arabic" class.
+
+* Fix declaration of static $bin property in the "ArCompressStr" sub class.
+
+* Fix static properties declaration in the "ArKeySwap" sub class.
+
+* Fix calculation bug of Hijri calendar correction using Ummulqura calendar 
+  information on Linux/UNIX servers.
+
+* Fix the "ArGlyphs" sub class bug when English words have dots in between 
+  (e.g. domain name).
+
+* Replace all the "__DIR__" magic constant (which added in PHP 5.3.0.) by 
+  "dirname" function for the "__FILE__" magic constant to keep compatible with 
+  all PHP 5 versions.
+  
+* Replace "split" function by "explode" function because it has been DEPRECATED 
+  as of PHP 5.3.0 
+
+
+What's new in ArPHP 2.7 (release date: Aug 15, 2010)
+-----------------------------------------------------
+
+* The "ArNumbers" sub class can handle now numbers exceeds 2^31 (integer limit), 
+  it is supports now numbers up to 15 digits (i.e. Trillions).
+
+* The "ArNumbers" sub class supports now negative numbers.
+
+* Fix Algerian time zone and add summer time information (including start and 
+  end dates in the strtotime text format) into the "arab_countries.xml" file, 
+  thanks to Mr. El-Bachiri <http://www.bp.ma>.
+
+* Improve the accuracy of the "ArStrToTime" sub class.
+
+* Set methods returns now $this object to build a fluent interface, thanks to
+  Till Klampaeckel <http://pear.php.net/user/till> for his advice.
+
+* Merge "EnTransliteration" and "ArTransliteration" sub classes in one sub class 
+  called "Transliteration".
+
+* Add compatible mechanism to map old classes/methods naming style to the new 
+  style required by PEAR migration process, if you are using the new naming style 
+  then you can switch compatibility off to save some execution time.
+
+* Support Arabic language in the Hiero sub class.
+  
+* Check and fix many violations of the PEAR coding standard.
+
+* Implement cleaner way to convert between different Arabic character sets, this 
+  makes sub classes independent from main Arabic class by define input and output 
+  character set for each method. 
+
+* Improve Hieroglyphics symbols resolution and enable set background color (default 
+  is transparent), it also supports now writing direction [ltr, rtl, ttb and btt]
+
+* Fix the "ArGlyphs" sub class bug when English words have dash in between or 
+  when sentence starts or ends by English word.
+
+* Fix Makkah province information (KSA) in the cities SQLite database file 
+  (in total 21 cities), thanks to Mr. Daif Alotaibi <daif@makkah.gov.sa> to 
+  highlight this issue.
+  
+* Fix character set files by add missing Arabic "dammah", thanks to 
+  Mr. Jalal Al-Deen Omary <jalalaldeen@gmail.com> to highlight this issue.
+
+* Fix autoload functionality and use "spl_autoload_register".
+
+* Fix the usage way of Ummulqura correction value in the date example 
+  (it is third parameter not fourth one).
+
+* Add "getClassPath" private method to have more control on the mapping between 
+  class name and the path to the file that we have to include.
+
+* Push data arrays into external documented XML files.
+
+  Warning: 
+  Many people reported problems in the ArGlyphs_GD example, it's a bug in 
+  PHP 5.3.1 binary build; PHP 5.3.2 no longer misses chars or throws a warning. 
+  It's also been working fine in several setups up to PHP 5.3.0 and problems 
+  started when it ran under PHP 5.3.1 where all non-ASCII characters are replaced 
+  by the hollow rectangle that represents missing or unknown chars.
+
+
+What's new in ArPHP 2.6 (release date: Mar 15, 2010)
+-----------------------------------------------------
+
+* Add new sub class "ArNormalise" developed by Mr. Djihed Afifi <djihed@gmail.com>, 
+  this class performs text normalization through various stages.
+  
+* Refactoring the "ArGlyphs" sub class, it is now 2 times faster!
+
+* Improve "isNoun" method in the "ArWordTag" sub class using Mr. Taha Zerrouki 
+  <taha.zerrouki@gmail.com> advices.
+  
+* Add Ummulqura correction functions to the both "ArDate" and "ArMktime" sub 
+  classes using information sent by Mr. Daif Alotaibi <daif@makkah.gov.sa>
+  
+* Improve the "ArQuery" sub class by handle Arabic Tatwilah case "_".
+
+* Add two additional Arabic months naming style to the "ArDate" sub class, 
+  the Algerian/Tunisian style and the Moroccan style.
+
+* You can pass CSS style name as a second parameter in the "highlightText" 
+  method in the "ArWordTag" sub class instead of the background color for 
+  more flexibility.
+
+* Optimize the "ArWordTag" sub class; it is now 10% faster.
+
+* "useAutoload" and "useException" become optional constructor parameters 
+  instead of global variables, both of autoload and error handler methods 
+  become static within main "Arabic" class itself.
+
+* Add "arNum" method to the "ArTransliteration" sub class to render numbers in 
+  a given string using HTML entities that will show them as an Indian digits 
+  (i.e. ١, ٢, ٣, etc...) whatever browser language settings are.
+
+* Add "enNum" method to the "EnTransliteration" sub class to render numbers in 
+  a given string using HTML entities that will show them as an Arabic digits 
+  (i.e. 1, 2, 3, etc...) whatever browser language settings are.
+  
+* Add one more "ArGlyphs" example using Flash Art (MING) named "ArGlyphs_SWF.php"
+
+* Fix the "getWhereCondition" method in the "ArQuery" sub class when search 
+  string includes extra spaces.
+
+* Fix warning message of undefined offset in the "ArNumbers" sub class when 
+  input number is a complete hundred (e.g. 1200, 2500, or 123400).
+  
+* Fix am and pm Arabic replacement in "ArDate" sub class when mode is 1 
+  (i.e. Hijri format).
+  
+* Make Arabic countries flags available in the "sub/lists" directory.
+
+* Add 200 Egyptian cities information to the lists.db SQLite database and 
+  rename it as cities.db
+
+* New XML file "sub/lists/arab_countries.xml" contains country name in Arabic 
+  and English, capital name in Arabic and English as well as its coordinates 
+  (latitude and longitude), ISO 3166 codes, time zone, dial code, and currency 
+  name in Arabic, English, and ISO currency code.
+  
+* Remove previous currency XML file and SQLite table in lists as well as 
+  currency example and replace it by new Info.php example that demonstrate how 
+  to use new arab_countries.xml file.
+
+* Enhance keyboard example by show the virtual keyboard just below selected
+  input item (when "justBelow" JavaScript variable set to true).
+
+
+What's new in ArPHP 2.5.2 (release date: Sep 16, 2009)
+-----------------------------------------------------
+
+* Add new sub class called "Hiero" that translate English words into Hieroglyphics.
+
+* Add "getQibla" method to the "Salat" sub class to calculate Qibla direction.
+
+* Convert "ArStemmer" and "ArStandard" sub classes methods and properties to Static 
+  for better performance and memory utilize.
+
+* Fix charset conversion of the "swap_ae" method input in the "ArKeySwap" sub class.
+
+* Pack a database of more than 2500 cities in the Arab world, available information 
+  includes Arabic and English name as well as latitude and longitude coordination.
+
+* Pack a virtual JavaScript keyboard with Arabic customization (originally 
+  developed by Dmitry Khudorozhkov http://www.codeproject.com/KB/scripting/jvk.aspx 
+  and we provide the Arabic customization for it)
+  
+* Pack an Arabic and English list of Arab countries currencies in both XML and 
+  SQLite format.
+
+* Convert Private properties in all sub classes into Protected for more 
+  flexibility when class extended.
+  
+* Update examples by add a link to related section in the class documentation in 
+  each example file.
+
+
+What's new in ArPHP 2.5.1 (release date: Aug 19, 2009)
+-----------------------------------------------------
+
+* Refactoring the "ArAutoSummarize" sub class, it is now 2 times faster!
+
+* Check the iconv output, if it is empty then use internal "ArCharsetC" converter.
+
+* Add singleton pattern to the "ArCharsetC" sub class as an option, implementing 
+  this pattern allows a programmer to make this single instance easily accessible 
+  by many other objects. 
+
+* Default charset loaded in the "ArCharsetC" sub class become only Windows-1256 
+  and UTF-8 for more optimization.
+  
+* ArabicTest source code becomes compliant to the PEAR Coding Standards.
+
+* You can pass CSS style name as fourth parameter in both "highlightSummary" and 
+  "highlightRateSummary" methods in the "ArAutoSummary" sub class instead of set
+  the background color for more flexibility (see related example).
+
+* Fix charset name for Windows-1256 in the iconv command (convert to CP1256) in 
+  the core Arabic class, and append "//TRANSLIT" to the output charset.
+
+* Fix warning message in the "ArAutoSummarize" sub class when $word is empty.
+
+* Fix charset conversion of the "swap_ae" method input in the "ArKeySwap" sub class. 
+
+
+What's new in ArPHP 2.5 (release date: Aug 5, 2009)
+-----------------------------------------------------
+
+* Add "ArStandard" sub class, it has "standard" method which standardize 
+  Arabic text to follow writing standards (just like magazine rules).
+  
+* Add simple and rough "ArStemmer" sub class, it has "stem" method which returns
+  the Arabic stem for any given Arabic word (http://arabtechies.net/node/83), 
+  algorithm provides by Mr. Taha Zerrouki <taha.zerrouki@gmail.com>
+  
+* The "cleanCommon" method in the "ArAutoSummarize" sub class become public now.
+
+* Add "loadExtra" method to the "ArAutoSummarize" sub class to load an enhanced  
+  Arabic stop words list.
+
+* Apply semi-factory pattern by using PHP reflection and magic methods to reduce 
+  the Arabic.php core file size from 43 KB to 9 KB (allocated now 63% of memory 
+  comparing to the previous version and it is 3% faster).
+  
+* You can load different sub class dynamically using load method, no need to 
+  have a new instance for this purpose any more.
+
+* No need to access sub classes anymore, all methods are available now in the core 
+  Arabic class level (still previous mode supported and compatible).
+  
+* It is required now to name the sub class you would like to load when create an 
+  instance from the main Arabic class, and mode 'All' is not supported any more.
+
+* Fix using auto load Boolean switch inside Arabic class constructor by use 
+  global $use_autoload (thanks to Mr. Taha Zerrouki to refer to this issue).
+
+* Fix Arabic numbers bidi when followed by Arabic comma or Arabic question 
+  mark in the "ArGlyphs" sub class.
+
+* Class source code become compliant to the PEAR Coding Standards.
+
+* Check compatibility with PHP 6.0.0-dev, MySQL 6.0.4-alpha, and cloud computing.
+
+
+What's new in ArPHP 2.0 (release date: Jul 7, 2009)
+-----------------------------------------------------
+Many thanks to all Arab Techies Code Sprint participants who provides valuable 
+assist and advices: http://www.arabtechies.net/participants/codesprint
+-----------------------------------------------------
+
+* "ArStrToTime" sub class supports now Hijri date format.
+
+* Add "isArabic" static method to the "ArIdentifier" sub class.
+
+* Improve the "getCharset" method in the "ArCharsetD" sub class by add regular 
+  expression to extract HTML page charset from meta tag if there is any! 
+
+* Implement better mechanism to get most possible Arabic lexical forms for 
+  a given word in the "allForms" method in the "ArQuery" sub class.
+
+* Enable "ArDate" and "ArMktime" sub classes to accept correction factor (+/- 1-2) 
+  to the standard hijri calendar.
+
+* Use PHP exception is optional now and disabled by default for ease of implement 
+  in other applications, you can configure it in the Arabic.php file.
+
+* Use PHP "__autoload" function is optional now and disabled by default for ease
+  of implement in other applications, you can configure it in the Arabic.php file.
+
+* Handle decimal numbers in the "ArNumber" sub class.
+
+* Implement better garbage collection mechanism by release child objects directly. 
+
+* Add "win2html" method to the "ArCharsetC" sub class to convert Arabic string 
+  from Windows-1256 to HTML entities format.
+
+* Improve current stop words list that used in the "ArAutoSummary" sub class, we 
+  used the list that collected by Taha, Walid, Riham and Linuxawy during the Arab 
+  Techies Code Sprint in 2009 in addition to MySQL stop words list of full-text 
+  search for English language.  
+
+* Cleaner Salat calculation and equations provided by Mr. Mansoor Magdy. 
+
+* Fix bug of exception thrown when empty string sent to "int2str" method in the 
+  "ArNumber" sub class.
+
+* Fix bug of exception thrown when all keywords sent to "getWhereCondition" 
+  method in "ArQuery" sub class are two letters words.
+
+* Fix Salat Al-Asr calculation that may affect some locations (thanks to 
+  Mr. Mansoor and Mr.Salim from qasweb.org) 
+ 
+* Support share-nothing architecture (stateless) where input/output character 
+  set can optionally pass to each method (to be ready for large scale 
+  applications and clustering)
+
+* No need to have "./" in the PHP include_path (to be ready for large scale 
+  applications and clustering) 
+
+
+What's new in ArPHP 1.8 (release date: Feb 15, 2009)
+-----------------------------------------------------
+
+* Core Arabic charset converter become 4 times faster and used only 70% of 
+  RAM comparing to the previous version, we are using now iconv function 
+  instead of ArCharsetC sub class when it is possible.
+
+* Optimize "ArIdentifier" sub class; it is now 2 times faster.
+
+* Optimize "ArGender" sub class; it is now 10% faster.
+
+* Optimize "ArCompressStr" sub class; it is now 10% faster.
+
+* Optimize "ArSoundex" sub class; it is now 5% faster.
+
+* Optimize "ArTransliteration" sub class; it is now 5% faster.
+
+* Update the class documentation and examples to show how you can optimize 
+  classes load by specify the functionality you are looking for; this will 
+  reduce RAM usage to 25% in average and reduce execution time by 10% in 
+  average.
+
+
+What's new in ArPHP 1.7 (release date: Jan 5, 2009)
+-----------------------------------------------------
+
+* Convert all of "ArTransliteration", "EnTransliteration", "ArGender", "ArKeySwap", 
+  "ArWordTag", "ArStrToTime", and "ArCompressStr" into Static classes for better 
+  performance and memory utilize.
+
+* Better documentation
+
+* Convert class errors into Exceptions (ArabicException) 
+
+* Optimize the "ArKeySwap" sub class, it is now 25% faster and takes only 74% of 
+  RAM comparing to the previous version.
+
+* Optimize the "ArTransliteration" sub class, it is now 37% faster and takes only 
+  80% of RAM comparing to the previous version.
+
+* Optimize the "EnTransliteration" sub class, it is now 15% faster and takes only 
+  87% of RAM comparing to the previous version.
+
+* Optimize the "ArCompressStr" sub class, it is now 17% faster and takes only 94% 
+  of RAM comparing to the previous version.
+
+* Optimize the "ArGlyphs" sub class, it is now 10% faster and takes only 85% of RAM 
+  comparing to the previous version.
+
+* Clean the list of Arabic common words, add a list of English common and important 
+  words, and update the "ArAutoSummarize" sub class to handle English text also.
+
+* Fix English sentences separator and reading process for common/important lists 
+  from external files in the "ArAutoSummarize" sub class.
+
+* Fix the "jd_to_greg" method in the "ArMktime" sub class.
+
+* Cleaner code generates much less PHP Notices.
+
+
+What's new in ArPHP 1.6 (release date: Aug 25, 2008)
+-----------------------------------------------------
+
+* Core Arabic charset converter becomes 35% faster and takes only 40% of RAM 
+  comparing to the previous version.
+
+* Add new "ArCompressStr" sub class for Arabic Huffman zipping.
+
+* Add new method "allForms" to the "ArQuery" sub class which returns all possible 
+  word forms to search instead of regular expression format.
+
+* Returns WHERE condition alone in the "ArQuery" sub class (no order by 
+  combination for more flexibility).
+
+* Add new stand alone "getOrderBy" public method to the "ArQuery" sub class.
+
+* Field names will not enclosed now by ` eternally, so you can use "table.field" 
+  style when you list fields name in the "ArQuery" sub class.
+
+* Add documentation for "greg_to_jd" and "jd_to_greg" methods in the "ArDate"
+  and "ArMktime" sub classes and make returned values identical to the PHP 
+  calendar functions.
+
+* Support Libyan date format in the "ArDate" sub class.
+
+* Capitalize the English letter come after - like Al- case in EnTransliteration 
+  sub class.
+
+* Fix "Mktime" conversion issue from Hijri to Gregorian date.
+
+* Fix strip slashes issue in the "ArKeySwap" sub class (affect Arabic tah letter). 
+
+
+What's new in ArPHP 1.4 (release date: Jul 23, 2008)
+-----------------------------------------------------
+
+* Add new "StrToTime" sub class to implement the similar PHP functionality for 
+  Arabic language.
+
+* Enhance the security of the "getWhereCondition" method in the "ArQuery" sub 
+  class by using the "unescaped_string" function, so it is safe now to place 
+  method output in the SQL queries. That method will also ignore now the 
+  punctuation as well as words of less than 3 chars if they are not in exact 
+  phrase portion.
+
+* No need to compile PHP with --enable-calendar to get ArPHP date function 
+  working. We also fixed the "ArMktime" sub class methods visibility.
+
+* Improve performance by replace "preg_replace" function by "str_replace" 
+  function when it is possible ("ArAutoSummarize" is 200% faster now).
+
+* Fix "ArAutoSummarize" bug in define sentences and words borders where I miss 
+  handle the comma as a separator just like spaces.
+
+* Fix $hindo parameter bug in the "utf8Glyphs" method (did not accept false value 
+  to output Arabic digits instead of Hindo digits).
+
+* Fix ArabicTest (the PHPUnit script for automating tests) and add test cases 
+  for ArStrToTime sub class methods.
+
+* Add a new batch file for Apache ab stress test.
+
+* Change library license to LGPL instead of GPL.
+
+
+What's new in ArPHP 1.3 (release date: May 18, 2008)
+-----------------------------------------------------
+
+* Class size now is 75% of previous version and ArCharset sub class will not be 
+  loaded unless we need it.
+  
+* More optimization for memory usage.
+
+
+What's new in ArPHP 1.2 (release date: Apr 8, 2008)
+-----------------------------------------------------
+
+* Implement Mr. Saleh AlMatrafe <saleh@saleh.cc> update on ArQuery sub class by 
+  using "CASE WHEN" statement in ORDER BY section for more relevant ordering.
+  
+* Fix SQL example file by define table charset, collection, and use GET method 
+  instead of POST.
+
+* Minimize class memory footprint by use dynamic instantiation of objects at runtime.
+  
+* Start working on fix library script standards to implement PEAR coding style.
+
+
+What's new in ArPHP 1.1 (release date: Mar 10, 2008)
+-----------------------------------------------------
+
+* Reflects new updates on system documentation and examples.
+
+* You can define now the bgcolor in highlight procedure in both ArAutoSummaries 
+  and ArWordTag sub classes.
+
+
+What's new in ArPHP 1.0 (release date: Feb 24, 2008)
+-----------------------------------------------------
+
+* First beta code of this Arabic class which is collection of sub classes published 
+  before in phpclasses.org repository:
+  http://kshamaa.users.phpclasses.org/browse/author/189864.html
+  but this has more comments in code block as well as standard code format and 
+  better character set handles for input and output. The strategic aim of this is 
+  to rich PEAR standards to add this class into that library.
+
+* Add ArQuery, ArMktime, ArAutoSummarize, ArWordTag, ArGlyphs, and ArSoundex sub classes.
+
+* Add examples scripts.
+
+* Add the first draft of standard documentation.

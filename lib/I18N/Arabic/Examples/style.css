@@ -1,0 +1,28 @@
+@page {
+    size: 7in 9.25in;
+    margin: 27mm 16mm 27mm 16mm;
+}
+
+.Paragraph  {
+    text-align:justify;
+    font: normal 10pt/1.4em Tahoma;
+    background: #fff;
+    border: 1px solid #ccc;
+    clear: both;
+    padding: .5em 1em;
+}
+
+body  {
+    background: #f2f2f2;
+    color: #000;
+    margin: 10;
+    padding: 0;
+    text-align: center;
+}
+
+h2 {
+    border-bottom: 2px solid #69c;
+    color: #333;
+    font: normal 22px/18px serif;
+    margin: 5px 10px;
+}

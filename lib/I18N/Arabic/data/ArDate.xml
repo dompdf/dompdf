@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data file="ArDate">
+  <!--
+  Islamic lunar month represented in the id property and Arabic and English 
+  name of that Hijri month in the content of the month tag
+  -->
+  <ar_hj_month>
+    <month id="1">محرم</month>
+    <month id="2">صفر</month>
+    <month id="3">ربيع الأول</month>
+    <month id="4">ربيع الثاني</month>
+    <month id="5">جمادى الأولى</month>
+    <month id="6">جمادى الثانية</month>
+    <month id="7">رجب</month>
+    <month id="8">شعبان</month>
+    <month id="9">رمضان</month>
+    <month id="10">شوال</month>
+    <month id="11">ذو القعدة</month>
+    <month id="12">ذو الحجة</month>
+  </ar_hj_month>
+
+  <en_hj_month>
+    <month id="1">Muharram</month>
+    <month id="2">Safar</month>
+    <month id="3">Rabi' I</month>
+    <month id="4">Rabi' II</month>
+    <month id="5">Jumada I</month>
+    <month id="6">Jumada II</month>
+    <month id="7">Rajab</month>
+    <month id="8">Sha'aban</month>
+    <month id="9">Ramadan</month>
+    <month id="10">Shawwal</month>
+    <month id="11">Dhu al-Qi'dah</month>
+    <month id="12">Dhu al-Hijjah</month>
+  </en_hj_month>
+  
+  <!--
+  Arabic representation for name of year months in different styles refer to by 
+  id property in the mode node (2 for Arabic month names used in Middle East 
+  countries, 3 for Arabic transliteration of Gregorian month names, 4 for both 
+  of 2 and 3 formats together, 5 for Libya style, 6 for Algeria and Tunis style, 
+  and 7 for Morocco style)
+  -->
+  <ar_month>
+    <mode id="1">
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+      <replace></replace>
+    </mode>
+
+    <mode id="2">
+      <replace>كانون ثاني</replace>
+      <replace>شباط</replace>
+      <replace>آذار</replace>
+      <replace>نيسان</replace>
+      <replace>أيار</replace>
+      <replace>حزيران</replace>
+      <replace>تموز</replace>
+      <replace>آب</replace>
+      <replace>أيلول</replace>
+      <replace>تشرين أول</replace>
+      <replace>تشرين ثاني</replace>
+      <replace>كانون أول</replace>
+    </mode>
+     
+    <mode id="3">
+      <replace>يناير</replace>
+      <replace>فبراير</replace>
+      <replace>مارس</replace>
+      <replace>أبريل</replace>
+      <replace>مايو</replace>
+      <replace>يونيو</replace>
+      <replace>يوليو</replace>
+      <replace>أغسطس</replace>
+      <replace>سبتمبر</replace>
+      <replace>أكتوبر</replace>
+      <replace>نوفمبر</replace>
+      <replace>ديسمبر</replace> 
+    </mode>
+     
+    <mode id="4">
+      <replace>كانون ثاني/يناير</replace>
+      <replace>شباط/فبراير</replace>
+      <replace>آذار/مارس</replace>
+      <replace>نيسان/أبريل</replace>
+      <replace>أيار/مايو</replace>
+      <replace>حزيران/يونيو</replace>
+      <replace>تموز/يوليو</replace>
+      <replace>آب/أغسطس</replace>
+      <replace>أيلول/سبتمبر</replace>
+      <replace>تشرين أول/أكتوبر</replace>
+      <replace>تشرين ثاني/نوفمبر</replace>
+      <replace>كانون أول/ديسمبر</replace> 
+    </mode>
+     
+    <mode id="5">
+      <replace>أي النار</replace>
+      <replace>النوار</replace>
+      <replace>الربيع</replace>
+      <replace>الطير</replace>
+      <replace>الماء</replace>
+      <replace>الصيف</replace>
+      <replace>ناصر</replace>
+      <replace>هانيبال</replace>
+      <replace>الفاتح</replace>
+      <replace>التمور</replace>
+      <replace>الحرث</replace>
+      <replace>الكانون</replace> 
+    </mode>
+     
+    <mode id="6">
+      <replace>جانفي</replace>
+      <replace>فيفري</replace>
+      <replace>مارس</replace>
+      <replace>أفريل</replace>
+      <replace>ماي</replace>
+      <replace>جوان</replace>
+      <replace>جويلية</replace>
+      <replace>أوت</replace>
+      <replace>سبتمبر</replace>
+      <replace>أكتوبر</replace>
+      <replace>نوفمبر</replace>
+      <replace>ديسمبر</replace>
+    </mode>
+     
+    <mode id="7">
+      <replace>يناير</replace>
+      <replace>فبراير</replace>
+      <replace>مارس</replace>
+      <replace>أبريل</replace>
+      <replace>ماي</replace>
+      <replace>يونيو</replace>
+      <replace>يوليوز</replace>
+      <replace>غشت</replace>
+      <replace>شتنبر</replace>
+      <replace>أكتوبر</replace>
+      <replace>نوفنبر</replace>
+      <replace>دجنبر</replace> 
+    </mode>
+  </ar_month>
+  
+  <!--
+  The English name of year months as value being searched for to be replaced by 
+  associated Arabic names; English names represented by full or short format 
+  (defined by id property in the mode node)
+  -->
+  <en_month>
+    <mode id="full">
+      <search>january</search>
+      <search>february</search>
+      <search>march</search>
+      <search>april</search>
+      <search>may</search>
+      <search>june</search>
+      <search>july</search>
+      <search>august</search>
+      <search>september</search>
+      <search>october</search>
+      <search>november</search>
+      <search>december</search>
+    </mode>
+    
+    <mode id="short">
+      <search>jan</search>
+      <search>feb</search>
+      <search>mar</search>
+      <search>apr</search>
+      <search>may</search>
+      <search>jun</search>
+      <search>jul</search>
+      <search>aug</search>
+      <search>sep</search>
+      <search>oct</search>
+      <search>nov</search>
+      <search>dec</search>
+    </mode>
+  </en_month>
+
+  <!--
+  Arabic representation for name of week days.
+  -->
+  <ar_day>
+    <replace>السبت</replace>
+    <replace>الأحد</replace>
+    <replace>الاثنين</replace>
+    <replace>الثلاثاء</replace>
+    <replace>الأربعاء</replace>
+    <replace>الخميس</replace>
+    <replace>الجمعة</replace>
+  </ar_day>
+  
+  <!--
+  The English name of week days as value being searched for to be replaced by 
+  associated Arabic names; English names represented by full or short format 
+  (defined by id property in the mode node)
+  -->
+  <en_day>
+    <mode id="full">
+      <search>saturday</search>
+      <search>sunday</search>
+      <search>monday</search>
+      <search>tuesday</search>
+      <search>wednesday</search>
+      <search>thursday</search>
+      <search>friday</search>
+    </mode>
+
+    <mode id="short">
+      <search>sat</search>
+      <search>sun</search>
+      <search>mon</search>
+      <search>tue</search>
+      <search>wed</search>
+      <search>thu</search>
+      <search>fri</search>
+    </mode>
+  </en_day>
+  
+  <!--
+  Set of regular expressions patterns (for the child pair/search nodes within 
+  preg_replace node) and associated replacements string (pair/replace) to perform 
+  English to Arabic Translation
+  -->
+  <preg_replace function="en2ar"> 
+    <pair>
+      <search>am</search>
+      <replace>صباحاً</replace>
+    </pair>
+    <pair>
+      <search>pm</search>
+      <replace>مساءً</replace>
+    </pair>
+    <pair>
+      <search>st</search>
+      <replace></replace>
+    </pair>
+    <pair>
+      <search>nd</search>
+      <replace></replace>
+    </pair>
+    <pair>
+      <search>rd</search>
+      <replace></replace>
+    </pair>
+    <pair>
+      <search>th</search>
+      <replace></replace>
+    </pair>
+  </preg_replace>
+</data> 

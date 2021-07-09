@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data file="ArStrToTime">
+  <!--
+  Islamic lunar month represented in the id property and Arabic name of that 
+  Hijri month in the content of the month tag
+  -->
+  <hj_month>
+    <month id="1">محرم</month>
+    <month id="2">صفر</month>
+    <month id="3">ربيع الأول</month>
+    <month id="4">ربيع الثاني</month>
+    <month id="5">جمادى الأولى</month>
+    <month id="6">جمادى الثانية</month>
+    <month id="7">رجب</month>
+    <month id="8">شعبان</month>
+    <month id="9">رمضان</month>
+    <month id="10">شوال</month>
+    <month id="11">ذو القعدة</month>
+    <month id="12">ذو الحجة</month>
+  </hj_month>
+  
+  <!--
+  Map parsed StrToTime English words to related Arabic translation, in addition 
+  to normalize Arabic hamza and the marbouta.
+  -->
+  <str_replace function="strtotime">
+    <pair>
+      <search>أ</search>
+      <replace>ا</replace>
+    </pair>
+    <pair>
+      <search>إ</search>
+      <replace>ا</replace>
+    </pair>
+    <pair>
+      <search>آ</search>
+      <replace>ا</replace>
+    </pair>
+    <pair>
+      <search>ة</search>
+      <replace>ه</replace>
+    </pair>
+    <pair>
+      <search>بعد</search>
+      <replace>+</replace>
+    </pair>
+    <pair>
+      <search>تالي</search>
+      <replace>next</replace>
+    </pair>
+    <pair>
+      <search>لاحق</search>
+      <replace>next</replace>
+    </pair>
+    <pair>
+      <search>قادم</search>
+      <replace>next</replace>
+    </pair>
+    <pair>
+      <search>سابق</search>
+      <replace>last</replace>
+    </pair>
+    <pair>
+      <search>فائت</search>
+      <replace>last</replace>
+    </pair>
+    <pair>
+      <search>ماضي</search>
+      <replace>last</replace>
+    </pair>
+    <pair>
+      <search>منذ</search>
+      <replace>-</replace>
+    </pair>
+    <pair>
+      <search>قبل</search>
+      <replace>-</replace>
+    </pair>
+    <pair>
+      <search>يوم</search>
+      <replace>1 day</replace>
+    </pair>
+    <pair>
+      <search>ايام</search>
+      <replace>days</replace>
+    </pair>
+    <pair>
+      <search>ساعه</search>
+      <replace>1 hour</replace>
+    </pair>
+    <pair>
+      <search>ساعتان</search>
+      <replace>2 hours</replace>
+    </pair>
+    <pair>
+      <search>ساعتين</search>
+      <replace>2 hours</replace>
+    </pair>
+    <pair>
+      <search>ساعات</search>
+      <replace>hours</replace>
+    </pair>
+    <pair>
+      <search>دقيقه</search>
+      <replace>1 minute</replace>
+    </pair>
+    <pair>
+      <search>يومين</search>
+      <replace>2 days</replace>
+    </pair>
+    <pair>
+      <search>دقيقتان</search>
+      <replace>2 minutes</replace>
+    </pair>
+    <pair>
+      <search>دقيقتين</search>
+      <replace>2 minutes</replace>
+    </pair>
+    <pair>
+      <search>دقائق</search>
+      <replace>minutes</replace>
+    </pair>
+    <pair>
+      <search>ثانيه</search>
+      <replace>1 second</replace>
+    </pair>
+    <pair>
+      <search>ثانيتين</search>
+      <replace>2 seconds</replace>
+    </pair>
+    <pair>
+      <search>ثانيتان</search>
+      <replace>2 seconds</replace>
+    </pair>
+    <pair>
+      <search>ثواني</search>
+      <replace>seconds</replace>
+    </pair>
+    <pair>
+      <search>اسبوعين</search>
+      <replace>2 weeks</replace>
+    </pair>
+    <pair>
+      <search>اسبوعان</search>
+      <replace>2 weeks</replace>
+    </pair>
+    <pair>
+      <search>اسابيع</search>
+      <replace>weeks</replace>
+    </pair>
+    <pair>
+      <search>اسبوع</search>
+      <replace>1 week</replace>
+    </pair>
+    <pair>
+      <search>شهرين</search>
+      <replace>2 months</replace>
+    </pair>
+    <pair>
+      <search>شهران</search>
+      <replace>2 months</replace>
+    </pair>
+    <pair>
+      <search>اشهر</search>
+      <replace>months</replace>
+    </pair>
+    <pair>
+      <search>شهور</search>
+      <replace>months</replace>
+    </pair>
+    <pair>
+      <search>شهر</search>
+      <replace>1 month</replace>
+    </pair>
+    <pair>
+      <search>سنه</search>
+      <replace>1 year</replace>
+    </pair>
+    <pair>
+      <search>سنتين</search>
+      <replace>2 years</replace>
+    </pair>
+    <pair>
+      <search>سنتان</search>
+      <replace>2 years</replace>
+    </pair>
+    <pair>
+      <search>سنوات</search>
+      <replace>years</replace>
+    </pair>
+    <pair>
+      <search>سنين</search>
+      <replace>years</replace>
+    </pair>
+    <pair>
+      <search>صباحا</search>
+      <replace>am</replace>
+    </pair>
+    <pair>
+      <search>فجرا</search>
+      <replace>am</replace>
+    </pair>
+    <pair>
+      <search>قبل الظهر</search>
+      <replace>am</replace>
+    </pair>
+    <pair>
+      <search>مساء</search>
+      <replace>pm</replace>
+    </pair>
+    <pair>
+      <search>عصرا</search>
+      <replace>pm</replace>
+    </pair>
+    <pair>
+      <search>بعد الظهر</search>
+      <replace>pm</replace>
+    </pair>
+    <pair>
+      <search>ليلا</search>
+      <replace>pm</replace>
+    </pair>
+    <pair>
+      <search>غد</search>
+      <replace>tomorrow</replace>
+    </pair>
+    <pair>
+      <search>بارحة</search>
+      <replace>yesterday</replace>
+    </pair>
+    <pair>
+      <search>أمس</search>
+      <replace>yesterday</replace>
+    </pair>
+    <pair>
+      <search>مضت</search>
+      <replace>ago</replace>
+    </pair>
+    <pair>
+      <search>مضى</search>
+      <replace>ago</replace>
+    </pair>
+    <pair>
+      <search>هذا</search>
+      <replace>this</replace>
+    </pair>
+    <pair>
+      <search>هذه</search>
+      <replace>this</replace>
+    </pair>
+    <pair>
+      <search>الآن</search>
+      <replace>now</replace>
+    </pair>
+    <pair>
+      <search>لحظه</search>
+      <replace>now</replace>
+    </pair>
+    <pair>
+      <search>اول</search>
+      <replace>first</replace>
+    </pair>
+    <pair>
+      <search>ثالث</search>
+      <replace>third</replace>
+    </pair>
+    <pair>
+      <search>رابع</search>
+      <replace>fourth</replace>
+    </pair>
+    <pair>
+      <search>خامس</search>
+      <replace>fifth</replace>
+    </pair>
+    <pair>
+      <search>سادس</search>
+      <replace>sixth</replace>
+    </pair>
+    <pair>
+      <search>سابع</search>
+      <replace>seventh</replace>
+    </pair>
+    <pair>
+      <search>ثامن</search>
+      <replace>eighth</replace>
+    </pair>
+    <pair>
+      <search>تاسع</search>
+      <replace>ninth</replace>
+    </pair>
+    <pair>
+      <search>عاشر</search>
+      <replace>tenth</replace>
+    </pair>
+    <pair>
+      <search>حادي عشر</search>
+      <replace>eleventh</replace>
+    </pair>
+    <pair>
+      <search>حاديه عشر</search>
+      <replace>eleventh</replace>
+    </pair>
+    <pair>
+      <search>ثاني عشر</search>
+      <replace>twelfth</replace>
+    </pair>
+    <pair>
+      <search>ثانيه عشر</search>
+      <replace>twelfth</replace>
+    </pair>
+    <pair>
+      <search>سبت</search>
+      <replace>saturday</replace>
+    </pair>
+    <pair>
+      <search>احد</search>
+      <replace>sunday</replace>
+    </pair>
+    <pair>
+      <search>اثنين</search>
+      <replace>monday</replace>
+    </pair>
+    <pair>
+      <search>ثلاثاء</search>
+      <replace>tuesday</replace>
+    </pair>
+    <pair>
+      <search>اربعاء</search>
+      <replace>wednesday</replace>
+    </pair>
+    <pair>
+      <search>خميس</search>
+      <replace>thursday</replace>
+    </pair>
+    <pair>
+      <search>جمعه</search>
+      <replace>friday</replace>
+    </pair>
+    <pair>
+      <search>ثلاث</search>
+      <replace>3</replace>
+    </pair>
+    <pair>
+      <search>اربع</search>
+      <replace>4</replace>
+    </pair>
+    <pair>
+      <search>خمس</search>
+      <replace>5</replace>
+    </pair>
+    <pair>
+      <search>ست</search>
+      <replace>6</replace>
+    </pair>
+    <pair>
+      <search>سبع</search>
+      <replace>7</replace>
+    </pair>
+    <pair>
+      <search>ثمان</search>
+      <replace>8</replace>
+    </pair>
+    <pair>
+      <search>تسع</search>
+      <replace>9</replace>
+    </pair>
+    <pair>
+      <search>عشر</search>
+      <replace>10</replace>
+    </pair>
+    <pair>
+      <search>كانون ثاني</search>
+      <replace>january</replace>
+    </pair>
+    <pair>
+      <search>شباط</search>
+      <replace>february</replace>
+    </pair>
+    <pair>
+      <search>اذار</search>
+      <replace>march</replace>
+    </pair>
+    <pair>
+      <search>نيسان</search>
+      <replace>april</replace>
+    </pair>
+    <pair>
+      <search>ايار</search>
+      <replace>may</replace>
+    </pair>
+    <pair>
+      <search>حزيران</search>
+      <replace>june</replace>
+    </pair>
+    <pair>
+      <search>تموز</search>
+      <replace>july</replace>
+    </pair>
+    <pair>
+      <search>اب</search>
+      <replace>august</replace>
+    </pair>
+    <pair>
+      <search>ايلول</search>
+      <replace>september</replace>
+    </pair>
+    <pair>
+      <search>تشرين اول</search>
+      <replace>october</replace>
+    </pair>
+    <pair>
+      <search>تشرين ثاني</search>
+      <replace>november</replace>
+    </pair>
+    <pair>
+      <search>كانون اول</search>
+      <replace>december</replace>
+    </pair>
+    <pair>
+      <search>يناير</search>
+      <replace>january</replace>
+    </pair>
+    <pair>
+      <search>فبراير</search>
+      <replace>february</replace>
+    </pair>
+    <pair>
+      <search>مارس</search>
+      <replace>march</replace>
+    </pair>
+    <pair>
+      <search>ابريل</search>
+      <replace>april</replace>
+    </pair>
+    <pair>
+      <search>مايو</search>
+      <replace>may</replace>
+    </pair>
+    <pair>
+      <search>يونيو</search>
+      <replace>june</replace>
+    </pair>
+    <pair>
+      <search>يوليو</search>
+      <replace>july</replace>
+    </pair>
+    <pair>
+      <search>اغسطس</search>
+      <replace>august</replace>
+    </pair>
+    <pair>
+      <search>سبتمبر</search>
+      <replace>september</replace>
+    </pair>
+    <pair>
+      <search>اكتوبر</search>
+      <replace>october</replace>
+    </pair>
+    <pair>
+      <search>نوفمبر</search>
+      <replace>november</replace>
+    </pair>
+    <pair>
+      <search>ديسمبر</search>
+      <replace>december</replace>
+    </pair>
+    <pair>
+      <search>و</search>
+      <replace>+</replace>
+    </pair>
+  </str_replace>
+</data> 
