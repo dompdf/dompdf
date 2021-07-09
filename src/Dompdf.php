@@ -68,7 +68,7 @@ use Dompdf\Helpers;
  *
  * @package dompdf
  */
-class Dompdf
+class Dompdf implements DompdfInterface
 {
     /**
      * Version string for dompdf
@@ -1481,6 +1481,14 @@ class Dompdf
     public function getFontMetrics()
     {
         return $this->fontMetrics;
+    }
+
+    /**
+     * @return FontMetrics
+     */
+    public function copy()
+    {
+        return new static($this->getOptions());
     }
 
     /**
