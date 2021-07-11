@@ -5679,7 +5679,7 @@ EOT;
             if ($imagickClonable === null) {
                 $imagickClonable = true;
                 if (defined('Imagick::IMAGICK_EXTVER')) {
-                    $imagickVersion = Imagick::IMAGICK_EXTVER;
+                    $imagickVersion = \Imagick::IMAGICK_EXTVER;
                 } else {
                     $imagickVersion = '0';
                 }
