@@ -1,5 +1,4 @@
 <?php
-
 namespace Dompdf\Tests\Helpers;
 
 use Dompdf\Css\Style;

@@ -84,7 +84,7 @@ class Factory
 
         switch ($display) {
 
-            case "flex": //FIXME: display type not yet supported 
+            case "flex": //FIXME: display type not yet supported
             case "table-caption": //FIXME: display type not yet supported
             case "block":
                 $positioner = "Block";
@@ -92,7 +92,7 @@ class Factory
                 $reflower = "Block";
                 break;
 
-            case "inline-flex": //FIXME: display type not yet supported 
+            case "inline-flex": //FIXME: display type not yet supported
             case "inline-block":
                 $positioner = "Inline";
                 $decorator = "Block";

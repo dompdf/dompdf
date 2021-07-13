@@ -479,9 +479,8 @@ class Stylesheet
      * @throws Exception
      * @return array
      */
-    private function _css_selector_to_xpath($selector, $first_pass = false)
+    private function _css_selector_to_xpath(string $selector, bool $first_pass = false): array
     {
-
         // Collapse white space and strip whitespace around delimiters
         //$search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
         //$replace = array(" ", "\\1");
@@ -921,7 +920,7 @@ class Stylesheet
             $query = rtrim($query, "/");
         }
 
-        return ["query" => $query, "pseudo_elements" => $pseudo_elements];
+        return ['query' => $query, 'pseudo_elements' => $pseudo_elements];
     }
 
     /**
@@ -995,7 +994,7 @@ class Stylesheet
                 // Retrieve the nodes, limit to body for generated content
                 //TODO: If we use a context node can we remove the leading dot?
                 $nodes = @$xp->query('.' . $query["query"]);
-                if ($nodes == null) {
+                if ($nodes === false) {
                     Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                     continue;
                 }
@@ -1013,7 +1012,7 @@ class Stylesheet
                             continue;
                         }
 
-                        if (($src = $this->_image($style->get_prop('content'))) !== "none") {
+                        if (($src = $this->resolve_url($style->get_prop('content'))) !== "none") {
                             $new_node = $node->ownerDocument->createElement("img_generated");
                             $new_node->setAttribute("src", $src);
                         } else {
@@ -1036,7 +1035,7 @@ class Stylesheet
 
                 // Retrieve the nodes
                 $nodes = @$xp->query($query["query"]);
-                if ($nodes == null) {
+                if ($nodes === false) {
                     Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                     continue;
                 }
@@ -1418,12 +1417,13 @@ class Stylesheet
     }
 
     /**
-     * See also style.cls Style::_image(), refactoring?, works also for imported css files
+     * Resolve the given `url()` declaration to an absolute URL.
      *
-     * @param $val
-     * @return string
+     * @param string|null $val The declaration to resolve in the context of the stylesheet.
+     * @return string The resolved URL, or `none`, if the value is `none`,
+     *         invalid, or points to a non-existent local file.
      */
-    protected function _image($val)
+    public function resolve_url($val): string
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
@@ -1444,8 +1444,8 @@ class Stylesheet
             if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_protocol == "" || $this->_protocol == "file://")) {
                 $path = realpath($path);
                 // If realpath returns FALSE then specifically state that there is no background image
-                if (!$path) {
-                    $path = 'none';
+                if ($path === false) {
+                    $path = "none";
                 }
             }
         }
@@ -1498,7 +1498,7 @@ class Stylesheet
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
-            $url = $this->_image($url);
+            $url = $this->resolve_url($url);
 
             $this->load_css_file($url);
 

@@ -444,7 +444,7 @@ class Table extends AbstractFrameReflower
             }
 
             $style->margin_left = sprintf("%Fpt", $left);
-            $style->margin_right = sprintf("%Fpt", $right);;
+            $style->margin_right = sprintf("%Fpt", $right);
         } else {
             if ($left === "auto") {
                 $left = (float)$style->length_in_pt($cb["w"], $cb["w"]) - (float)$style->length_in_pt($right, $cb["w"]) - (float)$style->length_in_pt($width, $cb["w"]);

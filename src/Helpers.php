@@ -37,7 +37,7 @@ class Helpers
         return null;
     }
 
-      /**
+    /**
      * builds a full url given a protocol, hostname, base path and url
      *
      * @param string $protocol
@@ -157,14 +157,19 @@ class Helpers
     }
 
     /**
-     * Converts decimal numbers to roman numerals
+     * Converts decimal numbers to roman numerals.
      *
-     * @param int $num
+     * As numbers larger than 3999 (and smaller than 1) cannot be represented in
+     * the standard form of roman numerals, those are left in decimal form.
+     * 
+     * See https://en.wikipedia.org/wiki/Roman_numerals#Standard_form
+     *
+     * @param int|string $num
      *
      * @throws Exception
      * @return string
      */
-    public static function dec2roman($num)
+    public static function dec2roman($num): string
     {
 
         static $ones = ["", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"];
@@ -176,8 +181,8 @@ class Helpers
             throw new Exception("dec2roman() requires a numeric argument.");
         }
 
-        if ($num > 4000 || $num < 0) {
-            return "(out of range)";
+        if ($num >= 4000 || $num <= 0) {
+            return (string) $num;
         }
 
         $num = strrev((string)$num);

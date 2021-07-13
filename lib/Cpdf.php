@@ -24,6 +24,7 @@ use FontLib\BinaryStream;
 
 class Cpdf
 {
+    const PDF_VERSION = '1.7';
 
     const ACROFORM_SIG_SIGNATURESEXISTS = 0x0001;
     const ACROFORM_SIG_APPENDONLY =       0x0002;
@@ -3186,7 +3187,7 @@ EOT;
         $this->checkAllHere();
 
         $xref = [];
-        $content = '%PDF-1.7';
+        $content = '%PDF-' . self::PDF_VERSION;
         $pos = mb_strlen($content, '8bit');
 
         // pre-process o_font objects before output of all objects
@@ -3297,7 +3298,7 @@ EOT;
         }
 
         //$name       filename without folder and extension of font metrics
-        //$dir      folder of font metrics
+        //$dir        folder of font metrics
         //$fontcache  folder of runtime created php serialized version of font metrics.
         //            If this is not given, the same folder as the font metrics will be used.
         //            Storing and reusing serialized versions improves speed much
@@ -3782,10 +3783,14 @@ EOT;
             $mode = "Normal";
         }
 
-        // Only create a new graphics state if required
-        if ($mode === $this->currentLineTransparency["mode"] &&
-            $opacity == $this->currentLineTransparency["opacity"]
-        ) {
+        if (is_null($this->currentLineTransparency)) {
+            $this->currentLineTransparency = [];
+        }
+
+        if ($mode === (key_exists('mode', $this->currentLineTransparency) ?
+            $this->currentLineTransparency['mode'] : '') &&
+            $opacity === (key_exists('opacity', $this->currentLineTransparency) ?
+            $this->currentLineTransparency["opacity"] : '')) {
             return;
         }
 
@@ -3833,9 +3838,14 @@ EOT;
             $mode = "Normal";
         }
 
-        if ($mode === $this->currentFillTransparency["mode"] &&
-            $opacity == $this->currentFillTransparency["opacity"]
-        ) {
+        if (is_null($this->currentFillTransparency)) {
+            $this->currentFillTransparency = [];
+        }
+
+        if ($mode === (key_exists('mode', $this->currentFillTransparency) ?
+            $this->currentFillTransparency['mode'] : '') &&
+            $opacity === (key_exists('opacity', $this->currentFillTransparency) ?
+            $this->currentFillTransparency["opacity"] : '')) {
             return;
         }
 
@@ -5676,7 +5686,15 @@ EOT;
             // the first version containing it was 3.0.1RC1
             static $imagickClonable = null;
             if ($imagickClonable === null) {
-                $imagickClonable = version_compare(\Imagick::IMAGICK_EXTVER, '3.0.1rc1') > 0;
+                $imagickClonable = true;
+                if (defined('Imagick::IMAGICK_EXTVER')) {
+                    $imagickVersion = \Imagick::IMAGICK_EXTVER;
+                } else {
+                    $imagickVersion = '0';
+                }
+                if (version_compare($imagickVersion, '0.0.1', '>=')) {
+                    $imagickClonable = version_compare($imagickVersion, '3.0.1rc1', '>=');
+                }
             }
 
             $imagick = new \Imagick($file);
