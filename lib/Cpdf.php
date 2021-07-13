@@ -3834,9 +3834,14 @@ EOT;
             $mode = "Normal";
         }
 
-        if ($mode === $this->currentFillTransparency["mode"] &&
-            $opacity == $this->currentFillTransparency["opacity"]
-        ) {
+        if (is_null($this->currentFillTransparency)) {
+            $this->currentFillTransparency = [];
+        }
+
+        if ($mode === (key_exists('mode', $this->currentFillTransparency) ?
+            $this->currentFillTransparency['mode'] : '') &&
+            $opacity == (key_exists('opacity', $this->currentFillTransparency) ?
+            $this->currentFillTransparency["opacity"] : '')) {
             return;
         }
 
