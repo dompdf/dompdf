@@ -70,6 +70,7 @@ class Cache
         $data_uri = strpos($parsed_url['protocol'], "data:") === 0;
         $full_url = null;
         $enable_remote = $dompdf->getOptions()->getIsRemoteEnabled();
+        $tempfile = false;
 
         try {
 
@@ -92,6 +93,7 @@ class Cache
                     if (($resolved_url = @tempnam($tmp_dir, "ca_dompdf_img_")) === false) {
                         throw new ImageException("Unable to create temporary image in " . $tmp_dir, E_WARNING);
                     }
+                    $tempfile = $resolved_url;
                     $image = "";
 
                     if ($data_uri) {
@@ -169,6 +171,9 @@ class Cache
                 }
             }
         } catch (ImageException $e) {
+            if ($tempfile) {
+                unlink($tempfile);
+            }
             $resolved_url = self::$broken_image;
             $type = "png";
             $message = self::$error_message;
