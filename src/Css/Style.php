@@ -1233,7 +1233,7 @@ class Style
      */
     function get_background_image()
     {
-        return $this->_image($this->_props_computed["background_image"]);
+        return $this->_stylesheet->resolve_url($this->_props_computed["background_image"]);
     }
 
     /**
@@ -1585,7 +1585,7 @@ class Style
      */
     function get_list_style_image()
     {
-        return $this->_image($this->_props_computed["list_style_image"]);
+        return $this->_stylesheet->resolve_url($this->_props_computed["list_style_image"]);
     }
 
     /**
@@ -1803,45 +1803,6 @@ class Style
         }
     }
 
-    /**
-     * @param $val
-     * @return string
-     */
-    protected function _image($val)
-    {
-        $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
-        $parsed_url = "none";
-
-        if (empty($val) || $val === "none") {
-            $path = "none";
-        } elseif (mb_strpos($val, "url") === false) {
-            $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
-        } else {
-            $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
-
-            // Resolve the url now in the context of the current stylesheet
-            $parsed_url = Helpers::explode_url($val);
-            $path = Helpers::build_url($this->_stylesheet->get_protocol(),
-                $this->_stylesheet->get_host(),
-                $this->_stylesheet->get_base_path(),
-                $val);
-            if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_stylesheet->get_protocol() == "" || $this->_stylesheet->get_protocol() == "file://")) {
-                $path = realpath($path);
-                // If realpath returns FALSE then specifically state that there is no background image
-                if (!$path) {
-                    $path = 'none';
-                }
-            }
-        }
-        if ($DEBUGCSS) {
-            print "<pre>[_image\n";
-            print_r($parsed_url);
-            print $this->_stylesheet->get_protocol() . "\n" . $this->_stylesheet->get_base_path() . "\n" . $path . "\n";
-            print "_image]</pre>";
-        }
-        return $path;
-    }
-
     /*======================*/
 
     protected function set_prop_color($prop, $color)
@@ -1892,7 +1853,7 @@ class Style
     function set_background_image($val)
     {
         $this->_props["background_image"] = $val;
-        $parsed_val = $this->_image($val);
+        $parsed_val = $this->_stylesheet->resolve_url($val);
         if ($parsed_val === "none") {
             $this->_props_computed["background_image"] = "none";
         } else {
@@ -2923,7 +2884,7 @@ class Style
     function set_list_style_image($val)
     {
         $this->_props["list_style_image"] = $val;
-        $parsed_val = $this->_image($val);
+        $parsed_val = $this->_stylesheet->resolve_url($val);
         if ($parsed_val === "none") {
             $this->_props_computed["list_style_image"] = "none";
         } else {
