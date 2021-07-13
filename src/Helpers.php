@@ -37,7 +37,7 @@ class Helpers
         return null;
     }
 
-      /**
+    /**
      * builds a full url given a protocol, hostname, base path and url
      *
      * @param string $protocol

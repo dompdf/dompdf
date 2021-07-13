@@ -937,7 +937,7 @@ class Style
 
         $retval = null;
 
-        // Preview the value based on the default if the property is not cached 
+        // Preview the value based on the default if the property is not cached
         // and the computed value has not yet been set.
         $reset_value = false;
         $specified_value = null;
@@ -1227,7 +1227,7 @@ class Style
 
     /**
      * Returns the background image URI, or "none"
-     * 
+     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-image
      * @return string
      */
@@ -1579,7 +1579,7 @@ class Style
 
     /**
      * Returns the list style image URI, or "none"
-     * 
+     *
      * @link http://www.w3.org/TR/CSS21/generate.html#propdef-list-style-image
      * @return string
      */
@@ -2229,7 +2229,7 @@ class Style
 
     /**
      * Sets the text alignment
-     * 
+     *
      * If no alignment is set on the element and the direction is rtl then
      * the property is set to "right", otherwise it is set to "left".
      *

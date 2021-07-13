@@ -16,7 +16,7 @@ before_script:
 
 script:
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-  - vendor/bin/phpcs --standard=phpcs.xml src
+  - vendor/bin/phpcs --standard=phpcs.xml src tests
 
 matrix:
   allow_failures:

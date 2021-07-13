@@ -227,7 +227,7 @@ class FontMetrics
                         break;
                     }
                 }
-                if ($chrootValid !== true) {    
+                if ($chrootValid !== true) {
                     Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The file could not be found under the paths specified by Options::chroot.", __FILE__, __LINE__);
                     return false;
                 }

@@ -57,9 +57,15 @@ class TableCell extends Block
         // The collapsed case is slightly complicated...
         // @todo Add support for outlines here
 
-        $background_position_x = $x; $background_position_y = $y; $background_width = (float)$w; $background_height = (float)$h;
-        $border_right_width = 0; $border_left_width = 0; $border_top_width = 0; $border_bottom_width = 0;
-        $border_right_length = 0; $border_left_length = 0; $border_top_length = 0; $border_bottom_length = 0;
+        $background_position_x = $x;
+        $background_position_y = $y;
+        $background_width = (float)$w;
+        $background_height = (float)$h;
+
+        $border_right_width = 0;
+        $border_left_width = 0;
+        $border_top_width = 0;
+        $border_bottom_width = 0;
 
         $cellmap = $table->get_cellmap();
         $cells = $cellmap->get_spanned_cells($frame);
