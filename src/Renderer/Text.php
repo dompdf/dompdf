@@ -155,7 +155,7 @@ class Text extends AbstractRenderer
 
             $dx = 0;
             $x1 = $x - self::DECO_EXTENSION;
-            $x2 = $x + $width + $dx + self::DECO_EXTENSION;
+            $x2 = $x + (float)$width + $dx + self::DECO_EXTENSION;
             $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $line_thickness);
         }
 
