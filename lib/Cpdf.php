@@ -3789,7 +3789,7 @@ EOT;
 
         if ($mode === (key_exists('mode', $this->currentLineTransparency) ?
             $this->currentLineTransparency['mode'] : '') &&
-            $opacity == (key_exists('opacity', $this->currentLineTransparency) ?
+            $opacity === (key_exists('opacity', $this->currentLineTransparency) ?
             $this->currentLineTransparency["opacity"] : '')) {
             return;
         }
@@ -3844,7 +3844,7 @@ EOT;
 
         if ($mode === (key_exists('mode', $this->currentFillTransparency) ?
             $this->currentFillTransparency['mode'] : '') &&
-            $opacity == (key_exists('opacity', $this->currentFillTransparency) ?
+            $opacity === (key_exists('opacity', $this->currentFillTransparency) ?
             $this->currentFillTransparency["opacity"] : '')) {
             return;
         }
