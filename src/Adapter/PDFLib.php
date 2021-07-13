@@ -1321,8 +1321,8 @@ class PDFLib implements Canvas
      * @param string $text
      * @param string $font
      * @param float  $size
-     * @param int    $word_spacing
-     * @param int    $letter_spacing
+     * @param float  $word_spacing
+     * @param float  $letter_spacing
      * @return mixed
      */
     public function get_text_width($text, $font, $size, $word_spacing = 0, $letter_spacing = 0)

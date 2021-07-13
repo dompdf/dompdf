@@ -1021,9 +1021,9 @@ class CPDF implements Canvas
      * @param string $text
      * @param string $font
      * @param float $size
-     * @param int $word_spacing
-     * @param int $char_spacing
-     * @return float|int
+     * @param float $word_spacing
+     * @param float $char_spacing
+     * @return float
      */
     public function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0)
     {
