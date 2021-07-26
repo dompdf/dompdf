@@ -92,7 +92,7 @@ class FontMetrics
     public function saveFontFamilies()
     {
         // replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)
-        $cacheData = sprintf("<?php return function (%s) {%s", '$fontDir', PHP_EOL);
+        $cacheData = sprintf("<?php return function (%s, %s) {%s", '$fontDir', '$rootDir', PHP_EOL);
         $cacheData .= sprintf("return array (%s", PHP_EOL);
         foreach ($this->fontLookup as $family => $variants) {
             $cacheData .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
@@ -141,7 +141,7 @@ class FontMetrics
         }
 
         $cacheDataClosure = require $this->getCacheFile();
-        $cacheData = $cacheDataClosure($fontDir);
+        $cacheData = $cacheDataClosure($fontDir, $rootDir);
 
         $this->fontLookup = [];
         if (is_array($this->fontLookup)) {
