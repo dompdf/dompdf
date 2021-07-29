@@ -34,7 +34,7 @@ abstract class AbstractFrameReflower
     protected $_frame;
 
     /**
-     * Cached min/max size
+     * Cached min/max (content) size
      *
      * @var array
      */
@@ -234,40 +234,19 @@ abstract class AbstractFrameReflower
     abstract function reflow(Block $block = null);
 
     /**
-     * Required for table layout: Returns an array(0 => min, 1 => max, "min"
-     * => min, "max" => max) of the minimum and maximum widths of this frame.
-     * This provides a basic implementation.  Child classes should override
-     * this if necessary.
+     * Get the minimum and maximum width of the content of this frame.
      *
-     * @return array|null
+     * @return array An array [0 => min, 1 => max, "min" => min, "max" => max]
+     * of the min and max width.
      */
-    function get_min_max_width()
+    function get_min_max_content_width(): array
     {
         if (!is_null($this->_min_max_cache)) {
             return $this->_min_max_cache;
         }
 
         $style = $this->_frame->get_style();
-
-        // Account for margins & padding
-        $dims = [$style->padding_left,
-            $style->padding_right,
-            $style->border_left_width,
-            $style->border_right_width,
-            $style->margin_left,
-            $style->margin_right];
-
         $cb_w = $this->_frame->get_containing_block("w");
-        $delta = (float)$style->length_in_pt($dims, $cb_w);
-
-        // Handle degenerate case
-        if (!$this->_frame->get_first_child()) {
-            return $this->_min_max_cache = [
-                $delta, $delta,
-                "min" => $delta,
-                "max" => $delta,
-            ];
-        }
 
         $low = [];
         $high = [];
@@ -320,9 +299,37 @@ abstract class AbstractFrameReflower
             }
         }
 
+        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
+    }
+
+    /**
+     * Required for table layout: Get the minimum and maximum width of this
+     * frame.  This provides a basic implementation.  Child classes should
+     * override this if necessary.
+     *
+     * @return array An array [0 => min, 1 => max, "min" => min, "max" => max]
+     * of the min and max width.
+     */
+    function get_min_max_width(): array
+    {
+        $style = $this->_frame->get_style();
+
+        // Account for margins & padding
+        $dims = [$style->padding_left,
+            $style->padding_right,
+            $style->border_left_width,
+            $style->border_right_width,
+            $style->margin_left,
+            $style->margin_right];
+
+        $cb_w = $this->_frame->get_containing_block("w");
+        $delta = (float)$style->length_in_pt($dims, $cb_w);
+
+        [$min, $max] = $this->get_min_max_content_width();
+
         $min += $delta;
         $max += $delta;
-        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
+        return [$min, $max, "min" => $min, "max" => $max];
     }
 
     /**

@@ -58,12 +58,12 @@ class Inline extends AbstractPositioner
                 $line = $p->get_current_line_box();
             }
         } elseif ($frame->is_inline_block()) {
-            $min_max = $reflower->get_min_max_width();
+            $width = $frame->get_margin_width();
 
             // If an inline-block frame doesn't fit in the current line, it
             // should break to a new line. Inline-block elements are formatted
             // as atomic inline boxes
-            if ($min_max["min"] > ($cb["w"] - $line->left - $line->w - $line->right)) {
+            if ($width > ($cb["w"] - $line->left - $line->w - $line->right)) {
                 $p->add_line();
                 $line = $p->get_current_line_box();
             }
