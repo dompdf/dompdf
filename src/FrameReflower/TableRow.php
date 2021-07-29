@@ -73,7 +73,7 @@ class TableRow extends AbstractFrameReflower
     /**
      * @throws Exception
      */
-    function get_min_max_width()
+    function get_min_max_width(): array
     {
         throw new Exception("Min/max width is undefined for table rows");
     }

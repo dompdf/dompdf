@@ -428,7 +428,7 @@ class Text extends AbstractFrameReflower
 
     //........................................................................
 
-    function get_min_max_width()
+    function get_min_max_width(): array
     {
         /*if ( !is_null($this->_min_max_cache)  )
           return $this->_min_max_cache;*/

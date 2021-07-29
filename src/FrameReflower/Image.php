@@ -54,10 +54,7 @@ class Image extends AbstractFrameReflower
         }
     }
 
-    /**
-     * @return array
-     */
-    function get_min_max_width()
+    function get_min_max_width(): array
     {
         $frame = $this->_frame;
 

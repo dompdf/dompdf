@@ -146,6 +146,21 @@ class Block extends AbstractFrameReflower
                     $rm = $diff;
                 }
 
+            } else if ($style->float !== "none" || $style->display === "inline-block") {
+                // Shrink-to-fit width for float and inline block:
+                // https://www.w3.org/TR/CSS21/visudet.html#float-width
+                // https://www.w3.org/TR/CSS21/visudet.html#inlineblock-width
+
+                if ($width === "auto") {
+                    [$min, $max] = $this->get_min_max_content_width();
+                    $width = min(max($min, $diff), $max);
+                }
+                if ($lm === "auto") {
+                    $lm = 0;
+                }
+                if ($rm === "auto") {
+                    $rm = 0;
+                }
             } else {
                 // Find auto properties and get them to take up the slack
                 if ($width === "auto") {
@@ -883,25 +898,6 @@ class Block extends AbstractFrameReflower
 
             $style->left = $orig_style->left;
             $style->right = $orig_style->right;
-        }
-
-        // Calculate inline-block / float auto-widths
-        if (($style->display === "inline-block" || $style->float !== 'none') && $orig_style->width === 'auto') {
-            $width = 0;
-
-            foreach ($this->_frame->get_line_boxes() as $line) {
-                $line->recalculate_width();
-
-                $width = max($line->w, $width);
-            }
-
-            if ($width === 0) {
-                foreach ($this->_frame->get_children() as $child) {
-                    $width += $child->calculate_auto_width();
-                }
-            }
-
-            $style->width = $width;
         }
 
         $this->_text_align();
