@@ -300,7 +300,7 @@ class LineBox
         $width = 0;
 
         foreach ($this->get_frames() as $frame) {
-            $width += $frame->calculate_auto_width();
+            $width += $frame->get_margin_width();
         }
 
         return $this->w = $width;

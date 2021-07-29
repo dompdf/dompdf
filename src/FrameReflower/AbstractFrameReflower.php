@@ -558,14 +558,4 @@ abstract class AbstractFrameReflower
             $frame->append_child($new_frame);
         }
     }
-
-    /**
-     * Determine current frame width based on contents
-     *
-     * @return float
-     */
-    public function calculate_auto_width()
-    {
-        return $this->_frame->get_margin_width();
-    }
 }

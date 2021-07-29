@@ -909,14 +909,4 @@ abstract class AbstractFrameDecorator extends Frame
     {
         return $this->_reflower->get_min_max_width();
     }
-
-    /**
-     * Determine current frame width based on contents
-     *
-     * @return float
-     */
-    final function calculate_auto_width()
-    {
-        return $this->_reflower->calculate_auto_width();
-    }
 }

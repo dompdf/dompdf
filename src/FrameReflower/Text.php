@@ -607,14 +607,4 @@ class Text extends AbstractFrameReflower
     {
         return $this->fontMetrics;
     }
-
-    /**
-     * Determine current frame width based on contents
-     *
-     * @return float
-     */
-    public function calculate_auto_width()
-    {
-        return $this->_frame->recalculate_width();
-    }
 }
