@@ -882,12 +882,12 @@ class Block extends AbstractFrameReflower
         $style->top = $top;
         $style->bottom = $bottom;
 
-        $orig_style = $this->_frame->get_original_style();
-
         $needs_reposition = ($style->position === "absolute" && ($style->right !== "auto" || $style->bottom !== "auto"));
 
         // Absolute positioning measurement
         if ($needs_reposition) {
+            $orig_style = $this->_frame->get_original_style();
+
             if ($orig_style->width === "auto" && ($orig_style->left === "auto" || $orig_style->right === "auto")) {
                 $width = 0;
                 foreach ($this->_frame->get_line_boxes() as $line) {
@@ -924,33 +924,5 @@ class Block extends AbstractFrameReflower
                 $block->add_line();
             }
         }
-    }
-
-    /**
-     * Determine current frame width based on contents
-     *
-     * @return float
-     */
-    public function calculate_auto_width()
-    {
-        $width = 0;
-
-        foreach ($this->_frame->get_line_boxes() as $line) {
-            $line_width = 0;
-
-            foreach ($line->get_frames() as $frame) {
-                if ($frame->get_original_style()->width == 'auto') {
-                    $line_width += $frame->calculate_auto_width();
-                } else {
-                    $line_width += $frame->get_margin_width();
-                }
-            }
-
-            $width = max($line_width, $width);
-        }
-
-        $this->_frame->get_style()->width = $width;
-
-        return $this->_frame->get_margin_width();
     }
 }
