@@ -151,9 +151,15 @@ class Block extends AbstractFrameReflower
                     $rm = $diff;
                 }
             }
-        } else if ($diff < 0) {
-            // We are over constrained--set margin-right to the difference
-            $rm = $diff;
+        } else {
+            if ($diff < 0) {
+                // We are over constrained--set margin-right to the difference
+                $rm = $diff;
+            }
+
+            if ($width === "auto") {
+                $width = 0;
+            }
         }
 
         return [
