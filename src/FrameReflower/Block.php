@@ -12,6 +12,7 @@ use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
+use Dompdf\Positioner\Inline as InlinePositioner;
 use Dompdf\Exception;
 use Dompdf\Css\Style;
 
@@ -466,10 +467,9 @@ class Block extends AbstractFrameReflower
                     }
 
                     foreach ($line->get_frames() as $frame) {
-                        if ($frame instanceof BlockFrameDecorator) {
-                            continue;
+                        if ($frame->get_positioner() instanceof InlinePositioner) {
+                            $frame->move($line->left, 0);
                         }
-                        $frame->set_position($frame->get_position("x") + $line->left);
                     }
                 }
                 return;
@@ -480,12 +480,9 @@ class Block extends AbstractFrameReflower
                     $dx = $width - $line->w - $line->right;
 
                     foreach ($line->get_frames() as $frame) {
-                        // Block frames are not aligned by text-align
-                        if ($frame instanceof BlockFrameDecorator) {
-                            continue;
+                        if ($frame->get_positioner() instanceof InlinePositioner) {
+                            $frame->move($dx, 0);
                         }
-
-                        $frame->set_position($frame->get_position("x") + $dx);
                     }
                 }
                 break;
@@ -501,43 +498,48 @@ class Block extends AbstractFrameReflower
                     }
                 }
 
-                // One space character's width. Will be used to get a more accurate spacing
-                $space_width = $this->get_dompdf()->getFontMetrics()->getTextWidth(" ", $style->font_family, $style->font_size);
-
                 foreach ($lines as $line) {
-                    if ($line->left) {
-                        foreach ($line->get_frames() as $frame) {
-                            if (!$frame instanceof TextFrameDecorator) {
-                                continue;
-                            }
+                    $other_frame_count = 0;
 
-                            $frame->set_position($frame->get_position("x") + $line->left);
+                    foreach ($line->get_frames() as $frame) {
+                        if (!($frame instanceof TextFrameDecorator)) {
+                            $other_frame_count++;
                         }
                     }
 
+                    if ($line->left) {
+                        foreach ($line->get_frames() as $frame) {
+                            if ($frame->get_positioner() instanceof InlinePositioner) {
+                                $frame->move($line->left, 0);
+                            }
+                        }
+                    }
+
+                    $word_count = $line->wc + $other_frame_count;
+
                     // Set the spacing for each child
-                    if ($line->wc > 1) {
-                        $spacing = ($width - ($line->left + $line->w + $line->right)) / ($line->wc - 1);
+                    if ($word_count > 1) {
+                        $spacing = ($width - ($line->left + $line->w + $line->right)) / ($word_count - 1);
                     } else {
                         $spacing = 0;
                     }
 
                     $dx = 0;
                     foreach ($line->get_frames() as $frame) {
-                        if (!$frame instanceof TextFrameDecorator) {
-                            continue;
+                        if ($frame instanceof TextFrameDecorator) {
+                            $text = $frame->get_text();
+                            $spaces = mb_substr_count($text, " ");
+
+                            $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
+                            $_spacing = $spacing + $char_spacing;
+
+                            $frame->move($dx, 0);
+                            $frame->set_text_spacing($_spacing);
+
+                            $dx += $spaces * $_spacing;
+                        } else {
+                            $frame->move($dx, 0);
                         }
-
-                        $text = $frame->get_text();
-                        $spaces = mb_substr_count($text, " ");
-
-                        $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
-                        $_spacing = $spacing + $char_spacing;
-
-                        $frame->set_position($frame->get_position("x") + $dx);
-                        $frame->set_text_spacing($_spacing);
-
-                        $dx += $spaces * $_spacing;
                     }
 
                     // The line (should) now occupy the entire width
@@ -547,10 +549,9 @@ class Block extends AbstractFrameReflower
                 // Adjust the last line if necessary
                 if ($last_line->left) {
                     foreach ($last_line->get_frames() as $frame) {
-                        if ($frame instanceof BlockFrameDecorator) {
-                            continue;
+                        if ($frame->get_positioner() instanceof InlinePositioner) {
+                            $frame->move($last_line->left, 0);
                         }
-                        $frame->set_position($frame->get_position("x") + $last_line->left);
                     }
                 }
                 break;
@@ -562,12 +563,9 @@ class Block extends AbstractFrameReflower
                     $dx = ($width + $line->left - $line->w - $line->right) / 2;
 
                     foreach ($line->get_frames() as $frame) {
-                        // Block frames are not aligned by text-align
-                        if ($frame instanceof BlockFrameDecorator) {
-                            continue;
+                        if ($frame->get_positioner() instanceof InlinePositioner) {
+                            $frame->move($dx, 0);
                         }
-
-                        $frame->set_position($frame->get_position("x") + $dx);
                     }
                 }
                 break;
