@@ -117,5 +117,10 @@ class TableCell extends Block
         $style->height = $height;
         $this->_text_align();
         $this->vertical_align();
+
+        // Handle relative positioning
+        foreach ($this->_frame->get_children() as $child) {
+            $this->position_relative($child);
+        }
     }
 }
