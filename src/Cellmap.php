@@ -547,18 +547,9 @@ class Cellmap
         $node = $frame->get_node();
 
         // Determine where this cell is going
-        $colspan = $node->getAttribute("colspan");
-        $rowspan = $node->getAttribute("rowspan");
+        $colspan = max((int) $node->getAttribute("colspan"), 1);
+        $rowspan = max((int) $node->getAttribute("rowspan"), 1);
 
-        if (!$colspan) {
-            $colspan = 1;
-            $node->setAttribute("colspan", 1);
-        }
-
-        if (!$rowspan) {
-            $rowspan = 1;
-            $node->setAttribute("rowspan", 1);
-        }
         $key = $frame->get_id();
 
         $bp = $style->get_border_properties();
@@ -646,7 +637,7 @@ class Cellmap
             $val = null;
             if (Helpers::is_percent($width) && $colspan === 1) {
                 $var = "percent";
-                $val = (float)rtrim($width, "% ") / $colspan;
+                $val = (float)rtrim($width, "% ");
             } else if ($width !== "auto" && $colspan === 1) {
                 $var = "absolute";
                 $val = $style->length_in_pt($frame_min);
