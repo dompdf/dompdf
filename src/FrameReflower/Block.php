@@ -928,6 +928,11 @@ class Block extends AbstractFrameReflower
             $this->_frame->move($new_x - $x, $new_y - $y, true);
         }
 
+        // Handle relative positioning
+        foreach ($this->_frame->get_children() as $child) {
+            $this->position_relative($child);
+        }
+
         if ($block && $this->_frame->is_in_flow()) {
             $block->add_frame_to_line($this->_frame);
 

@@ -193,6 +193,41 @@ abstract class AbstractFrameReflower
     }
 
     /**
+     * Handle relative positioning according to
+     * https://www.w3.org/TR/CSS21/visuren.html#relative-positioning.
+     *
+     * @param Frame $frame The frame to handle.
+     */
+    protected function position_relative(Frame $frame): void
+    {
+        $style = $frame->get_style();
+
+        if ($style->position === "relative") {
+            $cb = $frame->get_containing_block();
+            $top = $style->length_in_pt($style->top, $cb["h"]);
+            $right = $style->length_in_pt($style->right, $cb["w"]);
+            $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
+            $left = $style->length_in_pt($style->left, $cb["w"]);
+
+            // FIXME RTL case:
+            // if ($left !== "auto" && $right !== "auto") $left = -$right;
+            if ($left === "auto" && $right === "auto") {
+                $left = 0;
+            } elseif ($left === "auto") {
+                $left = -(float) $right;
+            }
+
+            if ($top === "auto" && $bottom === "auto") {
+                $top = 0;
+            } elseif ($top === "auto") {
+                $top = -(float) $bottom;
+            }
+
+            $frame->move((float) $left, (float) $top);
+        }
+    }
+
+    /**
      * @param Block|null $block
      * @return mixed
      */
