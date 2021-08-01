@@ -398,11 +398,6 @@ class Page extends AbstractFrameDecorator
                     return false;
                 }
 
-                // Skip breaks on empty text nodes
-                if ($frame->is_text_node() && $frame->get_node()->nodeValue == "") {
-                    return false;
-                }
-
                 Helpers::dompdf_debug("page-break", "inline: break allowed");
 
                 return true;
@@ -468,7 +463,10 @@ class Page extends AbstractFrameDecorator
      */
     function check_page_break(Frame $frame)
     {
-        if ($this->_page_full || $frame->_already_pushed) {
+        if ($this->_page_full || $frame->_already_pushed
+            // Never check for breaks on empty text nodes
+            || ($frame->is_text_node() && $frame->get_node()->nodeValue === "")
+        ) {
             return false;
         }
 
@@ -556,7 +554,13 @@ class Page extends AbstractFrameDecorator
                 break;
             }
 
-            if ($next = $iter->get_prev_sibling()) {
+            $next = $iter->get_prev_sibling();
+            // Skip empty text nodes
+            while ($next && $next->is_text_node() && $next->get_node()->nodeValue === "") {
+                $next = $next->get_prev_sibling();
+            }
+
+            if ($next) {
                 Helpers::dompdf_debug("page-break", "following prev sibling.");
 
                 if ($next->is_table() && !$iter->is_table()) {
