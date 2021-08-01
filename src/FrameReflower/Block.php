@@ -530,13 +530,10 @@ class Block extends AbstractFrameReflower
                             $text = $frame->get_text();
                             $spaces = mb_substr_count($text, " ");
 
-                            $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
-                            $_spacing = $spacing + $char_spacing;
-
                             $frame->move($dx, 0);
-                            $frame->set_text_spacing($_spacing);
+                            $frame->set_text_spacing($spacing);
 
-                            $dx += $spaces * $_spacing;
+                            $dx += $spaces * $spacing;
                         } else {
                             $frame->move($dx, 0);
                         }
