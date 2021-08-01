@@ -27,6 +27,20 @@ class Text extends AbstractFrameReflower
     const SOFT_HYPHEN = "\xC2\xAD";
 
     /**
+     * The regex splits on everything that's a separator (^\S double negative),
+     * excluding nbsp (\xa0).
+     * This currently excludes the "narrow nbsp" character.
+     */
+    public static $_whitespace_pattern = '/([^\S\xA0]+)/u';
+
+    /**
+     * The regex splits on everything that's a separator (^\S double negative),
+     * excluding nbsp (\xa0), plus dashes.
+     * This currently excludes the "narrow nbsp" character.
+     */
+    public static $_wordbreak_pattern = '/([^\S\xA0]+|\-+|\xAD+)/u';
+
+    /**
      * @var BlockFrameDecorator
      */
     protected $_block_parent; // Nearest block-level ancestor
@@ -36,12 +50,12 @@ class Text extends AbstractFrameReflower
      */
     protected $_frame;
 
-    // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0)
-    // This currently excludes the "narrow nbsp" character
-    public static $_whitespace_pattern = '/([^\S\xA0]+)/u';
-    // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0), plus dashes
-    // This currently excludes the "narrow nbsp" character
-    public static $_wordbreak_pattern = '/([^\S\xA0]+|\-+|\xAD+)/u';
+    /**
+     * Saves trailing whitespace trimmed after a line break, so it can be
+     * restored when needed.
+     * @var string|null
+     */
+    protected $trailingWs = null;
 
     /**
      * @var FontMetrics
@@ -289,22 +303,10 @@ class Text extends AbstractFrameReflower
             if ($split == 0 && !$frame->is_pre() && empty(trim($text))) {
                 $frame->set_text("");
             } else if ($split === 0) {
-                $sibling = $frame->get_prev_sibling();
-
-                // Remove any trailing white space from the previous sibling
-                if ($sibling !== null && $sibling instanceof TextFrameDecorator
-                    && !$sibling->is_pre()
-                ) {
-                    $st = $sibling->get_text();
-                    if (preg_match(self::$_whitespace_pattern, mb_substr($st, -1))) {
-                        $sibling->set_text(mb_substr($st, 0, -1));
-                        $sibling->recalculate_width();
-                        $this->_block_parent->get_current_line_box()->recalculate_width();
-                    }
-                }
-
+                $prev = $frame->get_prev_sibling();
                 $p = $frame->get_parent();
-                if ($sibling !== null && $p instanceof InlineFrameDecorator) {
+
+                if ($prev !== null && $p instanceof InlineFrameDecorator) {
                     $p->split($frame);
                 }
 
@@ -321,30 +323,12 @@ class Text extends AbstractFrameReflower
                 // split the line if required
                 $frame->split_text($split);
 
-                $t = $frame->get_text();
-
                 // Remove inner soft hyphens
+                $t = $frame->get_text();
                 $shyPosition = mb_strpos($t, self::SOFT_HYPHEN);
                 if (false !== $shyPosition && $shyPosition < mb_strlen($t) - 1) {
                     $t = str_replace(self::SOFT_HYPHEN, '', mb_substr($t, 0, -1)) . mb_substr($t, -1);
                     $frame->set_text($t);
-                }
-
-                // Do we need to trim spaces on wrapped lines? This might be desired, however, we
-                // can't trim the lines here or the layout will be affected if trimming the line
-                // leaves enough space to fit the next word in the text stream (because pdf layout
-                // is performed elsewhere).
-                /*if (!$this->_frame->get_prev_sibling() && !$this->_frame->get_next_sibling()) {
-                  $t = $this->_frame->get_text();
-                  $this->_frame->set_text( trim($t) );
-                }*/
-            }
-
-            // Remove any trailing white space
-            if (!$frame->is_pre() && $add_line) {
-                $t = $frame->get_text();
-                if (preg_match(self::$_whitespace_pattern, mb_substr($t, -1))) {
-                    $frame->set_text(mb_substr($t, 0, -1));
                 }
             }
         } else {
@@ -353,7 +337,7 @@ class Text extends AbstractFrameReflower
             // FIXME: Include non-breaking spaces?
             $t = $frame->get_text();
             $parent = $frame->get_parent();
-            $is_inline_frame = ($parent instanceof \Dompdf\FrameDecorator\Inline);
+            $is_inline_frame = $parent instanceof InlineFrameDecorator;
 
             if ((!$is_inline_frame && !$frame->get_next_sibling()) /* ||
             ( $is_inline_frame && !$parent->get_next_sibling())*/
@@ -369,7 +353,6 @@ class Text extends AbstractFrameReflower
 
             // Remove soft hyphens
             $t = str_replace(self::SOFT_HYPHEN, '', $t);
-
             $frame->set_text($t);
         }
 
@@ -413,6 +396,33 @@ class Text extends AbstractFrameReflower
             if ($add_line === true) {
                 $block->add_line();
             }
+        }
+    }
+
+    /**
+     * Trim trailing whitespace from the frame text.
+     */
+    public function trim_trailing_ws(): void
+    {
+        $frame = $this->_frame;
+        $text = $frame->get_text();
+        $trailing = mb_substr($text, -1);
+
+        if (preg_match(self::$_whitespace_pattern, $trailing)) {
+            $this->trailingWs = $trailing;
+            $frame->set_text(mb_substr($text, 0, -1));
+            $frame->recalculate_width();
+        }
+    }
+
+    public function reset(): void
+    {
+        // Restore trimmed trailing whitespace, as the frame will go through
+        // another reflow and line breaks might be different after a split
+        if ($this->trailingWs !== null) {
+            $text = $this->_frame->get_text();
+            $this->_frame->set_text($text . $this->trailingWs);
+            $this->trailingWs = null;
         }
     }
 
