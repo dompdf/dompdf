@@ -158,14 +158,14 @@ class Page extends AbstractFrameDecorator
 
     /**
      * Check if a forced page break is required before $frame.  This uses the
-     * frame's page_break_before property as well as the preceeding frame's
+     * frame's page_break_before property as well as the preceding frame's
      * page_break_after property.
      *
      * @link http://www.w3.org/TR/CSS21/page.html#forced
      *
      * @param Frame $frame the frame to check
      *
-     * @return bool true if a page break occured
+     * @return bool true if a page break occurred
      */
     function check_forced_page_break(Frame $frame)
     {
@@ -304,7 +304,7 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // Find the preceeding block-level sibling
+            // Find the preceding block-level sibling
             $prev = $frame->get_prev_sibling();
             while ($prev && !in_array($prev->get_style()->display, $block_types)) {
                 $prev = $prev->get_prev_sibling();
