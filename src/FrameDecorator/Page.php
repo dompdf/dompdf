@@ -174,7 +174,7 @@ class Page extends AbstractFrameDecorator
             return null;
         }
 
-        $block_types = ["block", "list-item", "table", "inline"];
+        $block_types = ["block", "list-item", "table", "table-row", "inline"];
         $page_breaks = ["always", "left", "right"];
 
         $style = $frame->get_style();
@@ -411,8 +411,51 @@ class Page extends AbstractFrameDecorator
             // Table-rows
             } else {
                 if ($display === "table-row") {
-                    // Simply check if the parent table's page_break_inside property is
-                    // not 'avoid'
+
+                    // If this is a nested table, prevent the page from breaking
+                    if ($this->_in_table > 1) {
+                        Helpers::dompdf_debug("page-break", "table: nested table");
+
+                        return false;
+                    }
+
+                    // Rule A (table row)
+                    if ($frame->get_style()->page_break_before === "avoid") {
+                        Helpers::dompdf_debug("page-break", "before: avoid");
+
+                        return false;
+                    }
+
+                    // Find the preceding row
+                    $prev = $frame->get_prev_sibling();
+
+                    if (!$prev) {
+                        $prev_group = $frame->get_parent()->get_prev_sibling();
+
+                        if ($prev_group
+                            && in_array($prev_group->get_style()->display, Table::$ROW_GROUPS, true)
+                        ) {
+                            $prev = $prev_group->get_last_child();
+                        }
+                    }
+
+                    // Check if a page break is allowed after the preceding row
+                    if ($prev && $prev->get_style()->page_break_after === "avoid") {
+                        Helpers::dompdf_debug("page-break", "after: avoid");
+
+                        return false;
+                    }
+
+                    // Avoid breaking before the first row of a table
+                    if (!$prev) {
+                        Helpers::dompdf_debug("page-break", "table: first-row");
+
+                        return false;
+                    }
+
+                    // Rule B (table row)
+                    // Check if the page_break_inside property is not 'avoid'
+                    // for the parent table or any of its ancestors
                     $table = Table::find_parent_table($frame);
 
                     $p = $table;
@@ -425,21 +468,7 @@ class Page extends AbstractFrameDecorator
                         $p = $p->find_block_parent();
                     }
 
-                    // Avoid breaking before the first row of a table
-                    if ($table && $table->get_first_child() === $frame || $table->get_first_child()->get_first_child() === $frame) {
-                        Helpers::dompdf_debug("page-break", "table: first-row");
-
-                        return false;
-                    }
-
-                    // If this is a nested table, prevent the page from breaking
-                    if ($this->_in_table > 1) {
-                        Helpers::dompdf_debug("page-break", "table: nested table");
-
-                        return false;
-                    }
-
-                    Helpers::dompdf_debug("page-break", "table-row/row-groups: break allowed");
+                    Helpers::dompdf_debug("page-break", "table-row: break allowed");
 
                     return true;
                 } else {
