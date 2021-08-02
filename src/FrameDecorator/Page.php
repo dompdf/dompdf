@@ -233,10 +233,14 @@ class Page extends AbstractFrameDecorator
      *
      * In the normal flow, page breaks can occur at the following places:
      *
-     *    1. In the vertical margin between block boxes. When a page
-     *    break occurs here, the used values of the relevant
-     *    'margin-top' and 'margin-bottom' properties are set to '0'.
-     *    2. Between line boxes inside a block box.
+     *    1. In the vertical margin between block boxes. When an
+     *    unforced page break occurs here, the used values of the
+     *    relevant 'margin-top' and 'margin-bottom' properties are set
+     *    to '0'. When a forced page break occurs here, the used value
+     *    of the relevant 'margin-bottom' property is set to '0'; the
+     *    relevant 'margin-top' used value may either be set to '0' or
+     *    retained.
+     *    2. Between line boxes inside a block container box.
      *    3. Between the content edge of a block container box and the
      *    outer edges of its child content (margin edges of block-level
      *    children or line box edges for inline-level children) if there
@@ -245,36 +249,33 @@ class Page extends AbstractFrameDecorator
      * These breaks are subject to the following rules:
      *
      *   * Rule A: Breaking at (1) is allowed only if the
-     *     'page-break-after' and 'page-break-before' properties of
-     *     all the elements generating boxes that meet at this margin
-     *     allow it, which is when at least one of them has the value
-     *     'always', 'left', or 'right', or when all of them are
-     *     'auto'.
+     *     'page-break-after' and 'page-break-before' properties of all
+     *     the elements generating boxes that meet at this margin allow
+     *     it, which is when at least one of them has the value
+     *     'always', 'left', or 'right', or when all of them are 'auto'.
      *
-     *   * Rule B: However, if all of them are 'auto' and the
-     *     nearest common ancestor of all the elements has a
-     *     'page-break-inside' value of 'avoid', then breaking here is
-     *     not allowed.
+     *   * Rule B: However, if all of them are 'auto' and a common
+     *     ancestor of all the elements has a 'page-break-inside' value
+     *     of 'avoid', then breaking here is not allowed.
      *
-     *   * Rule C: Breaking at (2) is allowed only if the number of
-     *     line boxes between the break and the start of the enclosing
-     *     block box is the value of 'orphans' or more, and the number
-     *     of line boxes between the break and the end of the box is
-     *     the value of 'widows' or more.
+     *   * Rule C: Breaking at (2) is allowed only if the number of line
+     *     boxes between the break and the start of the enclosing block
+     *     box is the value of 'orphans' or more, and the number of line
+     *     boxes between the break and the end of the box is the value
+     *     of 'widows' or more.
      *
-     *   * Rule D: In addition, breaking at (2) is allowed only if
-     *     the 'page-break-inside' property is 'auto'.
+     *   * Rule D: In addition, breaking at (2) or (3) is allowed only
+     *     if the 'page-break-inside' property of the element and all
+     *     its ancestors is 'auto'.
      *
-     * If the above doesn't provide enough break points to keep
-     * content from overflowing the page boxes, then rules B and D are
+     * If the above does not provide enough break points to keep content
+     * from overflowing the page boxes, then rules A, B and D are
      * dropped in order to find additional breakpoints.
      *
-     * If that still does not lead to sufficient break points, rules A
-     * and C are dropped as well, to find still more break points.
+     * If that still does not lead to sufficient break points, rule C is
+     * dropped as well, to find still more break points.
      *
-     * We will also allow breaks between table rows.  However, when
-     * splitting a table, the table headers should carry over to the
-     * next page (but they don't yet).
+     * We also allow breaks between table rows.
      *
      * @param Frame $frame the frame to check
      *
