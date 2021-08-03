@@ -6,6 +6,7 @@ vendor
 build
 .idea
 .project
+.phpunit.result.cache
 lib/fonts/*.afm.php
 lib/fonts/*.ufm.php
 lib/fonts/log.htm
