@@ -4,6 +4,7 @@ composer.lock
 phpunit.xml
 vendor
 build
+tmp
 .idea
 .project
 .phpunit.result.cache

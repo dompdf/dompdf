@@ -39,6 +39,11 @@ jobs:
         with:
           dependency-versions: ${{ matrix.package-release }}
 
+      - name: Install Ghostscript
+        run: |
+          sudo apt-get update
+          sudo apt-get install ghostscript
+
       - name: Run unit tests
         run: vendor/bin/phpunit
 
