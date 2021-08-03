@@ -606,7 +606,7 @@ class CPDF implements Canvas
     }
 
     /**
-     * Convert a GIF or BMP image to a PNG image
+     * Convert image to a PNG image
      *
      * @param string $image_url
      * @param int $type
@@ -614,7 +614,7 @@ class CPDF implements Canvas
      * @throws Exception
      * @return string The url of the newly converted image
      */
-    protected function _convert_gif_bmp_to_png($image_url, $type)
+    protected function _convert_to_png($image_url, $type)
     {
         $func_name = "imagecreatefrom$type";
 
@@ -859,12 +859,14 @@ class CPDF implements Canvas
                 $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
+            case "webp":
+            /** @noinspection PhpMissingBreakStatementInspection */
             case "gif":
             /** @noinspection PhpMissingBreakStatementInspection */
             case "bmp":
-                if ($debug_png) print '!!!bmp or gif!!!';
-                // @todo use cache for BMP and GIF
-                $img = $this->_convert_gif_bmp_to_png($img, $type);
+                if ($debug_png) print "!!!{$type}!!!";
+                // @todo use cache for converted images (BMP/GIF/WebP)
+                $img = $this->_convert_to_png($img, $type);
 
             case "png":
                 if ($debug_png) print '!!!png!!!';

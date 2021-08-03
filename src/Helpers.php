@@ -637,6 +637,7 @@ class Helpers
             IMAGETYPE_GIF  => "gif",
             IMAGETYPE_BMP  => "bmp",
             IMAGETYPE_PNG  => "png",
+            IMAGETYPE_WEBP => "webp",
         ];
 
         $type = isset($types[$type]) ? $types[$type] : null;
