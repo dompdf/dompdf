@@ -224,12 +224,9 @@ class Block extends AbstractFrameReflower
         $right =  $calculate_width['right'];
 
         // Handle min/max width
+        // https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
         $min_width = $style->length_in_pt($style->min_width, $cb["w"]);
         $max_width = $style->length_in_pt($style->max_width, $cb["w"]);
-
-        if ($max_width !== "none" && $min_width > $max_width) {
-            list($max_width, $min_width) = [$min_width, $max_width];
-        }
 
         if ($max_width !== "none" && $width > $max_width) {
             extract($this->_calculate_width($max_width));
