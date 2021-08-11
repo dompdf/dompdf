@@ -214,12 +214,7 @@ class Block extends AbstractFrameReflower
             throw new Exception("Box property calculation requires containing block width");
         }
 
-        // Treat width 100% as auto
-        if ($style->width === "100%") {
-            $width = "auto";
-        } else {
-            $width = $style->length_in_pt($style->width, $cb["w"]);
-        }
+        $width = $style->length_in_pt($style->width, $cb["w"]);
 
         $calculate_width = $this->_calculate_width($width);
         $margin_left = $calculate_width['margin_left'];
