@@ -47,8 +47,8 @@ class StyleTest extends TestCase
     {
         $basePath = realpath(__DIR__ . "/..");
         return [
-            "local absolute" => ["url($basePath/_files/jamaica.jpg)", "$basePath/_files/jamaica.jpg"],
-            "local relative" => ["url(../_files/jamaica.jpg)", "$basePath/_files/jamaica.jpg"]
+            "local absolute" => ["url($basePath/_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"],
+            "local relative" => ["url(../_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"]
         ];
     }
 
@@ -56,8 +56,8 @@ class StyleTest extends TestCase
     {
         $basePath = realpath(__DIR__ . "/..");
         return [
-            "local absolute" => ["url($basePath/_files/jamaica.jpg)", "$basePath/_files/jamaica.jpg"],
-            "local relative" => ["url(../_files/jamaica.jpg)", "$basePath/_files/jamaica.jpg"]
+            "local absolute" => ["url($basePath/_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"],
+            "local relative" => ["url(../_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"]
         ];
     }
 
