@@ -141,7 +141,7 @@ class FontMetrics
         }
 
         $cacheDataClosure = require $this->getCacheFile();
-        $cacheData = is_array(cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
+        $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
 
         $this->fontLookup = [];
         if (is_array($this->fontLookup)) {
