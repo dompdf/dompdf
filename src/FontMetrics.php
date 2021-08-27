@@ -92,7 +92,8 @@ class FontMetrics
     public function saveFontFamilies()
     {
         // replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)
-        $cacheData = sprintf("<?php return array (%s", PHP_EOL);
+        $cacheData = sprintf("<?php return function (%s, %s) {%s", '$fontDir', '$rootDir', PHP_EOL);
+        $cacheData .= sprintf("return array (%s", PHP_EOL);
         foreach ($this->fontLookup as $family => $variants) {
             $cacheData .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
             foreach ($variants as $variant => $path) {
@@ -103,7 +104,8 @@ class FontMetrics
             }
             $cacheData .= sprintf("  ),%s", PHP_EOL);
         }
-        $cacheData .= ") ?>";
+        $cacheData .= ");" . PHP_EOL;
+        $cacheData .= "}; ?>";
         file_put_contents($this->getCacheFile(), $cacheData);
     }
 
@@ -130,14 +132,16 @@ class FontMetrics
         if (!defined("DOMPDF_FONT_DIR")) { define("DOMPDF_FONT_DIR", $fontDir); }
 
         $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
-        $distFonts = require $file;
+        $distFontsClosure = require $file;
+        $distFonts = $distFontsClosure($rootDir);
 
         if (!is_readable($this->getCacheFile())) {
             $this->fontLookup = $distFonts;
             return;
         }
 
-        $cacheData = require $this->getCacheFile();
+        $cacheDataClosure = require $this->getCacheFile();
+        $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
 
         $this->fontLookup = [];
         if (is_array($this->fontLookup)) {
@@ -195,7 +199,7 @@ class FontMetrics
         mb_substitute_character($substchar);
         $prefix = preg_replace("[\W]", "_", $prefix);
         $prefix = preg_replace("/[^-_\w]+/", "", $prefix);
-        
+
         $localFile = $fontDir . "/" . $prefix . "_" . $remoteHash;
 
         if (isset($entry[$styleString]) && $localFile == $entry[$styleString]) {
