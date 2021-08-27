@@ -424,6 +424,14 @@ class Page extends AbstractFrameDecorator
                         $p = $p->find_block_parent();
                     }
 
+                    // Avoid page break for table row if specified
+                    if ($frame->get_style()->page_break_before === "avoid") {
+                        Helpers::dompdf_debug("page-break", "before: avoid for table-row");
+
+                        return false;
+                    }
+
+
                     // Avoid breaking before the first row of a table
                     if ($table && $table->get_first_child() === $frame || $table->get_first_child()->get_first_child() === $frame) {
                         Helpers::dompdf_debug("page-break", "table: first-row");
@@ -437,6 +445,34 @@ class Page extends AbstractFrameDecorator
 
                         return false;
                     }
+
+                    // Prevent page breaking on rowspan cells. If child frames count of this table row less then column count of table , than it is likely that row touched by previous rowspan, prevent page from breaking
+                    if($table && $table->get_cellmap() && $table->get_cellmap()->frame_exists_in_cellmap($frame) && $table->get_cellmap()->get_num_cols() > iterator_count($frame->get_children())) {
+                        $cellmap = $table->get_cellmap();
+                        $table_columns_count = $cellmap->get_num_cols();
+
+                        $row_number = $cellmap->get_spanned_cells($frame)["rows"][0];
+
+                        // Iterate through previous rows, to find and check spanned cell
+                        $prev_row = $frame;
+                        while($prev_row && $table_columns_count > iterator_count($prev_row->get_children())) {
+                            $prev_row = $prev_row->get_prev_sibling();
+                        }
+
+                        // Check that we don't rollback all the way up to first row
+                        if($prev_row) {
+                            // Looking for spanned cell in row
+                            foreach($prev_row->get_children() as $child) {
+                                $frame_rows = $cellmap->get_spanned_cells($child)["rows"];
+                                if($frame_rows && in_array($row_number, $frame_rows)) {
+                                    Helpers::dompdf_debug("page-break", "table-row: contains verified spanned cell");
+
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
 
                     Helpers::dompdf_debug("page-break", "table-row/row-groups: break allowed");
 
