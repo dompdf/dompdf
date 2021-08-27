@@ -158,14 +158,14 @@ class Page extends AbstractFrameDecorator
 
     /**
      * Check if a forced page break is required before $frame.  This uses the
-     * frame's page_break_before property as well as the preceeding frame's
+     * frame's page_break_before property as well as the preceding frame's
      * page_break_after property.
      *
      * @link http://www.w3.org/TR/CSS21/page.html#forced
      *
      * @param Frame $frame the frame to check
      *
-     * @return bool true if a page break occured
+     * @return bool true if a page break occurred
      */
     function check_forced_page_break(Frame $frame)
     {
@@ -174,7 +174,7 @@ class Page extends AbstractFrameDecorator
             return null;
         }
 
-        $block_types = ["block", "list-item", "table", "inline"];
+        $block_types = ["block", "list-item", "table", "table-row", "inline"];
         $page_breaks = ["always", "left", "right"];
 
         $style = $frame->get_style();
@@ -233,10 +233,14 @@ class Page extends AbstractFrameDecorator
      *
      * In the normal flow, page breaks can occur at the following places:
      *
-     *    1. In the vertical margin between block boxes. When a page
-     *    break occurs here, the used values of the relevant
-     *    'margin-top' and 'margin-bottom' properties are set to '0'.
-     *    2. Between line boxes inside a block box.
+     *    1. In the vertical margin between block boxes. When an
+     *    unforced page break occurs here, the used values of the
+     *    relevant 'margin-top' and 'margin-bottom' properties are set
+     *    to '0'. When a forced page break occurs here, the used value
+     *    of the relevant 'margin-bottom' property is set to '0'; the
+     *    relevant 'margin-top' used value may either be set to '0' or
+     *    retained.
+     *    2. Between line boxes inside a block container box.
      *    3. Between the content edge of a block container box and the
      *    outer edges of its child content (margin edges of block-level
      *    children or line box edges for inline-level children) if there
@@ -245,36 +249,33 @@ class Page extends AbstractFrameDecorator
      * These breaks are subject to the following rules:
      *
      *   * Rule A: Breaking at (1) is allowed only if the
-     *     'page-break-after' and 'page-break-before' properties of
-     *     all the elements generating boxes that meet at this margin
-     *     allow it, which is when at least one of them has the value
-     *     'always', 'left', or 'right', or when all of them are
-     *     'auto'.
+     *     'page-break-after' and 'page-break-before' properties of all
+     *     the elements generating boxes that meet at this margin allow
+     *     it, which is when at least one of them has the value
+     *     'always', 'left', or 'right', or when all of them are 'auto'.
      *
-     *   * Rule B: However, if all of them are 'auto' and the
-     *     nearest common ancestor of all the elements has a
-     *     'page-break-inside' value of 'avoid', then breaking here is
-     *     not allowed.
+     *   * Rule B: However, if all of them are 'auto' and a common
+     *     ancestor of all the elements has a 'page-break-inside' value
+     *     of 'avoid', then breaking here is not allowed.
      *
-     *   * Rule C: Breaking at (2) is allowed only if the number of
-     *     line boxes between the break and the start of the enclosing
-     *     block box is the value of 'orphans' or more, and the number
-     *     of line boxes between the break and the end of the box is
-     *     the value of 'widows' or more.
+     *   * Rule C: Breaking at (2) is allowed only if the number of line
+     *     boxes between the break and the start of the enclosing block
+     *     box is the value of 'orphans' or more, and the number of line
+     *     boxes between the break and the end of the box is the value
+     *     of 'widows' or more.
      *
-     *   * Rule D: In addition, breaking at (2) is allowed only if
-     *     the 'page-break-inside' property is 'auto'.
+     *   * Rule D: In addition, breaking at (2) or (3) is allowed only
+     *     if the 'page-break-inside' property of the element and all
+     *     its ancestors is 'auto'.
      *
-     * If the above doesn't provide enough break points to keep
-     * content from overflowing the page boxes, then rules B and D are
+     * If the above does not provide enough break points to keep content
+     * from overflowing the page boxes, then rules A, B and D are
      * dropped in order to find additional breakpoints.
      *
-     * If that still does not lead to sufficient break points, rules A
-     * and C are dropped as well, to find still more break points.
+     * If that still does not lead to sufficient break points, rule C is
+     * dropped as well, to find still more break points.
      *
-     * We will also allow breaks between table rows.  However, when
-     * splitting a table, the table headers should carry over to the
-     * next page (but they don't yet).
+     * We also allow breaks between table rows.
      *
      * @param Frame $frame the frame to check
      *
@@ -304,7 +305,7 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // Find the preceeding block-level sibling
+            // Find the preceding block-level sibling
             $prev = $frame->get_prev_sibling();
             while ($prev && !in_array($prev->get_style()->display, $block_types)) {
                 $prev = $prev->get_prev_sibling();
@@ -410,8 +411,51 @@ class Page extends AbstractFrameDecorator
             // Table-rows
             } else {
                 if ($display === "table-row") {
-                    // Simply check if the parent table's page_break_inside property is
-                    // not 'avoid'
+
+                    // If this is a nested table, prevent the page from breaking
+                    if ($this->_in_table > 1) {
+                        Helpers::dompdf_debug("page-break", "table: nested table");
+
+                        return false;
+                    }
+
+                    // Rule A (table row)
+                    if ($frame->get_style()->page_break_before === "avoid") {
+                        Helpers::dompdf_debug("page-break", "before: avoid");
+
+                        return false;
+                    }
+
+                    // Find the preceding row
+                    $prev = $frame->get_prev_sibling();
+
+                    if (!$prev) {
+                        $prev_group = $frame->get_parent()->get_prev_sibling();
+
+                        if ($prev_group
+                            && in_array($prev_group->get_style()->display, Table::$ROW_GROUPS, true)
+                        ) {
+                            $prev = $prev_group->get_last_child();
+                        }
+                    }
+
+                    // Check if a page break is allowed after the preceding row
+                    if ($prev && $prev->get_style()->page_break_after === "avoid") {
+                        Helpers::dompdf_debug("page-break", "after: avoid");
+
+                        return false;
+                    }
+
+                    // Avoid breaking before the first row of a table
+                    if (!$prev) {
+                        Helpers::dompdf_debug("page-break", "table: first-row");
+
+                        return false;
+                    }
+
+                    // Rule B (table row)
+                    // Check if the page_break_inside property is not 'avoid'
+                    // for the parent table or any of its ancestors
                     $table = Table::find_parent_table($frame);
 
                     $p = $table;
@@ -424,21 +468,7 @@ class Page extends AbstractFrameDecorator
                         $p = $p->find_block_parent();
                     }
 
-                    // Avoid breaking before the first row of a table
-                    if ($table && $table->get_first_child() === $frame || $table->get_first_child()->get_first_child() === $frame) {
-                        Helpers::dompdf_debug("page-break", "table: first-row");
-
-                        return false;
-                    }
-
-                    // If this is a nested table, prevent the page from breaking
-                    if ($this->_in_table > 1) {
-                        Helpers::dompdf_debug("page-break", "table: nested table");
-
-                        return false;
-                    }
-
-                    Helpers::dompdf_debug("page-break", "table-row/row-groups: break allowed");
+                    Helpers::dompdf_debug("page-break", "table-row: break allowed");
 
                     return true;
                 } else {
