@@ -380,48 +380,48 @@ class Block extends AbstractFrameReflower
             }
 
         } else {
-            // Expand the height if overflow is visible
-            if ($height === "auto" && $content_height > 0 /* && $style->overflow === "visible" */) {
+            // http://www.w3.org/TR/CSS21/visudet.html#normal-block
+            // http://www.w3.org/TR/CSS21/visudet.html#block-root-margin
+
+            if ($height === "auto") {
                 $height = $content_height;
             }
+            if ($margin_top === "auto") {
+                $margin_top = 0;
+            }
+            if ($margin_bottom === "auto") {
+                $margin_bottom = 0;
+            }
 
-            // FIXME: this should probably be moved to a seperate function as per
+            // FIXME: this should probably be moved to a separate function as per
             // _calculate_restricted_width
 
-            // Only handle min/max height if the height is independent of the frame's content
-            if (!($style->overflow === "visible" || ($style->overflow === "hidden" && $height === "auto"))) {
-                $min_height = $style->min_height;
-                $max_height = $style->max_height;
+            $min_height = $style->min_height;
+            $max_height = $style->max_height;
 
-                if (isset($cb["h"])) {
-                    $min_height = $style->length_in_pt($min_height, $cb["h"]);
-                    $max_height = $style->length_in_pt($max_height, $cb["h"]);
-                } else if (isset($cb["w"])) {
-                    if (mb_strpos($min_height, "%") !== false) {
-                        $min_height = 0;
-                    } else {
-                        $min_height = $style->length_in_pt($min_height, $cb["w"]);
-                    }
-
-                    if (mb_strpos($max_height, "%") !== false) {
-                        $max_height = "none";
-                    } else {
-                        $max_height = $style->length_in_pt($max_height, $cb["w"]);
-                    }
+            if (isset($cb["h"])) {
+                $min_height = $style->length_in_pt($min_height, $cb["h"]);
+                $max_height = $style->length_in_pt($max_height, $cb["h"]);
+            } else if (isset($cb["w"])) {
+                if (mb_strpos($min_height, "%") !== false) {
+                    $min_height = 0;
+                } else {
+                    $min_height = $style->length_in_pt($min_height, $cb["w"]);
                 }
 
-                if ($max_height !== "none" && $max_height !== "auto" && (float)$min_height > (float)$max_height) {
-                    // Swap 'em
-                    list($max_height, $min_height) = [$min_height, $max_height];
+                if (mb_strpos($max_height, "%") !== false) {
+                    $max_height = "none";
+                } else {
+                    $max_height = $style->length_in_pt($max_height, $cb["w"]);
                 }
+            }
 
-                if ($max_height !== "none" && $max_height !== "auto" && $height > (float)$max_height) {
-                    $height = $max_height;
-                }
+            if ($max_height !== "none" && $max_height !== "auto" && $height > (float)$max_height) {
+                $height = $max_height;
+            }
 
-                if ($height < (float)$min_height) {
-                    $height = $min_height;
-                }
+            if ($height < (float)$min_height) {
+                $height = $min_height;
             }
         }
 
