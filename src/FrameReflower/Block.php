@@ -137,12 +137,25 @@ class Block extends AbstractFrameReflower
                     }
 
                     $right = $diff;
+                } else if ($lm === "auto" && $rm === "auto") {
+                    $lm = $rm = round($diff / 2);
+                } else if ($lm === "auto") {
+                    $lm = $diff;
+                } else if ($rm === "auto") {
+                    $rm = $diff;
                 }
 
             } else {
                 // Find auto properties and get them to take up the slack
                 if ($width === "auto") {
                     $width = $diff;
+
+                    if ($lm === "auto") {
+                        $lm = 0;
+                    }
+                    if ($rm === "auto") {
+                        $rm = 0;
+                    }
                 } else if ($lm === "auto" && $rm === "auto") {
                     $lm = $rm = round($diff / 2);
                 } else if ($lm === "auto") {
@@ -159,6 +172,12 @@ class Block extends AbstractFrameReflower
 
             if ($width === "auto") {
                 $width = 0;
+            }
+            if ($lm === "auto") {
+                $lm = 0;
+            }
+            if ($rm === "auto") {
+                $rm = 0;
             }
         }
 
