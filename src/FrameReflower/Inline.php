@@ -48,6 +48,15 @@ class Inline extends AbstractFrameReflower
         // Generated content
         $this->_set_content();
 
+        // Resolve auto margins
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-width
+        if ($style->margin_left === "auto") {
+            $style->margin_left = 0;
+        }
+        if ($style->margin_right === "auto") {
+            $style->margin_right = 0;
+        }
+
         $frame->position();
 
         $cb = $frame->get_containing_block();

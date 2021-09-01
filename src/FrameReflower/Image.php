@@ -47,6 +47,7 @@ class Image extends AbstractFrameReflower
 
         // Set the frame's width
         $this->get_min_max_width();
+        $this->resolve_margins();
 
         if ($block) {
             $block->add_frame_to_line($this->_frame);
@@ -170,6 +171,27 @@ class Image extends AbstractFrameReflower
         $style->max_height = "none";
 
         return [$width, $width, "min" => $width, "max" => $width];
+    }
+
+    protected function resolve_margins(): void
+    {
+        // Only handle the inline case for now
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-width
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-height
+        $style = $this->_frame->get_style();
+
+        if ($style->margin_top === "auto") {
+            $style->margin_top = 0;
+        }
+        if ($style->margin_bottom === "auto") {
+            $style->margin_bottom = 0;
+        }
+        if ($style->margin_left === "auto") {
+            $style->margin_left = 0;
+        }
+        if ($style->margin_right === "auto") {
+            $style->margin_right = 0;
+        }
     }
 
     private function get_size(Frame $f, string $type)
