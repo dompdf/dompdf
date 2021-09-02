@@ -1378,7 +1378,7 @@ class Style
         $color = $this->__get("border_" . $side . "_color");
 
         return $this->__get("border_" . $side . "_width") . " " .
-            $this->__get("border_" . $side . "_style") . " " . $color["hex"];
+            $this->__get("border_" . $side . "_style") . " " . (is_array($color) ? $color["hex"] : $color);
     }
 
     /**#@+
@@ -1556,7 +1556,7 @@ class Style
         return
             $this->__get("outline_width") . " " .
             $this->__get("outline_style") . " " .
-            $color["hex"];
+            (is_array($color) ? $color["hex"] : $color);
     }
     /**#@-*/
 
