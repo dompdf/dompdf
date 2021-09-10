@@ -449,6 +449,7 @@ class Block extends AbstractFrameReflower
         $style = $this->_frame->get_style();
         $w = $this->_frame->get_containing_block("w");
         $width = (float)$style->length_in_pt($style->width, $w);
+        $text_indent = (float)$style->length_in_pt($style->text_indent, $w);
 
         switch ($style->text_align) {
             default:
@@ -467,9 +468,10 @@ class Block extends AbstractFrameReflower
                 break;
 
             case "right":
-                foreach ($this->_frame->get_line_boxes() as $line) {
+                foreach ($this->_frame->get_line_boxes() as $i => $line) {
                     // Move each child over by $dx
-                    $dx = $width - $line->w - $line->right;
+                    $indent = $i === 0 ? $text_indent : 0;
+                    $dx = $width - $line->w - $line->right - $indent;
 
                     foreach ($line->get_frames() as $frame) {
                         if ($frame->get_positioner() instanceof InlinePositioner) {
@@ -500,7 +502,7 @@ class Block extends AbstractFrameReflower
                     }
 
                     $other_frame_count = 0;
-                    
+
                     foreach ($line->get_frames() as $frame) {
                         if (!($frame instanceof TextFrameDecorator)) {
                             $other_frame_count++;
@@ -511,7 +513,8 @@ class Block extends AbstractFrameReflower
 
                     // Set the spacing for each child
                     if ($word_count > 1) {
-                        $spacing = ($width - ($line->left + $line->w + $line->right)) / ($word_count - 1);
+                        $indent = $i === 0 ? $text_indent : 0;
+                        $spacing = ($width - $line->get_width() - $indent) / ($word_count - 1);
                     } else {
                         $spacing = 0;
                     }
@@ -538,9 +541,10 @@ class Block extends AbstractFrameReflower
 
             case "center":
             case "centre":
-                foreach ($this->_frame->get_line_boxes() as $line) {
+                foreach ($this->_frame->get_line_boxes() as $i => $line) {
                     // Centre each line by moving each frame in the line by:
-                    $dx = ($width + $line->left - $line->w - $line->right) / 2;
+                    $indent = $i === 0 ? $text_indent : 0;
+                    $dx = ($width + $line->left - $line->w - $line->right - $indent) / 2;
 
                     foreach ($line->get_frames() as $frame) {
                         if ($frame->get_positioner() instanceof InlinePositioner) {
