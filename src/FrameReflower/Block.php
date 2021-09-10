@@ -492,26 +492,24 @@ class Block extends AbstractFrameReflower
                 $lines = $this->_frame->get_line_boxes(); // needs to be a variable (strict standards)
                 $last_line = array_pop($lines);
 
-                foreach ($lines as $i => $line) {
-                    if ($line->br) {
-                        unset($lines[$i]);
-                    }
-                }
-
                 foreach ($lines as $line) {
-                    $other_frame_count = 0;
-
-                    foreach ($line->get_frames() as $frame) {
-                        if (!($frame instanceof TextFrameDecorator)) {
-                            $other_frame_count++;
-                        }
-                    }
-
                     if ($line->left) {
                         foreach ($line->get_frames() as $frame) {
                             if ($frame->get_positioner() instanceof InlinePositioner) {
                                 $frame->move($line->left, 0);
                             }
+                        }
+                    }
+
+                    if ($line->br) {
+                        continue;
+                    }
+
+                    $other_frame_count = 0;
+                    
+                    foreach ($line->get_frames() as $frame) {
+                        if (!($frame instanceof TextFrameDecorator)) {
+                            $other_frame_count++;
                         }
                     }
 
