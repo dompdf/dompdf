@@ -1032,15 +1032,6 @@ class CPDF implements Canvas
     }
 
     /**
-     * @param $font
-     * @param $string
-     */
-    public function register_string_subset($font, $string)
-    {
-        $this->_pdf->registerText($font, $string);
-    }
-
-    /**
      * @param string $font
      * @param float $size
      * @return float|int
