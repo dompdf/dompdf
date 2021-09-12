@@ -260,15 +260,6 @@ abstract class AbstractFrameReflower
         $cb_w = $this->_frame->get_containing_block("w");
         $delta = (float)$style->length_in_pt($dims, $cb_w);
 
-        // Handle degenerate case
-        if (!$this->_frame->get_first_child()) {
-            return $this->_min_max_cache = [
-                $delta, $delta,
-                "min" => $delta,
-                "max" => $delta,
-            ];
-        }
-
         $low = [];
         $high = [];
 
