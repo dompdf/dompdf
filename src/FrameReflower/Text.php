@@ -417,6 +417,8 @@ class Text extends AbstractFrameReflower
 
     public function reset(): void
     {
+        parent::reset();
+
         // Restore trimmed trailing whitespace, as the frame will go through
         // another reflow and line breaks might be different after a split
         if ($this->trailingWs !== null) {

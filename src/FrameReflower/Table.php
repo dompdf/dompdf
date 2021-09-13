@@ -45,8 +45,9 @@ class Table extends AbstractFrameReflower
     /**
      * State is held here so it needs to be reset along with the decorator
      */
-    function reset()
+    public function reset(): void
     {
+        parent::reset();
         $this->_state = null;
         $this->_min_max_cache = null;
     }
