@@ -305,14 +305,20 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // Find the preceding block-level sibling
+            // Find the preceding block-level sibling. Inline elements are
+            // treated as if wrapped in an anonymous block container here. See
+            // https://www.w3.org/TR/CSS21/visuren.html#anonymous-block-level
             $prev = $frame->get_prev_sibling();
-            while ($prev && !in_array($prev->get_style()->display, $block_types)) {
+            while ($prev && (($prev->is_text_node() && $prev->get_node()->nodeValue === "")
+                || $prev->get_node()->nodeName === "bullet")
+            ) {
                 $prev = $prev->get_prev_sibling();
             }
 
             // Does the previous element allow a page break after?
-            if ($prev && $prev->get_style()->page_break_after === "avoid") {
+            if ($prev && in_array($prev->get_style()->display, $block_types)
+                && $prev->get_style()->page_break_after === "avoid"
+            ) {
                 Helpers::dompdf_debug("page-break", "after: avoid");
 
                 return false;
