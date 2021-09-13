@@ -54,7 +54,7 @@ class TableRow extends AbstractFrameDecorator
         }
     }
 
-    function split(Frame $child = null, $force_pagebreak = false)
+    public function split(Frame $child = null, bool $force_pagebreak = false)
     {
         $this->_already_pushed = true;
         
