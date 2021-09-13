@@ -197,6 +197,7 @@ abstract class AbstractFrameDecorator extends Frame
     function reset()
     {
         $this->_frame->reset();
+        $this->_reflower->reset();
         $this->reset_generated_content();
         $this->revert_counter_increment();
 

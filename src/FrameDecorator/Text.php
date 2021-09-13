@@ -46,7 +46,6 @@ class Text extends AbstractFrameDecorator
     {
         parent::reset();
         $this->_text_spacing = null;
-        $this->_reflower->reset();
     }
 
     // Accessor methods

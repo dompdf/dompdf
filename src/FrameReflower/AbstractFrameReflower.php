@@ -61,6 +61,11 @@ abstract class AbstractFrameReflower
         return $this->_frame->get_dompdf();
     }
 
+    public function reset(): void
+    {
+        $this->_min_max_cache = null;
+    }
+
     /**
      * Collapse frames margins
      * http://www.w3.org/TR/CSS2/box.html#collapsing-margins
@@ -257,7 +262,7 @@ abstract class AbstractFrameReflower
             // Add all adjacent inline widths together to calculate max width
             while ($iter->valid() && in_array($iter->current()->get_style()->display, Style::$INLINE_TYPES)) {
                 $child = $iter->current();
-
+                $child->get_reflower()->_set_content();
                 $minmax = $child->get_min_max_width();
 
                 if (in_array($iter->current()->get_style()->white_space, ["pre", "nowrap"])) {
@@ -278,7 +283,9 @@ abstract class AbstractFrameReflower
             }
 
             if ($iter->valid()) {
-                list($low[], $high[]) = $iter->current()->get_min_max_width();
+                $child = $iter->current();
+                $child->get_reflower()->_set_content();
+                list($low[], $high[]) = $child->get_min_max_width();
                 continue;
             }
         }
