@@ -162,8 +162,8 @@ class Image extends AbstractFrameReflower
             print $width . ' ' . $height . ';';
         }
 
-        $style->width = $width . "pt";
-        $style->height = $height . "pt";
+        $style->width = $width;
+        $style->height = $height;
 
         $style->min_width = "none";
         $style->max_width = "none";
