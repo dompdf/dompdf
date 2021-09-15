@@ -437,17 +437,19 @@ class Table extends AbstractFrameReflower
             } else {
                 $left = $right = $diff / 2;
             }
-
-            $style->margin_left = $left;
-            $style->margin_right = $right;
         } else {
             if ($left === "auto") {
-                $left = (float)$style->length_in_pt($cb["w"], $cb["w"]) - (float)$style->length_in_pt($right, $cb["w"]) - (float)$style->length_in_pt($width, $cb["w"]);
+                $right = (float)$style->length_in_pt($right, $cb["w"]);
+                $left = $diff - $right;
             }
             if ($right === "auto") {
                 $left = (float)$style->length_in_pt($left, $cb["w"]);
+                $right = $diff - $left;
             }
         }
+
+        $style->margin_left = $left;
+        $style->margin_right = $right;
 
         list($x, $y) = $frame->get_position();
 
