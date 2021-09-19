@@ -98,8 +98,8 @@ class FontMetrics
             $cacheData .= sprintf("  '%s' => array(%s", addslashes($family), PHP_EOL);
             foreach ($variants as $variant => $path) {
                 $path = sprintf("'%s'", $path);
-                $path = str_replace('\'' . $this->options->getFontDir() , '$fontDir . \'' , $path);
-                $path = str_replace('\'' . $this->options->getRootDir() , '$rootDir . \'' , $path);
+                $path = str_replace('\'' . $this->options->getFontDir(), '$fontDir . \'', $path);
+                $path = str_replace('\'' . $this->options->getRootDir(), '$rootDir . \'', $path);
                 $cacheData .= sprintf("    '%s' => %s,%s", $variant, $path, PHP_EOL);
             }
             $cacheData .= sprintf("  ),%s", PHP_EOL);

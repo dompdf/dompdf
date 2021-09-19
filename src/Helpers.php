@@ -161,7 +161,7 @@ class Helpers
      *
      * As numbers larger than 3999 (and smaller than 1) cannot be represented in
      * the standard form of roman numerals, those are left in decimal form.
-     * 
+     *
      * See https://en.wikipedia.org/wiki/Roman_numerals#Standard_form
      *
      * @param int|string $num
