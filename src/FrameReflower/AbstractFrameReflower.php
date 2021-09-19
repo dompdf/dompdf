@@ -509,12 +509,16 @@ abstract class AbstractFrameReflower
     protected function _set_content()
     {
         $frame = $this->_frame;
+
+        if ($frame->content_set) {
+            return;
+        }
+
         $style = $frame->get_style();
 
-        // if the element was pushed to a new page use the saved counter value, otherwise use the CSS reset value
         if ($style->counter_reset && ($reset = $style->counter_reset) !== "none") {
             $vars = preg_split('/\s+/', trim($reset), 2);
-            $frame->reset_counter($vars[0], (isset($frame->_counters['__' . $vars[0]]) ? $frame->_counters['__' . $vars[0]] : (isset($vars[1]) ? $vars[1] : 0)));
+            $frame->reset_counter($vars[0], isset($vars[1]) ? $vars[1] : 0);
         }
 
         if ($style->counter_increment && ($increment = $style->counter_increment) !== "none") {
@@ -534,6 +538,8 @@ abstract class AbstractFrameReflower
             Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
             $frame->append_child($new_frame);
         }
+
+        $frame->content_set = true;
     }
 
     /**

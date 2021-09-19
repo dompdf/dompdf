@@ -73,6 +73,7 @@ class Inline extends AbstractFrameDecorator
             $node->removeAttribute("id");
         }
 
+        $this->revert_counter_increment();
         $split = $this->copy($node->cloneNode());
         // if this is a generated node don't propagate the content style
         if ($split->get_node()->nodeName == "dompdf_generated") {
