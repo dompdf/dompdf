@@ -95,6 +95,13 @@ abstract class AbstractFrameDecorator extends Frame
     private $_cached_parent;
 
     /**
+     * Whether generated content and counters have been set.
+     *
+     * @var bool
+     */
+    public $content_set = false;
+
+    /**
      * Whether the frame has been split
      *
      * @var bool
@@ -147,7 +154,7 @@ abstract class AbstractFrameDecorator extends Frame
      *
      * @param DOMNode $node
      *
-     * @return Frame
+     * @return AbstractFrameDecorator
      */
     function copy(DOMNode $node)
     {
@@ -160,7 +167,7 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * Create a deep copy: copy this node and all children
      *
-     * @return Frame
+     * @return AbstractFrameDecorator
      */
     function deep_copy()
     {
@@ -183,13 +190,13 @@ abstract class AbstractFrameDecorator extends Frame
         return $deco;
     }
 
-    /**
-     * Delegate calls to decorated frame object
-     */
     function reset()
     {
         $this->_frame->reset();
+        $this->reset_generated_content();
+        $this->revert_counter_increment();
 
+        $this->content_set = false;
         $this->_counters = [];
 
         $this->_cached_parent = null; //clear get_parent() cache
@@ -197,6 +204,38 @@ abstract class AbstractFrameDecorator extends Frame
         // Reset all children
         foreach ($this->get_children() as $child) {
             $child->reset();
+        }
+    }
+
+    /**
+     * If this represents a generated node then child nodes represent generated
+     * content. Remove the children since the content will be generated next
+     * time this frame is reflowed.
+     */
+    protected function reset_generated_content(): void
+    {
+        if ($this->content_set
+            && $this->get_node()->nodeName === "dompdf_generated"
+            && $this->get_style()->content !== "normal"
+            && $this->get_style()->content !== "none"
+        ) {
+            foreach ($this->get_children() as $child) {
+                $this->remove_child($child);
+            }
+        }
+    }
+
+    /**
+     * Decrement any counters that were incremented on the current node, unless
+     * that node is the body.
+     */
+    protected function revert_counter_increment(): void
+    {
+        if ($this->content_set
+            && $this->get_node()->nodeName !== "body"
+            && ($decrement = $this->get_style()->counter_increment) !== "none"
+        ) {
+            $this->decrement_counters($decrement);
         }
     }
 
@@ -663,35 +702,8 @@ abstract class AbstractFrameDecorator extends Frame
      */
     public function split(Frame $child = null, bool $force_pagebreak = false)
     {
-        // decrement any counters that were incremented on the current node, unless that node is the body
-        $style = $this->_frame->get_style();
-        if (
-            $this->_frame->get_node()->nodeName !== "body" &&
-            $style->counter_increment &&
-            ($decrement = $style->counter_increment) !== "none"
-        ) {
-            $this->decrement_counters($decrement);
-        }
-
         if (is_null($child)) {
-            // check for counter increment on :before content (always a child of the selected element @link AbstractFrameReflower::_set_content)
-            // this can push the current node to the next page before counter rules have bubbled up (but only if
-            // it's been rendered, thus the position check)
-            if (!$this->is_text_node() && $this->get_node()->hasAttribute("dompdf_before_frame_id")) {
-                foreach ($this->_frame->get_children() as $child) {
-                    if (
-                        $this->get_node()->getAttribute("dompdf_before_frame_id") == $child->get_id() &&
-                        $child->get_position('x') !== null
-                    ) {
-                        $style = $child->get_style();
-                        if ($style->counter_increment && ($decrement = $style->counter_increment) !== "none") {
-                            $this->decrement_counters($decrement);
-                        }
-                    }
-                }
-            }
             $this->get_parent()->split($this, $force_pagebreak);
-
             return;
         }
 
@@ -706,29 +718,33 @@ abstract class AbstractFrameDecorator extends Frame
             $node->removeAttribute("id");
         }
 
+        $this->revert_counter_increment();
         $split = $this->copy($node->cloneNode());
-        $split->reset();
-        $split->get_original_style()->text_indent = 0;
-        $this->is_split = true;
-        $split->_splitted = true;
-        $split->_already_pushed = true;
 
-        // The body's properties must be kept
+        $style = $this->_frame->get_style();
+        $split_style = $split->get_original_style();
+
+        // Truncate the box decoration at the split, except for the body
         if ($node->nodeName !== "body") {
             // Style reset on the first and second parts
-            $style = $this->_frame->get_style();
             $style->margin_bottom = 0;
             $style->padding_bottom = 0;
             $style->border_bottom = 0;
 
             // second
-            $orig_style = $split->get_original_style();
-            $orig_style->text_indent = 0;
-            $orig_style->margin_top = 0;
-            $orig_style->padding_top = 0;
-            $orig_style->border_top = 0;
-            $orig_style->page_break_before = "auto";
+            $split_style->margin_top = 0;
+            $split_style->padding_top = 0;
+            $split_style->border_top = 0;
+            $split_style->page_break_before = "auto";
         }
+
+        $split_style->text_indent = 0;
+        $split_style->counter_reset = "none";
+
+        $split->set_style(clone $split_style);
+        $this->is_split = true;
+        $split->_splitted = true;
+        $split->_already_pushed = true;
 
         $this->get_parent()->insert_child_after($split, $this);
 
@@ -762,11 +778,9 @@ abstract class AbstractFrameDecorator extends Frame
 
         $this->get_parent()->split($split, $force_pagebreak);
 
-        // If this node resets a counter save the current value to use when rendering on the next page
-        if ($style->counter_reset && ($reset = $style->counter_reset) !== "none") {
-            $vars = preg_split('/\s+/', trim($reset), 2);
-            $split->_counters['__' . $vars[0]] = $this->lookup_counter_frame($vars[0])->_counters[$vars[0]];
-        }
+        // Preserve the current counter values. This must be done after the
+        // parent split, as counters get reset on frame reset
+        $split->_counters = $this->_counters;
     }
 
     /**
