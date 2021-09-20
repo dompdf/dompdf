@@ -590,7 +590,7 @@ class Block extends AbstractFrameReflower
                 $y_offset = 0;
 
                 //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
-                if($isInlineBlock) {
+                if ($isInlineBlock) {
                     $lineFrames = $line->get_frames();
                     if (count($lineFrames) == 1) {
                         continue;

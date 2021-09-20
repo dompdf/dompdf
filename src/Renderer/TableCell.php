@@ -30,7 +30,7 @@ class TableCell extends Block
         }
 
         $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0)  {
+        if (strlen($id) > 0) {
             $this->_canvas->add_named_dest($id);
         }
 
@@ -217,8 +217,7 @@ class TableCell extends Block
                 $style
             );
         }
-        foreach ($border_function_calls as $border_function_call_params)
-        {
+        foreach ($border_function_calls as $border_function_call_params) {
             call_user_func_array([$this, $border_function_call_params[0]], $border_function_call_params[1]);
         }
     }

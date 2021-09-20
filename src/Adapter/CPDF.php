@@ -932,7 +932,7 @@ class CPDF implements Canvas
         $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
         $ff = 0;
 
-        switch($type) {
+        switch ($type) {
             case 'text':
                 $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
                 break;
@@ -1149,7 +1149,7 @@ class CPDF implements Canvas
                         break;
 
                     case 'line':
-                        $this->line( $x1, $y1, $x2, $y2, $color, $width, $style );
+                        $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
                         break;
                 }
             }
