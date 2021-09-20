@@ -175,9 +175,9 @@ abstract class AbstractFrameReflower
      *
      * See http://www.w3.org/TR/CSS2/box.html#collapsing-margins.
      *
-     * @param number $length1
-     * @param number $length2
-     * @return number
+     * @param float $length1
+     * @param float $length2
+     * @return float
      */
     private function _get_collapsed_margin_length($length1, $length2)
     {

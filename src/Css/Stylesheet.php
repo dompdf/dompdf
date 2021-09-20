@@ -173,7 +173,7 @@ class Stylesheet
         $this->_styles = [];
         $this->_loaded_files = [];
         $script = __FILE__;
-        if(isset($_SERVER["SCRIPT_FILENAME"])){
+        if (isset($_SERVER["SCRIPT_FILENAME"])) {
             $script = $_SERVER["SCRIPT_FILENAME"];
         }
         list($this->_protocol, $this->_base_host, $this->_base_path) = Helpers::explode_url($script);
@@ -375,7 +375,7 @@ class Stylesheet
                 if (strpos($realfile, $rootDir) !== 0) {
                     $chroot = $options->getChroot();
                     $chrootValid = false;
-                    foreach($chroot as $chrootPath) {
+                    foreach ($chroot as $chrootPath) {
                         $chrootPath = realpath($chrootPath);
                         if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
                             $chrootValid = true;

@@ -131,7 +131,7 @@ class Cache
                     if (strpos($realfile, $rootDir) !== 0) {
                         $chroot = $dompdf->getOptions()->getChroot();
                         $chrootValid = false;
-                        foreach($chroot as $chrootPath) {
+                        foreach ($chroot as $chrootPath) {
                             $chrootPath = realpath($chrootPath);
                             if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
                                 $chrootValid = true;

@@ -224,7 +224,7 @@ class FontMetrics
             if (strpos($realfile, $rootDir) !== 0) {
                 $chroot = $this->options->getChroot();
                 $chrootValid = false;
-                foreach($chroot as $chrootPath) {
+                foreach ($chroot as $chrootPath) {
                     $chrootPath = realpath($chrootPath);
                     if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
                         $chrootValid = true;

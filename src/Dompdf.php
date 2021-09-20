@@ -386,7 +386,7 @@ class Dompdf
 
             $chroot = $this->options->getChroot();
             $chrootValid = false;
-            foreach($chroot as $chrootPath) {
+            foreach ($chroot as $chrootPath) {
                 $chrootPath = realpath($chrootPath);
                 if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
                     $chrootValid = true;
@@ -1495,12 +1495,11 @@ class Dompdf
      */
     function __get($prop)
     {
-        switch ($prop)
-        {
-            case 'version' :
+        switch ($prop) {
+            case 'version':
                 return $this->version;
             default:
-                throw new Exception( 'Invalid property: ' . $prop );
+                throw new Exception('Invalid property: ' . $prop);
         }
     }
 }

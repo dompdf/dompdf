@@ -122,7 +122,7 @@ class Helpers
         // partially reproduced from https://stackoverflow.com/a/1243431/264628
         /* replace '//' or '/./' or '/foo/../' with '/' */
         $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
-        for($n=1; $n>0; $path=preg_replace($re, '/', $path, -1, $n)) {}
+        for ($n=1; $n>0; $path=preg_replace($re, '/', $path, -1, $n)) {}
 
         $ret = "$scheme$user$pass$host$port$path$query$fragment";
 
