@@ -300,7 +300,7 @@ class Text extends AbstractFrameReflower
 
         if ($split !== false) {
             // Handle edge cases
-            if ($split == 0 && !$frame->is_pre() && empty(trim($text))) {
+            if ($split === 0 && !$frame->is_pre() && trim($text) === "") {
                 $frame->set_text("");
             } else if ($split === 0) {
                 $prev = $frame->get_prev_sibling();
