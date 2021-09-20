@@ -37,9 +37,6 @@
  <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
   <severity>0</severity>
  </rule>
- <rule ref="Squiz.ControlStructures.ControlSignature.SpaceBeforeSemicolon">
-  <severity>0</severity>
- </rule>
  <rule ref="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody">
   <severity>0</severity>
  </rule>
@@ -67,31 +64,13 @@
  <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace">
   <severity>0</severity>
  </rule>
- <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace">
-  <severity>0</severity>
- </rule>
  <rule ref="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
   <severity>0</severity>
  </rule>
- <rule ref="PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket">
-  <severity>0</severity>
- </rule>
- <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis">
-  <severity>0</severity>
- </rule>
- <rule ref="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE">
-  <severity>0</severity>
- </rule>
  <rule ref="PSR2.Methods.FunctionCallSignature.MultipleArguments">
-  <severity>0</severity>
- </rule>
- <rule ref="PSR2.Methods.FunctionCallSignature.SpaceAfterOpenBracket">
-  <severity>0</severity>
- </rule>
- <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction">
