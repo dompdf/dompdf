@@ -464,7 +464,7 @@ class Block extends AbstractFrameReflower
                         }
                     }
                 }
-                return;
+                break;
 
             case "right":
                 foreach ($this->_frame->get_line_boxes() as $line) {
@@ -480,11 +480,13 @@ class Block extends AbstractFrameReflower
                 break;
 
             case "justify":
-                // We justify all lines except the last one
-                $lines = $this->_frame->get_line_boxes(); // needs to be a variable (strict standards)
-                $last_line = array_pop($lines);
+                // We justify all lines except the last one, unless the frame
+                // has been split, in which case the actual last line is part of
+                // the split-off frame
+                $lines = $this->_frame->get_line_boxes();
+                $last_line_index = $this->_frame->is_split ? null : count($lines) - 1;
 
-                foreach ($lines as $line) {
+                foreach ($lines as $i => $line) {
                     if ($line->left) {
                         foreach ($line->get_frames() as $frame) {
                             if ($frame->get_positioner() instanceof InlinePositioner) {
@@ -493,7 +495,7 @@ class Block extends AbstractFrameReflower
                         }
                     }
 
-                    if ($line->br) {
+                    if ($line->br || $i === $last_line_index) {
                         continue;
                     }
 
@@ -531,15 +533,6 @@ class Block extends AbstractFrameReflower
 
                     // The line (should) now occupy the entire width
                     $line->w = $width;
-                }
-
-                // Adjust the last line if necessary
-                if ($last_line->left) {
-                    foreach ($last_line->get_frames() as $frame) {
-                        if ($frame->get_positioner() instanceof InlinePositioner) {
-                            $frame->move($last_line->left, 0);
-                        }
-                    }
                 }
                 break;
 

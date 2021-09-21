@@ -160,7 +160,7 @@ class Frame
     public $_float_next_line = false;
 
     /**
-     * Tells whether the frame was split
+     * Whether the frame is a split-off frame
      *
      * @var bool
      */
