@@ -933,7 +933,7 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $box
+     * @param array $box
      * @param string $color
      * @param array $style
      */
