@@ -83,6 +83,13 @@ abstract class AbstractFrameDecorator extends Frame
     private $_positionned_parent;
 
     /**
+     * Whether the frame has been split
+     *
+     * @var bool
+     */
+    public $is_split = false;
+
+    /**
      * Cache for the get_parent while loop results
      *
      * @var Frame
@@ -697,6 +704,7 @@ abstract class AbstractFrameDecorator extends Frame
         $split = $this->copy($node->cloneNode());
         $split->reset();
         $split->get_original_style()->text_indent = 0;
+        $this->is_split = true;
         $split->_splitted = true;
         $split->_already_pushed = true;
 
