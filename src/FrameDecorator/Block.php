@@ -267,7 +267,7 @@ class Block extends AbstractFrameDecorator
     }
 
     /**
-     * @param $val
+     * @param float $val
      * @param Frame $frame
      */
     function maximize_line_height($val, Frame $frame)
