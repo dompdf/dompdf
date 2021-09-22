@@ -31,7 +31,12 @@ abstract class AbstractFrameDecorator extends Frame
 {
     const DEFAULT_COUNTER = "-dompdf-default-counter";
 
-    public $_counters = []; // array([id] => counter_value) (for generated content)
+    /**
+     * array([id] => counter_value) (for generated content)
+     *
+     * @var array
+     */
+    public $_counters = [];
 
     /**
      * The root node of the DOM tree
@@ -76,18 +81,11 @@ abstract class AbstractFrameDecorator extends Frame
     private $_block_parent;
 
     /**
-     * First positionned parent (position: relative | absolute | fixed)
+     * First positioned parent (position: relative | absolute | fixed)
      *
      * @var AbstractFrameDecorator
      */
     private $_positionned_parent;
-
-    /**
-     * Whether the frame has been split
-     *
-     * @var bool
-     */
-    public $is_split = false;
 
     /**
      * Cache for the get_parent while loop results
@@ -95,6 +93,13 @@ abstract class AbstractFrameDecorator extends Frame
      * @var Frame
      */
     private $_cached_parent;
+
+    /**
+     * Whether the frame has been split
+     *
+     * @var bool
+     */
+    public $is_split = false;
 
     /**
      * Class constructor
@@ -111,7 +116,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * "Destructor": foribly free all references held by this object
+     * "Destructor": forcibly free all references held by this object
      *
      * @param bool $recursive if true, call dispose on all children
      */
@@ -627,7 +632,7 @@ abstract class AbstractFrameDecorator extends Frame
      */
     function find_positionned_parent()
     {
-        // Find our nearest relative positionned parent
+        // Find our nearest relative positioned parent
         $p = $this->get_parent();
         while ($p) {
             if ($p->is_positionned()) {

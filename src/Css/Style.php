@@ -101,7 +101,7 @@ class Style
     /**
      * List of all table types.  Should really be a constant.
      *
-     * @var array;
+     * @var array
      */
     static $TABLE_TYPES = ["table", "inline-table"];
 
