@@ -161,6 +161,11 @@ abstract class AbstractFrameDecorator extends Frame
         $frame = new Frame($node);
         $frame->set_style(clone $this->_frame->get_original_style());
 
+        if ($node instanceof DOMElement && $node->hasAttribute("id")) {
+            $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
+            $node->removeAttribute("id");
+        }
+
         return Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
     }
 
@@ -171,15 +176,14 @@ abstract class AbstractFrameDecorator extends Frame
      */
     function deep_copy()
     {
-        $node = $this->_frame->get_node();
+        $node = $this->_frame->get_node()->cloneNode();
+        $frame = new Frame($node);
+        $frame->set_style(clone $this->_frame->get_original_style());
 
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
             $node->removeAttribute("id");
         }
-
-        $frame = new Frame($node->cloneNode());
-        $frame->set_style(clone $this->_frame->get_original_style());
 
         $deco = Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
 
@@ -711,14 +715,8 @@ abstract class AbstractFrameDecorator extends Frame
             throw new Exception("Unable to split: frame is not a child of this one.");
         }
 
-        $node = $this->_frame->get_node();
-
-        if ($node instanceof DOMElement && $node->hasAttribute("id")) {
-            $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
-            $node->removeAttribute("id");
-        }
-
         $this->revert_counter_increment();
+        $node = $this->_frame->get_node();
         $split = $this->copy($node->cloneNode());
 
         $style = $this->_frame->get_style();
