@@ -10,7 +10,7 @@ namespace Dompdf\FrameDecorator;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\LineBox;
-use Dompdf\FrameDecorator\Text as TextFrameDecorator;
+use Dompdf\FrameReflower\Text as TextFrameReflower;
 
 /**
  * Decorates frames for block layout
@@ -288,11 +288,12 @@ class Block extends AbstractFrameDecorator
 
         if (count($frames) > 0) {
             $last_frame = $frames[count($frames) - 1];
-    
-            if ($last_frame instanceof TextFrameDecorator
+            $reflower = $last_frame->get_reflower();
+
+            if ($reflower instanceof TextFrameReflower
                 && !$last_frame->is_pre()
             ) {
-                $last_frame->get_reflower()->trim_trailing_ws();
+                $reflower->trim_trailing_ws();
                 $line->recalculate_width();
             }
         }
