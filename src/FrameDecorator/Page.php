@@ -288,7 +288,7 @@ class Page extends AbstractFrameDecorator
         $display = $frame->get_style()->display;
 
         // Block Frames (1):
-        if (in_array($display, $block_types)) {
+        if (in_array($display, $block_types, true)) {
 
             // Avoid breaks within table-cells
             if ($this->_in_table > ($display === "table" ? 1 : 0)) {
@@ -297,8 +297,7 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // Rules A & B
-
+            // Rule A
             if ($frame->get_style()->page_break_before === "avoid") {
                 Helpers::dompdf_debug("page-break", "before: avoid");
 
@@ -324,13 +323,16 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // If both $prev & $frame have the same parent, check the parent's
-            // page_break_inside property.
+            // Rules B & D
             $parent = $frame->get_parent();
-            if ($prev && $parent && $parent->get_style()->page_break_inside === "avoid") {
-                Helpers::dompdf_debug("page-break", "parent inside: avoid");
+            $p = $parent;
+            while ($p) {
+                if ($p->get_style()->page_break_inside === "avoid") {
+                    Helpers::dompdf_debug("page-break", "parent->inside: avoid");
 
-                return false;
+                    return false;
+                }
+                $p = $p->find_block_parent();
             }
 
             // To prevent cascading page breaks when a top-level element has
