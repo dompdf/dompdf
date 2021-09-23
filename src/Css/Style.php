@@ -455,7 +455,6 @@ class Style
                 "list_style_type",
                 "list_style",
                 "orphans",
-                "page_break_inside",
                 "pitch_range",
                 "pitch",
                 "quotes",
