@@ -66,14 +66,8 @@ class Inline extends AbstractFrameDecorator
             throw new Exception("Unable to split: frame is not a child of this one.");
         }
 
-        $node = $this->_frame->get_node();
-
-        if ($node instanceof DOMElement && $node->hasAttribute("id")) {
-            $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
-            $node->removeAttribute("id");
-        }
-
         $this->revert_counter_increment();
+        $node = $this->_frame->get_node();
         $split = $this->copy($node->cloneNode());
         // if this is a generated node don't propagate the content style
         if ($split->get_node()->nodeName == "dompdf_generated") {
