@@ -229,8 +229,10 @@ class ListBullet extends AbstractRenderer
                     $spacing = 0;
                     $font_family = $style->font_family;
 
+                    // Out-of-flow list items do not have a containing line
                     $line = $li->get_containing_line();
-                    list($x, $y) = [$frame->get_position("x"), $line->y];
+                    $x = $frame->get_position("x");
+                    $y = $line ? $line->y : $li->get_position("y");
 
                     $x -= $this->_dompdf->getFontMetrics()->getTextWidth($text, $font_family, $font_size, $spacing);
 
