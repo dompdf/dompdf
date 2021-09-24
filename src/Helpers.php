@@ -280,7 +280,7 @@ class Helpers
      * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
      *
      * @param string $str Data to decode
-     * @param integer $width Image width
+     * @param int $width Image width
      *
      * @return string
      */
@@ -333,7 +333,7 @@ class Helpers
      * see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_6x0u.asp
      *
      * @param string $str Data to decode
-     * @param integer $width Image width
+     * @param int $width Image width
      *
      * @return string
      */

@@ -246,7 +246,7 @@ abstract class AbstractFrameDecorator extends Frame
     // Getters -----------
 
     /**
-     * @return string
+     * @return int
      */
     function get_id()
     {
@@ -286,7 +286,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @param integer $i
+     * @param int|null $i
      *
      * @return array|float
      */
@@ -296,7 +296,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @param integer $i
+     * @param int|null $i
      *
      * @return array|float
      */
@@ -348,7 +348,7 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @param integer $id
+     * @param int $id
      */
     function set_id($id)
     {

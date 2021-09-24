@@ -7,7 +7,6 @@
  */
 namespace Dompdf\FrameReflower;
 
-use Dompdf\Adapter\CPDF;
 use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;

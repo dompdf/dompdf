@@ -7,7 +7,6 @@
  */
 namespace Dompdf\FrameDecorator;
 
-use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Frame;

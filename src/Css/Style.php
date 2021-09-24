@@ -14,14 +14,13 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Frame;
-use Dompdf\Helpers;
 
 /**
  * Represents CSS properties.
  *
  * The Style class is responsible for handling and storing CSS properties.
  * It includes methods to resolve colors and lengths, as well as getters &
- * setters for many CSS properites.
+ * setters for many CSS properties.
  *
  * Actual CSS parsing is performed in the {@link Stylesheet} class.
  *
@@ -92,7 +91,7 @@ class Style
     static $BLOCK_TYPES = ["block", "inline-block", "table-cell", "list-item"];
 
     /**
-     * List of all positionned types.  Should really be a constant.
+     * List of all positioned types.  Should really be a constant.
      *
      * @var array
      */

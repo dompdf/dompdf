@@ -26,10 +26,7 @@ class Inline extends AbstractPositioner
      */
     function position(AbstractFrameDecorator $frame)
     {
-        /**
-         * Find our nearest block level parent and access its lines property.
-         * @var BlockFrameDecorator
-         */
+        // Find our nearest block level parent and access its lines property
         $p = $frame->find_block_parent();
 
         // Debugging code:

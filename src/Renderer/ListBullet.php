@@ -75,9 +75,9 @@ class ListBullet extends AbstractRenderer
     }
 
     /**
-     * @param integer $n
+     * @param int $n
      * @param string $type
-     * @param integer $pad
+     * @param int|null $pad
      *
      * @return string
      */

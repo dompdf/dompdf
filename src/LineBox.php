@@ -32,7 +32,7 @@ class LineBox
     protected $_frames = [];
 
     /**
-     * @var integer
+     * @var int
      */
     public $wc = 0;
 
@@ -139,9 +139,6 @@ class LineBox
         return $childs;
     }
 
-    /**
-     *
-     */
     public function get_float_offsets()
     {
         static $anti_infinite_loop = 10000; // FIXME smelly hack
@@ -320,10 +317,6 @@ class LineBox
 
         return $s;
     }
-    /*function __get($prop) {
-      if (!isset($this->{"_$prop"})) return;
-      return $this->{"_$prop"};
-    }*/
 }
 
 /*

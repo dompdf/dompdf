@@ -39,12 +39,14 @@ class Frame
      * Unique identifier for this frame.  Used to reference this frame
      * via the node.
      *
-     * @var string
+     * @var int
      */
     protected $_id;
 
     /**
      * Unique id counter
+     * 
+     * @var int
      */
     public static $ID_COUNTER = 0; /*protected*/
 
@@ -335,7 +337,7 @@ class Frame
     }
 
     /**
-     * @return string
+     * @return int
      */
     public function get_id()
     {
@@ -658,10 +660,10 @@ class Frame
     }
 
     //........................................................................
-
     // Set methods
+
     /**
-     * @param $id
+     * @param int $id
      */
     public function set_id($id)
     {

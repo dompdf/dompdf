@@ -67,7 +67,7 @@ class Block extends AbstractFrameDecorator
     }
 
     /**
-     * @return integer
+     * @return int
      */
     function get_current_line_number()
     {
@@ -83,8 +83,8 @@ class Block extends AbstractFrameDecorator
     }
 
     /**
-     * @param integer $line_number
-     * @return integer
+     * @param int $line_number
+     * @return int
      */
     function set_current_line_number($line_number)
     {
@@ -94,7 +94,7 @@ class Block extends AbstractFrameDecorator
     }
 
     /**
-     * @param integer $i
+     * @param int $i
      */
     function clear_line($i)
     {

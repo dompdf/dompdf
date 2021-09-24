@@ -609,7 +609,7 @@ class CPDF implements Canvas
      * Convert a GIF or BMP image to a PNG image
      *
      * @param string $image_url
-     * @param integer $type
+     * @param int $type
      *
      * @throws Exception
      * @return string The url of the newly converted image

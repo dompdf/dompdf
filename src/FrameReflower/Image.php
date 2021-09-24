@@ -180,17 +180,17 @@ class Image extends AbstractFrameReflower
         // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-height
         $style = $this->_frame->get_style();
 
-        if ($style->margin_top === "auto") {
-            $style->margin_top = 0;
-        }
-        if ($style->margin_bottom === "auto") {
-            $style->margin_bottom = 0;
-        }
         if ($style->margin_left === "auto") {
             $style->margin_left = 0;
         }
         if ($style->margin_right === "auto") {
             $style->margin_right = 0;
+        }
+        if ($style->margin_top === "auto") {
+            $style->margin_top = 0;
+        }
+        if ($style->margin_bottom === "auto") {
+            $style->margin_bottom = 0;
         }
     }
 

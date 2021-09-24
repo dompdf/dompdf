@@ -21,8 +21,9 @@ use Dompdf\Exception;
  */
 class Text extends AbstractFrameDecorator
 {
-
-    // protected members
+    /**
+     * @var float|null
+     */
     protected $_text_spacing;
 
     /**
@@ -51,7 +52,7 @@ class Text extends AbstractFrameDecorator
     // Accessor methods
 
     /**
-     * @return null
+     * @return float|null
      */
     function get_text_spacing()
     {
@@ -119,7 +120,7 @@ class Text extends AbstractFrameDecorator
     }
 
     /**
-     * @param $spacing
+     * @param float $spacing
      */
     function set_text_spacing($spacing)
     {
@@ -155,7 +156,7 @@ class Text extends AbstractFrameDecorator
      * split the text in this frame at the offset specified.  The remaining
      * text is added a sibling frame following this one and is returned.
      *
-     * @param $offset
+     * @param int $offset
      * @return Frame|null
      */
     function split_text($offset)
@@ -182,8 +183,8 @@ class Text extends AbstractFrameDecorator
     }
 
     /**
-     * @param $offset
-     * @param $count
+     * @param int $offset
+     * @param int $count
      */
     function delete_text($offset, $count)
     {
@@ -191,7 +192,7 @@ class Text extends AbstractFrameDecorator
     }
 
     /**
-     * @param $text
+     * @param string $text
      */
     function set_text($text)
     {
