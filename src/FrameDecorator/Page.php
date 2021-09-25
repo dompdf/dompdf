@@ -162,34 +162,23 @@ class Page extends AbstractFrameDecorator
      *
      * @link http://www.w3.org/TR/CSS21/page.html#forced
      *
-     * @param Frame $frame the frame to check
+     * @param AbstractFrameDecorator $frame the frame to check
      *
      * @return bool true if a page break occurred
      */
     function check_forced_page_break(Frame $frame)
     {
-        // Skip check if page is already split
-        if ($this->_page_full) {
-            return null;
-        }
-
-        $block_types = ["block", "list-item", "table", "table-row", "inline", "inline-block"];
-        $page_breaks = ["always", "left", "right"];
-
-        $style = $frame->get_style();
-
-        if (!in_array($style->display, $block_types)) {
+        // Skip check if page is already split and for the body
+        if ($this->_page_full || $frame->get_node()->nodeName === "body") {
             return false;
         }
 
-        // Find the previous block-level sibling
-        $prev = $frame->get_prev_sibling();
+        $page_breaks = ["always", "left", "right"];
+        $style = $frame->get_style();
 
-        while ($prev && !in_array($prev->get_style()->display, $block_types)) {
-            $prev = $prev->get_prev_sibling();
-        }
-
-        if (in_array($style->page_break_before, $page_breaks)) {
+        if (($frame->is_block_level() || $style->display === "table-row")
+            && in_array($style->page_break_before, $page_breaks, true)
+        ) {
             // Prevent cascading splits
             $frame->split(null, true);
             // We have to grab the style again here because split() resets
@@ -201,19 +190,38 @@ class Page extends AbstractFrameDecorator
             return true;
         }
 
-        if ($prev && in_array($prev->get_style()->page_break_after, $page_breaks)) {
-            // Prevent cascading splits
-            $frame->split(null, true);
-            $prev->get_style()->page_break_after = "auto";
-            $this->_page_full = true;
-            $frame->_already_pushed = true;
-
-            return true;
+        // Find the preceding block-level sibling (or table row). Inline
+        // elements are treated as if wrapped in an anonymous block container
+        // here. See https://www.w3.org/TR/CSS21/visuren.html#anonymous-block-level
+        $prev = $frame->get_prev_sibling();
+        while ($prev && (($prev->is_text_node() && $prev->get_node()->nodeValue === "")
+            || $prev->get_node()->nodeName === "bullet")
+        ) {
+            $prev = $prev->get_prev_sibling();
         }
 
-        if ($prev && $prev->get_last_child() && $frame->get_node()->nodeName != "body") {
+        if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "table-row")) {
+            if (in_array($prev->get_style()->page_break_after, $page_breaks, true)) {
+                // Prevent cascading splits
+                $frame->split(null, true);
+                $prev->get_style()->page_break_after = "auto";
+                $this->_page_full = true;
+                $frame->_already_pushed = true;
+
+                return true;
+            }
+
             $prev_last_child = $prev->get_last_child();
-            if (in_array($prev_last_child->get_style()->page_break_after, $page_breaks)) {
+            while ($prev_last_child && (($prev_last_child->is_text_node() && $prev_last_child->get_node()->nodeValue === "")
+                || $prev_last_child->get_node()->nodeName === "bullet")
+            ) {
+                $prev_last_child = $prev_last_child->get_prev_sibling();
+            }
+
+            if ($prev_last_child
+                && $prev_last_child->is_block_level()
+                && in_array($prev_last_child->get_style()->page_break_after, $page_breaks, true)
+            ) {
                 $frame->split(null, true);
                 $prev_last_child->get_style()->page_break_after = "auto";
                 $this->_page_full = true;
@@ -276,18 +284,17 @@ class Page extends AbstractFrameDecorator
      *
      * We also allow breaks between table rows.
      *
-     * @param Frame $frame the frame to check
+     * @param AbstractFrameDecorator $frame the frame to check
      *
      * @return bool true if a break is allowed, false otherwise
      */
     protected function _page_break_allowed(Frame $frame)
     {
-        $block_types = ["block", "list-item", "table", "-dompdf-image"];
         Helpers::dompdf_debug("page-break", "_page_break_allowed(" . $frame->get_node()->nodeName . ")");
         $display = $frame->get_style()->display;
 
         // Block Frames (1):
-        if (in_array($display, $block_types, true)) {
+        if ($frame->is_block_level() || $display === "-dompdf-image") {
 
             // Avoid breaks within table-cells
             if ($this->_in_table > ($display === "table" ? 1 : 0)) {
@@ -314,7 +321,7 @@ class Page extends AbstractFrameDecorator
             }
 
             // Does the previous element allow a page break after?
-            if ($prev && in_array($prev->get_style()->display, $block_types)
+            if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "-dompdf-image")
                 && $prev->get_style()->page_break_after === "avoid"
             ) {
                 Helpers::dompdf_debug("page-break", "after: avoid");
@@ -360,7 +367,7 @@ class Page extends AbstractFrameDecorator
 
         } // Inline frames (2):
         else {
-            if (in_array($display, ["inline", "inline-block"], true)) {
+            if ($frame->is_inline_level()) {
 
                 // Avoid breaks within table-cells
                 if ($this->_in_table) {
@@ -479,13 +486,13 @@ class Page extends AbstractFrameDecorator
 
                     return true;
                 } else {
-                    if (in_array($display, Table::$ROW_GROUPS)) {
+                    if (in_array($display, Table::$ROW_GROUPS, true)) {
 
                         // Disallow breaks at row-groups: only split at row boundaries
                         return false;
 
                     } else {
-                        Helpers::dompdf_debug("page-break", "? " . $frame->get_style()->display . "");
+                        Helpers::dompdf_debug("page-break", "? " . $display);
 
                         return false;
                     }
@@ -499,7 +506,7 @@ class Page extends AbstractFrameDecorator
      * the frame tree is modified so that a page break occurs in the
      * correct location.
      *
-     * @param Frame $frame the frame to check
+     * @param AbstractFrameDecorator $frame the frame to check
      *
      * @return bool
      */
