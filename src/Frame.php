@@ -45,7 +45,7 @@ class Frame
 
     /**
      * Unique id counter
-     * 
+     *
      * @var int
      */
     public static $ID_COUNTER = 0; /*protected*/
@@ -841,7 +841,7 @@ class Frame
 
         $position = $this->get_style()->position;
 
-        return $this->_is_cache["positionned"] = in_array($position, Style::$POSITIONNED_TYPES);
+        return $this->_is_cache["positionned"] = in_array($position, Style::$POSITIONNED_TYPES, true);
     }
 
     /**
@@ -859,6 +859,8 @@ class Frame
     }
 
     /**
+     * Whether the frame is a block container.
+     *
      * @return bool
      */
     public function is_block()
@@ -867,7 +869,39 @@ class Frame
             return $this->_is_cache["block"];
         }
 
-        return $this->_is_cache["block"] = in_array($this->get_style()->display, Style::$BLOCK_TYPES);
+        return $this->_is_cache["block"] = in_array($this->get_style()->display, Style::$BLOCK_TYPES, true);
+    }
+
+    /**
+     * Whether the frame has a block-level display type.
+     *
+     * @return bool
+     */
+    public function is_block_level(): bool
+    {
+        if (isset($this->_is_cache["block_level"])) {
+            return $this->_is_cache["block_level"];
+        }
+
+        $display = $this->get_style()->display;
+
+        return $this->_is_cache["block_level"] = in_array($display, Style::BLOCK_LEVEL_TYPES, true);
+    }
+
+    /**
+     * Whether the frame has an inline-level display type.
+     *
+     * @return bool
+     */
+    public function is_inline_level(): bool
+    {
+        if (isset($this->_is_cache["inline_level"])) {
+            return $this->_is_cache["inline_level"];
+        }
+
+        $display = $this->get_style()->display;
+
+        return $this->_is_cache["inline_level"] = in_array($display, Style::INLINE_LEVEL_TYPES, true);
     }
 
     /**
@@ -879,7 +913,7 @@ class Frame
             return $this->_is_cache["inline_block"];
         }
 
-        return $this->_is_cache["inline_block"] = ($this->get_style()->display === 'inline-block');
+        return $this->_is_cache["inline_block"] = ($this->get_style()->display === "inline-block");
     }
 
     /**
@@ -890,6 +924,7 @@ class Frame
         if (isset($this->_is_cache["in_flow"])) {
             return $this->_is_cache["in_flow"];
         }
+
         return $this->_is_cache["in_flow"] = !($this->get_style()->float !== "none" || $this->is_absolute());
     }
 
@@ -904,7 +939,7 @@ class Frame
 
         $white_space = $this->get_style()->white_space;
 
-        return $this->_is_cache["pre"] = in_array($white_space, ["pre", "pre-wrap"]);
+        return $this->_is_cache["pre"] = in_array($white_space, ["pre", "pre-wrap"], true);
     }
 
     /**
@@ -918,7 +953,7 @@ class Frame
 
         $display = $this->get_style()->display;
 
-        return $this->_is_cache["table"] = in_array($display, Style::$TABLE_TYPES);
+        return $this->_is_cache["table"] = in_array($display, Style::$TABLE_TYPES, true);
     }
 
 
