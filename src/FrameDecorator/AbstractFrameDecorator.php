@@ -884,11 +884,11 @@ abstract class AbstractFrameDecorator extends Frame
 
             case "lower-latin":
             case "lower-alpha":
-                return chr(($value % 26) + ord('a') - 1);
+                return chr((($value - 1) % 26) + ord('a'));
 
             case "upper-latin":
             case "upper-alpha":
-                return chr(($value % 26) + ord('A') - 1);
+                return chr((($value - 1) % 26) + ord('A'));
 
             case "lower-greek":
                 return Helpers::unichr($value + 944);
