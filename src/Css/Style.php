@@ -77,18 +77,52 @@ class Style
         "super", "text-bottom", "text-top", "top"];
 
     /**
-     * List of all inline types.  Should really be a constant.
+     * List of all block-level (outer) display types.
+     * * https://www.w3.org/TR/css-display-3/#display-type
+     * * https://www.w3.org/TR/css-display-3/#block-level
+     */
+    public const BLOCK_LEVEL_TYPES = [
+        "block",
+        // "flow-root",
+        "list-item",
+        "flex",
+        // "grid",
+        "table"
+    ];
+
+    /**
+     * List of all inline-level (outer) display types.
+     * * https://www.w3.org/TR/css-display-3/#display-type
+     * * https://www.w3.org/TR/css-display-3/#inline-level
+     */
+    public const INLINE_LEVEL_TYPES = [
+        "inline",
+        "inline-block",
+        "inline-flex",
+        // "inline-grid",
+        "inline-table"
+    ];
+
+    /**
+     * List of all inline (inner) display types.  Should really be a constant.
      *
      * @var array
      */
     static $INLINE_TYPES = ["inline"];
 
     /**
-     * List of all block types.  Should really be a constant.
+     * List of all block (inner) display types.  Should really be a constant.
      *
      * @var array
      */
     static $BLOCK_TYPES = ["block", "inline-block", "table-cell", "list-item"];
+
+    /**
+     * List of all table (inner) display types.  Should really be a constant.
+     *
+     * @var array
+     */
+    static $TABLE_TYPES = ["table", "inline-table"];
 
     /**
      * List of all positioned types.  Should really be a constant.
@@ -96,13 +130,6 @@ class Style
      * @var array
      */
     static $POSITIONNED_TYPES = ["relative", "absolute", "fixed"];
-
-    /**
-     * List of all table types.  Should really be a constant.
-     *
-     * @var array
-     */
-    static $TABLE_TYPES = ["table", "inline-table"];
 
     /**
      * List of valid border styles.  Should also really be a constant.
