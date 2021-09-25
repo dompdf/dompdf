@@ -68,38 +68,41 @@ abstract class AbstractFrameReflower
 
     /**
      * Collapse frames margins
-     * http://www.w3.org/TR/CSS2/box.html#collapsing-margins
+     * http://www.w3.org/TR/CSS21/box.html#collapsing-margins
      */
     protected function _collapse_margins()
     {
         $frame = $this->_frame;
-        $cb = $frame->get_containing_block();
-        $style = $frame->get_style();
 
-        // Margins of float/absolutely positioned/inline-block elements do not collapse.
-        if (!$frame->is_in_flow() || $frame->is_inline_block() || $frame->get_root() == $frame || $frame->get_parent() == $frame->get_root()) {
+        // Margins of float/absolutely positioned/inline-level elements do not collapse
+        if (!$frame->is_in_flow() || $frame->is_inline_level()
+            || $frame->get_root() === $frame || $frame->get_parent() === $frame->get_root()
+        ) {
             return;
         }
+
+        $cb = $frame->get_containing_block();
+        $style = $frame->get_style();
 
         $t = $style->length_in_pt($style->margin_top, $cb["h"]);
         $b = $style->length_in_pt($style->margin_bottom, $cb["h"]);
 
         // Handle 'auto' values
         if ($t === "auto") {
-            $style->margin_top = "0pt";
+            $style->margin_top = 0;
             $t = 0;
         }
 
         if ($b === "auto") {
-            $style->margin_bottom = "0pt";
+            $style->margin_bottom = 0;
             $b = 0;
         }
 
         // Collapse vertical margins:
         $n = $frame->get_next_sibling();
-        if ( $n && !$n->is_block() & !$n->is_table() ) {
+        if ( $n && !($n->is_block_level() && $n->is_in_flow()) ) {
             while ($n = $n->get_next_sibling()) {
-                if ($n->is_block() || $n->is_table()) {
+                if ($n->is_block_level() && $n->is_in_flow()) {
                     break;
                 }
 
@@ -115,61 +118,61 @@ abstract class AbstractFrameReflower
             $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["h"]);
 
             $b = $this->_get_collapsed_margin_length($b, $n_t);
-            $style->margin_bottom = $b . "pt";
-            $n_style->margin_top = "0pt";
+            $style->margin_bottom = $b;
+            $n_style->margin_top = 0;
         }
 
         // Collapse our first child's margin, if there is no border or padding
         if ($style->border_top_width == 0 && $style->length_in_pt($style->padding_top) == 0) {
             $f = $this->_frame->get_first_child();
-            if ( $f && !$f->is_block() && !$f->is_table() ) {
-                while ( $f = $f->get_next_sibling() ) {
-                    if ( $f->is_block() || $f->is_table() ) {
+            if ( $f && !($f->is_block_level() && $f->is_in_flow()) ) {
+                while ($f = $f->get_next_sibling()) {
+                    if ($f->is_block_level() && $f->is_in_flow()) {
                         break;
                     }
 
-                    if ( !$f->get_first_child() ) {
+                    if (!$f->get_first_child()) {
                         $f = null;
                         break;
                     }
                 }
             }
 
-            // Margin are collapsed only between block-level boxes
+            // Margins are collapsed only between block-level boxes
             if ($f) {
                 $f_style = $f->get_style();
                 $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]);
 
                 $t = $this->_get_collapsed_margin_length($t, $f_t);
-                $style->margin_top = $t."pt";
-                $f_style->margin_top = "0pt";
+                $style->margin_top = $t;
+                $f_style->margin_top = 0;
             }
         }
 
         // Collapse our last child's margin, if there is no border or padding
         if ($style->border_bottom_width == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
             $l = $this->_frame->get_last_child();
-            if ( $l && !$l->is_block() && !$l->is_table() ) {
-                while ( $l = $l->get_prev_sibling() ) {
-                    if ( $l->is_block() || $l->is_table() ) {
+            if ( $l && !($l->is_block_level() && $l->is_in_flow()) ) {
+                while ($l = $l->get_prev_sibling()) {
+                    if ($l->is_block_level() && $l->is_in_flow()) {
                         break;
                     }
 
-                    if ( !$l->get_last_child() ) {
+                    if (!$l->get_last_child()) {
                         $l = null;
                         break;
                     }
                 }
             }
 
-            // Margin are collapsed only between block-level boxes
+            // Margins are collapsed only between block-level boxes
             if ($l) {
                 $l_style = $l->get_style();
                 $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]);
 
                 $b = $this->_get_collapsed_margin_length($b, $l_b);
-                $style->margin_bottom = $b."pt";
-                $l_style->margin_bottom = "0pt";
+                $style->margin_bottom = $b;
+                $l_style->margin_bottom = 0;
             }
         }
     }
@@ -177,7 +180,7 @@ abstract class AbstractFrameReflower
     /**
      * Get the combined (collapsed) length of two adjoining margins.
      *
-     * See http://www.w3.org/TR/CSS2/box.html#collapsing-margins.
+     * See http://www.w3.org/TR/CSS21/box.html#collapsing-margins.
      *
      * @param float $length1
      * @param float $length2
