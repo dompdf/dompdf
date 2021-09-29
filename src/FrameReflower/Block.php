@@ -595,7 +595,7 @@ class Block extends AbstractFrameReflower
                 }
 
                 if (!isset($canvas)) {
-                    $canvas = $frame->get_root()->get_dompdf()->get_canvas();
+                    $canvas = $frame->get_root()->get_dompdf()->getCanvas();
                 }
 
                 $baseline = $canvas->get_font_baseline($style->font_family, $style->font_size);
