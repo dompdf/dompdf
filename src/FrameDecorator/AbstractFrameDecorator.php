@@ -729,11 +729,15 @@ abstract class AbstractFrameDecorator extends Frame
             $style->margin_bottom = 0;
             $style->padding_bottom = 0;
             $style->border_bottom = 0;
+            $style->border_bottom_left_radius = 0;
+            $style->border_bottom_right_radius = 0;
 
             // second
             $split_style->margin_top = 0;
             $split_style->padding_top = 0;
             $split_style->border_top = 0;
+            $split_style->border_top_left_radius = 0;
+            $split_style->border_top_right_radius = 0;
             $split_style->page_break_before = "auto";
         }
 
