@@ -107,7 +107,7 @@ class Page extends AbstractFrameDecorator
 
         if (isset($h)) {
             $style = $this->get_style();
-            $margin_bottom = $style->length_in_pt($style->margin_bottom, $h);
+            $margin_bottom = (float) $style->length_in_pt($style->margin_bottom, $h);
             $this->bottom_page_edge = $h - $margin_bottom;
         }
     }
@@ -238,6 +238,30 @@ class Page extends AbstractFrameDecorator
     }
 
     /**
+     * Check for a gap between the top content edge of a frame and its child
+     * content.
+     *
+     * Additionally, the top margin, border, and padding of the frame must fit
+     * on the current page.
+     *
+     * @param float $childPos The top margin or line-box edge of the child content.
+     * @param Frame $frame The parent frame to check.
+     * @return bool
+     */
+    protected function hasGap(float $childPos, Frame $frame): bool
+    {
+        $style = $frame->get_style();
+        $cbw = $frame->get_containing_block("w");
+        $contentEdge = $frame->get_position("y") + (float) $style->length_in_pt([
+            $style->margin_top,
+            $style->border_top_width,
+            $style->padding_top
+        ], $cbw);
+
+        return $childPos > $contentEdge && $contentEdge <= $this->bottom_page_edge;
+    }
+
+    /**
      * Determine if a page break is allowed before $frame
      * http://www.w3.org/TR/CSS21/page.html#allowed-page-breaks
      *
@@ -354,14 +378,11 @@ class Page extends AbstractFrameDecorator
                 return false;
             }
 
-            // If the frame is the first block-level frame, only allow a page
-            // break if there is a (non-zero) gap between the frame and its
-            // parent
-            if (!$prev && $parent) {
-                Helpers::dompdf_debug("page-break", "First block level frame, checking gap");
+            // Check for a possible type (3) break
+            if (!$prev && $parent && !$this->hasGap($frame->get_position("y"), $parent)) {
+                Helpers::dompdf_debug("page-break", "First block-level frame, no gap");
 
-                return $frame->get_style()->length_in_pt($frame->get_style()->margin_top) != 0
-                    || $parent->get_style()->length_in_pt($parent->get_style()->padding_top) != 0;
+                return false;
             }
 
             Helpers::dompdf_debug("page-break", "block: break allowed");
