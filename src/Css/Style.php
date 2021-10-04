@@ -1075,10 +1075,15 @@ class Style
     }
 
     /**
+     * @param float $cbw The width of the containing block.
      * @return float|null|string
      */
-    function computed_bottom_spacing()
+    function computed_bottom_spacing(float $cbw)
     {
+        // Caching the bottom spacing independently of the given width is a bit
+        // iffy, but should be okay, as the containing block should only
+        // potentially change after a page break, and the style is reset in that
+        // case
         if ($this->_computed_bottom_spacing !== null) {
             return $this->_computed_bottom_spacing;
         }
@@ -1087,7 +1092,8 @@ class Style
                 $this->margin_bottom,
                 $this->padding_bottom,
                 $this->border_bottom_width
-            ]
+            ],
+            $cbw
         );
     }
 

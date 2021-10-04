@@ -20,13 +20,14 @@ use Dompdf\Renderer;
  */
 class Page extends AbstractFrameDecorator
 {
-
     /**
-     * y value of bottom page margin
+     * The y value of the bottom edge of the page area.
+     *
+     * https://www.w3.org/TR/CSS21/page.html#page-margins
      *
      * @var float
      */
-    protected $_bottom_page_margin;
+    protected $bottom_page_edge;
 
     /**
      * Flag indicating page is full.
@@ -69,7 +70,7 @@ class Page extends AbstractFrameDecorator
         parent::__construct($frame, $dompdf);
         $this->_page_full = false;
         $this->_in_table = 0;
-        $this->_bottom_page_margin = null;
+        $this->bottom_page_edge = null;
     }
 
     /**
@@ -93,7 +94,7 @@ class Page extends AbstractFrameDecorator
     }
 
     /**
-     * Set the frame's containing block.  Overridden to set $this->_bottom_page_margin.
+     * Set the frame's containing block.  Overridden to set $this->bottom_page_edge.
      *
      * @param float $x
      * @param float $y
@@ -103,10 +104,12 @@ class Page extends AbstractFrameDecorator
     function set_containing_block($x = null, $y = null, $w = null, $h = null)
     {
         parent::set_containing_block($x, $y, $w, $h);
-        //$w = $this->get_containing_block("w");
+
         if (isset($h)) {
-            $this->_bottom_page_margin = $h;
-        } // - $this->_frame->get_style()->length_in_pt($this->_frame->get_style()->margin_bottom, $w);
+            $style = $this->get_style();
+            $margin_bottom = $style->length_in_pt($style->margin_bottom, $h);
+            $this->bottom_page_edge = $h - $margin_bottom;
+        }
     }
 
     /**
@@ -543,13 +546,14 @@ class Page extends AbstractFrameDecorator
         // If a split is to occur here, then the bottom margins & paddings of all
         // parents of $frame must fit on the page as well:
         $p = $frame->get_parent();
-        while ($p) {
-            $max_y += (float) $p->get_style()->computed_bottom_spacing();
+        while ($p && $p !== $this) {
+            $cbw = $p->get_containing_block("w");
+            $max_y += (float) $p->get_style()->computed_bottom_spacing($cbw);
             $p = $p->get_parent();
         }
 
         // Check if $frame flows off the page
-        if ($max_y <= $this->_bottom_page_margin) {
+        if ($max_y <= $this->bottom_page_edge) {
             // no: do nothing
             return false;
         }

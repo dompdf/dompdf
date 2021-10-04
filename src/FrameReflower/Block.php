@@ -295,24 +295,29 @@ class Block extends AbstractFrameReflower
         $top = $style->length_in_pt($style->top, $cb["h"]);
         $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
 
-        $margin_top = $style->length_in_pt($style->margin_top, $cb["h"]);
-        $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["h"]);
+        $margin_top = $style->length_in_pt($style->margin_top, $cb["w"]);
+        $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
         if ($frame->is_absolute()) {
 
             // see http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-height
 
-            $dims = [$top !== "auto" ? $top : 0,
+            $h_dims = [
+                $top !== "auto" ? $top : 0,
+                $height !== "auto" ? $height : 0,
+                $bottom !== "auto" ? $bottom : 0
+            ];
+            $w_dims = [
                 $style->margin_top !== "auto" ? $style->margin_top : 0,
                 $style->padding_top,
                 $style->border_top_width,
-                $height !== "auto" ? $height : 0,
                 $style->border_bottom_width,
                 $style->padding_bottom,
-                $style->margin_bottom !== "auto" ? $style->margin_bottom : 0,
-                $bottom !== "auto" ? $bottom : 0];
+                $style->margin_bottom !== "auto" ? $style->margin_bottom : 0
+            ];
 
-            $sum = (float)$style->length_in_pt($dims, $cb["h"]);
+            $sum = (float)$style->length_in_pt($h_dims, $cb["h"])
+                + (float)$style->length_in_pt($w_dims, $cb["w"]);
 
             $diff = $cb["h"] - $sum;
 
@@ -834,11 +839,11 @@ class Block extends AbstractFrameReflower
         // Determine the content edge
         $top = (float)$style->length_in_pt([$style->margin_top,
             $style->padding_top,
-            $style->border_top_width], $cb["h"]);
+            $style->border_top_width], $cb["w"]);
 
         $bottom = (float)$style->length_in_pt([$style->border_bottom_width,
             $style->margin_bottom,
-            $style->padding_bottom], $cb["h"]);
+            $style->padding_bottom], $cb["w"]);
 
         $cb_x = $x + (float)$left_margin + (float)$style->length_in_pt([$style->border_left_width,
                 $style->padding_left], $cb["w"]);
