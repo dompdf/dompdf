@@ -459,7 +459,7 @@ class Table extends AbstractFrameReflower
                 $style->border_left_width], $cb["w"]);
         $content_y = $y + (float)$style->length_in_pt([$style->margin_top,
                 $style->border_top_width,
-                $style->padding_top], $cb["h"]);
+                $style->padding_top], $cb["w"]);
 
         if (isset($cb["h"])) {
             $h = $cb["h"];
@@ -487,7 +487,7 @@ class Table extends AbstractFrameReflower
             $child->reflow();
 
             if (!$page->in_nested_table()) {
-                // Check if a split has occured
+                // Check if a split has occurred
                 $page->check_page_break($child);
             }
 
@@ -522,7 +522,7 @@ class Table extends AbstractFrameReflower
 
         $this->_frame->normalise();
 
-        // Add the cells to the cellmap (this will calcluate column widths as
+        // Add the cells to the cellmap (this will calculate column widths as
         // frames are added)
         $this->_frame->get_cellmap()->add_frame($this->_frame);
 

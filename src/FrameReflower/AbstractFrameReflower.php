@@ -84,8 +84,8 @@ abstract class AbstractFrameReflower
         $cb = $frame->get_containing_block();
         $style = $frame->get_style();
 
-        $t = $style->length_in_pt($style->margin_top, $cb["h"]);
-        $b = $style->length_in_pt($style->margin_bottom, $cb["h"]);
+        $t = $style->length_in_pt($style->margin_top, $cb["w"]);
+        $b = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
         // Handle 'auto' values
         if ($t === "auto") {
@@ -115,7 +115,7 @@ abstract class AbstractFrameReflower
 
         if ($n) {
             $n_style = $n->get_style();
-            $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["h"]);
+            $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["w"]);
 
             $b = $this->_get_collapsed_margin_length($b, $n_t);
             $style->margin_bottom = $b;
@@ -141,7 +141,7 @@ abstract class AbstractFrameReflower
             // Margins are collapsed only between block-level boxes
             if ($f) {
                 $f_style = $f->get_style();
-                $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]);
+                $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["w"]);
 
                 $t = $this->_get_collapsed_margin_length($t, $f_t);
                 $style->margin_top = $t;
@@ -168,7 +168,7 @@ abstract class AbstractFrameReflower
             // Margins are collapsed only between block-level boxes
             if ($l) {
                 $l_style = $l->get_style();
-                $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]);
+                $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["w"]);
 
                 $b = $this->_get_collapsed_margin_length($b, $l_b);
                 $style->margin_bottom = $b;
