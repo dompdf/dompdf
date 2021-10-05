@@ -293,11 +293,6 @@ class Text extends AbstractFrameReflower
                 break;
         }
 
-        // Handle degenerate case
-        if ($text === "") {
-            $split = 0;
-        }
-
         if ($split !== false) {
             // Handle edge cases
             if ($split === 0 && !$frame->is_pre() && trim($text) === "") {
@@ -331,7 +326,7 @@ class Text extends AbstractFrameReflower
                     $frame->set_text($t);
                 }
             }
-        } else {
+        } elseif ($text !== "") {
             // Remove empty space from start and end of line, but only where there isn't an inline sibling
             // and the parent node isn't an inline element with siblings
             // FIXME: Include non-breaking spaces?
