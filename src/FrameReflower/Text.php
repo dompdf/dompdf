@@ -82,7 +82,7 @@ class Text extends AbstractFrameReflower
     }
 
     /**
-     * @param $text
+     * @param string $text
      * @return bool|int
      */
     protected function _line_break($text)
@@ -206,7 +206,7 @@ class Text extends AbstractFrameReflower
     //........................................................................
 
     /**
-     * @param $text
+     * @param string $text
      * @return bool|int
      */
     protected function _newline_break($text)
@@ -253,7 +253,8 @@ class Text extends AbstractFrameReflower
         switch ($style->white_space) {
             default:
             case "normal":
-                $frame->set_text($text = $this->_collapse_white_space($text));
+                $text = $this->_collapse_white_space($text);
+
                 if ($text === "") {
                     break;
                 }
@@ -261,18 +262,19 @@ class Text extends AbstractFrameReflower
                 $split = $this->_line_break($text);
                 break;
 
+            case "nowrap":
+                $text = $this->_collapse_white_space($text);
+                break;
+
             case "pre":
                 $split = $this->_newline_break($text);
                 $add_line = $split !== false;
                 break;
 
-            case "nowrap":
-                $frame->set_text($text = $this->_collapse_white_space($text));
-                break;
             /** @noinspection PhpMissingBreakStatementInspection */
             case "pre-line":
                 // Collapse white-space except for \n
-                $frame->set_text($text = preg_replace("/[ \t]+/u", " ", $text));
+                $text = preg_replace("/[ \t]+/u", " ", $text);
 
                 if ($text === "") {
                     break;
@@ -286,18 +288,20 @@ class Text extends AbstractFrameReflower
                     } else {
                         $add_line = true;
                     }
-                } else if ($split !== false) {
+                } elseif ($split !== false) {
                     $add_line = true;
                 }
 
                 break;
         }
 
+        $frame->set_text($text);
+
         if ($split !== false) {
             // Handle edge cases
             if ($split === 0 && !$frame->is_pre() && trim($text) === "") {
                 $frame->set_text("");
-            } else if ($split === 0) {
+            } elseif ($split === 0) {
                 $prev = $frame->get_prev_sibling();
                 $p = $frame->get_parent();
 
@@ -314,8 +318,8 @@ class Text extends AbstractFrameReflower
 
                 // Layout the new line
                 $add_line = $this->_layout_line();
-            } else if ($split < mb_strlen($frame->get_text())) {
-                // split the line if required
+            } elseif ($split < mb_strlen($text)) {
+                // Split the line if required
                 $frame->split_text($split);
 
                 // Remove inner soft hyphens
@@ -330,7 +334,7 @@ class Text extends AbstractFrameReflower
             // Remove empty space from start and end of line, but only where there isn't an inline sibling
             // and the parent node isn't an inline element with siblings
             // FIXME: Include non-breaking spaces?
-            $t = $frame->get_text();
+            $t = $text;
             $parent = $frame->get_parent();
             $is_inline_frame = $parent instanceof InlineFrameDecorator;
 
