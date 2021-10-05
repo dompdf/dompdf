@@ -755,7 +755,7 @@ abstract class AbstractFrameDecorator extends Frame
      */
     function reset_counter($id = self::DEFAULT_COUNTER, $value = 0)
     {
-        $this->get_parent()->_counters[$id] = intval($value);
+        $this->lookup_counter_frame($vars[0])->_counters[$id] = intval($value);
     }
 
     /**
