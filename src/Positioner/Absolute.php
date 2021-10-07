@@ -23,19 +23,12 @@ class Absolute extends AbstractPositioner
     {
         $style = $frame->get_style();
 
-        $p = $frame->find_positionned_parent();
-
         list($x, $y, $w, $h) = $frame->get_containing_block();
 
         $top = $style->length_in_pt($style->top, $h);
         $right = $style->length_in_pt($style->right, $w);
         $bottom = $style->length_in_pt($style->bottom, $h);
         $left = $style->length_in_pt($style->left, $w);
-
-        if ($p && !($left === "auto" && $right === "auto")) {
-            // Get the parent's padding box (see http://www.w3.org/TR/CSS21/visuren.html#propdef-top)
-            list($x, $y, $w, $h) = $p->get_padding_box();
-        }
 
         list($width, $height) = [$frame->get_margin_width(), $frame->get_margin_height()];
 
