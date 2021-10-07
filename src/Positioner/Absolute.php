@@ -23,7 +23,12 @@ class Absolute extends AbstractPositioner
     {
         $style = $frame->get_style();
 
+        $block_parent = $frame->find_block_parent();
+        $current_line = $block_parent->get_current_line_box();
+
         list($x, $y, $w, $h) = $frame->get_containing_block();
+        $inflow_x = $block_parent->get_content_box()["x"] + $current_line->left + $current_line->w;
+        $inflow_y = $current_line->y;
 
         $top = $style->length_in_pt($style->top, $h);
         $right = $style->length_in_pt($style->right, $w);
@@ -52,7 +57,7 @@ class Absolute extends AbstractPositioner
         if ($left === "auto") {
             if ($right === "auto") {
                 // A or E - Keep the frame at the same position
-                $x = $x + $frame->find_block_parent()->get_current_line_box()->w;
+                $x = $inflow_x;
             } else {
                 if ($orig_width === "auto") {
                     // C
@@ -81,7 +86,7 @@ class Absolute extends AbstractPositioner
         if ($top === "auto") {
             if ($bottom === "auto") {
                 // A or E - Keep the frame at the same position
-                $y = $frame->find_block_parent()->get_current_line_box()->y;
+                $y = $inflow_y;
             } else {
                 if ($orig_height === "auto") {
                     // C
