@@ -48,12 +48,8 @@ class Block extends AbstractFrameReflower
     {
         $frame = $this->_frame;
         $style = $frame->get_style();
+
         $w = $frame->get_containing_block("w");
-
-        if ($style->position === "fixed") {
-            $w = $frame->get_parent()->get_containing_block("w");
-        }
-
         $rm = $style->length_in_pt($style->margin_right, $w);
         $lm = $style->length_in_pt($style->margin_left, $w);
 
@@ -217,13 +213,6 @@ class Block extends AbstractFrameReflower
         $frame = $this->_frame;
         $style = $frame->get_style();
         $cb = $frame->get_containing_block();
-
-        if ($style->position === "fixed") {
-            $cb = $frame->get_root()->get_containing_block();
-        }
-
-        //if ( $style->position === "absolute" )
-        //  $cb = $frame->find_positionned_parent()->get_containing_block();
 
         if (!isset($cb["w"])) {
             throw new Exception("Box property calculation requires containing block width");
@@ -825,20 +814,18 @@ class Block extends AbstractFrameReflower
         $style = $this->_frame->get_style();
         $cb = $this->_frame->get_containing_block();
 
-        if ($style->position === "fixed") {
-            $cb = $this->_frame->get_root()->get_containing_block();
-        }
-
         // Determine the constraints imposed by this frame: calculate the width
         // of the content area:
-        list($w, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
+        list($width, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
 
         // Store the calculated properties
-        $style->width = $w;
+        $style->width = $width;
         $style->margin_left = $left_margin;
         $style->margin_right = $right_margin;
         $style->left = $left;
         $style->right = $right;
+
+        list(, $margin_top, $margin_bottom, , ) = $this->_calculate_restricted_height();
 
         // Update the position
         $this->_frame->position();
@@ -849,12 +836,12 @@ class Block extends AbstractFrameReflower
         $this->_frame->increase_line_width($indent);
 
         // Determine the content edge
-        $top = (float)$style->length_in_pt([$style->margin_top,
-            $style->padding_top,
-            $style->border_top_width], $cb["w"]);
+        $top = (float)$style->length_in_pt([$margin_top,
+            $style->border_top_width,
+            $style->padding_top], $cb["w"]);
 
-        $bottom = (float)$style->length_in_pt([$style->border_bottom_width,
-            $style->margin_bottom,
+        $bottom = (float)$style->length_in_pt([$margin_bottom,
+            $style->border_bottom_width,
             $style->padding_bottom], $cb["w"]);
 
         $cb_x = $x + (float)$left_margin + (float)$style->length_in_pt([$style->border_left_width,
@@ -863,6 +850,11 @@ class Block extends AbstractFrameReflower
         $cb_y = $y + $top;
 
         $cb_h = ($cb["h"] + $cb["y"]) - $bottom - $cb_y;
+
+        $height = $style->length_in_pt($style->height, $cb_h);
+        if ($height === "auto") {
+            $height = $cb_h;
+        }
 
         // Set the y position of the first line in this block
         $line_box = $this->_frame->get_current_line_box();
@@ -877,7 +869,39 @@ class Block extends AbstractFrameReflower
                 break;
             }
 
-            $child->set_containing_block($cb_x, $cb_y, $w, $cb_h);
+            $child_style = $child->get_style();
+            switch ($child_style->position) {
+                case "absolute":
+                    $parent = $child->find_positionned_parent();
+                    if ($parent !== $child->get_root()->get_first_child()) {
+                        $parent_padding_box = $parent->get_padding_box();
+                        //FIXME: an accurate measure of the positioned parent height
+                        //       is not possible until reflow has completed;
+                        //       we'll fall back to the parent's containing block,
+                        //       which is wrong for auto-height parents
+                        $containing_block_height = $parent_padding_box["h"];
+                        if ($containing_block_height === "auto") {
+                            $parent_style = $parent->get_style();
+                            $parent_containing_block = $parent->get_containing_block();
+                            $containing_block_height = $parent_containing_block["h"] -
+                                (float)$parent_style->length_in_pt([
+                                    $parent_style->margin_top,
+                                    $parent_style->margin_bottom,
+                                    $parent_style->border_top_width,
+                                    $parent_style->border_bottom_width
+                                ], $parent_containing_block["w"]);
+                        }
+                        $child->set_containing_block($parent_padding_box["x"], $parent_padding_box["y"], $parent_padding_box["w"], $containing_block_height);
+                        break;
+                    }
+                case "fixed":
+                    $root_cb = $child->get_root()->get_first_child()->get_containing_block();
+                    $child->set_containing_block($root_cb["x"], $root_cb["y"], $root_cb["w"], $root_cb["h"]);
+                    break;
+                default:
+                    $child->set_containing_block($cb_x, $cb_y, $width, $height);
+                    break;
+            }
 
             $this->process_clear($child);
 
@@ -888,7 +912,7 @@ class Block extends AbstractFrameReflower
                 break;
             }
 
-            $this->process_float($child, $cb_x, $w);
+            $this->process_float($child, $cb_x, $width);
         }
 
         // Determine our height
