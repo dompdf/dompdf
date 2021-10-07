@@ -310,8 +310,9 @@ class Block extends AbstractFrameReflower
 
             $diff = $cb["h"] - $sum;
 
-            if ($diff > 0) {
+            if ($diff >= 0) {
                 if ($height === "auto" && $top === "auto" && $bottom === "auto") {
+                    // rule 3, per instruction preceding rule set
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -319,8 +320,9 @@ class Block extends AbstractFrameReflower
                         $margin_bottom = 0;
                     }
 
-                    $height = $diff;
-                } else if ($height === "auto" && $top === "auto") {
+                    $height = $content_height;
+                } elseif ($height === "auto" && $top === "auto") {
+                    // rule 1
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -330,7 +332,8 @@ class Block extends AbstractFrameReflower
 
                     $height = $content_height;
                     $top = $diff - $content_height;
-                } else if ($height === "auto" && $bottom === "auto") {
+                } elseif ($height === "auto" && $bottom === "auto") {
+                    // rule 3
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -340,7 +343,8 @@ class Block extends AbstractFrameReflower
 
                     $height = $content_height;
                     $bottom = $diff - $content_height;
-                } else if ($top === "auto" && $bottom === "auto") {
+                } elseif ($top === "auto" && $bottom === "auto") {
+                    // rule 2
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -348,8 +352,12 @@ class Block extends AbstractFrameReflower
                         $margin_bottom = 0;
                     }
 
-                    $bottom = $diff;
-                } else if ($top === "auto") {
+                    $block_parent = $frame->find_block_parent();
+                    $current_line = $block_parent->get_current_line_box();
+                    $top = $current_line->y - $cb["y"];
+                    $bottom = $diff - $top;
+                } elseif ($top === "auto") {
+                    // rule 4
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -358,7 +366,8 @@ class Block extends AbstractFrameReflower
                     }
 
                     $top = $diff;
-                } else if ($height === "auto") {
+                } elseif ($height === "auto") {
+                    // rule 5
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -367,7 +376,8 @@ class Block extends AbstractFrameReflower
                     }
 
                     $height = $diff;
-                } else if ($bottom === "auto") {
+                } elseif ($bottom === "auto") {
+                    // rule 6
                     if ($margin_top === "auto") {
                         $margin_top = 0;
                     }
@@ -376,28 +386,18 @@ class Block extends AbstractFrameReflower
                     }
 
                     $bottom = $diff;
-                } else {
-                    if ($style->overflow === "visible") {
-                        // set all autos to zero
-                        if ($margin_top === "auto") {
-                            $margin_top = 0;
-                        }
-                        if ($margin_bottom === "auto") {
-                            $margin_bottom = 0;
-                        }
-                        if ($top === "auto") {
-                            $top = 0;
-                        }
-                        if ($bottom === "auto") {
-                            $bottom = 0;
-                        }
-                        if ($height === "auto") {
-                            $height = $content_height;
-                        }
-                    }
 
-                    // FIXME: overflow hidden
+                // "none of the three are 'auto'" logic described in paragraph preceding the rules
+                } elseif ($margin_top === "auto" && $margin_bottom === "auto") {
+                    $margin_top = $margin_bottom = $diff / 2;
+                } elseif ($margin_top === "auto") {
+                    $margin_bottom = $diff;
+                } elseif ($margin_bottom === "auto") {
+                    $margin_top = $diff;
                 }
+            } else {
+                // over-constrained, solve for bottom as described in paragraph preceding the rules
+                $bottom = $diff;
             }
 
         } else {
