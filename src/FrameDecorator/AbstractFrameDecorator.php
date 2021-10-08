@@ -682,6 +682,12 @@ abstract class AbstractFrameDecorator extends Frame
             }
         }
 
+        if (!$forced) {
+            // Reset top margin in case of an unforced page break
+            // https://www.w3.org/TR/CSS21/page.html#allowed-page-breaks
+            $child->get_original_style()->margin_top = 0;
+        }
+
         // Add $child and all following siblings to the new split node
         $iter = $child;
         while ($iter) {
