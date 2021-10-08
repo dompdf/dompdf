@@ -305,7 +305,7 @@ class Text extends AbstractFrameReflower
                 $prev = $frame->get_prev_sibling();
                 $p = $frame->get_parent();
 
-                if ($prev !== null && $p instanceof InlineFrameDecorator) {
+                if ($prev && $p instanceof InlineFrameDecorator) {
                     $p->split($frame);
                 }
 
