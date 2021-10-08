@@ -620,15 +620,15 @@ abstract class AbstractFrameDecorator extends Frame
      * current frame's parent->split() method.
      *
      * @param Frame|null $child
-     * @param bool $force_pagebreak
+     * @param bool $page_break
+     * @param bool $forced Whether the page break is forced.
      *
      * @throws Exception
-     * @return void
      */
-    public function split(Frame $child = null, bool $force_pagebreak = false)
+    public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
         if (is_null($child)) {
-            $this->get_parent()->split($this, $force_pagebreak);
+            $this->get_parent()->split($this, $page_break, $forced);
             return;
         }
 
@@ -699,7 +699,7 @@ abstract class AbstractFrameDecorator extends Frame
             }
         }
 
-        $this->get_parent()->split($split, $force_pagebreak);
+        $this->get_parent()->split($split, $page_break, $forced);
 
         // Preserve the current counter values. This must be done after the
         // parent split, as counters get reset on frame reset

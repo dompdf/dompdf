@@ -138,6 +138,13 @@ class Block extends AbstractFrameDecorator
             if ($frame->get_node()->nodeName === "br") {
                 $this->maximize_line_height($style->line_height, $frame);
                 $this->add_line(true);
+
+                $next = $frame->get_next_sibling();
+                $p = $frame->get_parent();
+
+                if ($next && $p instanceof Inline) {
+                    $p->split($next);
+                }
             }
 
             return;

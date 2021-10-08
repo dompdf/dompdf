@@ -183,7 +183,7 @@ class Page extends AbstractFrameDecorator
             && in_array($style->page_break_before, $page_breaks, true)
         ) {
             // Prevent cascading splits
-            $frame->split(null, true);
+            $frame->split(null, true, true);
             // We have to grab the style again here because split() resets
             // $frame->style to the frame's original style.
             $frame->get_style()->page_break_before = "auto";
@@ -206,7 +206,7 @@ class Page extends AbstractFrameDecorator
         if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "table-row")) {
             if (in_array($prev->get_style()->page_break_after, $page_breaks, true)) {
                 // Prevent cascading splits
-                $frame->split(null, true);
+                $frame->split(null, true, true);
                 $prev->get_style()->page_break_after = "auto";
                 $this->_page_full = true;
                 $frame->_already_pushed = true;
@@ -225,7 +225,7 @@ class Page extends AbstractFrameDecorator
                 && $prev_last_child->is_block_level()
                 && in_array($prev_last_child->get_style()->page_break_after, $page_breaks, true)
             ) {
-                $frame->split(null, true);
+                $frame->split(null, true, true);
                 $prev_last_child->get_style()->page_break_after = "auto";
                 $this->_page_full = true;
                 $frame->_already_pushed = true;
@@ -693,7 +693,7 @@ class Page extends AbstractFrameDecorator
 
     //........................................................................
 
-    public function split(Frame $child = null, bool $force_pagebreak = false)
+    public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
         // Do nothing
     }

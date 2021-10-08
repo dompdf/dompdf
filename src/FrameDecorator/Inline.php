@@ -54,10 +54,10 @@ class Inline extends AbstractFrameDecorator
         return ($style->line_height / ($size > 0 ? $size : 1)) * $fontHeight;
     }
 
-    public function split(Frame $child = null, bool $force_pagebreak = false)
+    public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
         if (is_null($child)) {
-            $this->get_parent()->split($this, $force_pagebreak);
+            $this->get_parent()->split($this, $page_break, $forced);
             return;
         }
 
@@ -105,13 +105,12 @@ class Inline extends AbstractFrameDecorator
             $split->append_child($frame);
         }
 
-        $page_breaks = ["always", "left", "right"];
-        $frame_style = $frame->get_style();
-        if ($force_pagebreak ||
-            in_array($frame_style->page_break_before, $page_breaks) ||
-            in_array($frame_style->page_break_after, $page_breaks)
-        ) {
-            $this->get_parent()->split($split, true);
+        $parent = $this->get_parent();
+
+        if ($page_break) {
+            $parent->split($split, $page_break, $forced);
+        } elseif ($parent instanceof Inline) {
+            $parent->split($split);
         }
     }
 

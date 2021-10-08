@@ -53,16 +53,4 @@ class TableRow extends AbstractFrameDecorator
             $p->move_after($frame);
         }
     }
-
-    public function split(Frame $child = null, bool $force_pagebreak = false)
-    {
-        $this->_already_pushed = true;
-        
-        if (is_null($child)) {
-            parent::split();
-            return;
-        }
-
-        parent::split($child, $force_pagebreak);
-    }
 }
