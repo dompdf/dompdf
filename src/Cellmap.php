@@ -599,7 +599,7 @@ class Cellmap
 
         $this->_frames[$key]["frame"] = $frame;
 
-        // Handle seperated border model
+        // Handle separated border model
         if (!$collapse) {
             list($h, $v) = $this->_table->get_style()->border_spacing;
 
@@ -630,6 +630,21 @@ class Cellmap
                 list($frame_min, $frame_max) = [0, 10e-10];
             } else {
                 list($frame_min, $frame_max) = $frame->get_min_max_width();
+            }
+
+            $min_width = $style->min_width;
+            $max_width = $style->max_width;
+
+            if ($min_width !== "auto" && !Helpers::is_percent($min_width)) {
+                $specified_min = (float) $style->length_in_pt($min_width);
+                $frame_min = max($frame_min, $specified_min);
+            }
+
+            if ($max_width !== "none" && !Helpers::is_percent($max_width)) {
+                // `min-width` and the natural minimum width take precedence
+                // over `max-width` here
+                $specified_max = (float) $style->length_in_pt($max_width);
+                $frame_max = max(min($frame_max, $specified_max), $frame_min);
             }
 
             $width = $style->width;
