@@ -606,6 +606,13 @@ class Stylesheet
                         $query .= "/";
                     }
 
+                    // Tag names are case-insensitive
+                    $tok = strtolower($tok);
+
+                    if (!$tok) {
+                        $tok = "*";
+                    }
+
                     $query .= "following-sibling::$tok";
                     $tok = "";
                     break;
