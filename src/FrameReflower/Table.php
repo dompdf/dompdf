@@ -164,8 +164,6 @@ class Table extends AbstractFrameReflower
             //
             // 4. Both absolute and percentage widths have been specified.
 
-            $increment = 0;
-
             // Case 1:
             if ($absolute_used == 0 && $percent_used == 0) {
                 $increment = $width - $min_width;
@@ -180,6 +178,8 @@ class Table extends AbstractFrameReflower
             if ($absolute_used > 0 && $percent_used == 0) {
                 if (count($auto) > 0) {
                     $increment = ($width - $auto_min - $absolute_used) / count($auto);
+                } else {
+                    $increment = 0;
                 }
 
                 // Use the absolutely specified width or the increment
@@ -201,29 +201,33 @@ class Table extends AbstractFrameReflower
 
             // Case 3:
             if ($absolute_used == 0 && $percent_used > 0) {
-                $scale = null;
-                $remaining = null;
-
-                // Scale percent values if the total percentage is > 100, or if all
-                // values are specified as percentages.
+                // Scale percent values if the total percentage is > 100, or if
+                // all values are specified as percentages
                 if ($percent_used > 100 || count($auto) == 0) {
                     $scale = 100 / $percent_used;
                 } else {
                     $scale = 1;
                 }
 
-                // Account for the minimum space used by the unassigned auto columns
+                // Account for the minimum space used by the unassigned auto
+                // columns and the percentage columns following the current one
                 $used_width = $auto_min;
+                $percent_min = 0;
 
                 foreach ($percent as $i) {
+                    $percent_min += $columns[$i]["min-width"];
+                }
+
+                foreach ($percent as $i) {
+                    $min = $columns[$i]["min-width"];
+                    $percent_min -= $min;
+                    $slack = $width - $used_width - $percent_min;
+
                     $columns[$i]["percent"] *= $scale;
-
-                    $slack = $width - $used_width;
-
                     $w = min($columns[$i]["percent"] * $width / 100, $slack);
 
-                    if ($w < $columns[$i]["min-width"]) {
-                        $w = $columns[$i]["min-width"];
+                    if ($w < $min) {
+                        $w = $min;
                     }
 
                     $cellmap->set_column_width($i, $w);
@@ -245,9 +249,19 @@ class Table extends AbstractFrameReflower
             }
 
             // Case 4:
-
             // First-come, first served
             if ($absolute_used > 0 && $percent_used > 0) {
+                // Scale percent values if the total percentage is > 100 or
+                // there are no auto values to take up slack
+                if ($percent_used > 100 || count($auto) == 0) {
+                    $scale = 100 / $percent_used;
+                } else {
+                    $scale = 1;
+                }
+
+                // Account for the minimum space used by the unassigned auto
+                // columns, by the columns with absolute widths, and the
+                // percentage columns following the current one
                 $used_width = $auto_min;
 
                 foreach ($absolute as $i) {
@@ -255,27 +269,25 @@ class Table extends AbstractFrameReflower
                     $used_width += $columns[$i]["min-width"];
                 }
 
-                // Scale percent values if the total percentage is > 100 or there
-                // are no auto values to take up slack
-                if ($percent_used > 100 || count($auto) == 0) {
-                    $scale = 100 / $percent_used;
-                } else {
-                    $scale = 1;
-                }
-
-                $remaining_width = $width - $used_width;
+                $percent_min = 0;
 
                 foreach ($percent as $i) {
-                    $slack = $remaining_width - $used_width;
+                    $percent_min += $columns[$i]["min-width"];
+                }
+
+                foreach ($percent as $i) {
+                    $min = $columns[$i]["min-width"];
+                    $percent_min -= $min;
+                    $slack = $width - $used_width - $percent_min;
 
                     $columns[$i]["percent"] *= $scale;
-                    $w = min($columns[$i]["percent"] * $remaining_width / 100, $slack);
+                    $w = min($columns[$i]["percent"] * $width / 100, $slack);
 
-                    if ($w < $columns[$i]["min-width"]) {
-                        $w = $columns[$i]["min-width"];
+                    if ($w < $min) {
+                        $w = $min;
                     }
 
-                    $columns[$i]["used-width"] = $w;
+                    $cellmap->set_column_width($i, $w);
                     $used_width += $w;
                 }
 
@@ -286,7 +298,6 @@ class Table extends AbstractFrameReflower
                         $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
                     }
                 }
-
                 return;
             }
         } else { // we are over constrained
