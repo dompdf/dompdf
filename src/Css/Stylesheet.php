@@ -446,7 +446,9 @@ class Stylesheet
 
         $d = min(mb_substr_count($selector, " ") +
             mb_substr_count($selector, ">") +
-            mb_substr_count($selector, "+"), 255);
+            mb_substr_count($selector, "+") +
+            mb_substr_count($selector, "~") -
+            mb_substr_count($selector, "~="), 255);
 
         //If a normal element name is at the beginning of the string,
         //a leading whitespace might have been removed on whitespace collapsing and removal
@@ -454,7 +456,7 @@ class Stylesheet
         //this can lead to a too small specificity
         //see _css_selector_to_xpath
 
-        if (!in_array($selector[0], [" ", ">", ".", "#", "+", ":", "["]) && $selector !== "*") {
+        if (!in_array($selector[0], [" ", ">", ".", "#", "+", "~", ":", "["]) && $selector !== "*") {
             $d++;
         }
 
@@ -498,7 +500,7 @@ class Stylesheet
         // Parse the selector
         //$s = preg_split("/([ :>.#+])/", $selector, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-        $delimiters = [" ", ">", ".", "#", "+", ":", "[", "("];
+        $delimiters = [" ", ">", ".", "#", "+", "~", ":", "[", "("];
 
         // Add an implicit * at the beginning of the selector
         // if it begins with an attribute selector
@@ -601,7 +603,10 @@ class Stylesheet
                     break;
 
                 case "+":
-                    // All sibling elements that follow the current token
+                case "~":
+                    // Next-sibling combinator
+                    // Subsequent-sibling combinator
+                    // https://www.w3.org/TR/selectors-3/#sibling-combinators
                     if (mb_substr($query, -1, 1) !== "/") {
                         $query .= "/";
                     }
@@ -614,6 +619,11 @@ class Stylesheet
                     }
 
                     $query .= "following-sibling::$tok";
+
+                    if ($s === "+") {
+                        $query .= "[1]";
+                    }
+
                     $tok = "";
                     break;
 
@@ -1654,9 +1664,9 @@ class Stylesheet
     private function _parse_sections($str, $media_queries = [])
     {
         // Pre-process: collapse all whitespace and strip whitespace around '>',
-        // '.', ':', '+', '#'
+        // '.', ':', '+', '~', '#'
 
-        $patterns = ["/[\\s\n]+/", "/\\s+([>.:+#])\\s+/"];
+        $patterns = ["/[\\s\n]+/", "/\\s+([>.:+~#])\\s+/"];
         $replacements = [" ", "\\1"];
         $str = preg_replace($patterns, $replacements, $str);
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
