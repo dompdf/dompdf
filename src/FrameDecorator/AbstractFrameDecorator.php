@@ -246,9 +246,6 @@ abstract class AbstractFrameDecorator extends Frame
 
     // Getters -----------
 
-    /**
-     * @return int
-     */
     function get_id()
     {
         return $this->_frame->get_id();
@@ -262,45 +259,26 @@ abstract class AbstractFrameDecorator extends Frame
         return $this->_frame;
     }
 
-    /**
-     * @return DOMElement|DOMText
-     */
     function get_node()
     {
         return $this->_frame->get_node();
     }
 
-    /**
-     * @return Style
-     */
     function get_style()
     {
         return $this->_frame->get_style();
     }
 
-    /**
-     * @return Style
-     */
     function get_original_style()
     {
         return $this->_frame->get_original_style();
     }
 
-    /**
-     * @param int|null $i
-     *
-     * @return array|float
-     */
     function get_containing_block($i = null)
     {
         return $this->_frame->get_containing_block($i);
     }
 
-    /**
-     * @param int|null $i
-     *
-     * @return array|float
-     */
     function get_position($i = null)
     {
         return $this->_frame->get_position($i);
@@ -324,94 +302,56 @@ abstract class AbstractFrameDecorator extends Frame
         return $this->_frame->get_margin_height();
     }
 
-    /**
-     * @return array
-     */
     function get_content_box()
     {
         return $this->_frame->get_content_box();
     }
 
-    /**
-     * @return array
-     */
     function get_padding_box()
     {
         return $this->_frame->get_padding_box();
     }
 
-    /**
-     * @return array
-     */
     function get_border_box()
     {
         return $this->_frame->get_border_box();
     }
 
-    /**
-     * @param int $id
-     */
     function set_id($id)
     {
         $this->_frame->set_id($id);
     }
 
-    /**
-     * @param Style $style
-     */
     function set_style(Style $style)
     {
         $this->_frame->set_style($style);
     }
 
-    /**
-     * @param float $x
-     * @param float $y
-     * @param float $w
-     * @param float $h
-     */
     function set_containing_block($x = null, $y = null, $w = null, $h = null)
     {
         $this->_frame->set_containing_block($x, $y, $w, $h);
     }
 
-    /**
-     * @param float $x
-     * @param float $y
-     */
     function set_position($x = null, $y = null)
     {
         $this->_frame->set_position($x, $y);
     }
 
-    /**
-     * @return bool
-     */
     function is_auto_height()
     {
         return $this->_frame->is_auto_height();
     }
 
-    /**
-     * @return bool
-     */
     function is_auto_width()
     {
         return $this->_frame->is_auto_width();
     }
 
-    /**
-     * @return string
-     */
     function __toString()
     {
         return $this->_frame->__toString();
     }
 
-    /**
-     * @param Frame $child
-     * @param bool $update_node
-     */
     function prepend_child(Frame $child, $update_node = true)
     {
         while ($child instanceof AbstractFrameDecorator) {
@@ -421,10 +361,6 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame->prepend_child($child, $update_node);
     }
 
-    /**
-     * @param Frame $child
-     * @param bool $update_node
-     */
     function append_child(Frame $child, $update_node = true)
     {
         while ($child instanceof AbstractFrameDecorator) {
@@ -434,11 +370,6 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame->append_child($child, $update_node);
     }
 
-    /**
-     * @param Frame $new_child
-     * @param Frame $ref
-     * @param bool $update_node
-     */
     function insert_child_before(Frame $new_child, Frame $ref, $update_node = true)
     {
         while ($new_child instanceof AbstractFrameDecorator) {
@@ -452,11 +383,6 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame->insert_child_before($new_child, $ref, $update_node);
     }
 
-    /**
-     * @param Frame $new_child
-     * @param Frame $ref
-     * @param bool $update_node
-     */
     function insert_child_after(Frame $new_child, Frame $ref, $update_node = true)
     {
         $insert_frame = $new_child;
@@ -472,12 +398,6 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame->insert_child_after($insert_frame, $reference_frame, $update_node);
     }
 
-    /**
-     * @param Frame $child
-     * @param bool $update_node
-     *
-     * @return Frame
-     */
     function remove_child(Frame $child, $update_node = true)
     {
         while ($child instanceof AbstractFrameDecorator) {
@@ -903,17 +823,14 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
-    /**
-     *
-     */
     final function position()
     {
         $this->_positioner->position($this);
     }
 
     /**
-     * @param $offset_x
-     * @param $offset_y
+     * @param float $offset_x
+     * @param float $offset_y
      * @param bool $ignore_self
      */
     final function move($offset_x, $offset_y, $ignore_self = false)

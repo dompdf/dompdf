@@ -427,7 +427,7 @@ class Frame
     /**
      * Containing block dimensions
      *
-     * @param $i string The key of the wanted containing block's dimension (x, y, w, h)
+     * @param string|null $i The key of the wanted containing block's dimension (x, y, w, h)
      *
      * @return float[]|float
      */
@@ -443,9 +443,9 @@ class Frame
     /**
      * Block position
      *
-     * @param $i string The key of the wanted position value (x, y)
+     * @param string|null $i The key of the wanted position value (x, y)
      *
-     * @return array|float
+     * @return float[]|float
      */
     public function get_position($i = null)
     {
@@ -699,10 +699,10 @@ class Frame
     }
 
     /**
-     * @param null $x
-     * @param null $y
-     * @param null $w
-     * @param null $h
+     * @param float|float[]|null $x
+     * @param float|null $y
+     * @param float|null $w
+     * @param float|null $h
      */
     public function set_containing_block($x = null, $y = null, $w = null, $h = null)
     {
@@ -730,8 +730,8 @@ class Frame
     }
 
     /**
-     * @param null $x
-     * @param null $y
+     * @param float|float[]|null $x
+     * @param float|null $y
      */
     public function set_position($x = null, $y = null)
     {
@@ -960,8 +960,8 @@ class Frame
     /**
      * Inserts a new child at the beginning of the Frame
      *
-     * @param $child       Frame The new Frame to insert
-     * @param $update_node boolean Whether or not to update the DOM
+     * @param Frame $child       The new Frame to insert
+     * @param bool  $update_node Whether or not to update the DOM
      */
     public function prepend_child(Frame $child, $update_node = true)
     {
@@ -992,8 +992,8 @@ class Frame
     /**
      * Inserts a new child at the end of the Frame
      *
-     * @param $child       Frame The new Frame to insert
-     * @param $update_node boolean Whether or not to update the DOM
+     * @param Frame $child       The new Frame to insert
+     * @param bool  $update_node Whether or not to update the DOM
      */
     public function append_child(Frame $child, $update_node = true)
     {
@@ -1029,9 +1029,9 @@ class Frame
     /**
      * Inserts a new child immediately before the specified frame
      *
-     * @param $new_child   Frame The new Frame to insert
-     * @param $ref         Frame The Frame after the new Frame
-     * @param $update_node boolean Whether or not to update the DOM
+     * @param Frame $new_child   The new Frame to insert
+     * @param Frame $ref         The Frame after the new Frame
+     * @param bool  $update_node Whether or not to update the DOM
      *
      * @throws Exception
      */
@@ -1077,9 +1077,9 @@ class Frame
     /**
      * Inserts a new child immediately after the specified frame
      *
-     * @param $new_child   Frame The new Frame to insert
-     * @param $ref         Frame The Frame before the new Frame
-     * @param $update_node boolean Whether or not to update the DOM
+     * @param Frame $new_child   The new Frame to insert
+     * @param Frame $ref         The Frame before the new Frame
+     * @param bool  $update_node Whether or not to update the DOM
      *
      * @throws Exception
      */
@@ -1131,7 +1131,7 @@ class Frame
      * Remove a child frame
      *
      * @param Frame $child
-     * @param boolean $update_node Whether or not to remove the DOM node
+     * @param bool  $update_node Whether or not to remove the DOM node
      *
      * @throws Exception
      * @return Frame The removed child frame
