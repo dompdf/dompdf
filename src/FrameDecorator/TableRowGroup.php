@@ -32,8 +32,8 @@ class TableRowGroup extends AbstractFrameDecorator
     }
 
     /**
-     * Override split() to remove all child rows and this element from the
-     * cellmap
+     * Split the row group at the given child and remove all subsequent child
+     * rows and all subsequent row groups from the cellmap.
      */
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
@@ -48,6 +48,14 @@ class TableRowGroup extends AbstractFrameDecorator
 
         while ($iter) {
             $cellmap->remove_row($iter);
+            $iter = $iter->get_next_sibling();
+        }
+
+        // Remove all subsequent row groups from the cellmap
+        $iter = $this->get_next_sibling();
+
+        while ($iter) {
+            $cellmap->remove_row_group($iter);
             $iter = $iter->get_next_sibling();
         }
 
