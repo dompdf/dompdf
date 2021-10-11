@@ -788,6 +788,7 @@ class Stylesheet
 
                 case "[":
                     // Attribute selectors.  All with an attribute matching the following token(s)
+                    // https://www.w3.org/TR/selectors-3/#attribute-selectors
                     $attr_delimiters = ["=", "]", "~", "|", "$", "^", "*"];
                     $tok_len = mb_strlen($tok);
                     $j = 0;
@@ -855,14 +856,9 @@ class Stylesheet
                         case "~=":
                             // FIXME: this will break if $value contains quoted strings
                             // (e.g. [type~="a b c" "d e f"])
-                            $values = explode(" ", $value);
-                            $query .= "[";
-
-                            foreach ($values as $val) {
-                                $query .= "@$attr=\"$val\" or ";
-                            }
-
-                            $query = rtrim($query, " or ") . "]";
+                            // FIXME: Don't match anything if value contains
+                            // whitespace or is the empty string
+                            $query .= "[contains(concat(' ', @$attr, ' '), concat(' ', '$value', ' '))]";
                             break;
 
                         case "|=":
