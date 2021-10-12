@@ -350,21 +350,23 @@ class Cellmap
             throw new Exception("Frame not found in cellmap");
         }
 
+        // Positions are stored relative to the table position
+        [$table_x, $table_y] = $this->_table->get_position();
         $col = $this->_frames[$key]["columns"][0];
         $row = $this->_frames[$key]["rows"][0];
 
         if (!isset($this->_columns[$col])) {
             $_dompdf_warnings[] = "Frame not found in columns array.  Check your table layout for missing or extra TDs.";
-            $x = 0;
+            $x = $table_x;
         } else {
-            $x = $this->_columns[$col]["x"];
+            $x = $table_x + $this->_columns[$col]["x"];
         }
 
         if (!isset($this->_rows[$row])) {
             $_dompdf_warnings[] = "Frame not found in row array.  Check your table layout for missing or extra TDs.";
-            $y = 0;
+            $y = $table_y;
         } else {
-            $y = $this->_rows[$row]["y"];
+            $y = $table_y + $this->_rows[$row]["y"];
         }
 
         return [$x, $y, "x" => $x, "y" => $y];

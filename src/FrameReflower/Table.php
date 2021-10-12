@@ -455,11 +455,17 @@ class Table extends AbstractFrameReflower
         list($x, $y) = $frame->get_position();
 
         // Determine the content edge
-        $content_x = $x + (float)$left + (float)$style->length_in_pt([$style->padding_left,
-                $style->border_left_width], $cb["w"]);
-        $content_y = $y + (float)$style->length_in_pt([$style->margin_top,
-                $style->border_top_width,
-                $style->padding_top], $cb["w"]);
+        $offset_x = (float)$left + (float)$style->length_in_pt([
+            $style->padding_left,
+            $style->border_left_width
+        ], $cb["w"]);
+        $offset_y = (float)$style->length_in_pt([
+            $style->margin_top,
+            $style->border_top_width,
+            $style->padding_top
+        ], $cb["w"]);
+        $content_x = $x + $offset_x;
+        $content_y = $y + $offset_y;
 
         if (isset($cb["h"])) {
             $h = $cb["h"];
@@ -469,10 +475,10 @@ class Table extends AbstractFrameReflower
 
         $cellmap = $frame->get_cellmap();
         $col =& $cellmap->get_column(0);
-        $col["x"] = $content_x;
+        $col["x"] = $offset_x;
 
         $row =& $cellmap->get_row(0);
-        $row["y"] = $content_y;
+        $row["y"] = $offset_y;
 
         $cellmap->assign_x_positions();
 

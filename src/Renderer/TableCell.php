@@ -91,14 +91,16 @@ class TableCell extends Block
             $draw_bottom = false;
         }
 
+        [$table_x, $table_y] = $table->get_position();
+
         // Draw the horizontal borders
         $border_function_calls = [];
         foreach ($cells["columns"] as $j) {
             $bp = $cellmap->get_border_properties($i, $j);
             $col = $cellmap->get_column($j);
 
-            $x = $col["x"] - $bp["left"]["width"] / 2;
-            $y = $top_row["y"] - $bp["top"]["width"] / 2;
+            $x = $table_x + $col["x"] - $bp["left"]["width"] / 2;
+            $y = $table_y + $top_row["y"] - $bp["top"]["width"] / 2;
             $w = $col["used-width"] + ($bp["left"]["width"] + $bp["right"]["width"]) / 2;
 
             if ($bp["top"]["width"] > 0) {
@@ -128,7 +130,7 @@ class TableCell extends Block
                     (float)$bp["left"]["width"]
                 ];
 
-                $y = $bottom_row["y"] + $bottom_row["height"] + $bp["bottom"]["width"] / 2;
+                $y = $table_y + $bottom_row["y"] + $bottom_row["height"] + $bp["bottom"]["width"] / 2;
                 $border_bottom_width = max($border_bottom_width, $widths[2]);
 
                 $method = "_border_" . $bp["bottom"]["style"];
@@ -155,8 +157,8 @@ class TableCell extends Block
             $bp = $cellmap->get_border_properties($i, $j);
             $row = $cellmap->get_row($i);
 
-            $x = $left_col["x"] - $bp["left"]["width"] / 2;
-            $y = $row["y"] - $bp["top"]["width"] / 2;
+            $x = $table_x + $left_col["x"] - $bp["left"]["width"] / 2;
+            $y = $table_y + $row["y"] - $bp["top"]["width"] / 2;
             $h = $row["height"] + ($bp["top"]["width"] + $bp["bottom"]["width"]) / 2;
 
             if ($bp["left"]["width"] > 0) {
@@ -186,7 +188,7 @@ class TableCell extends Block
                     (float)$bp["left"]["width"]
                 ];
 
-                $x = $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;
+                $x = $table_x + $right_col["x"] + $right_col["used-width"] + $bp["right"]["width"] / 2;
                 $border_right_width = max($border_right_width, $widths[1]);
 
                 $method = "_border_" . $bp["right"]["style"];
