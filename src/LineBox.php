@@ -7,8 +7,10 @@
  */
 namespace Dompdf;
 
+use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Block;
 use Dompdf\FrameDecorator\Page;
+use Dompdf\Positioner\Inline as InlinePositioner;
 
 /**
  * The line box class
@@ -27,7 +29,7 @@ class LineBox
     protected $_block_frame;
 
     /**
-     * @var Frame[]
+     * @var AbstractFrameDecorator[]
      */
     protected $_frames = [];
 
@@ -62,7 +64,7 @@ class LineBox
     public $right = 0.0;
 
     /**
-     * @var Frame
+     * @var AbstractFrameDecorator
      */
     public $tallest_frame = null;
 
@@ -75,6 +77,13 @@ class LineBox
      * @var bool
      */
     public $br = false;
+
+    /**
+     * Whether the line box contains any inline-positioned frames.
+     *
+     * @var bool
+     */
+    public $inline = false;
 
     /**
      * Class constructor
@@ -240,7 +249,7 @@ class LineBox
     }
 
     /**
-     * @return Frame[]
+     * @return AbstractFrameDecorator[]
      */
     function &get_frames()
     {
@@ -248,11 +257,15 @@ class LineBox
     }
 
     /**
-     * @param Frame $frame
+     * @param AbstractFrameDecorator $frame
      */
     public function add_frame(Frame $frame)
     {
         $this->_frames[] = $frame;
+
+        if ($frame->get_positioner() instanceof InlinePositioner) {
+            $this->inline = true;
+        }
     }
 
     /**
@@ -280,8 +293,14 @@ class LineBox
 
         // Recalculate the height of the line
         $h = 0.0;
+        $this->inline = false;
+
         foreach ($this->_frames as $f) {
             $h = max($h, $f->get_margin_height());
+
+            if ($f->get_positioner() instanceof InlinePositioner) {
+                $this->inline = true;
+            }
         }
 
         $this->h = $h;
@@ -296,7 +315,7 @@ class LineBox
     {
         $width = 0;
 
-        foreach ($this->get_frames() as $frame) {
+        foreach ($this->_frames as $frame) {
             $width += $frame->get_margin_width();
         }
 

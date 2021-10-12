@@ -475,7 +475,7 @@ class Block extends AbstractFrameReflower
             default:
             case "left":
                 foreach ($this->_frame->get_line_boxes() as $line) {
-                    if (!$line->left) {
+                    if (!$line->inline || !$line->left) {
                         continue;
                     }
 
@@ -489,6 +489,10 @@ class Block extends AbstractFrameReflower
 
             case "right":
                 foreach ($this->_frame->get_line_boxes() as $i => $line) {
+                    if (!$line->inline) {
+                        continue;
+                    }
+
                     // Move each child over by $dx
                     $indent = $i === 0 ? $text_indent : 0;
                     $dx = $width - $line->w - $line->right - $indent;
@@ -509,6 +513,10 @@ class Block extends AbstractFrameReflower
                 $last_line_index = $this->_frame->is_split ? null : count($lines) - 1;
 
                 foreach ($lines as $i => $line) {
+                    if (!$line->inline) {
+                        continue;
+                    }
+
                     if ($line->left) {
                         foreach ($line->get_frames() as $frame) {
                             if ($frame->get_positioner() instanceof InlinePositioner) {
@@ -562,6 +570,10 @@ class Block extends AbstractFrameReflower
             case "center":
             case "centre":
                 foreach ($this->_frame->get_line_boxes() as $i => $line) {
+                    if (!$line->inline) {
+                        continue;
+                    }
+
                     // Centre each line by moving each frame in the line by:
                     $indent = $i === 0 ? $text_indent : 0;
                     $dx = ($width + $line->left - $line->w - $line->right - $indent) / 2;
