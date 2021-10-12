@@ -35,8 +35,6 @@ class Image extends AbstractFrameReflower
      */
     function reflow(BlockFrameDecorator $block = null)
     {
-        $this->_frame->position();
-
         //FLOAT
         //$frame = $this->_frame;
         //$page = $frame->get_root();
@@ -48,6 +46,8 @@ class Image extends AbstractFrameReflower
         // Set the frame's width
         $this->get_min_max_width();
         $this->resolve_margins();
+
+        $this->_frame->position();
 
         if ($block) {
             $block->add_frame_to_line($this->_frame);

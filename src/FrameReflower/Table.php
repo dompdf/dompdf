@@ -386,8 +386,6 @@ class Table extends AbstractFrameReflower
         // Collapse vertical margins, if required
         $this->_collapse_margins();
 
-        $frame->position();
-
         // Table layout algorithm:
         // http://www.w3.org/TR/CSS21/tables.html#auto-table-layout
 
@@ -442,6 +440,7 @@ class Table extends AbstractFrameReflower
         $style->margin_left = $left;
         $style->margin_right = $right;
 
+        $frame->position();
         list($x, $y) = $frame->get_position();
 
         // Determine the content edge
@@ -502,9 +501,12 @@ class Table extends AbstractFrameReflower
         // Debugging:
         //echo ($this->_frame->get_cellmap());
 
-        if ($block && $style->float === "none" && $frame->is_in_flow()) {
+        if ($block && $frame->is_in_flow()) {
             $block->add_frame_to_line($frame);
-            $block->add_line();
+
+            if ($frame->is_block_level()) {
+                $block->add_line();
+            }
         }
     }
 

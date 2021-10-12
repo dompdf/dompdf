@@ -43,9 +43,15 @@ class Inline extends AbstractPositioner
 
         $cb = $frame->get_containing_block();
         $line = $p->get_current_line_box();
+
+        if ($frame->is_text_node() || $frame->get_node()->nodeName === "br") {
+            $frame->set_position($cb["x"] + $line->w, $line->y);
+            return;
+        }
+
         $reflower = $frame->get_reflower();
 
-        if ($reflower instanceof InlineFrameReflower && $frame->get_node()->nodeName !== "br") {
+        if ($reflower instanceof InlineFrameReflower) {
             [$min] = $reflower->get_min_first_line_width();
 
             // If no parts of the inline frame fit in the current line, it
@@ -54,12 +60,11 @@ class Inline extends AbstractPositioner
                 $p->add_line();
                 $line = $p->get_current_line_box();
             }
-        } elseif ($frame->is_inline_block()) {
+        } else {
+            // Atomic inline boxes and replaced inline elements
+            // (inline-block, inline-table, img etc.)
             $width = $frame->get_margin_width();
 
-            // If an inline-block frame doesn't fit in the current line, it
-            // should break to a new line. Inline-block elements are formatted
-            // as atomic inline boxes
             if ($width > ($cb["w"] - $line->left - $line->w - $line->right)) {
                 $p->add_line();
                 $line = $p->get_current_line_box();
