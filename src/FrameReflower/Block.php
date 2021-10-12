@@ -924,8 +924,7 @@ class Block extends AbstractFrameReflower
         if ($block && $this->_frame->is_in_flow()) {
             $block->add_frame_to_line($this->_frame);
 
-            // May be inline-block
-            if ($style->display === "block") {
+            if ($this->_frame->is_block_level()) {
                 $block->add_line();
             }
         }
