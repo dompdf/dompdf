@@ -242,15 +242,15 @@ class Block extends AbstractFrameDecorator
             return;
         }
 
-        $line->remove_frames($j);
-
         // Remove all lines that follow
         for ($k = $this->_cl; $k > $i; $k--) {
             unset($this->_line_boxes[$k]);
         }
 
         // Remove the line, if it is empty
-        if ($j === 0) {
+        if ($j > 0) {
+            $line->remove_frames($j);
+        } else {
             unset($this->_line_boxes[$i]);
         }
 
