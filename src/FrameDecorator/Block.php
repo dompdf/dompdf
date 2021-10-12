@@ -185,15 +185,6 @@ class Block extends AbstractFrameDecorator
         */
         // End debugging
 
-        // The containing block of `$frame` is the current block frame
-        $available_width = $frame->get_containing_block("w");
-        $line = $this->_line_boxes[$this->_cl];
-        if ($line->left + $line->w + $line->right + $w > $available_width) {
-            $this->add_line();
-        }
-
-        $frame->position();
-
         $current_line = $this->_line_boxes[$this->_cl];
         $current_line->add_frame($frame);
 
@@ -210,7 +201,6 @@ class Block extends AbstractFrameDecorator
         }
 
         $this->increase_line_width($w);
-
         $this->maximize_line_height($frame->get_margin_height(), $frame);
     }
 
