@@ -58,6 +58,7 @@ class Table extends AbstractFrameReflower
 
         // Find the min/max width of the table and sort the columns into
         // absolute/percent/auto arrays
+        $delta = $this->_state["width_delta"];
         $min_width = $this->_state["min_width"];
         $max_width = $this->_state["max_width"];
         $percent_used = $this->_state["percent_used"];
@@ -68,40 +69,16 @@ class Table extends AbstractFrameReflower
         $percent =& $this->_state["percent"];
         $auto =& $this->_state["auto"];
 
-        // Determine the actual width of the table
+        // Determine the actual width of the table (excluding borders and
+        // padding)
         $cb = $this->_frame->get_containing_block();
         $columns =& $this->_frame->get_cellmap()->get_columns();
 
         $width = $style->width;
-
-        // Calculate padding & border fudge factor
-        $left = $style->margin_left;
-        $right = $style->margin_right;
-
-        $centered = ($left === "auto" && $right === "auto");
-
-        $left = (float)($left === "auto" ? 0 : $style->length_in_pt($left, $cb["w"]));
-        $right = (float)($right === "auto" ? 0 : $style->length_in_pt($right, $cb["w"]));
-
-        $delta = $left + $right;
-
-        if (!$centered) {
-            $delta += (float)$style->length_in_pt([
-                    $style->padding_left,
-                    $style->border_left_width,
-                    $style->border_right_width,
-                    $style->padding_right],
-                $cb["w"]);
-        }
-
-        $min_table_width = (float)$style->length_in_pt($style->min_width, $cb["w"] - $delta);
-
-        // min & max widths already include borders & padding
-        $min_width -= $delta;
-        $max_width -= $delta;
+        $min_table_width = (float) $style->length_in_pt($style->min_width, $cb["w"]) - $delta;
 
         if ($width !== "auto") {
-            $preferred_width = (float)$style->length_in_pt($width, $cb["w"]) - $delta;
+            $preferred_width = (float) $style->length_in_pt($width, $cb["w"]) - $delta;
 
             if ($preferred_width < $min_table_width) {
                 $preferred_width = $min_table_width;
@@ -403,6 +380,9 @@ class Table extends AbstractFrameReflower
         // inside tds.)
         $page->table_reflow_start();
 
+        // Generated content
+        $this->_set_content();
+
         // Collapse vertical margins, if required
         $this->_collapse_margins();
 
@@ -429,18 +409,19 @@ class Table extends AbstractFrameReflower
 
             $style->padding_left = (float)$style->length_in_pt($style->padding_left, $cb["w"]) + $h;
             $style->padding_right = (float)$style->length_in_pt($style->padding_right, $cb["w"]) + $h;
-            $style->padding_top = (float)$style->length_in_pt($style->padding_top, $cb["h"]) + $v;
-            $style->padding_bottom = (float)$style->length_in_pt($style->padding_bottom, $cb["h"]) + $v;
+            $style->padding_top = (float)$style->length_in_pt($style->padding_top, $cb["w"]) + $v;
+            $style->padding_bottom = (float)$style->length_in_pt($style->padding_bottom, $cb["w"]) + $v;
         }
 
         $this->_assign_widths();
 
         // Adjust left & right margins, if they are auto
+        $delta = $this->_state["width_delta"];
         $width = $style->width;
-        $left = $style->margin_left;
-        $right = $style->margin_right;
+        $left = $style->length_in_pt($style->margin_left, $cb["w"]);
+        $right = $style->length_in_pt($style->margin_right, $cb["w"]);
 
-        $diff = (float)$cb["w"] - (float)$width;
+        $diff = (float) $cb["w"] - (float) $width - $delta;
 
         if ($left === "auto" && $right === "auto") {
             if ($diff < 0) {
@@ -451,12 +432,10 @@ class Table extends AbstractFrameReflower
             }
         } else {
             if ($left === "auto") {
-                $right = (float)$style->length_in_pt($right, $cb["w"]);
-                $left = $diff - $right;
+                $left = max($diff - $right, 0);
             }
             if ($right === "auto") {
-                $left = (float)$style->length_in_pt($left, $cb["w"]);
-                $right = $diff - $left;
+                $right = max($diff - $left, 0);
             }
         }
 
@@ -574,28 +553,34 @@ class Table extends AbstractFrameReflower
             }
         }
 
-        // Account for margins & padding
-        $dims = [$style->border_left_width,
+        // Account for margins, borders, padding, and border spacing
+        $cb_w = $this->_frame->get_containing_block("w");
+        $lm = (float) $style->length_in_pt($style->margin_left, $cb_w);
+        $rm = (float) $style->length_in_pt($style->margin_right, $cb_w);
+
+        $dims = [
+            $style->border_left_width,
             $style->border_right_width,
             $style->padding_left,
-            $style->padding_right,
-            $style->margin_left,
-            $style->margin_right];
+            $style->padding_right
+        ];
 
         if ($style->border_collapse !== "collapse") {
             list($dims[]) = $style->border_spacing;
         }
 
-        $delta = (float)$style->length_in_pt($dims, $this->_frame->get_containing_block("w"));
+        $delta = (float) $style->length_in_pt($dims, $cb_w);
 
-        $this->_state["min_width"] += $delta;
-        $this->_state["max_width"] += $delta;
+        $this->_state["width_delta"] = $delta;
+
+        $min_width = $this->_state["min_width"] + $delta + $lm + $rm;
+        $max_width = $this->_state["max_width"] + $delta + $lm + $rm;
 
         return $this->_min_max_cache = [
-            $this->_state["min_width"],
-            $this->_state["max_width"],
-            "min" => $this->_state["min_width"],
-            "max" => $this->_state["max_width"],
+            $min_width,
+            $max_width,
+            "min" => $min_width,
+            "max" => $max_width
         ];
     }
 }
