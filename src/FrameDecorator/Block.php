@@ -191,11 +191,15 @@ class Block extends AbstractFrameDecorator
         $current_line->add_frame($frame);
 
         if ($frame->is_text_node()) {
-            // split the text into words (used to determine spacing between words on justified lines)
-            // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0)
-            // This currently excludes the "narrow nbsp" character
-            $words = preg_split('/[^\S\xA0]+/u', trim($frame->get_text()));
-            $current_line->wc += count($words);
+            $trimmed = trim($frame->get_text());
+
+            if ($trimmed !== "") {
+                // split the text into words (used to determine spacing between words on justified lines)
+                // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0)
+                // This currently excludes the "narrow nbsp" character
+                $words = preg_split('/[^\S\xA0]+/u', $trimmed);
+                $current_line->wc += count($words);
+            }
         }
 
         $this->increase_line_width($w);
