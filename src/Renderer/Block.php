@@ -210,10 +210,13 @@ class Block extends AbstractRenderer
             return;
         }
 
+        $offset = (float) $style->length_in_pt($style->outline_offset);
         [$x, $y, $w, $h] = $border_box;
 
-        $w = (float) $w;
-        $h = (float) $h;
+        $x -= $offset;
+        $y -= $offset;
+        $w = (float) $w + $offset * 2;
+        $h = (float) $h + $offset * 2;
 
         // For a simple outline, we can draw a rectangle
         if (in_array($outline_style, ["solid", "dashed", "dotted"], true)

@@ -235,6 +235,7 @@ class Style
             "margin_bottom",
             "margin_left",
             "outline_width",
+            "outline_offset",
             "padding_top",
             "padding_right",
             "padding_bottom",
@@ -399,6 +400,7 @@ class Style
             $d["outline_color"] = ""; // "invert" special color is not supported
             $d["outline_style"] = "none";
             $d["outline_width"] = "medium";
+            $d["outline_offset"] = "0";
             $d["outline"] = "";
             $d["overflow"] = "visible";
             $d["padding_top"] = "0";
