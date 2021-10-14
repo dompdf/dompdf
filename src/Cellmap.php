@@ -309,7 +309,7 @@ class Cellmap
     /**
      * @param Frame $frame
      *
-     * @return null|Frame
+     * @return array|null
      */
     public function get_spanned_cells(Frame $frame)
     {
