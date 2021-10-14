@@ -211,7 +211,11 @@ class Block extends AbstractRenderer
         }
 
         $offset = (float) $style->length_in_pt($style->outline_offset);
+
         [$x, $y, $w, $h] = $border_box;
+        $d = $width + $offset;
+        $outline_box = [$x - $d, $y - $d, (float) $w + $d * 2, (float) $h + $d * 2];
+        [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $outline_box);
 
         $x -= $offset;
         $y -= $offset;
@@ -247,31 +251,39 @@ class Block extends AbstractRenderer
                     $length = $w;
                     $side_x = $x;
                     $side_y = $y;
+                    $r1 = $tl;
+                    $r2 = $tr;
                     break;
 
                 case "bottom":
                     $length = $w;
                     $side_x = $x;
                     $side_y = $y + $h;
+                    $r1 = $bl;
+                    $r2 = $br;
                     break;
 
                 case "left":
                     $length = $h;
                     $side_x = $x;
                     $side_y = $y;
+                    $r1 = $tl;
+                    $r2 = $bl;
                     break;
 
                 case "right":
                     $length = $h;
                     $side_x = $x + $w;
                     $side_y = $y;
+                    $r1 = $tr;
+                    $r2 = $br;
                     break;
 
                 default:
                     break;
             }
 
-            $this->$method($side_x, $side_y, $length, $color, $widths, $side, $corner_style);
+            $this->$method($side_x, $side_y, $length, $color, $widths, $side, $corner_style, $r1, $r2);
         }
     }
 }
