@@ -56,6 +56,9 @@ class TableCell extends Block
 
             $this->_render_background($frame, $padding_box);
             $this->_render_collapsed_border($cellmap, $cells);
+
+            // FIXME: Outline should be drawn over other cells
+            $this->_render_outline($frame, $border_box);
         }
 
         $id = $frame->get_node()->getAttribute("id");
