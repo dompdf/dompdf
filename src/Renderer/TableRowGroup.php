@@ -26,8 +26,10 @@ class TableRowGroup extends Block
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
-        $this->_render_border($frame);
-        $this->_render_outline($frame);
+        $border_box = $frame->get_border_box();
+
+        $this->_render_border($frame, $border_box);
+        $this->_render_outline($frame, $border_box);
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutBlocks()) {
             $this->_debug_layout($frame->get_border_box(), "red");
