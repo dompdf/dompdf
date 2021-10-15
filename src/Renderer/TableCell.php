@@ -63,6 +63,8 @@ class TableCell extends Block
         if (strlen($id) > 0) {
             $this->_canvas->add_named_dest($id);
         }
+
+        // $this->debugBlockLayout($frame, "red", false);
     }
 
     /**
