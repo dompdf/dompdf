@@ -2113,8 +2113,9 @@ class Style
         switch ($width) {
             case "cover":
             case "contain":
-            case "inherit":
                 $this->_props_computed["background_size"] = $width;
+                return;
+            case "inherit":
                 return;
         }
 
