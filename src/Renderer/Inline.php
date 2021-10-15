@@ -124,30 +124,32 @@ class Inline extends AbstractRenderer
         }
     }
 
-    protected function get_child_size(Frame $frame, bool $do_debug_layout_line): array {
+    protected function get_child_size(Frame $frame, bool $do_debug_layout_line): array
+    {
         $w = 0.0;
         $h = 0.0;
 
         foreach ($frame->get_children() as $child) {
-            if ($child->get_node()->nodeValue === ' ' && $child->get_prev_sibling() && !$child->get_next_sibling()) {
+            if ($child->get_node()->nodeValue === " " && $child->get_prev_sibling() && !$child->get_next_sibling()) {
                 break;
             }
-            list($child_x, $child_y, $child_w, $child_h) = $child->get_padding_box();
+
+            $style = $child->get_style();
+            list(, , $child_w, $child_h) = $child->get_padding_box();
 
             $child_h2 = 0.0;
 
-            if ($child_w === 'auto') {
-                list($child_w, $child_h2) = $this->get_child_size($child, $do_debug_layout_line);
-                $w += (float)$child_w;
-            } else {
-                $w += (float)$child_w;
-            }
-
-            if ($child_h === 'auto') {
+            if ($style->width === "auto") {
                 list($child_w, $child_h2) = $this->get_child_size($child, $do_debug_layout_line);
             }
 
-            $h = max($h, (float)$child_h, (float)$child_h2);
+            if ($style->height === "auto") {
+                list(, $child_h2) = $this->get_child_size($child, $do_debug_layout_line);
+            }
+
+            $w += $child_w;
+            $h = max($h, $child_h, $child_h2);
+
             if ($do_debug_layout_line) {
                 $debug_border_box = $child->get_border_box();
                 $this->_debug_layout([$debug_border_box['x'], $debug_border_box['y'], (float)$debug_border_box['w'], (float)$debug_border_box['h']], "blue");

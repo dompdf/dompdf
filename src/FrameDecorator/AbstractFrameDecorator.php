@@ -302,17 +302,17 @@ abstract class AbstractFrameDecorator extends Frame
         return $this->_frame->get_margin_height();
     }
 
-    function get_content_box()
+    public function get_content_box(): array
     {
         return $this->_frame->get_content_box();
     }
 
-    function get_padding_box()
+    public function get_padding_box(): array
     {
         return $this->_frame->get_padding_box();
     }
 
-    function get_border_box()
+    public function get_border_box(): array
     {
         return $this->_frame->get_border_box();
     }

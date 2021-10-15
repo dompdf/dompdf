@@ -508,11 +508,14 @@ class Frame
     }
 
     /**
-     * Return the content box (x,y,w,h) of the frame
+     * Return the content box (x,y,w,h) of the frame.
      *
-     * @return array
+     * Width and height might be reported as 0 if they have not been resolved
+     * yet.
+     *
+     * @return float[]
      */
-    public function get_content_box()
+    public function get_content_box(): array
     {
         $style = $this->_style;
         $cb = $this->_containing_block;
@@ -533,12 +536,12 @@ class Frame
                     $style->margin_top,
                     $style->border_top_width,
                     $style->padding_top
-                ],
-                $cb["w"]);
+                ], $cb["w"]
+            );
 
-        $w = $style->length_in_pt($style->width, $cb["w"]);
+        $w = (float)$style->length_in_pt($style->width, $cb["w"]);
 
-        $h = $style->length_in_pt($style->height, $cb["h"]);
+        $h = (float)$style->length_in_pt($style->height, $cb["h"]);
 
         return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
@@ -547,11 +550,14 @@ class Frame
     }
 
     /**
-     * Return the padding box (x,y,w,h) of the frame
+     * Return the padding box (x,y,w,h) of the frame.
      *
-     * @return array
+     * Width and height might be reported as 0 if they have not been resolved
+     * yet.
+     *
+     * @return float[]
      */
-    public function get_padding_box()
+    public function get_padding_box(): array
     {
         $style = $this->_style;
         $cb = $this->_containing_block;
@@ -562,7 +568,8 @@ class Frame
                     $style->margin_left,
                     $style->border_left_width
                 ],
-                $cb["w"]);
+                $cb["w"]
+            );
 
         $y = $this->_position["y"] +
             (float)$style->length_in_pt(
@@ -573,7 +580,7 @@ class Frame
                 $cb["h"]
             );
 
-        $w = $style->length_in_pt(
+        $w = (float)$style->length_in_pt(
                 [
                     $style->padding_left,
                     $style->width,
@@ -582,7 +589,7 @@ class Frame
                 $cb["w"]
             );
 
-        $h = $style->length_in_pt(
+        $h = (float)$style->length_in_pt(
                 [
                     $style->padding_top,
                     $style->padding_bottom,
@@ -598,11 +605,14 @@ class Frame
     }
 
     /**
-     * Return the border box of the frame
+     * Return the border box of the frame.
      *
-     * @return array
+     * Width and height might be reported as 0 if they have not been resolved
+     * yet.
+     *
+     * @return float[]
      */
-    public function get_border_box()
+    public function get_border_box(): array
     {
         $style = $this->_style;
         $cb = $this->_containing_block;
@@ -611,7 +621,7 @@ class Frame
 
         $y = $this->_position["y"] + (float)$style->length_in_pt($style->margin_top, $cb["w"]);
 
-        $w = $style->length_in_pt(
+        $w = (float)$style->length_in_pt(
             [
                 $style->border_left_width,
                 $style->padding_left,
@@ -619,9 +629,10 @@ class Frame
                 $style->padding_right,
                 $style->border_right_width
             ],
-            $cb["w"]);
+            $cb["w"]
+        );
 
-        $h = $style->length_in_pt(
+        $h = (float)$style->length_in_pt(
             [
                 $style->border_top_width,
                 $style->padding_top,
@@ -629,7 +640,8 @@ class Frame
                 $style->border_bottom_width,
                 $style->length_in_pt($style->height, $cb["h"])
             ],
-            $cb["w"]);
+            $cb["w"]
+        );
 
         return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
