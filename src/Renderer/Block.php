@@ -8,6 +8,7 @@
 namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
+use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\Helpers;
 
 /**
@@ -26,7 +27,6 @@ class Block extends AbstractRenderer
         $style = $frame->get_style();
         $node = $frame->get_node();
         $dompdf = $this->_dompdf;
-        $options = $dompdf->getOptions();
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
@@ -54,27 +54,12 @@ class Block extends AbstractRenderer
             $this->_canvas->add_link($href, $x, $y, $w, $h);
         }
 
-        if ($options->getDebugLayout()) {
-            if ($options->getDebugLayoutBlocks()) {
-                $debug_border_box = $frame->get_border_box();
-                $this->_debug_layout([$debug_border_box['x'], $debug_border_box['y'], (float)$debug_border_box['w'], (float)$debug_border_box['h']], "red");
-                if ($options->getDebugLayoutPaddingBox()) {
-                    $debug_padding_box = $frame->get_padding_box();
-                    $this->_debug_layout([$debug_padding_box['x'], $debug_padding_box['y'], (float)$debug_padding_box['w'], (float)$debug_padding_box['h']], "red", [0.5, 0.5]);
-                }
-            }
-
-            if ($options->getDebugLayoutLines() && $frame->get_decorator()) {
-                foreach ($frame->get_decorator()->get_line_boxes() as $line) {
-                    $frame->_debug_layout([$line->x, $line->y, $line->w, $line->h], "orange");
-                }
-            }
-        }
-
         $id = $frame->get_node()->getAttribute("id");
         if (strlen($id) > 0) {
             $this->_canvas->add_named_dest($id);
         }
+
+        $this->debugBlockLayout($frame, "red", false);
     }
 
     /**
@@ -284,6 +269,33 @@ class Block extends AbstractRenderer
             }
 
             $this->$method($side_x, $side_y, $length, $color, $widths, $side, $corner_style, $r1, $r2);
+        }
+    }
+
+    protected function debugBlockLayout(Frame $frame, ?string $color, bool $lines = false): void
+    {
+        $options = $this->_dompdf->getOptions();
+        $debugLayout = $options->getDebugLayout();
+
+        if (!$debugLayout) {
+            return;
+        }
+
+        if ($color && $options->getDebugLayoutBlocks()) {
+            $this->_debug_layout($frame->get_border_box(), $color);
+
+            if ($options->getDebugLayoutPaddingBox()) {
+                $this->_debug_layout($frame->get_padding_box(), $color, [0.5, 0.5]);
+            }
+        }
+
+        if ($lines && $options->getDebugLayoutLines() && $frame instanceof BlockFrameDecorator) {
+            [$cx, , $cw] = $frame->get_content_box();
+
+            foreach ($frame->get_line_boxes() as $line) {
+                $lw = $cw - $line->left - $line->right;
+                $this->_debug_layout([$cx + $line->left, $line->y, $lw, $line->h], "orange");
+            }
         }
     }
 }
