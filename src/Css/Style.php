@@ -1566,9 +1566,6 @@ class Style
 
         [$x, $y, $w, $h] = $border_box;
 
-        $w = (float) $w;
-        $h = (float) $h;
-
         // Resolve percentages relative to width, as long as we have no support
         // for per-axis radii
         $tl = (float) $this->length_in_pt($this->border_top_left_radius, $w);
@@ -1578,9 +1575,6 @@ class Style
 
         if ($tl + $tr + $br + $bl > 0) {
             [$rx, $ry, $rw, $rh] = $render_box;
-
-            $rw = (float) $rw;
-            $rh = (float) $rh;
 
             $t_offset = $y - $ry;
             $r_offset = $rx + $rw - $x - $w;

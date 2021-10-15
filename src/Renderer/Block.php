@@ -51,7 +51,7 @@ class Block extends AbstractRenderer
         // Handle anchors & links
         if ($node->nodeName === "a" && $href = $node->getAttribute("href")) {
             $href = Helpers::build_url($dompdf->getProtocol(), $dompdf->getBaseHost(), $dompdf->getBasePath(), $href);
-            $this->_canvas->add_link($href, $x, $y, (float)$w, (float)$h);
+            $this->_canvas->add_link($href, $x, $y, $w, $h);
         }
 
         if ($options->getDebugLayout()) {
@@ -88,15 +88,15 @@ class Block extends AbstractRenderer
 
         if ($style->has_border_radius()) {
             [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box);
-            $this->_canvas->clipping_roundrectangle($x, $y, (float) $w, (float) $h, $tl, $tr, $br, $bl);
+            $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
         }
 
         if (($bg = $style->background_color) !== "transparent") {
-            $this->_canvas->filled_rectangle($x, $y, (float) $w, (float) $h, $bg);
+            $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
         }
 
         if (($url = $style->background_image) && $url !== "none") {
-            $this->_background_image($url, $x, $y, (float) $w, (float) $h, $style);
+            $this->_background_image($url, $x, $y, $w, $h, $style);
         }
 
         if ($style->has_border_radius()) {
@@ -131,7 +131,7 @@ class Block extends AbstractRenderer
 
             $width = (float)$style->length_in_pt($props["width"]);
             $pattern = $this->_get_dash_pattern($props["style"], $width);
-            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, (float)$w - $width, (float)$h - $width, $props["color"], $width, $pattern);
+            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width, $pattern);
             return;
         }
 
@@ -159,27 +159,27 @@ class Block extends AbstractRenderer
 
             switch ($side) {
                 case "top":
-                    $length = (float)$w;
+                    $length = $w;
                     $r1 = $tl;
                     $r2 = $tr;
                     break;
 
                 case "bottom":
-                    $length = (float)$w;
-                    $y += (float)$h;
+                    $length = $w;
+                    $y += $h;
                     $r1 = $bl;
                     $r2 = $br;
                     break;
 
                 case "left":
-                    $length = (float)$h;
+                    $length = $h;
                     $r1 = $tl;
                     $r2 = $bl;
                     break;
 
                 case "right":
-                    $length = (float)$h;
-                    $x += (float)$w;
+                    $length = $h;
+                    $x += $w;
                     $r1 = $tr;
                     $r2 = $br;
                     break;
@@ -214,13 +214,13 @@ class Block extends AbstractRenderer
 
         [$x, $y, $w, $h] = $border_box;
         $d = $width + $offset;
-        $outline_box = [$x - $d, $y - $d, (float) $w + $d * 2, (float) $h + $d * 2];
+        $outline_box = [$x - $d, $y - $d, $w + $d * 2, $h + $d * 2];
         [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $outline_box);
 
         $x -= $offset;
         $y -= $offset;
-        $w = (float) $w + $offset * 2;
-        $h = (float) $h + $offset * 2;
+        $w += $offset * 2;
+        $h += $offset * 2;
 
         // For a simple outline, we can draw a rectangle
         if (in_array($outline_style, ["solid", "dashed", "dotted"], true)

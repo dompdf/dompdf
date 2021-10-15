@@ -107,14 +107,11 @@ class Text extends AbstractFrameDecorator
         return ($style->line_height / ($size > 0 ? $size : 1)) * $fontHeight;
     }
 
-    /**
-     * @return array
-     */
-    function get_padding_box()
+    public function get_padding_box(): array
     {
         $style = $this->_frame->get_style();
         $pb = $this->_frame->get_padding_box();
-        $pb[3] = $pb["h"] = $style->length_in_pt($style->height);
+        $pb[3] = $pb["h"] = (float) $style->length_in_pt($style->height);
         return $pb;
     }
 
