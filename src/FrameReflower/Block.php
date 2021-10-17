@@ -819,6 +819,9 @@ class Block extends AbstractFrameReflower
         $margin_top = $style->length_in_pt($style->margin_top, $cb["w"]);
         $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
+        $auto_top = $style->top === "auto";
+        $auto_margin_top = $margin_top === "auto";
+
         // Update the position
         $this->_frame->position();
         list($x, $y) = $this->_frame->get_position();
@@ -916,34 +919,17 @@ class Block extends AbstractFrameReflower
         $style->top = $top;
         $style->bottom = $bottom;
 
-        $needs_reposition = ($style->position === "absolute" && ($style->right !== "auto" || $style->bottom !== "auto"));
-
-        // Absolute positioning measurement
-        if ($needs_reposition) {
-            $orig_style = $this->_frame->get_original_style();
-
-            if ($orig_style->width === "auto" && ($orig_style->left === "auto" || $orig_style->right === "auto")) {
-                $width = 0;
-                foreach ($this->_frame->get_line_boxes() as $line) {
-                    $width = max($line->w, $width);
-                }
-                $style->width = $width;
+        if ($this->_frame->is_absolute()) {
+            if ($auto_top) {
+                $this->_frame->move(0, $top);
             }
-
-            $style->left = $orig_style->left;
-            $style->right = $orig_style->right;
+            if ($auto_margin_top) {
+                $this->_frame->move(0, $margin_top, true);
+            }
         }
 
         $this->_text_align();
         $this->vertical_align();
-
-        // Absolute positioning
-        if ($needs_reposition) {
-            list($x, $y) = $this->_frame->get_position();
-            $this->_frame->position();
-            list($new_x, $new_y) = $this->_frame->get_position();
-            $this->_frame->move($new_x - $x, $new_y - $y, true);
-        }
 
         // Handle relative positioning
         foreach ($this->_frame->get_children() as $child) {
