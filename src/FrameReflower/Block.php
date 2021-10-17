@@ -48,8 +48,11 @@ class Block extends AbstractFrameReflower
     {
         $frame = $this->_frame;
         $style = $frame->get_style();
+        $absolute = $frame->is_absolute();
 
-        $w = $frame->get_containing_block("w");
+        $cb = $frame->get_containing_block();
+        $w = $cb["w"];
+
         $rm = $style->length_in_pt($style->margin_right, $w);
         $lm = $style->length_in_pt($style->margin_left, $w);
 
@@ -66,12 +69,9 @@ class Block extends AbstractFrameReflower
             $lm !== "auto" ? $lm : 0];
 
         // absolutely positioned boxes take the 'left' and 'right' properties into account
-        if ($frame->is_absolute()) {
-            $absolute = true;
+        if ($absolute) {
             $dims[] = $left !== "auto" ? $left : 0;
             $dims[] = $right !== "auto" ? $right : 0;
-        } else {
-            $absolute = false;
         }
 
         $sum = (float)$style->length_in_pt($dims, $w);
@@ -79,85 +79,103 @@ class Block extends AbstractFrameReflower
         // Compare to the containing block
         $diff = $w - $sum;
 
-        if ($diff > 0) {
-            if ($absolute) {
-                // resolve auto properties: see
-                // http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-width
+        if ($absolute) {
+            // Absolutely positioned
+            // http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-width
 
-                if ($width === "auto" && $left === "auto" && $right === "auto") {
-                    if ($lm === "auto") {
-                        $lm = 0;
-                    }
-                    if ($rm === "auto") {
-                        $rm = 0;
-                    }
-
-                    // Technically, the width should be "shrink-to-fit" i.e. based on the
-                    // preferred width of the content...  a little too costly here as a
-                    // special case.  Just get the width to take up the slack:
-                    $left = 0;
-                    $right = 0;
-                    $width = $diff;
-                } else if ($width === "auto") {
-                    if ($lm === "auto") {
-                        $lm = 0;
-                    }
-                    if ($rm === "auto") {
-                        $rm = 0;
-                    }
-                    if ($left === "auto") {
-                        $left = 0;
-                    }
-                    if ($right === "auto") {
-                        $right = 0;
-                    }
-
-                    $width = $diff;
-                } else if ($left === "auto") {
-                    if ($lm === "auto") {
-                        $lm = 0;
-                    }
-                    if ($rm === "auto") {
-                        $rm = 0;
-                    }
-                    if ($right === "auto") {
-                        $right = 0;
-                    }
-
-                    $left = $diff;
-                } else if ($right === "auto") {
-                    if ($lm === "auto") {
-                        $lm = 0;
-                    }
-                    if ($rm === "auto") {
-                        $rm = 0;
-                    }
-
-                    $right = $diff;
-                } else if ($lm === "auto" && $rm === "auto") {
-                    $lm = $rm = round($diff / 2);
-                } else if ($lm === "auto") {
-                    $lm = $diff;
-                } else if ($rm === "auto") {
-                    $rm = $diff;
-                }
-
-            } else if ($style->float !== "none" || $style->display === "inline-block") {
-                // Shrink-to-fit width for float and inline block:
-                // https://www.w3.org/TR/CSS21/visudet.html#float-width
-                // https://www.w3.org/TR/CSS21/visudet.html#inlineblock-width
-
-                if ($width === "auto") {
-                    [$min, $max] = $this->get_min_max_content_width();
-                    $width = min(max($min, $diff), $max);
-                }
+            if ($width === "auto" || $left === "auto" || $right === "auto") {
+                // "all of the three are 'auto'" logic + otherwise case
                 if ($lm === "auto") {
                     $lm = 0;
                 }
                 if ($rm === "auto") {
                     $rm = 0;
                 }
+
+                $block_parent = $frame->find_block_parent();
+                $parent_content = $block_parent->get_content_box();
+                $line = $block_parent->get_current_line_box();
+
+                // TODO: This is the in-flow inline position. Use the in-flow
+                // block position if the original display type is block-level
+                $inflow_x = $parent_content["x"] - $cb["x"] + $line->left + $line->w;
+
+                if ($width === "auto" && $left === "auto" && $right === "auto") {
+                    // rule 3, per instruction preceding rule set
+                    // shrink-to-fit width
+                    $left = $inflow_x;
+                    [$min, $max] = $this->get_min_max_content_width();
+                    $width = min(max($min, $diff - $left), $max);
+                    $right = $diff - $left - $width;
+                } elseif ($width === "auto" && $left === "auto") {
+                    // rule 1
+                    // shrink-to-fit width
+                    [$min, $max] = $this->get_min_max_content_width();
+                    $width = min(max($min, $diff), $max);
+                    $left = $diff - $width;
+                } elseif ($width === "auto" && $right === "auto") {
+                    // rule 3
+                    // shrink-to-fit width
+                    [$min, $max] = $this->get_min_max_content_width();
+                    $width = min(max($min, $diff), $max);
+                    $right = $diff - $width;
+                } elseif ($left === "auto" && $right === "auto") {
+                    // rule 2
+                    $left = $inflow_x;
+                    $right = $diff - $left;
+                } elseif ($left === "auto") {
+                    // rule 4
+                    $left = $diff;
+                } elseif ($width === "auto") {
+                    // rule 5
+                    $width = max($diff, 0);
+                } else {
+                    // $right === "auto"
+                    // rule 6
+                    $right = $diff;
+                }
             } else {
+                // "none of the three are 'auto'" logic described in paragraph preceding the rules
+                if ($diff >= 0) {
+                    if ($lm === "auto" && $rm === "auto") {
+                        $lm = $rm = $diff / 2;
+                    } elseif ($lm === "auto") {
+                        $lm = $diff;
+                    } elseif ($rm === "auto") {
+                        $rm = $diff;
+                    }
+                } else {
+                    // over-constrained, solve for right
+                    $right = $right + $diff;
+
+                    if ($lm === "auto") {
+                        $lm = 0;
+                    }
+                    if ($rm === "auto") {
+                        $rm = 0;
+                    }
+                }
+            }
+        } elseif ($style->float !== "none" || $style->display === "inline-block") {
+            // Shrink-to-fit width for float and inline block
+            // https://www.w3.org/TR/CSS21/visudet.html#float-width
+            // https://www.w3.org/TR/CSS21/visudet.html#inlineblock-width
+
+            if ($width === "auto") {
+                [$min, $max] = $this->get_min_max_content_width();
+                $width = min(max($min, $diff), $max);
+            }
+            if ($lm === "auto") {
+                $lm = 0;
+            }
+            if ($rm === "auto") {
+                $rm = 0;
+            }
+        } else {
+            // Block-level, normal flow
+            // https://www.w3.org/TR/CSS21/visudet.html#blockwidth
+
+            if ($diff >= 0) {
                 // Find auto properties and get them to take up the slack
                 if ($width === "auto") {
                     $width = $diff;
@@ -168,28 +186,26 @@ class Block extends AbstractFrameReflower
                     if ($rm === "auto") {
                         $rm = 0;
                     }
-                } else if ($lm === "auto" && $rm === "auto") {
-                    $lm = $rm = round($diff / 2);
-                } else if ($lm === "auto") {
+                } elseif ($lm === "auto" && $rm === "auto") {
+                    $lm = $rm = $diff / 2;
+                } elseif ($lm === "auto") {
                     $lm = $diff;
-                } else if ($rm === "auto") {
+                } elseif ($rm === "auto") {
                     $rm = $diff;
                 }
-            }
-        } else {
-            if ($diff < 0) {
+            } else {
                 // We are over constrained--set margin-right to the difference
-                $rm = $diff;
-            }
+                $rm = $rm + $diff;
 
-            if ($width === "auto") {
-                $width = 0;
-            }
-            if ($lm === "auto") {
-                $lm = 0;
-            }
-            if ($rm === "auto") {
-                $rm = 0;
+                if ($width === "auto") {
+                    $width = 0;
+                }
+                if ($lm === "auto") {
+                    $lm = 0;
+                }
+                if ($rm === "auto") {
+                    $rm = 0;
+                }
             }
         }
 
@@ -280,16 +296,15 @@ class Block extends AbstractFrameReflower
         $cb = $frame->get_containing_block();
 
         $height = $style->length_in_pt($style->height, $cb["h"]);
+        $margin_top = $style->length_in_pt($style->margin_top, $cb["w"]);
+        $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
         $top = $style->length_in_pt($style->top, $cb["h"]);
         $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
 
-        $margin_top = $style->length_in_pt($style->margin_top, $cb["w"]);
-        $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["w"]);
-
         if ($frame->is_absolute()) {
-
-            // see http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-height
+            // Absolutely positioned
+            // http://www.w3.org/TR/CSS21/visudet.html#abs-non-replaced-height
 
             $h_dims = [
                 $top !== "auto" ? $top : 0,
@@ -310,96 +325,72 @@ class Block extends AbstractFrameReflower
 
             $diff = $cb["h"] - $sum;
 
-            if ($diff >= 0) {
+            if ($height === "auto" || $top === "auto" || $bottom === "auto") {
+                // "all of the three are 'auto'" logic + otherwise case
+                if ($margin_top === "auto") {
+                    $margin_top = 0;
+                }
+                if ($margin_bottom === "auto") {
+                    $margin_bottom = 0;
+                }
+
+                $block_parent = $frame->find_block_parent();
+                $current_line = $block_parent->get_current_line_box();
+
+                // TODO: This is the in-flow inline position. Use the in-flow
+                // block position if the original display type is block-level
+                $inflow_y = $current_line->y - $cb["y"];
+
                 if ($height === "auto" && $top === "auto" && $bottom === "auto") {
                     // rule 3, per instruction preceding rule set
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
+                    $top = $inflow_y;
                     $height = $content_height;
+                    $bottom = $diff - $top - $height;
                 } elseif ($height === "auto" && $top === "auto") {
                     // rule 1
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
                     $height = $content_height;
-                    $top = $diff - $content_height;
+                    $top = $diff - $height;
                 } elseif ($height === "auto" && $bottom === "auto") {
                     // rule 3
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
                     $height = $content_height;
-                    $bottom = $diff - $content_height;
+                    $bottom = $diff - $height;
                 } elseif ($top === "auto" && $bottom === "auto") {
                     // rule 2
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
-                    $block_parent = $frame->find_block_parent();
-                    $current_line = $block_parent->get_current_line_box();
-                    $top = $current_line->y - $cb["y"];
+                    $top = $inflow_y;
                     $bottom = $diff - $top;
                 } elseif ($top === "auto") {
                     // rule 4
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
                     $top = $diff;
                 } elseif ($height === "auto") {
                     // rule 5
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
-                    $height = $diff;
-                } elseif ($bottom === "auto") {
+                    $height = max($diff, 0);
+                } else {
+                    // $bottom === "auto"
                     // rule 6
-                    if ($margin_top === "auto") {
-                        $margin_top = 0;
-                    }
-                    if ($margin_bottom === "auto") {
-                        $margin_bottom = 0;
-                    }
-
                     $bottom = $diff;
-
-                // "none of the three are 'auto'" logic described in paragraph preceding the rules
-                } elseif ($margin_top === "auto" && $margin_bottom === "auto") {
-                    $margin_top = $margin_bottom = $diff / 2;
-                } elseif ($margin_top === "auto") {
-                    $margin_bottom = $diff;
-                } elseif ($margin_bottom === "auto") {
-                    $margin_top = $diff;
                 }
             } else {
-                // over-constrained, solve for bottom as described in paragraph preceding the rules
-                $bottom = $diff;
-            }
+                // "none of the three are 'auto'" logic described in paragraph preceding the rules
+                if ($diff >= 0) {
+                    if ($margin_top === "auto" && $margin_bottom === "auto") {
+                        $margin_top = $margin_bottom = $diff / 2;
+                    } elseif ($margin_top === "auto") {
+                        $margin_top = $diff;
+                    } elseif ($margin_bottom === "auto") {
+                        $margin_bottom = $diff;
+                    }
+                } else {
+                    // over-constrained, solve for bottom
+                    $bottom = $bottom + $diff;
 
+                    if ($margin_top === "auto") {
+                        $margin_top = 0;
+                    }
+                    if ($margin_bottom === "auto") {
+                        $margin_bottom = 0;
+                    }
+                }
+            }
         } else {
             // http://www.w3.org/TR/CSS21/visudet.html#normal-block
             // http://www.w3.org/TR/CSS21/visudet.html#block-root-margin
