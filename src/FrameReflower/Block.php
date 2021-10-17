@@ -825,7 +825,8 @@ class Block extends AbstractFrameReflower
         $style->left = $left;
         $style->right = $right;
 
-        list(, $margin_top, $margin_bottom, , ) = $this->_calculate_restricted_height();
+        $margin_top = $style->length_in_pt($style->margin_top, $cb["w"]);
+        $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
         // Update the position
         $this->_frame->position();
@@ -836,24 +837,25 @@ class Block extends AbstractFrameReflower
         $this->_frame->increase_line_width($indent);
 
         // Determine the content edge
-        $top = (float)$style->length_in_pt([$margin_top,
+        $top = (float)$style->length_in_pt([
+            $margin_top !== "auto" ? $margin_top : 0,
             $style->border_top_width,
-            $style->padding_top], $cb["w"]);
-
-        $bottom = (float)$style->length_in_pt([$margin_bottom,
+            $style->padding_top
+        ], $cb["w"]);
+        $bottom = (float)$style->length_in_pt([
+            $margin_bottom !== "auto" ? $margin_bottom : 0,
             $style->border_bottom_width,
-            $style->padding_bottom], $cb["w"]);
+            $style->padding_bottom
+        ], $cb["w"]);
 
         $cb_x = $x + (float)$left_margin + (float)$style->length_in_pt([$style->border_left_width,
                 $style->padding_left], $cb["w"]);
 
         $cb_y = $y + $top;
 
-        $cb_h = ($cb["h"] + $cb["y"]) - $bottom - $cb_y;
-
-        $height = $style->length_in_pt($style->height, $cb_h);
+        $height = $style->length_in_pt($style->height, $cb["h"]);
         if ($height === "auto") {
-            $height = $cb_h;
+            $height = ($cb["h"] + $cb["y"]) - $bottom - $cb_y;
         }
 
         // Set the y position of the first line in this block
