@@ -66,6 +66,51 @@ abstract class AbstractFrameReflower
     }
 
     /**
+     * Determine the actual containing block for absolute and fixed position.
+     *
+     * https://www.w3.org/TR/CSS21/visudet.html#containing-block-details
+     */
+    protected function determine_absolute_containing_block(): void
+    {
+        $frame = $this->_frame;
+        $style = $frame->get_style();
+
+        switch ($style->position) {
+            case "absolute":
+                $parent = $frame->find_positionned_parent();
+                if ($parent !== $frame->get_root()->get_first_child()) {
+                    $parent_style = $parent->get_style();
+                    $parent_padding_box = $parent->get_padding_box();
+                    //FIXME: an accurate measure of the positioned parent height
+                    //       is not possible until reflow has completed;
+                    //       we'll fall back to the parent's containing block,
+                    //       which is wrong for auto-height parents
+                    if ($parent_style->height === "auto") {
+                        $parent_containing_block = $parent->get_containing_block();
+                        $containing_block_height = $parent_containing_block["h"] -
+                            (float)$parent_style->length_in_pt([
+                                $parent_style->margin_top,
+                                $parent_style->margin_bottom,
+                                $parent_style->border_top_width,
+                                $parent_style->border_bottom_width
+                            ], $parent_containing_block["w"]);
+                    } else {
+                        $containing_block_height = $parent_padding_box["h"];
+                    }
+                    $frame->set_containing_block($parent_padding_box["x"], $parent_padding_box["y"], $parent_padding_box["w"], $containing_block_height);
+                    break;
+                }
+            case "fixed":
+                $initial_cb = $frame->get_root()->get_first_child()->get_containing_block();
+                $frame->set_containing_block($initial_cb["x"], $initial_cb["y"], $initial_cb["w"], $initial_cb["h"]);
+                break;
+            default:
+                // Nothing to do, containing block already set via parent
+                break;
+        }
+    }
+
+    /**
      * Collapse frames margins
      * http://www.w3.org/TR/CSS21/box.html#collapsing-margins
      */

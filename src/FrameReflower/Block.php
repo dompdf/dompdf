@@ -796,6 +796,8 @@ class Block extends AbstractFrameReflower
             return;
         }
 
+        $this->determine_absolute_containing_block();
+
         // Generated content
         $this->_set_content();
 
@@ -865,39 +867,7 @@ class Block extends AbstractFrameReflower
                 break;
             }
 
-            $child_style = $child->get_style();
-            switch ($child_style->position) {
-                case "absolute":
-                    $parent = $child->find_positionned_parent();
-                    if ($parent !== $child->get_root()->get_first_child()) {
-                        $parent_padding_box = $parent->get_padding_box();
-                        //FIXME: an accurate measure of the positioned parent height
-                        //       is not possible until reflow has completed;
-                        //       we'll fall back to the parent's containing block,
-                        //       which is wrong for auto-height parents
-                        $containing_block_height = $parent_padding_box["h"];
-                        if ($containing_block_height === "auto") {
-                            $parent_style = $parent->get_style();
-                            $parent_containing_block = $parent->get_containing_block();
-                            $containing_block_height = $parent_containing_block["h"] -
-                                (float)$parent_style->length_in_pt([
-                                    $parent_style->margin_top,
-                                    $parent_style->margin_bottom,
-                                    $parent_style->border_top_width,
-                                    $parent_style->border_bottom_width
-                                ], $parent_containing_block["w"]);
-                        }
-                        $child->set_containing_block($parent_padding_box["x"], $parent_padding_box["y"], $parent_padding_box["w"], $containing_block_height);
-                        break;
-                    }
-                case "fixed":
-                    $root_cb = $child->get_root()->get_first_child()->get_containing_block();
-                    $child->set_containing_block($root_cb["x"], $root_cb["y"], $root_cb["w"], $root_cb["h"]);
-                    break;
-                default:
-                    $child->set_containing_block($cb_x, $cb_y, $width, $height);
-                    break;
-            }
+            $child->set_containing_block($cb_x, $cb_y, $width, $height);
 
             $this->process_clear($child);
 

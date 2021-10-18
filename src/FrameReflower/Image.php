@@ -35,6 +35,8 @@ class Image extends AbstractFrameReflower
      */
     function reflow(BlockFrameDecorator $block = null)
     {
+        $this->determine_absolute_containing_block();
+
         //FLOAT
         //$frame = $this->_frame;
         //$page = $frame->get_root();

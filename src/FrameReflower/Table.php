@@ -380,6 +380,8 @@ class Table extends AbstractFrameReflower
         // inside tds.)
         $page->table_reflow_start();
 
+        $this->determine_absolute_containing_block();
+
         // Generated content
         $this->_set_content();
 
