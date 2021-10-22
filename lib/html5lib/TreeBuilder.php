@@ -3195,16 +3195,27 @@ class HTML5_TreeBuilder {
     }
 
     private function insertElement($token, $append = true) {
+
         $el = $this->dom->createElementNS(self::NS_HTML, $token['name']);
 
         if (!empty($token['attr'])) {
             foreach ($token['attr'] as $attr) {
                 if (!$el->hasAttribute($attr['name']) && preg_match("/^[a-zA-Z_:]/", $attr['name'])) {
-                    $el->setAttribute($attr['name'], $attr['value']);
+                    /** 
+                     * Se o value for igual a "" , o dompdf da errro.
+                     */
+                    if($attr["value"] != ""){
+                        $el->setAttribute($attr['name'], $attr['value']);
+                    }
                 }
             }
         }
-        if ($append) {
+
+        /** 
+         * tag html 'o:p' nao existe. Assim , evitamos um erro 
+         */
+        if ($append and $token["name"] != "o:p") {
+            // dump("insertElement" ,$token['name'],  $el);
             $this->appendToRealParent($el);
             $this->stack[] = $el;
         }
@@ -3247,17 +3258,22 @@ class HTML5_TreeBuilder {
         /* If the current node is a table, tbody, tfoot, thead, or tr
         element, then, whenever a node would be inserted into the current
         node, it must instead be inserted into the foster parent element. */
-        if (
+        try {
+              if (
             !$this->foster_parent ||
             !in_array(
                 end($this->stack)->tagName,
                 ['table', 'tbody', 'tfoot', 'thead', 'tr']
             )
         ) {
-            end($this->stack)->appendChild($node);
+                end($this->stack)->appendChild($node);
         } else {
-            $this->fosterParent($node);
+                $this->fosterParent($node);
         }
+        } catch (\Throwable $th) {
+           dd($th);
+        }
+      
     }
 
     /**
@@ -3986,4 +4002,5 @@ class HTML5_TreeBuilder {
         }
     }
 }
+
 
