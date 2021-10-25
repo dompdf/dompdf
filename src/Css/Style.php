@@ -240,6 +240,9 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left"
+        ],
+        "outline_style" => [
+            "outline_width"
         ]
     ];
 
