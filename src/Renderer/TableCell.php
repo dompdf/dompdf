@@ -7,7 +7,6 @@
  */
 namespace Dompdf\Renderer;
 
-use Dompdf\Cellmap;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Table;
 
@@ -42,8 +41,7 @@ class TableCell extends Block
         } else {
             // The collapsed case is slightly complicated...
 
-            $cellmap = $table->get_cellmap();
-            $cells = $cellmap->get_spanned_cells($frame);
+            $cells = $table->get_cellmap()->get_spanned_cells($frame);
 
             if (is_null($cells)) {
                 return;
@@ -55,7 +53,7 @@ class TableCell extends Block
             $padding_box = $frame->get_padding_box();
 
             $this->_render_background($frame, $padding_box);
-            $this->_render_collapsed_border($cellmap, $cells);
+            $this->_render_collapsed_border($frame, $table);
 
             // FIXME: Outline should be drawn over other cells
             $this->_render_outline($frame, $border_box);
@@ -68,13 +66,17 @@ class TableCell extends Block
     }
 
     /**
-     * @param Cellmap $cellmap
-     * @param array $cells
+     * @param Frame $frame
+     * @param Table $table
      */
-    protected function _render_collapsed_border(Cellmap $cellmap, array $cells): void
+    protected function _render_collapsed_border(Frame $frame, Table $table): void
     {
+        $cellmap = $table->get_cellmap();
+        $cells = $cellmap->get_spanned_cells($frame);
         $num_rows = $cellmap->get_num_rows();
         $num_cols = $cellmap->get_num_cols();
+
+        [$table_x, $table_y] = $table->get_position();
 
         // Determine the top row spanned by this cell
         $i = $cells["rows"][0];
@@ -89,8 +91,6 @@ class TableCell extends Block
         } else {
             $draw_bottom = false;
         }
-
-        [$table_x, $table_y] = $table->get_position();
 
         // Draw the horizontal borders
         foreach ($cells["columns"] as $j) {
