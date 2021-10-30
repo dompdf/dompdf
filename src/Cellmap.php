@@ -640,6 +640,7 @@ class Cellmap
             if ($min_width !== "auto" && !Helpers::is_percent($min_width)) {
                 $specified_min = (float) $style->length_in_pt($min_width);
                 $frame_min = max($frame_min, $specified_min);
+                $frame_max = max($frame_max, $frame_min);
             }
 
             if ($max_width !== "none" && !Helpers::is_percent($max_width)) {
