@@ -406,6 +406,7 @@ class Style
             $d["outline_offset"] = "0";
             $d["outline"] = "";
             $d["overflow"] = "visible";
+            $d["overflow_wrap"] = "normal";
             $d["padding_top"] = "0";
             $d["padding_right"] = "0";
             $d["padding_bottom"] = "0";
@@ -443,7 +444,6 @@ class Style
             $d["voice_family"] = "";
             $d["volume"] = "medium";
             $d["white_space"] = "normal";
-            $d["word_wrap"] = "normal";
             $d["widows"] = "2";
             $d["width"] = "auto";
             $d["word_spacing"] = "normal";
@@ -492,6 +492,7 @@ class Style
                 "list_style_type",
                 "list_style",
                 "orphans",
+                "overflow_wrap",
                 "pitch_range",
                 "pitch",
                 "quotes",
@@ -509,7 +510,6 @@ class Style
                 "voice_family",
                 "volume",
                 "white_space",
-                "word_wrap",
                 "widows",
                 "word_spacing",
             ];
@@ -905,6 +905,11 @@ class Style
     {
         $prop = str_replace("-", "_", $prop);
 
+        // Legacy property aliases
+        if ($prop === "word_wrap") {
+            $prop = "overflow_wrap";
+        }
+
         if (!isset(self::$_defaults[$prop])) {
             global $_dompdf_warnings;
             $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
@@ -960,6 +965,11 @@ class Style
      */
     function __get($prop)
     {
+        // Legacy property aliases
+        if ($prop === "word_wrap") {
+            $prop = "overflow_wrap";
+        }
+
         //FIXME: need to get shorthand from component properties
         if (!isset(self::$_defaults[$prop])) {
             throw new Exception("'$prop' is not a recognized CSS property.");
@@ -1027,6 +1037,11 @@ class Style
     {
         $prop = str_replace("-", "_", $prop);
 
+        // Legacy property aliases
+        if ($prop === "word_wrap") {
+            $prop = "overflow_wrap";
+        }
+
         if (!isset(self::$_defaults[$prop])) {
             global $_dompdf_warnings;
             $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
@@ -1055,6 +1070,11 @@ class Style
      */
     function get_prop($prop)
     {
+        // Legacy property aliases
+        if ($prop === "word_wrap") {
+            $prop = "overflow_wrap";
+        }
+
         if (!isset(self::$_defaults[$prop])) {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }

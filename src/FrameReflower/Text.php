@@ -165,7 +165,9 @@ class Text extends AbstractFrameReflower
             $str .= $word;
         }
 
-        $break_word = ($style->word_wrap === "break-word");
+        // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
+        $wrap = $style->overflow_wrap;
+        $break_word = $wrap === "anywhere" || $wrap === "break-word";
 
         // The first word has overflowed.   Force it onto the line
         if ($current_line_width == 0 && $width == 0) {
@@ -515,7 +517,10 @@ class Text extends AbstractFrameReflower
         $min_word = $min;
         $max += $delta;
 
-        if ($style->word_wrap === 'break-word') {
+        // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
+        if ($style->overflow_wrap === "anywhere"
+            && !in_array($style->white_space, ["pre", "nowrap"], true)
+        ) {
             // If it is allowed to break words, the min width is the widest character.
             // But for performance reasons, we only check the first character.
             $char = mb_substr($str, 0, 1);
@@ -546,7 +551,10 @@ class Text extends AbstractFrameReflower
         $word_spacing = (float)$style->length_in_pt($style->word_spacing);
         $char_spacing = (float)$style->length_in_pt($style->letter_spacing);
 
-        if ($style->word_wrap === 'break-word' && !in_array($style->white_space, ["pre", "nowrap"], true)) {
+        // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
+        if ($style->overflow_wrap === "anywhere"
+            && !in_array($style->white_space, ["pre", "nowrap"], true)
+        ) {
             // If it is allowed to break words, the min width is the widest character.
             // But for performance reasons, we only check the first character.
             $char = mb_substr($str, 0, 1);
