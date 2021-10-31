@@ -296,8 +296,21 @@ abstract class AbstractFrameReflower
             return $this->_min_max_cache;
         }
 
-        $style = $this->_frame->get_style();
         $cb_w = $this->_frame->get_containing_block("w");
+        $style = $this->_frame->get_style();
+
+        // Ignore percentage values for a specified width here, as the
+        // containing block is not defined yet
+        $display = $style->display;
+        $width = $style->width;
+        $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
+
+        // If the frame has a specified width, then we don't need to check its
+        // children. Table cells are handled slightly differently below
+        if ($fixed_width && $display !== "inline" && $display !== "table-cell") {
+            $width = (float) $style->length_in_pt($width, $cb_w);
+            return $this->_min_max_cache = [$width, $width, "min" => $width, "max" => $width];
+        }
 
         $low = [];
         $high = [];
@@ -339,17 +352,12 @@ abstract class AbstractFrameReflower
         $min = count($low) ? max($low) : 0;
         $max = count($high) ? max($high) : 0;
 
-        // Use specified width if it is greater than the minimum defined by the
-        // content.  If the width is a percentage ignore it for now.
-        $width = $style->width;
-        if ($width !== "auto" && !Helpers::is_percent($width)) {
-            $width = (float)$style->length_in_pt($width, $cb_w);
-            if ($min < $width) {
-                $min = $width;
-            }
-            if ($max < $width) {
-                $max = $width;
-            }
+        // For table cells: Use specified width if it is greater than the
+        // minimum defined by the content
+        if ($fixed_width && $display === "table-cell") {
+            $width = (float) $style->length_in_pt($width, $cb_w);
+            $min = max($width, $min);
+            $max = $min;
         }
 
         return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
