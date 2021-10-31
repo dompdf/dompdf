@@ -644,10 +644,10 @@ class Cellmap
             }
 
             if ($max_width !== "none" && !Helpers::is_percent($max_width)) {
-                // `min-width` and the natural minimum width take precedence
-                // over `max-width` here
+                // `min-width` takes precedence over `max-width` here
                 $specified_max = (float) $style->length_in_pt($max_width);
-                $frame_max = max(min($frame_max, $specified_max), $frame_min);
+                $frame_max = max(min($frame_max, $specified_max), $specified_min ?? 0);
+                $frame_min = min($frame_min, $frame_max);
             }
 
             $width = $style->width;
