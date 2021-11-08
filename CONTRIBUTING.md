@@ -6,8 +6,8 @@
 
 ## Getting help
 
-Community discussion, questions, and informal bug reporting is done on the
-[dompdf Google group](http://groups.google.com/group/dompdf). You may also 
+Community discussion, questions, and informal bug reporting is done using
+[discussions](https://github.com/dompdf/dompdf/discussions). You may also 
 seek help on
 [StackOverflow](http://stackoverflow.com/questions/tagged/dompdf).
 
@@ -20,8 +20,8 @@ reporting a bug, read these pointers.
 **Please search inside the bug tracker to see if the bug you found is not already reported.**
 
 **Note:** The issue tracker is for *bugs* and *feature requests*, not requests for help.
-Questions should be asked on the
-[dompdf Google group](http://groups.google.com/group/dompdf) instead.
+Questions should be asked through
+[discussions](https://github.com/dompdf/dompdf/discussions) instead.
 
 ### Reporting bugs effectively
 
@@ -35,7 +35,7 @@ Questions should be asked on the
   Also include the operating system it's installed on. PHP configuration can also help,
   and server error logs (like Apache logs)
 
-- Mention which release of dompdf you're using (the zip, the master branch, etc).
+- Mention which release of dompdf you're using (the zip, a specific branch, etc).
   Preferably, try also with the current development snapshot, to ensure the
   problem has not already been fixed.
 
@@ -57,9 +57,7 @@ Questions should be asked on the
 - Make sure you have a [GitHub Account](https://github.com/signup/free)
 - Fork [dompdf](https://github.com/dompdf/dompdf/)
   ([how to fork a repo](https://help.github.com/articles/fork-a-repo))
-- *Make your changes on the `develop` branch* or the most appropriate feature branch. Please only patch 
-  the master branch if you are attempting to address an urgent bug in the released code.
-- Add a simple test file in `www/test/`, with a comprehensive name.
+- *Make your changes on the `master` branch* or the most appropriate feature branch.
 - Add a unit test in the ``test/Dompdf/Tests/`` directory.
 - Submit a pull request
 ([how to create a pull request](https://help.github.com/articles/fork-a-repo))
