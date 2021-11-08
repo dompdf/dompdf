@@ -113,7 +113,7 @@ class CPDF implements Canvas
     /**
      * Instance of Cpdf class
      *
-     * @var Cpdf
+     * @var \Dompdf\Cpdf
      */
     protected $_pdf;
 
@@ -203,11 +203,11 @@ class CPDF implements Canvas
         $this->_pdf = new \Dompdf\Cpdf(
             $size,
             true,
-            $dompdf->getOptions()->getFontCache(),
-            $dompdf->getOptions()->getTempDir()
+            $this->_dompdf->getOptions()->getFontCache(),
+            $this->_dompdf->getOptions()->getTempDir()
         );
 
-        $this->_pdf->addInfo("Producer", sprintf("%s + CPDF", $dompdf->version));
+        $this->_pdf->addInfo("Producer", sprintf("%s + CPDF", $this->_dompdf->version));
         $time = substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'';
         $this->_pdf->addInfo("CreationDate", "D:$time");
         $this->_pdf->addInfo("ModDate", "D:$time");
@@ -606,15 +606,15 @@ class CPDF implements Canvas
     }
 
     /**
-     * Convert a GIF or BMP image to a PNG image
+     * Convert image to a PNG image
      *
      * @param string $image_url
-     * @param integer $type
+     * @param int $type
      *
      * @throws Exception
      * @return string The url of the newly converted image
      */
-    protected function _convert_gif_bmp_to_png($image_url, $type)
+    protected function _convert_to_png($image_url, $type)
     {
         $func_name = "imagecreatefrom$type";
 
@@ -859,12 +859,14 @@ class CPDF implements Canvas
                 $this->_pdf->addJpegFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
+            case "webp":
+            /** @noinspection PhpMissingBreakStatementInspection */
             case "gif":
             /** @noinspection PhpMissingBreakStatementInspection */
             case "bmp":
-                if ($debug_png) print '!!!bmp or gif!!!';
-                // @todo use cache for BMP and GIF
-                $img = $this->_convert_gif_bmp_to_png($img, $type);
+                if ($debug_png) print "!!!{$type}!!!";
+                // @todo use cache for converted images (BMP/GIF/WebP)
+                $img = $this->_convert_to_png($img, $type);
 
             case "png":
                 if ($debug_png) print '!!!png!!!';
@@ -932,7 +934,7 @@ class CPDF implements Canvas
         $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
         $ff = 0;
 
-        switch($type) {
+        switch ($type) {
             case 'text':
                 $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
                 break;
@@ -1021,23 +1023,14 @@ class CPDF implements Canvas
      * @param string $text
      * @param string $font
      * @param float $size
-     * @param int $word_spacing
-     * @param int $char_spacing
-     * @return float|int
+     * @param float $word_spacing
+     * @param float $char_spacing
+     * @return float
      */
     public function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0)
     {
         $this->_pdf->selectFont($font, '', true, $this->_dompdf->getOptions()->getIsFontSubsettingEnabled());
         return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
-    }
-
-    /**
-     * @param $font
-     * @param $string
-     */
-    public function register_string_subset($font, $string)
-    {
-        $this->_pdf->registerText($font, $string);
     }
 
     /**
@@ -1158,7 +1151,7 @@ class CPDF implements Canvas
                         break;
 
                     case 'line':
-                        $this->line( $x1, $y1, $x2, $y2, $color, $width, $style );
+                        $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
                         break;
                 }
             }

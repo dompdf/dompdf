@@ -124,7 +124,7 @@ class ListBulletImage extends AbstractFrameDecorator
      *
      * @return int
      */
-    function get_margin_width()
+    public function get_margin_width(): float
     {
         //ignore image width, use same width as on predefined bullet ListBullet
         //for proper alignment of bullet image and text. Allow image to not fitting on left border.
@@ -136,7 +136,7 @@ class ListBulletImage extends AbstractFrameDecorator
         // Small hack to prevent indenting of list text
         // Image might not exist, then position like on list_bullet_frame_decorator fallback to none.
         if ($this->_frame->get_style()->list_style_position === "outside" || $this->_width == 0) {
-            return 0;
+            return 0.0;
         }
         //This aligns the "inside" image position with the text.
         //The text starts to the right of the image.
@@ -149,9 +149,9 @@ class ListBulletImage extends AbstractFrameDecorator
     /**
      * Override get_margin_height()
      *
-     * @return int
+     * @return float
      */
-    function get_margin_height()
+    public function get_margin_height(): float
     {
         //Hits only on "inset" lists items, to increase height of box
         //based on image height

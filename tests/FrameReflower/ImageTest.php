@@ -23,8 +23,8 @@ class ImageTest extends TestCase
 
         $expectedWidth = 1966.08;
 
-        $this->assertEquals($expectedWidth . 'pt', $style->width);
-        $this->assertEquals('1474.56' . 'pt', $style->height);
+        $this->assertEquals($expectedWidth, $style->width);
+        $this->assertEquals(1474.56, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -40,8 +40,8 @@ class ImageTest extends TestCase
 
         $expectedWidth = 75;
 
-        $this->assertEquals($expectedWidth . 'pt', $style->width);
-        $this->assertEquals('150' . 'pt', $style->height);
+        $this->assertEquals($expectedWidth, $style->width);
+        $this->assertEquals(150, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -60,9 +60,9 @@ class ImageTest extends TestCase
         $expectedWidth = 75;
 
         // 400px * 0.75 (dpi) * 0.50 (imageFrame) * 0.50 (rootFrame)
-        $this->assertEquals($expectedWidth . 'pt', $style->width);
+        $this->assertEquals($expectedWidth, $style->width);
         // 800px * 0.75 (dpi) * 0.75 (imageFrame) * 0.75 (rootFrame)
-        $this->assertEquals('337.5' . 'pt', $style->height);
+        $this->assertEquals(337.5, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -78,8 +78,8 @@ class ImageTest extends TestCase
 
         $expectedWidth = 0;
 
-        $this->assertEquals($expectedWidth . 'pt', $style->width);
-        $this->assertEquals(0 . 'pt', $style->height);
+        $this->assertEquals($expectedWidth, $style->width);
+        $this->assertEquals(0, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -103,8 +103,8 @@ class ImageTest extends TestCase
         $style = $frame->get_style();
 
 
-        $this->assertEquals('300pt', $style->width);
-        $this->assertEquals('375pt', $style->height);
+        $this->assertEquals(300, $style->width);
+        $this->assertEquals(375, $style->height);
 
         $this->assertEquals(['300', '300', 'min' => '300', 'max' => '300'], $result);
     }

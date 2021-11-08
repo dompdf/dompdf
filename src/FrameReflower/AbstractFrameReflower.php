@@ -7,8 +7,6 @@
  */
 namespace Dompdf\FrameReflower;
 
-use Dompdf\Adapter\CPDF;
-use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Frame;
@@ -34,7 +32,7 @@ abstract class AbstractFrameReflower
     protected $_frame;
 
     /**
-     * Cached min/max size
+     * Cached min/max (content) size
      *
      * @var array
      */
@@ -62,40 +60,93 @@ abstract class AbstractFrameReflower
         return $this->_frame->get_dompdf();
     }
 
+    public function reset(): void
+    {
+        $this->_min_max_cache = null;
+    }
+
+    /**
+     * Determine the actual containing block for absolute and fixed position.
+     *
+     * https://www.w3.org/TR/CSS21/visudet.html#containing-block-details
+     */
+    protected function determine_absolute_containing_block(): void
+    {
+        $frame = $this->_frame;
+        $style = $frame->get_style();
+
+        switch ($style->position) {
+            case "absolute":
+                $parent = $frame->find_positionned_parent();
+                if ($parent !== $frame->get_root()) {
+                    $parent_style = $parent->get_style();
+                    $parent_padding_box = $parent->get_padding_box();
+                    //FIXME: an accurate measure of the positioned parent height
+                    //       is not possible until reflow has completed;
+                    //       we'll fall back to the parent's containing block,
+                    //       which is wrong for auto-height parents
+                    if ($parent_style->height === "auto") {
+                        $parent_containing_block = $parent->get_containing_block();
+                        $containing_block_height = $parent_containing_block["h"] -
+                            (float)$parent_style->length_in_pt([
+                                $parent_style->margin_top,
+                                $parent_style->margin_bottom,
+                                $parent_style->border_top_width,
+                                $parent_style->border_bottom_width
+                            ], $parent_containing_block["w"]);
+                    } else {
+                        $containing_block_height = $parent_padding_box["h"];
+                    }
+                    $frame->set_containing_block($parent_padding_box["x"], $parent_padding_box["y"], $parent_padding_box["w"], $containing_block_height);
+                    break;
+                }
+            case "fixed":
+                $initial_cb = $frame->get_root()->get_first_child()->get_containing_block();
+                $frame->set_containing_block($initial_cb["x"], $initial_cb["y"], $initial_cb["w"], $initial_cb["h"]);
+                break;
+            default:
+                // Nothing to do, containing block already set via parent
+                break;
+        }
+    }
+
     /**
      * Collapse frames margins
-     * http://www.w3.org/TR/CSS2/box.html#collapsing-margins
+     * http://www.w3.org/TR/CSS21/box.html#collapsing-margins
      */
     protected function _collapse_margins()
     {
         $frame = $this->_frame;
-        $cb = $frame->get_containing_block();
-        $style = $frame->get_style();
 
-        // Margins of float/absolutely positioned/inline-block elements do not collapse.
-        if (!$frame->is_in_flow() || $frame->is_inline_block() || $frame->get_root() == $frame || $frame->get_parent() == $frame->get_root()) {
+        // Margins of float/absolutely positioned/inline-level elements do not collapse
+        if (!$frame->is_in_flow() || $frame->is_inline_level()
+            || $frame->get_root() === $frame || $frame->get_parent() === $frame->get_root()
+        ) {
             return;
         }
 
-        $t = $style->length_in_pt($style->margin_top, $cb["h"]);
-        $b = $style->length_in_pt($style->margin_bottom, $cb["h"]);
+        $cb = $frame->get_containing_block();
+        $style = $frame->get_style();
+
+        $t = $style->length_in_pt($style->margin_top, $cb["w"]);
+        $b = $style->length_in_pt($style->margin_bottom, $cb["w"]);
 
         // Handle 'auto' values
         if ($t === "auto") {
-            $style->margin_top = "0pt";
+            $style->margin_top = 0;
             $t = 0;
         }
 
         if ($b === "auto") {
-            $style->margin_bottom = "0pt";
+            $style->margin_bottom = 0;
             $b = 0;
         }
 
         // Collapse vertical margins:
         $n = $frame->get_next_sibling();
-        if ( $n && !$n->is_block() & !$n->is_table() ) {
+        if ( $n && !($n->is_block_level() && $n->is_in_flow()) ) {
             while ($n = $n->get_next_sibling()) {
-                if ($n->is_block() || $n->is_table()) {
+                if ($n->is_block_level() && $n->is_in_flow()) {
                     break;
                 }
 
@@ -108,76 +159,76 @@ abstract class AbstractFrameReflower
 
         if ($n) {
             $n_style = $n->get_style();
-            $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["h"]);
+            $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["w"]);
 
             $b = $this->_get_collapsed_margin_length($b, $n_t);
-            $style->margin_bottom = $b . "pt";
-            $n_style->margin_top = "0pt";
+            $style->margin_bottom = $b;
+            $n_style->margin_top = 0;
         }
 
         // Collapse our first child's margin, if there is no border or padding
         if ($style->border_top_width == 0 && $style->length_in_pt($style->padding_top) == 0) {
             $f = $this->_frame->get_first_child();
-            if ( $f && !$f->is_block() && !$f->is_table() ) {
-                while ( $f = $f->get_next_sibling() ) {
-                    if ( $f->is_block() || $f->is_table() ) {
+            if ( $f && !($f->is_block_level() && $f->is_in_flow()) ) {
+                while ($f = $f->get_next_sibling()) {
+                    if ($f->is_block_level() && $f->is_in_flow()) {
                         break;
                     }
 
-                    if ( !$f->get_first_child() ) {
+                    if (!$f->get_first_child()) {
                         $f = null;
                         break;
                     }
                 }
             }
 
-            // Margin are collapsed only between block-level boxes
+            // Margins are collapsed only between block-level boxes
             if ($f) {
                 $f_style = $f->get_style();
-                $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["h"]);
+                $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["w"]);
 
                 $t = $this->_get_collapsed_margin_length($t, $f_t);
-                $style->margin_top = $t."pt";
-                $f_style->margin_top = "0pt";
+                $style->margin_top = $t;
+                $f_style->margin_top = 0;
             }
         }
 
         // Collapse our last child's margin, if there is no border or padding
         if ($style->border_bottom_width == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
             $l = $this->_frame->get_last_child();
-            if ( $l && !$l->is_block() && !$l->is_table() ) {
-                while ( $l = $l->get_prev_sibling() ) {
-                    if ( $l->is_block() || $l->is_table() ) {
+            if ( $l && !($l->is_block_level() && $l->is_in_flow()) ) {
+                while ($l = $l->get_prev_sibling()) {
+                    if ($l->is_block_level() && $l->is_in_flow()) {
                         break;
                     }
 
-                    if ( !$l->get_last_child() ) {
+                    if (!$l->get_last_child()) {
                         $l = null;
                         break;
                     }
                 }
             }
 
-            // Margin are collapsed only between block-level boxes
+            // Margins are collapsed only between block-level boxes
             if ($l) {
                 $l_style = $l->get_style();
-                $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["h"]);
+                $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["w"]);
 
                 $b = $this->_get_collapsed_margin_length($b, $l_b);
-                $style->margin_bottom = $b."pt";
-                $l_style->margin_bottom = "0pt";
+                $style->margin_bottom = $b;
+                $l_style->margin_bottom = 0;
             }
         }
     }
 
     /**
      * Get the combined (collapsed) length of two adjoining margins.
-     * 
-     * See http://www.w3.org/TR/CSS2/box.html#collapsing-margins.
-     * 
-     * @param number $length1
-     * @param number $length2
-     * @return number
+     *
+     * See http://www.w3.org/TR/CSS21/box.html#collapsing-margins.
+     *
+     * @param float $length1
+     * @param float $length2
+     * @return float
      */
     private function _get_collapsed_margin_length($length1, $length2)
     {
@@ -193,25 +244,135 @@ abstract class AbstractFrameReflower
     }
 
     /**
+     * Handle relative positioning according to
+     * https://www.w3.org/TR/CSS21/visuren.html#relative-positioning.
+     *
+     * @param Frame $frame The frame to handle.
+     */
+    protected function position_relative(Frame $frame): void
+    {
+        $style = $frame->get_style();
+
+        if ($style->position === "relative") {
+            $cb = $frame->get_containing_block();
+            $top = $style->length_in_pt($style->top, $cb["h"]);
+            $right = $style->length_in_pt($style->right, $cb["w"]);
+            $bottom = $style->length_in_pt($style->bottom, $cb["h"]);
+            $left = $style->length_in_pt($style->left, $cb["w"]);
+
+            // FIXME RTL case:
+            // if ($left !== "auto" && $right !== "auto") $left = -$right;
+            if ($left === "auto" && $right === "auto") {
+                $left = 0;
+            } elseif ($left === "auto") {
+                $left = -(float) $right;
+            }
+
+            if ($top === "auto" && $bottom === "auto") {
+                $top = 0;
+            } elseif ($top === "auto") {
+                $top = -(float) $bottom;
+            }
+
+            $frame->move((float) $left, (float) $top);
+        }
+    }
+
+    /**
      * @param Block|null $block
      * @return mixed
      */
     abstract function reflow(Block $block = null);
 
     /**
-     * Required for table layout: Returns an array(0 => min, 1 => max, "min"
-     * => min, "max" => max) of the minimum and maximum widths of this frame.
-     * This provides a basic implementation.  Child classes should override
-     * this if necessary.
+     * Get the minimum and maximum width of the content of this frame.
      *
-     * @return array|null
+     * @return array An array [0 => min, 1 => max, "min" => min, "max" => max]
+     * of the min and max width.
      */
-    function get_min_max_width()
+    function get_min_max_content_width(): array
     {
         if (!is_null($this->_min_max_cache)) {
             return $this->_min_max_cache;
         }
 
+        $cb_w = $this->_frame->get_containing_block("w");
+        $style = $this->_frame->get_style();
+
+        // Ignore percentage values for a specified width here, as the
+        // containing block is not defined yet
+        $display = $style->display;
+        $width = $style->width;
+        $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
+
+        // If the frame has a specified width, then we don't need to check its
+        // children. Table cells are handled slightly differently below
+        if ($fixed_width && $display !== "inline" && $display !== "table-cell") {
+            $width = (float) $style->length_in_pt($width, $cb_w);
+            return $this->_min_max_cache = [$width, $width, "min" => $width, "max" => $width];
+        }
+
+        $low = [];
+        $high = [];
+
+        for ($iter = $this->_frame->get_children()->getIterator(); $iter->valid(); $iter->next()) {
+            $inline_min = 0;
+            $inline_max = 0;
+
+            // Add all adjacent inline widths together to calculate max width
+            while ($iter->valid() && ($iter->current()->is_inline_level() || $iter->current()->get_style()->display === "-dompdf-image")) {
+                $child = $iter->current();
+                $child->get_reflower()->_set_content();
+                $minmax = $child->get_min_max_width();
+
+                if (in_array($child->get_style()->white_space, ["pre", "nowrap"], true)) {
+                    $inline_min += $minmax["min"];
+                } else {
+                    $low[] = $minmax["min"];
+                }
+
+                $inline_max += $minmax["max"];
+                $iter->next();
+            }
+
+            if ($inline_min > 0) {
+                $low[] = $inline_min;
+            }
+            if ($inline_max > 0) {
+                $high[] = $inline_max;
+            }
+
+            // Skip children with absolute position
+            if ($iter->valid() && !$iter->current()->is_absolute()) {
+                $child = $iter->current();
+                $child->get_reflower()->_set_content();
+                list($low[], $high[]) = $child->get_min_max_width();
+            }
+        }
+        $min = count($low) ? max($low) : 0;
+        $max = count($high) ? max($high) : 0;
+
+        // For table cells: Use specified width if it is greater than the
+        // minimum defined by the content
+        if ($fixed_width && $display === "table-cell") {
+            $width = (float) $style->length_in_pt($width, $cb_w);
+            $min = max($width, $min);
+            $max = $min;
+        }
+
+        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
+    }
+
+    /**
+     * Required for table layout: Get the minimum and maximum width of this
+     * frame.  This provides a basic implementation.  Child classes should
+     * override this if necessary.
+     *
+     * @return array An array [0 => min, 1 => max, "min" => min, "max" => max]
+     * of the min and max width.
+     */
+    function get_min_max_width(): array
+    {
         $style = $this->_frame->get_style();
 
         // Account for margins & padding
@@ -225,69 +386,11 @@ abstract class AbstractFrameReflower
         $cb_w = $this->_frame->get_containing_block("w");
         $delta = (float)$style->length_in_pt($dims, $cb_w);
 
-        // Handle degenerate case
-        if (!$this->_frame->get_first_child()) {
-            return $this->_min_max_cache = [
-                $delta, $delta,
-                "min" => $delta,
-                "max" => $delta,
-            ];
-        }
-
-        $low = [];
-        $high = [];
-
-        for ($iter = $this->_frame->get_children()->getIterator(); $iter->valid(); $iter->next()) {
-            $inline_min = 0;
-            $inline_max = 0;
-
-            // Add all adjacent inline widths together to calculate max width
-            while ($iter->valid() && in_array($iter->current()->get_style()->display, Style::$INLINE_TYPES)) {
-                $child = $iter->current();
-
-                $minmax = $child->get_min_max_width();
-
-                if (in_array($iter->current()->get_style()->white_space, ["pre", "nowrap"])) {
-                    $inline_min += $minmax["min"];
-                } else {
-                    $low[] = $minmax["min"];
-                }
-
-                $inline_max += $minmax["max"];
-                $iter->next();
-            }
-
-            if ($inline_max > 0) {
-                $high[] = $inline_max;
-            }
-            if ($inline_min > 0) {
-                $low[] = $inline_min;
-            }
-
-            if ($iter->valid()) {
-                list($low[], $high[]) = $iter->current()->get_min_max_width();
-                continue;
-            }
-        }
-        $min = count($low) ? max($low) : 0;
-        $max = count($high) ? max($high) : 0;
-
-        // Use specified width if it is greater than the minimum defined by the
-        // content.  If the width is a percentage ignore it for now.
-        $width = $style->width;
-        if ($width !== "auto" && !Helpers::is_percent($width)) {
-            $width = (float)$style->length_in_pt($width, $cb_w);
-            if ($min < $width) {
-                $min = $width;
-            }
-            if ($max < $width) {
-                $max = $width;
-            }
-        }
+        [$min, $max] = $this->get_min_max_content_width();
 
         $min += $delta;
         $max += $delta;
-        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
+        return [$min, $max, "min" => $min, "max" => $max];
     }
 
     /**
@@ -483,12 +586,16 @@ abstract class AbstractFrameReflower
     protected function _set_content()
     {
         $frame = $this->_frame;
+
+        if ($frame->content_set) {
+            return;
+        }
+
         $style = $frame->get_style();
 
-        // if the element was pushed to a new page use the saved counter value, otherwise use the CSS reset value
         if ($style->counter_reset && ($reset = $style->counter_reset) !== "none") {
             $vars = preg_split('/\s+/', trim($reset), 2);
-            $frame->reset_counter($vars[0], (isset($frame->_counters['__' . $vars[0]]) ? $frame->_counters['__' . $vars[0]] : (isset($vars[1]) ? $vars[1] : 0)));
+            $frame->reset_counter($vars[0], isset($vars[1]) ? $vars[1] : 0);
         }
 
         if ($style->counter_increment && ($increment = $style->counter_increment) !== "none") {
@@ -497,13 +604,6 @@ abstract class AbstractFrameReflower
 
         if ($style->content && $frame->get_node()->nodeName === "dompdf_generated") {
             $content = $this->_parse_content();
-            // add generated content to the font subset
-            // FIXME: This is currently too late because the font subset has already been generated.
-            //        See notes in issue #750.
-            if ($frame->get_dompdf()->getOptions()->getIsFontSubsettingEnabled() && $frame->get_dompdf()->get_canvas() instanceof CPDF) {
-                $frame->get_dompdf()->get_canvas()->register_string_subset($style->font_family, $content);
-            }
-
             $node = $frame->get_node()->ownerDocument->createTextNode($content);
 
             $new_style = $style->get_stylesheet()->create_style();
@@ -515,15 +615,7 @@ abstract class AbstractFrameReflower
             Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
             $frame->append_child($new_frame);
         }
-    }
 
-    /**
-     * Determine current frame width based on contents
-     *
-     * @return float
-     */
-    public function calculate_auto_width()
-    {
-        return $this->_frame->get_margin_width();
+        $frame->content_set = true;
     }
 }

@@ -33,57 +33,83 @@ class StyleTest extends TestCase
         $this->assertEquals(12, $length);
     }
 
-    /**
-     * @group regression
-     */
-    public function testCssImageNoneParsingNoBaseHref()
+    public function cssImageBasicProvider(): array
     {
-        $dompdf = new Dompdf();
-        $sheet = new Stylesheet($dompdf);
-        $s = new Style($sheet);
+        return [
+            "no value" => ["", "none"],
+            "keyword none" => ["none", "none"],
+            "bare url" => ["http://example.com/test.png", "none"],
+            "http" => ["url(http://example.com/test.png)", "http://example.com/test.png"]
+        ];
+    }
 
-        // keyword none
-        $s->background_image = "none";
-        $this->assertEquals("none", $s->background_image);
+    public function cssImageNoBaseHrefProvider(): array
+    {
+        $basePath = realpath(__DIR__ . "/..");
+        return [
+            "local absolute" => ["url($basePath/_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"],
+            "local relative" => ["url(../_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"]
+        ];
+    }
 
-        // no value
-        $s->background_image = "";
-        $this->assertEquals("none", $s->background_image);
+    public function cssImageWithBaseHrefProvider(): array
+    {
+        $basePath = realpath(__DIR__ . "/..");
+        return [
+            "local absolute" => ["url($basePath/_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"],
+            "local relative" => ["url(../_files/jamaica.jpg)", "$basePath".DIRECTORY_SEPARATOR."_files".DIRECTORY_SEPARATOR."jamaica.jpg"]
+        ];
+    }
 
-        // bare url
-        $s->background_image = "http://example.com/test.png";
-        $this->assertEquals("none", $s->background_image);
+    public function cssImageWithStylesheetBaseHrefProvider(): array
+    {
+        return [
+            "local absolute" => ["url(/_files/jamaica.jpg)", "https://example.com/_files/jamaica.jpg"],
+            "local relative" => ["url(../_files/jamaica.jpg)", "https://example.com/../_files/jamaica.jpg"]
+        ];
     }
 
     /**
+     * @dataProvider cssImageBasicProvider
+     * @dataProvider cssImageNoBaseHrefProvider
      * @group regression
      */
-    public function testCssImageNoneParsingWithBaseHref()
+    public function testCssImageNoBaseHref($value, $expected)
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $sheet->set_base_path(__DIR__); // Treat the stylesheet as being located in this directory
+        $s = new Style($sheet);
+
+        $s->background_image = $value;
+        $this->assertSame($expected, $s->background_image);
+    }
+
+    /**
+     * @dataProvider cssImageBasicProvider
+     * @dataProvider cssImageWithBaseHrefProvider
+     * @group regression
+     */
+    public function testCssImageWithBaseHref($value, $expected)
     {
         $dompdf = new Dompdf();
         $dompdf->setProtocol("https://");
         $dompdf->setBaseHost("example.com");
         $dompdf->setBasePath("/");
         $sheet = new Stylesheet($dompdf);
+        $sheet->set_base_path(__DIR__); // Treat the stylesheet as being located in this directory
         $s = new Style($sheet);
 
-        // keyword none
-        $s->background_image = "none";
-        $this->assertEquals("none", $s->background_image);
-
-        // no value
-        $s->background_image = "";
-        $this->assertEquals("none", $s->background_image);
-
-        // bare url
-        $s->background_image = "http://example.com/test.png";
-        $this->assertEquals("none", $s->background_image);
+        $s->background_image = $value;
+        $this->assertSame($expected, $s->background_image);
     }
 
     /**
+     * @dataProvider cssImageBasicProvider
+     * @dataProvider cssImageWithStylesheetBaseHrefProvider
      * @group regression
      */
-    public function testCssImageNoneParsingWithStylesheetBaseHref()
+    public function testCssImageWithStylesheetBaseHref($value, $expected)
     {
         $dompdf = new Dompdf();
         $sheet = new Stylesheet($dompdf);
@@ -92,16 +118,7 @@ class StyleTest extends TestCase
         $sheet->set_base_path("/");
         $s = new Style($sheet);
 
-        // keyword none
-        $s->background_image = "none";
-        $this->assertEquals("none", $s->background_image);
-
-        // no value
-        $s->background_image = "";
-        $this->assertEquals("none", $s->background_image);
-
-        // bare url
-        $s->background_image = "http://example.com/test.png";
-        $this->assertEquals("none", $s->background_image);
+        $s->background_image = $value;
+        $this->assertSame($expected, $s->background_image);
     }
 }

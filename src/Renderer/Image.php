@@ -27,68 +27,24 @@ class Image extends Block
     {
         // Render background & borders
         $style = $frame->get_style();
-        $cb = $frame->get_containing_block();
-        list($x, $y, $w, $h) = $frame->get_border_box();
+        $border_box = $frame->get_border_box();
+        [, , $bw, $bh] = $border_box;
 
-        if ($w === 0.0 || $h === 0.0) {
+        if ($bw === 0.0 || $bh === 0.0) {
             return;
         }
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
-        list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
+        $this->_render_background($frame, $border_box);
+        $this->_render_border($frame, $border_box);
+        $this->_render_outline($frame, $border_box);
 
-        $has_border_radius = $tl + $tr + $br + $bl > 0;
+        $content_box = $frame->get_content_box();
+        [$x, $y, $w, $h] = $content_box;
 
-        if ($has_border_radius) {
-            $this->_canvas->clipping_roundrectangle($x, $y, (float)$w, (float)$h, $tl, $tr, $br, $bl);
-        }
-
-        if (($bg = $style->background_color) !== "transparent") {
-            $this->_canvas->filled_rectangle($x, $y, (float)$w, (float)$h, $bg);
-        }
-
-        if (($url = $style->background_image) && $url !== "none") {
-            $this->_background_image($url, $x, $y, $w, $h, $style);
-        }
-
-        if ($has_border_radius) {
-            $this->_canvas->clipping_end();
-        }
-
-        $this->_render_border($frame);
-        $this->_render_outline($frame);
-
-        list($x, $y) = $frame->get_padding_box();
-
-        $x += (float)$style->length_in_pt($style->padding_left, $cb["w"]);
-        $y += (float)$style->length_in_pt($style->padding_top, $cb["h"]);
-
-        $w = (float)$style->length_in_pt($style->width, $cb["w"]);
-        $h = (float)$style->length_in_pt($style->height, $cb["h"]);
-
-        if ($has_border_radius) {
-            list($wt, $wr, $wb, $wl) = [
-                $style->border_top_width,
-                $style->border_right_width,
-                $style->border_bottom_width,
-                $style->border_left_width,
-            ];
-
-            // we have to get the "inner" radius
-            if ($tl > 0) {
-                $tl -= ($wt + $wl) / 2;
-            }
-            if ($tr > 0) {
-                $tr -= ($wt + $wr) / 2;
-            }
-            if ($br > 0) {
-                $br -= ($wb + $wr) / 2;
-            }
-            if ($bl > 0) {
-                $bl -= ($wb + $wl) / 2;
-            }
-
+        if ($style->has_border_radius()) {
+            [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $content_box);
             $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
         }
 
@@ -114,7 +70,7 @@ class Image extends Block
             $this->_canvas->image($src, $x, $y, $w, $h, $style->image_resolution);
         }
 
-        if ($has_border_radius) {
+        if ($style->has_border_radius()) {
             $this->_canvas->clipping_end();
         }
 
@@ -128,18 +84,11 @@ class Image extends Block
             }
         }
 
-        if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutBlocks()) {
-            $debug_border_box = $frame->get_border_box();
-            $this->_debug_layout([$debug_border_box['x'], $debug_border_box['y'], (float)$debug_border_box['w'], (float)$debug_border_box['h']], "blue");
-            if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                $debug_padding_box = $frame->get_padding_box();
-                $this->_debug_layout([$debug_padding_box['x'], $debug_padding_box['y'], (float)$debug_padding_box['w'], (float)$debug_padding_box['h']], "blue", [0.5, 0.5]);
-        }
-        }
-
         $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0)  {
+        if (strlen($id) > 0) {
             $this->_canvas->add_named_dest($id);
         }
+
+        $this->debugBlockLayout($frame, "blue");
     }
 }

@@ -178,7 +178,7 @@ class GD implements Canvas
         $this->_actual_width = $this->_upscale($this->_width);
         $this->_actual_height = $this->_upscale($this->_height);
 
-        $this->_page_number = $this->_page_count = 1;
+        $this->_page_number = $this->_page_count = 0;
         $this->_page_text = [];
 
         if (is_null($bg_color) || !is_array($bg_color)) {

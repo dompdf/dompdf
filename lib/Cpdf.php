@@ -24,6 +24,7 @@ use FontLib\BinaryStream;
 
 class Cpdf
 {
+    const PDF_VERSION = '1.7';
 
     const ACROFORM_SIG_SIGNATURESEXISTS = 0x0001;
     const ACROFORM_SIG_APPENDONLY =       0x0002;
@@ -3186,7 +3187,7 @@ EOT;
         $this->checkAllHere();
 
         $xref = [];
-        $content = '%PDF-1.7';
+        $content = '%PDF-' . self::PDF_VERSION;
         $pos = mb_strlen($content, '8bit');
 
         // pre-process o_font objects before output of all objects
@@ -3297,7 +3298,7 @@ EOT;
         }
 
         //$name       filename without folder and extension of font metrics
-        //$dir      folder of font metrics
+        //$dir        folder of font metrics
         //$fontcache  folder of runtime created php serialized version of font metrics.
         //            If this is not given, the same folder as the font metrics will be used.
         //            Storing and reusing serialized versions improves speed much
@@ -3536,6 +3537,10 @@ EOT;
      */
     function selectFont($fontName, $encoding = '', $set = true, $isSubsetting = true)
     {
+        if ($fontName === null || $fontName === '') {
+            return $this->currentFontNum;
+        }
+
         $ext = substr($fontName, -4);
         if ($ext === '.afm' || $ext === '.ufm') {
             $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
@@ -3782,10 +3787,14 @@ EOT;
             $mode = "Normal";
         }
 
-        // Only create a new graphics state if required
-        if ($mode === $this->currentLineTransparency["mode"] &&
-            $opacity == $this->currentLineTransparency["opacity"]
-        ) {
+        if (is_null($this->currentLineTransparency)) {
+            $this->currentLineTransparency = [];
+        }
+
+        if ($mode === (key_exists('mode', $this->currentLineTransparency) ?
+            $this->currentLineTransparency['mode'] : '') &&
+            $opacity === (key_exists('opacity', $this->currentLineTransparency) ?
+            $this->currentLineTransparency["opacity"] : '')) {
             return;
         }
 
@@ -3833,9 +3842,14 @@ EOT;
             $mode = "Normal";
         }
 
-        if ($mode === $this->currentFillTransparency["mode"] &&
-            $opacity == $this->currentFillTransparency["opacity"]
-        ) {
+        if (is_null($this->currentFillTransparency)) {
+            $this->currentFillTransparency = [];
+        }
+
+        if ($mode === (key_exists('mode', $this->currentFillTransparency) ?
+            $this->currentFillTransparency['mode'] : '') &&
+            $opacity === (key_exists('opacity', $this->currentFillTransparency) ?
+            $this->currentFillTransparency["opacity"] : '')) {
             return;
         }
 
@@ -5121,11 +5135,11 @@ EOT;
      * calculate how wide a given text string will be on a page, at a given size.
      * this can be called externally, but is also used by the other class functions
      *
-     * @param $size
-     * @param $text
-     * @param int $word_spacing
-     * @param int $char_spacing
-     * @return float|int
+     * @param float $size
+     * @param string $text
+     * @param float $word_spacing
+     * @param float $char_spacing
+     * @return float
      */
     function getTextWidth($size, $text, $word_spacing = 0, $char_spacing = 0)
     {
@@ -5151,7 +5165,6 @@ EOT;
         $cf = $this->currentFont;
         $current_font = $this->fonts[$cf];
         $space_scale = 1000 / ($size > 0 ? $size : 1);
-        $n_spaces = 0;
 
         if ($current_font['isUnicode']) {
             // for Unicode, use the code points array to calculate width rather
@@ -5173,14 +5186,13 @@ EOT;
                     // add additional padding for space
                     if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
                         $w += $word_spacing * $space_scale;
-                        $n_spaces++;
                     }
                 }
             }
 
             // add additional char spacing
             if ($char_spacing != 0) {
-                $w += $char_spacing * $space_scale * (count($unicode) + $n_spaces);
+                $w += $char_spacing * $space_scale * count($unicode);
             }
 
         } else {
@@ -5209,14 +5221,13 @@ EOT;
                     // add additional padding for space
                     if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
                         $w += $word_spacing * $space_scale;
-                        $n_spaces++;
                     }
                 }
             }
 
             // add additional char spacing
             if ($char_spacing != 0) {
-                $w += $char_spacing * $space_scale * ($len + $n_spaces);
+                $w += $char_spacing * $space_scale * $len;
             }
         }
 
@@ -5676,7 +5687,15 @@ EOT;
             // the first version containing it was 3.0.1RC1
             static $imagickClonable = null;
             if ($imagickClonable === null) {
-                $imagickClonable = version_compare(\Imagick::IMAGICK_EXTVER, '3.0.1rc1') > 0;
+                $imagickClonable = true;
+                if (defined('Imagick::IMAGICK_EXTVER')) {
+                    $imagickVersion = \Imagick::IMAGICK_EXTVER;
+                } else {
+                    $imagickVersion = '0';
+                }
+                if (version_compare($imagickVersion, '0.0.1', '>=')) {
+                    $imagickClonable = version_compare($imagickVersion, '3.0.1rc1', '>=');
+                }
             }
 
             $imagick = new \Imagick($file);

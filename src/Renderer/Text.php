@@ -155,13 +155,13 @@ class Text extends AbstractRenderer
 
             $dx = 0;
             $x1 = $x - self::DECO_EXTENSION;
-            $x2 = $x + $width + $dx + self::DECO_EXTENSION;
+            $x2 = $x + (float)$width + $dx + self::DECO_EXTENSION;
             $this->_canvas->line($x1, $deco_y, $x2, $deco_y, $color, $line_thickness);
         }
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutLines()) {
-            $text_width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $size);
-            $this->_debug_layout([$x, $y, $text_width + ($line->wc - 1) * $word_spacing, $frame_font_size], "orange", [0.5, 0.5]);
+            $text_width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
+            $this->_debug_layout([$x, $y, $text_width, $frame_font_size], "orange", [0.5, 0.5]);
         }
     }
 }

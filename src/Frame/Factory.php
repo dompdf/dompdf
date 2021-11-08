@@ -60,7 +60,7 @@ class Factory
      *
      * @param Frame $frame   The frame to decorate
      * @param Dompdf $dompdf The dompdf instance
-     * @param Frame $root    The frame to decorate
+     * @param Frame $root    The root of the frame
      *
      * @throws Exception
      * @return AbstractFrameDecorator
@@ -68,23 +68,34 @@ class Factory
      */
     static function decorate_frame(Frame $frame, Dompdf $dompdf, Frame $root = null)
     {
-        if (is_null($dompdf)) {
-            throw new Exception("The DOMPDF argument is required");
-        }
-
         $style = $frame->get_style();
+        $display = $style->display;
 
         // Floating (and more generally out-of-flow) elements are blocks
-        // http://coding.smashingmagazine.com/2007/05/01/css-float-theory-things-you-should-know/
-        if (!$frame->is_in_flow() && in_array($style->display, Style::$INLINE_TYPES)) {
-            $style->display = "block";
-        }
+        // https://www.w3.org/TR/CSS21/visuren.html#dis-pos-flo
+        if (!$frame->is_in_flow()
+            && in_array($display, Style::INLINE_LEVEL_TYPES, true)
+        ) {
+            switch ($display) {
+                case "inline-flex":
+                    $display = "flex";
+                    break;
+                case "inline-table":
+                    $display = "table";
+                    break;
+                default:
+                    $display = "block";
+            }
 
-        $display = $style->display;
+            // The original style needs to be modified, too, here, as the style
+            // gets reset to the original style after a page break
+            $frame->get_original_style()->display = $display;
+            $style->display = $display;
+        }
 
         switch ($display) {
 
-            case "flex": //FIXME: display type not yet supported 
+            case "flex": //FIXME: display type not yet supported
             case "table-caption": //FIXME: display type not yet supported
             case "block":
                 $positioner = "Block";
@@ -92,7 +103,7 @@ class Factory
                 $reflower = "Block";
                 break;
 
-            case "inline-flex": //FIXME: display type not yet supported 
+            case "inline-flex": //FIXME: display type not yet supported
             case "inline-block":
                 $positioner = "Inline";
                 $decorator = "Block";

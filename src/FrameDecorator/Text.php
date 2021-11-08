@@ -21,8 +21,9 @@ use Dompdf\Exception;
  */
 class Text extends AbstractFrameDecorator
 {
-
-    // protected members
+    /**
+     * @var float|null
+     */
     protected $_text_spacing;
 
     /**
@@ -50,7 +51,7 @@ class Text extends AbstractFrameDecorator
     // Accessor methods
 
     /**
-     * @return null
+     * @return float|null
      */
     function get_text_spacing()
     {
@@ -82,50 +83,40 @@ class Text extends AbstractFrameDecorator
     //........................................................................
 
     /**
-     * Vertical margins & padding do not apply to text frames
+     * Vertical padding, border, and margin do not apply when determining the
+     * height for inline frames.
      *
-     * http://www.w3.org/TR/CSS21/visudet.html#inline-non-replaced:
+     * http://www.w3.org/TR/CSS21/visudet.html#inline-non-replaced
      *
      * The vertical padding, border and margin of an inline, non-replaced box
      * start at the top and bottom of the content area, not the
      * 'line-height'. But only the 'line-height' is used to calculate the
      * height of the line box.
      *
-     * @return float|int
+     * @return float
      */
-    function get_margin_height()
+    public function get_margin_height(): float
     {
-        // This function is called in add_frame_to_line() and is used to
-        // determine the line height, so we actually want to return the
-        // 'line-height' property, not the actual margin box
+        // This function is also called in add_frame_to_line() and is used to
+        // determine the line height
         $style = $this->get_style();
         $font = $style->font_family;
         $size = $style->font_size;
+        $fontHeight = $this->_dompdf->getFontMetrics()->getFontHeight($font, $size);
 
-        /*
-        Helpers::pre_r('-----');
-        Helpers::pre_r($style->line_height);
-        Helpers::pre_r($style->font_size);
-        Helpers::pre_r($this->_dompdf->getFontMetrics()->getFontHeight($font, $size));
-        Helpers::pre_r(($style->line_height / $size) * $this->_dompdf->getFontMetrics()->getFontHeight($font, $size));
-        */
-
-        return ($style->line_height / ($size > 0 ? $size : 1)) * $this->_dompdf->getFontMetrics()->getFontHeight($font, $size);
+        return ($style->line_height / ($size > 0 ? $size : 1)) * $fontHeight;
     }
 
-    /**
-     * @return array
-     */
-    function get_padding_box()
+    public function get_padding_box(): array
     {
         $style = $this->_frame->get_style();
         $pb = $this->_frame->get_padding_box();
-        $pb[3] = $pb["h"] = $style->length_in_pt($style->height);
+        $pb[3] = $pb["h"] = (float) $style->length_in_pt($style->height);
         return $pb;
     }
 
     /**
-     * @param $spacing
+     * @param float $spacing
      */
     function set_text_spacing($spacing)
     {
@@ -161,7 +152,7 @@ class Text extends AbstractFrameDecorator
      * split the text in this frame at the offset specified.  The remaining
      * text is added a sibling frame following this one and is returned.
      *
-     * @param $offset
+     * @param int $offset
      * @return Frame|null
      */
     function split_text($offset)
@@ -188,8 +179,8 @@ class Text extends AbstractFrameDecorator
     }
 
     /**
-     * @param $offset
-     * @param $count
+     * @param int $offset
+     * @param int $count
      */
     function delete_text($offset, $count)
     {
@@ -197,7 +188,7 @@ class Text extends AbstractFrameDecorator
     }
 
     /**
-     * @param $text
+     * @param string $text
      */
     function set_text($text)
     {

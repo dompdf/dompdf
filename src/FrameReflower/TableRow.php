@@ -33,8 +33,14 @@ class TableRow extends AbstractFrameReflower
      */
     function reflow(BlockFrameDecorator $block = null)
     {
-        $page = $this->_frame->get_root();
+        /** @var TableRowFrameDecorator */
+        $frame = $this->_frame;
 
+        // Check if a page break is forced
+        $page = $frame->get_root();
+        $page->check_forced_page_break($frame);
+
+        // Bail if the page is full
         if ($page->is_full()) {
             return;
         }
@@ -67,7 +73,7 @@ class TableRow extends AbstractFrameReflower
     /**
      * @throws Exception
      */
-    function get_min_max_width()
+    function get_min_max_width(): array
     {
         throw new Exception("Min/max width is undefined for table rows");
     }

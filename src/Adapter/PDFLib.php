@@ -1321,8 +1321,8 @@ class PDFLib implements Canvas
      * @param string $text
      * @param string $font
      * @param float  $size
-     * @param int    $word_spacing
-     * @param int    $letter_spacing
+     * @param float  $word_spacing
+     * @param float  $letter_spacing
      * @return mixed
      */
     public function get_text_width($text, $font, $size, $word_spacing = 0, $letter_spacing = 0)
@@ -1335,7 +1335,7 @@ class PDFLib implements Canvas
 
         if ($letter_spacing) {
             $num_chars = mb_strlen($text);
-            $delta += ($num_chars - $num_spaces) * $letter_spacing;
+            $delta += $num_chars * $letter_spacing;
         }
 
         return $this->_pdf->stringwidth($text, $fh, $size) + $delta;
@@ -1462,7 +1462,7 @@ class PDFLib implements Canvas
                         break;
 
                     case 'line':
-                        $this->line( $x1, $y1, $x2, $y2, $color, $width, $style );
+                        $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
                         break;
 
                 }

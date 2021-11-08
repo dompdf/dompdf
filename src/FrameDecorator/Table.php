@@ -32,16 +32,16 @@ class Table extends AbstractFrameDecorator
     ];
 
     public static $ROW_GROUPS = [
-        'table-row-group',
-        'table-header-group',
-        'table-footer-group'
+        "table-row-group",
+        "table-header-group",
+        "table-footer-group"
     ];
 
     /**
      * The Cellmap object for this table.  The cellmap maps table cells
      * to rows and columns, and aids in calculating column widths.
      *
-     * @var \Dompdf\Cellmap
+     * @var Cellmap
      */
     protected $_cellmap;
 
@@ -63,7 +63,7 @@ class Table extends AbstractFrameDecorator
      * Table header rows.  Each table header is duplicated when a table
      * spans pages.
      *
-     * @var array
+     * @var TableRowGroup[]
      */
     protected $_headers;
 
@@ -71,7 +71,7 @@ class Table extends AbstractFrameDecorator
      * Table footer rows.  Each table footer is duplicated when a table
      * spans pages.
      *
-     * @var array
+     * @var TableRowGroup[]
      */
     protected $_footers;
 
@@ -110,27 +110,22 @@ class Table extends AbstractFrameDecorator
     //........................................................................
 
     /**
-     * split the table at $row.  $row and all subsequent rows will be
-     * added to the clone.  This method is overidden in order to remove
+     * Split the table at $row.  $row and all subsequent rows will be
+     * added to the clone.  This method is overridden in order to remove
      * frames from the cellmap properly.
-     *
-     * @param Frame $child
-     * @param bool $force_pagebreak
-     *
-     * @return void
      */
-    public function split(Frame $child = null, $force_pagebreak = false)
+    public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
         if (is_null($child)) {
-            parent::split();
-
+            parent::split($child, $page_break, $forced);
             return;
         }
 
         // If $child is a header or if it is the first non-header row, do
         // not duplicate headers, simply move the table to the next page.
-        if (count($this->_headers) && !in_array($child, $this->_headers, true) &&
-            !in_array($child->get_prev_sibling(), $this->_headers, true)
+        if (count($this->_headers)
+            && !in_array($child, $this->_headers, true)
+            && !in_array($child->get_prev_sibling(), $this->_headers, true)
         ) {
             $first_header = null;
 
@@ -146,12 +141,12 @@ class Table extends AbstractFrameDecorator
                 $this->insert_child_before($new_header, $child);
             }
 
-            parent::split($first_header);
+            parent::split($first_header, $page_break, $forced);
 
-        } elseif (in_array($child->get_style()->display, self::$ROW_GROUPS)) {
+        } elseif (in_array($child->get_style()->display, self::$ROW_GROUPS, true)) {
 
             // Individual rows should have already been handled
-            parent::split($child);
+            parent::split($child, $page_break, $forced);
 
         } else {
 
@@ -162,17 +157,10 @@ class Table extends AbstractFrameDecorator
                 $iter = $iter->get_next_sibling();
             }
 
-            parent::split($child);
+            parent::split($child, $page_break, $forced);
         }
     }
 
-    /**
-     * Return a copy of this frame with $node as its node
-     *
-     * @param DOMNode $node
-     *
-     * @return Frame
-     */
     public function copy(DOMNode $node)
     {
         $deco = parent::copy($node);
@@ -205,7 +193,7 @@ class Table extends AbstractFrameDecorator
     /**
      * Return this table's Cellmap
      *
-     * @return \Dompdf\Cellmap
+     * @return Cellmap
      */
     public function get_cellmap()
     {

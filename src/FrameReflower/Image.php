@@ -35,7 +35,7 @@ class Image extends AbstractFrameReflower
      */
     function reflow(BlockFrameDecorator $block = null)
     {
-        $this->_frame->position();
+        $this->determine_absolute_containing_block();
 
         //FLOAT
         //$frame = $this->_frame;
@@ -47,16 +47,16 @@ class Image extends AbstractFrameReflower
 
         // Set the frame's width
         $this->get_min_max_width();
+        $this->resolve_margins();
+
+        $this->_frame->position();
 
         if ($block) {
             $block->add_frame_to_line($this->_frame);
         }
     }
 
-    /**
-     * @return array
-     */
-    function get_min_max_width()
+    function get_min_max_width(): array
     {
         $frame = $this->_frame;
 
@@ -161,8 +161,8 @@ class Image extends AbstractFrameReflower
             print $width . ' ' . $height . ';';
         }
 
-        $style->width = $width . "pt";
-        $style->height = $height . "pt";
+        $style->width = $width;
+        $style->height = $height;
 
         $style->min_width = "none";
         $style->max_width = "none";
@@ -170,6 +170,27 @@ class Image extends AbstractFrameReflower
         $style->max_height = "none";
 
         return [$width, $width, "min" => $width, "max" => $width];
+    }
+
+    protected function resolve_margins(): void
+    {
+        // Only handle the inline case for now
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-width
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-height
+        $style = $this->_frame->get_style();
+
+        if ($style->margin_left === "auto") {
+            $style->margin_left = 0;
+        }
+        if ($style->margin_right === "auto") {
+            $style->margin_right = 0;
+        }
+        if ($style->margin_top === "auto") {
+            $style->margin_top = 0;
+        }
+        if ($style->margin_bottom === "auto") {
+            $style->margin_bottom = 0;
+        }
     }
 
     private function get_size(Frame $f, string $type)

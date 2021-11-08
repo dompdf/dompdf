@@ -277,6 +277,10 @@ abstract class AbstractRenderer
                     $src = imagecreatefromjpeg($img);
                     break;
 
+                case "webp":
+                    $src = imagecreatefromwebp($img);
+                    break;
+
                 case "gif":
                     $src = imagecreatefromgif($img);
                     break;
@@ -933,7 +937,7 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $box
+     * @param array $box
      * @param string $color
      * @param array $style
      */

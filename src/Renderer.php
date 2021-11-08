@@ -154,23 +154,23 @@ class Renderer extends AbstractRenderer
 
         // Starts the overflow: hidden box
         if ($style->overflow === "hidden") {
-            list($x, $y, $w, $h) = $frame->get_padding_box();
-
-            // get border radii
+            $padding_box = $frame->get_padding_box();
+            [$x, $y, $w, $h] = $padding_box;
             $style = $frame->get_style();
-            list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
 
-            if ($tl + $tr + $br + $bl > 0) {
-                $this->_canvas->clipping_roundrectangle($x, $y, (float)$w, (float)$h, $tl, $tr, $br, $bl);
+            if ($style->has_border_radius()) {
+                $border_box = $frame->get_border_box();
+                [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $padding_box);
+                $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
             } else {
-                $this->_canvas->clipping_rectangle($x, $y, (float)$w, (float)$h);
+                $this->_canvas->clipping_rectangle($x, $y, $w, $h);
             }
         }
 
         $stack = [];
 
         foreach ($frame->get_children() as $child) {
-            // < 0 : nagative z-index
+            // < 0 : negative z-index
             // = 0 : no z-index, no stacking context
             // = 1 : stacking context without z-index
             // > 1 : z-index
