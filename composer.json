@@ -48,10 +48,5 @@
         "ext-imagick": "Improves image processing performance",
         "ext-gmagick": "Improves image processing performance",
         "ext-zlib": "Needed for pdf stream compression"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-develop": "0.7-dev"
-        }
     }
 }
