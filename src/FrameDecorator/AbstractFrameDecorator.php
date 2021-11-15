@@ -4,7 +4,6 @@ namespace Dompdf\FrameDecorator;
 
 use DOMElement;
 use DOMNode;
-use DOMText;
 use Dompdf\Helpers;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
