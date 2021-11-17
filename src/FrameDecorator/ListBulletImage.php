@@ -18,7 +18,7 @@ use Dompdf\Image\Cache;
  *
  * @package dompdf
  */
-class ListBulletImage extends AbstractFrameDecorator
+class ListBulletImage extends ListBullet
 {
 
     /**
@@ -31,22 +31,21 @@ class ListBulletImage extends AbstractFrameDecorator
     /**
      * The image's width in pixels
      *
-     * @var int
+     * @var float
      */
     protected $_width;
 
     /**
      * The image's height in pixels
      *
-     * @var int
+     * @var float
      */
     protected $_height;
 
     /**
-     * Class constructor
-     *
-     * @param Frame $frame   the bullet frame to decorate
-     * @param Dompdf $dompdf the document's dompdf object
+     * ListBulletImage constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
      */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
@@ -56,106 +55,54 @@ class ListBulletImage extends AbstractFrameDecorator
         $this->_img = new Image($frame, $dompdf);
         parent::__construct($this->_img, $dompdf);
 
-        if (Cache::is_broken($this->_img->get_image_url())) {
-            $width = 0;
-            $height = 0;
+        $url = $this->_img->get_image_url();
+
+        if (Cache::is_broken($url)) {
+            $this->_width = parent::get_width();
+            $this->_height = parent::get_height();
         } else {
-            list($width, $height) = Helpers::dompdf_getimagesize($this->_img->get_image_url(), $dompdf->getHttpContext());
-        }
+            [$width, $height] = Helpers::dompdf_getimagesize($url, $dompdf->getHttpContext());
 
-        // Resample the bullet image to be consistent with 'auto' sized images
-        // See also Image::get_min_max_width
-        // Tested php ver: value measured in px, suffix "px" not in value: rtrim unnecessary.
-        $dpi = $this->_dompdf->getOptions()->getDpi();
-        $this->_width = ((float)rtrim($width, "px") * 72) / $dpi;
-        $this->_height = ((float)rtrim($height, "px") * 72) / $dpi;
-
-        //If an image is taller as the containing block/box, the box should be extended.
-        //Neighbour elements are overwriting the overlapping image areas.
-        //Todo: Where can the box size be extended?
-        //Code below has no effect.
-        //See block_frame_reflower _calculate_restricted_height
-        //See generated_frame_reflower, Dompdf:render() "list-item", "-dompdf-list-bullet"S.
-        //Leave for now
-        //if ($style->min_height < $this->_height ) {
-        //  $style->min_height = $this->_height;
-        //}
-        //$style->height = "auto";
-    }
-
-    /**
-     * Return the bullet's width
-     *
-     * @return int
-     */
-    function get_width()
-    {
-        //ignore image width, use same width as on predefined bullet ListBullet
-        //for proper alignment of bullet image and text. Allow image to not fitting on left border.
-        //This controls the distance between bullet image and text
-        //return $this->_width;
-        return $this->_frame->get_style()->font_size * ListBullet::BULLET_SIZE +
-        2 * ListBullet::BULLET_PADDING;
-    }
-
-    /**
-     * Return the bullet's height
-     *
-     * @return int
-     */
-    function get_height()
-    {
-        //based on image height
-        if ($this->_height == 0) {
-            $style = $this->_frame->get_style();
-
-            if ($style->list_style_type === "none") {
-                return 0;
-            }
-    
-            return $style->font_size * ListBullet::BULLET_SIZE + 2 * ListBullet::BULLET_PADDING;
-        } else {
-            return $this->_height;
+            // Resample the bullet image to be consistent with 'auto' sized images
+            // See also Image::get_min_max_width
+            $dpi = $this->_dompdf->getOptions()->getDpi();
+            $this->_width = ((float) $width * 72) / $dpi;
+            $this->_height = ((float) $height * 72) / $dpi;
         }
     }
 
-    /**
-     * Override get_margin_width
-     *
-     * @return int
-     */
+    public function get_width(): float
+    {
+        return $this->_width;
+    }
+
+    public function get_height(): float
+    {
+        return $this->_height;
+    }
+
     public function get_margin_width(): float
     {
-        //ignore image width, use same width as on predefined bullet ListBullet
-        //for proper alignment of bullet image and text. Allow image to not fitting on left border.
-        //This controls the extra indentation of text to make room for the bullet image.
-        //Here use actual image size, not predefined bullet size
-        //return $this->_frame->get_style()->font_size*ListBullet::BULLET_SIZE +
-        //  2 * ListBullet::BULLET_PADDING;
-
-        // Small hack to prevent indenting of list text
-        // Image might not exist, then position like on list_bullet_frame_decorator fallback to none.
-        if ($this->_frame->get_style()->list_style_position === "outside" || $this->_width == 0) {
-            return 0.0;
-        }
-        //This aligns the "inside" image position with the text.
-        //The text starts to the right of the image.
-        //Between the image and the text there is an added margin of image width.
-        //Where this comes from is unknown.
-        //The corresponding ListBullet sets a smaller margin. bullet size?
-        return $this->_width + 2 * ListBullet::BULLET_PADDING;
+        $style = $this->get_style();
+        return $this->_width + $style->font_size * self::MARKER_INDENT;
     }
 
-    /**
-     * Override get_margin_height()
-     *
-     * @return float
-     */
     public function get_margin_height(): float
     {
-        //Hits only on "inset" lists items, to increase height of box
-        //based on image height
-        return $this->_height + 2 * ListBullet::BULLET_PADDING;
+        $fontMetrics = $this->_dompdf->getFontMetrics();
+        $style = $this->get_style();
+        $font = $style->font_family;
+        $size = $style->font_size;
+        $fontHeight = $fontMetrics->getFontHeight($font, $size);
+        $baseline = $fontMetrics->getFontBaseline($font, $size);
+
+        // This is the same factor as used in
+        // `FrameDecorator\Text::get_margin_height()`
+        $f = $style->line_height / ($size > 0 ? $size : 1);
+
+        // FIXME: Tries to approximate replacing the space above the font
+        // baseline with the image
+        return $f * ($fontHeight - $baseline) + $this->_height;
     }
 
     /**
@@ -167,5 +114,4 @@ class ListBulletImage extends AbstractFrameDecorator
     {
         return $this->_img->get_image_url();
     }
-
 }

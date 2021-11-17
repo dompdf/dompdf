@@ -572,41 +572,44 @@ class Block extends AbstractFrameReflower
      */
     function vertical_align()
     {
-        $canvas = null;
+        $fontMetrics = $this->get_dompdf()->getFontMetrics();
 
         foreach ($this->_frame->get_line_boxes() as $line) {
-
             $height = $line->h;
+            $markers = $line->get_list_markers();
+            $frames = $line->get_frames();
 
-            foreach ($line->get_frames() as $frame) {
+            // Move all markers to the top of the line box
+            foreach ($markers as $marker) {
+                $x = $marker->get_position("x");
+                $marker->set_position($x, $line->y);
+            }
+
+            foreach (array_merge($markers, $frames) as $frame) {
                 $style = $frame->get_style();
-                $isInlineBlock = (
-                    '-dompdf-image' === $style->display
-                    || 'inline-block' === $style->display
-                    || 'inline-table' === $style->display
-                );
-                if (!$isInlineBlock && $style->display !== "inline") {
+                $isInlineBlock = $style->display === "-dompdf-image"
+                    || $style->display === "inline-block"
+                    || $style->display === "inline-table";
+                $isInline = $style->display === "inline"
+                    || $style->display === "-dompdf-list-bullet";
+
+                if (!$isInlineBlock && !$isInline) {
                     continue;
                 }
 
-                if (!isset($canvas)) {
-                    $canvas = $frame->get_root()->get_dompdf()->getCanvas();
-                }
-
-                $baseline = $canvas->get_font_baseline($style->font_family, $style->font_size);
+                $baseline = $fontMetrics->getFontBaseline($style->font_family, $style->font_size);
                 $y_offset = 0;
 
                 //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
                 if ($isInlineBlock) {
-                    $lineFrames = $line->get_frames();
-                    if (count($lineFrames) == 1) {
+                    if (count($frames) === 1) {
                         continue;
                     }
                     $frameBox = $frame->get_border_box();
-                    $imageHeightDiff = $height * 0.8 - $frameBox['h'];
+                    $imageHeightDiff = $height * 0.8 - $frameBox["h"];
 
                     $align = $frame->get_style()->vertical_align;
-                    if (in_array($align, Style::$vertical_align_keywords) === true) {
+                    if (in_array($align, Style::$vertical_align_keywords, true)) {
                         switch ($align) {
                             case "middle":
                                 $y_offset = $imageHeightDiff / 2;
@@ -638,7 +641,7 @@ class Block extends AbstractFrameReflower
                                 break;
                         }
                     } else {
-                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $frameBox['h'];
+                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $frameBox["h"];
                     }
                 } else {
                     $parent = $frame->get_parent();
@@ -647,7 +650,7 @@ class Block extends AbstractFrameReflower
                     } else {
                         $align = $parent->get_style()->vertical_align;
                     }
-                    if (in_array($align, Style::$vertical_align_keywords) === true) {
+                    if (in_array($align, Style::$vertical_align_keywords, true)) {
                         switch ($align) {
                             case "middle":
                                 $y_offset = ($height * 0.8 - $baseline) / 2;
@@ -797,6 +800,11 @@ class Block extends AbstractFrameReflower
 
         // Generated content
         $this->_set_content();
+
+        // Inherit any dangling list markers
+        if ($block && $this->_frame->is_in_flow()) {
+            $this->_frame->inherit_dangling_markers($block);
+        }
 
         // Collapse margins if required
         $this->_collapse_margins();
