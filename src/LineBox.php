@@ -9,6 +9,7 @@ namespace Dompdf;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Block;
+use Dompdf\FrameDecorator\ListBullet;
 use Dompdf\FrameDecorator\Page;
 use Dompdf\Positioner\Inline as InlinePositioner;
 
@@ -32,6 +33,11 @@ class LineBox
      * @var AbstractFrameDecorator[]
      */
     protected $_frames = [];
+
+    /**
+     * @var ListBullet[]
+     */
+    protected $list_markers = [];
 
     /**
      * @var int
@@ -304,6 +310,28 @@ class LineBox
         }
 
         $this->h = $h;
+    }
+
+    /**
+     * Get the `outside` positioned list markers to be vertically aligned with
+     * the line box.
+     *
+     * @return ListBullet[]
+     */
+    public function get_list_markers(): array
+    {
+        return $this->list_markers;
+    }
+
+    /**
+     * Add a list marker to the line box.
+     *
+     * The list marker is only added for the purpose of vertical alignment, it
+     * is not actually added to the list of frames of the line box.
+     */
+    public function add_list_marker(ListBullet $marker): void
+    {
+        $this->list_markers[] = $marker;
     }
 
     /**
