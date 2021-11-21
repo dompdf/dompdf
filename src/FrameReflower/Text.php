@@ -223,8 +223,16 @@ class Text extends AbstractFrameReflower
     protected function _layout_line(): bool
     {
         $frame = $this->_frame;
-        $style = $frame->get_style();
         $text = $frame->get_text();
+        $current_line = $this->_block_parent->get_current_line_box();
+
+        // Left trim the text if this is the first text on the line and we're
+        // collapsing white space
+        if ($current_line->w === 0.0 && !$frame->is_pre()) {
+            $text = ltrim($text);
+        }
+
+        $style = $frame->get_style();
         $size = $style->font_size;
         $font = $style->font_family;
 
@@ -311,9 +319,6 @@ class Text extends AbstractFrameReflower
                     $p->split($frame);
                 }
 
-                // Trim newlines from the beginning of the line
-                //$this->_frame->set_text(ltrim($text, "\n\r"));
-
                 $this->_block_parent->maximize_line_height($frame->get_margin_height(), $frame);
                 $this->_block_parent->add_line();
                 $frame->position();
@@ -333,23 +338,21 @@ class Text extends AbstractFrameReflower
                 }
             }
         } elseif ($text !== "") {
-            // Remove empty space from start and end of line, but only where there isn't an inline sibling
-            // and the parent node isn't an inline element with siblings
-            // FIXME: Include non-breaking spaces?
             $t = $text;
-            $parent = $frame->get_parent();
-            $is_inline_frame = $parent instanceof InlineFrameDecorator;
 
-            if ((!$is_inline_frame && !$frame->get_next_sibling()) /* ||
-            ( $is_inline_frame && !$parent->get_next_sibling())*/
-            ) { // fails <b>BOLD <u>UNDERLINED</u></b> becomes <b>BOLD<u>UNDERLINED</u></b>
-                $t = rtrim($t);
-            }
+            // Trim trailing white space if this is the last text frame on the
+            // last line
+            if (!$frame->is_pre()) {
+                $last = $frame->get_next_sibling() === null;
+                $p = $frame->get_parent();
+                while ($last && $p instanceof InlineFrameDecorator) {
+                    $last = $last && $p->get_next_sibling() === null;
+                    $p = $p->get_parent();
+                }
 
-            if ((!$is_inline_frame && !$frame->get_prev_sibling()) /* ||
-            ( $is_inline_frame && !$parent->get_prev_sibling())*/
-            ) { //  <span><span>A<span>B</span> C</span></span> fails (the whitespace is removed)
-                $t = ltrim($t);
+                if ($last) {
+                    $t = rtrim($t);
+                }
             }
 
             // Remove soft hyphens
@@ -376,23 +379,22 @@ class Text extends AbstractFrameReflower
             return;
         }
 
-        $this->_block_parent = /*isset($block) ? $block : */
-        $frame->find_block_parent();
-
-        // Left trim the text if this is the first text on the line and we're
-        // collapsing white space
-//     if ( $this->_block_parent->get_current_line()->w == 0 &&
-//          ($frame->get_style()->white_space !== "pre" ||
-//           $frame->get_style()->white_space !== "pre-wrap") ) {
-//       $frame->set_text( ltrim( $frame->get_text() ) );
-//     }
+        $this->_block_parent = $block;
 
         $frame->position();
-
         $add_line = $this->_layout_line();
 
-        if ($block) {
-            $block->add_frame_to_line($frame);
+        // Exclude wrapped white space when white space is collapsed
+        if ($block && ($frame->is_pre() || $frame->get_margin_width() !== 0.0)) {
+            $line = $block->add_frame_to_line($frame);
+            $trimmed = trim($frame->get_text());
+    
+            // Split the text into words (used to determine spacing between
+            // words on justified lines)
+            if ($trimmed !== "") {
+                $words = preg_split(self::$_whitespace_pattern, $trimmed);
+                $line->wc += count($words);
+            }
 
             if ($add_line) {
                 $block->add_line();
