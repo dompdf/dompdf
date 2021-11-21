@@ -49,10 +49,11 @@ class Image extends AbstractFrameReflower
         $this->get_min_max_width();
         $this->resolve_margins();
 
-        $this->_frame->position();
+        $frame = $this->_frame;
+        $frame->position();
 
-        if ($block) {
-            $block->add_frame_to_line($this->_frame);
+        if ($block && $frame->is_in_flow()) {
+            $block->add_frame_to_line($frame);
         }
     }
 

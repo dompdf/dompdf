@@ -358,7 +358,7 @@ class Table extends AbstractFrameReflower
     }
 
     /**
-     * @param BlockFrameDecorator $block
+     * @param BlockFrameDecorator|null $block
      */
     function reflow(BlockFrameDecorator $block = null)
     {
@@ -487,7 +487,13 @@ class Table extends AbstractFrameReflower
                 // Check if a split has occurred
                 $page->check_page_break($child);
             }
+        }
 
+        // Stop reflow if a page break has occurred before the frame, in which
+        // case it has been reset, including its position
+        if ($page->is_full() && $frame->get_position("x") === null) {
+            $page->table_reflow_end();
+            return;
         }
 
         // Assign heights to our cells:

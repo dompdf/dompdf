@@ -108,12 +108,6 @@ class Block extends AbstractFrameDecorator
      */
     function add_frame_to_line(Frame $frame)
     {
-        if (!$frame->is_in_flow()) {
-            return;
-        }
-
-        $style = $frame->get_style();
-
         $frame->set_containing_line($this->_line_boxes[$this->_cl]);
 
         /*
@@ -136,6 +130,7 @@ class Block extends AbstractFrameDecorator
         if ($frame instanceof Inline) {
             // Handle line breaks
             if ($frame->get_node()->nodeName === "br") {
+                $style = $frame->get_style();
                 $this->maximize_line_height($style->line_height, $frame);
                 $this->add_line(true);
 
@@ -162,8 +157,7 @@ class Block extends AbstractFrameDecorator
 
         $w = $frame->get_margin_width();
 
-        // FIXME: Why? Doesn't quite seem to be the correct thing to do,
-        // but does appear to be necessary. Hack to handle wrapped white space?
+        // FIXME: Hack to handle wrapped white space
         if ($w === 0.0 && $frame->is_text_node() && !$frame->is_pre()) {
             return;
         }

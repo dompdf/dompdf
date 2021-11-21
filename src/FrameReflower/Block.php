@@ -779,7 +779,6 @@ class Block extends AbstractFrameReflower
 
     /**
      * @param BlockFrameDecorator $block
-     * @return mixed|void
      */
     function reflow(BlockFrameDecorator $block = null)
     {
@@ -858,7 +857,6 @@ class Block extends AbstractFrameReflower
 
         // Set the containing blocks and reflow each child
         foreach ($this->_frame->get_children() as $child) {
-
             // Bail out if the page is full
             if ($page->is_full()) {
                 break;
@@ -876,6 +874,12 @@ class Block extends AbstractFrameReflower
             }
 
             $this->process_float($child, $cb_x, $width);
+        }
+
+        // Stop reflow if a page break has occurred before the frame, in which
+        // case it has been reset, including its position
+        if ($page->is_full() && $this->_frame->get_position("x") === null) {
+            return;
         }
 
         // Determine our height

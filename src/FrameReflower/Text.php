@@ -394,7 +394,7 @@ class Text extends AbstractFrameReflower
         if ($block) {
             $block->add_frame_to_line($frame);
 
-            if ($add_line === true) {
+            if ($add_line) {
                 $block->add_line();
             }
         }
