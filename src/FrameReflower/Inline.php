@@ -85,7 +85,7 @@ class Inline extends AbstractFrameReflower
         $cb = $frame->get_containing_block();
 
         if ($block) {
-            $block->add_frame_to_line($this->_frame);
+            $block->add_frame_to_line($frame);
         }
 
         // Set the containing blocks and reflow each child.  The containing
@@ -96,7 +96,7 @@ class Inline extends AbstractFrameReflower
         }
 
         // Handle relative positioning
-        foreach ($this->_frame->get_children() as $child) {
+        foreach ($frame->get_children() as $child) {
             $this->position_relative($child);
         }
     }
