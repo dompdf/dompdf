@@ -105,26 +105,12 @@ class Block extends AbstractFrameDecorator
 
     /**
      * @param Frame $frame
+     * @return LineBox|null
      */
     function add_frame_to_line(Frame $frame)
     {
-        $frame->set_containing_line($this->_line_boxes[$this->_cl]);
-
-        /*
-        // Adds a new line after a block, only if certain conditions are met
-        if ((($frame instanceof Inline && $frame->get_node()->nodeName !== "br") ||
-              $frame instanceof Text && trim($frame->get_text())) &&
-            ($frame->get_prev_sibling() && $frame->get_prev_sibling()->get_style()->display === "block" &&
-             $this->_line_boxes[$this->_cl]->w > 0 )) {
-
-               $this->maximize_line_height( $style->length_in_pt($style->line_height), $frame );
-               $this->add_line();
-
-               // Add each child of the inline frame to the line individually
-               foreach ($frame->get_children() as $child)
-                 $this->add_frame_to_line( $child );
-        }
-        else*/
+        $current_line = $this->_line_boxes[$this->_cl];
+        $frame->set_containing_line($current_line);
 
         // Handle inline frames (which are effectively wrappers)
         if ($frame instanceof Inline) {
@@ -142,60 +128,15 @@ class Block extends AbstractFrameDecorator
                 }
             }
 
-            return;
+            return null;
         }
 
-        // Trim leading text if this is an empty line.  Kinda a hack to put it here,
-        // but what can you do...
-        if ($this->get_current_line_box()->w == 0 &&
-            $frame->is_text_node() &&
-            !$frame->is_pre()
-        ) {
-            $frame->set_text(ltrim($frame->get_text()));
-            $frame->recalculate_width();
-        }
-
-        $w = $frame->get_margin_width();
-
-        // FIXME: Hack to handle wrapped white space
-        if ($w === 0.0 && $frame->is_text_node() && !$frame->is_pre()) {
-            return;
-        }
-
-        // Debugging code:
-        /*
-        Helpers::pre_r("\n<h3>Adding frame to line:</h3>");
-
-        //    Helpers::pre_r("Me: " . $this->get_node()->nodeName . " (" . spl_object_hash($this->get_node()) . ")");
-        //    Helpers::pre_r("Node: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
-        if ( $frame->is_text_node() )
-          Helpers::pre_r('"'.$frame->get_node()->nodeValue.'"');
-
-        Helpers::pre_r("Line width: " . $this->_line_boxes[$this->_cl]->w);
-        Helpers::pre_r("Frame: " . get_class($frame));
-        Helpers::pre_r("Frame width: "  . $w);
-        Helpers::pre_r("Frame height: " . $frame->get_margin_height());
-        Helpers::pre_r("Containing block width: " . $this->get_containing_block("w"));
-        */
-        // End debugging
-
-        $current_line = $this->_line_boxes[$this->_cl];
         $current_line->add_frame($frame);
 
-        if ($frame->is_text_node()) {
-            $trimmed = trim($frame->get_text());
-
-            if ($trimmed !== "") {
-                // split the text into words (used to determine spacing between words on justified lines)
-                // The regex splits on everything that's a separator (^\S double negative), excluding nbsp (\xa0)
-                // This currently excludes the "narrow nbsp" character
-                $words = preg_split('/[^\S\xA0]+/u', $trimmed);
-                $current_line->wc += count($words);
-            }
-        }
-
-        $this->increase_line_width($w);
+        $this->increase_line_width($frame->get_margin_width());
         $this->maximize_line_height($frame->get_margin_height(), $frame);
+
+        return $current_line;
     }
 
     /**

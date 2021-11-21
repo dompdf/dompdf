@@ -149,8 +149,8 @@ class Text extends AbstractFrameDecorator
     // Text manipulation methods
 
     /**
-     * split the text in this frame at the offset specified.  The remaining
-     * text is added a sibling frame following this one and is returned.
+     * Split the text in this frame at the offset specified.  The remaining
+     * text is added as a sibling frame following this one and is returned.
      *
      * @param int $offset
      * @return Frame|null

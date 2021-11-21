@@ -313,7 +313,7 @@ class LineBox
      */
     public function recalculate_width()
     {
-        $width = 0;
+        $width = 0.0;
 
         foreach ($this->_frames as $frame) {
             $width += $frame->get_margin_width();
