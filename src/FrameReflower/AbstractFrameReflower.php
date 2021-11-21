@@ -280,7 +280,6 @@ abstract class AbstractFrameReflower
 
     /**
      * @param Block|null $block
-     * @return mixed
      */
     abstract function reflow(Block $block = null);
 

@@ -732,7 +732,7 @@ class Cellmap
     {
         $key = $row->get_id();
         if (!isset($this->_frames[$key])) {
-            return; // Presumably this row has alredy been removed
+            return; // Presumably this row has already been removed
         }
 
         $this->__row = $this->_num_rows--;
@@ -780,7 +780,7 @@ class Cellmap
     {
         $key = $group->get_id();
         if (!isset($this->_frames[$key])) {
-            return; // Presumably this row has alredy been removed
+            return; // Presumably this row has already been removed
         }
 
         $iter = $group->get_first_child();
@@ -802,10 +802,15 @@ class Cellmap
     public function update_row_group(Frame $group, Frame $last_row)
     {
         $g_key = $group->get_id();
-        $r_key = $last_row->get_id();
 
-        $r_rows = $this->_frames[$g_key]["rows"];
-        $this->_frames[$g_key]["rows"] = range($this->_frames[$g_key]["rows"][0], end($r_rows));
+        $first_index = $this->_frames[$g_key]["rows"][0];
+        $last_index = $first_index;
+        $row = $last_row;
+        while ($row = $row->get_prev_sibling()) {
+            $last_index++;
+        }
+
+        $this->_frames[$g_key]["rows"] = range($first_index, $last_index);
     }
 
     /**
