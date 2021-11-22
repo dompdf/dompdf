@@ -127,12 +127,15 @@ class Table extends AbstractFrameReflower
         if ($width > $min_width) {
             // We have four cases to deal with:
             //
-            // 1. All columns are auto--no widths have been specified.  In this
-            // case we distribute extra space across all columns weighted by max-width.
+            // 1. All columns are auto or absolute width.  In this case we
+            // distribute extra space across all auto columns weighted by the
+            // difference between their max and min width, or by max width only
+            // if the width of the table is larger than the max width for all
+            // columns.
             //
-            // 2. Only absolute widths have been specified.  In this case we
-            // distribute any extra space equally among 'width: auto' columns, or all
-            // columns if no auto columns have been specified.
+            // 2. Only absolute widths have been specified, no auto columns.  In
+            // this case we distribute extra space across all columns weighted
+            // by their absolute width.
             //
             // 3. Only percentage widths have been specified.  In this case we
             // normalize the percentage values and distribute any remaining % to
@@ -142,36 +145,45 @@ class Table extends AbstractFrameReflower
             // 4. Both absolute and percentage widths have been specified.
 
             // Case 1:
-            if ($absolute_used == 0 && $percent_used == 0) {
-                $increment = $width - $min_width;
+            if ($percent_used == 0 && count($auto)) {
+                foreach ($absolute as $i) {
+                    $w = $columns[$i]["min-width"];
+                    $cellmap->set_column_width($i, $w);
+                }
 
-                foreach (array_keys($columns) as $i) {
-                    $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment * ($columns[$i]["max-width"] / $max_width));
+                if ($width < $max_width) {
+                    $increment = $width - $min_width;
+                    $table_delta = $max_width - $min_width;
+
+                    foreach ($auto as $i) {
+                        $min = $columns[$i]["min-width"];
+                        $max = $columns[$i]["max-width"];
+                        $col_delta = $max - $min;
+                        $w = $min + $increment * ($col_delta / $table_delta);
+                        $cellmap->set_column_width($i, $w);
+                    }
+                } else {
+                    $increment = $width - $max_width;
+                    $auto_max = $max_width - $absolute_used;
+
+                    foreach ($auto as $i) {
+                        $max = $columns[$i]["max-width"];
+                        $w = $max + $increment * ($max / $auto_max);
+                        $cellmap->set_column_width($i, $w);
+                    }
                 }
                 return;
             }
 
-            // Case 2
-            if ($absolute_used > 0 && $percent_used == 0) {
-                if (count($auto) > 0) {
-                    $increment = ($width - $auto_min - $absolute_used) / count($auto);
-                } else {
-                    $increment = 0;
-                }
+            // Case 2:
+            if ($percent_used == 0 && !count($auto)) {
+                $increment = $width - $absolute_used;
 
-                // Use the absolutely specified width or the increment
-                foreach (array_keys($columns) as $i) {
-                    if ($columns[$i]["absolute"] > 0 && count($auto)) {
-                        $cellmap->set_column_width($i, $columns[$i]["min-width"]);
-                    } else if (count($auto)) {
-                        $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
-                    } else {
-                        // All absolute columns
-                        $increment = ($width - $absolute_used) * $columns[$i]["absolute"] / $absolute_used;
-
-                        $cellmap->set_column_width($i, $columns[$i]["min-width"] + $increment);
-                    }
-
+                foreach ($absolute as $i) {
+                    $min = $columns[$i]["min-width"];
+                    $abs = $columns[$i]["absolute"];
+                    $w = $min + $increment * ($abs / $absolute_used);
+                    $cellmap->set_column_width($i, $w);
                 }
                 return;
             }
