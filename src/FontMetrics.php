@@ -133,8 +133,7 @@ class FontMetrics
 
         $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
         $distFontsClosure = require $file;
-        $distFonts = $distFontsClosure($rootDir);
-
+        $distFonts = is_array($distFontsClosure) ? $distFontsClosure : $distFontsClosure($rootDir);
         if (!is_readable($this->getCacheFile())) {
             $this->fontLookup = $distFonts;
             return;
