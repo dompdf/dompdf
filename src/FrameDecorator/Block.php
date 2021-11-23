@@ -164,7 +164,7 @@ class Block extends AbstractFrameDecorator
 
         // FIXME: Why? Doesn't quite seem to be the correct thing to do,
         // but does appear to be necessary. Hack to handle wrapped white space?
-        if ($w === 0.0 && $frame->is_text_node() && !$frame->is_pre()) {
+        if ($w == 0 && $frame->get_node()->nodeName !== "hr" && !$frame->is_pre()) {
             return;
         }
 
