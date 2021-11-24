@@ -15,6 +15,7 @@ use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\Positioner\Inline as InlinePositioner;
 use Dompdf\Exception;
 use Dompdf\Css\Style;
+use Dompdf\Helpers;
 
 /**
  * Reflows block frames
@@ -233,29 +234,34 @@ class Block extends AbstractFrameReflower
 
         $width = $style->length_in_pt($style->width, $cb["w"]);
 
-        $calculate_width = $this->_calculate_width($width);
-        $margin_left = $calculate_width['margin_left'];
-        $margin_right = $calculate_width['margin_right'];
-        $width =  $calculate_width['width'];
-        $left =  $calculate_width['left'];
-        $right =  $calculate_width['right'];
+        $values = $this->_calculate_width($width);
+        $margin_left = $values["margin_left"];
+        $margin_right = $values["margin_right"];
+        $width = $values["width"];
+        $left = $values["left"];
+        $right = $values["right"];
 
         // Handle min/max width
         // https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
         $min_width = $style->length_in_pt($style->min_width, $cb["w"]);
         $max_width = $style->length_in_pt($style->max_width, $cb["w"]);
 
-        if ($max_width !== "none" && $width > $max_width) {
-            extract($this->_calculate_width($max_width));
+        if ($max_width !== "none" && $max_width !== "auto" && $width > $max_width) {
+            $values = $this->_calculate_width($max_width);
+            $margin_left = $values["margin_left"];
+            $margin_right = $values["margin_right"];
+            $width = $values["width"];
+            $left = $values["left"];
+            $right = $values["right"];
         }
 
-        if ($width < $min_width) {
-            $calculate_width = $this->_calculate_width($min_width);
-            $margin_left = $calculate_width['margin_left'];
-            $margin_right = $calculate_width['margin_right'];
-            $width =  $calculate_width['width'];
-            $left =  $calculate_width['left'];
-            $right =  $calculate_width['right'];
+        if ($min_width !== "auto" && $min_width !== "none" && $width < $min_width) {
+            $values = $this->_calculate_width($min_width);
+            $margin_left = $values["margin_left"];
+            $margin_right = $values["margin_right"];
+            $width = $values["width"];
+            $left = $values["left"];
+            $right = $values["right"];
         }
 
         return [$width, $margin_left, $margin_right, $left, $right];
@@ -411,25 +417,20 @@ class Block extends AbstractFrameReflower
             if (isset($cb["h"])) {
                 $min_height = $style->length_in_pt($min_height, $cb["h"]);
                 $max_height = $style->length_in_pt($max_height, $cb["h"]);
-            } else if (isset($cb["w"])) {
-                if (mb_strpos($min_height, "%") !== false) {
-                    $min_height = 0;
-                } else {
-                    $min_height = $style->length_in_pt($min_height, $cb["w"]);
-                }
-
-                if (mb_strpos($max_height, "%") !== false) {
-                    $max_height = "none";
-                } else {
-                    $max_height = $style->length_in_pt($max_height, $cb["w"]);
-                }
+            } else {
+                $min_height = !Helpers::is_percent($min_height)
+                    ? $style->length_in_pt($min_height, $cb["w"])
+                    : "auto";
+                $max_height = !Helpers::is_percent($max_height)
+                    ? $style->length_in_pt($max_height, $cb["w"])
+                    : "none";
             }
 
-            if ($max_height !== "none" && $max_height !== "auto" && $height > (float)$max_height) {
+            if ($max_height !== "none" && $max_height !== "auto" && $height > $max_height) {
                 $height = $max_height;
             }
 
-            if ($height < (float)$min_height) {
+            if ($min_height !== "auto" && $min_height !== "none" && $height < $min_height) {
                 $height = $min_height;
             }
         }
