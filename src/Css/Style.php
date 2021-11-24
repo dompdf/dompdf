@@ -397,8 +397,8 @@ class Style
             $d["margin"] = "";
             $d["max_height"] = "none";
             $d["max_width"] = "none";
-            $d["min_height"] = "0";
-            $d["min_width"] = "0";
+            $d["min_height"] = "auto";
+            $d["min_width"] = "auto";
             $d["orphans"] = "2";
             $d["outline_color"] = ""; // "invert" special color is not supported
             $d["outline_style"] = "none";

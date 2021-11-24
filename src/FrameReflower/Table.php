@@ -9,6 +9,7 @@ namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
+use Dompdf\Helpers;
 
 /**
  * Reflows tables
@@ -253,70 +254,60 @@ class Table extends AbstractFrameReflower
     /**
      * Determine the frame's height based on min/max height
      *
-     * @return float|int|mixed|string
+     * @return float
      */
     protected function _calculate_height()
     {
-        $style = $this->_frame->get_style();
-        $height = $style->height;
+        $frame = $this->_frame;
+        $style = $frame->get_style();
+        $cb = $frame->get_containing_block();
 
-        $cellmap = $this->_frame->get_cellmap();
+        $height = $style->length_in_pt($style->height, $cb["h"]);
+
+        $cellmap = $frame->get_cellmap();
         $cellmap->assign_frame_heights();
         $rows = $cellmap->get_rows();
 
         // Determine our content height
-        $content_height = 0;
+        $content_height = 0.0;
         foreach ($rows as $r) {
             $content_height += $r["height"];
         }
 
-        $cb = $this->_frame->get_containing_block();
+        if ($height === "auto") {
+            $height = $content_height;
+        }
 
-        if (!($style->overflow === "visible" ||
-            ($style->overflow === "hidden" && $height === "auto"))
-        ) {
-            // Only handle min/max height if the height is independent of the frame's content
+        // Handle min/max height
+        $min_height = $style->min_height;
+        $max_height = $style->max_height;
 
-            $min_height = $style->min_height;
-            $max_height = $style->max_height;
-
-            if (isset($cb["h"])) {
-                $min_height = $style->length_in_pt($min_height, $cb["h"]);
-                $max_height = $style->length_in_pt($max_height, $cb["h"]);
-
-            } else if (isset($cb["w"])) {
-                if (mb_strpos($min_height, "%") !== false) {
-                    $min_height = 0;
-                } else {
-                    $min_height = $style->length_in_pt($min_height, $cb["w"]);
-                }
-                if (mb_strpos($max_height, "%") !== false) {
-                    $max_height = "none";
-                } else {
-                    $max_height = $style->length_in_pt($max_height, $cb["w"]);
-                }
-            }
-
-            if ($max_height !== "none" && $max_height !== "auto" && $height > (float)$max_height) {
-                $height = $max_height;
-            }
-
-            if ($height < (float)$min_height) {
-                $height = $min_height;
-            }
+        if (isset($cb["h"])) {
+            $min_height = $style->length_in_pt($min_height, $cb["h"]);
+            $max_height = $style->length_in_pt($max_height, $cb["h"]);
         } else {
-            // Use the content height or the height value, whichever is greater
-            if ($height !== "auto") {
-                $height = $style->length_in_pt($height, $cb["h"]);
+            $min_height = !Helpers::is_percent($min_height)
+                ? $style->length_in_pt($min_height, $cb["w"])
+                : "auto";
+            $max_height = !Helpers::is_percent($max_height)
+                ? $style->length_in_pt($max_height, $cb["w"])
+                : "none";
+        }
 
-                if ($height <= $content_height) {
-                    $height = $content_height;
-                } else {
-                    $cellmap->set_frame_heights($height, $content_height);
-                }
-            } else {
-                $height = $content_height;
-            }
+        if ($max_height !== "none" && $max_height !== "auto" && $height > $max_height) {
+            $height = $max_height;
+        }
+
+        if ($min_height !== "auto" && $min_height !== "none" && $height < $min_height) {
+            $height = $min_height;
+        }
+
+        // Use the content height or the height value, whichever is greater
+        if ($height <= $content_height) {
+            $height = $content_height;
+        } else {
+            // FIXME: Borders and row positions are not properly updated by this
+            // $cellmap->set_frame_heights($height, $content_height);
         }
 
         return $height;
