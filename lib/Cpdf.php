@@ -331,6 +331,16 @@ class Cpdf
     public $imagelist = [];
 
     /**
+     * @var array Table of already added alpha and plain image files for transparent PNG images.
+     */
+    protected $imageAlphaList = [];
+
+    /**
+     * @var array List of temporary image files to be deleted after processing.
+     */
+    protected $imageCache = [];
+
+    /**
      * @var boolean Whether the text passed in should be treated as Unicode or just local character set.
      */
     public $isUnicode = false;
@@ -409,6 +419,15 @@ class Cpdf
 
         // also initialize the font families that are known about already
         $this->setFontFamily('init');
+    }
+
+    public function __destruct()
+    {
+        foreach ($this->imageCache as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
     }
 
     /**
@@ -5529,7 +5548,7 @@ EOT;
      * Check if image already added to pdf image directory.
      * If yes, need not to create again (pass empty data)
      *
-     * @param $imgname
+     * @param string $imgname
      * @return bool
      */
     function image_iscached($imgname)
@@ -5773,21 +5792,19 @@ EOT;
             imagepng($imgplain, $tempfile_plain);
         }
 
+        $this->imageAlphaList[$file] = [$tempfile_alpha, $tempfile_plain];
+
         // embed mask image
         if ($tempfile_alpha) {
             $this->addImagePng($imgalpha, $tempfile_alpha, $x, $y, $w, $h, true);
             imagedestroy($imgalpha);
+            $this->imageCache[] = $tempfile_alpha;
         }
 
         // embed image, masked with previously embedded mask
         $this->addImagePng($imgplain, $tempfile_plain, $x, $y, $w, $h, false, ($tempfile_alpha !== null));
         imagedestroy($imgplain);
-
-        // remove temp files
-        if ($tempfile_alpha) {
-            unlink($tempfile_alpha);
-        }
-        unlink($tempfile_plain);
+        $this->imageCache[] = $tempfile_plain;
     }
 
     /**
@@ -5805,6 +5822,19 @@ EOT;
     {
         if (!function_exists("imagecreatefrompng")) {
             throw new \Exception("The PHP GD extension is required, but is not installed.");
+        }
+
+        if (isset($this->imageAlphaList[$file])) {
+            [$alphaFile, $plainFile] = $this->imageAlphaList[$file];
+
+            if ($alphaFile) {
+                $img = null;
+                $this->addImagePng($img, $alphaFile, $x, $y, $w, $h, true);
+            }
+
+            $img = null;
+            $this->addImagePng($img, $plainFile, $x, $y, $w, $h, false, ($plainFile !== null));
+            return;
         }
 
         //if already cached, need not to read again
