@@ -12,7 +12,6 @@ use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
-use Dompdf\Positioner\Inline as InlinePositioner;
 use Dompdf\Exception;
 use Dompdf\Css\Style;
 use Dompdf\Helpers;
@@ -457,10 +456,8 @@ class Block extends AbstractFrameReflower
                         continue;
                     }
 
-                    foreach ($line->get_frames() as $frame) {
-                        if ($frame->get_positioner() instanceof InlinePositioner) {
-                            $frame->move($line->left, 0);
-                        }
+                    foreach ($line->frames_to_align() as $frame) {
+                        $frame->move($line->left, 0);
                     }
                 }
                 break;
@@ -471,14 +468,11 @@ class Block extends AbstractFrameReflower
                         continue;
                     }
 
-                    // Move each child over by $dx
                     $indent = $i === 0 ? $text_indent : 0;
                     $dx = $width - $line->w - $line->right - $indent;
 
-                    foreach ($line->get_frames() as $frame) {
-                        if ($frame->get_positioner() instanceof InlinePositioner) {
-                            $frame->move($dx, 0);
-                        }
+                    foreach ($line->frames_to_align() as $frame) {
+                        $frame->move($dx, 0);
                     }
                 }
                 break;
@@ -496,10 +490,8 @@ class Block extends AbstractFrameReflower
                     }
 
                     if ($line->left) {
-                        foreach ($line->get_frames() as $frame) {
-                            if ($frame->get_positioner() instanceof InlinePositioner) {
-                                $frame->move($line->left, 0);
-                            }
+                        foreach ($line->frames_to_align() as $frame) {
+                            $frame->move($line->left, 0);
                         }
                     }
 
@@ -507,9 +499,10 @@ class Block extends AbstractFrameReflower
                         continue;
                     }
 
+                    $frames = $line->get_frames();
                     $other_frame_count = 0;
 
-                    foreach ($line->get_frames() as $frame) {
+                    foreach ($frames as $frame) {
                         if (!($frame instanceof TextFrameDecorator)) {
                             $other_frame_count++;
                         }
@@ -526,7 +519,7 @@ class Block extends AbstractFrameReflower
                     }
 
                     $dx = 0;
-                    foreach ($line->get_frames() as $frame) {
+                    foreach ($frames as $frame) {
                         if ($frame instanceof TextFrameDecorator) {
                             $text = $frame->get_text();
                             $spaces = mb_substr_count($text, " ");
@@ -552,14 +545,11 @@ class Block extends AbstractFrameReflower
                         continue;
                     }
 
-                    // Centre each line by moving each frame in the line by:
                     $indent = $i === 0 ? $text_indent : 0;
                     $dx = ($width + $line->left - $line->w - $line->right - $indent) / 2;
 
-                    foreach ($line->get_frames() as $frame) {
-                        if ($frame->get_positioner() instanceof InlinePositioner) {
-                            $frame->move($dx, 0);
-                        }
+                    foreach ($line->frames_to_align() as $frame) {
+                        $frame->move($dx, 0);
                     }
                 }
                 break;
@@ -576,32 +566,24 @@ class Block extends AbstractFrameReflower
 
         foreach ($this->_frame->get_line_boxes() as $line) {
             $height = $line->h;
-            $markers = $line->get_list_markers();
-            $frames = $line->get_frames();
 
             // Move all markers to the top of the line box
-            foreach ($markers as $marker) {
+            foreach ($line->get_list_markers() as $marker) {
                 $x = $marker->get_position("x");
                 $marker->set_position($x, $line->y);
             }
 
-            foreach (array_merge($markers, $frames) as $frame) {
+            foreach ($line->frames_to_align() as $frame) {
                 $style = $frame->get_style();
-                $isInlineBlock = $style->display === "-dompdf-image"
-                    || $style->display === "inline-block"
-                    || $style->display === "inline-table";
-                $isInline = $style->display === "inline"
-                    || $style->display === "-dompdf-list-bullet";
-
-                if (!$isInlineBlock && !$isInline) {
-                    continue;
-                }
+                $isInlineBlock = $style->display !== "inline"
+                    && $style->display !== "-dompdf-list-bullet";
 
                 $baseline = $fontMetrics->getFontBaseline($style->font_family, $style->font_size);
                 $y_offset = 0;
 
                 //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
                 if ($isInlineBlock) {
+                    $frames = $line->get_frames();
                     if (count($frames) === 1) {
                         continue;
                     }
