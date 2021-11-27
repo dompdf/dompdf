@@ -335,6 +335,23 @@ class LineBox
     }
 
     /**
+     * An iterator of all list markers and inline positioned frames of the line
+     * box.
+     *
+     * @return \Iterator<AbstractFrameDecorator>
+     */
+    public function frames_to_align(): \Iterator
+    {
+        yield from $this->list_markers;
+
+        foreach ($this->_frames as $frame) {
+            if ($frame->get_positioner() instanceof InlinePositioner) {
+                yield $frame;
+            }
+        }
+    }
+
+    /**
      * Recalculate LineBox width based on the contained frames total width.
      *
      * @return float
