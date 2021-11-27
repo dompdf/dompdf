@@ -351,7 +351,7 @@ class FontMetrics
     }
 
     /**
-     * Calculates font height
+     * Calculates font height, in points
      *
      * @param string $font
      * @param float $size
@@ -361,6 +361,19 @@ class FontMetrics
     public function getFontHeight($font, $size)
     {
         return $this->canvas->get_font_height($font, $size);
+    }
+
+    /**
+     * Calculates font baseline, in points
+     *
+     * @param string $font
+     * @param float $size
+     *
+     * @return float
+     */
+    public function getFontBaseline($font, $size)
+    {
+        return $this->canvas->get_font_baseline($font, $size);
     }
 
     /**
