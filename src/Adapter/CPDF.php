@@ -606,52 +606,6 @@ class CPDF implements Canvas
     }
 
     /**
-     * Convert image to a PNG image
-     *
-     * @param string $image_url
-     * @param int $type
-     *
-     * @throws Exception
-     * @return string The url of the newly converted image
-     */
-    protected function _convert_to_png($image_url, $type)
-    {
-        $func_name = "imagecreatefrom$type";
-
-        if (!function_exists($func_name)) {
-            if (!method_exists(Helpers::class, $func_name)) {
-                throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
-            }
-            $func_name = "\\Dompdf\\Helpers::" . $func_name;
-        }
-
-        set_error_handler([Helpers::class, 'record_warnings']);
-
-        try {
-            $im = call_user_func($func_name, $image_url);
-
-            if ($im) {
-                imageinterlace($im, false);
-
-                $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-                $tmp_name = @tempnam($tmp_dir, "{$type}dompdf_img_");
-                @unlink($tmp_name);
-                $filename = "$tmp_name.png";
-                $this->_image_cache[] = $filename;
-
-                imagepng($im, $filename);
-                imagedestroy($im);
-            } else {
-                $filename = Cache::$broken_image;
-            }
-        } finally {
-            restore_error_handler();
-        }
-
-        return $filename;
-    }
-
-    /**
      * @param float $x1
      * @param float $y1
      * @param float $w
@@ -831,6 +785,52 @@ class CPDF implements Canvas
 
         $this->_set_fill_transparency("Normal", $this->_current_opacity);
         $this->_set_line_transparency("Normal", $this->_current_opacity);
+    }
+
+    /**
+     * Convert image to a PNG image
+     *
+     * @param string $image_url
+     * @param int $type
+     *
+     * @throws Exception
+     * @return string The url of the newly converted image
+     */
+    protected function _convert_to_png($image_url, $type)
+    {
+        $func_name = "imagecreatefrom$type";
+
+        if (!function_exists($func_name)) {
+            if (!method_exists(Helpers::class, $func_name)) {
+                throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
+            }
+            $func_name = "\\Dompdf\\Helpers::" . $func_name;
+        }
+
+        set_error_handler([Helpers::class, 'record_warnings']);
+
+        try {
+            $im = call_user_func($func_name, $image_url);
+
+            if ($im) {
+                imageinterlace($im, false);
+
+                $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
+                $tmp_name = @tempnam($tmp_dir, "{$type}dompdf_img_");
+                @unlink($tmp_name);
+                $filename = "$tmp_name.png";
+                $this->_image_cache[] = $filename;
+
+                imagepng($im, $filename);
+                imagedestroy($im);
+            } else {
+                $filename = Cache::$broken_image;
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        return $filename;
     }
 
     /**
