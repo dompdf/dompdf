@@ -160,13 +160,6 @@ class CPDF implements Canvas
     protected $_pages;
 
     /**
-     * Array of temporary cached images to be deleted when processing is complete
-     *
-     * @var array
-     */
-    protected $_image_cache;
-
-    /**
      * Currently-applied opacity level (0 - 1)
      *
      * @var float
@@ -219,8 +212,6 @@ class CPDF implements Canvas
         $this->_page_text = [];
 
         $this->_pages = [$this->_pdf->getFirstPageId()];
-
-        $this->_image_cache = [];
     }
 
     /**
@@ -229,31 +220,6 @@ class CPDF implements Canvas
     public function get_dompdf()
     {
         return $this->_dompdf;
-    }
-
-    /**
-     * Class destructor
-     *
-     * Deletes all temporary image files
-     */
-    public function __destruct()
-    {
-        foreach ($this->_image_cache as $img) {
-            // The file might be already deleted by 3rd party tmp cleaner,
-            // the file might not have been created at all
-            // (if image outputting commands failed)
-            // or because the destructor was called twice accidentally.
-            if (!file_exists($img)) {
-                continue;
-            }
-
-            if ($this->_dompdf->getOptions()->getDebugPng()) {
-                print '[__destruct unlink ' . $img . ']';
-            }
-            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
-                unlink($img);
-            }
-        }
     }
 
     /**
@@ -791,23 +757,29 @@ class CPDF implements Canvas
      * Convert image to a PNG image
      *
      * @param string $image_url
-     * @param int $type
+     * @param string $type
      *
      * @throws Exception
      * @return string The url of the newly converted image
      */
     protected function _convert_to_png($image_url, $type)
     {
+        $filename = Cache::getTempImage($image_url);
+
+        if ($filename !== null && file_exists($filename)) {
+            return $filename;
+        }
+ 
         $func_name = "imagecreatefrom$type";
 
         if (!function_exists($func_name)) {
             if (!method_exists(Helpers::class, $func_name)) {
                 throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
             }
-            $func_name = "\\Dompdf\\Helpers::" . $func_name;
+            $func_name = [Helpers::class, $func_name];
         }
 
-        set_error_handler([Helpers::class, 'record_warnings']);
+        set_error_handler([Helpers::class, "record_warnings"]);
 
         try {
             $im = call_user_func($func_name, $image_url);
@@ -816,10 +788,9 @@ class CPDF implements Canvas
                 imageinterlace($im, false);
 
                 $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-                $tmp_name = @tempnam($tmp_dir, "{$type}dompdf_img_");
+                $tmp_name = @tempnam($tmp_dir, "{$type}_dompdf_img_");
                 @unlink($tmp_name);
                 $filename = "$tmp_name.png";
-                $this->_image_cache[] = $filename;
 
                 imagepng($im, $filename);
                 imagedestroy($im);
@@ -829,6 +800,8 @@ class CPDF implements Canvas
         } finally {
             restore_error_handler();
         }
+
+        Cache::addTempImage($image_url, $filename);
 
         return $filename;
     }
@@ -865,7 +838,6 @@ class CPDF implements Canvas
             /** @noinspection PhpMissingBreakStatementInspection */
             case "bmp":
                 if ($debug_png) print "!!!{$type}!!!";
-                // @todo use cache for converted images (BMP/GIF/WebP)
                 $img = $this->_convert_to_png($img, $type);
 
             case "png":
