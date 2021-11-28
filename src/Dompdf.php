@@ -837,7 +837,9 @@ class Dompdf
         $root->reflow();
 
         // Clean up cached images
-        Cache::clear();
+        if (!$this->options->getDebugKeepTemp()) {
+            Cache::clear($this->options->getDebugPng());
+        }
 
         global $_dompdf_warnings, $_dompdf_show_warnings;
         if ($_dompdf_show_warnings && isset($_dompdf_warnings)) {

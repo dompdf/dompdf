@@ -30,6 +30,11 @@ class Cache
     protected static $_cache = [];
 
     /**
+     * @var array
+     */
+    protected static $tempImages = [];
+
+    /**
      * The url to the "broken image" used when images can't be loaded
      *
      * @var string
@@ -185,26 +190,64 @@ class Cache
     }
 
     /**
+     * Register a temp file for the given original image file.
+     *
+     * @param string $filePath The path of the original image.
+     * @param string $tempPath The path of the temp file to register.
+     * @param string $key      An optional key to register the temp file at.
+     */
+    static function addTempImage(string $filePath, string $tempPath, string $key = "default"): void
+    {
+        if (!isset(self::$tempImages[$filePath])) {
+            self::$tempImages[$filePath] = [];
+        }
+
+        self::$tempImages[$filePath][$key] = $tempPath;
+    }
+
+    /**
+     * Get the path of a temp file registered for the given original image file.
+     *
+     * @param string $filePath The path of the original image.
+     * @param string $key      The key the temp file is registered at.
+     */
+    static function getTempImage(string $filePath, string $key = "default"): ?string
+    {
+        return self::$tempImages[$filePath][$key] ?? null;
+    }
+
+    /**
      * Unlink all cached images (i.e. temporary images either downloaded
      * or converted) except for the bundled "broken image"
      */
-    static function clear()
+    static function clear(bool $debugPng = false)
     {
-        if (empty(self::$_cache) || self::$_dompdf->getOptions()->getDebugKeepTemp()) {
-            return;
-        }
-
         foreach (self::$_cache as $file) {
             if ($file === self::$broken_image) {
                 continue;
             }
-            if (self::$_dompdf->getOptions()->getDebugPng()) {
+            if ($debugPng) {
                 print "[clear unlink $file]";
             }
             unlink($file);
         }
 
+        foreach (self::$tempImages as $versions) {
+            foreach ($versions as $file) {
+                if ($file === self::$broken_image) {
+                    continue;
+                }
+                if ($debugPng) {
+                    print "[unlink temp image $file]";
+                }
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+        }
+
         self::$_cache = [];
+        self::$tempImages = [];
     }
 
     static function detect_type($file, $context = null)
