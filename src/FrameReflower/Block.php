@@ -587,8 +587,8 @@ class Block extends AbstractFrameReflower
                     if (count($frames) === 1) {
                         continue;
                     }
-                    $frameBox = $frame->get_border_box();
-                    $imageHeightDiff = $height * 0.8 - $frameBox["h"];
+                    $marginHeight = $frame->get_margin_height();
+                    $imageHeightDiff = $height * 0.8 - $marginHeight;
 
                     $align = $frame->get_style()->vertical_align;
                     if (in_array($align, Style::$vertical_align_keywords, true)) {
@@ -623,7 +623,7 @@ class Block extends AbstractFrameReflower
                                 break;
                         }
                     } else {
-                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $frameBox["h"];
+                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $marginHeight;
                     }
                 } else {
                     $parent = $frame->get_parent();
