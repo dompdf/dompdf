@@ -314,10 +314,8 @@ class Dompdf
             setlocale(LC_NUMERIC, "C");
         }
 
-        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
-            $this->pcreJit = @ini_get('pcre.jit');
-            @ini_set('pcre.jit', '0');
-        }
+        $this->pcreJit = @ini_get('pcre.jit');
+        @ini_set('pcre.jit', '0');
 
         $this->mbstringEncoding = mb_internal_encoding();
         mb_internal_encoding('UTF-8');
