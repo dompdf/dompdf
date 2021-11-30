@@ -211,12 +211,12 @@ class FontMetrics
         $entry[$styleString] = $cacheEntry;
 
         // Download the remote file
-        [$protocol, $baseHost, $basePath] = Helpers::explode_url($remoteFile);
-        if (!$this->options->isRemoteEnabled() && ($protocol != "" && $protocol !== "file://")) {
+        [$protocol] = Helpers::explode_url($remoteFile);
+        if (!$this->options->isRemoteEnabled() && ($protocol !== "" && $protocol !== "file://")) {
             Helpers::record_warnings(E_USER_WARNING, "Remote font resource $remoteFile referenced, but remote file download is disabled.", __FILE__, __LINE__);
             return false;
         }
-        if ($protocol == "" || $protocol === "file://") {
+        if ($protocol === "" || $protocol === "file://") {
             $realfile = realpath($remoteFile);
 
             $rootDir = realpath($this->options->getRootDir());

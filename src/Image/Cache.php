@@ -70,7 +70,7 @@ class Cache
         $parsed_url = Helpers::explode_url($url);
         $message = null;
 
-        $remote = ($protocol && $protocol !== "file://") || ($parsed_url['protocol'] != "");
+        $remote = ($protocol && $protocol !== "file://") || ($parsed_url['protocol'] !== "");
 
         $data_uri = strpos($parsed_url['protocol'], "data:") === 0;
         $full_url = null;
@@ -129,7 +129,7 @@ class Cache
             else {
                 $resolved_url = Helpers::build_url($protocol, $host, $base_path, $url);
 
-                if ($protocol == "" || $protocol === "file://") {
+                if ($protocol === "" || $protocol === "file://") {
                     $realfile = realpath($resolved_url);
         
                     $rootDir = realpath($dompdf->getOptions()->getRootDir());

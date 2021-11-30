@@ -57,7 +57,7 @@ class Helpers
     public static function build_url($protocol, $host, $base_path, $url)
     {
         $protocol = mb_strtolower($protocol);
-        if (strlen($url) == 0) {
+        if ($url === "") {
             //return $protocol . $host . rtrim($base_path, "/\\") . "/";
             return $protocol . $host . $base_path;
         }
@@ -74,11 +74,11 @@ class Helpers
         }
 
         $ret = "";
-        if ($protocol != "file://") {
+        if ($protocol !== "file://") {
             $ret = $protocol;
         }
 
-        if (!in_array(mb_strtolower($protocol), ["http://", "https://", "ftp://", "ftps://"])) {
+        if (!in_array(mb_strtolower($protocol), ["http://", "https://", "ftp://", "ftps://"], true)) {
             //On Windows local file, an abs path can begin also with a '\' or a drive letter and colon
             //drive: followed by a relative path would be a drive specific default folder.
             //not known in php app code, treat as abs path
@@ -860,8 +860,8 @@ class Helpers
     {
         $content = null;
         $headers = null;
-        [$proto, $host, $path, $file] = Helpers::explode_url($uri);
-        $is_local_path = ($proto == '' || $proto === 'file://');
+        [$protocol] = Helpers::explode_url($uri);
+        $is_local_path = ($protocol === "" || $protocol === "file://");
 
         set_error_handler([self::class, 'record_warnings']);
 
