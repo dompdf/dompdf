@@ -396,7 +396,7 @@ class Stylesheet
                 $file = $realfile;
             }
             
-            list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
+            [$css, $http_response_header] = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
 
@@ -411,7 +411,7 @@ class Stylesheet
                 }
             }
 
-            if (!$good_mime_type || empty($css)) {
+            if (!$good_mime_type || $css === null) {
                 Helpers::record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
                 return;
             }

@@ -326,17 +326,17 @@ class Dompdf
      */
     private function restorePhpConfig()
     {
-        if (!empty($this->systemLocale)) {
+        if ($this->systemLocale !== null) {
             setlocale(LC_NUMERIC, $this->systemLocale);
             $this->systemLocale = null;
         }
 
-        if (!empty($this->pcreJit)) {
+        if ($this->pcreJit !== null) {
             @ini_set('pcre.jit', $this->pcreJit);
             $this->pcreJit = null;
         }
 
-        if (!empty($this->mbstringEncoding)) {
+        if ($this->mbstringEncoding !== null) {
             mb_internal_encoding($this->mbstringEncoding);
             $this->mbstringEncoding = null;
         }
@@ -408,7 +408,7 @@ class Dompdf
         }
 
         [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->httpContext);
-        if (empty($contents)) {
+        if ($contents === null) {
             throw new Exception("File '$file' not found.");
         }
 

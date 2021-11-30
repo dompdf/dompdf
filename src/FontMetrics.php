@@ -244,7 +244,7 @@ class FontMetrics
             $remoteFile = $realfile;
         }
         list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
-        if (empty($remoteFileContent)) {
+        if ($remoteFileContent === null) {
             return false;
         }
 
