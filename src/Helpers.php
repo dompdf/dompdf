@@ -645,7 +645,7 @@ class Helpers
         if ($width == null || $height == null) {
             [$data, $headers] = Helpers::getFileContent($filename, $context);
 
-            if (!empty($data)) {
+            if ($data !== null) {
                 if (substr($data, 0, 2) === "BM") {
                     $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
                     $width = (int)$meta['width'];
