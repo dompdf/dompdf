@@ -1306,7 +1306,7 @@ class PDFLib implements Canvas
         } else {
             list($proto, $host, $path, $file) = Helpers::explode_url($url);
 
-            if ($proto == "" || $proto === "file://") {
+            if ($proto === "" || $proto === "file://") {
                 return; // Local links are not allowed
             }
             $url = Helpers::build_url($proto, $host, $path, $file);
