@@ -14,14 +14,14 @@ class DompdfTest extends TestCase
     {
         $dompdf = new Dompdf();
         $this->assertInstanceOf('Dompdf\Adapter\Cpdf', $dompdf->getCanvas());
-        $this->assertEquals('', $dompdf->getBaseHost());
-        $this->assertEquals('', $dompdf->getBasePath());
+        $this->assertSame("", $dompdf->getProtocol());
+        $this->assertSame("", $dompdf->getBaseHost());
+        $this->assertSame("", $dompdf->getBasePath());
         $this->assertIsArray($dompdf->getCallbacks());
         $this->assertInstanceOf('Dompdf\Css\Stylesheet', $dompdf->getCss());
         $this->assertNull($dompdf->getDom());
         $this->assertNull($dompdf->getHttpContext());
         $this->assertInstanceOf('Dompdf\Options', $dompdf->getOptions());
-        $this->assertNull($dompdf->getProtocol());
         $this->assertFalse($dompdf->getQuirksmode());
         $this->assertNull($dompdf->getTree());
     }

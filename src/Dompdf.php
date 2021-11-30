@@ -153,7 +153,7 @@ class Dompdf
      *
      * @var string
      */
-    private $protocol;
+    private $protocol = "";
 
     /**
      * HTTP context created with stream_context_create()
@@ -220,7 +220,7 @@ class Dompdf
     *
     * @var array
     */
-    private $allowedProtocols = [null, "", "file://", "http://", "https://"];
+    private $allowedProtocols = ["", "file://", "http://", "https://"];
 
     /**
     * Local file extension whitelist
@@ -371,15 +371,15 @@ class Dompdf
         
         $uri = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $file);
 
-        if ( !in_array($protocol, $this->allowedProtocols) ) {
+        if (!in_array($protocol, $this->allowedProtocols, true)) {
             throw new Exception("Permission denied on $file. The communication protocol is not supported.");
         }
 
-        if (!$this->options->isRemoteEnabled() && ($protocol != "" && $protocol !== "file://")) {
+        if (!$this->options->isRemoteEnabled() && ($protocol !== "" && $protocol !== "file://")) {
             throw new Exception("Remote file requested, but remote file download is disabled.");
         }
 
-        if ($protocol == "" || $protocol === "file://") {
+        if ($protocol === "" || $protocol === "file://") {
             $realfile = realpath($uri);
 
             $chroot = $this->options->getChroot();
@@ -1110,7 +1110,7 @@ class Dompdf
      * @param string $protocol
      * @return $this
      */
-    public function setProtocol($protocol)
+    public function setProtocol(string $protocol)
     {
         $this->protocol = $protocol;
         return $this;
@@ -1150,7 +1150,7 @@ class Dompdf
      * @param string $baseHost
      * @return $this
      */
-    public function setBaseHost($baseHost)
+    public function setBaseHost(string $baseHost)
     {
         $this->baseHost = $baseHost;
         return $this;
@@ -1192,7 +1192,7 @@ class Dompdf
      * @param string $basePath
      * @return $this
      */
-    public function setBasePath($basePath)
+    public function setBasePath(string $basePath)
     {
         $this->basePath = $basePath;
         return $this;

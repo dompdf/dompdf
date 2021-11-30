@@ -99,7 +99,7 @@ class Stylesheet
      *
      * @var string
      */
-    private $_protocol;
+    private $_protocol = "";
 
     /**
      * Base hostname of the document being parsed
@@ -107,7 +107,7 @@ class Stylesheet
      *
      * @var string
      */
-    private $_base_host;
+    private $_base_host = "";
 
     /**
      * Base path of the document being parsed
@@ -115,7 +115,7 @@ class Stylesheet
      *
      * @var string
      */
-    private $_base_path;
+    private $_base_path = "";
 
     /**
      * The styles defined by @page rules
@@ -185,7 +185,7 @@ class Stylesheet
      *
      * @param string $protocol
      */
-    function set_protocol($protocol)
+    function set_protocol(string $protocol)
     {
         $this->_protocol = $protocol;
     }
@@ -195,7 +195,7 @@ class Stylesheet
      *
      * @param string $host
      */
-    function set_host($host)
+    function set_host(string $host)
     {
         $this->_base_host = $host;
     }
@@ -205,7 +205,7 @@ class Stylesheet
      *
      * @param string $path
      */
-    function set_base_path($path)
+    function set_base_path(string $path)
     {
         $this->_base_path = $path;
     }
@@ -358,17 +358,17 @@ class Stylesheet
         } else {
             $parsed_url = Helpers::explode_url($file);
 
-            list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
+            [$this->_protocol, $this->_base_host, $this->_base_path, $filename] = $parsed_url;
 
             $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
 
             $options = $this->_dompdf->getOptions();
             // Download the remote file
-            if (!$options->isRemoteEnabled() && ($this->_protocol != "" && $this->_protocol !== "file://")) {
+            if (!$options->isRemoteEnabled() && ($this->_protocol !== "" && $this->_protocol !== "file://")) {
                 Helpers::record_warnings(E_USER_WARNING, "Remote CSS resource '$file' referenced, but remote file download is disabled.", __FILE__, __LINE__);
                 return;
             }
-            if ($this->_protocol == "" || $this->_protocol === "file://") {
+            if ($this->_protocol === "" || $this->_protocol === "file://") {
                 $realfile = realpath($file);
 
                 $rootDir = realpath($options->getRootDir());
@@ -1454,7 +1454,7 @@ class Stylesheet
                 $this->_base_host,
                 $this->_base_path,
                 $val);
-            if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_protocol == "" || $this->_protocol == "file://")) {
+            if (($parsed_url["protocol"] === "" || $parsed_url["protocol"] === "file://") && ($this->_protocol === "" || $this->_protocol === "file://")) {
                 $path = realpath($path);
                 // If realpath returns FALSE then specifically state that there is no background image
                 if ($path === false) {
@@ -1507,7 +1507,7 @@ class Stylesheet
 
             // $url = str_replace(array('"',"url", "(", ")"), "", $url);
             // If the protocol is php, assume that we will import using file://
-            // $url = Helpers::build_url($protocol == "php://" ? "file://" : $protocol, $host, $path, $url);
+            // $url = Helpers::build_url($protocol === "php://" ? "file://" : $protocol, $host, $path, $url);
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
