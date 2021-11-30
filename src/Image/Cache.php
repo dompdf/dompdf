@@ -99,7 +99,7 @@ class Cache
                         throw new ImageException("Unable to create temporary image in " . $tmp_dir, E_WARNING);
                     }
                     $tempfile = $resolved_url;
-                    $image = "";
+                    $image = null;
 
                     if ($data_uri) {
                         if ($parsed_data_uri = Helpers::parse_data_uri($url)) {
@@ -110,7 +110,7 @@ class Cache
                     }
 
                     // Image not found or invalid
-                    if (empty($image)) {
+                    if ($image === null) {
                         $msg = ($data_uri ? "Data-URI could not be parsed" : "Image not found");
                         throw new ImageException($msg, E_WARNING);
                     } // Image found, put in cache and process
