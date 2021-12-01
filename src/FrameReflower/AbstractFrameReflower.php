@@ -507,7 +507,7 @@ abstract class AbstractFrameReflower
                     if (isset($args[5])) {
                         $type = trim($args[5]);
                     } else {
-                        $type = null;
+                        $type = "decimal";
                     }
                     $p = $this->_frame->lookup_counter_frame($counter_id);
 
@@ -524,7 +524,7 @@ abstract class AbstractFrameReflower
                     if (isset($args[7])) {
                         $type = trim($args[7]);
                     } else {
-                        $type = null;
+                        $type = "decimal";
                     }
 
                     $p = $this->_frame->lookup_counter_frame($counter_id);
