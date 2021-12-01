@@ -656,6 +656,8 @@ class Style
                 continue;
             }
 
+            $l = (string) $l;
+
             if (($i = mb_stripos($l, "px")) !== false) {
                 $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
                 $ret += ((float)mb_substr($l, 0, $i) * 72) / $dpi;
