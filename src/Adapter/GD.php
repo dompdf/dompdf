@@ -31,14 +31,14 @@ class GD implements Canvas
     /**
      * Resource handle for the image
      *
-     * @var resource
+     * @var \GdImage|resource
      */
     protected $_img;
 
     /**
      * Resource handle for the image
      *
-     * @var resource[]
+     * @var \GdImage[]|resource[]
      */
     protected $_imgs;
 
@@ -200,9 +200,9 @@ class GD implements Canvas
     }
 
     /**
-     * Return the GF image resource
+     * Return the GD image resource
      *
-     * @return resource
+     * @return \GdImage|resource
      */
     public function get_image()
     {
