@@ -5763,7 +5763,7 @@ EOT;
                     if ($eight_bit) {
                         // with gamma correction
                         $gammacorr = 2.2;
-                        $pixel = pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255;
+                        $pixel = round(pow((((127 - $alpha) * 255 / 127) / 255), $gammacorr) * 255);
                     } else {
                         // without gamma correction
                         $pixel = (127 - $alpha) * 2;
