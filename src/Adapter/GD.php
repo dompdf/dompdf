@@ -682,7 +682,7 @@ class GD implements Canvas
         // Scale by the AA factor and DPI
         $x = $this->_upscale($x);
         $y = $this->_upscale($y);
-        $r = $this->_upscale($r);
+        $d = $this->_upscale(2 * $r);
 
         $c = $this->_allocate_color($color);
 
@@ -705,9 +705,9 @@ class GD implements Canvas
         imagesetthickness($this->get_image(), isset($width) ? round($width) : 0);
 
         if ($fill) {
-            imagefilledellipse($this->get_image(), $x, $y, $r, $r, $c);
+            imagefilledellipse($this->get_image(), $x, $y, $d, $d, $c);
         } else {
-            imageellipse($this->get_image(), $x, $y, $r, $r, $c);
+            imageellipse($this->get_image(), $x, $y, $d, $d, $c);
         }
     }
 
