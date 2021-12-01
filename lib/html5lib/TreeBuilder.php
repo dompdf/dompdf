@@ -231,10 +231,10 @@ class HTML5_TreeBuilder {
                      * Document object so that it is returned as the value of the
                      * doctype attribute of the Document object. */
                     if (!isset($token['public'])) {
-                        $token['public'] = null;
+                        $token['public'] = "";
                     }
                     if (!isset($token['system'])) {
-                        $token['system'] = null;
+                        $token['system'] = "";
                     }
                     // XDOM
                     // Yes this is hacky. I'm kind of annoyed that I can't appendChild
@@ -251,8 +251,8 @@ class HTML5_TreeBuilder {
                         // So... don't.
                         $this->dom->emptyDoctype = true;
                     }
-                    $public = is_null($token['public']) ? false : strtolower($token['public']);
-                    $system = is_null($token['system']) ? false : strtolower($token['system']);
+                    $public = strtolower($token['public']);
+                    $system = $token['system'] === "" ? false : strtolower($token['system']);
                     $publicStartsWithForQuirks = [
                      "+//silmaril//dtd html pro v0r11 19970101//",
                      "-//advasoft ltd//dtd html 3.0 aswedit + extensions//",
