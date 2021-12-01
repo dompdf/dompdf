@@ -450,7 +450,7 @@ abstract class AbstractFrameReflower
     /**
      * Parses the CSS "content" property
      *
-     * @return string|null The resulting string
+     * @return string The resulting string
      */
     protected function _parse_content()
     {
@@ -470,7 +470,7 @@ abstract class AbstractFrameReflower
 
         // split on spaces, except within quotes
         if (!preg_match_all($re, $content, $matches, PREG_SET_ORDER)) {
-            return null;
+            return "";
         }
 
         $text = "";
@@ -603,16 +603,19 @@ abstract class AbstractFrameReflower
 
         if ($style->content && $frame->get_node()->nodeName === "dompdf_generated") {
             $content = $this->_parse_content();
-            $node = $frame->get_node()->ownerDocument->createTextNode($content);
 
-            $new_style = $style->get_stylesheet()->create_style();
-            $new_style->inherit($style);
+            if ($content !== "") {
+                $node = $frame->get_node()->ownerDocument->createTextNode($content);
 
-            $new_frame = new Frame($node);
-            $new_frame->set_style($new_style);
+                $new_style = $style->get_stylesheet()->create_style();
+                $new_style->inherit($style);
 
-            Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
-            $frame->append_child($new_frame);
+                $new_frame = new Frame($node);
+                $new_frame->set_style($new_style);
+
+                Factory::decorate_frame($new_frame, $frame->get_dompdf(), $frame->get_root());
+                $frame->append_child($new_frame);
+            }
         }
 
         $frame->content_set = true;
