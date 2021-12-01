@@ -5561,7 +5561,7 @@ EOT;
      * add a PNG image into the document, from a GD object
      * this should work with remote files
      *
-     * @param resource $img A GD resource
+     * @param \GdImage|resource $img A GD resource
      * @param string $file The PNG file
      * @param float $x X position
      * @param float $y Y position
