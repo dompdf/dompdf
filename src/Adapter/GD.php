@@ -212,25 +212,26 @@ class GD implements Canvas
     /**
      * Return the image's width in pixels
      *
-     * @return float
+     * @return int
      */
     public function get_width()
     {
-        return $this->_width / $this->_aa_factor;
+        return round($this->_width / $this->_aa_factor);
     }
 
     /**
      * Return the image's height in pixels
      *
-     * @return float
+     * @return int
      */
     public function get_height()
     {
-        return $this->_height / $this->_aa_factor;
+        return round($this->_height / $this->_aa_factor);
     }
 
     /**
      * Returns the current page number
+     *
      * @return int
      */
     public function get_page_number()
@@ -240,6 +241,7 @@ class GD implements Canvas
 
     /**
      * Returns the total number of pages in the document
+     *
      * @return int
      */
     public function get_page_count()
@@ -295,10 +297,10 @@ class GD implements Canvas
 
         list($r, $g, $b) = $color;
 
-        $r *= 255;
-        $g *= 255;
-        $b *= 255;
-        $a = 127 - ($a * 127);
+        $r = round($r * 255);
+        $g = round($g * 255);
+        $b = round($b * 255);
+        $a = round(127 - ($a * 127));
 
         // Clip values
         $r = $r > 255 ? 255 : $r;
@@ -330,22 +332,22 @@ class GD implements Canvas
      * Scales value up to the current canvas DPI from 72 DPI
      *
      * @param float $length
-     * @return float
+     * @return int
      */
     protected function _upscale($length)
     {
-        return ($length * $this->dpi) / 72 * $this->_aa_factor;
+        return round(($length * $this->dpi) / 72 * $this->_aa_factor);
     }
 
     /**
      * Scales value down from the current canvas DPI to 72 DPI
      *
      * @param float $length
-     * @return float
+     * @return int
      */
     protected function _downscale($length)
     {
-        return ($length / $this->dpi * 72) / $this->_aa_factor;
+        return round(($length / $this->dpi * 72) / $this->_aa_factor);
     }
 
     /**
@@ -651,7 +653,7 @@ class GD implements Canvas
             }
         }
 
-        imagesetthickness($this->get_image(), $width);
+        imagesetthickness($this->get_image(), isset($width) ? round($width) : 0);
 
         if ($fill) {
             imagefilledpolygon($this->get_image(), $points, $c);
@@ -700,7 +702,7 @@ class GD implements Canvas
             }
         }
 
-        imagesetthickness($this->get_image(), $width);
+        imagesetthickness($this->get_image(), isset($width) ? round($width) : 0);
 
         if ($fill) {
             imagefilledellipse($this->get_image(), $x, $y, $r, $r, $c);
@@ -782,7 +784,7 @@ class GD implements Canvas
         $y = $this->_upscale($y);
         $size = $this->_upscale($size) * self::FONT_SCALE;
 
-        $h = $this->get_font_height_actual($font, $size);
+        $h = round($this->get_font_height_actual($font, $size));
         $c = $this->_allocate_color($color);
 
         // imagettftext() converts numeric entities to their respective
@@ -880,11 +882,15 @@ class GD implements Canvas
     }
 
     /**
-     * @param $font
+     * @param string|null $font
      * @return string
      */
     public function get_ttf_file($font)
     {
+        if ($font === null) {
+            $font = "";
+        }
+
         if ( stripos($font, ".ttf") === false ) {
             $font .= ".ttf";
         }
@@ -913,7 +919,7 @@ class GD implements Canvas
      *
      * @param string $font
      * @param float $size
-     * @return float
+     * @return int
      */
     public function get_font_height($font, $size)
     {
@@ -1085,8 +1091,8 @@ class GD implements Canvas
 
         // Perform any antialiasing
         if ($this->_aa_factor != 1) {
-            $dst_w = $this->_actual_width / $this->_aa_factor;
-            $dst_h = $this->_actual_height / $this->_aa_factor;
+            $dst_w = round($this->_actual_width / $this->_aa_factor);
+            $dst_h = round($this->_actual_height / $this->_aa_factor);
             $dst = imagecreatetruecolor($dst_w, $dst_h);
             imagecopyresampled($dst, $img, 0, 0, 0, 0,
                 $dst_w, $dst_h,
