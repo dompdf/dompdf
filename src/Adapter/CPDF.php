@@ -127,7 +127,7 @@ class CPDF implements Canvas
     /**
      * PDF height, in points
      *
-     * @var float;
+     * @var float
      */
     protected $_height;
 
