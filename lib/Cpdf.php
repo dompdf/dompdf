@@ -5052,17 +5052,17 @@ EOT;
 
         $text = str_replace(["\r", "\n"], "", $text);
 
-        if ($smallCaps) {
-            preg_match_all("/(\P{Ll}+)/u", $text, $matches, PREG_SET_ORDER);
-            $lower = $this->concatMatches($matches);
-            d($lower);
+        // if ($smallCaps) {
+        //     preg_match_all("/(\P{Ll}+)/u", $text, $matches, PREG_SET_ORDER);
+        //     $lower = $this->concatMatches($matches);
+        //     d($lower);
 
-            preg_match_all("/(\p{Ll}+)/u", $text, $matches, PREG_SET_ORDER);
-            $other = $this->concatMatches($matches);
-            d($other);
+        //     preg_match_all("/(\p{Ll}+)/u", $text, $matches, PREG_SET_ORDER);
+        //     $other = $this->concatMatches($matches);
+        //     d($other);
 
-            //$text = preg_replace_callback("/\p{Ll}/u", array($this, "toUpper"), $text);
-        }
+        //     $text = preg_replace_callback("/\p{Ll}/u", array($this, "toUpper"), $text);
+        // }
 
         // if there are any open callbacks, then they should be called, to show the start of the line
         if ($this->nCallback > 0) {
