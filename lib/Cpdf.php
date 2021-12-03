@@ -2919,15 +2919,17 @@ EOT;
                 break;
             case 'out':
                 $info = &$this->objects[$id]['info'];
+                $filename = $this->utf8toUtf16BE($info['filename']);
+                $description = $this->utf8toUtf16BE($info['description']);
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
-                    $filename = $this->ARC4($info['filename']);
-                    $description = $this->ARC4($info['description']);
-                } else {
-                    $filename = $info['filename'];
-                    $description = $info['description'];
+                    $filename = $this->ARC4($filename);
+                    $description = $this->ARC4($description);
                 }
+
+                $filename = $this->filterText($filename, false, false);
+                $description = $this->filterText($description, false, false);
 
                 $res = "\n$id 0 obj <</Type /Filespec /EF";
                 $res .= " <</F " . $info['embedded_reference'] . " 0 R >>";
