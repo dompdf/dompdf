@@ -1792,14 +1792,14 @@ EOT;
 
                     // dates must be outputted as-is, without Unicode transformations
                     if ($k !== 'CreationDate' && $k !== 'ModDate') {
-                        $v = $this->filterText($v, true, false);
+                        $v = $this->utf8toUtf16BE($v);
                     }
 
                     if ($encrypted) {
                         $v = $this->ARC4($v);
                     }
 
-                    $res .= $v;
+                    $res .= $this->filterText($v, false, false);
                     $res .= ")\n";
                 }
 
