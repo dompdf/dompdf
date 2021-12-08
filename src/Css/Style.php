@@ -3411,7 +3411,11 @@ class Style
         $this->_props_computed["z_index"] = null;
         $this->_prop_cache["z_index"] = null;
 
-        if ($val !== "auto" && round($val) != $val) {
+        if ($val === "inherit") {
+            return;
+        }
+
+        if ($val !== "auto" && round((float) $val) != $val) {
             return;
         }
 
