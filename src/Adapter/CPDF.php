@@ -1061,20 +1061,29 @@ class CPDF implements Canvas
     }
 
     /**
-     * Processes a script on every page
+     * Processes a callback or script on every page
      *
-     * The variables $pdf, $PAGE_NUM, and $PAGE_COUNT are available.
+     * The callback function receives the four parameters `$pageNumber`,
+     * `$pageCount`, `$pdf`, and `$fontMetrics`, in that order. If a script is
+     * passed as string, the variables `$PAGE_NUM`, `$PAGE_COUNT`, `$pdf`, and
+     * `$fontMetrics` are available instead.
      *
-     * This function can be used to add page numbers to all pages
-     * after the first one, for example.
+     * This function can be used to add page numbers to all pages after the
+     * first one, for example.
      *
-     * @param string $code the script code
-     * @param string $type the language type for script
+     * @param callable|string $code The callback function or PHP script to process on every page
      */
-    public function page_script($code, $type = "text/php")
+    public function page_script($code)
     {
-        $_t = "script";
-        $this->_page_text[] = compact("_t", "code", "type");
+        if (is_callable($code)) {
+            $this->_page_text[] = [
+                "_t"       => "callback",
+                "callback" => $code
+            ];
+        } else {
+            $_t = "script";
+            $this->_page_text[] = compact("_t", "code");
+        }
     }
 
     /**
@@ -1115,14 +1124,19 @@ class CPDF implements Canvas
                         $this->text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
                         break;
 
+                    case "callback":
+                        $fontMetrics = $this->get_dompdf()->getFontMetrics();
+                        $callback($page_number, $this->_page_count, $this, $fontMetrics);
+                        break;
+
                     case "script":
                         if (!$eval) {
                             $eval = new PhpEvaluator($this);
                         }
-                        $eval->evaluate($code, ['PAGE_NUM' => $page_number, 'PAGE_COUNT' => $this->_page_count]);
+                        $eval->evaluate($code, ["PAGE_NUM" => $page_number, "PAGE_COUNT" => $this->_page_count]);
                         break;
 
-                    case 'line':
+                    case "line":
                         $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
                         break;
                 }
