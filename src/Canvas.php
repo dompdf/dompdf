@@ -131,6 +131,20 @@ interface Canvas
     function clipping_end();
 
     /**
+     * Processes a callback on every page
+     *
+     * The callback function receives the four parameters `$pageNumber`,
+     * `$pageCount`, `$pdf`, and `$fontMetrics`, in that order.
+     *
+     * This function can be used to add page numbers to all pages after the
+     * first one, for example.
+     *
+     * @param callable $callback The callback function to process on every page
+     * @todo Enable with next major release
+     */
+    //public function page_script(callable $callback): void;
+
+    /**
      * Writes text at the specified x and y coordinates on every page
      *
      * The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are automatically replaced
@@ -149,6 +163,22 @@ interface Canvas
      * @param float  $angle      angle to write the text at, measured CW starting from the x-axis
      */
     public function page_text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0);
+
+    /**
+     * Draw line at the specified coordinates on every page.
+     *
+     * See {@link Style::munge_color()} for the format of the color array.
+     *
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @param array $color
+     * @param float $width
+     * @param array $style optional
+     * @todo Enable with next major release
+     */
+    //public function page_line($x1, $y1, $x2, $y2, $color, $width, $style = []);
 
     /**
      * Save current state
