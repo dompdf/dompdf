@@ -1192,8 +1192,7 @@ class Cpdf
                 $font_obj->reduce();
 
                 // Write new font
-                $tmp_name = $this->tmp . "/" . basename($fbfile) . ".tmp." . uniqid();
-                touch($tmp_name);
+                $tmp_name = @tempnam($this->tmp, "cpdf_subset_");
                 $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
                 $font_obj->encode(["OS/2"]);
                 $font_obj->close();
