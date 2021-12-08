@@ -174,10 +174,10 @@ class Page extends AbstractFrameReflower
      * Check for callbacks that need to be performed when a given event
      * gets triggered on a page
      *
-     * @param string $event the type of event
-     * @param Frame $frame  the frame that event is triggered on
+     * @param string $event The type of event
+     * @param Frame  $frame The frame that event is triggered on
      */
-    protected function _check_callbacks($event, $frame)
+    protected function _check_callbacks(string $event, Frame $frame): void
     {
         if (!isset($this->_callbacks)) {
             $dompdf = $this->_frame->get_dompdf();
@@ -185,20 +185,15 @@ class Page extends AbstractFrameReflower
             $this->_canvas = $dompdf->getCanvas();
         }
 
-        if (is_array($this->_callbacks) && isset($this->_callbacks[$event])) {
+        if (isset($this->_callbacks[$event])) {
+            $fs = $this->_callbacks[$event];
             $info = [
                 0 => $this->_canvas, "canvas" => $this->_canvas,
                 1 => $frame,         "frame"  => $frame,
             ];
-            $fs = $this->_callbacks[$event];
+
             foreach ($fs as $f) {
-                if (is_callable($f)) {
-                    if (is_array($f)) {
-                        $f[0]->{$f[1]}($info);
-                    } else {
-                        $f($info);
-                    }
-                }
+                $f($info);
             }
         }
     }
