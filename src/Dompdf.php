@@ -164,13 +164,6 @@ class Dompdf
     private $httpContext;
 
     /**
-     * Timestamp of the script start time
-     *
-     * @var int
-     */
-    private $startTime = null;
-
-    /**
      * The system's locale
      *
      * @var string
@@ -749,7 +742,7 @@ class Dompdf
                 touch($logOutputFile);
             }
 
-            $this->startTime = microtime(true);
+            $startTime = microtime(true);
             if (is_writable($logOutputFile)) {
                 ob_start();
             }
@@ -854,7 +847,7 @@ class Dompdf
         }
 
         if ($logOutputFile && is_writable($logOutputFile)) {
-            $this->write_log();
+            $this->writeLog($logOutputFile, $startTime);
             ob_end_clean();
         }
 
@@ -875,18 +868,14 @@ class Dompdf
     /**
      * Writes the output buffer in the log file
      *
-     * @return void
+     * @param string $logOutputFile
+     * @param float $startTime
      */
-    private function write_log()
+    private function writeLog(string $logOutputFile, float $startTime): void
     {
-        $log_output_file = $this->getOptions()->getLogOutputFile();
-        if (!$log_output_file || !is_writable($log_output_file)) {
-            return;
-        }
-
         $frames = Frame::$ID_COUNTER;
         $memory = memory_get_peak_usage(true) / 1024;
-        $time = (microtime(true) - $this->startTime) * 1000;
+        $time = (microtime(true) - $startTime) * 1000;
 
         $out = sprintf(
             "<span style='color: #000' title='Frames'>%6d</span>" .
@@ -899,7 +888,7 @@ class Dompdf
         $out .= ob_get_contents();
         ob_clean();
 
-        file_put_contents($log_output_file, $out);
+        file_put_contents($logOutputFile, $out);
     }
 
     /**
