@@ -1411,7 +1411,7 @@ class Dompdf
      * Sets callbacks for events like rendering of pages and elements.
      *
      * The callbacks array should contain arrays with `event` set to a callback
-     * event name and `f` set to a function or object plus method to be called.
+     * event name and `f` set to a function or any other callable.
      *
      * The available callback events are:
      * * `begin_page_reflow`: called before page reflow
@@ -1424,17 +1424,17 @@ class Dompdf
      * about the event (`[0 => Canvas, 1 => Frame, "canvas" => Canvas,
      * "frame" => Frame]`).
      *
-     * @param array $callbacks the set of callbacks to set
+     * @param array $callbacks The set of callbacks to set
      */
     public function setCallbacks($callbacks)
     {
         if (is_array($callbacks)) {
             $this->callbacks = [];
             foreach ($callbacks as $c) {
-                if (is_array($c) && isset($c['event']) && isset($c['f'])) {
-                    $event = $c['event'];
-                    $f = $c['f'];
-                    if (is_callable($f) && is_string($event)) {
+                if (is_array($c) && isset($c["event"]) && isset($c["f"])) {
+                    $event = $c["event"];
+                    $f = $c["f"];
+                    if (is_string($event) && is_callable($f)) {
                         $this->callbacks[$event][] = $f;
                     }
                 }
