@@ -71,6 +71,42 @@ class DompdfTest extends TestCase
         $this->assertEquals('', $dompdf->getDom()->textContent);
     }
 
+    public function callbacksProvider(): array
+    {
+        return [
+            ["begin_page_reflow", 1],
+            ["begin_frame", 3],
+            ["end_frame", 3],
+            ["begin_page_render", 1],
+            ["end_page_render", 1]
+        ];
+    }
+
+    /**
+     * @dataProvider callbacksProvider
+     */
+    public function testCallbacks(string $event, int $numCalls): void
+    {
+        $called = 0;
+
+        $dompdf = new Dompdf();
+        $dompdf->setCallbacks([
+            [
+                "event" => $event,
+                "f" => function ($infos) use (&$called) {
+                    $this->assertIsArray($infos);
+                    $this->assertCount(4, $infos);
+                    $called++;
+                }
+            ]
+        ]);
+
+        $dompdf->loadHtml("<html><body><p>Some text</p></body></html>");
+        $dompdf->render();
+
+        $this->assertSame($numCalls, $called);
+    }
+
     public function testSpaceAtStartOfSecondInlineTag()
     {
         $text_frame_contents = [];
