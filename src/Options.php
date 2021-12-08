@@ -1,6 +1,10 @@
 <?php
 namespace Dompdf;
 
+use DOMDocument;
+use Dompdf\Frame\FrameTree;
+use Dompdf\Css\Stylesheet;
+
 class Options
 {
     /**
@@ -276,6 +280,65 @@ class Options
     private $pdflibLicense = "";
 
     /**
+     * Callbacks on new page and new element
+     *
+     * @var array
+     */
+    private $callbacks = [];
+
+    /**
+     * HTTP context created with stream_context_create()
+     * Will be used for file_get_contents
+     *
+     * @var resource
+     */
+    private $httpContext;
+
+    /**
+     * Base hostname
+     *
+     * Used for relative paths/urls
+     * @var string
+     */
+    private $baseHost = "";
+
+    /**
+     * Absolute base path
+     *
+     * Used for relative paths/urls
+     * @var string
+     */
+    private $basePath = "";
+
+    /**
+     * Protocol used to request file (file://, http://, etc)
+     *
+     * @var string
+     */
+    private $protocol;
+
+    /**
+     * DomDocument representing the HTML document
+     *
+     * @var DOMDocument
+     */
+    private $dom;
+
+    /**
+     * FrameTree derived from the DOM tree
+     *
+     * @var FrameTree
+     */
+    private $tree;
+
+    /**
+     * Stylesheet for the document
+     *
+     * @var Stylesheet
+     */
+    private $css;
+
+    /**
      * @param array $attributes
      */
     public function __construct(array $attributes = null)
@@ -356,6 +419,26 @@ class Options
                 $this->setPdfBackend($value);
             } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
                 $this->setPdflibLicense($value);
+            } elseif ($key === 'setCallbacks' || $key === 'set_callbacks' || $key === 'callbacks' || $key === 'formatted_callbacks') {
+                if ($key === 'formatted_callbacks') {
+                    $this->callbacks = $value;
+                } else {
+                    $this->setCallbacks($value);
+                }
+            } elseif ($key === 'setHttpContext' || $key === 'set_http_context' || $key === 'http_context') {
+                $this->setHttpContext($value);
+            } elseif ($key === 'setProtocol' || $key === 'set_protocol' || $key === 'protocol') {
+                $this->setProtocol($value);
+            } elseif ($key === 'setBaseHost' || $key === 'set_base_host' || $key === 'base_host') {
+                $this->setBaseHost($value);
+            } elseif ($key === 'setBasePath' || $key === 'set_base_path' || $key === 'base_path') {
+                $this->setBasePath($value);
+            } elseif ($key === 'setTree' || $key === 'set_tree' || $key === 'tree') {
+                $this->setTree($value);
+            } elseif ($key === 'setDom' || $key === 'set_dom' || $key === 'dom') {
+                $this->setDom($value);
+            } elseif ($key === 'setCss' || $key === 'set_css' || $key === 'css') {
+                $this->setCss($value);
             }
         }
         return $this;
@@ -419,6 +502,22 @@ class Options
             return $this->getPdfBackend();
         } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
             return $this->getPdflibLicense();
+        } elseif ($key === 'callbacks') {
+            return $this->getCallbacks();
+        } elseif ($key === 'httpContext' || $key === 'http_context') {
+            return $this->getHttpContext();
+        } elseif ($key === 'protocol') {
+            return $this->getProtocol();
+        } elseif ($key === 'baseHost' || $key === 'base_host') {
+            return $this->getBaseHost();
+        } elseif ($key === 'basePath' || $key === 'base_path') {
+            return $this->getBasePath();
+        } elseif ($key === 'tree') {
+            return $this->getTree();
+        } elseif ($key === 'dom') {
+            return $this->getDom();
+        } elseif ($key === 'css') {
+            return $this->getCss();
         }
         return null;
     }
@@ -955,5 +1054,198 @@ class Options
     public function getRootDir()
     {
         return $this->rootDir;
+    }
+
+    /**
+     * Sets the HTTP context
+     *
+     * @param resource $httpContext
+     * @return $this
+     */
+    public function setHttpContext($httpContext)
+    {
+        $this->httpContext = $httpContext;
+        return $this;
+    }
+
+    /**
+     * Returns the HTTP context
+     *
+     * @return resource
+     */
+    public function getHttpContext()
+    {
+        return $this->httpContext;
+    }
+
+    /**
+     * Sets the protocol to use
+     * FIXME validate these
+     *
+     * @param string $protocol
+     * @return $this
+     */
+    public function setProtocol($protocol)
+    {
+        $this->protocol = $protocol;
+        return $this;
+    }
+
+    /**
+     * Returns the protocol in use
+     *
+     * @return string
+     */
+    public function getProtocol()
+    {
+        return $this->protocol;
+    }
+
+    /**
+     * Sets the base hostname
+     *
+     * @param string $baseHost
+     * @return $this
+     */
+    public function setBaseHost($baseHost)
+    {
+        $this->baseHost = $baseHost;
+        return $this;
+    }
+
+    /**
+     * Returns the base hostname
+     *
+     * @return string
+     */
+    public function getBaseHost()
+    {
+        return $this->baseHost;
+    }
+
+    /**
+     * Sets the base path
+     *
+     * @param string $basePath
+     * @return $this
+     */
+    public function setBasePath($basePath)
+    {
+        $this->basePath = $basePath;
+        return $this;
+    }
+
+    /**
+     * Returns the base path
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+
+    /**
+     * @param Stylesheet $css
+     * @return $this
+     */
+    public function setCss(Stylesheet $css)
+    {
+        $this->css = $css;
+        return $this;
+    }
+
+    /**
+     * Returns the stylesheet
+     *
+     * @return Stylesheet
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * @param DOMDocument $dom
+     * @return $this
+     */
+    public function setDom(DOMDocument $dom)
+    {
+        $this->dom = $dom;
+        return $this;
+    }
+
+    /**
+     * @return DOMDocument
+     */
+    public function getDom()
+    {
+        return $this->dom;
+    }
+
+    /**
+     * @param FrameTree $tree
+     * @return $this
+     */
+    public function setTree(FrameTree $tree)
+    {
+        $this->tree = $tree;
+        return $this;
+    }
+
+    /**
+     * Returns the underlying {@link FrameTree} object
+     *
+     * @return FrameTree
+     */
+    public function getTree()
+    {
+        return $this->tree;
+    }
+
+    /**
+     * Sets callbacks for events like rendering of pages and elements.
+     *
+     * The callbacks array should contain arrays with `event` set to a callback
+     * event name and `f` set to a function or object plus method to be called.
+     *
+     * The available callback events are:
+     * * `begin_page_reflow`: called before page reflow
+     * * `begin_frame`: called before a frame is rendered
+     * * `end_frame`: called after frame rendering is complete
+     * * `begin_page_render`: called before a page is rendered
+     * * `end_page_render`: called after page rendering is complete
+     *
+     * The function `f` must take an array as argument, which contains info
+     * about the event (`[0 => Canvas, 1 => Frame, "canvas" => Canvas,
+     * "frame" => Frame]`).
+     *
+     * @param array $callbacks The set of callbacks to set
+     */
+    public function setCallbacks($callbacks)
+    {
+        if (is_array($callbacks)) {
+            $this->callbacks = [];
+            foreach ($callbacks as $c) {
+                if (is_array($c) && isset($c['event']) && isset($c['f'])) {
+                    $event = $c['event'];
+                    $f = $c['f'];
+                    if (is_string($event) && is_callable($f)) {
+                        $this->callbacks[$event][] = $f;
+                    }
+                }
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Returns the callbacks array
+     *
+     * @return array
+     */
+    public function getCallbacks()
+    {
+        return $this->callbacks;
     }
 }

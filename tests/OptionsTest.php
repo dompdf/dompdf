@@ -1,8 +1,12 @@
 <?php
 namespace Dompdf\Tests;
 
+use Dompdf\Frame\FrameTree;
 use Dompdf\Options;
 use Dompdf\Tests\TestCase;
+use Dompdf\Dompdf;
+use Dompdf\Css\Stylesheet;
+use DOMDocument;
 
 class OptionsTest extends TestCase
 {
@@ -64,7 +68,15 @@ class OptionsTest extends TestCase
             'debugLayoutLines' => false,
             'debugLayoutBlocks' => false,
             'debugLayoutInline' => false,
-            'debugLayoutPaddingBox' => false
+            'debugLayoutPaddingBox' => false,
+            'http_context' => fopen(__DIR__ . "/_files/jamaica.jpg", 'r'),
+            'base_host' => 'test1',
+            'base_path' => 'test2',
+            'callbacks' => [['event' => 'test', 'f' => function() {}]],
+            'css' => new Stylesheet(new Dompdf()),
+            'dom' => new DOMDocument(),
+            'protocol' => 'test3',
+            'tree' => new FrameTree(new DOMDocument()),
         ]);
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
@@ -92,5 +104,14 @@ class OptionsTest extends TestCase
 
         $option->setChroot(['test11']);
         $this->assertEquals(['test11'], $option->getChroot());
+
+        $this->assertEquals('test1', $option->getBaseHost());
+        $this->assertEquals('test2', $option->getBasePath());
+        $this->assertCount(1, $option->getCallbacks());
+        $this->assertInstanceOf('Dompdf\Css\Stylesheet', $option->getCss());
+        $this->assertInstanceOf('DOMDocument', $option->getDom());
+        $this->assertIsResource($option->getHttpContext());
+        $this->assertEquals('test3', $option->getProtocol());
+        $this->assertInstanceOf('Dompdf\Frame\FrameTree', $option->getTree());
     }
 }

@@ -35,9 +35,9 @@ class DompdfTest extends TestCase
         $dompdf->setCss(new Stylesheet($dompdf));
         $dompdf->setDom(new DOMDocument());
         $dompdf->setHttpContext(fopen(__DIR__ . "/_files/jamaica.jpg", 'r'));
-        $dompdf->setOptions(new Options());
         $dompdf->setProtocol('test3');
         $dompdf->setTree(new FrameTree($dompdf->getDom()));
+        $dompdf->setOptions(new Options());
 
         $this->assertEquals('test1', $dompdf->getBaseHost());
         $this->assertEquals('test2', $dompdf->getBasePath());
@@ -46,6 +46,31 @@ class DompdfTest extends TestCase
         $this->assertInstanceOf('DOMDocument', $dompdf->getDom());
         $this->assertIsResource($dompdf->getHttpContext());
         $this->assertInstanceOf('Dompdf\Options', $dompdf->getOptions());
+        $this->assertEquals('test3', $dompdf->getProtocol());
+        $this->assertInstanceOf('Dompdf\Frame\FrameTree', $dompdf->getTree());
+    }
+
+    public function testSettersAsOptions()
+    {
+        $options = new Options([
+            'http_context' => fopen(__DIR__ . "/_files/jamaica.jpg", 'r'),
+            'base_host' => 'test1',
+            'base_path' => 'test2',
+            'callbacks' => [['event' => 'test', 'f' => function() {}]],
+            'css' => new Stylesheet(new Dompdf()),
+            'dom' => new DOMDocument(),
+            'protocol' => 'test3',
+            'tree' => new FrameTree(new DOMDocument()),
+        ]);
+        $dompdf = new Dompdf($options);
+        $dompdf->setOptions(new Options());
+
+        $this->assertEquals('test1', $dompdf->getBaseHost());
+        $this->assertEquals('test2', $dompdf->getBasePath());
+        $this->assertCount(1, $dompdf->getCallbacks());
+        $this->assertInstanceOf('Dompdf\Css\Stylesheet', $dompdf->getCss());
+        $this->assertInstanceOf('DOMDocument', $dompdf->getDom());
+        $this->assertIsResource($dompdf->getHttpContext());
         $this->assertEquals('test3', $dompdf->getProtocol());
         $this->assertInstanceOf('Dompdf\Frame\FrameTree', $dompdf->getTree());
     }

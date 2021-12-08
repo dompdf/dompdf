@@ -77,27 +77,6 @@ class Dompdf
     private $version = 'dompdf';
 
     /**
-     * DomDocument representing the HTML document
-     *
-     * @var DOMDocument
-     */
-    private $dom;
-
-    /**
-     * FrameTree derived from the DOM tree
-     *
-     * @var FrameTree
-     */
-    private $tree;
-
-    /**
-     * Stylesheet for the document
-     *
-     * @var Stylesheet
-     */
-    private $css;
-
-    /**
      * Actual PDF renderer
      *
      * @var Canvas
@@ -119,49 +98,11 @@ class Dompdf
     private $paperOrientation = "portrait";
 
     /**
-     * Callbacks on new page and new element
-     *
-     * @var array
-     */
-    private $callbacks = [];
-
-    /**
      * Experimental caching capability
      *
      * @var string
      */
     private $cacheId;
-
-    /**
-     * Base hostname
-     *
-     * Used for relative paths/urls
-     * @var string
-     */
-    private $baseHost = "";
-
-    /**
-     * Absolute base path
-     *
-     * Used for relative paths/urls
-     * @var string
-     */
-    private $basePath = "";
-
-    /**
-     * Protocol used to request file (file://, http://, etc)
-     *
-     * @var string
-     */
-    private $protocol;
-
-    /**
-     * HTTP context created with stream_context_create()
-     * Will be used for file_get_contents
-     *
-     * @var resource
-     */
-    private $httpContext;
 
     /**
      * Timestamp of the script start time
@@ -298,7 +239,7 @@ class Dompdf
 
         $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
         $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
-        $this->css = new Stylesheet($this);
+        $this->setCss(new Stylesheet($this));
 
         $this->restorePhpConfig();
     }
@@ -366,12 +307,12 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        if (!$this->protocol && !$this->baseHost && !$this->basePath) {
-            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
+        if (!$this->getProtocol() && !$this->getBaseHost() && !$this->getBasePath()) {
+            $this->setDefaultProtocol($file);
         }
-        $protocol = strtolower($this->protocol);
-        
-        $uri = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $file);
+        $protocol = strtolower($this->getProtocol());
+
+        $uri = Helpers::build_url($this->getProtocol(), $this->getBaseHost(), $this->getBasePath(), $file);
 
         if ( !in_array($protocol, $this->allowedProtocols) ) {
             throw new Exception("Permission denied on $file. The communication protocol is not supported.");
@@ -409,7 +350,7 @@ class Dompdf
             $uri = $realfile;
         }
 
-        [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->httpContext);
+        [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->getHttpContext());
         if (empty($contents)) {
             throw new Exception("File '$file' not found.");
         }
@@ -450,9 +391,9 @@ class Dompdf
             }
         }
 
-        $this->dom = $doc;
+        $this->setDom($doc);
         $this->quirksmode = $quirksmode;
-        $this->tree = new FrameTree($this->dom);
+        $this->setTree(new FrameTree($this->getDom()));
     }
 
     /**
@@ -593,26 +534,26 @@ class Dompdf
      */
     private function processHtml()
     {
-        $this->tree->build_tree();
+        $this->getTree()->build_tree();
 
-        $this->css->load_css_file($this->css->getDefaultStylesheet(), Stylesheet::ORIG_UA);
+        $this->getCss()->load_css_file($this->getCss()->getDefaultStylesheet(), Stylesheet::ORIG_UA);
 
         $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
         $acceptedmedia[] = $this->options->getDefaultMediaType();
 
         // <base href="" />
-        $base_nodes = $this->dom->getElementsByTagName("base");
+        $base_nodes = $this->getDom()->getElementsByTagName("base");
         if ($base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href"))) {
-            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($href);
+            $this->setDefaultProtocol($href);
         }
 
         // Set the base path of the Stylesheet to that of the file being processed
-        $this->css->set_protocol($this->protocol);
-        $this->css->set_host($this->baseHost);
-        $this->css->set_base_path($this->basePath);
+        $this->getCss()->set_protocol($this->getProtocol());
+        $this->getCss()->set_host($this->getBaseHost());
+        $this->getCss()->set_base_path($this->getBasePath());
 
         // Get all the stylesheets so that they are processed in document order
-        $xpath = new DOMXPath($this->dom);
+        $xpath = new DOMXPath($this->getDom());
         $stylesheets = $xpath->query("//*[name() = 'link' or name() = 'style']");
 
         /** @var \DOMElement $tag */
@@ -643,9 +584,9 @@ class Dompdf
                         }
 
                         $url = $tag->getAttribute("href");
-                        $url = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $url);
+                        $url = Helpers::build_url($this->getProtocol(), $this->getBaseHost(), $this->getBasePath(), $url);
 
-                        $this->css->load_css_file($url, Stylesheet::ORIG_AUTHOR);
+                        $this->getCss()->load_css_file($url, Stylesheet::ORIG_AUTHOR);
                     }
                     break;
 
@@ -674,18 +615,18 @@ class Dompdf
                     }
 
                     // Set the base path of the Stylesheet to that of the file being processed
-                    $this->css->set_protocol($this->protocol);
-                    $this->css->set_host($this->baseHost);
-                    $this->css->set_base_path($this->basePath);
+                    $this->getCss()->set_protocol($this->getProtocol());
+                    $this->getCss()->set_host($this->getBaseHost());
+                    $this->getCss()->set_base_path($this->getBasePath());
 
-                    $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
+                    $this->getCss()->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
 
             // Set the base path of the Stylesheet to that of the file being processed
-            $this->css->set_protocol($this->protocol);
-            $this->css->set_host($this->baseHost);
-            $this->css->set_base_path($this->basePath);
+            $this->getCss()->set_protocol($this->getProtocol());
+            $this->getCss()->set_host($this->getBaseHost());
+            $this->getCss()->set_base_path($this->getBasePath());
         }
     }
 
@@ -759,10 +700,10 @@ class Dompdf
 
         $this->processHtml();
 
-        $this->css->apply_styles($this->tree);
+        $this->getCss()->apply_styles($this->getTree());
 
         // @page style rules : size, margins
-        $pageStyles = $this->css->get_page_styles();
+        $pageStyles = $this->getCss()->get_page_styles();
         $basePageStyle = $pageStyles["base"];
         unset($pageStyles["base"]);
 
@@ -792,10 +733,10 @@ class Dompdf
 
         $root = null;
 
-        foreach ($this->tree->get_frames() as $frame) {
+        foreach ($this->getTree()->get_frames() as $frame) {
             // Set up the root frame
             if (is_null($root)) {
-                $root = Factory::decorate_root($this->tree->get_root(), $this);
+                $root = Factory::decorate_root($this->getTree()->get_root(), $this);
                 continue;
             }
 
@@ -804,12 +745,12 @@ class Dompdf
         }
 
         // Add meta information
-        $title = $this->dom->getElementsByTagName("title");
+        $title = $this->getDom()->getElementsByTagName("title");
         if ($title->length) {
             $canvas->add_info("Title", trim($title->item(0)->nodeValue));
         }
 
-        $metas = $this->dom->getElementsByTagName("meta");
+        $metas = $this->getDom()->getElementsByTagName("meta");
         $labels = [
             "author" => "Author",
             "keywords" => "Keywords",
@@ -976,7 +917,7 @@ class Dompdf
      */
     public function outputHtml()
     {
-        return $this->dom->saveHTML();
+        return $this->getDom()->saveHTML();
     }
 
     /**
@@ -1072,7 +1013,7 @@ class Dompdf
      */
     public function setTree(FrameTree $tree)
     {
-        $this->tree = $tree;
+        $this->options->setTree($tree);
         return $this;
     }
 
@@ -1092,7 +1033,7 @@ class Dompdf
      */
     public function getTree()
     {
-        return $this->tree;
+        return $this->options->getTree();
     }
 
     /**
@@ -1114,7 +1055,7 @@ class Dompdf
      */
     public function setProtocol($protocol)
     {
-        $this->protocol = $protocol;
+        $this->options->setProtocol($protocol);
         return $this;
     }
 
@@ -1134,7 +1075,7 @@ class Dompdf
      */
     public function getProtocol()
     {
-        return $this->protocol;
+        return $this->options->getProtocol();
     }
 
     /**
@@ -1154,7 +1095,7 @@ class Dompdf
      */
     public function setBaseHost($baseHost)
     {
-        $this->baseHost = $baseHost;
+        $this->options->setBaseHost($baseHost);
         return $this;
     }
 
@@ -1174,7 +1115,7 @@ class Dompdf
      */
     public function getBaseHost()
     {
-        return $this->baseHost;
+        return $this->options->getBaseHost();
     }
 
     /**
@@ -1196,7 +1137,7 @@ class Dompdf
      */
     public function setBasePath($basePath)
     {
-        $this->basePath = $basePath;
+        $this->options->setBasePath($basePath);
         return $this;
     }
 
@@ -1216,7 +1157,7 @@ class Dompdf
      */
     public function getBasePath()
     {
-        return $this->basePath;
+        return $this->options->getBasePath();
     }
 
     /**
@@ -1262,7 +1203,7 @@ class Dompdf
      */
     public function setHttpContext($httpContext)
     {
-        $this->httpContext = $httpContext;
+        $this->options->setHttpContext($httpContext);
         return $this;
     }
 
@@ -1282,7 +1223,7 @@ class Dompdf
      */
     public function getHttpContext()
     {
-        return $this->httpContext;
+        return $this->options->getHttpContext();
     }
 
     /**
@@ -1320,7 +1261,7 @@ class Dompdf
      */
     public function setCss(Stylesheet $css)
     {
-        $this->css = $css;
+        $this->options->setCss($css);
         return $this;
     }
 
@@ -1340,7 +1281,7 @@ class Dompdf
      */
     public function getCss()
     {
-        return $this->css;
+        return $this->options->getCss();
     }
 
     /**
@@ -1349,7 +1290,7 @@ class Dompdf
      */
     public function setDom(DOMDocument $dom)
     {
-        $this->dom = $dom;
+        $this->options->setDom($dom);
         return $this;
     }
 
@@ -1367,7 +1308,7 @@ class Dompdf
      */
     public function getDom()
     {
-        return $this->dom;
+        return $this->options->getDom();
     }
 
     /**
@@ -1376,6 +1317,15 @@ class Dompdf
      */
     public function setOptions(Options $options)
     {
+        if ($this->options) {
+            $setters = ['formatted_callbacks', 'http_context', 'protocol', 'base_host', 'base_path', 'tree', 'css', 'dom'];
+            foreach ($setters as $setter) {
+                $key = str_replace('formatted_', '', $setter);
+                if (!$options->get($key) && $this->options->get($key)) {
+                    $options->set($setter, $this->options->get($key));
+                }
+            }
+        }
         $this->options = $options;
         $fontMetrics = $this->getFontMetrics();
         if (isset($fontMetrics)) {
@@ -1408,7 +1358,7 @@ class Dompdf
      */
     public function getCallbacks()
     {
-        return $this->callbacks;
+        return $this->options->getCallbacks();
     }
 
     /**
@@ -1441,18 +1391,8 @@ class Dompdf
      */
     public function setCallbacks($callbacks)
     {
-        if (is_array($callbacks)) {
-            $this->callbacks = [];
-            foreach ($callbacks as $c) {
-                if (is_array($c) && isset($c['event']) && isset($c['f'])) {
-                    $event = $c['event'];
-                    $f = $c['f'];
-                    if (is_callable($f) && is_string($event)) {
-                        $this->callbacks[$event][] = $f;
-                    }
-                }
-            }
-        }
+        $this->options->setCallbacks($callbacks);
+        return $this;
     }
 
     /**
@@ -1482,6 +1422,14 @@ class Dompdf
     {
         $this->fontMetrics = $fontMetrics;
         return $this;
+    }
+
+    private function setDefaultProtocol($url)
+    {
+        [$protocol, $baseHost, $basePath] = Helpers::explode_url($url);
+        $this->setProtocol($protocol);
+        $this->setBaseHost($baseHost);
+        $this->setBasePath($basePath);
     }
 
     /**
