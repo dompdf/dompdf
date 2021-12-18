@@ -558,15 +558,18 @@ class Text extends AbstractFrameReflower
                 break;
         }
 
-        // The containing block is not defined yet, treat percentages as 0
-        $delta = (float) $style->length_in_pt([
-            $style->margin_left,
-            $style->border_left_width,
+        // Account for margins, borders, and padding
+        $dims = [
             $style->padding_left,
             $style->padding_right,
+            $style->border_left_width,
             $style->border_right_width,
+            $style->margin_left,
             $style->margin_right
-        ], 0);
+        ];
+
+        // The containing block is not defined yet, treat percentages as 0
+        $delta = (float) $style->length_in_pt($dims, 0);
         $min += $delta;
         $max += $delta;
 
