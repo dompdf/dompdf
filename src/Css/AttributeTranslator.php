@@ -45,9 +45,9 @@ class AttributeTranslator
                 'right' => 'margin-left: auto; margin-right: 0;'
             ],
             'bgcolor' => 'background-color: %s;',
-            'border' => '!set_table_border',
-            'cellpadding' => '!set_table_cellpadding', //'border-spacing: %0.2F; border-collapse: separate;',
-            'cellspacing' => '!set_table_cellspacing',
+            'border' => '_set_table_border',
+            'cellpadding' => '_set_table_cellpadding', //'border-spacing: %0.2F; border-collapse: separate;',
+            'cellspacing' => '_set_table_cellspacing',
             'frame' => [
                 'void' => 'border-style: none;',
                 'above' => 'border-top-style: solid;',
@@ -59,13 +59,13 @@ class AttributeTranslator
                 'box' => 'border-style: solid;',
                 'border' => 'border-style: solid;'
             ],
-            'rules' => '!set_table_rules',
+            'rules' => '_set_table_rules',
             'width' => 'width: %s;',
         ],
         'hr' => [
-            'align' => '!set_hr_align', // Need to grab width to set 'left' & 'right' correctly
+            'align' => '_set_hr_align', // Need to grab width to set 'left' & 'right' correctly
             'noshade' => 'border-style: solid;',
-            'size' => '!set_hr_size', //'border-width: %0.2F px;',
+            'size' => '_set_hr_size', //'border-width: %0.2F px;',
             'width' => 'width: %s;',
         ],
         'div' => [
@@ -91,7 +91,7 @@ class AttributeTranslator
         ],
         //TODO: translate more form element attributes
         'input' => [
-            'size' => '!set_input_width'
+            'size' => '_set_input_width'
         ],
         'p' => [
             'align' => 'text-align: %s;',
@@ -105,56 +105,56 @@ class AttributeTranslator
 //      'valign' => '',
 //    ),
         'tbody' => [
-            'align' => '!set_table_row_align',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'valign' => '_set_table_row_valign',
         ],
         'td' => [
             'align' => 'text-align: %s;',
-            'bgcolor' => '!set_background_color',
+            'bgcolor' => '_set_background_color',
             'height' => 'height: %s;',
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
         ],
         'tfoot' => [
-            'align' => '!set_table_row_align',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'valign' => '_set_table_row_valign',
         ],
         'th' => [
             'align' => 'text-align: %s;',
-            'bgcolor' => '!set_background_color',
+            'bgcolor' => '_set_background_color',
             'height' => 'height: %s;',
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
         ],
         'thead' => [
-            'align' => '!set_table_row_align',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'valign' => '_set_table_row_valign',
         ],
         'tr' => [
-            'align' => '!set_table_row_align',
-            'bgcolor' => '!set_table_row_bgcolor',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'bgcolor' => '_set_table_row_bgcolor',
+            'valign' => '_set_table_row_valign',
         ],
         'body' => [
             'background' => 'background-image: url(%s);',
-            'bgcolor' => '!set_background_color',
-            'link' => '!set_body_link',
-            'text' => '!set_color',
+            'bgcolor' => '_set_background_color',
+            'link' => '_set_body_link',
+            'text' => '_set_color',
         ],
         'br' => [
             'clear' => 'clear: %s;',
         ],
         'basefont' => [
-            'color' => '!set_color',
+            'color' => '_set_color',
             'face' => 'font-family: %s;',
-            'size' => '!set_basefont_size',
+            'size' => '_set_basefont_size',
         ],
         'font' => [
-            'color' => '!set_color',
+            'color' => '_set_color',
             'face' => 'font-family: %s;',
-            'size' => '!set_font_size',
+            'size' => '_set_font_size',
         ],
         'dir' => [
             'compact' => 'margin: 0.5em 0;',
@@ -260,11 +260,8 @@ class AttributeTranslator
      */
     protected static function _resolve_target(\DOMNode $node, $target, $value)
     {
-        if ($target[0] === "!") {
-            // Function call
-            $func = "_" . mb_substr($target, 1);
-
-            return self::$func($node, $value);
+        if ($target[0] === "_") {
+            return self::$target($node, $value);
         }
 
         return $value ? sprintf($target, $value) : "";
