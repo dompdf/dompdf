@@ -112,7 +112,7 @@ abstract class AbstractRenderer
         //$img_w = imagesx($src); $img_h = imagesy($src);
 
         list($img_w, $img_h) = Helpers::dompdf_getimagesize($img, $this->_dompdf->getHttpContext());
-        if (!isset($img_w) || $img_w == 0 || !isset($img_h) || $img_h == 0) {
+        if ($img_w == 0 || $img_h == 0) {
             return;
         }
 

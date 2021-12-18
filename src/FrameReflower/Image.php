@@ -8,7 +8,6 @@
  */
 namespace Dompdf\FrameReflower;
 
-use Dompdf\Frame;
 use Dompdf\Helpers;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
@@ -45,8 +44,7 @@ class Image extends AbstractFrameReflower
         //  $page->add_floating_frame($this);
         //}
 
-        // Set the frame's width
-        $this->get_min_max_width();
+        $this->resolve_dimensions();
         $this->resolve_margins();
 
         $frame = $this->_frame;
@@ -57,119 +55,144 @@ class Image extends AbstractFrameReflower
         }
     }
 
-    function get_min_max_width(): array
+    public function get_min_max_content_width(): array
     {
+        /** @var ImageFrameDecorator */
         $frame = $this->_frame;
+        $style = $frame->get_style();
+        $width = $style->width;
+        $percent_width = Helpers::is_percent($width);
 
-        if ($this->get_dompdf()->getOptions()->getDebugPng()) {
-            // Determine the image's size. Time consuming. Only when really needed?
-            list($img_width, $img_height) = Helpers::dompdf_getimagesize($frame->get_image_url(), $this->get_dompdf()->getHttpContext());
-            print "get_min_max_width() " .
-                $frame->get_style()->width . ' ' .
-                $frame->get_style()->height . ';' .
-                $frame->get_parent()->get_style()->width . " " .
-                $frame->get_parent()->get_style()->height . ";" .
-                $frame->get_parent()->get_parent()->get_style()->width . ' ' .
-                $frame->get_parent()->get_parent()->get_style()->height . ';' .
-                $img_width . ' ' .
-                $img_height . '|';
+        // The containing block is not defined yet
+        if ($width !== "auto" && !$percent_width) {
+            $min = (float) $style->length_in_pt($width, 0);
+            $max = $min;
+        } else {
+            [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
+
+            $height = $style->height;
+            $fixed_height = $height !== "auto" && !Helpers::is_percent($height);
+
+            if ($percent_width) {
+                // Don't enforce any minimum width when it depends on the
+                // containing block. Use intrinsic width resampled to pt for max
+                // width
+                $min = 0.0;
+                $max = $frame->resample($img_width);
+            } elseif ($fixed_height) {
+                // Keep aspect ratio: Scale intrinsic width
+                $height = (float) $style->length_in_pt($height, 0);
+                $min = $height * ($img_width / $img_height);
+                $max = $min;
+            } else {
+                // Width is `auto`: Use intrinsic width resampled to pt
+                $min = $frame->resample($img_width);
+                $max = $min;
+            }
         }
 
+        // Handle min/max width style properties
+        return $this->restrict_min_max_width($min, $max);
+    }
+
+    protected function resolve_dimensions(): void
+    {
+        $debug_png = $this->get_dompdf()->getOptions()->getDebugPng();
+
+        /** @var ImageFrameDecorator */
+        $frame = $this->_frame;
         $style = $frame->get_style();
 
+        if ($debug_png) {
+            [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
+            print "resolve_dimensions() " .
+                $frame->get_style()->width . " " .
+                $frame->get_style()->height . ";" .
+                $frame->get_parent()->get_style()->width . " " .
+                $frame->get_parent()->get_style()->height . ";" .
+                $frame->get_parent()->get_parent()->get_style()->width . " " .
+                $frame->get_parent()->get_parent()->get_style()->height . ";" .
+                $img_width . " " .
+                $img_height . "|";
+        }
+
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-width
+        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-height
+        $style = $frame->get_style();
+        [, , $cbw, $cbh] = $frame->get_containing_block();
+
+        $width = $style->length_in_pt($style->width, $cbw);
+        $height = $style->length_in_pt($style->height, $cbh);
         $width_forced = true;
         $height_forced = true;
 
-        //own style auto or invalid value: use natural size in px
-        //own style value: ignore suffix text including unit, use given number as px
-        //own style %: walk up parent chain until found available space in pt; fill available space
-        //
-        //special ignored unit: e.g. 10ex: e treated as exponent; x ignored; 10e completely invalid ->like auto
-
-        $width = $this->get_size($frame, 'width');
-        $height = $this->get_size($frame, 'height');
-
-        if ($width === 'auto' || $height === 'auto') {
+        if ($width === "auto" || $height === "auto") {
             // Determine the image's size. Time consuming. Only when really needed!
-            list($img_width, $img_height) = Helpers::dompdf_getimagesize($frame->get_image_url(), $this->get_dompdf()->getHttpContext());
+            [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
 
-            // don't treat 0 as error. Can be downscaled or can be catched elsewhere if image not readable.
+            // Don't treat 0 as error. Can be downscaled or can be caught elsewhere if image not readable.
             // Resample according to px per inch
             // See also ListBulletImage::__construct
-            if ($width === 'auto' && $height === 'auto') {
-                $dpi = $frame->get_dompdf()->getOptions()->getDpi();
-                $width = (float)($img_width * 72) / $dpi;
-                $height = (float)($img_height * 72) / $dpi;
+            if ($width === "auto" && $height === "auto") {
+                $width = $frame->resample($img_width);
+                $height = $frame->resample($img_height);
                 $width_forced = false;
                 $height_forced = false;
-            } elseif ($height === 'auto') {
+            } elseif ($height === "auto") {
+                $height = $width * ($img_height / $img_width); // Keep aspect ratio
                 $height_forced = false;
-                $height = ($width / $img_width) * $img_height; //keep aspect ratio
             } else {
+                $width = $height * ($img_width / $img_height); // Keep aspect ratio
                 $width_forced = false;
-                $width = ($height / $img_height) * $img_width; //keep aspect ratio
             }
         }
 
         // Handle min/max width/height
-        if ($style->min_width !== "auto" ||
-            $style->max_width !== "none" ||
-            $style->min_height !== "auto" ||
-            $style->max_height !== "none"
-        ) {
-            list( /*$x*/, /*$y*/, $w, $h) = $frame->get_containing_block();
+        // https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
+        // https://www.w3.org/TR/CSS21/visudet.html#min-max-heights
+        $min_width = $style->length_in_pt($style->min_width, $cbw);
+        $max_width = $style->length_in_pt($style->max_width, $cbw);
+        $min_height = $style->length_in_pt($style->min_height, $cbh);
+        $max_height = $style->length_in_pt($style->max_height, $cbh);
 
-            $min_width = $style->length_in_pt($style->min_width, $w);
-            $max_width = $style->length_in_pt($style->max_width, $w);
-            $min_height = $style->length_in_pt($style->min_height, $h);
-            $max_height = $style->length_in_pt($style->max_height, $h);
-
-            if ($max_width !== "none" && $max_width !== "auto" && $width > $max_width) {
-                if (!$height_forced) {
-                    $height *= $max_width / $width;
-                }
-
-                $width = $max_width;
+        if ($max_width !== "none" && $max_width !== "auto" && $width > $max_width) {
+            if (!$height_forced) {
+                $height *= $max_width / $width;
             }
 
-            if ($min_width !== "auto" && $min_width !== "none" && $width < $min_width) {
-                if (!$height_forced) {
-                    $height *= $min_width / $width;
-                }
-
-                $width = $min_width;
-            }
-
-            if ($max_height !== "none" && $max_height !== "auto" && $height > $max_height) {
-                if (!$width_forced) {
-                    $width *= $max_height / $height;
-                }
-
-                $height = $max_height;
-            }
-
-            if ($min_height !== "auto" && $min_height !== "none" && $height < $min_height) {
-                if (!$width_forced) {
-                    $width *= $min_height / $height;
-                }
-
-                $height = $min_height;
-            }
+            $width = $max_width;
         }
 
-        if ($this->get_dompdf()->getOptions()->getDebugPng()) {
-            print $width . ' ' . $height . ';';
+        if ($min_width !== "auto" && $min_width !== "none" && $width < $min_width) {
+            if (!$height_forced) {
+                $height *= $min_width / $width;
+            }
+
+            $width = $min_width;
+        }
+
+        if ($max_height !== "none" && $max_height !== "auto" && $height > $max_height) {
+            if (!$width_forced) {
+                $width *= $max_height / $height;
+            }
+
+            $height = $max_height;
+        }
+
+        if ($min_height !== "auto" && $min_height !== "none" && $height < $min_height) {
+            if (!$width_forced) {
+                $width *= $min_height / $height;
+            }
+
+            $height = $min_height;
+        }
+
+        if ($debug_png) {
+            print $width . " " . $height . ";";
         }
 
         $style->width = $width;
         $style->height = $height;
-
-        $style->min_width = "auto";
-        $style->max_width = "none";
-        $style->min_height = "auto";
-        $style->max_height = "none";
-
-        return [$width, $width, "min" => $width, "max" => $width];
     }
 
     protected function resolve_margins(): void
@@ -191,33 +214,5 @@ class Image extends AbstractFrameReflower
         if ($style->margin_bottom === "auto") {
             $style->margin_bottom = 0;
         }
-    }
-
-    private function get_size(Frame $f, string $type)
-    {
-        $ref_stack = [];
-        $result_size = 0.0;
-        do {
-            $f_style = $f->get_style();
-            $current_size = $f_style->$type;
-            if (Helpers::is_percent($current_size)) {
-                $ref_stack[] = str_replace('%px', '%', $current_size);
-            } else {
-                // auto is a valid first result. In case of previous percentage values we need a real size
-                if ($current_size !== 'auto' || count($ref_stack) === 0) {
-                    $result_size = $f_style->length_in_pt($current_size);
-                    break;
-                }
-            }
-        } while (($f = $f->get_parent()));
-
-        // if we built a percentage stack walk up to find the real size
-        if (count($ref_stack) > 0) {
-            while (($ref = array_pop($ref_stack))) {
-                $result_size = $f_style->length_in_pt($ref, $result_size);
-            }
-        }
-
-        return $result_size;
     }
 }
