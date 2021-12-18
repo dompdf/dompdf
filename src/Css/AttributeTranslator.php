@@ -9,6 +9,7 @@
 namespace Dompdf\Css;
 
 use Dompdf\Frame;
+use Dompdf\Helpers;
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -33,10 +34,10 @@ class AttributeTranslator
                 'right' => 'float: right;'
             ],
             'border' => 'border: %0.2Fpx solid;',
-            'height' => 'height: %spx;',
+            'height' => '_set_px_height',
             'hspace' => 'padding-left: %1$0.2Fpx; padding-right: %1$0.2Fpx;',
             'vspace' => 'padding-top: %1$0.2Fpx; padding-bottom: %1$0.2Fpx;',
-            'width' => 'width: %spx;',
+            'width' => '_set_px_width',
         ],
         'table' => [
             'align' => [
@@ -346,6 +347,32 @@ class AttributeTranslator
         $value = self::_get_valid_color($value);
 
         return "background-color: $value;";
+    }
+
+    protected static function _set_px_width(\DOMElement $node, string $value): string
+    {
+        if (Helpers::is_percent($value)) {
+            return sprintf("width: %s;", $value);
+        }
+
+        if (is_numeric($value)) {
+            return sprintf("width: %spx;", $value);
+        }
+
+        return "";
+    }
+
+    protected static function _set_px_height(\DOMElement $node, string $value): string
+    {
+        if (Helpers::is_percent($value)) {
+            return sprintf("height: %s;", $value);
+        }
+
+        if (is_numeric($value)) {
+            return sprintf("height: %spx;", $value);
+        }
+
+        return "";
     }
 
     /**
