@@ -61,13 +61,10 @@ class ListBulletImage extends ListBullet
             $this->_width = parent::get_width();
             $this->_height = parent::get_height();
         } else {
-            [$width, $height] = Helpers::dompdf_getimagesize($url, $dompdf->getHttpContext());
-
             // Resample the bullet image to be consistent with 'auto' sized images
-            // See also Image::get_min_max_width
-            $dpi = $this->_dompdf->getOptions()->getDpi();
-            $this->_width = ((float) $width * 72) / $dpi;
-            $this->_height = ((float) $height * 72) / $dpi;
+            [$width, $height] = $this->_img->get_intrinsic_dimensions();
+            $this->_width = $this->_img->resample($width);
+            $this->_height = $this->_img->resample($height);
         }
     }
 

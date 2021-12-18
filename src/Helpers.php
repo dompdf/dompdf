@@ -619,7 +619,8 @@ class Helpers
      *
      * @param string $filename
      * @param resource $context
-     * @return array The same format as getimagesize($filename)
+     * @return array An array of three elements: width and height as
+     *         `float|int`, and image type as `string|null`.
      */
     public static function dompdf_getimagesize($filename, $context = null)
     {
@@ -640,30 +641,30 @@ class Helpers
             IMAGETYPE_WEBP => "webp",
         ];
 
-        $type = isset($types[$type]) ? $types[$type] : null;
+        $type = $types[$type] ?? null;
 
         if ($width == null || $height == null) {
-            [$data, $headers] = Helpers::getFileContent($filename, $context);
+            [$data] = Helpers::getFileContent($filename, $context);
 
             if ($data !== null) {
                 if (substr($data, 0, 2) === "BM") {
-                    $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
-                    $width = (int)$meta['width'];
-                    $height = (int)$meta['height'];
+                    $meta = unpack("vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight", $data);
+                    $width = (int) $meta["width"];
+                    $height = (int) $meta["height"];
                     $type = "bmp";
-                } else {
-                    if (strpos($data, "<svg") !== false) {
-                        $doc = new \Svg\Document();
-                        $doc->loadFile($filename);
+                } elseif (strpos($data, "<svg") !== false) {
+                    $doc = new \Svg\Document();
+                    $doc->loadFile($filename);
 
-                        [$width, $height] = $doc->getDimensions();
-                        $type = "svg";
-                    }
+                    [$width, $height] = $doc->getDimensions();
+                    $width = (float) $width;
+                    $height = (float) $height;
+                    $type = "svg";
                 }
             }
         }
 
-        return $cache[$filename] = [$width, $height, $type];
+        return $cache[$filename] = [$width ?? 0, $height ?? 0, $type];
     }
 
     /**

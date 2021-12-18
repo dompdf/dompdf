@@ -164,7 +164,7 @@ class Cache
                 list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $dompdf->getHttpContext());
 
                 // Known image type
-                if ($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg","webp"])) {
+                if ($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg","webp"], true)) {
                     //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
                     //Only execute on successful caching of remote image.
                     if ($enable_remote && $remote || $data_uri) {
