@@ -1,11 +1,9 @@
 <?php
-
 namespace Dompdf\Tests\FrameReflower;
 
 use Dompdf\Css\Style;
 use Dompdf\Css\Stylesheet;
 use Dompdf\Dompdf;
-use Dompdf\FrameReflower\Image;
 use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
 use Dompdf\Tests\TestCase;
 use Mockery;
@@ -16,15 +14,17 @@ class ImageTest extends TestCase
     {
         $frame = $this->getImageMock(['width' => 'auto', 'height' => 'auto']);
 
-        $image = new Image($frame);
+        $image = new ImageTestReflower($frame);
         $result = $image->get_min_max_width();
+        $image->resolve_dimensions();
 
         $style = $frame->get_style();
 
         $expectedWidth = 1966.08;
+        $expectedHeight = 1474.56;
 
         $this->assertEquals($expectedWidth, $style->width);
-        $this->assertEquals(1474.56, $style->height);
+        $this->assertEquals($expectedHeight, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -33,53 +33,59 @@ class ImageTest extends TestCase
     {
         $frame = $this->getImageMock(['width' => '100px', 'height' => '200px']);
 
-        $image = new Image($frame);
+        $image = new ImageTestReflower($frame);
         $result = $image->get_min_max_width();
+        $image->resolve_dimensions();
 
         $style = $frame->get_style();
 
         $expectedWidth = 75;
+        $expectedHeight = 150;
 
         $this->assertEquals($expectedWidth, $style->width);
-        $this->assertEquals(150, $style->height);
+        $this->assertEquals($expectedHeight, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
 
     public function testGetMinMaxWidthPercentageChain(): void
     {
-        $rootFrame = $this->getImageMock(['width' => '400px', 'height' => '800px']);
-        $parentFrame = $this->getImageMock(['width' => '50%', 'height' => '75%'], $rootFrame);
-        $imageFrame = $this->getImageMock(['width' => '50%', 'height' => '75%'], $parentFrame);
+        $rootFrame = $this->getImageMock(['width' => '400px', 'height' => '800px'], null, [0, 0, 300, 600]);
+        $parentFrame = $this->getImageMock(['width' => '50%', 'height' => '75%'], $rootFrame, [0, 0, 300, 600]);
+        $imageFrame = $this->getImageMock(['width' => '50%', 'height' => '75%'], $parentFrame, [0, 0, 150, 450]);
 
-        $image = new Image($imageFrame);
+        $image = new ImageTestReflower($imageFrame);
         $result = $image->get_min_max_width();
+        $image->resolve_dimensions();
 
         $style = $imageFrame->get_style();
 
-        $expectedWidth = 75;
-
         // 400px * 0.75 (dpi) * 0.50 (imageFrame) * 0.50 (rootFrame)
-        $this->assertEquals($expectedWidth, $style->width);
+        $expectedWidth = 75;
         // 800px * 0.75 (dpi) * 0.75 (imageFrame) * 0.75 (rootFrame)
-        $this->assertEquals(337.5, $style->height);
+        $expectedHeight = 337.5;
 
-        $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
+        $this->assertEquals($expectedWidth, $style->width);
+        $this->assertEquals($expectedHeight, $style->height);
+
+        $this->assertEquals([0.0, 1966.08, 'min' => 0.0, 'max' => 1966.08], $result);
     }
 
     public function testGetMinMaxWidthZeroWidthZeroHeight(): void
     {
         $frame = $this->getImageMock(['width' => '0', 'height' => '0']);
 
-        $image = new Image($frame);
+        $image = new ImageTestReflower($frame);
         $result = $image->get_min_max_width();
+        $image->resolve_dimensions();
 
         $style = $frame->get_style();
 
         $expectedWidth = 0;
+        $expectedHeight = 0;
 
         $this->assertEquals($expectedWidth, $style->width);
-        $this->assertEquals(0, $style->height);
+        $this->assertEquals($expectedHeight, $style->height);
 
         $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
@@ -97,16 +103,19 @@ class ImageTest extends TestCase
             ]
         );
 
-        $image = new Image($frame);
+        $image = new ImageTestReflower($frame);
         $result = $image->get_min_max_width();
+        $image->resolve_dimensions();
 
         $style = $frame->get_style();
 
+        $expectedWidth = 300;
+        $expectedHeight = 375;
 
-        $this->assertEquals(300, $style->width);
-        $this->assertEquals(375, $style->height);
+        $this->assertEquals($expectedWidth, $style->width);
+        $this->assertEquals($expectedHeight, $style->height);
 
-        $this->assertEquals(['300', '300', 'min' => '300', 'max' => '300'], $result);
+        $this->assertEquals([$expectedWidth, $expectedWidth, 'min' => $expectedWidth, 'max' => $expectedWidth], $result);
     }
 
     public function tearDown(): void
@@ -116,7 +125,8 @@ class ImageTest extends TestCase
 
     private function getImageMock(
         array $styleProperties,
-        ImageFrameDecorator $parentFrame = null
+        ImageFrameDecorator $parentFrame = null,
+        array $containingBlock = [0, 0, 400, 400]
     ): ImageFrameDecorator {
         $style = new Style(new Stylesheet(new Dompdf()));
 
@@ -136,7 +146,13 @@ class ImageTest extends TestCase
             ]
         );
 
-        $frame->shouldReceive('get_containing_block')->andReturn([0, 0, 400, 400]);
+        $imgWidth = 2048;
+        $imgHeight = 1536;
+
+        $frame->shouldReceive('resample')->with($imgWidth)->andReturn(($imgWidth * 72) / 75);
+        $frame->shouldReceive('resample')->with($imgHeight)->andReturn(($imgHeight * 72) / 75);
+        $frame->shouldReceive('get_intrinsic_dimensions')->andReturn([$imgWidth, $imgHeight]);
+        $frame->shouldReceive('get_containing_block')->andReturn($containingBlock);
 
         return $frame;
     }
