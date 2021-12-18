@@ -72,7 +72,7 @@ class Stylesheet
         self::ORIG_AUTHOR => 0x30000000, // author normal declarations
     ];
 
-    /*
+    /**
      * Non-CSS presentational hints (i.e. HTML 4 attributes) are handled as if added
      * to the beginning of an author stylesheet, i.e. anything in author stylesheets
      * should override them.
