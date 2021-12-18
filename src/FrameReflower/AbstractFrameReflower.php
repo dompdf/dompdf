@@ -295,11 +295,9 @@ abstract class AbstractFrameReflower
             return $this->_min_max_cache;
         }
 
-        $cb_w = $this->_frame->get_containing_block("w");
-        $style = $this->_frame->get_style();
-
         // Ignore percentage values for a specified width here, as the
         // containing block is not defined yet
+        $style = $this->_frame->get_style();
         $display = $style->display;
         $width = $style->width;
         $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
@@ -307,7 +305,7 @@ abstract class AbstractFrameReflower
         // If the frame has a specified width, then we don't need to check its
         // children. Table cells are handled slightly differently below
         if ($fixed_width && $display !== "inline" && $display !== "table-cell") {
-            $width = (float) $style->length_in_pt($width, $cb_w);
+            $width = (float) $style->length_in_pt($width, 0);
             return $this->_min_max_cache = [$width, $width, "min" => $width, "max" => $width];
         }
 
@@ -354,7 +352,7 @@ abstract class AbstractFrameReflower
         // For table cells: Use specified width if it is greater than the
         // minimum defined by the content
         if ($fixed_width && $display === "table-cell") {
-            $width = (float) $style->length_in_pt($width, $cb_w);
+            $width = (float) $style->length_in_pt($width, 0);
             $min = max($width, $min);
             $max = $min;
         }
@@ -373,22 +371,23 @@ abstract class AbstractFrameReflower
     function get_min_max_width(): array
     {
         $style = $this->_frame->get_style();
+        [$min, $max] = $this->get_min_max_content_width();
 
-        // Account for margins & padding
-        $dims = [$style->padding_left,
+        // Account for margins, borders, and padding
+        $dims = [
+            $style->padding_left,
             $style->padding_right,
             $style->border_left_width,
             $style->border_right_width,
             $style->margin_left,
-            $style->margin_right];
+            $style->margin_right
+        ];
 
-        $cb_w = $this->_frame->get_containing_block("w");
-        $delta = (float)$style->length_in_pt($dims, $cb_w);
-
-        [$min, $max] = $this->get_min_max_content_width();
-
+        // The containing block is not defined yet, treat percentages as 0
+        $delta = (float) $style->length_in_pt($dims, 0);
         $min += $delta;
         $max += $delta;
+
         return [$min, $max, "min" => $min, "max" => $max];
     }
 
