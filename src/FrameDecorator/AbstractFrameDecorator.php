@@ -704,7 +704,6 @@ abstract class AbstractFrameDecorator extends Frame
             $frame = $iter;
             $iter = $iter->get_next_sibling();
             $frame->reset();
-            $frame->_parent = $split;
             $split->append_child($frame);
 
             // recalculate the float offsets

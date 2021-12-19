@@ -403,11 +403,17 @@ class Page extends AbstractFrameDecorator
                 // Rule C
                 $block_parent = $frame->find_block_parent();
                 $parent_style = $block_parent->get_style();
+                $line = $block_parent->get_current_line_box();
+                $line_count = count($block_parent->get_line_boxes());
+                $line_number = $frame->get_containing_line() && empty($line->get_frames())
+                    ? $line_count - 1
+                    : $line_count;
+
                 // The line number of the frame can be less than the current
                 // number of line boxes, in case we are backtracking. As long as
                 // we are not checking for widows yet, just checking against the
                 // number of line boxes is sufficient in most cases, though.
-                if (count($block_parent->get_line_boxes()) <= $parent_style->orphans) {
+                if ($line_number <= $parent_style->orphans) {
                     Helpers::dompdf_debug("page-break", "orphans");
 
                     return false;

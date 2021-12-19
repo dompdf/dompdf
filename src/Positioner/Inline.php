@@ -10,7 +10,6 @@ namespace Dompdf\Positioner;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
-use Dompdf\FrameReflower\Inline as InlineFrameReflower;
 use Dompdf\Exception;
 
 /**
@@ -28,57 +27,23 @@ class Inline extends AbstractPositioner
     function position(AbstractFrameDecorator $frame)
     {
         // Find our nearest block level parent and access its lines property
-        $p = $frame->find_block_parent();
+        $block = $frame->find_block_parent();
 
-        // Debugging code:
-
-        // Helpers::pre_r("\nPositioning:");
-        // Helpers::pre_r("Me: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
-        // Helpers::pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
-
-        // End debugging
-
-        if (!$p) {
+        if (!$block) {
             throw new Exception("No block-level parent found.  Not good.");
         }
 
         $cb = $frame->get_containing_block();
-        $line = $p->get_current_line_box();
+        $line = $block->get_current_line_box();
 
-        if ($frame->is_text_node() || $frame->get_node()->nodeName === "br") {
-            $frame->set_position($cb["x"] + $line->w, $line->y);
-            return;
-        }
-
-        $reflower = $frame->get_reflower();
-
-        if ($reflower instanceof InlineFrameReflower) {
-            [$min] = $reflower->get_min_first_line_width();
-
-            // If no parts of the inline frame fit in the current line, it
-            // should break to a new line
-            if ($min > ($cb["w"] - $line->left - $line->w - $line->right)) {
-                $prev = $frame->get_prev_sibling();
-                $parent = $frame->get_parent();
-
-                if ($prev && $parent instanceof InlineFrameDecorator) {
-                    // Split parent and don't set position, so current reflow
-                    // can be stopped
-                    $parent->split($frame);
-                    return;
-                }
-
-                $p->add_line();
-                $line = $p->get_current_line_box();
-            }
-        } else {
+        if (!$frame->is_text_node() && !($frame instanceof InlineFrameDecorator)) {
             // Atomic inline boxes and replaced inline elements
             // (inline-block, inline-table, img etc.)
             $width = $frame->get_margin_width();
 
             if ($width > ($cb["w"] - $line->left - $line->w - $line->right)) {
-                $p->add_line();
-                $line = $p->get_current_line_box();
+                $block->add_line();
+                $line = $block->get_current_line_box();
             }
         }
 
