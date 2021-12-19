@@ -28,17 +28,21 @@ class Text extends AbstractFrameReflower
 
     /**
      * The regex splits on everything that's a separator (^\S double negative),
-     * excluding nbsp (\xa0).
-     * This currently excludes the "narrow nbsp" character.
+     * excluding the following non-breaking space characters:
+     * * nbsp (\xA0)
+     * * narrow nbsp (\x{202F})
+     * * figure space (\x{2007})
      */
-    public static $_whitespace_pattern = '/([^\S\xA0]+)/u';
+    public static $_whitespace_pattern = '/([^\S\xA0\x{202F}\x{2007}]+)/u';
 
     /**
-     * The regex splits on everything that's a separator (^\S double negative),
-     * excluding nbsp (\xa0), plus dashes.
-     * This currently excludes the "narrow nbsp" character.
+     * The regex splits on everything that's a separator (^\S double negative)
+     * plus dashes, excluding the following non-breaking space characters:
+     * * nbsp (\xA0)
+     * * narrow nbsp (\x{202F})
+     * * figure space (\x{2007})
      */
-    public static $_wordbreak_pattern = '/([^\S\xA0]+|\-+|\xAD+)/u';
+    public static $_wordbreak_pattern = '/([^\S\xA0\x{202F}\x{2007}]+|\-+|\xAD+)/u';
 
     /**
      * @var BlockFrameDecorator
