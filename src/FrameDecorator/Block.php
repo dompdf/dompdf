@@ -114,27 +114,14 @@ class Block extends AbstractFrameDecorator
      * @param Frame $frame
      * @return LineBox|null
      */
-    function add_frame_to_line(Frame $frame)
+    public function add_frame_to_line(Frame $frame)
     {
         $current_line = $this->_line_boxes[$this->_cl];
         $frame->set_containing_line($current_line);
 
-        // Handle inline frames (which are effectively wrappers)
+        // Inline frames are currently treated as wrappers, and are not actually
+        // added to the line
         if ($frame instanceof Inline) {
-            // Handle line breaks
-            if ($frame->get_node()->nodeName === "br") {
-                $style = $frame->get_style();
-                $this->maximize_line_height($style->line_height, $frame);
-                $this->add_line(true);
-
-                $next = $frame->get_next_sibling();
-                $p = $frame->get_parent();
-
-                if ($next && $p instanceof Inline) {
-                    $p->split($next);
-                }
-            }
-
             return null;
         }
 
