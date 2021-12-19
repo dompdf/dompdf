@@ -82,6 +82,12 @@ class Inline extends AbstractFrameReflower
 
         $frame->position();
 
+        // If positioning necessitates a parent split, then the position is not
+        // set. The frame will have a new reflow via the new split parent
+        if ($frame->get_position("x") === null) {
+            return;
+        }
+
         $cb = $frame->get_containing_block();
 
         if ($block) {
