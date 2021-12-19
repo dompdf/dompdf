@@ -452,12 +452,16 @@ class Block extends AbstractFrameReflower
             default:
             case "left":
                 foreach ($this->_frame->get_line_boxes() as $line) {
-                    if (!$line->inline || !$line->left) {
+                    if (!$line->inline) {
                         continue;
                     }
 
-                    foreach ($line->frames_to_align() as $frame) {
-                        $frame->move($line->left, 0);
+                    $line->trim_trailing_ws();
+
+                    if ($line->left) {
+                        foreach ($line->frames_to_align() as $frame) {
+                            $frame->move($line->left, 0);
+                        }
                     }
                 }
                 break;
@@ -467,6 +471,8 @@ class Block extends AbstractFrameReflower
                     if (!$line->inline) {
                         continue;
                     }
+
+                    $line->trim_trailing_ws();
 
                     $indent = $i === 0 ? $text_indent : 0;
                     $dx = $width - $line->w - $line->right - $indent;
@@ -488,6 +494,8 @@ class Block extends AbstractFrameReflower
                     if (!$line->inline) {
                         continue;
                     }
+
+                    $line->trim_trailing_ws();
 
                     if ($line->left) {
                         foreach ($line->frames_to_align() as $frame) {
@@ -544,6 +552,8 @@ class Block extends AbstractFrameReflower
                     if (!$line->inline) {
                         continue;
                     }
+
+                    $line->trim_trailing_ws();
 
                     $indent = $i === 0 ? $text_indent : 0;
                     $dx = ($width + $line->left - $line->w - $line->right - $indent) / 2;

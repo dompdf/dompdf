@@ -333,30 +333,13 @@ class Text extends AbstractFrameReflower
                 $t = $frame->get_text();
                 $shyPosition = mb_strpos($t, self::SOFT_HYPHEN);
                 if (false !== $shyPosition && $shyPosition < mb_strlen($t) - 1) {
-                    $t = str_replace(self::SOFT_HYPHEN, '', mb_substr($t, 0, -1)) . mb_substr($t, -1);
+                    $t = str_replace(self::SOFT_HYPHEN, "", mb_substr($t, 0, -1)) . mb_substr($t, -1);
                     $frame->set_text($t);
                 }
             }
         } elseif ($text !== "") {
-            $t = $text;
-
-            // Trim trailing white space if this is the last text frame on the
-            // last line
-            if (!$frame->is_pre()) {
-                $last = $frame->get_next_sibling() === null;
-                $p = $frame->get_parent();
-                while ($last && $p instanceof InlineFrameDecorator) {
-                    $last = $last && $p->get_next_sibling() === null;
-                    $p = $p->get_parent();
-                }
-
-                if ($last) {
-                    $t = rtrim($t);
-                }
-            }
-
             // Remove soft hyphens
-            $t = str_replace(self::SOFT_HYPHEN, '', $t);
+            $t = str_replace(self::SOFT_HYPHEN, "", $text);
             $frame->set_text($t);
         }
 
