@@ -95,6 +95,7 @@ class Text extends AbstractFrameReflower
         $size = $style->font_size;
         $font = $style->font_family;
         $current_line = $this->_block_parent->get_current_line_box();
+        $fontMetrics = $this->getFontMetrics();
 
         // Determine the available width
         $line_width = $this->_frame->get_containing_block("w");
@@ -107,7 +108,7 @@ class Text extends AbstractFrameReflower
 
         // Determine the frame width including margin, padding & border
         $visible_text = preg_replace('/\xAD/u', "", $text);
-        $text_width = $this->getFontMetrics()->getTextWidth($visible_text, $font, $size, $word_spacing, $char_spacing);
+        $text_width = $fontMetrics->getTextWidth($visible_text, $font, $size, $word_spacing, $char_spacing);
         $mbp_width = (float) $style->length_in_pt([
             $style->margin_left,
             $style->border_left_width,
@@ -130,8 +131,8 @@ class Text extends AbstractFrameReflower
         $width = 0;
         $str = "";
 
-        $space_width = $this->getFontMetrics()->getTextWidth(" ", $font, $size, $word_spacing, $char_spacing);
-        $shy_width = $this->getFontMetrics()->getTextWidth(self::SOFT_HYPHEN, $font, $size);
+        $space_width = $fontMetrics->getTextWidth(" ", $font, $size, $word_spacing, $char_spacing);
+        $shy_width = $fontMetrics->getTextWidth(self::SOFT_HYPHEN, $font, $size);
 
         // @todo support <wbr>
         for ($i = 0; $i < $wc; $i += 2) {
@@ -140,7 +141,7 @@ class Text extends AbstractFrameReflower
             // handle that for now
             $sep = isset($words[$i + 1]) ? $words[$i + 1] : "";
             $word = $sep === " " ? $words[$i] : $words[$i] . $sep;
-            $word_width = $this->getFontMetrics()->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
+            $word_width = $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
 
             if ($width + $word_width + $mbp_width > $available_width) {
                 // If the previous split happened by soft hyphen, we have to
@@ -167,37 +168,35 @@ class Text extends AbstractFrameReflower
             }
         }
 
-        // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
-        $wrap = $style->overflow_wrap;
-        $break_word = $wrap === "anywhere" || $wrap === "break-word";
-
-        // The first word has overflowed.   Force it onto the line
+        // The first word has overflowed. Force it onto the line, or as many
+        // characters as fit if breaking words is allowed
         if ($current_line_width == 0 && $width == 0) {
             if ($sep === " ") {
                 $word .= $sep;
             }
 
-            $s = "";
-            $last_width = 0;
+            // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
+            $wrap = $style->overflow_wrap;
+            $break_word = $wrap === "anywhere" || $wrap === "break-word";
 
             if ($break_word) {
-                for ($j = 0; $j < strlen($word); $j++) {
-                    $s .= $word[$j];
-                    $_width = $this->getFontMetrics()->getTextWidth($s, $font, $size, $word_spacing, $char_spacing);
-                    if ($_width > $available_width) {
+                $s = "";
+
+                for ($j = 0; $j < mb_strlen($word); $j++) {
+                    $c = mb_substr($word, $j, 1);
+                    $w = $fontMetrics->getTextWidth($s . $c, $font, $size, $word_spacing, $char_spacing);
+
+                    if ($w > $available_width) {
                         break;
                     }
 
-                    $last_width = $_width;
+                    $s .= $c;
                 }
-            }
 
-            if ($break_word && $last_width > 0) {
-                //$width += $last_width;
-                $str .= substr($s, 0, -1);
+                // Always force the first character onto the line
+                $str = $j === 0 ? $s . $c : $s;
             } else {
-                //$width += $word_width;
-                $str .= $word;
+                $str = $word;
             }
         }
 
