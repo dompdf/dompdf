@@ -593,10 +593,26 @@ class Block extends AbstractFrameReflower
 
                 //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
                 if ($isInlineBlock) {
-                    $frames = $line->get_frames();
-                    if (count($frames) === 1) {
+                    // Workaround: Skip vertical alignment if the frame is the
+                    // only one one the line, excluding empty text frames, which
+                    // may be the result of trailing white space
+                    // FIXME: This special case should be removed once vertical
+                    // alignment is properly fixed
+                    $skip = true;
+
+                    foreach ($line->get_frames() as $other) {
+                        if ($other !== $frame
+                            && !($other->is_text_node() && $other->get_node()->nodeValue === "")
+                         ) {
+                            $skip = false;
+                            break;
+                        }
+                    }
+
+                    if ($skip) {
                         continue;
                     }
+
                     $marginHeight = $frame->get_margin_height();
                     $imageHeightDiff = $height * 0.8 - $marginHeight;
 
