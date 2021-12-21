@@ -914,7 +914,12 @@ class Helpers
         return [$content, $headers];
     }
 
-    public static function mb_ucwords($str) {
+    /**
+     * @param string $str
+     * @return string
+     */
+    public static function mb_ucwords(string $str): string
+    {
         $max_len = mb_strlen($str);
         if ($max_len === 1) {
             return mb_strtoupper($str);
