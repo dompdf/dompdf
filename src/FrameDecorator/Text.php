@@ -130,7 +130,7 @@ class Text extends AbstractFrameDecorator
     }
 
     /**
-     *  Recalculate the text width
+     * Recalculate the text width
      *
      * @return float
      */
