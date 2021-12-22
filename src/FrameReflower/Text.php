@@ -178,7 +178,7 @@ class Text extends AbstractFrameReflower
             // Allow trailing white space to overflow. White space is always
             // collapsed to the standard space character currently, so only
             // handle that for now
-            $sep = isset($words[$i + 1]) ? $words[$i + 1] : "";
+            $sep = $words[$i + 1] ?? "";
             $word = $sep === " " ? $words[$i] : $words[$i] . $sep;
             $word_width = $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
 
@@ -454,9 +454,8 @@ class Text extends AbstractFrameReflower
         $text = $frame->get_text();
         $fontMetrics = $this->getFontMetrics();
 
-        // Strip soft hyphens and handle text transform/white space
-        $text = preg_replace('/\xAD/u', "", $frame->get_text());
-        $text = $this->pre_process_text($text);
+        // Handle text transform and white space
+        $text = $this->pre_process_text($frame->get_text());
 
         if (!$frame->is_pre()) {
             // Determine whether the frame is at the start of its parent block.
@@ -486,6 +485,9 @@ class Text extends AbstractFrameReflower
             }
         }
 
+        // Strip soft hyphens for max-line-width calculations
+        $visible_text = preg_replace('/\xAD/u', "", $text);
+
         // Account for word and letter spacing
         $word_spacing = (float) $style->length_in_pt($style->word_spacing);
         $char_spacing = (float) $style->length_in_pt($style->letter_spacing);
@@ -502,22 +504,25 @@ class Text extends AbstractFrameReflower
                 // the latter case.
                 // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
                 if ($style->overflow_wrap === "anywhere") {
-                    $char = mb_substr($text, 0, 1);
+                    $char = mb_substr($visible_text, 0, 1);
                     $min = $fontMetrics->getTextWidth($char, $font, $size, $word_spacing, $char_spacing);
                 } else {
                     // Find the longest word
-                    $words = array_flip(preg_split(self::$_wordbreak_pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE));
-                    array_walk($words, function (&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
-                        $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
-                    });
-                    arsort($words);
-                    $min = reset($words);
+                    $words = preg_split(self::$_wordbreak_pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+                    $lengths = array_map(function ($chunk) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
+                        // Allow trailing white space to overflow. As in actual
+                        // layout above, only handle a single space for now
+                        $sep = $chunk[1] ?? "";
+                        $word = $sep === " " ? $chunk[0] : $chunk[0] . $sep;
+                        return $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
+                    }, array_chunk($words, 2));
+                    $min = max($lengths);
                 }
                 break;
 
             case "pre":
                 // Find the longest line
-                $lines = array_flip(preg_split("/\R/u", $text));
+                $lines = array_flip(preg_split("/\R/u", $visible_text));
                 array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
                     $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
@@ -526,7 +531,7 @@ class Text extends AbstractFrameReflower
                 break;
 
             case "nowrap":
-                $min = $fontMetrics->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
+                $min = $fontMetrics->getTextWidth($visible_text, $font, $size, $word_spacing, $char_spacing);
                 break;
         }
 
@@ -534,13 +539,13 @@ class Text extends AbstractFrameReflower
         switch ($style->white_space) {
             default:
             case "normal":
-                $max = $fontMetrics->getTextWidth($text, $font, $size, $word_spacing, $char_spacing);
+                $max = $fontMetrics->getTextWidth($visible_text, $font, $size, $word_spacing, $char_spacing);
                 break;
 
             case "pre-line":
             case "pre-wrap":
                 // Find the longest line
-                $lines = array_flip(preg_split("/\R/u", $text));
+                $lines = array_flip(preg_split("/\R/u", $visible_text));
                 array_walk($lines, function(&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $char_spacing) {
                     $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $char_spacing);
                 });
