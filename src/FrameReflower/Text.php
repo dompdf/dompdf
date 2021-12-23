@@ -259,7 +259,7 @@ class Text extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator $block
      * @return bool|null Whether to add a new line at the end. `null` if reflow
-     *         should be stopped because of a parent split.
+     *         should be stopped.
      */
     protected function layout_line(BlockFrameDecorator $block): ?bool
     {
@@ -273,22 +273,26 @@ class Text extends AbstractFrameReflower
             $text = ltrim($text, " ");
         }
 
-        $split = false;
-        $add_line = false;
+        // Exclude wrapped white space. This handles white space between block
+        // elements in case white space is collapsed
+        if ($text === "") {
+            $frame->set_text("");
+            $style->width = 0.0;
+            return null;
+        }
 
         // Determine the next line break
         // http://www.w3.org/TR/CSS21/text.html#propdef-white-space
         switch ($style->white_space) {
             default:
             case "normal":
-                if ($text === "") {
-                    break;
-                }
-
                 $split = $this->line_break($text, $block);
+                $add_line = false;
                 break;
 
             case "nowrap":
+                $split = false;
+                $add_line = false;
                 break;
 
             case "pre":
@@ -298,10 +302,6 @@ class Text extends AbstractFrameReflower
 
             case "pre-line":
             case "pre-wrap":
-                if ($text === "") {
-                    break;
-                }
-
                 $hard_split = $this->newline_break($text);
                 $first_line = $hard_split !== false
                     ? mb_substr($text, 0, $hard_split)
@@ -394,11 +394,10 @@ class Text extends AbstractFrameReflower
 
         $frame->position();
 
-        // Exclude wrapped white space when white space is collapsed
-        if ($block && ($frame->is_pre() || $frame->get_margin_width() !== 0.0)) {
+        if ($block) {
             $line = $block->add_frame_to_line($frame);
             $trimmed = trim($frame->get_text());
-    
+
             // Split the text into words (used to determine spacing between
             // words on justified lines)
             if ($trimmed !== "") {
