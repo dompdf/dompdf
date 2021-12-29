@@ -261,61 +261,43 @@ class Stylesheet
     }
 
     /**
+     * Create a new Style object associated with this stylesheet
+     *
+     * @return Style
+     */
+    function create_style(): Style
+    {
+        return new Style($this, $this->_current_origin);
+    }
+
+    /**
      * Add a new Style object to the stylesheet
-     * add_style() adds a new Style object to the current stylesheet, or
-     * merges a new Style with an existing one.
+     *
+     * The style's origin is changed to the current origin of the stylesheet.
      *
      * @param string $key the Style's selector
      * @param Style $style the Style to be added
-     *
-     * @throws \Dompdf\Exception
      */
-    function add_style($key, Style $style)
+    function add_style(string $key, Style $style): void
     {
-        if (!is_string($key)) {
-            throw new Exception("CSS rule must be keyed by a string.");
-        }
-
         if (!isset($this->_styles[$key])) {
             $this->_styles[$key] = [];
         }
-        $new_style = clone $style;
-        $new_style->set_origin($this->_current_origin);
-        $this->_styles[$key][] = $new_style;
+
+        $style->set_origin($this->_current_origin);
+        $this->_styles[$key][] = $style;
     }
 
     /**
-     * lookup a specific Style collection
+     * Lookup a specific Style collection
      *
-     * lookup() returns the Style collection specified by $key, or null if the Style is
-     * not found.
+     * @param string $key the selector of the requested Style collection
      *
-     * @param string $key the selector of the requested Style
-     * @return Style
-     *
-     * @Fixme _styles is a two dimensional array. It should produce wrong results
+     * @return Style[]
      */
-    function lookup($key)
+    function lookup(string $key): array
     {
-        if (!isset($this->_styles[$key])) {
-            return null;
-        }
-
-        return $this->_styles[$key];
-    }
-
-    /**
-     * create a new Style object associated with this stylesheet
-     *
-     * @param Style $parent The style of this style's parent in the DOM tree
-     * @return Style
-     */
-    function create_style(Style $parent = null)
-    {
-        if ($parent == null) {
-            $parent = $this;
-        }
-        return new Style($parent, $this->_current_origin);
+        return $this->_styles[$key] ?? [];
     }
 
     /**
@@ -331,7 +313,6 @@ class Stylesheet
         }
         $this->_parse_css($css);
     }
-
 
     /**
      * load and parse a CSS file
@@ -1105,14 +1086,14 @@ class Stylesheet
             // Find nearest DOMElement parent
             $p = $frame;
             while ($p = $p->get_parent()) {
-                if ($p->get_node()->nodeType == XML_ELEMENT_NODE) {
+                if ($p->get_node()->nodeType === XML_ELEMENT_NODE) {
                     break;
                 }
             }
 
             // Styles can only be applied directly to DOMElements; anonymous
             // frames inherit from their parent
-            if ($frame->get_node()->nodeType != XML_ELEMENT_NODE) {
+            if ($frame->get_node()->nodeType !== XML_ELEMENT_NODE) {
                 if ($p) {
                     $style->inherit($p->get_style());
                 }
