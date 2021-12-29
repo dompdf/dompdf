@@ -140,14 +140,104 @@ class Style
         "double", "groove", "ridge", "inset", "outset"];
 
     /**
-     * List of CSS shorthand properties
+     * Map of CSS shorthand properties and their corresponding sub-properties.
+     * The order of the sub-properties is relevant for the fallback getter,
+     * which is used in case no specific getter method is defined.
      *
      * @var array
      */
-    protected static $_props_shorthand = ["background", "border",
-        "border_bottom", "border_color", "border_left", "border_radius",
-        "border_right", "border_style", "border_top", "border_width",
-        "flex", "font", "list_style", "margin", "padding", "outline"];
+    protected static $_props_shorthand = [
+        "background" => [
+            "background_image",
+            "background_position",
+            "background_size",
+            "background_repeat",
+            // "background_origin",
+            // "background_clip",
+            "background_attachment",
+            "background_color"
+        ],
+        "border" => [
+            "border_width",
+            "border_style",
+            "border_color"
+        ],
+        "border_top" => [
+            "border_top_width",
+            "border_top_style",
+            "border_top_color"
+        ],
+        "border_right" => [
+            "border_right_width",
+            "border_right_style",
+            "border_right_color"
+        ],
+        "border_bottom" => [
+            "border_bottom_width",
+            "border_bottom_style",
+            "border_bottom_color"
+        ],
+        "border_left" => [
+            "border_left_width",
+            "border_left_style",
+            "border_left_color"
+        ],
+        "border_width" => [
+            "border_top_width",
+            "border_right_width",
+            "border_bottom_width",
+            "border_left_width"
+        ],
+        "border_style" => [
+            "border_top_style",
+            "border_right_style",
+            "border_bottom_style",
+            "border_left_style"
+        ],
+        "border_color" => [
+            "border_top_color",
+            "border_right_color",
+            "border_bottom_color",
+            "border_left_color"
+        ],
+        "border_radius" => [
+            "border_top_left_radius",
+            "border_top_right_radius",
+            "border_bottom_right_radius",
+            "border_bottom_left_radius"
+        ],
+        "font" => [
+            "font_family",
+            "font_size",
+            // "font_stretch",
+            "font_style",
+            "font_variant",
+            "font_weight",
+            "line_height"
+        ],
+        "list_style" => [
+            "list_style_image",
+            "list_style_position",
+            "list_style_type"
+        ],
+        "margin" => [
+            "margin_top",
+            "margin_right",
+            "margin_bottom",
+            "margin_left"
+        ],
+        "padding" => [
+            "padding_top",
+            "padding_right",
+            "padding_bottom",
+            "padding_left"
+        ],
+        "outline" => [
+            "outline_width",
+            "outline_style",
+            "outline_color"
+        ]
+    ];
 
     /**
      * Maps legacy property names to actual property names.
@@ -359,7 +449,7 @@ class Style
             $d["border_right_width"] = "medium";
             $d["border_bottom_width"] = "medium";
             $d["border_left_width"] = "medium";
-            $d["border_width"] = "medium";
+            $d["border_width"] = "";
             $d["border_bottom_left_radius"] = "0";
             $d["border_bottom_right_radius"] = "0";
             $d["border_top_left_radius"] = "0";
@@ -749,8 +839,8 @@ class Style
         }
 
         foreach (self::$_inherited as $prop) {
-            // don't inherit shorthand properties, the specific properties will inherit
-            if (in_array($prop, self::$_props_shorthand, true)) {
+            // Inherit is handled via the specific sub-properties for shorthands
+            if (isset(self::$_props_shorthand[$prop])) {
                 continue;
             }
 
@@ -780,11 +870,6 @@ class Style
         }
 
         foreach ($this->_props as $prop => $value) {
-            // don't inherit shorthand properties, the specific properties will inherit
-            if (in_array($prop, self::$_props_shorthand, true)) {
-                continue;
-            }
-
             if ($value === "inherit") {
                 if (isset($parent->_important_props[$prop])) {
                     $this->_important_props[$prop] = true;
@@ -832,18 +917,6 @@ class Style
             }
 
             if ($can_merge) {
-                // Clear out "inherit" shorthand properties if a more specific property value has been set
-                $shorthands = array_filter(self::$_props_shorthand, function ($el) use ($prop) {
-                    return (strpos($prop, $el . "_") !== false);
-                });
-                foreach ($shorthands as $shorthand) {
-                    if (array_key_exists($shorthand, $this->_props) && $this->_props[$shorthand] === "inherit") {
-                        unset($this->_props[$shorthand]);
-                        unset($this->_props_computed[$shorthand]);
-                        unset($this->_prop_cache[$shorthand]);
-                    }
-                }
-
                 // FIXME: temporary hack around lack of persistence of base href for URLs
                 // Value is already computed on `__set()`
                 if ($prop === "background_image" || $prop === "list_style_image") {
@@ -939,39 +1012,57 @@ class Style
             $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
-        if ($val === "initial") {
-            $val = self::$_defaults[$prop];
-        }
+        if (isset(self::$_props_shorthand[$prop])) {
+            // Shorthand properties directly set their respective sub-properties
+            // https://www.w3.org/TR/css-cascade-3/#shorthand
+            if ($val === "initial" || $val === "inherit") {
+                $important = isset($this->_important_props[$prop]);
 
-        $this->_props[$prop] = $val;
-        $this->_props_computed[$prop] = null;
-        $this->_prop_cache[$prop] = null;
+                foreach (self::$_props_shorthand[$prop] as $sub_prop) {
+                    if (!isset($this->_important_props[$sub_prop]) || $important) {
+                        if ($important) {
+                            $this->_important_props[$sub_prop] = true;
+                        }
 
-        // Handle shorthand properties
-        if (in_array($prop, self::$_props_shorthand, true)) {
-            $method = "set_$prop";
-
-            if (!isset(self::$_methods_cache[$method])) {
-                self::$_methods_cache[$method] = method_exists($this, $method);
+                        $this->__set($sub_prop, $val);
+                    }
+                }
+            } else {
+                $method = "set_$prop";
+    
+                if (!isset(self::$_methods_cache[$method])) {
+                    self::$_methods_cache[$method] = method_exists($this, $method);
+                }
+    
+                if (self::$_methods_cache[$method]) {
+                    $this->$method($val);
+                }
+            }
+        } else {
+            // https://www.w3.org/TR/css-cascade-3/#valdef-all-initial
+            if ($val === "initial") {
+                $val = self::$_defaults[$prop];
             }
 
-            if (self::$_methods_cache[$method]) {
-                $this->$method($val);
+            $this->_props[$prop] = $val;
+            $this->_props_computed[$prop] = null;
+            $this->_prop_cache[$prop] = null;
+
+            // Clear border-radius cache on setting any border-radius property
+            if ($prop === "border_top_left_radius"
+                || $prop === "border_top_right_radius"
+                || $prop === "border_bottom_left_radius"
+                || $prop === "border_bottom_right_radius"
+            ) {
+                $this->has_border_radius_cache = null;
             }
-        }
-
-        // Clear border-radius cache on setting any border-radius property
-        if (strpos($prop, "border") !== false
-            && strpos($prop, "radius") !== false
-        ) {
-            $this->has_border_radius_cache = null;
-        }
-
-        // FIXME: temporary hack around lack of persistence of base href for
-        // URLs. Compute value immediately, before the original base href is no
-        // longer available
-        if ($prop === "background_image" || $prop === "list_style_image") {
-            $this->compute_prop($prop, $val);
+    
+            // FIXME: temporary hack around lack of persistence of base href for
+            // URLs. Compute value immediately, before the original base href is no
+            // longer available
+            if ($prop === "background_image" || $prop === "list_style_image") {
+                $this->compute_prop($prop, $val);
+            }
         }
     }
 
@@ -1004,29 +1095,43 @@ class Style
         }
 
         $method = "get_$prop";
-        $retval = null;
-
-        // Compute the value if needed
-        if (!isset($this->_props_computed[$prop])) {
-            $val = isset($this->_props[$prop]) && $this->_props[$prop] !== "inherit"
-                ? $this->_props[$prop]
-                : self::$_defaults[$prop];
-            $this->compute_prop($prop, $val);
-        }
-
+    
         if (!isset(self::$_methods_cache[$method])) {
             self::$_methods_cache[$method] = method_exists($this, $method);
         }
 
-        if (self::$_methods_cache[$method]) {
-            $retval = $this->_prop_cache[$prop] = $this->$method();
-        }
+        if (isset(self::$_props_shorthand[$prop])) {
+            // Don't cache shorthand values, always use getter. If no dedicated
+            // getter exists, use a simple fallback getter concatenating all
+            // sub-property values
+            if (self::$_methods_cache[$method]) {
+                return $this->$method();
+            } else {
+                return implode(" ", array_map(function ($sub_prop) {
+                    $val = $this->__get($sub_prop);
+                    return is_array($val) ? implode(" ", $val) : $val;
+                }, self::$_props_shorthand[$prop]));
+            }
+        } else {
+            // Compute the value if needed
+            if (!isset($this->_props_computed[$prop])) {
+                $val = $this->_props[$prop] ?? self::$_defaults[$prop];
+                $this->compute_prop($prop, $val);
+            }
 
-        if (!isset($retval)) {
-            $retval = $this->_prop_cache[$prop] = $this->_props_computed[$prop];
-        }
+            $retval = null;
+    
+            if (self::$_methods_cache[$method]) {
+                $retval = $this->$method();
+            }
+    
+            if (!isset($retval)) {
+                $retval = $this->_props_computed[$prop];
+            }
 
-        return $retval;
+            $this->_prop_cache[$prop] = $retval;
+            return $retval;
+        }
     }
 
     /**
@@ -1037,7 +1142,6 @@ class Style
      */
     protected function compute_prop(string $prop, $val)
     {
-        $this->_props[$prop] = $val;
         $this->_props_computed[$prop] = null;
         $this->_prop_cache[$prop] = null;
 
@@ -2273,6 +2377,7 @@ class Style
     {
         $important = isset($this->_important_props["font"]);
 
+        // TODO: Remove custom `inherit` handling, already handled in `__set()`
         if (strtolower($val) === "inherit") {
             $this->_set_style("font_family", "inherit", $important);
             $this->_set_style("font_size", "inherit", $important);
@@ -2552,6 +2657,7 @@ class Style
         foreach ($arr as $value) {
             $value = trim($value);
             $prop = "";
+            // TODO: Remove custom `inherit` handling, already handled in `__set()`
             if (strtolower($value) === "inherit") {
                 $this->__set("border_${side}_color", "inherit");
                 $this->__set("border_${side}_style", "inherit");
