@@ -347,10 +347,10 @@ class Style
             $d["border_right"] = "";
             $d["border_bottom"] = "";
             $d["border_left"] = "";
-            $d["border_top_color"] = "";
-            $d["border_right_color"] = "";
-            $d["border_bottom_color"] = "";
-            $d["border_left_color"] = "";
+            $d["border_top_color"] = "currentcolor";
+            $d["border_right_color"] = "currentcolor";
+            $d["border_bottom_color"] = "currentcolor";
+            $d["border_left_color"] = "currentcolor";
             $d["border_top_style"] = "none";
             $d["border_right_style"] = "none";
             $d["border_bottom_style"] = "none";
@@ -360,10 +360,10 @@ class Style
             $d["border_bottom_width"] = "medium";
             $d["border_left_width"] = "medium";
             $d["border_width"] = "medium";
-            $d["border_bottom_left_radius"] = "";
-            $d["border_bottom_right_radius"] = "";
-            $d["border_top_left_radius"] = "";
-            $d["border_top_right_radius"] = "";
+            $d["border_bottom_left_radius"] = "0";
+            $d["border_bottom_right_radius"] = "0";
+            $d["border_top_left_radius"] = "0";
+            $d["border_top_right_radius"] = "0";
             $d["border_radius"] = "";
             $d["border"] = "";
             $d["bottom"] = "auto";
@@ -408,7 +408,7 @@ class Style
             $d["min_height"] = "auto";
             $d["min_width"] = "auto";
             $d["orphans"] = "2";
-            $d["outline_color"] = ""; // "invert" special color is not supported
+            $d["outline_color"] = "currentcolor"; // "invert" special color is not supported
             $d["outline_style"] = "none";
             $d["outline_width"] = "medium";
             $d["outline_offset"] = "0";
@@ -860,11 +860,11 @@ class Style
     }
 
     /**
-     * Returns an array(r, g, b, "r"=> r, "g"=>g, "b"=>b, "hex"=>"#rrggbb")
+     * Returns an array(r, g, b, "r"=> r, "g"=>g, "b"=>b, "alpha"=>alpha, "hex"=>"#rrggbb")
      * based on the provided CSS color value.
      *
      * @param string $color
-     * @return array
+     * @return array|string|null
      */
     function munge_color($color)
     {
@@ -1257,6 +1257,28 @@ class Style
     }
 
     /**
+     * @param string $prop
+     * @param bool $check_color
+     * @return array|string
+     */
+    protected function get_prop_color(string $prop, bool $check_color = true)
+    {
+        $val = $this->_props_computed[$prop];
+
+        if ($val === "currentcolor") {
+            // FIXME: `currentcolor` should use the inherited value for the
+            // `color` property, not the default.
+            // https://www.w3.org/TR/css-color-4/#valdef-color-currentcolor
+            // https://www.w3.org/TR/css-color-4/#resolving-other-colors
+            return $check_color
+                ? $this->__get("color")
+                : $this->munge_color(self::$_defaults[$prop]);
+        }
+
+        return $this->munge_color($val) ?? "transparent";
+    }
+
+    /**
      * Returns the color as an array
      *
      * The array has the following format:
@@ -1267,7 +1289,7 @@ class Style
      */
     function get_color()
     {
-        return $this->munge_color($this->_props_computed["color"]);
+        return $this->get_prop_color("color", false);
     }
 
     /**
@@ -1280,7 +1302,7 @@ class Style
      */
     function get_background_color()
     {
-        return $this->munge_color($this->_props_computed["background_color"]);
+        return $this->get_prop_color("background_color");
     }
 
     /**
@@ -1350,7 +1372,7 @@ class Style
      */
     function get_border_top_color()
     {
-        return $this->munge_color($this->_props_computed["border_top_color"]);
+        return $this->get_prop_color("border_top_color");
     }
 
     /**
@@ -1358,7 +1380,7 @@ class Style
      */
     function get_border_right_color()
     {
-        return $this->munge_color($this->_props_computed["border_right_color"]);
+        return $this->get_prop_color("border_right_color");
     }
 
     /**
@@ -1366,7 +1388,7 @@ class Style
      */
     function get_border_bottom_color()
     {
-        return $this->munge_color($this->_props_computed["border_bottom_color"]);
+        return $this->get_prop_color("border_bottom_color");
     }
 
     /**
@@ -1374,7 +1396,7 @@ class Style
      */
     function get_border_left_color()
     {
-        return $this->munge_color($this->_props_computed["border_left_color"]);
+        return $this->get_prop_color("border_left_color");
     }
 
     /**#@-*/
@@ -1430,7 +1452,8 @@ class Style
         $color = $this->__get("border_" . $side . "_color");
 
         return $this->__get("border_" . $side . "_width") . " " .
-            $this->__get("border_" . $side . "_style") . " " . (is_array($color) ? $color["hex"] : $color);
+            $this->__get("border_" . $side . "_style") . " " .
+            (is_array($color) ? $color["hex"] : $color);
     }
 
     /**#@+
@@ -1595,7 +1618,7 @@ class Style
      */
     function get_outline_color()
     {
-        return $this->munge_color($this->_props_computed["outline_color"]);
+        return $this->get_prop_color("outline_color");
     }
 
     /**#@+
@@ -1611,8 +1634,8 @@ class Style
     function get_outline()
     {
         $color = $this->__get("outline_color");
-        return
-            $this->__get("outline_width") . " " .
+
+        return $this->__get("outline_width") . " " .
             $this->__get("outline_style") . " " .
             (is_array($color) ? $color["hex"] : $color);
     }
@@ -1876,18 +1899,21 @@ class Style
 
     /*======================*/
 
-    protected function set_prop_color($prop, $color)
+    protected function set_prop_color($prop, $val)
     {
         $this->_prop_cache[$prop] = null;
 
-        $munged_color = $this->munge_color($color);
+        // https://www.w3.org/TR/css-color-4/#resolving-other-colors
+        $munged_color = $val !== "currentcolor"
+            ? $this->munge_color($val)
+            : $val;
 
         if (is_null($munged_color)) {
             $this->_props_computed[$prop] = null;
             return;
         }
 
-        $this->_props_computed[$prop] = (is_array($munged_color) ? $munged_color["hex"] : $munged_color);
+        $this->_props_computed[$prop] = is_array($munged_color) ? $munged_color["hex"] : $munged_color;
     }
 
     /**
@@ -2114,8 +2140,8 @@ class Style
                     $this->_set_style("background_attachment", $attr, $important);
                 } elseif ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
                     $this->_set_style("background_repeat", $attr, $important);
-                } elseif (($col = $this->munge_color($attr)) != null) {
-                    $this->_set_style("background_color", is_array($col) ? $col["hex"] : $col, $important);
+                } elseif ($this->munge_color($attr) !== null) {
+                    $this->_set_style("background_color", $attr, $important);
                 } else {
                     $pos[] = $attr;
                 }
@@ -2556,11 +2582,7 @@ class Style
 
     function set_border_top_color($val)
     {
-        $color = $val;
-        if ($val === "") {
-            $color = $this->__get("color");
-        }
-        $this->_set_style_side_type('border', 'top', 'color', $color);
+        $this->_set_style_side_type('border', 'top', 'color', $val);
     }
 
     function set_border_top_style($val)
@@ -2583,11 +2605,7 @@ class Style
 
     function set_border_right_color($val)
     {
-        $color = $val;
-        if ($val === "") {
-            $color = $this->__get("color");
-        }
-        $this->_set_style_side_type('border', 'right', 'color', $color);
+        $this->_set_style_side_type('border', 'right', 'color', $val);
     }
 
     function set_border_right_style($val)
@@ -2610,11 +2628,7 @@ class Style
 
     function set_border_bottom_color($val)
     {
-        $color = $val;
-        if ($val === "") {
-            $color = $this->__get("color");
-        }
-        $this->_set_style_side_type('border', 'bottom', 'color', $color);
+        $this->_set_style_side_type('border', 'bottom', 'color', $val);
     }
 
     function set_border_bottom_style($val)
@@ -2637,11 +2651,7 @@ class Style
 
     function set_border_left_color($val)
     {
-        $color = $val;
-        if ($val === "") {
-            $color = $this->__get("color");
-        }
-        $this->_set_style_side_type('border', 'left', 'color', $color);
+        $this->_set_style_side_type('border', 'left', 'color', $val);
     }
 
     function set_border_left_style($val)
@@ -2788,7 +2798,7 @@ class Style
     {
         $this->_prop_cache["border_" . $corner . "_radius"] = null;
 
-        if ($val === "inherit" || $val === "") {
+        if ($val === "inherit") {
             $this->_props_computed["border_" . $corner . "_radius"] = null;
             return;
         }
@@ -2894,12 +2904,7 @@ class Style
      */
     function set_outline_color($val)
     {
-        $color = $val;
-        if ($val === "") {
-            $color = $this->__get("color");
-        }
-
-        $this->_set_style_side_type("outline", "", "color", $color);
+        $this->_set_style_side_type("outline", "", "color", $val);
     }
 
     /**
