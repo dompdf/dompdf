@@ -939,6 +939,10 @@ class Style
             $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
+        if ($val === "initial") {
+            $val = self::$_defaults[$prop];
+        }
+
         $this->_props[$prop] = $val;
         $this->_props_computed[$prop] = null;
         $this->_prop_cache[$prop] = null;
