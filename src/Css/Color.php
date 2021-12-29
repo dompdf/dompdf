@@ -189,7 +189,7 @@ class Color
             return $cache[$color];
         }
 
-        if (in_array($color, ["transparent", "inherit"])) {
+        if ($color === "transparent") {
             return $cache[$color] = $color;
         }
 
@@ -200,19 +200,19 @@ class Color
         $length = mb_strlen($color);
 
         // #rgb format
-        if ($length == 4 && $color[0] === "#") {
+        if ($length === 4 && $color[0] === "#") {
             return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3]);
         } // #rgba format
-        else if ($length == 5 && $color[0] === "#") {
+        else if ($length === 5 && $color[0] === "#") {
             if (ctype_xdigit($color[4])) {
                 $alpha = round(hexdec($color[4] . $color[4])/255, 2);
             }
             return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3], $alpha);
         } // #rrggbb format
-        else if ($length == 7 && $color[0] === "#") {
+        else if ($length === 7 && $color[0] === "#") {
             return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
         } // #rrggbbaa format
-        else if ($length == 9 && $color[0] === "#") {
+        else if ($length === 9 && $color[0] === "#") {
             if (ctype_xdigit(mb_substr($color, 7, 2))) {
                 $alpha = round(hexdec(mb_substr($color, 7, 2))/255, 2);
             }
@@ -283,7 +283,8 @@ class Color
             return $cache[$color] = self::getArray($values);
         }
 
-        return self::getArray($color);
+        // Invalid or unsupported color format
+        return null;
     }
 
     /**
