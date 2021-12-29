@@ -1484,56 +1484,6 @@ class Style
         return $this->_get_border("left");
     }
 
-    private function _get_width($prop)
-    {
-        //TODO: should be handled in setter
-        if (strpos($this->_props_computed[$prop], "%") !== false) {
-            // calculate against width of containing block, needs to be done outside the style class
-            return $this->_props_computed[$prop];
-        }
-        return $this->length_in_pt($this->_props_computed[$prop], $this->__get("font_size"));
-    }
-
-    function get_margin_top()
-    {
-        return $this->_get_width("margin_top");
-    }
-
-    function get_margin_right()
-    {
-        return $this->_get_width("margin_right");
-    }
-
-    function get_margin_bottom()
-    {
-        return $this->_get_width("margin_bottom");
-    }
-
-    function get_margin_left()
-    {
-        return $this->_get_width("margin_left");
-    }
-
-    function get_padding_top()
-    {
-        return $this->_get_width("padding_top");
-    }
-
-    function get_padding_right()
-    {
-        return $this->_get_width("padding_right");
-    }
-
-    function get_padding_bottom()
-    {
-        return $this->_get_width("padding_bottom");
-    }
-
-    function get_padding_left()
-    {
-        return $this->_get_width("padding_left");
-    }
-
     /**
      * @deprecated
      * @param float $w
@@ -1658,16 +1608,6 @@ class Style
     function get_outline_color()
     {
         return $this->munge_color($this->_props_computed["outline_color"]);
-    }
-
-    /**#@+
-     * Returns the outline width, as it is currently stored
-     * @return float|string
-     */
-    function get_outline_width()
-    {
-        $style = $this->__get("outline_style");
-        return $style !== "none" && $style !== "hidden" ? $this->length_in_pt($this->_props_computed["outline_width"]) : 0;
     }
 
     /**#@+
