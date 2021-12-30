@@ -150,6 +150,19 @@ class Style
         "flex", "font", "list_style", "margin", "padding", "outline"];
 
     /**
+     * Maps legacy property names to actual property names.
+     *
+     * @var array
+     */
+    protected static $_props_alias = [
+        "word_wrap"                           => "overflow_wrap",
+        "_dompdf_background_image_resolution" => "background_image_resolution",
+        "_dompdf_image_resolution"            => "image_resolution",
+        "_webkit_transform"                   => "transform",
+        "_webkit_transform_origin"            => "transform_origin"
+    ];
+
+    /**
      * Default style values.
      *
      * @link http://www.w3.org/TR/CSS21/propidx.html
@@ -455,11 +468,7 @@ class Style
             $d["unicode_range"] = "";
 
             // vendor-prefixed properties
-            $d["_dompdf_background_image_resolution"] = &$d["background_image_resolution"];
-            $d["_dompdf_image_resolution"] = &$d["image_resolution"];
             $d["_dompdf_keep"] = "";
-            $d["_webkit_transform"] = &$d["transform"];
-            $d["_webkit_transform_origin"] = &$d["transform_origin"];
 
             // Properties that inherit by default
             self::$_inherited = [
@@ -915,8 +924,8 @@ class Style
         $prop = str_replace("-", "_", $prop);
 
         // Legacy property aliases
-        if ($prop === "word_wrap") {
-            $prop = "overflow_wrap";
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
         }
 
         if (!isset(self::$_defaults[$prop])) {
@@ -978,8 +987,8 @@ class Style
     function __get($prop)
     {
         // Legacy property aliases
-        if ($prop === "word_wrap") {
-            $prop = "overflow_wrap";
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
         }
 
         if (!isset(self::$_defaults[$prop])) {
@@ -1070,8 +1079,8 @@ class Style
     function get_prop($prop)
     {
         // Legacy property aliases
-        if ($prop === "word_wrap") {
-            $prop = "overflow_wrap";
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
         }
 
         if (!isset(self::$_defaults[$prop])) {
@@ -3190,22 +3199,6 @@ class Style
     }
 
     /**
-     * @param $val
-     */
-    function set__webkit_transform($val)
-    {
-        $this->__set("transform", $val);
-    }
-
-    /**
-     * @param $val
-     */
-    function set__webkit_transform_origin($val)
-    {
-        $this->__set("transform_origin", $val);
-    }
-
-    /**
      * Sets the CSS3 transform-origin property
      *
      * @link http://www.w3.org/TR/css3-2d-transforms/#transform-origin
@@ -3306,22 +3299,6 @@ class Style
         $parsed = $this->parse_image_resolution($val);
 
         $this->_props_computed["image_resolution"] = $parsed;
-    }
-
-    /**
-     * @param $val
-     */
-    function set__dompdf_background_image_resolution($val)
-    {
-        $this->__set("background_image_resolution", $val);
-    }
-
-    /**
-     * @param $val
-     */
-    function set__dompdf_image_resolution($val)
-    {
-        $this->__set("image_resolution", $val);
     }
 
     /**
