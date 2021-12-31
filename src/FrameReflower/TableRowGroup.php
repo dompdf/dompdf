@@ -67,10 +67,5 @@ class TableRowGroup extends AbstractFrameReflower
         $style->height = $cellmap->get_frame_height($frame);
 
         $frame->set_position($cellmap->get_frame_position($frame));
-
-        if ($table->get_style()->border_collapse === "collapse") {
-            // Unset our borders because our cells are now using them
-            $style->border_style = "none";
-        }
     }
 }
