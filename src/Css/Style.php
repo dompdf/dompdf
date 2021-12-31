@@ -1265,6 +1265,35 @@ class Style
     }
 
     /**
+     * Experimental fast setter for used values.
+     *
+     * If a shorthand property is specified, all of its sub-properties are set
+     * to the same value.
+     *
+     * @param string $prop
+     * @param mixed  $val
+     */
+    function set_used(string $prop, $val): void
+    {
+        // Legacy property aliases
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
+        }
+
+        if (!isset(self::$_defaults[$prop])) {
+            throw new Exception("'$prop' is not a recognized CSS property.");
+        }
+
+        if (isset(self::$_props_shorthand[$prop])) {
+            foreach (self::$_props_shorthand[$prop] as $sub_prop) {
+                $this->set_used($sub_prop, $val);
+            }
+        } else {
+            $this->_prop_cache[$prop] = $val;
+        }
+    }
+
+    /**
      * @param string $prop The property to compute.
      * @param mixed  $val  The value to compute.
      *

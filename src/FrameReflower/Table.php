@@ -454,15 +454,7 @@ class Table extends AbstractFrameReflower
         // Assign heights to our cells:
         $style->height = $this->_calculate_height();
 
-        if ($style->border_collapse === "collapse") {
-            // Unset our borders because our cells are now using them
-            $style->border_color = "transparent";
-        }
-
         $page->table_reflow_end();
-
-        // Debugging:
-        //echo ($this->_frame->get_cellmap());
 
         if ($block && $frame->is_in_flow()) {
             $block->add_frame_to_line($frame);
@@ -480,12 +472,13 @@ class Table extends AbstractFrameReflower
         }
 
         $style = $this->_frame->get_style();
+        $cellmap = $this->_frame->get_cellmap();
 
         $this->_frame->normalise();
 
         // Add the cells to the cellmap (this will calculate column widths as
         // frames are added)
-        $this->_frame->get_cellmap()->add_frame($this->_frame);
+        $cellmap->add_frame($this->_frame);
 
         // Find the min/max width of the table and sort the columns into
         // absolute/percent/auto arrays
@@ -501,7 +494,7 @@ class Table extends AbstractFrameReflower
         $this->_state["percent"] = [];
         $this->_state["auto"] = [];
 
-        $columns =& $this->_frame->get_cellmap()->get_columns();
+        $columns =& $cellmap->get_columns();
         foreach (array_keys($columns) as $i) {
             $this->_state["min_width"] += $columns[$i]["min-width"];
             $this->_state["max_width"] += $columns[$i]["max-width"];
