@@ -574,7 +574,7 @@ class Cellmap
             $this->_frames[$key]["rows"] = range($start_row, max(0, $this->__row - 1));
             $this->_frames[$key]["frame"] = $frame;
 
-            if ($display !== "table-row" && $collapse) {
+            if ($collapse) {
                 $bp = $style->get_border_properties();
 
                 // Resolve vertical borders
