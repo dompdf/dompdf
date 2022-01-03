@@ -422,7 +422,7 @@ class Style
             $d["pitch"] = "medium";
             $d["play_during"] = "auto";
             $d["position"] = "static";
-            $d["quotes"] = "";
+            $d["quotes"] = "auto";
             $d["richness"] = "50";
             $d["right"] = "auto";
             $d["size"] = "auto"; // @page
