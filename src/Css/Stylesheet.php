@@ -1025,7 +1025,16 @@ class Stylesheet
                             continue;
                         }
 
-                        if (($src = $this->resolve_url($style->get_prop('content'))) !== "none") {
+                        $content = $style->get_prop("content");
+
+                        // Do not create non-displayed before/after pseudo elements
+                        // https://www.w3.org/TR/CSS21/generate.html#content
+                        // https://www.w3.org/TR/CSS21/generate.html#undisplayed-counters
+                        if ($content === "normal" || $content === "none") {
+                            continue;
+                        }
+
+                        if (($src = $this->resolve_url($content)) !== "none") {
                             $new_node = $node->ownerDocument->createElement("img_generated");
                             $new_node->setAttribute("src", $src);
                         } else {

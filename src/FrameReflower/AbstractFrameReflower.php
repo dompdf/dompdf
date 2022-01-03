@@ -450,10 +450,18 @@ abstract class AbstractFrameReflower
     /**
      * Parses the CSS "content" property
      *
+     * https://www.w3.org/TR/CSS21/generate.html#content
+     *
      * @return string The resulting string
      */
-    protected function _parse_content()
+    protected function _parse_content(): string
     {
+        $content = $this->_frame->get_style()->content;
+
+        if ($content === "normal" || $content === "none") {
+            return "";
+        }
+
         // Matches generated content
         $re = "/\n" .
             "\s(counters?\\([^)]*\\))|\n" .
@@ -463,8 +471,6 @@ abstract class AbstractFrameReflower
             "\s([^\s\"']+)|\n" .
             "\A([^\s\"']+)\n" .
             "/xi";
-
-        $content = $this->_frame->get_style()->content;
 
         $quotes = $this->_parse_quotes();
 
@@ -601,7 +607,7 @@ abstract class AbstractFrameReflower
             $frame->increment_counters($increment);
         }
 
-        if ($style->content && $frame->get_node()->nodeName === "dompdf_generated") {
+        if ($frame->get_node()->nodeName === "dompdf_generated") {
             $content = $this->_parse_content();
 
             if ($content !== "") {
