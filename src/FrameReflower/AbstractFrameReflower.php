@@ -421,27 +421,35 @@ abstract class AbstractFrameReflower
     /**
      * Parses a CSS "quotes" property
      *
-     * @return array|null An array of pairs of quotes
+     * https://www.w3.org/TR/css-content-3/#quotes
+     *
+     * @return array An array of pairs of quotes
      */
-    protected function _parse_quotes()
+    protected function _parse_quotes(): array
     {
+        $quotes = $this->_frame->get_style()->quotes;
+
+        if ($quotes === "none") {
+            return [];
+        }
+
+        if ($quotes === "auto") {
+            // TODO: Use typographically appropriate quotes for the current
+            // language here
+            return [['"', '"'], ["'", "'"]];
+        }
+
         // Matches quote types
         $re = '/(\'[^\']*\')|(\"[^\"]*\")/';
 
-        $quotes = $this->_frame->get_style()->quotes;
-
         // split on spaces, except within quotes
-        if (!preg_match_all($re, "$quotes", $matches, PREG_SET_ORDER)) {
-            return null;
+        if (!preg_match_all($re, $quotes, $matches, PREG_SET_ORDER)) {
+            return [];
         }
 
         $quotes_array = [];
         foreach ($matches as $_quote) {
             $quotes_array[] = $this->_parse_string($_quote[0], true);
-        }
-
-        if (empty($quotes_array)) {
-            $quotes_array = ['"', '"'];
         }
 
         return array_chunk($quotes_array, 2);
@@ -555,15 +563,19 @@ abstract class AbstractFrameReflower
                 // Directive match
 
                 if ($match[7] === "open-quote") {
-                    // FIXME: do something here
-                    $text .= $quotes[0][0];
+                    // FIXME: Take quotation depth into account
+                    if (isset($quotes[0][0])) {
+                        $text .= $quotes[0][0];
+                    }
                 } else if ($match[7] === "close-quote") {
-                    // FIXME: do something else here
-                    $text .= $quotes[0][1];
+                    // FIXME: Take quotation depth into account
+                    if (isset($quotes[0][1])) {
+                        $text .= $quotes[0][1];
+                    }
                 } else if ($match[7] === "no-open-quote") {
-                    // FIXME:
+                    // FIXME: Increment quotation depth
                 } else if ($match[7] === "no-close-quote") {
-                    // FIXME:
+                    // FIXME: Decrement quotation depth
                 } else if (mb_strpos($match[7], "attr(") === 0) {
                     $i = mb_strpos($match[7], ")");
                     if ($i === false) {
