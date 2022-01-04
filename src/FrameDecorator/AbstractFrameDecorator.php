@@ -865,7 +865,7 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @return array
      */
-    final function get_min_max_width(): array
+    final public function get_min_max_width(): array
     {
         return $this->_reflower->get_min_max_width();
     }
