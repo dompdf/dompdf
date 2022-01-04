@@ -104,19 +104,19 @@ class Block extends AbstractFrameReflower
                     // rule 3, per instruction preceding rule set
                     // shrink-to-fit width
                     $left = $inflow_x;
-                    [$min, $max] = $this->get_min_max_content_width();
+                    [$min, $max] = $this->get_min_max_child_width();
                     $width = min(max($min, $diff - $left), $max);
                     $right = $diff - $left - $width;
                 } elseif ($width === "auto" && $left === "auto") {
                     // rule 1
                     // shrink-to-fit width
-                    [$min, $max] = $this->get_min_max_content_width();
+                    [$min, $max] = $this->get_min_max_child_width();
                     $width = min(max($min, $diff), $max);
                     $left = $diff - $width;
                 } elseif ($width === "auto" && $right === "auto") {
                     // rule 3
                     // shrink-to-fit width
-                    [$min, $max] = $this->get_min_max_content_width();
+                    [$min, $max] = $this->get_min_max_child_width();
                     $width = min(max($min, $diff), $max);
                     $right = $diff - $width;
                 } elseif ($left === "auto" && $right === "auto") {
@@ -162,7 +162,7 @@ class Block extends AbstractFrameReflower
             // https://www.w3.org/TR/CSS21/visudet.html#inlineblock-width
 
             if ($width === "auto") {
-                [$min, $max] = $this->get_min_max_content_width();
+                [$min, $max] = $this->get_min_max_child_width();
                 $width = min(max($min, $diff), $max);
             }
             if ($lm === "auto") {
