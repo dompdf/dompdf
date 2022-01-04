@@ -932,4 +932,25 @@ class Block extends AbstractFrameReflower
             }
         }
     }
+
+    public function get_min_max_content_width(): array
+    {
+        // Ignore percentage values for a specified width here, as the
+        // containing block is not defined yet
+        $style = $this->_frame->get_style();
+        $width = $style->width;
+        $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
+
+        // If the frame has a specified width, then we don't need to check
+        // its children
+        if ($fixed_width) {
+            $min = (float) $style->length_in_pt($width, 0);
+            $max = $min;
+        } else {
+            [$min, $max] = $this->get_min_max_child_width();
+        }
+
+        // Handle min/max width style properties
+        return $this->restrict_min_max_width($min, $max);
+    }
 }
