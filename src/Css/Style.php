@@ -683,133 +683,121 @@ class Style
      * the return value is the sum of all elements. If any of the lengths
      * provided are "auto" or "none" then that value is returned.
      *
-     * If a reference size is not provided, the default font size is used
-     * ({@link Style::$default_font_size}).
+     * If a reference size is not provided, the current font size is used.
      *
-     * @param float|string|array $length the numeric length (or string measurement) or array of lengths to resolve
-     * @param float $ref_size an absolute reference size to resolve percentage lengths
+     * @param float|string|array $length   The numeric length (or string measurement) or array of lengths to resolve.
+     * @param float|null         $ref_size An absolute reference size to resolve percentage lengths.
+     *
      * @return float|string
      */
-    function length_in_pt($length, $ref_size = null)
+    function length_in_pt($length, ?float $ref_size = null)
     {
-        static $cache = [];
-
-        if (!isset($ref_size)) {
-            $ref_size = $this->__get("font_size");
-        }
+        $font_size = $this->__get("font_size");
+        $ref_size = $ref_size ?? $font_size;
 
         if (!is_array($length)) {
-            $key = $length . "/$ref_size";
-            //Early check on cache, before converting $length to array
-            if (isset($cache[$key])) {
-                return $cache[$key];
-            }
             $length = [$length];
-        } else {
-            $key = implode("@", $length) . "/$ref_size";
-            if (isset($cache[$key])) {
-                return $cache[$key];
-            }
         }
 
-        $ret = 0;
+        $ret = 0.0;
+
         foreach ($length as $l) {
-
-            if ($l === "auto") {
-                return "auto";
-            }
-
-            if ($l === "none") {
-                return "none";
+            if ($l === "auto" || $l === "none") {
+                return $l;
             }
 
             // Assume numeric values are already in points
             if (is_numeric($l)) {
-                $ret += $l;
+                $ret += (float) $l;
                 continue;
             }
 
-            if ($l === "normal") {
-                $ret += (float)$ref_size;
-                continue;
-            }
-
-            // Border lengths
-            if ($l === "thin") {
-                $ret += 0.5;
-                continue;
-            }
-
-            if ($l === "medium") {
-                $ret += 1.5;
-                continue;
-            }
-
-            if ($l === "thick") {
-                $ret += 2.5;
-                continue;
-            }
-
-            $l = (string) $l;
-
-            if (($i = mb_stripos($l, "px")) !== false) {
-                $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
-                $ret += ((float)mb_substr($l, 0, $i) * 72) / $dpi;
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "pt")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i);
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "%")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) / 100 * (float)$ref_size;
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "rem")) !== false) {
-                $root_style = $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style();
-                $ret += (float)mb_substr($l, 0, $i) * $root_style->font_size;
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "em")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size");
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "cm")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * 72 / 2.54;
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "mm")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * 72 / 25.4;
-                continue;
-            }
-
-            // FIXME: em:ex ratio?
-            if (($i = mb_stripos($l, "ex")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * $this->__get("font_size") / 2;
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "in")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * 72;
-                continue;
-            }
-
-            if (($i = mb_stripos($l, "pc")) !== false) {
-                $ret += (float)mb_substr($l, 0, $i) * 12;
-                continue;
-            }
-
-            // Bogus value
-            $ret += (float)$ref_size;
+            $ret += $this->single_length_in_pt((string) $l, $ref_size, $font_size);
         }
 
-        return $cache[$key] = $ret;
+        return $ret;
+    }
+
+    /**
+     * Convert a length declaration to pt.
+     *
+     * @param string $l         The length declaration.
+     * @param float  $ref_size  Reference size for percentage declarations.
+     * @param float  $font_size Font size for resolving font-size relative units.
+     *
+     * @return float
+     */
+    protected function single_length_in_pt(string $l, float $ref_size, float $font_size): float
+    {
+        static $cache = [];
+
+        $key = "$l/$ref_size/$font_size";
+
+        if (isset($cache[$key])) {
+            return $cache[$key];
+        }
+
+        if (is_numeric($l)) {
+            // Legacy support for unitless values, not covered by spec. Might
+            // want to restrict this to unitless `0` in the future
+            $value = (float) $l;
+        }
+
+        elseif (($i = mb_stripos($l, "%")) !== false) {
+            $value = (float)mb_substr($l, 0, $i) / 100 * $ref_size;
+        }
+
+        elseif (($i = mb_stripos($l, "px")) !== false) {
+            $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
+            $value = ((float)mb_substr($l, 0, $i) * 72) / $dpi;
+        }
+
+        elseif (($i = mb_stripos($l, "pt")) !== false) {
+            $value = (float)mb_substr($l, 0, $i);
+        }
+
+        elseif (($i = mb_stripos($l, "rem")) !== false) {
+            $root_style = $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style();
+            $root_font_size = $this === $root_style ? $font_size : $root_style->font_size;
+            $value = (float)mb_substr($l, 0, $i) * $root_font_size;
+        }
+
+        elseif (($i = mb_stripos($l, "em")) !== false) {
+            $value = (float)mb_substr($l, 0, $i) * $font_size;
+        }
+
+        elseif (($i = mb_stripos($l, "cm")) !== false) {
+            $value = (float)mb_substr($l, 0, $i) * 72 / 2.54;
+        }
+
+        elseif (($i = mb_stripos($l, "mm")) !== false) {
+            $value = (float)mb_substr($l, 0, $i) * 72 / 25.4;
+        }
+
+        elseif (($i = mb_stripos($l, "ex")) !== false) {
+            // FIXME: em:ex ratio?
+            $value = (float)mb_substr($l, 0, $i) * $font_size / 2;
+        }
+
+        elseif (($i = mb_stripos($l, "in")) !== false) {
+            $value = (float)mb_substr($l, 0, $i) * 72;
+        }
+
+        elseif (($i = mb_stripos($l, "pc")) !== false) {
+            $value = (float)mb_substr($l, 0, $i) * 12;
+        }
+
+        else {
+            // Bogus value
+            // FIXME: Using the ref size here currently ensures that invalid
+            // widths or heights are treated as the corresponding containing-
+            // block dimension, which can look like the declaration is being
+            // ignored. On the other hand, this results in invalid margins being
+            // computed to the font size because of the setter logic
+            $value = $ref_size;
+        }
+
+        return $cache[$key] = $value;
     }
 
 
@@ -1876,15 +1864,13 @@ class Style
             return;
         }
 
-        $val_computed = (float)$this->length_in_pt($val);
-
         if ($side === "bottom") {
             $this->_computed_bottom_spacing = null; //reset computed cache, border style can disable/enable border calculations
         }
 
-        if ($val_computed < 0 && ($style === "border" || $style === "padding" || $style === "outline")) {
-            $this->_props_computed[$prop] = null; // passed-in value is invalid
-        } else if (
+        if ($type === "color") {
+            $this->set_prop_color($prop, $val);
+        } elseif (
             (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") !== false)
             ||
             ($style === "padding" && strpos($val, "%") !== false)
@@ -1892,18 +1878,37 @@ class Style
             ($style === "margin" && (strpos($val, "%") !== false || $val === "auto"))
         ) {
             $this->_props_computed[$prop] = $val;
-        } elseif (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") === false) {
-            $line_style_prop = $style;
-            if ($side !== "") {
-                $line_style_prop .= "_" . $side;
-            };
-            $line_style_prop .= "_style";
-            $line_style = $this->__get($line_style_prop);
-            $this->_props_computed[$prop] = ($line_style !== "none" && $line_style !== "hidden" ? $val_computed : 0);
-        } elseif (($style === "margin" || $style === "padding")) {
-            $this->_props_computed[$prop] = ($val !== "none" && $val !== "hidden" ? $val_computed : 0);
-        } elseif ($type === "color") {
-            $this->set_prop_color($prop, $val);
+        } elseif (($style === "border" || $style === "outline") && $type === "width") {
+            // Border-width keywords
+            if ($val === "thin") {
+                $val_computed = 0.5;
+            } elseif ($val === "medium") {
+                $val_computed = 1.5;
+            } elseif ($val === "thick") {
+                $val_computed = 2.5;
+            } else {
+                $val_computed = (float)$this->length_in_pt($val);
+            }
+
+            if ($val_computed < 0) {
+                $this->_props_computed[$prop] = null;
+            } else {
+                $line_style_prop = $style;
+                if ($side !== "") {
+                    $line_style_prop .= "_" . $side;
+                };
+                $line_style_prop .= "_style";
+                $line_style = $this->__get($line_style_prop);
+                $this->_props_computed[$prop] = ($line_style !== "none" && $line_style !== "hidden" ? $val_computed : 0);
+            }
+        } elseif ($style === "margin" || $style === "padding") {
+            $val_computed = (float)$this->length_in_pt($val);
+
+            if ($style === "padding" && $val_computed < 0) {
+                $this->_props_computed[$prop] = null;
+            } else {
+                $this->_props_computed[$prop] = ($val !== "none" && $val !== "hidden" ? $val_computed : 0);
+            }
         } elseif ($val !== "") {
             $this->_props_computed[$prop] = $val;
         } else {
@@ -2302,21 +2307,8 @@ class Style
                 break;
 
             default:
-                $fs = $size;
+                $fs = $this->single_length_in_pt($size, $this->_parent_font_size, $this->_parent_font_size);
                 break;
-        }
-
-        // length_in_pt uses the font size if units are em or ex (and, potentially, rem) so we'll calculate in the method
-        if (($i = mb_strpos($fs, "rem")) !== false) {
-            $root_style = $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style();
-            $fs = (float)mb_substr($fs, 0, $i) * $root_style->font_size;
-        } elseif (($i = mb_strpos($fs, "em")) !== false) {
-            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size;
-        } elseif (($i = mb_strpos($fs, "ex")) !== false) {
-            $fs = (float)mb_substr($fs, 0, $i) * $this->_parent_font_size / 2;
-        } else {
-            //FIXME: prefer just calling length_in_pt, when we provide a ref size to length_in_pt should em and ex use that instead of the current font size?
-            $fs = (float)$this->length_in_pt($fs, $this->_parent_font_size);
         }
 
         $this->_props_computed["font_size"] = $fs;
