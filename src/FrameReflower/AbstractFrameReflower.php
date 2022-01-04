@@ -32,7 +32,14 @@ abstract class AbstractFrameReflower
     protected $_frame;
 
     /**
-     * Cached min/max (content) size
+     * Cached min/max child size
+     *
+     * @var array
+     */
+    protected $_min_max_child_cache;
+
+    /**
+     * Cached min/max size
      *
      * @var array
      */
@@ -45,6 +52,7 @@ abstract class AbstractFrameReflower
     function __construct(Frame $frame)
     {
         $this->_frame = $frame;
+        $this->_min_max_child_cache = null;
         $this->_min_max_cache = null;
     }
 
@@ -62,6 +70,7 @@ abstract class AbstractFrameReflower
 
     public function reset(): void
     {
+        $this->_min_max_child_cache = null;
         $this->_min_max_cache = null;
     }
 
@@ -284,29 +293,55 @@ abstract class AbstractFrameReflower
     abstract function reflow(Block $block = null);
 
     /**
-     * Get the minimum and maximum width of the content of this frame.
+     * Handle `min-width`/`max-width` properties while calculating the min/max
+     * width of this frame.
      *
-     * @return array An array [0 => min, 1 => max, "min" => min, "max" => max]
-     * of the min and max width.
+     * @param float $min Original min width.
+     * @param float $max Original max width.
+     *
+     * @return array Restricted min and max width.
      */
-    function get_min_max_content_width(): array
+    protected function restrict_min_max_width(float $min, float $max): array
     {
-        if (!is_null($this->_min_max_cache)) {
-            return $this->_min_max_cache;
-        }
-
-        // Ignore percentage values for a specified width here, as the
-        // containing block is not defined yet
+        // Ignore percentage values here, as the containing block is not
+        // defined yet
         $style = $this->_frame->get_style();
         $display = $style->display;
-        $width = $style->width;
-        $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
 
-        // If the frame has a specified width, then we don't need to check its
-        // children. Table cells are handled slightly differently below
-        if ($fixed_width && $display !== "inline" && $display !== "table-cell") {
-            $width = (float) $style->length_in_pt($width, 0);
-            return $this->_min_max_cache = [$width, $width, "min" => $width, "max" => $width];
+        $min_width = $style->min_width;
+        $max_width = $style->max_width;
+        $has_min_width = $min_width !== "auto" && $min_width !== "none";
+        $has_max_width = $max_width !== "none" && $max_width !== "auto";
+
+        if ($has_max_width && !Helpers::is_percent($max_width)) {
+            $max = min($max, (float) $style->length_in_pt($max_width, 0));
+            $min = min($min, $max);
+        }
+
+        if ($has_min_width && !Helpers::is_percent($min_width)) {
+            $min = max($min, (float) $style->length_in_pt($min_width, 0));
+            $max = max($max, $min);
+        } elseif ($has_max_width && Helpers::is_percent($max_width) && $display !== "table-cell") {
+            // Don't enforce any minimum width when max width depends on the
+            // containing block and there is no fixed min width
+            // Don't apply this logic to table cells, as percentage min/max
+            // columns widths are not supported
+            $min = 0.0;
+        }
+
+        return [$min, $max];
+    }
+
+    /**
+     * Get the minimum and maximum preferred width of the contents of the frame,
+     * as requested by its children.
+     *
+     * @return array A two-element array of min and max width.
+     */
+    public function get_min_max_child_width(): array
+    {
+        if (!is_null($this->_min_max_child_cache)) {
+            return $this->_min_max_child_cache;
         }
 
         $low = [];
@@ -346,30 +381,71 @@ abstract class AbstractFrameReflower
                 list($low[], $high[]) = $child->get_min_max_width();
             }
         }
+
         $min = count($low) ? max($low) : 0;
         $max = count($high) ? max($high) : 0;
 
-        // For table cells: Use specified width if it is greater than the
-        // minimum defined by the content
-        if ($fixed_width && $display === "table-cell") {
-            $width = (float) $style->length_in_pt($width, 0);
-            $min = max($width, $min);
-            $max = $min;
-        }
-
-        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
+        return $this->_min_max_child_cache = [$min, $max];
     }
 
     /**
-     * Required for table layout: Get the minimum and maximum width of this
-     * frame.  This provides a basic implementation.  Child classes should
-     * override this if necessary.
+     * Get the minimum and maximum preferred content-box width of the frame.
      *
-     * @return array An array [0 => min, 1 => max, "min" => min, "max" => max]
-     * of the min and max width.
+     * @return array A two-element array of min and max width.
      */
-    function get_min_max_width(): array
+    public function get_min_max_content_width(): array
     {
+        // Ignore percentage values for a specified width here, as the
+        // containing block is not defined yet
+        $style = $this->_frame->get_style();
+        $display = $style->display;
+        $width = $style->width;
+        $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
+        $is_inline = $display === "inline" || $display === "-dompdf-br";
+
+        if ($fixed_width && !$is_inline && $display !== "table-cell") {
+            // If the frame has a specified width, then we don't need to check
+            // its children. Table cells are handled slightly differently below
+            $min = (float) $style->length_in_pt($width, 0);
+            $max = $min;
+        } else {
+            // Calculate min/max width requested by the children of the frame
+            [$min, $max] = $this->get_min_max_child_width();
+
+            // For table cells: Use specified width if it is greater than the
+            // minimum defined by the content
+            if ($fixed_width && $display === "table-cell") {
+                $width = (float) $style->length_in_pt($width, 0);
+                $min = max($width, $min);
+                $max = $min;
+            }
+        }
+
+        // Handle min/max width style properties
+        if (!$is_inline) {
+            [$min, $max] = $this->restrict_min_max_width($min, $max);
+        }
+
+        return [$min, $max];
+    }
+
+    /**
+     * Get the minimum and maximum preferred border-box width of the frame.
+     *
+     * Required for shrink-to-fit width calculation, as used in automatic table
+     * layout, absolute positioning, float and inline-block. This provides a
+     * basic implementation. Child classes should override this or
+     * `get_min_max_content_width` as necessary.
+     *
+     * @return array An array `[0 => min, 1 => max, "min" => min, "max" => max]`
+     *         of min and max width.
+     */
+    public function get_min_max_width(): array
+    {
+        if (!is_null($this->_min_max_cache)) {
+            return $this->_min_max_cache;
+        }
+
         $style = $this->_frame->get_style();
         [$min, $max] = $this->get_min_max_content_width();
 
@@ -388,7 +464,7 @@ abstract class AbstractFrameReflower
         $min += $delta;
         $max += $delta;
 
-        return [$min, $max, "min" => $min, "max" => $max];
+        return $this->_min_max_cache = [$min, $max, "min" => $min, "max" => $max];
     }
 
     /**
