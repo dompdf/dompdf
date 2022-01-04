@@ -9,6 +9,7 @@ namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
+use Dompdf\Helpers;
 
 /**
  * Reflows table cells
@@ -122,5 +123,27 @@ class TableCell extends Block
         foreach ($this->_frame->get_children() as $child) {
             $this->position_relative($child);
         }
+    }
+
+    public function get_min_max_content_width(): array
+    {
+        // Ignore percentage values for a specified width here, as the
+        // containing block is not defined yet
+        $style = $this->_frame->get_style();
+        $width = $style->width;
+        $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
+
+        [$min, $max] = $this->get_min_max_child_width();
+
+        // For table cells: Use specified width if it is greater than the
+        // minimum defined by the content
+        if ($fixed_width) {
+            $width = (float) $style->length_in_pt($width, 0);
+            $min = max($width, $min);
+            $max = $min;
+        }
+
+        // Handle min/max width style properties
+        return $this->restrict_min_max_width($min, $max);
     }
 }
