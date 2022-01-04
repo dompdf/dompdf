@@ -5722,7 +5722,7 @@ EOT;
             $imagick->setFormat('png');
 
             // Get opacity channel (negative of alpha channel)
-            if ($imagick->getImageAlphaChannel() !== 0) {
+            if ($imagick->getImageAlphaChannel()) {
                 $alpha_channel = $imagickClonable ? clone $imagick : $imagick->clone();
                 $alpha_channel->separateImageChannel(\Imagick::CHANNEL_ALPHA);
                 // Since ImageMagick7 negate invert transparency as default
