@@ -2242,7 +2242,7 @@ class Style
             $this->_set_style("background_image", "none", $important);
             $this->_set_style("background_color", "transparent", $important);
         } else {
-            $pos = [];
+            $pos_size = [];
             $tmp = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
             $tmp = preg_split("/\s+/", $tmp);
 
@@ -2256,12 +2256,22 @@ class Style
                 } elseif ($this->munge_color($attr) !== null) {
                     $this->_set_style("background_color", $attr, $important);
                 } else {
-                    $pos[] = $attr;
+                    $pos_size[] = $attr;
                 }
             }
 
-            if (count($pos)) {
-                $this->_set_style("background_position", implode(" ", $pos), $important);
+            if (count($pos_size)) {
+                $pos_size = preg_split("/\s*\/\s*/", implode(" ", $pos_size));
+                $pos = $pos_size[0] ?? "";
+                $size = $pos_size[1] ?? "";
+
+                if ($pos) {
+                    $this->_set_style("background_position", $pos, $important);
+                }
+
+                if ($size) {
+                    $this->_set_style("background_size", $size, $important);
+                }
             }
         }
     }
