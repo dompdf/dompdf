@@ -280,15 +280,14 @@ class Style
     /**
      * The stylesheet this style belongs to
      *
-     * @see Stylesheet
      * @var Stylesheet
      */
-    protected $_stylesheet; // stylesheet this style is attached to
+    protected $_stylesheet;
 
     /**
      * Media queries attached to the style
      *
-     * @var int
+     * @var array
      */
     protected $_media_queries;
 
@@ -356,6 +355,14 @@ class Style
             "outline_width"
         ]
     ];
+
+    /**
+     * Lookup table for dependent properties. Initially computed from the
+     * dependency map.
+     *
+     * @var array
+     */
+    protected static $_dependent_props = [];
 
     /**
      * Font size of parent element in document tree.  Used for relative font
@@ -607,6 +614,12 @@ class Style
                 "widows",
                 "word_spacing",
             ];
+
+            foreach (self::$_dependency_map as $props) {
+                foreach ($props as $prop) {
+                    self::$_dependent_props[$prop] = true;
+                }
+            }
         }
     }
 
@@ -758,7 +771,9 @@ class Style
 
         elseif (($i = mb_stripos($l, "rem")) !== false) {
             $root_style = $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style();
-            $root_font_size = $this === $root_style ? $font_size : $root_style->font_size;
+            $root_font_size = $root_style === null || $root_style === $this
+                ? $font_size
+                : $root_style->font_size;
             $value = (float)mb_substr($l, 0, $i) * $root_font_size;
         }
 
@@ -804,6 +819,8 @@ class Style
     /**
      * Set inherited properties in this style using values in $parent
      *
+     * https://www.w3.org/TR/css-cascade-3/#inheriting
+     *
      * @param Style $parent
      *
      * @return Style
@@ -816,38 +833,21 @@ class Style
         if ($this->_parent_font_size !== $parent_font_size) {
             $this->_parent_font_size = $parent_font_size;
 
-            if (isset($this->_props_computed["font_size"])
-                || isset($this->_prop_cache["font_size"])
-            ) {
-                // Clear the computed value, so it can be re-computed the next
-                // time it is accessed
-                $this->_props_computed["font_size"] = null;
-                $this->_prop_cache["font_size"] = null;
-            }
+            // Clear the computed value, so it can be re-computed
+            unset($this->_props_computed["font_size"]);
+            unset($this->_prop_cache["font_size"]);
         }
 
         foreach (self::$_inherited as $prop) {
-            // Inherit is handled via the specific sub-properties for shorthands
-            if (isset(self::$_props_shorthand[$prop])) {
+            // For properties that inherit by default: When the cascade did not
+            // result in a value, inherit the parent value. Inheritance is
+            // handled via the specific sub-properties for shorthands
+            if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
                 continue;
             }
 
-            // Inherit the !important property also.
-            // If local property is also !important, don't inherit.
-            if (isset($parent->_props[$prop]) &&
-                (
-                    !isset($this->_props[$prop])
-                    || (isset($parent->_important_props[$prop]) && !isset($this->_important_props[$prop]))
-                )
-            ) {
-                if (isset($parent->_important_props[$prop])) {
-                    $this->_important_props[$prop] = true;
-                }
-
-                // If the parent value is inherited, it has already computed
-                // via inheriting from its parent. Otherwise, the computed value
-                // must still be determined
-                $parent_val = isset($parent->_props_computed[$prop])
+            if (isset($parent->_props[$prop])) {
+                $parent_val = \array_key_exists($prop, $parent->_props_computed)
                     ? $parent->_props_computed[$prop]
                     : $parent->compute_prop($prop, $parent->_props[$prop]);
 
@@ -857,17 +857,10 @@ class Style
             }
         }
 
-        foreach ($this->_props as $prop => $value) {
-            if ($value === "inherit") {
-                if (isset($parent->_important_props[$prop])) {
-                    $this->_important_props[$prop] = true;
-                }
-
+        foreach ($this->_props as $prop => $val) {
+            if ($val === "inherit") {
                 if (isset($parent->_props[$prop])) {
-                    // If the parent value is inherited, it has already computed
-                    // via inheriting from its parent. Otherwise, the computed value
-                    // must still be determined
-                    $parent_val = isset($parent->_props_computed[$prop])
+                    $parent_val = \array_key_exists($prop, $parent->_props_computed)
                         ? $parent->_props_computed[$prop]
                         : $parent->compute_prop($prop, $parent->_props[$prop]);
 
@@ -877,7 +870,8 @@ class Style
                 } else {
                     // Parent prop not set, use default
                     $this->_props[$prop] = self::$_defaults[$prop];
-                    $this->compute_prop($prop, $this->_props[$prop]);
+                    unset($this->_props_computed[$prop]);
+                    unset($this->_prop_cache[$prop]);
                 }
             }
         }
@@ -892,30 +886,41 @@ class Style
      */
     function merge(Style $style)
     {
-        //treat the !important attribute
-        //if old rule has !important attribute, override with new rule only if
-        //the new rule is also !important
         foreach ($style->_props as $prop => $val) {
-            $can_merge = false;
-            if (isset($style->_important_props[$prop])) {
-                $this->_important_props[$prop] = true;
-                $can_merge = true;
-            } else if (isset($val) && !isset($this->_important_props[$prop])) {
-                $can_merge = true;
+            // If old rule has !important attribute, override with new rule only
+            // if the new rule is also !important
+            if ($val === null
+                || (isset($this->_important_props[$prop]) && !isset($style->_important_props[$prop]))
+            ) {
+                continue;
             }
 
-            if ($can_merge) {
-                // FIXME: temporary hack around lack of persistence of base href for URLs
-                // Value is already computed on `__set()`
-                if ($prop === "background_image" || $prop === "list_style_image") {
-                    if (isset($style->_props_computed[$prop])) {
-                        $this->_props[$prop] = $val;
-                        $this->_props_computed[$prop] = $style->_props_computed[$prop];
-                        $this->_prop_cache[$prop] = null;
-                    }
-                } else {
-                    $this->__set($prop, $val);
-                }
+            $computed = \array_key_exists($prop, $style->_props_computed)
+                ? $style->_props_computed[$prop]
+                : $style->compute_prop($prop, $val);
+
+            // Skip invalid declarations. Because styles are merged into an
+            // initially empty style object during stylesheet loading, this
+            // handles all invalid declarations
+            if ($computed === null) {
+                continue;
+            }
+
+            if ($important) {
+                $this->_important_props[$prop] = true;
+            }
+
+            $this->_props[$prop] = $val;
+
+            // Don't use the computed value for dependent properties; they will
+            // be computed on-demand during inheritance or property access
+            // instead
+            if (isset(self::$_dependent_props[$prop])) {
+                unset($this->_props_computed[$prop]);
+                unset($this->_prop_cache[$prop]);
+            } else {
+                $this->_props_computed[$prop] = $computed;
+                $this->_prop_cache[$prop] = null;
             }
         }
     }
@@ -954,33 +959,16 @@ class Style
     }
 
     /**
-     * PHP5 overloaded setter
+     * Set the specified value of a property.
      *
-     * This function along with {@link Style::__get()} permit a user of the
-     * Style class to access any (CSS) property using the following syntax:
-     * <code>
-     *  Style->margin_top = "1em";
-     *  echo (Style->margin_top);
-     * </code>
+     * Setting `$clear_dependencies` to `false` is useful for saving a bit of
+     * unnecessary work while loading stylesheets.
      *
-     * __set() automatically calls the provided set function, if one exists,
-     * otherwise it sets the property directly.  Typically, __set() is not
-     * called directly from outside of this class.
-     *
-     * On each modification clear cache to return accurate setting.
-     * Also affects direct settings not using __set
-     * For easier finding all assignments, attempted to allowing only explicite assignment:
-     * Very many uses, e.g. AbstractFrameReflower.php -> for now leave as it is
-     * function __set($prop, $val) {
-     *   throw new Exception("Implicit replacement of assignment by __set.  Not good.");
-     * }
-     * function props_set($prop, $val) { ... }
-     *
-     * @param string $prop the property to set
-     * @param mixed $val the value of the property
-     *
+     * @param string $prop
+     * @param mixed  $val
+     * @param bool   $clear_dependencies Whether to clear computed values of dependent properties.
      */
-    function __set($prop, $val)
+    function set_prop(string $prop, $val, bool $clear_dependencies = true): void
     {
         $prop = str_replace("-", "_", $prop);
 
@@ -1012,7 +1000,7 @@ class Style
                             $this->_important_props[$sub_prop] = true;
                         }
 
-                        $this->__set($sub_prop, $val);
+                        $this->set_prop($sub_prop, $val, $clear_dependencies);
                     }
                 }
             } else {
@@ -1033,25 +1021,103 @@ class Style
             }
 
             $this->_props[$prop] = $val;
-            $this->_props_computed[$prop] = null;
-            $this->_prop_cache[$prop] = null;
+            unset($this->_props_computed[$prop]);
+            unset($this->_prop_cache[$prop]);
 
-            // Clear border-radius cache on setting any border-radius property
-            if ($prop === "border_top_left_radius"
-                || $prop === "border_top_right_radius"
-                || $prop === "border_bottom_left_radius"
-                || $prop === "border_bottom_right_radius"
-            ) {
-                $this->has_border_radius_cache = null;
+            if ($clear_dependencies) {
+                // Clear the computed values of any dependent properties, so
+                // they can be re-computed
+                if (isset(self::$_dependency_map[$prop])) {
+                    foreach (self::$_dependency_map[$prop] as $dependent) {
+                        unset($this->_props_computed[$dependent]);
+                        unset($this->_prop_cache[$dependent]);
+                    }
+                }
+
+                // Clear border-radius cache on setting any border-radius
+                // property
+                if ($prop === "border_top_left_radius"
+                    || $prop === "border_top_right_radius"
+                    || $prop === "border_bottom_left_radius"
+                    || $prop === "border_bottom_right_radius"
+                ) {
+                    $this->has_border_radius_cache = null;
+                }
             }
-    
+
             // FIXME: temporary hack around lack of persistence of base href for
-            // URLs. Compute value immediately, before the original base href is no
-            // longer available
+            // URLs. Compute value immediately, before the original base href is
+            // no longer available
             if ($prop === "background_image" || $prop === "list_style_image") {
                 $this->compute_prop($prop, $val);
             }
         }
+    }
+
+    /**
+     * Similar to __get() without storing the result. Useful for accessing
+     * properties while loading stylesheets.
+     *
+     * @param string $prop
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    function get_prop(string $prop)
+    {
+        // Legacy property aliases
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
+        }
+
+        if (!isset(self::$_defaults[$prop])) {
+            throw new Exception("'$prop' is not a recognized CSS property.");
+        }
+
+        $method = "get_$prop";
+
+        if (isset($this->_props_computed[$prop])) {
+            if (method_exists($this, $method)) {
+                return $this->$method();
+            }
+
+            return $this->_props_computed[$prop];
+        }
+
+        // Fall back on defaults if property is not set
+        return $this->_props[$prop] ?? self::$_defaults[$prop];
+    }
+
+    /**
+     * PHP5 overloaded setter
+     *
+     * This function along with {@link Style::__get()} permit a user of the
+     * Style class to access any (CSS) property using the following syntax:
+     * <code>
+     *  Style->margin_top = "1em";
+     *  echo (Style->margin_top);
+     * </code>
+     *
+     * __set() automatically calls the provided set function, if one exists,
+     * otherwise it sets the property directly.  Typically, __set() is not
+     * called directly from outside of this class.
+     *
+     * On each modification clear cache to return accurate setting.
+     * Also affects direct settings not using __set
+     * For easier finding all assignments, attempted to allowing only explicite assignment:
+     * Very many uses, e.g. AbstractFrameReflower.php -> for now leave as it is
+     * function __set($prop, $val) {
+     *   throw new Exception("Implicit replacement of assignment by __set.  Not good.");
+     * }
+     * function props_set($prop, $val) { ... }
+     *
+     * @param string $prop the property to set
+     * @param mixed $val the value of the property
+     *
+     */
+    function __set($prop, $val)
+    {
+        $this->set_prop($prop, $val);
     }
 
     /**
@@ -1102,23 +1168,22 @@ class Style
             }
         } else {
             // Compute the value if needed
-            if (!isset($this->_props_computed[$prop])) {
+            if (!\array_key_exists($prop, $this->_props_computed)) {
                 $val = $this->_props[$prop] ?? self::$_defaults[$prop];
                 $this->compute_prop($prop, $val);
             }
 
-            $retval = null;
-    
-            if (self::$_methods_cache[$method]) {
-                $retval = $this->$method();
-            }
-    
-            if (!isset($retval)) {
-                $retval = $this->_props_computed[$prop];
-            }
+            // Invalid declarations are skipped on style merge, but during
+            // style parsing, styles might contain invalid declarations. Fall
+            // back to the default value in that case
+            $computed = $this->_props_computed[$prop]
+                ?? $this->compute_prop($prop, self::$_defaults[$prop]);
+            $used = self::$_methods_cache[$method]
+                ? $this->$method()
+                : $computed;
 
-            $this->_prop_cache[$prop] = $retval;
-            return $retval;
+            $this->_prop_cache[$prop] = $used;
+            return $used;
         }
     }
 
@@ -1126,7 +1191,7 @@ class Style
      * @param string $prop The property to compute.
      * @param mixed  $val  The value to compute.
      *
-     * @return mixed $val The computed value.
+     * @return mixed The computed value.
      */
     protected function compute_prop(string $prop, $val)
     {
@@ -1139,62 +1204,18 @@ class Style
             self::$_methods_cache[$method] = method_exists($this, $method);
         }
 
-        if (self::$_methods_cache[$method]) {
+        // During style merge, let `inherit` compute to `inherit`, because the
+        // parent style is not available yet. The keyword is resolved during
+        // inheritance
+        if ($val === "inherit") {
+            $this->_props_computed[$prop] = $val;
+        } elseif (self::$_methods_cache[$method]) {
             $this->$method($val);
-        } elseif ($val !== null && $val !== "" && $val !== "inherit") {
+        } elseif ($val !== "") {
             $this->_props_computed[$prop] = $val;
         }
 
-        if (isset($this->_props_computed[$prop])) {
-            //FIXME: need to catch for circular dependencies because oops
-            if (array_key_exists($prop, self::$_dependency_map)) {
-                foreach (self::$_dependency_map[$prop] as $dependent) {
-                    if (isset($this->_props_computed[$dependent])
-                        || isset($this->_prop_cache[$dependent])
-                    ) {
-                        // Clear the computed value, so it can be re-computed
-                        // the next time it is accessed
-                        $this->_props_computed[$dependent] = null;
-                        $this->_prop_cache[$dependent] = null;
-                    }
-                }
-            }
-        }
-
         return $this->_props_computed[$prop];
-    }
-
-    /**
-     * Similar to __get() without storing the result. Useful for accessing
-     * properties while loading stylesheets.
-     *
-     * @param $prop
-     * @return string
-     * @throws Exception
-     */
-    function get_prop($prop)
-    {
-        // Legacy property aliases
-        if (isset(self::$_props_alias[$prop])) {
-            $prop = self::$_props_alias[$prop];
-        }
-
-        if (!isset(self::$_defaults[$prop])) {
-            throw new Exception("'$prop' is not a recognized CSS property.");
-        }
-
-        $method = "get_$prop";
-
-        if (isset($this->_props_computed[$prop])) {
-            if (method_exists($this, $method)) {
-                return $this->$method();
-            }
-
-            return $this->_props_computed[$prop];
-        }
-
-        // Fall back on defaults if property is not set
-        return $this->_props[$prop] ?? self::$_defaults[$prop];
     }
 
     /**
@@ -1771,7 +1792,7 @@ class Style
     function get_counter_increment()
     {
         $val = trim($this->_props_computed["counter_increment"]);
-        $value = null;
+        $value = "none";
 
         if (in_array($val, ["none", "inherit"])) {
             $value = $val;

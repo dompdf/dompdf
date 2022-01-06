@@ -1637,8 +1637,8 @@ class Stylesheet
             if ($important) {
                 $style->important_set($prop_name);
             }
-            //For easier debugging, don't use overloading of assignments with __set
-            $style->$prop_name = $value;
+
+            $style->set_prop($prop_name, $value, false);
         }
         if ($DEBUGCSS) print '_parse_properties]';
 
