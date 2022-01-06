@@ -1225,11 +1225,7 @@ class Stylesheet
                 print "]\n</pre>";
             }
 
-            /*DEBUGCSS print: see below different print debugging method
-            Helpers::pre_r($frame->get_node()->nodeName . ":");
-            echo "<pre>";
-            echo $style;
-            echo "</pre>";*/
+            $style->clear_important();
             $frame->set_style($style);
 
             if (!$root_flg && $this->_page_styles["base"]) {
@@ -1627,18 +1623,10 @@ class Stylesheet
 
             $prop_name = rtrim(mb_strtolower(mb_substr($prop, 0, $i)));
             $value = ltrim(mb_substr($prop, $i + 1));
-            if ($DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
-            //New style, anyway empty
-            //if ($important || !$style->important_get($prop_name) ) {
-            //$style->$prop_name = array($value,$important);
-            //assignment might be replaced by overloading through __set,
-            //and overloaded functions might check _important_props,
-            //therefore set _important_props first.
-            if ($important) {
-                $style->important_set($prop_name);
-            }
 
-            $style->set_prop($prop_name, $value, false);
+            if ($DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
+
+            $style->set_prop($prop_name, $value, $important, false);
         }
         if ($DEBUGCSS) print '_parse_properties]';
 
