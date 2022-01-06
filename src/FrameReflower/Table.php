@@ -456,7 +456,7 @@ class Table extends AbstractFrameReflower
 
         if ($style->border_collapse === "collapse") {
             // Unset our borders because our cells are now using them
-            $style->border_style = "none";
+            $style->border_color = "transparent";
         }
 
         $page->table_reflow_end();
