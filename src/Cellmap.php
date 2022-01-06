@@ -27,16 +27,15 @@ class Cellmap
      * @var array
      */
     protected static $_BORDER_STYLE_SCORE = [
-        "inset"  => 1,
-        "groove" => 2,
-        "outset" => 3,
-        "ridge"  => 4,
-        "dotted" => 5,
-        "dashed" => 6,
-        "solid"  => 7,
         "double" => 8,
-        "hidden" => 9,
-        "none"   => 0,
+        "solid"  => 7,
+        "dashed" => 6,
+        "dotted" => 5,
+        "ridge"  => 4,
+        "outset" => 3,
+        "groove" => 2,
+        "inset"  => 1,
+        "none"   => 0
     ];
 
     /**
@@ -455,6 +454,8 @@ class Cellmap
     }
 
     /**
+     * https://www.w3.org/TR/CSS21/tables.html#border-conflict-resolution
+     *
      * @param int $i
      * @param int $j
      * @param string $h_v
@@ -462,30 +463,31 @@ class Cellmap
      */
     protected function _resolve_border($i, $j, $h_v, $border_spec)
     {
-        $n_width = $border_spec["width"];
-        $n_style = $border_spec["style"];
-
         if (!isset($this->_borders[$i][$j][$h_v])) {
             $this->_borders[$i][$j][$h_v] = $border_spec;
             return;
         }
 
-        $border = & $this->_borders[$i][$j][$h_v];
+        $border = $this->_borders[$i][$j][$h_v];
 
+        $n_width = $border_spec["width"];
+        $n_style = $border_spec["style"];
         $o_width = $border["width"];
         $o_style = $border["style"];
 
-        if (($n_style === "hidden" ||
-                $n_width > $o_width ||
-                $o_style === "none")
+        if ($o_style === "hidden") {
+            return;
+        }
 
-            or
-
-            ($o_width == $n_width &&
-                in_array($n_style, self::$_BORDER_STYLE_SCORE) &&
-                self::$_BORDER_STYLE_SCORE[$n_style] > self::$_BORDER_STYLE_SCORE[$o_style])
+        // A style of `none` has lowest priority independent of its specified
+        // width here, as its resolved width is always 0
+        if ($n_style === "hidden" || $n_width > $o_width
+            || ($o_width == $n_width
+                && isset(self::$_BORDER_STYLE_SCORE[$n_style])
+                && isset(self::$_BORDER_STYLE_SCORE[$o_style])
+                && self::$_BORDER_STYLE_SCORE[$n_style] > self::$_BORDER_STYLE_SCORE[$o_style])
         ) {
-            $border = $border_spec;
+            $this->_borders[$i][$j][$h_v] = $border_spec;
         }
     }
 
