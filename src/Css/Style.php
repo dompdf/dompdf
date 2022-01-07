@@ -85,7 +85,7 @@ class Style
         "block",
         // "flow-root",
         "list-item",
-        "flex",
+        // "flex",
         // "grid",
         "table"
     ];
@@ -98,9 +98,24 @@ class Style
     public const INLINE_LEVEL_TYPES = [
         "inline",
         "inline-block",
-        "inline-flex",
+        // "inline-flex",
         // "inline-grid",
         "inline-table"
+    ];
+
+    /**
+     * List of all table-internal (outer) display types.
+     * * https://www.w3.org/TR/css-display-3/#layout-specific-display
+     */
+    public const TABLE_INTERNAL_TYPES = [
+        "table-row-group",
+        "table-header-group",
+        "table-footer-group",
+        "table-row",
+        "table-cell",
+        "table-column-group",
+        "table-column",
+        "table-caption"
     ];
 
     /**
@@ -123,6 +138,14 @@ class Style
      * @var array
      */
     static $TABLE_TYPES = ["table", "inline-table"];
+
+    /**
+     * Lookup table for valid display types. Initially computed from the
+     * different constants.
+     *
+     * @var array
+     */
+    protected static $valid_display_types = [];
 
     /**
      * List of all positioned types.  Should really be a constant.
@@ -354,6 +377,12 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left"
+        ],
+        "float" => [
+            "display"
+        ],
+        "position" => [
+            "display"
         ],
         "outline_style" => [
             "outline_width"
@@ -616,10 +645,29 @@ class Style
                 "word_spacing",
             ];
 
+            // Compute dependent props from dependency map
             foreach (self::$_dependency_map as $props) {
                 foreach ($props as $prop) {
                     self::$_dependent_props[$prop] = true;
                 }
+            }
+
+            // Compute valid display-type lookup table
+            self::$valid_display_types = [
+                "none"                => true,
+                "-dompdf-br"          => true,
+                "-dompdf-image"       => true,
+                "-dompdf-list-bullet" => true,
+                "-dompdf-page"        => true
+            ];
+            foreach (self::BLOCK_LEVEL_TYPES as $val) {
+                self::$valid_display_types[$val] = true;
+            }
+            foreach (self::INLINE_LEVEL_TYPES as $val) {
+                self::$valid_display_types[$val] = true;
+            }
+            foreach (self::TABLE_INTERNAL_TYPES as $val) {
+                self::$valid_display_types[$val] = true;
             }
         }
     }
@@ -687,6 +735,18 @@ class Style
     function get_stylesheet()
     {
         return $this->_stylesheet;
+    }
+
+    public function is_absolute(): bool
+    {
+        $position = $this->__get("position");
+        return $position === "absolute" || $position === "fixed";
+    }
+
+    public function is_in_flow(): bool
+    {
+        $float = $this->__get("float");
+        return $float === "none" && !$this->is_absolute();
     }
 
     /**
@@ -1963,6 +2023,61 @@ class Style
     }
 
     /*======================*/
+
+    /**
+     * https://www.w3.org/TR/CSS21/visuren.html#display-prop
+     *
+     * @param string $val
+     */
+    protected function set_display(string $val): void
+    {
+        // Make sure that common valid, but unsupported display types have an
+        // appropriate fallback display type
+        switch ($val) {
+            case "flow-root":
+            case "flex":
+            case "grid":
+            case "table-caption":
+                $val = "block";
+                break;
+            case "inline-flex":
+            case "inline-grid":
+                $val = "inline-block";
+                break;
+        }
+
+        if (!isset(self::$valid_display_types[$val])) {
+            return;
+        }
+
+        // https://www.w3.org/TR/CSS21/visuren.html#dis-pos-flo
+        if ($this->is_in_flow()) {
+            $computed = $val;
+        } else {
+            switch ($val) {
+                case "inline":
+                case "inline-block":
+                // case "table-row-group":
+                // case "table-header-group":
+                // case "table-footer-group":
+                // case "table-row":
+                // case "table-cell":
+                // case "table-column-group":
+                // case "table-column":
+                // case "table-caption":
+                    $computed = "block";
+                    break;
+                case "inline-table":
+                    $computed = "table";
+                    break;
+                default:
+                    $computed = $val;
+                    break;
+            }
+        }
+
+        $this->_props_computed["display"] = $computed;
+    }
 
     protected function set_prop_color($prop, $val)
     {
