@@ -400,19 +400,7 @@ class AttributeTranslator
      */
     protected static function _set_table_border(\DOMElement $node, $value)
     {
-        $cell_list = self::get_cell_list($node);
-
-        foreach ($cell_list as $cell) {
-            $style = rtrim($cell->getAttribute(self::$_style_attr));
-            $style .= "; border-width: " . ($value > 0 ? 1 : 0) . "pt; border-style: inset;";
-            $style = ltrim($style, ";");
-            $cell->setAttribute(self::$_style_attr, $style);
-        }
-
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
-        $style .= "; border-width: $value" . "px; ";
-
-        return ltrim($style, "; ");
+        return "border-width: $value" . "px;";
     }
 
     /**
