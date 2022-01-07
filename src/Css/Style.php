@@ -1392,21 +1392,24 @@ class Style
 
     /**
      * @param string $prop
-     * @param bool $check_color
+     * @param bool $current_is_parent
      * @return array|string
      */
-    protected function get_prop_color(string $prop, bool $check_color = true)
+    protected function get_prop_color(string $prop, bool $current_is_parent = false)
     {
         $val = $this->_props_computed[$prop];
 
         if ($val === "currentcolor") {
-            // FIXME: `currentcolor` should use the inherited value for the
-            // `color` property, not the default.
-            // https://www.w3.org/TR/css-color-4/#valdef-color-currentcolor
             // https://www.w3.org/TR/css-color-4/#resolving-other-colors
-            return $check_color
-                ? $this->__get("color")
-                : $this->munge_color(self::$_defaults[$prop]);
+            if ($current_is_parent) {
+                // Use the `color` value from the parent for the `color`
+                // property itself
+                return isset($this->parent_style)
+                    ? $this->parent_style->__get("color")
+                    : $this->munge_color(self::$_defaults[$prop]);
+            }
+
+            return $this->__get("color");
         }
 
         return $this->munge_color($val) ?? "transparent";
@@ -1423,7 +1426,7 @@ class Style
      */
     function get_color()
     {
-        return $this->get_prop_color("color", false);
+        return $this->get_prop_color("color", true);
     }
 
     /**
@@ -2202,7 +2205,7 @@ class Style
                     $this->set_prop("background_attachment", $attr, $important);
                 } elseif ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
                     $this->set_prop("background_repeat", $attr, $important);
-                } elseif ($this->munge_color($attr) !== null) {
+                } elseif ($attr === "currentcolor" || $this->munge_color($attr) !== null) {
                     $this->set_prop("background_color", $attr, $important);
                 } else {
                     $pos_size[] = $attr;
