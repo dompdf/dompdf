@@ -9,6 +9,7 @@ namespace Dompdf\FrameDecorator;
 
 use Dompdf\Cellmap;
 use DOMNode;
+use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\Frame\Factory;
@@ -20,16 +21,7 @@ use Dompdf\Frame\Factory;
  */
 class Table extends AbstractFrameDecorator
 {
-    public static $VALID_CHILDREN = [
-        "table-row-group",
-        "table-row",
-        "table-header-group",
-        "table-footer-group",
-        "table-column",
-        "table-column-group",
-        "table-caption",
-        "table-cell"
-    ];
+    public static $VALID_CHILDREN = Style::TABLE_INTERNAL_TYPES;
 
     public static $ROW_GROUPS = [
         "table-row-group",
