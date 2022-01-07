@@ -1005,7 +1005,7 @@ class Style
         if (isset(self::$_props_shorthand[$prop])) {
             // Shorthand properties directly set their respective sub-properties
             // https://www.w3.org/TR/css-cascade-3/#shorthand
-            if ($val === "initial" || $val === "inherit") {
+            if ($val === "initial" || $val === "inherit" || $val === "unset") {
                 foreach (self::$_props_shorthand[$prop] as $sub_prop) {
                     $this->set_prop($sub_prop, $val, $important, $clear_dependencies);
                 }
@@ -1028,6 +1028,13 @@ class Style
 
             if ($important) {
                 $this->_important_props[$prop] = true;
+            }
+
+            // https://www.w3.org/TR/css-cascade-3/#inherit-initial
+            if ($val === "unset") {
+                $val = in_array($prop, self::$_inherited, true)
+                    ? "inherit"
+                    : "initial";
             }
 
             // https://www.w3.org/TR/css-cascade-3/#valdef-all-initial
