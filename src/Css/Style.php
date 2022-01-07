@@ -727,7 +727,14 @@ class Style
                 continue;
             }
 
-            $ret += $this->single_length_in_pt((string) $l, $ref_size, $font_size);
+            $val = $this->single_length_in_pt((string) $l, $ref_size, $font_size);
+
+            // FIXME: Using the ref size as fallback here currently ensures that
+            // invalid widths or heights are treated as the corresponding
+            // containing-block dimension, which can look like the declaration
+            // is being ignored. Implement proper compute methods instead, and
+            // fall back to 0 here
+            $ret += $val ?? $ref_size;
         }
 
         return $ret;
@@ -736,15 +743,17 @@ class Style
     /**
      * Convert a length declaration to pt.
      *
-     * @param string $l         The length declaration.
-     * @param float  $ref_size  Reference size for percentage declarations.
-     * @param float  $font_size Font size for resolving font-size relative units.
+     * @param string     $l         The length declaration.
+     * @param float      $ref_size  Reference size for percentage declarations.
+     * @param float|null $font_size Font size for resolving font-size relative units.
      *
-     * @return float
+     * @return float|null The length in pt, or `null` for invalid declarations.
      */
-    protected function single_length_in_pt(string $l, float $ref_size, float $font_size): float
+    protected function single_length_in_pt(string $l, float $ref_size = 0, ?float $font_size = null): ?float
     {
         static $cache = [];
+
+        $font_size = $font_size ?? $this->__get("font_size");
 
         $key = "$l/$ref_size/$font_size";
 
@@ -805,13 +814,8 @@ class Style
         }
 
         else {
-            // Bogus value
-            // FIXME: Using the ref size here currently ensures that invalid
-            // widths or heights are treated as the corresponding containing-
-            // block dimension, which can look like the declaration is being
-            // ignored. On the other hand, this results in invalid margins being
-            // computed to the font size because of the setter logic
-            $value = $ref_size;
+            // Invalid or unsupported declaration
+            $value = null;
         }
 
         return $cache[$key] = $value;
@@ -1858,14 +1862,6 @@ class Style
 
         if ($type === "color") {
             $this->set_prop_color($prop, $val);
-        } elseif (
-            (($style === "border" || $style === "outline") && $type === "width" && strpos($val, "%") !== false)
-            ||
-            ($style === "padding" && strpos($val, "%") !== false)
-            ||
-            ($style === "margin" && (strpos($val, "%") !== false || $val === "auto"))
-        ) {
-            $this->_props_computed[$prop] = $val;
         } elseif (($style === "border" || $style === "outline") && $type === "width") {
             // Border-width keywords
             if ($val === "thin") {
@@ -1874,29 +1870,42 @@ class Style
                 $val_computed = 1.5;
             } elseif ($val === "thick") {
                 $val_computed = 2.5;
+            } elseif (mb_strpos($val, "%") !== false) {
+                $val_computed = null;
             } else {
-                $val_computed = (float)$this->length_in_pt($val);
+                $val_computed = $this->single_length_in_pt($val);
+
+                if ($val_computed < 0) {
+                    $val_computed = null;
+                }
             }
 
-            if ($val_computed < 0) {
+            if ($val_computed === null) {
                 $this->_props_computed[$prop] = null;
             } else {
-                $line_style_prop = $style;
-                if ($side !== "") {
-                    $line_style_prop .= "_" . $side;
-                };
-                $line_style_prop .= "_style";
+                $line_style_prop = $this->prop_name($style, $side, "style");
                 $line_style = $this->__get($line_style_prop);
-                $this->_props_computed[$prop] = ($line_style !== "none" && $line_style !== "hidden" ? $val_computed : 0);
+                $has_line_style = $line_style !== "none" && $line_style !== "hidden";
+
+                $this->_props_computed[$prop] = $has_line_style ? $val_computed : 0;
             }
         } elseif ($style === "margin" || $style === "padding") {
-            $val_computed = (float)$this->length_in_pt($val);
-
-            if ($style === "padding" && $val_computed < 0) {
-                $this->_props_computed[$prop] = null;
+            if ($val === "none") {
+                // Legacy support for `none` keyword, not covered by spec
+                $val_computed = 0;
+            } elseif ($style === "margin" && $val === "auto") {
+                $val_computed = $val;
+            } elseif (mb_strpos($val, "%") !== false) {
+                $val_computed = $val;
             } else {
-                $this->_props_computed[$prop] = ($val !== "none" && $val !== "hidden" ? $val_computed : 0);
+                $val_computed = $this->single_length_in_pt($val);
+
+                if ($style === "padding" && $val_computed < 0) {
+                    $val_computed = null;
+                }
             }
+
+            $this->_props_computed[$prop] = $val_computed;
         } elseif ($val !== "") {
             $this->_props_computed[$prop] = $val;
         } else {
@@ -2757,7 +2766,7 @@ class Style
      *
      * http://www.w3.org/TR/css3-background/#corners
      *
-     * @param $val
+     * @param string $val
      */
     function set_border_top_left_radius($val)
     {
@@ -2765,7 +2774,7 @@ class Style
     }
 
     /**
-     * @param $val
+     * @param string $val
      */
     function set_border_top_right_radius($val)
     {
@@ -2773,7 +2782,7 @@ class Style
     }
 
     /**
-     * @param $val
+     * @param string $val
      */
     function set_border_bottom_left_radius($val)
     {
@@ -2781,7 +2790,7 @@ class Style
     }
 
     /**
-     * @param $val
+     * @param string $val
      */
     function set_border_bottom_right_radius($val)
     {
@@ -2829,19 +2838,25 @@ class Style
     }
 
     /**
-     * @param $val
-     * @param $corner
+     * @param string $val
+     * @param string $corner
      */
     protected function _set_border_radius_corner($val, $corner)
     {
-        $this->_prop_cache["border_" . $corner . "_radius"] = null;
+        $prop = "border_" . $corner . "_radius";
+
+        $this->_prop_cache[$prop] = null;
 
         if ($val === "inherit") {
-            $this->_props_computed["border_" . $corner . "_radius"] = null;
+            $this->_props_computed[$prop] = null;
             return;
         }
 
-        $this->_props_computed["border_" . $corner . "_radius"] = $val;
+        $computed = mb_strpos($val, "%") === false
+            ? $this->single_length_in_pt($val)
+            : $val;
+
+        $this->_props_computed[$prop] = $computed;
     }
 
     /**
