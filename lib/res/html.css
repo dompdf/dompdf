@@ -163,12 +163,7 @@ table[border="0"] th {
 
 /* make sure backgrounds are inherited in tables  -- see bug 4510 */
 td, th, tr {
-  background-color: inherit;
-  background-image: inherit;
-  background-image-resolution: inherit;
-  background-position: inherit;
-  background-repeat: inherit;
-  background-size: inherit;
+  background: inherit;
 }
 
 /* caption inherits from table not table-outer */
