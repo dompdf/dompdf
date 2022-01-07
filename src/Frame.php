@@ -865,9 +865,7 @@ class Frame
             return $this->_is_cache["absolute"];
         }
 
-        $position = $this->get_style()->position;
-
-        return $this->_is_cache["absolute"] = ($position === "absolute" || $position === "fixed");
+        return $this->_is_cache["absolute"] = $this->get_style()->is_absolute();
     }
 
     /**
@@ -917,6 +915,7 @@ class Frame
     }
 
     /**
+     * @deprecated
      * @return bool
      */
     public function is_inline_block()
@@ -937,7 +936,7 @@ class Frame
             return $this->_is_cache["in_flow"];
         }
 
-        return $this->_is_cache["in_flow"] = !($this->get_style()->float !== "none" || $this->is_absolute());
+        return $this->_is_cache["in_flow"] = $this->get_style()->is_in_flow();
     }
 
     /**

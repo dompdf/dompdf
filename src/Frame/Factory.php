@@ -7,7 +7,6 @@
  */
 namespace Dompdf\Frame;
 
-use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Exception;
 use Dompdf\Frame;
@@ -71,39 +70,14 @@ class Factory
         $style = $frame->get_style();
         $display = $style->display;
 
-        // Floating (and more generally out-of-flow) elements are blocks
-        // https://www.w3.org/TR/CSS21/visuren.html#dis-pos-flo
-        if (!$frame->is_in_flow()
-            && in_array($display, Style::INLINE_LEVEL_TYPES, true)
-        ) {
-            switch ($display) {
-                case "inline-flex":
-                    $display = "flex";
-                    break;
-                case "inline-table":
-                    $display = "table";
-                    break;
-                default:
-                    $display = "block";
-            }
-
-            // The original style needs to be modified, too, here, as the style
-            // gets reset to the original style after a page break
-            $frame->get_original_style()->display = $display;
-            $style->display = $display;
-        }
-
         switch ($display) {
 
-            case "flex": //FIXME: display type not yet supported
-            case "table-caption": //FIXME: display type not yet supported
             case "block":
                 $positioner = "Block";
                 $decorator = "Block";
                 $reflower = "Block";
                 break;
 
-            case "inline-flex": //FIXME: display type not yet supported
             case "inline-block":
                 $positioner = "Inline";
                 $decorator = "Block";
@@ -188,7 +162,6 @@ class Factory
                 break;
 
             default:
-                // FIXME: should throw some sort of warning or something?
             case "none":
                 if ($style->_dompdf_keep !== "yes") {
                     // Remove the node and the frame
