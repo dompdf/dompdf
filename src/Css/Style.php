@@ -369,12 +369,11 @@ class Style
     protected static $_dependent_props = [];
 
     /**
-     * Font size of parent element in document tree.  Used for relative font
-     * size resolution.
+     * Style of the parent element in document tree.
      *
-     * @var float
+     * @var Style
      */
-    protected $_parent_font_size;
+    protected $parent_style;
 
     /**
      * @var Frame
@@ -422,7 +421,7 @@ class Style
         $this->_stylesheet = $stylesheet;
         $this->_media_queries = [];
         $this->_origin = $origin;
-        $this->_parent_font_size = null;
+        $this->parent_style = null;
 
         if (!isset(self::$_defaults)) {
 
@@ -833,16 +832,12 @@ class Style
      */
     function inherit(Style $parent)
     {
-        $parent_font_size = $parent->__get("font_size");
+        $this->parent_style = $parent;
 
-        // Set parent font size, changes affect font size of the element
-        if ($this->_parent_font_size !== $parent_font_size) {
-            $this->_parent_font_size = $parent_font_size;
-
-            // Clear the computed value, so it can be re-computed
-            unset($this->_props_computed["font_size"]);
-            unset($this->_prop_cache["font_size"]);
-        }
+        // Clear the computed value font size, as is might depend on the parent
+        // font size
+        unset($this->_props_computed["font_size"]);
+        unset($this->_prop_cache["font_size"]);
 
         foreach (self::$_inherited as $prop) {
             // For properties that inherit by default: When the cascade did not
@@ -2247,9 +2242,9 @@ class Style
             return;
         }
 
-        if (!isset($this->_parent_font_size)) {
-            $this->_parent_font_size = self::$default_font_size;
-        }
+        $parent_font_size = isset($this->parent_style)
+            ? $this->parent_style->__get("font_size")
+            : self::$default_font_size;
 
         switch ((string)$size) {
             case "xx-small":
@@ -2263,15 +2258,15 @@ class Style
                 break;
 
             case "smaller":
-                $fs = 8 / 9 * $this->_parent_font_size;
+                $fs = 8 / 9 * $parent_font_size;
                 break;
 
             case "larger":
-                $fs = 6 / 5 * $this->_parent_font_size;
+                $fs = 6 / 5 * $parent_font_size;
                 break;
 
             default:
-                $fs = $this->single_length_in_pt($size, $this->_parent_font_size, $this->_parent_font_size);
+                $fs = $this->single_length_in_pt($size, $parent_font_size, $parent_font_size);
                 break;
         }
 
@@ -3403,14 +3398,22 @@ class Style
     /*DEBUGCSS print: see below additional debugging util*/
     function __toString()
     {
-        return print_r(array_merge(["parent_font_size" => $this->_parent_font_size],
+        $parent_font_size = $this->parent_style
+            ? $this->parent_style->font_size
+            : self::$default_font_size;
+
+        return print_r(array_merge(["parent_font_size" => $parent_font_size ],
             $this->_props), true);
     }
 
     /*DEBUGCSS*/
     function debug_print()
     {
-        print "    parent_font_size:" . $this->_parent_font_size . ";\n";
+        $parent_font_size = $this->parent_style
+            ? $this->parent_style->font_size
+            : self::$default_font_size;
+
+        print "    parent_font_size:" . $parent_font_size . ";\n";
         print "    Props [\n";
         print "      specified [\n";
         foreach ($this->_props as $prop => $val) {
