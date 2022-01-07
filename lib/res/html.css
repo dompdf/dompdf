@@ -226,9 +226,6 @@ th {
 }
 
 /* inlines */
-q {
-  quotes: '"' '"' "'" "'"; /* FIXME only the first level is used */
-}
 
 q:before {
   content: open-quote;
