@@ -28,9 +28,9 @@ use Dompdf\Frame;
  */
 class Style
 {
-
     const CSS_IDENTIFIER = "-?[_a-zA-Z]+[_a-zA-Z0-9-]*";
     const CSS_INTEGER = "[+-]?\d+";
+    const CSS_NUMBER = "[+-]?\d*\.?\d+";
 
     /**
      * Default font size, in points.
@@ -1895,16 +1895,18 @@ class Style
     }
 
     /**
-     * @param string $decl
+     * @param string $value
      * @param int    $default
      *
      * @return array|string
      */
-    protected function parse_counter_prop(string $decl, int $default)
+    protected function parse_counter_prop(string $value, int $default)
     {
-        $re = "/(" . self::CSS_IDENTIFIER . ")(?:\s+(" . self::CSS_INTEGER . "))?/";
+        $ident = self::CSS_IDENTIFIER;
+        $integer = self::CSS_INTEGER;
+        $pattern = "/($ident)(?:\s+($integer))?/";
 
-        if (!preg_match_all($re, $decl, $matches, PREG_SET_ORDER)) {
+        if (!preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {
             return "none";
         }
 
@@ -1947,7 +1949,58 @@ class Style
         return $this->parse_counter_prop($val, 0);
     }
 
+    /**
+     * @return string[]|string
+     */
+    protected function get_content()
+    {
+        $val = $this->_props_computed["content"];
+
+        if ($val === "normal" || $val === "none") {
+            return $val;
+        }
+
+        return $this->parse_property_value($val);
+    }
+
     /*==============================*/
+
+    /**
+     * Parse a property value into its components.
+     *
+     * @param string $value
+     *
+     * @return string[]
+     */
+    protected function parse_property_value(string $value): array
+    {
+        $ident = self::CSS_IDENTIFIER;
+        $number = self::CSS_NUMBER;
+
+        $pattern = "/\n" .
+            "\s* \" ( (?:[^\"]|\\\\[\"])* ) (?<!\\\\)\" |\n" . // String ""
+            "\s* '  ( (?:[^']|\\\\['])* )   (?<!\\\\)'  |\n" . // String ''
+            "\s* ($ident \\([^)]*\\) )                  |\n" . // Functional
+            "\s* ($ident)                               |\n" . // Keyword
+            "\s* (\#[0-9a-fA-F]*)                       |\n" . // Hex value
+            "\s* ($number [a-zA-Z%]*)                   |\n" . // Number (+ unit/percentage)
+            "\s* ([\/,;])                                \n" . // Delimiter
+            "/Sx";
+
+        if (!preg_match_all($pattern, $value, $matches)) {
+            return [];
+        }
+
+        return array_map("trim", $matches[0]);
+    }
+
+    protected function is_color_value(string $val): bool
+    {
+        return $val === "currentcolor"
+            || $val === "transparent"
+            || isset(Color::$cssColorNames[$val])
+            || preg_match("/^#|rgb\(|rgba\(|cmyk\(/", $val);
+    }
 
     protected function prop_name(string $style, string $side, string $type): string
     {
@@ -2042,45 +2095,34 @@ class Style
     /**
      * @param string $style
      * @param string $type
-     * @param mixed $top
-     * @param mixed $right
-     * @param mixed $bottom
-     * @param mixed $left
-     * @param bool $important
-     */
-    protected function _set_style_sides_type($style, $type, $top, $right, $bottom, $left, $important)
-    {
-        $this->set_prop($this->prop_name($style, "top", $type), $top, $important);
-        $this->set_prop($this->prop_name($style, "right", $type), $right, $important);
-        $this->set_prop($this->prop_name($style, "bottom", $type), $bottom, $important);
-        $this->set_prop($this->prop_name($style, "left", $type), $left, $important);
-    }
-
-    /**
-     * @param string $style
-     * @param string $type
      * @param mixed $val
      * @param bool $important
      */
     protected function _set_style_type($style, $type, $val, $important)
     {
-        $val = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
-        $arr = explode(" ", $val);
+        $v = $this->parse_property_value($val);
 
-        switch (count($arr)) {
+        switch (count($v)) {
             case 1:
-                $this->_set_style_sides_type($style, $type, $arr[0], $arr[0], $arr[0], $arr[0], $important);
+                [$top, $right, $bottom, $left] = [$v[0], $v[0], $v[0], $v[0]];
                 break;
             case 2:
-                $this->_set_style_sides_type($style, $type, $arr[0], $arr[1], $arr[0], $arr[1], $important);
+                [$top, $right, $bottom, $left] = [$v[0], $v[1], $v[0], $v[1]];
                 break;
             case 3:
-                $this->_set_style_sides_type($style, $type, $arr[0], $arr[1], $arr[2], $arr[1], $important);
+                [$top, $right, $bottom, $left] = [$v[0], $v[1], $v[2], $v[1]];
                 break;
             case 4:
-                $this->_set_style_sides_type($style, $type, $arr[0], $arr[1], $arr[2], $arr[3], $important);
+                [$top, $right, $bottom, $left] = [$v[0], $v[1], $v[2], $v[3]];
                 break;
+            default:
+                return;
         }
+
+        $this->set_prop($this->prop_name($style, "top", $type), $top, $important);
+        $this->set_prop($this->prop_name($style, "right", $type), $right, $important);
+        $this->set_prop($this->prop_name($style, "bottom", $type), $bottom, $important);
+        $this->set_prop($this->prop_name($style, "left", $type), $left, $important);
     }
 
     /*======================*/
@@ -2359,46 +2401,48 @@ class Style
      * Sets the background - combined options
      *
      * @link http://www.w3.org/TR/CSS21/colors.html#propdef-background
-     * @param string $val
+     * @param string $value
      * @param bool $important
      */
-    function set_background($val, bool $important = false)
+    function set_background($value, bool $important = false)
     {
-        $val = trim($val);
-
-        if ($val === "none") {
+        if ($value === "none") {
             $this->set_prop("background_image", "none", $important);
             $this->set_prop("background_color", "transparent", $important);
         } else {
+            $components = $this->parse_property_value($value);
             $pos_size = [];
-            $tmp = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
-            $tmp = preg_split("/\s+/", $tmp);
 
-            foreach ($tmp as $attr) {
-                if (mb_substr($attr, 0, 3) === "url" || $attr === "none") {
-                    $this->set_prop("background_image", $attr, $important);
-                } elseif ($attr === "fixed" || $attr === "scroll") {
-                    $this->set_prop("background_attachment", $attr, $important);
-                } elseif ($attr === "repeat" || $attr === "repeat-x" || $attr === "repeat-y" || $attr === "no-repeat") {
-                    $this->set_prop("background_repeat", $attr, $important);
-                } elseif ($attr === "currentcolor" || $this->munge_color($attr) !== null) {
-                    $this->set_prop("background_color", $attr, $important);
+            foreach ($components as $val) {
+                if ($val === "none" || mb_substr($val, 0, 4) === "url(") {
+                    $this->set_prop("background_image", $val, $important);
+                } elseif ($val === "fixed" || $val === "scroll") {
+                    $this->set_prop("background_attachment", $val, $important);
+                } elseif ($val === "repeat" || $val === "repeat-x" || $val === "repeat-y" || $val === "no-repeat") {
+                    $this->set_prop("background_repeat", $val, $important);
+                } elseif ($this->is_color_value($val)) {
+                    $this->set_prop("background_color", $val, $important);
                 } else {
-                    $pos_size[] = $attr;
+                    $pos_size[] = $val;
                 }
             }
 
             if (count($pos_size)) {
-                $pos_size = preg_split("/\s*\/\s*/", implode(" ", $pos_size));
-                $pos = $pos_size[0] ?? "";
-                $size = $pos_size[1] ?? "";
+                // Split value list at "/"
+                $index = array_search("/", $pos_size, true);
 
-                if ($pos) {
-                    $this->set_prop("background_position", $pos, $important);
+                if ($index !== false) {
+                    $pos = array_slice($pos_size, 0, $index);
+                    $size = array_slice($pos_size, $index + 1);
+                } else {
+                    $pos = $pos_size;
+                    $size = [];
                 }
 
-                if ($size) {
-                    $this->set_prop("background_size", $size, $important);
+                $this->set_prop("background_position", implode(" ", $pos), $important);
+
+                if (count($size)) {
+                    $this->set_prop("background_size", implode(" ", $size), $important);
                 }
             }
         }
@@ -2500,7 +2544,7 @@ class Style
      * missing font-size and font-family might be not allowed, but accept it here and
      * use default (medium size, empty font name)
      *
-     * @link http://www.w3.org/TR/CSS21/generate.html#propdef-list-style
+     * @link https://www.w3.org/TR/CSS21/fonts.html#font-shorthand
      * @param string $val
      * @param bool $important
      */
@@ -2781,28 +2825,17 @@ class Style
      */
     protected function _set_border($side, $border_spec, bool $important)
     {
-        $border_spec = preg_replace("/\s*\,\s*/", ",", $border_spec);
-        $arr = explode(" ", $border_spec);
+        $components = $this->parse_property_value($border_spec);
 
-        foreach ($arr as $value) {
-            $value = trim($value);
-            $prop = "";
-            // TODO: Remove custom `inherit` handling, already handled in `set_prop()`
-            if (strtolower($value) === "inherit") {
-                $this->set_prop("border_${side}_color", "inherit", $important);
-                $this->set_prop("border_${side}_style", "inherit", $important);
-                $this->set_prop("border_${side}_width", "inherit", $important);
-                continue;
-            } elseif (in_array($value, self::$BORDER_STYLES)) {
-                $prop = "border_${side}_style";
-            } elseif ($value === "0" || preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
-                $prop = "border_${side}_width";
+        foreach ($components as $val) {
+            if (in_array($val, self::$BORDER_STYLES, true)) {
+                $this->set_prop("border_${side}_style", $val, $important);
+            } elseif ($this->is_color_value($val)) {
+                $this->set_prop("border_${side}_color", $val, $important);
             } else {
-                // must be color
-                $prop = "border_${side}_color";
+                // Assume width
+                $this->set_prop("border_${side}_width", $val, $important);
             }
-
-            $this->set_prop($prop, $value, $important);
         }
     }
 
@@ -2984,38 +3017,29 @@ class Style
      */
     function set_border_radius($val, bool $important = false)
     {
-        $val = preg_replace("/\s*\,\s*/", ",", $val); // when border-radius has spaces
-        $arr = explode(" ", $val);
+        $r = $this->parse_property_value($val);
 
-        switch (count($arr)) {
+        switch (count($r)) {
             case 1:
-                $this->_set_border_radii($arr[0], $arr[0], $arr[0], $arr[0], $important);
+                [$tl, $tr, $br, $bl] = [$r[0], $r[0], $r[0], $r[0]];
                 break;
             case 2:
-                $this->_set_border_radii($arr[0], $arr[1], $arr[0], $arr[1], $important);
+                [$tl, $tr, $br, $bl] = [$r[0], $r[1], $r[0], $r[1]];
                 break;
             case 3:
-                $this->_set_border_radii($arr[0], $arr[1], $arr[2], $arr[1], $important);
+                [$tl, $tr, $br, $bl] = [$r[0], $r[1], $r[2], $r[1]];
                 break;
             case 4:
-                $this->_set_border_radii($arr[0], $arr[1], $arr[2], $arr[3], $important);
+                [$tl, $tr, $br, $bl] = [$r[0], $r[1], $r[2], $r[3]];
                 break;
+            default:
+                return;
         }
-    }
 
-    /**
-     * @param string $val1
-     * @param string $val2
-     * @param string $val3
-     * @param string $val4
-     * @param bool $important
-     */
-    protected function _set_border_radii($val1, $val2, $val3, $val4, bool $important)
-    {
-        $this->set_prop("border_top_left_radius", $val1, $important);
-        $this->set_prop("border_top_right_radius", $val2, $important);
-        $this->set_prop("border_bottom_right_radius", $val3, $important);
-        $this->set_prop("border_bottom_left_radius", $val4, $important);
+        $this->set_prop("border_top_left_radius", $tl, $important);
+        $this->set_prop("border_top_right_radius", $tr, $important);
+        $this->set_prop("border_bottom_right_radius", $br, $important);
+        $this->set_prop("border_bottom_left_radius", $bl, $important);
     }
 
     /**
@@ -3091,24 +3115,21 @@ class Style
      * Sets the outline styles
      *
      * @link http://www.w3.org/TR/CSS21/ui.html#dynamic-outlines
-     * @param string $val
+     * @param string $value
      * @param bool $important
      */
-    function set_outline($val, bool $important = false)
+    function set_outline($value, bool $important = false)
     {
-        $val = preg_replace("/\s*\,\s*/", ",", $val); // when rgb() has spaces
-        $arr = explode(" ", $val);
+        $components = $this->parse_property_value($value);
 
-        foreach ($arr as $value) {
-            $value = trim($value);
-
-            if (in_array($value, self::$BORDER_STYLES)) {
-                $this->set_prop("outline_style", $value, $important);
-            } else if ($value === "0" || preg_match("/[.0-9]+(?:px|pt|pc|em|ex|%|in|mm|cm)|(?:thin|medium|thick)/", $value)) {
-                $this->set_prop("outline_width", $value, $important);
+        foreach ($components as $val) {
+            if (in_array($val, self::$BORDER_STYLES, true)) {
+                $this->set_prop("outline_style", $val, $important);
+            } elseif ($this->is_color_value($val)) {
+                $this->set_prop("outline_color", $val, $important);
             } else {
-                // must be color
-                $this->set_prop("outline_color", $value, $important);
+                // Assume width
+                $this->set_prop("outline_width", $val, $important);
             }
         }
     }
@@ -3189,13 +3210,12 @@ class Style
      * Sets the list style
      *
      * @link http://www.w3.org/TR/CSS21/generate.html#propdef-list-style
-     * @param string $val
+     * @param string $value
      * @param bool $important
      */
-    function set_list_style($val, bool $important = false)
+    function set_list_style($value, bool $important = false)
     {
-        $arr = explode(" ", str_replace(",", " ", $val));
-
+        static $positions = ["inside", "outside"];
         static $types = [
             "disc", "circle", "square",
             "decimal-leading-zero", "decimal", "1",
@@ -3208,15 +3228,15 @@ class Style
             "hiragana-iroha", "katakana-iroha", "none"
         ];
 
-        static $positions = ["inside", "outside"];
+        $components = $this->parse_property_value($value);
 
-        foreach ($arr as $value) {
+        foreach ($components as $val) {
             /* http://www.w3.org/TR/CSS21/generate.html#list-style
              * A value of 'none' for the 'list-style' property sets both 'list-style-type' and 'list-style-image' to 'none'
              */
-            if ($value === "none") {
-                $this->set_prop("list_style_type", $value, $important);
-                $this->set_prop("list_style_image", $value, $important);
+            if ($val === "none") {
+                $this->set_prop("list_style_type", $val, $important);
+                $this->set_prop("list_style_image", $val, $important);
                 continue;
             }
 
@@ -3225,15 +3245,15 @@ class Style
             //Firefox is wrong here (list_style_image gets overwritten on explicit list_style_type)
             //Internet Explorer 7/8 and dompdf is right.
 
-            if (mb_substr($value, 0, 3) === "url") {
-                $this->set_prop("list_style_image", $value, $important);
+            if (mb_substr($val, 0, 4) === "url(") {
+                $this->set_prop("list_style_image", $val, $important);
                 continue;
             }
 
-            if (in_array($value, $types)) {
-                $this->set_prop("list_style_type", $value, $important);
-            } elseif (in_array($value, $positions)) {
-                $this->set_prop("list_style_position", $value, $important);
+            if (in_array($val, $types, true)) {
+                $this->set_prop("list_style_type", $val, $important);
+            } elseif (in_array($val, $positions, true)) {
+                $this->set_prop("list_style_position", $val, $important);
             }
         }
     }
@@ -3453,7 +3473,7 @@ class Style
     {
         //TODO: should be handled in setter
         
-        $values = preg_split("/\s+/", $this->_props_computed['transform_origin']);
+        $values = preg_split("/\s+/", $this->_props_computed["transform_origin"]);
 
         $values = array_map(function ($value) {
             if (in_array($value, ["top", "left"])) {
