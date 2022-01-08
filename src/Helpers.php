@@ -211,13 +211,13 @@ class Helpers
     /**
      * Determines whether $value is a percentage or not
      *
-     * @param float $value
+     * @param string|float|int $value
      *
      * @return bool
      */
-    public static function is_percent($value)
+    public static function is_percent($value): bool
     {
-        return false !== mb_strpos($value, "%");
+        return is_string($value) && false !== mb_strpos($value, "%");
     }
 
     /**

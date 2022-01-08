@@ -166,7 +166,7 @@ class Color
 
     /**
      * @param $color
-     * @return array|mixed|null|string
+     * @return array|string|null
      */
     static function parse($color)
     {
@@ -183,7 +183,6 @@ class Color
         static $cache = [];
 
         $color = strtolower($color);
-        $alpha = 1.0;
 
         if (isset($cache[$color])) {
             return $cache[$color];
@@ -197,28 +196,43 @@ class Color
             return $cache[$color] = self::getArray(self::$cssColorNames[$color]);
         }
 
-        $length = mb_strlen($color);
+        // https://www.w3.org/TR/css-color-4/#hex-notation
+        if (mb_substr($color, 0, 1) === "#") {
+            $length = mb_strlen($color);
+            $alpha = 1.0;
 
-        // #rgb format
-        if ($length === 4 && $color[0] === "#") {
-            return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3]);
-        } // #rgba format
-        else if ($length === 5 && $color[0] === "#") {
-            if (ctype_xdigit($color[4])) {
-                $alpha = round(hexdec($color[4] . $color[4])/255, 2);
+            // #rgb format
+            if ($length === 4) {
+                return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3]);
             }
-            return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3], $alpha);
-        } // #rrggbb format
-        else if ($length === 7 && $color[0] === "#") {
-            return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
-        } // #rrggbbaa format
-        else if ($length === 9 && $color[0] === "#") {
-            if (ctype_xdigit(mb_substr($color, 7, 2))) {
-                $alpha = round(hexdec(mb_substr($color, 7, 2))/255, 2);
+
+            // #rgba format
+            if ($length === 5) {
+                if (ctype_xdigit($color[4])) {
+                    $alpha = round(hexdec($color[4] . $color[4])/255, 2);
+                }
+                return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3], $alpha);
             }
-            return $cache[$color] = self::getArray(mb_substr($color, 1, 6), $alpha);
-        } // rgb( r,g,b ) / rgba( r,g,b,α ) format
-        else if (mb_strpos($color, "rgb") !== false) {
+
+            // #rrggbb format
+            if ($length === 7) {
+                return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
+            }
+            
+            // #rrggbbaa format
+            if ($length === 9) {
+                if (ctype_xdigit(mb_substr($color, 7, 2))) {
+                    $alpha = round(hexdec(mb_substr($color, 7, 2))/255, 2);
+                }
+                return $cache[$color] = self::getArray(mb_substr($color, 1, 6), $alpha);
+            }
+
+            return null;
+        }
+
+        // rgb( r g b [/α] ) / rgb( r,g,b[,α] ) format and alias rgba()
+        // https://www.w3.org/TR/css-color-4/#rgb-functions
+        if (mb_substr($color, 0, 4) === "rgb(" || mb_substr($color, 0, 5) === "rgba(") {
             $i = mb_strpos($color, "(");
             $j = mb_strpos($color, ")");
 
@@ -227,41 +241,45 @@ class Color
                 return null;
             }
 
-            $triplet = explode(",", mb_substr($color, $i + 1, $j - $i - 1));
+            $value_decl = trim(mb_substr($color, $i + 1, $j - $i - 1));
 
-            // alpha transparency
-            // FIXME: not currently using transparency
-            if (count($triplet) == 4) {
-                $alpha = (trim(array_pop($triplet)));
-                if (Helpers::is_percent($alpha)) {
-                    $alpha = round((float)$alpha / 100, 2);
-                }
-                $alpha = (float)$alpha;
-                // bad value, set to fully opaque
-                if ($alpha > 1.0 || $alpha < 0.0) {
-                    $alpha = 1.0;
-                }
+            if (mb_strpos($value_decl, ",") === false) {
+                // Space-separated values syntax `r g b` or `r g b / α`
+                $parts = preg_split("/\s*\/\s*/", $value_decl);
+                $triplet = preg_split("/\s+/", $parts[0]);
+                $alpha = $parts[1] ?? 1.0;
+            } else {
+                // Comma-separated values syntax `r, g, b` or `r, g, b, α`
+                $parts = preg_split("/\s*,\s*/", $value_decl);
+                $triplet = array_slice($parts, 0, 3);
+                $alpha = $parts[3] ?? 1.0;
             }
 
-            if (count($triplet) != 3) {
+            if (count($triplet) !== 3) {
                 return null;
             }
 
-            foreach (array_keys($triplet) as $c) {
-                $triplet[$c] = trim($triplet[$c]);
+            // Parse alpha value
+            if (Helpers::is_percent($alpha)) {
+                $alpha = round((float) $alpha / 100, 2);
+            } else {
+                $alpha = (float) $alpha;
+            }
 
-                if (Helpers::is_percent($triplet[$c])) {
-                    $triplet[$c] = round((float)$triplet[$c] * 2.55);
+            $alpha = max(0.0, min($alpha, 1.0));
+
+            foreach ($triplet as &$c) {
+                if (Helpers::is_percent($c)) {
+                    $c = round((float) $c * 2.55);
                 }
             }
 
             return $cache[$color] = self::getArray(vsprintf("%02X%02X%02X", $triplet), $alpha);
-
         }
 
         // cmyk( c,m,y,k ) format
         // http://www.w3.org/TR/css3-gcpm/#cmyk-colors
-        else if (mb_strpos($color, "cmyk") !== false) {
+        if (mb_substr($color, 0, 5) === "cmyk(") {
             $i = mb_strpos($color, "(");
             $j = mb_strpos($color, ")");
 
