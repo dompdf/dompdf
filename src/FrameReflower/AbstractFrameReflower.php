@@ -486,7 +486,7 @@ abstract class AbstractFrameReflower
         // Matches quote types
         $re = '/(\'[^\']*\')|(\"[^\"]*\")/';
 
-        // split on spaces, except within quotes
+        // Split on spaces, except within quotes
         if (!preg_match_all($re, $quotes, $matches, PREG_SET_ORDER)) {
             return [];
         }
@@ -508,59 +508,77 @@ abstract class AbstractFrameReflower
      */
     protected function _parse_content(): string
     {
-        $content = $this->_frame->get_style()->content;
+        // The `content` property will be returned parsed into its components
+        $style = $this->_frame->get_style();
+        $content = $style->content;
 
         if ($content === "normal" || $content === "none") {
             return "";
         }
 
-        // Matches generated content
-        $re = "/\n" .
-            "\s(counters?\\([^)]*\\))|\n" .
-            "\A(counters?\\([^)]*\\))|\n" .
-            "\s([\"']) ( (?:[^\"']|\\\\[\"'])+ )(?<!\\\\)\\3|\n" .
-            "\A([\"']) ( (?:[^\"']|\\\\[\"'])+ )(?<!\\\\)\\5|\n" .
-            "\s([^\s\"']+)|\n" .
-            "\A([^\s\"']+)\n" .
-            "/xi";
-
         $quotes = $this->_parse_quotes();
-
-        // split on spaces, except within quotes
-        if (!preg_match_all($re, $content, $matches, PREG_SET_ORDER)) {
-            return "";
-        }
-
         $text = "";
 
-        foreach ($matches as $match) {
-            if (isset($match[2]) && $match[2] !== "") {
-                $match[1] = $match[2];
+        foreach ($content as $val) {
+            // String
+            if (in_array(mb_substr($val, 0, 1), ['"', "'"], true)) {
+                $text .= $this->_parse_string($val);
+                continue;
             }
 
-            if (isset($match[6]) && $match[6] !== "") {
-                $match[4] = $match[6];
+            $val = mb_strtolower($val);
+
+            // Keywords
+            if ($val === "open-quote") {
+                // FIXME: Take quotation depth into account
+                if (isset($quotes[0][0])) {
+                    $text .= $quotes[0][0];
+                }
+                continue;
+            } elseif ($val === "close-quote") {
+                // FIXME: Take quotation depth into account
+                if (isset($quotes[0][1])) {
+                    $text .= $quotes[0][1];
+                }
+                continue;
+            } elseif ($val === "no-open-quote") {
+                // FIXME: Increment quotation depth
+                continue;
+            } elseif ($val === "no-close-quote") {
+                // FIXME: Decrement quotation depth
+                continue;
             }
 
-            if (isset($match[8]) && $match[8] !== "") {
-                $match[7] = $match[8];
-            }
-
-            if (isset($match[1]) && $match[1] !== "") {
-                // counters?(...)
-                $match[1] = mb_strtolower(trim($match[1]));
-
-                // Handle counter() references:
-                // http://www.w3.org/TR/CSS21/generate.html#content
-
-                $i = mb_strpos($match[1], ")");
+            // attr()
+            if (mb_substr($val, 0, 5) === "attr(") {
+                $i = mb_strpos($val, ")");
                 if ($i === false) {
                     continue;
                 }
 
-                preg_match('/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]*)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i', $match[1], $args);
+                $attr = trim(mb_substr($val, 5, $i - 5));
+                if ($attr === "") {
+                    continue;
+                }
+
+                $text .= $this->_frame->get_parent()->get_node()->getAttribute($attr);
+                continue;
+            }
+
+            // counter()/counters()
+            if (mb_substr($val, 0, 7) === "counter") {
+                // Handle counter() references:
+                // http://www.w3.org/TR/CSS21/generate.html#content
+
+                $i = mb_strpos($val, ")");
+                if ($i === false) {
+                    continue;
+                }
+
+                preg_match('/(counters?)(^\()*?\(\s*([^\s,]+)\s*(,\s*["\']?([^"\'\)]*)["\']?\s*(,\s*([^\s)]+)\s*)?)?\)/i', $val, $args);
                 $counter_id = $args[3];
-                if (strtolower($args[1]) == 'counter') {
+
+                if (strtolower($args[1]) === "counter") {
                     // counter(name [,style])
                     if (isset($args[5])) {
                         $type = trim($args[5]);
@@ -570,8 +588,7 @@ abstract class AbstractFrameReflower
                     $p = $this->_frame->lookup_counter_frame($counter_id);
 
                     $text .= $p->counter_value($counter_id, $type);
-
-                } else if (strtolower($args[1]) == 'counters') {
+                } elseif (strtolower($args[1]) === "counters") {
                     // counters(name, string [,style])
                     if (isset($args[5])) {
                         $string = $this->_parse_string($args[5]);
@@ -597,44 +614,9 @@ abstract class AbstractFrameReflower
                     $text .= implode($string, $tmp);
                 } else {
                     // countertops?
-                    continue;
                 }
 
-            } else if (isset($match[4]) && $match[4] !== "") {
-                // String match
-                $text .= $this->_parse_string($match[4]);
-            } else if (isset($match[7]) && $match[7] !== "") {
-                // Directive match
-
-                if ($match[7] === "open-quote") {
-                    // FIXME: Take quotation depth into account
-                    if (isset($quotes[0][0])) {
-                        $text .= $quotes[0][0];
-                    }
-                } else if ($match[7] === "close-quote") {
-                    // FIXME: Take quotation depth into account
-                    if (isset($quotes[0][1])) {
-                        $text .= $quotes[0][1];
-                    }
-                } else if ($match[7] === "no-open-quote") {
-                    // FIXME: Increment quotation depth
-                } else if ($match[7] === "no-close-quote") {
-                    // FIXME: Decrement quotation depth
-                } else if (mb_strpos($match[7], "attr(") === 0) {
-                    $i = mb_strpos($match[7], ")");
-                    if ($i === false) {
-                        continue;
-                    }
-
-                    $attr = mb_substr($match[7], 5, $i - 5);
-                    if ($attr == "") {
-                        continue;
-                    }
-
-                    $text .= $this->_frame->get_parent()->get_node()->getAttribute($attr);
-                } else {
-                    continue;
-                }
+                continue;
             }
         }
 
