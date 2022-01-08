@@ -1054,7 +1054,7 @@ class Style
 
         if ($prop !== "content" && is_string($val) && strlen($val) > 5 && mb_strpos($val, "url") === false) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
-            $val = preg_replace("/([0-9]+) (pt|px|pc|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
+            $val = preg_replace("/([0-9]+) (pt|px|pc|rem|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
         if (isset(self::$_props_shorthand[$prop])) {
@@ -2550,17 +2550,6 @@ class Style
      */
     function set_font($val, bool $important = false)
     {
-        // TODO: Remove custom `inherit` handling, already handled in `set_prop()`
-        if (strtolower($val) === "inherit") {
-            $this->set_prop("font_family", "inherit", $important);
-            $this->set_prop("font_size", "inherit", $important);
-            $this->set_prop("font_style", "inherit", $important);
-            $this->set_prop("font_variant", "inherit", $important);
-            $this->set_prop("font_weight", "inherit", $important);
-            $this->set_prop("line_height", "inherit", $important);
-            return;
-        }
-
         if (preg_match("/^(italic|oblique|normal)\s*(.*)$/i", $val, $match)) {
             $this->set_prop("font_style", $match[1], $important);
             $val = $match[2];
@@ -2573,16 +2562,16 @@ class Style
 
         //matching numeric value followed by unit -> this is indeed a subsequent font size. Skip!
         if (preg_match("/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900|normal)\s*(.*)$/i", $val, $match) &&
-            !preg_match("/^(?:pt|px|pc|em|ex|in|cm|mm|%)/", $match[2])
+            !preg_match("/^(?:pt|px|pc|rem|em|ex|in|cm|mm|%)/", $match[2])
         ) {
             $this->set_prop("font_weight", $match[1], $important);
             $val = $match[2];
         }
 
-        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))(?:\/|\s*)(.*)$/i", $val, $match)) {
+        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%))(?:\/|\s*)(.*)$/i", $val, $match)) {
             $this->set_prop("font_size", $match[1], $important);
             $val = $match[2];
-            if (preg_match("/^(?:\/|\s*)(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
+            if (preg_match("/^(?:\/|\s*)(\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
                 $this->set_prop("line_height", $match[1], $important);
                 $val = $match[2];
             }
@@ -3265,7 +3254,7 @@ class Style
     {
         $this->_prop_cache["size"] = null;
 
-        $length_re = "/(\d+\s*(?:pt|px|pc|em|ex|in|cm|mm|%))/";
+        $length_re = "/(\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%))/";
 
         $val = mb_strtolower($val);
 
