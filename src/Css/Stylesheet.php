@@ -993,7 +993,7 @@ class Stylesheet
                             continue;
                         }
 
-                        $content = $style->get_prop("content");
+                        $content = $style->get_specified("content");
 
                         // Do not create non-displayed before/after pseudo elements
                         // https://www.w3.org/TR/CSS21/generate.html#content

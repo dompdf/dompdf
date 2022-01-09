@@ -83,7 +83,7 @@ class StyleTest extends TestCase
         $sheet->set_base_path(__DIR__); // Treat stylesheet as being located in this directory
         $s = new Style($sheet);
 
-        $s->background_image = $value;
+        $s->set_prop("background_image", $value);
         $this->assertSame($expected, $s->background_image);
     }
 
@@ -102,7 +102,7 @@ class StyleTest extends TestCase
         $sheet->set_base_path(__DIR__); // Treat stylesheet as being located in this directory
         $s = new Style($sheet);
 
-        $s->background_image = $value;
+        $s->set_prop("background_image", $value);
         $this->assertSame($expected, $s->background_image);
     }
 
@@ -120,7 +120,7 @@ class StyleTest extends TestCase
         $sheet->set_base_path("/");
         $s = new Style($sheet);
 
-        $s->background_image = $value;
+        $s->set_prop("background_image", $value);
         $this->assertSame($expected, $s->background_image);
     }
 

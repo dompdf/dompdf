@@ -120,7 +120,7 @@ abstract class AbstractFrameReflower
      * Collapse frames margins
      * http://www.w3.org/TR/CSS21/box.html#collapsing-margins
      */
-    protected function _collapse_margins()
+    protected function _collapse_margins(): void
     {
         $frame = $this->_frame;
 
@@ -139,13 +139,13 @@ abstract class AbstractFrameReflower
 
         // Handle 'auto' values
         if ($t === "auto") {
-            $style->margin_top = 0;
-            $t = 0;
+            $style->set_used("margin_top", 0.0);
+            $t = 0.0;
         }
 
         if ($b === "auto") {
-            $style->margin_bottom = 0;
-            $b = 0;
+            $style->set_used("margin_bottom", 0.0);
+            $b = 0.0;
         }
 
         // Collapse vertical margins:
@@ -167,9 +167,9 @@ abstract class AbstractFrameReflower
             $n_style = $n->get_style();
             $n_t = (float)$n_style->length_in_pt($n_style->margin_top, $cb["w"]);
 
-            $b = $this->_get_collapsed_margin_length($b, $n_t);
-            $style->margin_bottom = $b;
-            $n_style->margin_top = 0;
+            $b = $this->get_collapsed_margin_length($b, $n_t);
+            $style->set_used("margin_bottom", $b);
+            $n_style->set_used("margin_top", 0.0);
         }
 
         // Collapse our first child's margin, if there is no border or padding
@@ -193,9 +193,9 @@ abstract class AbstractFrameReflower
                 $f_style = $f->get_style();
                 $f_t = (float)$f_style->length_in_pt($f_style->margin_top, $cb["w"]);
 
-                $t = $this->_get_collapsed_margin_length($t, $f_t);
-                $style->margin_top = $t;
-                $f_style->margin_top = 0;
+                $t = $this->get_collapsed_margin_length($t, $f_t);
+                $style->set_used("margin_top", $t);
+                $f_style->set_used("margin_top", 0.0);
             }
         }
 
@@ -220,9 +220,9 @@ abstract class AbstractFrameReflower
                 $l_style = $l->get_style();
                 $l_b = (float)$l_style->length_in_pt($l_style->margin_bottom, $cb["w"]);
 
-                $b = $this->_get_collapsed_margin_length($b, $l_b);
-                $style->margin_bottom = $b;
-                $l_style->margin_bottom = 0;
+                $b = $this->get_collapsed_margin_length($b, $l_b);
+                $style->set_used("margin_bottom", $b);
+                $l_style->set_used("margin_bottom", 0.0);
             }
         }
     }
@@ -232,21 +232,22 @@ abstract class AbstractFrameReflower
      *
      * See http://www.w3.org/TR/CSS21/box.html#collapsing-margins.
      *
-     * @param float $length1
-     * @param float $length2
+     * @param float $l1
+     * @param float $l2
+     *
      * @return float
      */
-    private function _get_collapsed_margin_length($length1, $length2)
+    private function get_collapsed_margin_length(float $l1, float $l2): float
     {
-        if ($length1 < 0 && $length2 < 0) {
-            return min($length1, $length2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
+        if ($l1 < 0 && $l2 < 0) {
+            return min($l1, $l2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
         }
         
-        if ($length1 < 0 || $length2 < 0) {
-            return $length1 + $length2; // x + y = x - abs(y), if y < 0
+        if ($l1 < 0 || $l2 < 0) {
+            return $l1 + $l2; // x + y = x - abs(y), if y < 0
         }
         
-        return max($length1, $length2);
+        return max($l1, $l2);
     }
 
     /**

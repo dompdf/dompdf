@@ -808,14 +808,14 @@ class Block extends AbstractFrameReflower
 
         // Determine the constraints imposed by this frame: calculate the width
         // of the content area:
-        list($width, $left_margin, $right_margin, $left, $right) = $this->_calculate_restricted_width();
+        [$width, $margin_left, $margin_right, $left, $right] = $this->_calculate_restricted_width();
 
         // Store the calculated properties
-        $style->width = $width;
-        $style->margin_left = $left_margin;
-        $style->margin_right = $right_margin;
-        $style->left = $left;
-        $style->right = $right;
+        $style->set_used("width", $width);
+        $style->set_used("margin_left", $margin_left);
+        $style->set_used("margin_right", $margin_right);
+        $style->set_used("left", $left);
+        $style->set_used("right", $right);
 
         $margin_top = $style->length_in_pt($style->margin_top, $cb["w"]);
         $margin_bottom = $style->length_in_pt($style->margin_bottom, $cb["w"]);
@@ -825,7 +825,7 @@ class Block extends AbstractFrameReflower
 
         // Update the position
         $this->_frame->position();
-        list($x, $y) = $this->_frame->get_position();
+        [$x, $y] = $this->_frame->get_position();
 
         // Adjust the first line based on the text-indent property
         $indent = (float)$style->length_in_pt($style->text_indent, $cb["w"]);
@@ -843,7 +843,7 @@ class Block extends AbstractFrameReflower
             $style->padding_bottom
         ], $cb["w"]);
 
-        $cb_x = $x + (float)$left_margin + (float)$style->length_in_pt([$style->border_left_width,
+        $cb_x = $x + (float)$margin_left + (float)$style->length_in_pt([$style->border_left_width,
                 $style->padding_left], $cb["w"]);
 
         $cb_y = $y + $top;
@@ -884,12 +884,13 @@ class Block extends AbstractFrameReflower
         }
 
         // Determine our height
-        list($height, $margin_top, $margin_bottom, $top, $bottom) = $this->_calculate_restricted_height();
-        $style->height = $height;
-        $style->margin_top = $margin_top;
-        $style->margin_bottom = $margin_bottom;
-        $style->top = $top;
-        $style->bottom = $bottom;
+        [$height, $margin_top, $margin_bottom, $top, $bottom] = $this->_calculate_restricted_height();
+
+        $style->set_used("height", $height);
+        $style->set_used("margin_top", $margin_top);
+        $style->set_used("margin_bottom", $margin_bottom);
+        $style->set_used("top", $top);
+        $style->set_used("bottom", $bottom);
 
         if ($this->_frame->is_absolute()) {
             if ($auto_top) {

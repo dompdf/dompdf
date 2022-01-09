@@ -130,8 +130,8 @@ class ImageTest extends TestCase
     ): ImageFrameDecorator {
         $style = new Style(new Stylesheet(new Dompdf()));
 
-        foreach ($styleProperties as $key => $prop) {
-            $style->$key = $prop;
+        foreach ($styleProperties as $prop => $val) {
+            $style->set_prop($prop, $val);
         }
 
         $frame = Mockery::mock(

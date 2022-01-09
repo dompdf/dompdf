@@ -64,8 +64,8 @@ class TableRowGroup extends AbstractFrameReflower
             return;
         }
 
-        $style->width = $cellmap->get_frame_width($frame);
-        $style->height = $cellmap->get_frame_height($frame);
+        $style->set_used("width", $cellmap->get_frame_width($frame));
+        $style->set_used("height", $cellmap->get_frame_height($frame));
 
         $frame->set_position($cellmap->get_frame_position($frame));
     }

@@ -73,7 +73,8 @@ class TableCell extends Block
                 $style->border_bottom_width],
             $h);
 
-        $style->width = $cb_w = $w - $left_space - $right_space;
+        $cb_w = $w - $left_space - $right_space;
+        $style->set_used("width", $cb_w);
 
         $content_x = $x + $left_space;
         $content_y = $line_y = $y + $top_space;
@@ -118,7 +119,8 @@ class TableCell extends Block
             $cellmap->set_row_height($i, $cell_height);
         }
 
-        $style->height = $height;
+        $style->set_used("height", $height);
+
         $this->_text_align();
         $this->vertical_align();
 

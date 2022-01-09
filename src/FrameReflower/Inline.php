@@ -43,7 +43,7 @@ class Inline extends AbstractFrameReflower
         $style = $frame->get_style();
 
         // Resolve width, so the margin width can be checked
-        $style->width = 0;
+        $style->set_used("width", 0.0);
 
         $cb = $frame->get_containing_block();
         $line = $block->get_current_line_box();
@@ -97,16 +97,16 @@ class Inline extends AbstractFrameReflower
         // https://www.w3.org/TR/CSS21/visudet.html#inline-width
         // https://www.w3.org/TR/CSS21/visudet.html#inline-non-replaced
         if ($style->margin_left === "auto") {
-            $style->margin_left = 0;
+            $style->set_used("margin_left", 0.0);
         }
         if ($style->margin_right === "auto") {
-            $style->margin_right = 0;
+            $style->set_used("margin_right", 0.0);
         }
         if ($style->margin_top === "auto") {
-            $style->margin_top = 0;
+            $style->set_used("margin_top", 0.0);
         }
         if ($style->margin_bottom === "auto") {
-            $style->margin_bottom = 0;
+            $style->set_used("margin_bottom", 0.0);
         }
 
         // Handle line breaks
@@ -140,14 +140,18 @@ class Inline extends AbstractFrameReflower
             $f_style = $f->get_style();
             $f_style->margin_left = $style->margin_left;
             $f_style->padding_left = $style->padding_left;
-            $f_style->border_left = $style->border_left;
+            $f_style->border_left_width = $style->border_left_width;
+            $f_style->border_left_style = $style->border_left_style;
+            $f_style->border_left_color = $style->border_left_color;
         }
 
         if (($l = $frame->get_last_child()) && $l instanceof TextFrameDecorator) {
             $l_style = $l->get_style();
             $l_style->margin_right = $style->margin_right;
             $l_style->padding_right = $style->padding_right;
-            $l_style->border_right = $style->border_right;
+            $l_style->border_right_width = $style->border_right_width;
+            $l_style->border_right_style = $style->border_right_style;
+            $l_style->border_right_color = $style->border_right_color;
         }
 
         $cb = $frame->get_containing_block();

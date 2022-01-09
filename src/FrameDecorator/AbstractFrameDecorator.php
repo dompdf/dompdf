@@ -166,7 +166,10 @@ abstract class AbstractFrameDecorator extends Frame
     function copy(DOMNode $node)
     {
         $frame = new Frame($node);
-        $frame->set_style(clone $this->_frame->get_original_style());
+        $style = clone $this->_frame->get_style();
+
+        $style->reset();
+        $frame->set_style($style);
 
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
@@ -185,7 +188,10 @@ abstract class AbstractFrameDecorator extends Frame
     {
         $node = $this->_frame->get_node()->cloneNode();
         $frame = new Frame($node);
-        $frame->set_style(clone $this->_frame->get_original_style());
+        $style = clone $this->_frame->get_style();
+
+        $style->reset();
+        $frame->set_style($style);
 
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
@@ -213,8 +219,8 @@ abstract class AbstractFrameDecorator extends Frame
     {
         $style = $this->get_style();
         $child_style = $style->get_stylesheet()->create_style();
+        $child_style->set_prop("display", $display);
         $child_style->inherit($style);
-        $child_style->display = $display;
 
         $node = $this->get_node()->ownerDocument->createElement($node_name);
         $frame = new Frame($node);
@@ -303,9 +309,12 @@ abstract class AbstractFrameDecorator extends Frame
         return $this->_frame->get_style();
     }
 
+    /**
+     * @deprecated
+     */
     function get_original_style()
     {
-        return $this->_frame->get_original_style();
+        return $this->_frame->get_style();
     }
 
     function get_containing_block($i = null)
@@ -356,7 +365,7 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame->set_id($id);
     }
 
-    function set_style(Style $style)
+    public function set_style(Style $style): void
     {
         $this->_frame->set_style($style);
     }
@@ -687,34 +696,34 @@ abstract class AbstractFrameDecorator extends Frame
         }
 
         $this->revert_counter_increment();
+
         $node = $this->_frame->get_node();
         $split = $this->copy($node->cloneNode());
 
         $style = $this->_frame->get_style();
-        $split_style = $split->get_original_style();
+        $split_style = $split->get_style();
 
         // Truncate the box decoration at the split, except for the body
         if ($node->nodeName !== "body") {
-            // Style reset on the first and second parts
-            $style->margin_bottom = 0;
-            $style->padding_bottom = 0;
-            $style->border_bottom = 0;
-            $style->border_bottom_left_radius = 0;
-            $style->border_bottom_right_radius = 0;
+            // Clear bottom decoration of original frame
+            $style->margin_bottom = 0.0;
+            $style->padding_bottom = 0.0;
+            $style->border_bottom_width = 0.0;
+            $style->border_bottom_left_radius = 0.0;
+            $style->border_bottom_right_radius = 0.0;
 
-            // second
-            $split_style->margin_top = 0;
-            $split_style->padding_top = 0;
-            $split_style->border_top = 0;
-            $split_style->border_top_left_radius = 0;
-            $split_style->border_top_right_radius = 0;
+            // Clear top decoration of split frame
+            $split_style->margin_top = 0.0;
+            $split_style->padding_top = 0.0;
+            $split_style->border_top_width = 0.0;
+            $split_style->border_top_left_radius = 0.0;
+            $split_style->border_top_right_radius = 0.0;
             $split_style->page_break_before = "auto";
         }
 
-        $split_style->text_indent = 0;
+        $split_style->text_indent = 0.0;
         $split_style->counter_reset = "none";
 
-        $split->set_style(clone $split_style);
         $this->is_split = true;
         $split->is_split_off = true;
         $split->_already_pushed = true;
@@ -735,7 +744,7 @@ abstract class AbstractFrameDecorator extends Frame
         if (!$forced) {
             // Reset top margin in case of an unforced page break
             // https://www.w3.org/TR/CSS21/page.html#allowed-page-breaks
-            $child->get_original_style()->margin_top = 0;
+            $child->get_style()->margin_top = 0.0;
         }
 
         // Add $child and all following siblings to the new split node
