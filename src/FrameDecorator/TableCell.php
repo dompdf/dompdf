@@ -81,7 +81,7 @@ class TableCell extends BlockFrameDecorator
         );
 
         $new_height = $height - $v_space;
-        $style->height = $new_height;
+        $style->set_used("height", $new_height);
 
         if ($new_height > $this->_content_height) {
             $y_offset = 0;

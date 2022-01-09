@@ -138,8 +138,10 @@ class Text extends AbstractFrameDecorator
         $size = $style->font_size;
         $word_spacing = $this->text_spacing + $style->word_spacing;
         $letter_spacing = $style->letter_spacing;
+        $text_width = $fontMetrics->getTextWidth($text, $font, $size, $word_spacing, $letter_spacing);
 
-        return $style->width = $fontMetrics->getTextWidth($text, $font, $size, $word_spacing, $letter_spacing);
+        $style->set_used("width", $text_width);
+        return $text_width;
     }
 
     // Text manipulation methods

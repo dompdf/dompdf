@@ -51,9 +51,8 @@ class Absolute extends AbstractPositioner
 
             list($width, $height) = [$frame->get_margin_width(), $frame->get_margin_height()];
 
-            $orig_style = $frame->get_original_style();
-            $orig_width = $orig_style->width;
-            $orig_height = $orig_style->height;
+            $orig_width = $style->get_specified("width");
+            $orig_height = $style->get_specified("height");
 
             /****************************
              *

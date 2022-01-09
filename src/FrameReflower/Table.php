@@ -106,7 +106,7 @@ class Table extends AbstractFrameReflower
         }
 
         // Store our resolved width
-        $style->width = $width;
+        $style->set_used("width", $width);
 
         $cellmap = $this->_frame->get_cellmap();
 
@@ -340,15 +340,15 @@ class Table extends AbstractFrameReflower
         // border-spacing to the table as padding.  The other half is added to
         // the cells themselves.
         if ($style->border_collapse === "separate") {
-            list($h, $v) = $style->border_spacing;
+            [$h, $v] = $style->border_spacing;
 
             $v = (float)$style->length_in_pt($v) / 2;
             $h = (float)$style->length_in_pt($h) / 2;
 
-            $style->padding_left = (float)$style->length_in_pt($style->padding_left, $cb["w"]) + $h;
-            $style->padding_right = (float)$style->length_in_pt($style->padding_right, $cb["w"]) + $h;
-            $style->padding_top = (float)$style->length_in_pt($style->padding_top, $cb["w"]) + $v;
-            $style->padding_bottom = (float)$style->length_in_pt($style->padding_bottom, $cb["w"]) + $v;
+            $style->set_used("padding_left", (float)$style->length_in_pt($style->padding_left, $cb["w"]) + $h);
+            $style->set_used("padding_right", (float)$style->length_in_pt($style->padding_right, $cb["w"]) + $h);
+            $style->set_used("padding_top", (float)$style->length_in_pt($style->padding_top, $cb["w"]) + $v);
+            $style->set_used("padding_bottom", (float)$style->length_in_pt($style->padding_bottom, $cb["w"]) + $v);
         }
 
         $this->_assign_widths();
@@ -377,11 +377,11 @@ class Table extends AbstractFrameReflower
             }
         }
 
-        $style->margin_left = $left;
-        $style->margin_right = $right;
+        $style->set_used("margin_left", $left);
+        $style->set_used("margin_right", $right);
 
         $frame->position();
-        list($x, $y) = $frame->get_position();
+        [$x, $y] = $frame->get_position();
 
         // Determine the content edge
         $offset_x = (float)$left + (float)$style->length_in_pt([
@@ -434,7 +434,7 @@ class Table extends AbstractFrameReflower
         }
 
         // Assign heights to our cells:
-        $style->height = $this->_calculate_height();
+        $style->set_used("height", $this->_calculate_height());
 
         $page->table_reflow_end();
 

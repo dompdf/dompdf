@@ -40,10 +40,10 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("inset", $value);
 
-        $this->assertSame($top, $style->get_prop("top"));
-        $this->assertSame($right, $style->get_prop("right"));
-        $this->assertSame($bottom, $style->get_prop("bottom"));
-        $this->assertSame($left, $style->get_prop("left"));
+        $this->assertSame($top, $style->get_specified("top"));
+        $this->assertSame($right, $style->get_specified("right"));
+        $this->assertSame($bottom, $style->get_specified("bottom"));
+        $this->assertSame($left, $style->get_specified("left"));
     }
 
     /**
@@ -59,10 +59,10 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("margin", $value);
 
-        $this->assertSame($top, $style->get_prop("margin_top"));
-        $this->assertSame($right, $style->get_prop("margin_right"));
-        $this->assertSame($bottom, $style->get_prop("margin_bottom"));
-        $this->assertSame($left, $style->get_prop("margin_left"));
+        $this->assertSame($top, $style->get_specified("margin_top"));
+        $this->assertSame($right, $style->get_specified("margin_right"));
+        $this->assertSame($bottom, $style->get_specified("margin_bottom"));
+        $this->assertSame($left, $style->get_specified("margin_left"));
     }
 
     /**
@@ -78,10 +78,10 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("padding", $value);
 
-        $this->assertSame($top, $style->get_prop("padding_top"));
-        $this->assertSame($right, $style->get_prop("padding_right"));
-        $this->assertSame($bottom, $style->get_prop("padding_bottom"));
-        $this->assertSame($left, $style->get_prop("padding_left"));
+        $this->assertSame($top, $style->get_specified("padding_top"));
+        $this->assertSame($right, $style->get_specified("padding_right"));
+        $this->assertSame($bottom, $style->get_specified("padding_bottom"));
+        $this->assertSame($left, $style->get_specified("padding_left"));
     }
 
     protected function borderTypeShorthandTest(
@@ -95,10 +95,10 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("border_{$type}", $value);
 
-        $this->assertSame($top, $style->get_prop("border_top_{$type}"));
-        $this->assertSame($right, $style->get_prop("border_right_{$type}"));
-        $this->assertSame($bottom, $style->get_prop("border_bottom_{$type}"));
-        $this->assertSame($left, $style->get_prop("border_left_{$type}"));
+        $this->assertSame($top, $style->get_specified("border_top_{$type}"));
+        $this->assertSame($right, $style->get_specified("border_right_{$type}"));
+        $this->assertSame($bottom, $style->get_specified("border_bottom_{$type}"));
+        $this->assertSame($left, $style->get_specified("border_left_{$type}"));
     }
 
     public function borderWidthShorthandProvider(): array
@@ -198,9 +198,9 @@ class ShorthandTest extends TestCase
         $sides = ["top", "right", "bottom", "left"];
 
         foreach ($sides as $side) {
-            $this->assertSame($expectedWidth, $style->get_prop("border_{$side}_width"));
-            $this->assertSame($expectedStyle, $style->get_prop("border_{$side}_style"));
-            $this->assertSame($expectedColor, $style->get_prop("border_{$side}_color"));
+            $this->assertSame($expectedWidth, $style->get_specified("border_{$side}_width"));
+            $this->assertSame($expectedStyle, $style->get_specified("border_{$side}_style"));
+            $this->assertSame($expectedColor, $style->get_specified("border_{$side}_color"));
         }
     }
 
@@ -216,9 +216,9 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("outline", $value);
 
-        $this->assertSame($expectedWidth, $style->get_prop("outline_width"));
-        $this->assertSame($expectedStyle, $style->get_prop("outline_style"));
-        $this->assertSame($expectedColor, $style->get_prop("outline_color"));
+        $this->assertSame($expectedWidth, $style->get_specified("outline_width"));
+        $this->assertSame($expectedStyle, $style->get_specified("outline_style"));
+        $this->assertSame($expectedColor, $style->get_specified("outline_color"));
     }
 
     public function borderRadiusShorthandProvider(): array
@@ -244,25 +244,24 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("border_radius", $value);
 
-        $this->assertSame($tl, $style->get_prop("border_top_left_radius"));
-        $this->assertSame($tr, $style->get_prop("border_top_right_radius"));
-        $this->assertSame($br, $style->get_prop("border_bottom_right_radius"));
-        $this->assertSame($bl, $style->get_prop("border_bottom_left_radius"));
+        $this->assertSame($tl, $style->get_specified("border_top_left_radius"));
+        $this->assertSame($tr, $style->get_specified("border_top_right_radius"));
+        $this->assertSame($br, $style->get_specified("border_bottom_right_radius"));
+        $this->assertSame($bl, $style->get_specified("border_bottom_left_radius"));
     }
 
     public function backgroundShorthandProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
         $imagePath = "$basePath/_files/jamaica.jpg";
-        $expectedPath = $basePath . DIRECTORY_SEPARATOR . "_files" . DIRECTORY_SEPARATOR . "jamaica.jpg";
 
         return [
             ["none", "none"],
-            ["url($imagePath)", $expectedPath],
-            ["url( \"$imagePath\" )", $expectedPath],
+            ["url($imagePath)", "url($imagePath)"],
+            ["url( \"$imagePath\" )", "url( \"$imagePath\" )"],
             ["rgba( 5, 5, 5, 1 )", "none", "0% 0%", "auto auto", "repeat", "scroll", "rgba( 5, 5, 5, 1 )"],
-            ["url(non-existing.png) top center no-repeat red fixed", "none", "top center", "auto auto", "no-repeat", "fixed", "red"],
-            ["url($imagePath) left/200pt 30% rgb( 123 16 69/0.8 )no-repeat", $expectedPath, "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"]
+            ["url(non-existing.png) top center no-repeat red fixed", "url(non-existing.png)", "top center", "auto auto", "no-repeat", "fixed", "red"],
+            ["url($imagePath) left/200pt 30% rgb( 123 16 69/0.8 )no-repeat", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"]
         ];
     }
 
@@ -281,25 +280,24 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("background", $value);
 
-        $this->assertSame($image, $style->get_prop("background_image"));
-        $this->assertSame($position, $style->get_prop("background_position"));
-        $this->assertSame($size, $style->get_prop("background_size"));
-        $this->assertSame($repeat, $style->get_prop("background_repeat"));
-        $this->assertSame($attachment, $style->get_prop("background_attachment"));
-        $this->assertSame($color, $style->get_prop("background_color"));
+        $this->assertSame($image, $style->get_specified("background_image"));
+        $this->assertSame($position, $style->get_specified("background_position"));
+        $this->assertSame($size, $style->get_specified("background_size"));
+        $this->assertSame($repeat, $style->get_specified("background_repeat"));
+        $this->assertSame($attachment, $style->get_specified("background_attachment"));
+        $this->assertSame($color, $style->get_specified("background_color"));
     }
 
     public function listStyleShorthandProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
         $imagePath = "$basePath/_files/jamaica.jpg";
-        $expectedPath = $basePath . DIRECTORY_SEPARATOR . "_files" . DIRECTORY_SEPARATOR . "jamaica.jpg";
 
         return [
             ["none", "none", "none"],
-            ["url($imagePath)", "disc", $expectedPath],
-            ["url( '$imagePath' ) outside", "disc", $expectedPath, "outside"],
-            ["inside url($imagePath) square", "square", $expectedPath, "inside"],
+            ["url($imagePath)", "disc", "url($imagePath)"],
+            ["url( '$imagePath' ) outside", "disc", "url( '$imagePath' )", "outside"],
+            ["inside url($imagePath) square", "square", "url($imagePath)", "inside"],
             ["inside decimal", "decimal", "none", "inside"]
         ];
     }
@@ -316,8 +314,8 @@ class ShorthandTest extends TestCase
         $style = $this->style();
         $style->set_prop("list_style", $value);
 
-        $this->assertSame($type, $style->get_prop("list_style_type"));
-        $this->assertSame($image, $style->get_prop("list_style_image"));
-        $this->assertSame($position, $style->get_prop("list_style_position"));
+        $this->assertSame($type, $style->get_specified("list_style_type"));
+        $this->assertSame($image, $style->get_specified("list_style_image"));
+        $this->assertSame($position, $style->get_specified("list_style_position"));
     }
 }

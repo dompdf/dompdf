@@ -22,6 +22,25 @@ use Dompdf\Frame;
  * It includes methods to resolve colors and lengths, as well as getters &
  * setters for many CSS properties.
  *
+ * Access to the different CSS properties is provided by the methods
+ * {@link Style::set_prop()} and {@link Style::get_specified()}, and the
+ * property overload methods {@link Style::__set()} and {@link Style::__get()},
+ * as well as {@link Style::set_used()}. The latter methods operate on used
+ * values and permit access to any (CSS) property using the following syntax:
+ *
+ * ```
+ * $style->margin_top = 10.0;
+ * echo $style->margin_top; // Returns `10.0`
+ * ```
+ *
+ * To declare a property from a string, use {@link Style::set_prop()}:
+ *
+ * ```
+ * $style->set_prop("margin_top", "1em");
+ * echo $style->get_specified("margin_top"); // Returns `1em`
+ * echo $style->margin_top; // Returns `12.0`, assuming the default font size
+ * ```
+ *
  * Actual CSS parsing is performed in the {@link Stylesheet} class.
  *
  * @package dompdf
@@ -308,19 +327,20 @@ class Style
     protected $_media_queries;
 
     /**
-     * Specified (or declared) values of the CSS properties.
-     * https://www.w3.org/TR/css-cascade-3/#value-stages
-     *
-     * @var array
-     */
-    protected $_props = [];
-
-    /**
      * Properties set by an `!important` declaration.
      *
      * @var array
      */
     protected $_important_props = [];
+
+    /**
+     * Specified (or declared) values of the CSS properties.
+     *
+     * https://www.w3.org/TR/css-cascade-3/#value-stages
+     *
+     * @var array
+     */
+    protected $_props = [];
 
     /**
      * Computed values of the CSS properties.
@@ -334,7 +354,15 @@ class Style
      *
      * @var array
      */
-    protected $_prop_cache = [];
+    protected $_props_used = [];
+
+    /**
+     * Marks properties with non-final used values that should be cleared on
+     * style reset.
+     *
+     * @var array
+     */
+    protected $non_final_used = [];
 
     protected static $_dependency_map = [
         "border_top_style" => [
@@ -674,6 +702,20 @@ class Style
     }
 
     /**
+     * Clear all non-final used values.
+     *
+     * @return void
+     */
+    public function reset(): void
+    {
+        foreach (array_keys($this->non_final_used) as $prop) {
+            unset($this->_props_used[$prop]);
+        }
+
+        $this->non_final_used = [];
+    }
+
+    /**
      * @param array $media_queries
      */
     public function set_media_queries(array $media_queries): void
@@ -889,7 +931,7 @@ class Style
         // Clear the computed font size, as it might depend on the parent
         // font size
         unset($this->_props_computed["font_size"]);
-        unset($this->_prop_cache["font_size"]);
+        unset($this->_props_used["font_size"]);
 
         if ($parent) {
             foreach (self::$_inherited as $prop) {
@@ -907,7 +949,7 @@ class Style
 
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
-                    $this->_prop_cache[$prop] = null;
+                    $this->_props_used[$prop] = null;
                 }
             }
         }
@@ -921,12 +963,12 @@ class Style
 
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
-                    $this->_prop_cache[$prop] = null;
+                    $this->_props_used[$prop] = null;
                 } else {
                     // Parent prop not set, use default
                     $this->_props[$prop] = self::$_defaults[$prop];
                     unset($this->_props_computed[$prop]);
-                    unset($this->_prop_cache[$prop]);
+                    unset($this->_props_used[$prop]);
                 }
             }
         }
@@ -969,10 +1011,10 @@ class Style
             // instead
             if (isset(self::$_dependent_props[$prop])) {
                 unset($this->_props_computed[$prop]);
-                unset($this->_prop_cache[$prop]);
+                unset($this->_props_used[$prop]);
             } else {
                 $this->_props_computed[$prop] = $computed;
-                $this->_prop_cache[$prop] = null;
+                $this->_props_used[$prop] = null;
             }
         }
     }
@@ -987,17 +1029,47 @@ class Style
     }
 
     /**
-     * Set the specified value of a property.
+     * Clear border-radius and bottom-spacing cache as necessary when a given
+     * property is set.
+     *
+     * @param string $prop The property that is set.
+     */
+    protected function clear_cache(string $prop): void
+    {
+        // Clear border-radius cache on setting any border-radius
+        // property
+        if ($prop === "border_top_left_radius"
+            || $prop === "border_top_right_radius"
+            || $prop === "border_bottom_left_radius"
+            || $prop === "border_bottom_right_radius"
+        ) {
+            $this->has_border_radius_cache = null;
+            $this->resolved_border_radius = null;
+        }
+
+        // Clear bottom-spacing cache if necessary. Border style can
+        // disable/enable border calculations
+        if ($prop === "margin_bottom"
+            || $prop === "padding_bottom"
+            || $prop === "border_bottom_width"
+            || $prop === "border_bottom_style"
+        ) {
+            $this->_computed_bottom_spacing = null;
+        }
+    }
+
+    /**
+     * Set a style property from a value declaration.
      *
      * Setting `$clear_dependencies` to `false` is useful for saving a bit of
      * unnecessary work while loading stylesheets.
      *
      * @param string $prop               The property to set.
-     * @param mixed  $val                The value declaration.
+     * @param string $val                The value declaration.
      * @param bool   $important          Whether the declaration is important.
      * @param bool   $clear_dependencies Whether to clear computed values of dependent properties.
      */
-    public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
+    public function set_prop(string $prop, string $val, bool $important = false, bool $clear_dependencies = true): void
     {
         $prop = str_replace("-", "_", $prop);
 
@@ -1012,7 +1084,7 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false && strlen($val) > 1) {
+        if ($prop !== "content" && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|rem|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
@@ -1066,7 +1138,7 @@ class Style
 
             $this->_props[$prop] = $val;
             unset($this->_props_computed[$prop]);
-            unset($this->_prop_cache[$prop]);
+            unset($this->_props_used[$prop]);
 
             if ($clear_dependencies) {
                 // Clear the computed values of any dependent properties, so
@@ -1074,30 +1146,11 @@ class Style
                 if (isset(self::$_dependency_map[$prop])) {
                     foreach (self::$_dependency_map[$prop] as $dependent) {
                         unset($this->_props_computed[$dependent]);
-                        unset($this->_prop_cache[$dependent]);
+                        unset($this->_props_used[$dependent]);
                     }
                 }
 
-                // Clear border-radius cache on setting any border-radius
-                // property
-                if ($prop === "border_top_left_radius"
-                    || $prop === "border_top_right_radius"
-                    || $prop === "border_bottom_left_radius"
-                    || $prop === "border_bottom_right_radius"
-                ) {
-                    $this->has_border_radius_cache = null;
-                    $this->resolved_border_radius = null;
-                }
-
-                // Clear bottom-spacing cache if necessary. Border style can
-                // disable/enable border calculations
-                if ($prop === "margin_bottom"
-                    || $prop === "padding_bottom"
-                    || $prop === "border_bottom_width"
-                    || $prop === "border_bottom_style"
-                ) {
-                    $this->_computed_bottom_spacing = null;
-                }
+                $this->clear_cache($prop);
             }
 
             // FIXME: temporary hack around lack of persistence of base href for
@@ -1110,15 +1163,14 @@ class Style
     }
 
     /**
-     * Similar to __get() without storing the result. Useful for accessing
-     * properties while loading stylesheets.
+     * Get the specified value of a style property.
      *
      * @param string $prop
      *
      * @return mixed
      * @throws Exception
      */
-    public function get_prop(string $prop)
+    public function get_specified(string $prop)
     {
         // Legacy property aliases
         if (isset(self::$_props_alias[$prop])) {
@@ -1129,66 +1181,25 @@ class Style
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
-        $method = "_get_$prop";
-
-        if (isset($this->_props_computed[$prop])) {
-            $computed = $this->_props_computed[$prop];
-
-            return method_exists($this, $method)
-                ? $this->$method($computed)
-                : $computed;
-        }
-
-        // Fall back on defaults if property is not set
         return $this->_props[$prop] ?? self::$_defaults[$prop];
     }
 
     /**
-     * PHP5 overloaded setter
+     * Set a style property to its final value.
      *
-     * This function along with {@link Style::__get()} permit a user of the
-     * Style class to access any (CSS) property using the following syntax:
-     * <code>
-     *  Style->margin_top = "1em";
-     *  echo (Style->margin_top);
-     * </code>
+     * This sets the specified and used value of the style property to the given
+     * value, meaning the value is not parsed and thus should have a type
+     * compatible with the property.
      *
-     * __set() automatically calls the provided set function, if one exists,
-     * otherwise it sets the property directly.  Typically, __set() is not
-     * called directly from outside of this class.
+     * If a shorthand property is specified, all of its sub-properties are set
+     * to the given value.
      *
-     * On each modification clear cache to return accurate setting.
-     * Also affects direct settings not using __set
-     * For easier finding all assignments, attempted to allowing only explicite assignment:
-     * Very many uses, e.g. AbstractFrameReflower.php -> for now leave as it is
-     * function __set($prop, $val) {
-     *   throw new Exception("Implicit replacement of assignment by __set.  Not good.");
-     * }
-     * function props_set($prop, $val) { ... }
+     * @param string $prop The property to set.
+     * @param mixed  $val  The final value of the property.
      *
-     * @param string $prop the property to set
-     * @param mixed $val the value of the property
-     *
-     */
-    public function __set($prop, $val)
-    {
-        $this->set_prop($prop, $val);
-    }
-
-    /**
-     * PHP5 overloaded getter
-     * Along with {@link Style::__set()} __get() provides access to all CSS
-     * properties directly.  Typically __get() is not called directly outside
-     * of this class.
-     * On each modification clear cache to return accurate setting.
-     * Also affects direct settings not using __set
-     *
-     * @param string $prop
-     *
-     * @return mixed
      * @throws Exception
      */
-    public function __get($prop)
+    public function __set(string $prop, $val)
     {
         // Legacy property aliases
         if (isset(self::$_props_alias[$prop])) {
@@ -1199,8 +1210,75 @@ class Style
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
-        if (isset($this->_prop_cache[$prop])) {
-            return $this->_prop_cache[$prop];
+        if (isset(self::$_props_shorthand[$prop])) {
+            foreach (self::$_props_shorthand[$prop] as $sub_prop) {
+                $this->__set($sub_prop, $val);
+            }
+        } else {
+            $this->_props[$prop] = $val;
+            $this->_props_computed[$prop] = $val;
+            $this->_props_used[$prop] = $val;
+
+            $this->clear_cache($prop);
+        }
+    }
+
+    /**
+     * Set the used value of a style property.
+     *
+     * Used values are cleared on style reset.
+     *
+     * If a shorthand property is specified, all of its sub-properties are set
+     * to the given value.
+     *
+     * @param string $prop The property to set.
+     * @param mixed  $val  The used value of the property.
+     *
+     * @throws Exception
+     */
+    public function set_used(string $prop, $val): void
+    {
+        // Legacy property aliases
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
+        }
+
+        if (!isset(self::$_defaults[$prop])) {
+            throw new Exception("'$prop' is not a recognized CSS property.");
+        }
+
+        if (isset(self::$_props_shorthand[$prop])) {
+            foreach (self::$_props_shorthand[$prop] as $sub_prop) {
+                $this->set_used($sub_prop, $val);
+            }
+        } else {
+            $this->_props_used[$prop] = $val;
+            $this->non_final_used[$prop] = true;
+        }
+    }
+
+    /**
+     * Get the used or computed value of a style property, depending on whether
+     * the used value has been determined yet.
+     *
+     * @param string $prop
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function __get(string $prop)
+    {
+        // Legacy property aliases
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
+        }
+
+        if (!isset(self::$_defaults[$prop])) {
+            throw new Exception("'$prop' is not a recognized CSS property.");
+        }
+
+        if (isset($this->_props_used[$prop])) {
+            return $this->_props_used[$prop];
         }
 
         $method = "_get_$prop";
@@ -1237,37 +1315,8 @@ class Style
                 ? $this->$method($computed)
                 : $computed;
 
-            $this->_prop_cache[$prop] = $used;
+            $this->_props_used[$prop] = $used;
             return $used;
-        }
-    }
-
-    /**
-     * Experimental fast setter for used values.
-     *
-     * If a shorthand property is specified, all of its sub-properties are set
-     * to the same value.
-     *
-     * @param string $prop
-     * @param mixed  $val
-     */
-    public function set_used(string $prop, $val): void
-    {
-        // Legacy property aliases
-        if (isset(self::$_props_alias[$prop])) {
-            $prop = self::$_props_alias[$prop];
-        }
-
-        if (!isset(self::$_defaults[$prop])) {
-            throw new Exception("'$prop' is not a recognized CSS property.");
-        }
-
-        if (isset(self::$_props_shorthand[$prop])) {
-            foreach (self::$_props_shorthand[$prop] as $sub_prop) {
-                $this->set_used($sub_prop, $val);
-            }
-        } else {
-            $this->_prop_cache[$prop] = $val;
         }
     }
 
@@ -1301,7 +1350,7 @@ class Style
         }
 
         $this->_props_computed[$prop] = $computed;
-        $this->_prop_cache[$prop] = null;
+        $this->_props_used[$prop] = null;
 
         return $computed;
     }
@@ -3477,7 +3526,7 @@ class Style
         }
         print "      ]\n";
         print "      cached [\n";
-        foreach ($this->_prop_cache as $prop => $val) {
+        foreach ($this->_props_used as $prop => $val) {
             print '        ' . $prop . ': ' . preg_replace("/\r\n/", ' ', print_r($val, true));
             print ";\n";
         }

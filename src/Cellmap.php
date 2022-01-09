@@ -921,7 +921,7 @@ class Cellmap
         foreach ($this->_frames as $arr) {
             $frame = $arr["frame"];
 
-            $h = 0;
+            $h = 0.0;
             foreach ($arr["rows"] as $row) {
                 if (!isset($this->_rows[$row])) {
                     // The row has been removed because of a page split, so skip it.
@@ -934,7 +934,7 @@ class Cellmap
             if ($frame instanceof TableCellFrameDecorator) {
                 $frame->set_cell_height($h);
             } else {
-                $frame->get_style()->height = $h;
+                $frame->get_style()->set_used("height", $h);
             }
         }
     }
@@ -948,7 +948,7 @@ class Cellmap
         foreach ($this->_frames as $arr) {
             $frame = $arr["frame"];
 
-            $h = 0;
+            $h = 0.0;
             foreach ($arr["rows"] as $row) {
                 if (!isset($this->_rows[$row])) {
                     continue;
@@ -960,13 +960,13 @@ class Cellmap
             if ($content_height > 0) {
                 $new_height = ($h / $content_height) * $table_height;
             } else {
-                $new_height = 0;
+                $new_height = 0.0;
             }
 
             if ($frame instanceof TableCellFrameDecorator) {
                 $frame->set_cell_height($new_height);
             } else {
-                $frame->get_style()->height = $new_height;
+                $frame->get_style()->set_used("height", $new_height);
             }
         }
     }

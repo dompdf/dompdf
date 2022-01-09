@@ -276,7 +276,7 @@ class Text extends AbstractFrameReflower
         // elements in case white space is collapsed
         if ($text === "") {
             $frame->set_text("");
-            $style->width = 0.0;
+            $style->set_used("width", 0.0);
             return null;
         }
 
@@ -389,7 +389,8 @@ class Text extends AbstractFrameReflower
         $style = $frame->get_style();
         $size = $style->font_size;
         $font = $style->font_family;
-        $style->height = $this->getFontMetrics()->getFontHeight($font, $size);
+        $font_height = $this->getFontMetrics()->getFontHeight($font, $size);
+        $style->set_used("height", $font_height);
 
         // Handle text transform and white space
         $text = $this->pre_process_text($frame->get_text());

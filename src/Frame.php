@@ -58,14 +58,6 @@ class Frame
     protected $_style;
 
     /**
-     * This frame's original style.  Needed for cases where frames are
-     * split across pages.
-     *
-     * @var Style
-     */
-    protected $_original_style;
-
-    /**
      * This frame's parent in the document tree.
      *
      * @var Frame
@@ -174,7 +166,6 @@ class Frame
         $this->_prev_sibling = $this->_next_sibling = null;
 
         $this->_style = null;
-        $this->_original_style = null;
 
         $this->_containing_block = [
             "x" => null,
@@ -289,9 +280,6 @@ class Frame
 
         $this->_style = null;
         unset($this->_style);
-
-        $this->_original_style = null;
-        unset($this->_original_style);
     }
 
     /**
@@ -307,9 +295,7 @@ class Frame
         $this->_containing_block["w"] = null;
         $this->_containing_block["h"] = null;
 
-        $this->_style = null;
-        unset($this->_style);
-        $this->_style = clone $this->_original_style;
+        $this->_style->reset();
     }
 
     /**
@@ -337,11 +323,12 @@ class Frame
     }
 
     /**
+     * @deprecated
      * @return Style
      */
     public function get_original_style()
     {
-        return $this->_original_style;
+        return $this->_style;
     }
 
     /**
@@ -670,13 +657,9 @@ class Frame
     /**
      * @param Style $style
      */
-    public function set_style(Style $style)
+    public function set_style(Style $style): void
     {
-        if (is_null($this->_style)) {
-            $this->_original_style = clone $style;
-        }
-
-        //$style->set_frame($this);
+        // $style->set_frame($this);
         $this->_style = $style;
     }
 
