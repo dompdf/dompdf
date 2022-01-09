@@ -314,8 +314,18 @@ class Text extends AbstractFrameReflower
         }
 
         if ($split === 0) {
+            // Make sure to move text when floating frames leave no space to
+            // place anything onto the line
+            // TODO: Would probably be better to move just below the current
+            // floating frame instead of trying to place text in line-height
+            // increments
+            if ($current_line->h === 0.0) {
+                // Line height might be 0
+                $h = max($frame->get_margin_height(), 1.0);
+                $block->maximize_line_height($h, $frame);
+            }
+
             // Break line and repeat layout
-            $block->maximize_line_height($frame->get_margin_height(), $frame);
             $block->add_line();
 
             // Find the appropriate inline ancestor to split
