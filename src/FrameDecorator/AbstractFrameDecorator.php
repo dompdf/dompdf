@@ -720,39 +720,49 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @param string $id
-     * @param int $value
+     * @param array $counters
      */
-    function reset_counter($id = self::DEFAULT_COUNTER, $value = 0)
+    public function reset_counters(array $counters): void
     {
-        $this->get_parent()->_counters[$id] = intval($value);
-    }
-
-    /**
-     * @param $counters
-     */
-    function decrement_counters($counters)
-    {
-        foreach ($counters as $id => $increment) {
-            $this->increment_counter($id, intval($increment) * -1);
-        }
-    }
-
-    /**
-     * @param $counters
-     */
-    function increment_counters($counters)
-    {
-        foreach ($counters as $id => $increment) {
-            $this->increment_counter($id, intval($increment));
+        foreach ($counters as $id => $value) {
+            $this->reset_counter($id, $value);
         }
     }
 
     /**
      * @param string $id
-     * @param int $increment
+     * @param int    $value
      */
-    function increment_counter($id = self::DEFAULT_COUNTER, $increment = 1)
+    public function reset_counter(string $id = self::DEFAULT_COUNTER, int $value = 0): void
+    {
+        $this->get_parent()->_counters[$id] = $value;
+    }
+
+    /**
+     * @param array $counters
+     */
+    public function decrement_counters(array $counters): void
+    {
+        foreach ($counters as $id => $increment) {
+            $this->increment_counter($id, $increment * -1);
+        }
+    }
+
+    /**
+     * @param array $counters
+     */
+    public function increment_counters(array $counters): void
+    {
+        foreach ($counters as $id => $increment) {
+            $this->increment_counter($id, $increment);
+        }
+    }
+
+    /**
+     * @param string $id
+     * @param int    $increment
+     */
+    public function increment_counter(string $id = self::DEFAULT_COUNTER, int $increment = 1): void
     {
         $counter_frame = $this->lookup_counter_frame($id);
 
