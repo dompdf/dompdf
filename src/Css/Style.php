@@ -30,7 +30,7 @@ class Style
 {
 
     const CSS_IDENTIFIER = "-?[_a-zA-Z]+[_a-zA-Z0-9-]*";
-    const CSS_INTEGER = "-?\d+";
+    const CSS_INTEGER = "[+-]?\d+";
 
     /**
      * Default font size, in points.
@@ -1866,24 +1866,56 @@ class Style
     }
 
     /**
-     * @param $val
+     * @param string $decl
+     * @param int    $default
+     *
+     * @return array|string
+     */
+    protected function parse_counter_prop(string $decl, int $default)
+    {
+        $re = "/(" . self::CSS_IDENTIFIER . ")(?:\s+(" . self::CSS_INTEGER . "))?/";
+
+        if (!preg_match_all($re, $decl, $matches, PREG_SET_ORDER)) {
+            return "none";
+        }
+
+        $counters = [];
+
+        foreach ($matches as $match) {
+            $counter = $match[1];
+            $value = isset($match[2]) ? (int) $match[2] : $default;
+            $counters[$counter] = $value;
+        }
+
+        return $counters;
+    }
+
+    /**
+     * @return array|string
      */
     function get_counter_increment()
     {
-        $val = trim($this->_props_computed["counter_increment"]);
-        $value = "none";
+        $val = $this->_props_computed["counter_increment"];
 
-        if (in_array($val, ["none", "inherit"])) {
-            $value = $val;
-        } else {
-            if (preg_match_all("/(" . self::CSS_IDENTIFIER . ")(?:\s+(" . self::CSS_INTEGER . "))?/", $val, $matches, PREG_SET_ORDER)) {
-                $value = [];
-                foreach ($matches as $match) {
-                    $value[$match[1]] = isset($match[2]) ? $match[2] : 1;
-                }
-            }
+        if ($val === "none" || $val === "inherit") {
+            return "none";
         }
-        return $value;
+
+        return $this->parse_counter_prop($val, 1);
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function get_counter_reset()
+    {
+        $val = $this->_props_computed["counter_reset"];
+
+        if ($val === "none") {
+            return "none";
+        }
+
+        return $this->parse_counter_prop($val, 0);
     }
 
     /*==============================*/
