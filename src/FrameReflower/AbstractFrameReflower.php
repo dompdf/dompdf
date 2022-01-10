@@ -654,12 +654,11 @@ abstract class AbstractFrameReflower
 
         $style = $frame->get_style();
 
-        if ($style->counter_reset && ($reset = $style->counter_reset) !== "none") {
-            $vars = preg_split('/\s+/', trim($reset), 2);
-            $frame->reset_counter($vars[0], isset($vars[1]) ? $vars[1] : 0);
+        if (($reset = $style->counter_reset) !== "none") {
+            $frame->reset_counters($reset);
         }
 
-        if ($style->counter_increment && ($increment = $style->counter_increment) !== "none") {
+        if (($increment = $style->counter_increment) !== "none") {
             $frame->increment_counters($increment);
         }
 
