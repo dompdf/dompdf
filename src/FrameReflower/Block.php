@@ -806,7 +806,7 @@ class Block extends AbstractFrameReflower
 
         $this->determine_absolute_containing_block();
 
-        // Generated content
+        // Counters and generated content
         $this->_set_content();
 
         // Inherit any dangling list markers

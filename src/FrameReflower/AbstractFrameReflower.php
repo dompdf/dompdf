@@ -624,9 +624,10 @@ abstract class AbstractFrameReflower
     }
 
     /**
-     * Sets the generated content of a generated frame
+     * Handle counters and set generated content if the frame is a
+     * generated-content frame.
      */
-    protected function _set_content()
+    protected function _set_content(): void
     {
         $frame = $this->_frame;
 

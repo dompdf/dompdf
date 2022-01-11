@@ -337,7 +337,7 @@ class Table extends AbstractFrameReflower
 
         $this->determine_absolute_containing_block();
 
-        // Generated content
+        // Counters and generated content
         $this->_set_content();
 
         // Collapse vertical margins, if required
