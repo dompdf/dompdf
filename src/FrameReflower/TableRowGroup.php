@@ -35,8 +35,10 @@ class TableRowGroup extends AbstractFrameReflower
     {
         /** @var TableRowGroupFrameDecorator */
         $frame = $this->_frame;
-
         $page = $frame->get_root();
+
+        // Counters and generated content
+        $this->_set_content();
 
         $style = $frame->get_style();
         $cb = $frame->get_containing_block();

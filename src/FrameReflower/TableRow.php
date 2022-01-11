@@ -45,6 +45,9 @@ class TableRow extends AbstractFrameReflower
             return;
         }
 
+        // Counters and generated content
+        $this->_set_content();
+
         $this->_frame->position();
         $style = $this->_frame->get_style();
         $cb = $this->_frame->get_containing_block();

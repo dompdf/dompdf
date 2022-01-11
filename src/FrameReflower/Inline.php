@@ -88,7 +88,7 @@ class Inline extends AbstractFrameReflower
             return;
         }
 
-        // Generated content
+        // Counters and generated content
         $this->_set_content();
 
         $style = $frame->get_style();
