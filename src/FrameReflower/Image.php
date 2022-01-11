@@ -36,6 +36,9 @@ class Image extends AbstractFrameReflower
     {
         $this->determine_absolute_containing_block();
 
+        // Counters and generated content
+        $this->_set_content();
+
         //FLOAT
         //$frame = $this->_frame;
         //$page = $frame->get_root();

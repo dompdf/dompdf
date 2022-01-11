@@ -32,6 +32,9 @@ class TableCell extends Block
      */
     function reflow(BlockFrameDecorator $block = null)
     {
+        // Counters and generated content
+        $this->_set_content();
+
         $style = $this->_frame->get_style();
 
         $table = TableFrameDecorator::find_parent_table($this->_frame);
