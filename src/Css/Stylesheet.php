@@ -1580,14 +1580,9 @@ class Stylesheet
               if (preg_match("/([a-z-]+)\s*:\s*[^:]+$/i", $prop, $m))
                 $prop = $m[0];
             }*/
+
             //A css property can have " ! important" appended (whitespace optional)
             //strip this off to decode core of the property correctly.
-            //Pass on in the style to allow proper handling:
-            //!important properties can only be overridden by other !important ones.
-            //$style->$prop_name = is a shortcut of $style->__set($prop_name,$value);.
-            //If no specific set function available, set _props["prop_name"]
-            //style is always copied completely, or $_props handled separately
-            //Therefore set a _important_props["prop_name"]=true to indicate the modifier
 
             /* Instead of short code, prefer the typical case with fast code
           $important = preg_match("/(.*?)!\s*important/",$prop,$match);
@@ -1641,12 +1636,10 @@ class Stylesheet
      */
     private function _parse_sections($str, $media_queries = [])
     {
-        // Pre-process: collapse all whitespace and strip whitespace around '>',
-        // '.', ':', '+', '~', '#'
-
-        $patterns = ["/[\\s\n]+/", "/\\s+([>.:+~#])\\s+/"];
+        // Pre-process selectors: collapse all whitespace and strip whitespace
+        // around '>', '.', ':', '+', '~', '#'
+        $patterns = ["/\s+/", "/\s+([>.:+~#])\s+/"];
         $replacements = [" ", "\\1"];
-        $str = preg_replace($patterns, $replacements, $str);
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
         $sections = explode("}", $str);
@@ -1655,10 +1648,10 @@ class Stylesheet
             $i = mb_strpos($sect, "{");
             if ($i === false) { continue; }
 
-            //$selectors = explode(",", mb_substr($sect, 0, $i));
-            $selectors = preg_split("/,(?![^\(]*\))/", mb_substr($sect, 0, $i), 0, PREG_SPLIT_NO_EMPTY);
             if ($DEBUGCSS) print '[section';
 
+            $selector_str = preg_replace($patterns, $replacements, mb_substr($sect, 0, $i));
+            $selectors = preg_split("/,(?![^\(]*\))/", $selector_str, 0, PREG_SPLIT_NO_EMPTY);
             $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
 
             // Assign it to the selected elements
