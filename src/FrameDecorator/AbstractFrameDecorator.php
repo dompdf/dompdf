@@ -193,6 +193,28 @@ abstract class AbstractFrameDecorator extends Frame
         return $deco;
     }
 
+    /**
+     * Create an anonymous child frame, inheriting styles from this frame.
+     *
+     * @param string $node_name
+     * @param string $display
+     *
+     * @return AbstractFrameDecorator
+     */
+    public function create_anonymous_child(string $node_name, string $display): AbstractFrameDecorator
+    {
+        $style = $this->get_style();
+        $child_style = $style->get_stylesheet()->create_style();
+        $child_style->inherit($style);
+        $child_style->display = $display;
+
+        $node = $this->get_node()->ownerDocument->createElement($node_name);
+        $frame = new Frame($node);
+        $frame->set_style($child_style);
+
+        return Factory::decorate_frame($frame, $this->_dompdf, $this->_root);
+    }
+
     function reset()
     {
         $this->_frame->reset();

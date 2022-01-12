@@ -33,6 +33,8 @@ class TableRow extends AbstractFrameDecorator
     /**
      * Remove all non table-cell frames from this row and move them after
      * the table.
+     *
+     * @deprecated
      */
     function normalise()
     {
