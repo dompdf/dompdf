@@ -542,9 +542,9 @@ class Cellmap
     }
 
     /**
-     * @param Frame $frame
+     * @param AbstractFrameDecorator $frame
      */
-    public function add_frame(Frame $frame)
+    public function add_frame(Frame $frame): void
     {
         $style = $frame->get_style();
         $display = $style->display;
@@ -557,11 +557,9 @@ class Cellmap
             || in_array($display, TableFrameDecorator::$ROW_GROUPS, true)
         ) {
             $start_row = $this->__row;
+
             foreach ($frame->get_children() as $child) {
-                // Ignore all Text frames and :before/:after pseudo-selector elements.
-                if (!($child instanceof FrameDecorator\Text) && $child->get_node()->nodeName !== 'dompdf_generated') {
-                    $this->add_frame($child);
-                }
+                $this->add_frame($child);
             }
 
             if ($display === "table-row") {
