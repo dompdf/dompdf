@@ -157,12 +157,6 @@ class Inline extends AbstractFrameReflower
         foreach ($frame->get_children() as $child) {
             $child->set_containing_block($cb);
             $child->reflow($block);
-
-            // Stop reflow of subsequent children if the frame was split within
-            // child reflow
-            if ($child->get_parent() !== $frame) {
-                break;
-            }
         }
 
         // Assume the position of the first child
