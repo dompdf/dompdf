@@ -9,6 +9,7 @@
 namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
+use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
 use Dompdf\Image\Cache;
 
 /**
@@ -19,34 +20,23 @@ use Dompdf\Image\Cache;
  */
 class Image extends Block
 {
-
     /**
-     * @param Frame $frame
+     * @param ImageFrameDecorator $frame
      */
     function render(Frame $frame)
     {
-        // Render background & borders
         $style = $frame->get_style();
         $border_box = $frame->get_border_box();
-        [, , $bw, $bh] = $border_box;
-
-        if ($bw === 0.0 || $bh === 0.0) {
-            return;
-        }
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
+        // Render background & borders
         $this->_render_background($frame, $border_box);
         $this->_render_border($frame, $border_box);
         $this->_render_outline($frame, $border_box);
 
         $content_box = $frame->get_content_box();
         [$x, $y, $w, $h] = $content_box;
-
-        if ($style->has_border_radius()) {
-            [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $content_box);
-            $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
-        }
 
         $src = $frame->get_image_url();
         $alt = null;
@@ -66,12 +56,17 @@ class Image extends Block
                 $style->color,
                 $spacing
             );
-        } else {
-            $this->_canvas->image($src, $x, $y, $w, $h, $style->image_resolution);
-        }
+        } elseif ($w > 0 && $h > 0) {
+            if ($style->has_border_radius()) {
+                [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $content_box);
+                $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
+            }
 
-        if ($style->has_border_radius()) {
-            $this->_canvas->clipping_end();
+            $this->_canvas->image($src, $x, $y, $w, $h, $style->image_resolution);
+
+            if ($style->has_border_radius()) {
+                $this->_canvas->clipping_end();
+            }
         }
 
         if ($msg = $frame->get_image_msg()) {
