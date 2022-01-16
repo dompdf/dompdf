@@ -60,51 +60,111 @@ class Image extends AbstractFrameReflower
 
     public function get_min_max_content_width(): array
     {
+        // TODO: While the containing block is not set yet on the frame, it can
+        // already be determined in some cases due to fixed dimensions on the
+        // ancestor forming the containing block. In such cases, percentage
+        // values could be resolved here
+        $style = $this->_frame->get_style();
+
+        [$width] = $this->calculate_size(null, null);
+        $min_width = $this->resolve_min_width(null);
+        $percent_width = Helpers::is_percent($style->width)
+            || Helpers::is_percent($style->max_width);
+
+        // Use the specified min width as minimum when width or max width depend
+        // on the containing block and cannot be resolved yet. This mimics
+        // browser behavior
+        $min = $percent_width ? $min_width : $width;
+        $max = $width;
+
+        return [$min, $max];
+    }
+
+    /**
+     * Calculate width and height, accounting for min/max constraints.
+     *
+     * * https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-width
+     * * https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-height
+     * * https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
+     * * https://www.w3.org/TR/CSS21/visudet.html#min-max-heights
+     *
+     * @param float|null $cbw Width of the containing block.
+     * @param float|null $cbh Height of the containing block.
+     *
+     * @return float[]
+     */
+    protected function calculate_size(?float $cbw, ?float $cbh): array
+    {
         /** @var ImageFrameDecorator */
         $frame = $this->_frame;
         $style = $frame->get_style();
-        $width = $style->width;
-        $percent_width = Helpers::is_percent($width);
 
-        // The containing block is not defined yet
-        if ($width !== "auto" && !$percent_width) {
-            $min = (float) $style->length_in_pt($width, 0);
-            $max = $min;
-        } else {
+        $computed_width = $style->width;
+        $computed_height = $style->height;
+
+        $width = $cbw === null && Helpers::is_percent($computed_width)
+            ? "auto"
+            : $style->length_in_pt($computed_width, $cbw ?? 0);
+        $height = $cbh === null && Helpers::is_percent($computed_height)
+            ? "auto"
+            : $style->length_in_pt($computed_height, $cbh ?? 0);
+        $min_width = $this->resolve_min_width($cbw);
+        $max_width = $this->resolve_max_width($cbw);
+        $min_height = $this->resolve_min_height($cbh);
+        $max_height = $this->resolve_max_height($cbh);
+
+        if ($width === "auto" && $height === "auto") {
+            // Use intrinsic dimensions, resampled to pt
             [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
+            $w = $frame->resample($img_width);
+            $h = $frame->resample($img_height);
 
-            $height = $style->height;
-            $fixed_height = $height !== "auto" && !Helpers::is_percent($height);
+            // Resolve min/max constraints according to the constraint-violation
+            // table in https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
+            $max_width = max($min_width, $max_width);
+            $max_height = max($min_height, $max_height);
 
-            if ($percent_width) {
-                // Don't enforce any minimum width when it depends on the
-                // containing block. Use intrinsic width resampled to pt for max
-                // width
-                $min = 0.0;
-                $max = $frame->resample($img_width);
-            } elseif ($fixed_height) {
-                // Keep aspect ratio: Scale intrinsic width
-                $height = (float) $style->length_in_pt($height, 0);
-                $min = $height * ($img_width / $img_height);
-                $max = $min;
+            if (($w > $max_width && $h <= $max_height)
+                || ($w > $max_width && $h > $max_height && $max_width / $w <= $max_height / $h)
+                || ($w < $min_width && $h > $min_height)
+                || ($w < $min_width && $h < $min_height && $min_width / $w > $min_height / $h)
+            ) {
+                $width = Helpers::clamp($w, $min_width, $max_width);
+                $height = $width * ($img_height / $img_width);
+                $height = Helpers::clamp($height, $min_height, $max_height);
             } else {
-                // Width is `auto`: Use intrinsic width resampled to pt
-                $min = $frame->resample($img_width);
-                $max = $min;
+                $height = Helpers::clamp($h, $min_height, $max_height);
+                $width = $height * ($img_width / $img_height);
+                $width = Helpers::clamp($width, $min_width, $max_width);
             }
+        } elseif ($height === "auto") {
+            // Width is fixed, scale height according to aspect ratio
+            [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
+            $width = Helpers::clamp((float) $width, $min_width, $max_width);
+            $height = $width * ($img_height / $img_width);
+            $height = Helpers::clamp($height, $min_height, $max_height);
+        } elseif ($width === "auto") {
+            // Height is fixed, scale width according to aspect ratio
+            [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
+            $height = Helpers::clamp((float) $height, $min_height, $max_height);
+            $width = $height * ($img_width / $img_height);
+            $width = Helpers::clamp($width, $min_width, $max_width);
+        } else {
+            // Width and height are fixed
+            $width = Helpers::clamp((float) $width, $min_width, $max_width);
+            $height = Helpers::clamp((float) $height, $min_height, $max_height);
         }
 
-        // Handle min/max width style properties
-        return $this->restrict_min_max_width($min, $max);
+        return [$width, $height];
     }
 
     protected function resolve_dimensions(): void
     {
-        $debug_png = $this->get_dompdf()->getOptions()->getDebugPng();
-
         /** @var ImageFrameDecorator */
         $frame = $this->_frame;
         $style = $frame->get_style();
+
+        $debug_png = $this->get_dompdf()->getOptions()->getDebugPng();
 
         if ($debug_png) {
             [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
@@ -119,76 +179,8 @@ class Image extends AbstractFrameReflower
                 $img_height . "|";
         }
 
-        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-width
-        // https://www.w3.org/TR/CSS21/visudet.html#inline-replaced-height
-        $style = $frame->get_style();
         [, , $cbw, $cbh] = $frame->get_containing_block();
-
-        $width = $style->length_in_pt($style->width, $cbw);
-        $height = $style->length_in_pt($style->height, $cbh);
-        $width_forced = true;
-        $height_forced = true;
-
-        if ($width === "auto" || $height === "auto") {
-            // Determine the image's size. Time consuming. Only when really needed!
-            [$img_width, $img_height] = $frame->get_intrinsic_dimensions();
-
-            // Don't treat 0 as error. Can be downscaled or can be caught elsewhere if image not readable.
-            // Resample according to px per inch
-            // See also ListBulletImage::__construct
-            if ($width === "auto" && $height === "auto") {
-                $width = $frame->resample($img_width);
-                $height = $frame->resample($img_height);
-                $width_forced = false;
-                $height_forced = false;
-            } elseif ($height === "auto") {
-                $height = $width * ($img_height / $img_width); // Keep aspect ratio
-                $height_forced = false;
-            } else {
-                $width = $height * ($img_width / $img_height); // Keep aspect ratio
-                $width_forced = false;
-            }
-        }
-
-        // Handle min/max width/height
-        // https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
-        // https://www.w3.org/TR/CSS21/visudet.html#min-max-heights
-        $min_width = $style->length_in_pt($style->min_width, $cbw);
-        $max_width = $style->length_in_pt($style->max_width, $cbw);
-        $min_height = $style->length_in_pt($style->min_height, $cbh);
-        $max_height = $style->length_in_pt($style->max_height, $cbh);
-
-        if ($max_width !== "none" && $max_width !== "auto" && $width > $max_width) {
-            if (!$height_forced) {
-                $height *= $max_width / $width;
-            }
-
-            $width = $max_width;
-        }
-
-        if ($min_width !== "auto" && $min_width !== "none" && $width < $min_width) {
-            if (!$height_forced) {
-                $height *= $min_width / $width;
-            }
-
-            $width = $min_width;
-        }
-
-        if ($max_height !== "none" && $max_height !== "auto" && $height > $max_height) {
-            if (!$width_forced) {
-                $width *= $max_height / $height;
-            }
-
-            $height = $max_height;
-        }
-
-        if ($min_height !== "auto" && $min_height !== "none" && $height < $min_height) {
-            if (!$width_forced) {
-                $width *= $min_height / $height;
-            }
-
-            $height = $min_height;
-        }
+        [$width, $height] = $this->calculate_size($cbw, $cbh);
 
         if ($debug_png) {
             print $width . " " . $height . ";";

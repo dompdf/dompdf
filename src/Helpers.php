@@ -209,6 +209,22 @@ class Helpers
     }
 
     /**
+     * Restrict a length to the given range.
+     *
+     * If min > max, the result is min.
+     *
+     * @param float $length
+     * @param float $min
+     * @param float $max
+     *
+     * @return float
+     */
+    public static function clamp(float $length, float $min, float $max): float
+    {
+        return max($min, min($length, $max));
+    }
+
+    /**
      * Determines whether $value is a percentage or not
      *
      * @param string|float|int $value

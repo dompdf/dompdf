@@ -242,10 +242,10 @@ class Block extends AbstractFrameReflower
 
         // Handle min/max width
         // https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
-        $min_width = $style->length_in_pt($style->min_width, $cb["w"]);
-        $max_width = $style->length_in_pt($style->max_width, $cb["w"]);
+        $min_width = $this->resolve_min_width($cb["w"]);
+        $max_width = $this->resolve_max_width($cb["w"]);
 
-        if ($max_width !== "none" && $max_width !== "auto" && $width > $max_width) {
+        if ($width > $max_width) {
             $values = $this->_calculate_width($max_width);
             $margin_left = $values["margin_left"];
             $margin_right = $values["margin_right"];
@@ -254,7 +254,7 @@ class Block extends AbstractFrameReflower
             $right = $values["right"];
         }
 
-        if ($min_width !== "auto" && $min_width !== "none" && $width < $min_width) {
+        if ($width < $min_width) {
             $values = $this->_calculate_width($min_width);
             $margin_left = $values["margin_left"];
             $margin_right = $values["margin_right"];
@@ -394,8 +394,8 @@ class Block extends AbstractFrameReflower
                 }
             }
         } else {
-            // http://www.w3.org/TR/CSS21/visudet.html#normal-block
-            // http://www.w3.org/TR/CSS21/visudet.html#block-root-margin
+            // https://www.w3.org/TR/CSS21/visudet.html#normal-block
+            // https://www.w3.org/TR/CSS21/visudet.html#block-root-margin
 
             if ($height === "auto") {
                 $height = $content_height;
@@ -407,32 +407,18 @@ class Block extends AbstractFrameReflower
                 $margin_bottom = 0;
             }
 
-            // FIXME: this should probably be moved to a separate function as per
-            // _calculate_restricted_width
-
-            $min_height = $style->min_height;
-            $max_height = $style->max_height;
-
-            if (isset($cb["h"])) {
-                $min_height = $style->length_in_pt($min_height, $cb["h"]);
-                $max_height = $style->length_in_pt($max_height, $cb["h"]);
-            } else {
-                $min_height = !Helpers::is_percent($min_height)
-                    ? $style->length_in_pt($min_height, $cb["w"])
-                    : "auto";
-                $max_height = !Helpers::is_percent($max_height)
-                    ? $style->length_in_pt($max_height, $cb["w"])
-                    : "none";
-            }
-
-            if ($max_height !== "none" && $max_height !== "auto" && $height > $max_height) {
-                $height = $max_height;
-            }
-
-            if ($min_height !== "auto" && $min_height !== "none" && $height < $min_height) {
-                $height = $min_height;
-            }
+            // Handle min/max height
+            // https://www.w3.org/TR/CSS21/visudet.html#min-max-heights
+            $min_height = $this->resolve_min_height($cb["h"]);
+            $max_height = $this->resolve_max_height($cb["h"]);
+            $height = Helpers::clamp($height, $min_height, $max_height);
         }
+
+        // TODO: Need to also take min/max height into account for absolute
+        // positioning, using similar logic to the `_calculate_width`/
+        // `calculate_restricted_width` split above. The non-absolute case
+        // can simply clamp height within min/max, as margins and offsets are
+        // not affected
 
         return [$height, $margin_top, $margin_bottom, $top, $bottom];
     }
@@ -935,8 +921,10 @@ class Block extends AbstractFrameReflower
 
     public function get_min_max_content_width(): array
     {
-        // Ignore percentage values for a specified width here, as the
-        // containing block is not defined yet
+        // TODO: While the containing block is not set yet on the frame, it can
+        // already be determined in some cases due to fixed dimensions on the
+        // ancestor forming the containing block. In such cases, percentage
+        // values could be resolved here
         $style = $this->_frame->get_style();
         $width = $style->width;
         $fixed_width = $width !== "auto" && !Helpers::is_percent($width);
@@ -951,6 +939,11 @@ class Block extends AbstractFrameReflower
         }
 
         // Handle min/max width style properties
-        return $this->restrict_min_max_width($min, $max);
+        $min_width = $this->resolve_min_width(null);
+        $max_width = $this->resolve_max_width(null);
+        $min = Helpers::clamp($min, $min_width, $max_width);
+        $max = Helpers::clamp($max, $min_width, $max_width);
+
+        return [$min, $max];
     }
 }
