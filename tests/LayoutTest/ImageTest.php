@@ -49,7 +49,7 @@ HTML
                 100.0,
                 200.0
             ],
-            "min-max" => [
+            "min-max 1" => [
                 <<<HTML
 <img src="$filepath" style="
     width: 100px;
@@ -63,6 +63,58 @@ HTML
 ,
                 400 * $dpiFactor,
                 500 * $dpiFactor
+            ],
+            "min-max 2" => [
+                <<<HTML
+<img src="$filepath" style="
+    width: auto;
+    height: 100px;
+    max-width: 200px;
+    min-height: 200px;
+    ">
+HTML
+,
+                200 * $dpiFactor,
+                200 * $dpiFactor
+            ],
+            "min-max 3" => [
+                <<<HTML
+<img src="$filepath" style="
+    width: 100px;
+    height: auto;
+    min-width: 200px;
+    max-height: 200px;
+    ">
+HTML
+,
+                200 * $dpiFactor,
+                150 * $dpiFactor
+            ],
+            "min-max 4" => [
+                <<<HTML
+<img src="$filepath" style="
+    width: auto;
+    height: auto;
+    max-width: 100px;
+    max-height: 200px;
+    ">
+HTML
+,
+                100 * $dpiFactor,
+                75 * $dpiFactor
+            ],
+            "min-max 5" => [
+                <<<HTML
+<img src="$filepath" style="
+    width: auto;
+    height: auto;
+    max-width: 100px;
+    max-height: 50px;
+    ">
+HTML
+,
+                50 * (4 / 3) * $dpiFactor,
+                50 * $dpiFactor
             ],
             "page size" => [
                 <<<HTML

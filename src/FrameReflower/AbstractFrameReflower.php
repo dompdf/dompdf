@@ -10,8 +10,9 @@ namespace Dompdf\FrameReflower;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Frame;
-use Dompdf\FrameDecorator\Block;
 use Dompdf\Frame\Factory;
+use Dompdf\FrameDecorator\AbstractFrameDecorator;
+use Dompdf\FrameDecorator\Block;
 
 /**
  * Base reflower class
@@ -27,7 +28,7 @@ abstract class AbstractFrameReflower
     /**
      * Frame for this reflower
      *
-     * @var Frame
+     * @var AbstractFrameDecorator
      */
     protected $_frame;
 
@@ -47,9 +48,9 @@ abstract class AbstractFrameReflower
 
     /**
      * AbstractFrameReflower constructor.
-     * @param Frame $frame
+     * @param AbstractFrameDecorator $frame
      */
-    function __construct(Frame $frame)
+    function __construct(AbstractFrameDecorator $frame)
     {
         $this->_frame = $frame;
         $this->_min_max_child_cache = null;
@@ -256,9 +257,9 @@ abstract class AbstractFrameReflower
      * Handle relative positioning according to
      * https://www.w3.org/TR/CSS21/visuren.html#relative-positioning.
      *
-     * @param Frame $frame The frame to handle.
+     * @param AbstractFrameDecorator $frame The frame to handle.
      */
-    protected function position_relative(Frame $frame): void
+    protected function position_relative(AbstractFrameDecorator $frame): void
     {
         $style = $frame->get_style();
 
@@ -293,43 +294,83 @@ abstract class AbstractFrameReflower
     abstract function reflow(Block $block = null);
 
     /**
-     * Handle `min-width`/`max-width` properties while calculating the min/max
-     * width of this frame.
+     * Resolve the `min-width` property.
      *
-     * @param float $min Original min width.
-     * @param float $max Original max width.
+     * Resolves to 0 if not set or if a percentage and the containing-block
+     * width is not defined.
      *
-     * @return array Restricted min and max width.
+     * @param float|null $cbw Width of the containing block.
+     *
+     * @return float
      */
-    protected function restrict_min_max_width(float $min, float $max): array
+    protected function resolve_min_width(?float $cbw): float
     {
-        // Ignore percentage values here, as the containing block is not
-        // defined yet
         $style = $this->_frame->get_style();
-        $display = $style->display;
-
         $min_width = $style->min_width;
+
+        return $min_width !== "auto" && $min_width !== "none"
+            ? $style->length_in_pt($min_width, $cbw ?? 0)
+            : 0.0;
+    }
+
+    /**
+     * Resolve the `max-width` property.
+     *
+     * Resolves to `INF` if not set or if a percentage and the containing-block
+     * width is not defined.
+     *
+     * @param float|null $cbw Width of the containing block.
+     *
+     * @return float
+     */
+    protected function resolve_max_width(?float $cbw): float
+    {
+        $style = $this->_frame->get_style();
         $max_width = $style->max_width;
-        $has_min_width = $min_width !== "auto" && $min_width !== "none";
-        $has_max_width = $max_width !== "none" && $max_width !== "auto";
 
-        if ($has_max_width && !Helpers::is_percent($max_width)) {
-            $max = min($max, (float) $style->length_in_pt($max_width, 0));
-            $min = min($min, $max);
-        }
+        return $max_width !== "none" && $max_width !== "auto"
+            ? $style->length_in_pt($max_width, $cbw ?? INF)
+            : INF;
+    }
 
-        if ($has_min_width && !Helpers::is_percent($min_width)) {
-            $min = max($min, (float) $style->length_in_pt($min_width, 0));
-            $max = max($max, $min);
-        } elseif ($has_max_width && Helpers::is_percent($max_width) && $display !== "table-cell") {
-            // Don't enforce any minimum width when max width depends on the
-            // containing block and there is no fixed min width
-            // Don't apply this logic to table cells, as percentage min/max
-            // columns widths are not supported
-            $min = 0.0;
-        }
+    /**
+     * Resolve the `min-height` property.
+     *
+     * Resolves to 0 if not set or if a percentage and the containing-block
+     * height is not defined.
+     *
+     * @param float|null $cbh Height of the containing block.
+     *
+     * @return float
+     */
+    protected function resolve_min_height(?float $cbh): float
+    {
+        $style = $this->_frame->get_style();
+        $min_height = $style->min_height;
 
-        return [$min, $max];
+        return $min_height !== "auto" && $min_height !== "none"
+            ? $style->length_in_pt($min_height, $cbh ?? 0)
+            : 0.0;
+    }
+
+    /**
+     * Resolve the `max-height` property.
+     *
+     * Resolves to `INF` if not set or if a percentage and the containing-block
+     * height is not defined.
+     *
+     * @param float|null $cbh Height of the containing block.
+     *
+     * @return float
+     */
+    protected function resolve_max_height(?float $cbh): float
+    {
+        $style = $this->_frame->get_style();
+        $max_height = $style->max_height;
+
+        return $max_height !== "none" && $max_height !== "auto"
+            ? $style->length_in_pt($style->max_height, $cbh ?? INF)
+            : INF;
     }
 
     /**
