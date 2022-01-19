@@ -87,8 +87,7 @@ class Fixed extends Absolute
 
             $frame->set_position($x, $y);
 
-            $children = $frame->get_children();
-            foreach ($children as $child) {
+            foreach ($frame->get_children() as $child) {
                 $child->set_position($x, $y);
             }
         }

@@ -119,8 +119,7 @@ class Page extends AbstractFrameReflower
 
             // Only if it's the first page, we save the nodes with a fixed position
             if ($current_page == 0) {
-                $children = $child->get_children();
-                foreach ($children as $onechild) {
+                foreach ($child->get_children() as $onechild) {
                     if ($onechild->get_style()->position === "fixed") {
                         $fixed_children[] = $onechild->deep_copy();
                     }

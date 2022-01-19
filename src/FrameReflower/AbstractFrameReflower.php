@@ -388,12 +388,13 @@ abstract class AbstractFrameReflower
         $low = [];
         $high = [];
 
-        for ($iter = $this->_frame->get_children()->getIterator(); $iter->valid(); $iter->next()) {
+        for ($iter = $this->_frame->get_children(); $iter->valid(); $iter->next()) {
             $inline_min = 0;
             $inline_max = 0;
 
             // Add all adjacent inline widths together to calculate max width
             while ($iter->valid() && ($iter->current()->is_inline_level() || $iter->current()->get_style()->display === "-dompdf-image")) {
+                /** @var AbstractFrameDecorator */
                 $child = $iter->current();
                 $child->get_reflower()->_set_content();
                 $minmax = $child->get_min_max_width();
@@ -417,6 +418,7 @@ abstract class AbstractFrameReflower
 
             // Skip children with absolute position
             if ($iter->valid() && !$iter->current()->is_absolute()) {
+                /** @var AbstractFrameDecorator */
                 $child = $iter->current();
                 $child->get_reflower()->_set_content();
                 list($low[], $high[]) = $child->get_min_max_width();

@@ -3,7 +3,7 @@
 namespace Dompdf;
 
 use Dompdf\Css\Style;
-use Dompdf\Frame\FrameList;
+use Dompdf\Frame\FrameListIterator;
 
 /**
  * @package dompdf
@@ -71,13 +71,6 @@ class Frame
      * @var Frame
      */
     protected $_parent;
-
-    /**
-     * This frame's children
-     *
-     * @var Frame[]
-     */
-    protected $_frame_list;
 
     /**
      * This frame's first child.  All children are handled as a
@@ -409,17 +402,11 @@ class Frame
     }
 
     /**
-     * @return FrameList|Frame[]
+     * @return FrameListIterator
      */
-    public function get_children()
+    public function get_children(): FrameListIterator
     {
-        if (isset($this->_frame_list)) {
-            return $this->_frame_list;
-        }
-
-        $this->_frame_list = new FrameList($this);
-
-        return $this->_frame_list;
+        return new FrameListIterator($this);
     }
 
     // Layout property accessors

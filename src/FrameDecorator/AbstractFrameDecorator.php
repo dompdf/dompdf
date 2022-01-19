@@ -6,13 +6,14 @@ use DOMElement;
 use DOMNode;
 use Dompdf\Helpers;
 use Dompdf\Dompdf;
+use Dompdf\Exception;
 use Dompdf\Frame;
-use Dompdf\Frame\FrameTreeList;
 use Dompdf\Frame\Factory;
+use Dompdf\Frame\FrameListIterator;
+use Dompdf\Frame\FrameTreeIterator;
 use Dompdf\FrameReflower\AbstractFrameReflower;
 use Dompdf\Css\Style;
 use Dompdf\Positioner\AbstractPositioner;
-use Dompdf\Exception;
 
 /**
  * @package dompdf
@@ -539,11 +540,19 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
-     * @return FrameTreeList
+     * @return FrameListIterator<AbstractFrameDecorator>
      */
-    function get_subtree()
+    public function get_children(): FrameListIterator
     {
-        return new FrameTreeList($this);
+        return new FrameListIterator($this);
+    }
+
+    /**
+     * @return FrameTreeIterator<AbstractFrameDecorator>
+     */
+    function get_subtree(): FrameTreeIterator
+    {
+        return new FrameTreeIterator($this);
     }
 
     function set_positioner(AbstractPositioner $posn)

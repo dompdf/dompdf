@@ -124,11 +124,11 @@ class FrameTree
     /**
      * Returns a post-order iterator for all frames in the tree
      *
-     * @return FrameTreeList|Frame[]
+     * @return FrameTreeIterator
      */
-    public function get_frames()
+    public function get_frames(): FrameTreeIterator
     {
-        return new FrameTreeList($this->_root);
+        return new FrameTreeIterator($this->_root);
     }
 
     /**
