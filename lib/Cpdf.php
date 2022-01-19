@@ -5637,7 +5637,7 @@ EOT;
     protected function addImagePngAlpha($file, $x, $y, $w, $h, $byte)
     {
         // generate images
-        $img = imagecreatefrompng($file);
+        $img = @imagecreatefrompng($file);
 
         if ($img === false) {
             return;
@@ -5686,7 +5686,7 @@ EOT;
             $alpha_channel->writeimage($tempfile_alpha);
 
             // Cast to 8bit+palette
-            $imgalpha_ = imagecreatefrompng($tempfile_alpha);
+            $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
             imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
             imagedestroy($imgalpha_);
             imagepng($imgalpha, $tempfile_alpha);
@@ -5699,7 +5699,7 @@ EOT;
             $color_channels->compositeimage($gmagick, \Gmagick::COMPOSITE_COPYBLUE, 0, 0);
             $color_channels->writeimage($tempfile_plain);
 
-            $imgplain = imagecreatefrompng($tempfile_plain);
+            $imgplain = @imagecreatefrompng($tempfile_plain);
         }
         // Use PECL imagick + ImageMagic to process transparent PNG images
         elseif (extension_loaded("imagick")) {
@@ -5732,7 +5732,7 @@ EOT;
                 $alpha_channel->writeImage($tempfile_alpha);
 
                 // Cast to 8bit+palette
-                $imgalpha_ = imagecreatefrompng($tempfile_alpha);
+                $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
                 imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
                 imagedestroy($imgalpha_);
                 imagepng($imgalpha, $tempfile_alpha);
@@ -5748,7 +5748,7 @@ EOT;
             $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYBLUE, 0, 0);
             $color_channels->writeImage($tempfile_plain);
 
-            $imgplain = imagecreatefrompng($tempfile_plain);
+            $imgplain = @imagecreatefrompng($tempfile_plain);
         } else {
             // allocated colors cache
             $allocated_colors = [];

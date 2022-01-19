@@ -278,23 +278,23 @@ abstract class AbstractRenderer
                     $cpdfFromGd = false;
                     imagesavealpha($bg, true);
                     imagealphablending($bg, false);
-                    $src = imagecreatefrompng($img);
+                    $src = @imagecreatefrompng($img);
                     break;
 
                 case "jpeg":
-                    $src = imagecreatefromjpeg($img);
+                    $src = @imagecreatefromjpeg($img);
                     break;
 
                 case "webp":
-                    $src = imagecreatefromwebp($img);
+                    $src = @imagecreatefromwebp($img);
                     break;
 
                 case "gif":
-                    $src = imagecreatefromgif($img);
+                    $src = @imagecreatefromgif($img);
                     break;
 
                 case "bmp":
-                    $src = Helpers::imagecreatefrombmp($img);
+                    $src = @Helpers::imagecreatefrombmp($img);
                     break;
 
                 default:
