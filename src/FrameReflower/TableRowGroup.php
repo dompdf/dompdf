@@ -44,16 +44,15 @@ class TableRowGroup extends AbstractFrameReflower
         $cb = $frame->get_containing_block();
 
         foreach ($frame->get_children() as $child) {
-            // Bail if the page is full
-            if ($page->is_full()) {
-                break;
-            }
-
             $child->set_containing_block($cb["x"], $cb["y"], $cb["w"], $cb["h"]);
             $child->reflow();
 
             // Check if a split has occurred
             $page->check_page_break($child);
+
+            if ($page->is_full()) {
+                break;
+            }
         }
 
         $table = TableFrameDecorator::find_parent_table($frame);

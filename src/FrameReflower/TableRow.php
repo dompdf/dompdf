@@ -53,12 +53,12 @@ class TableRow extends AbstractFrameReflower
         $cb = $this->_frame->get_containing_block();
 
         foreach ($this->_frame->get_children() as $child) {
-            if ($page->is_full()) {
-                return;
-            }
-
             $child->set_containing_block($cb);
             $child->reflow();
+
+            if ($page->is_full()) {
+                break;
+            }
         }
 
         if ($page->is_full()) {
