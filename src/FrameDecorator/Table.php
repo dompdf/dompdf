@@ -305,6 +305,12 @@ class Table extends AbstractFrameDecorator
             $tbody->append_child($child);
         }
 
+        // Handle empty table: Make sure there is at least one row group
+        if (!$this->get_first_child()) {
+            $tbody = $this->create_anonymous_child("tbody", "table-row-group");
+            $this->append_child($tbody);
+        }
+
         foreach ($this->get_children() as $child) {
             $display = $child->get_style()->display;
 
@@ -343,6 +349,12 @@ class Table extends AbstractFrameDecorator
             $tr->append_child($child);
         }
 
+        // Handle empty row group: Make sure there is at least one row
+        if (!$frame->get_first_child()) {
+            $tr = $frame->create_anonymous_child("tr", "table-row");
+            $frame->append_child($tr);
+        }
+
         foreach ($frame->get_children() as $child) {
             $this->normalizeRow($child);
         }
@@ -375,6 +387,12 @@ class Table extends AbstractFrameDecorator
             }
 
             $td->append_child($child);
+        }
+
+        // Handle empty row: Make sure there is at least one cell
+        if (!$frame->get_first_child()) {
+            $td = $frame->create_anonymous_child("td", "table-cell");
+            $frame->append_child($td);
         }
     }
 
