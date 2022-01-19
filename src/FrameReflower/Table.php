@@ -412,17 +412,16 @@ class Table extends AbstractFrameReflower
 
         // Set the containing block of each child & reflow
         foreach ($frame->get_children() as $child) {
-            // Bail if the page is full
-            if (!$page->in_nested_table() && $page->is_full()) {
-                break;
-            }
-
             $child->set_containing_block($content_x, $content_y, $width, $h);
             $child->reflow();
 
             if (!$page->in_nested_table()) {
                 // Check if a split has occurred
                 $page->check_page_break($child);
+    
+                if ($page->is_full()) {
+                    break;
+                }
             }
         }
 
