@@ -749,7 +749,7 @@ class Dompdf
 
         $root = null;
 
-        foreach ($this->tree->get_frames() as $frame) {
+        foreach ($this->tree as $frame) {
             // Set up the root frame
             if (is_null($root)) {
                 $root = Factory::decorate_root($this->tree->get_root(), $this);
