@@ -599,8 +599,8 @@ class Block extends AbstractFrameReflower
                         continue;
                     }
 
-                    $marginHeight = $frame->get_margin_height();
-                    $imageHeightDiff = $height * 0.8 - $marginHeight;
+                    $frameBox = $frame->get_border_box();
+                    $imageHeightDiff = $height * 0.8 - $frameBox["h"];
 
                     $align = $frame->get_style()->vertical_align;
                     if (in_array($align, Style::$vertical_align_keywords, true)) {
@@ -635,7 +635,7 @@ class Block extends AbstractFrameReflower
                                 break;
                         }
                     } else {
-                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $marginHeight;
+                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $frameBox["h"];
                     }
                 } else {
                     $parent = $frame->get_parent();
