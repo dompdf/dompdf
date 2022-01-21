@@ -1075,7 +1075,7 @@ class Stylesheet
         // Now create the styles and assign them to the appropriate frames. (We
         // iterate over the tree using an implicit FrameTree iterator.)
         $root_flg = false;
-        foreach ($tree->get_frames() as $frame) {
+        foreach ($tree as $frame) {
             // Helpers::pre_r($frame->get_node()->nodeName . ":");
             if (!$root_flg && $this->_page_styles["base"]) {
                 $style = $this->_page_styles["base"];
