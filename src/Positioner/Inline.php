@@ -11,6 +11,7 @@ namespace Dompdf\Positioner;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
 use Dompdf\Exception;
+use Dompdf\Helpers;
 
 /**
  * Positions inline frames
@@ -40,8 +41,9 @@ class Inline extends AbstractPositioner
             // Atomic inline boxes and replaced inline elements
             // (inline-block, inline-table, img etc.)
             $width = $frame->get_margin_width();
+            $available_width = $cb["w"] - $line->left - $line->w - $line->right;
 
-            if ($width > ($cb["w"] - $line->left - $line->w - $line->right)) {
+            if (Helpers::lengthGreater($width, $available_width)) {
                 $block->add_line();
                 $line = $block->get_current_line_box();
             }

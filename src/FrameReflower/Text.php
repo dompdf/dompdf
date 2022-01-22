@@ -158,7 +158,7 @@ class Text extends AbstractFrameReflower
         ], $line_width);
         $frame_width = $text_width + $mbp_width;
 
-        if ($frame_width <= $available_width) {
+        if (Helpers::lengthLessOrEqual($frame_width, $available_width)) {
             return false;
         }
 
@@ -181,8 +181,9 @@ class Text extends AbstractFrameReflower
             $sep = $words[$i + 1] ?? "";
             $word = $sep === " " ? $words[$i] : $words[$i] . $sep;
             $word_width = $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $char_spacing);
+            $used_width = $width + $word_width + $mbp_width;
 
-            if ($width + $word_width + $mbp_width > $available_width) {
+            if (Helpers::lengthGreater($used_width, $available_width)) {
                 // If the previous split happened by soft hyphen, we have to
                 // append its width again because the last hyphen of a line
                 // won't be removed
@@ -225,7 +226,7 @@ class Text extends AbstractFrameReflower
                     $c = mb_substr($word, $j, 1);
                     $w = $fontMetrics->getTextWidth($s . $c, $font, $size, $word_spacing, $char_spacing);
 
-                    if ($w > $available_width) {
+                    if (Helpers::lengthGreater($w, $available_width)) {
                         break;
                     }
 
