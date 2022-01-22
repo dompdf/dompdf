@@ -44,8 +44,8 @@ class Page extends AbstractFrameReflower
     }
 
     /**
-     * @param Frame $frame
-     * @param $page_number
+     * @param PageFrameDecorator $frame
+     * @param int $page_number
      */
     function apply_page_style(Frame $frame, $page_number)
     {
@@ -83,6 +83,8 @@ class Page extends AbstractFrameReflower
 
             $frame->set_style($style);
         }
+
+        $frame->calculate_bottom_page_edge();
     }
 
     /**
