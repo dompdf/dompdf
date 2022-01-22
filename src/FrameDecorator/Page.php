@@ -252,7 +252,8 @@ class Page extends AbstractFrameDecorator
             $style->padding_top
         ], $cbw);
 
-        return $childPos > $contentEdge && $contentEdge <= $this->bottom_page_edge;
+        return Helpers::lengthGreater($childPos, $contentEdge)
+            && Helpers::lengthLessOrEqual($contentEdge, $this->bottom_page_edge);
     }
 
     /**
@@ -574,7 +575,7 @@ class Page extends AbstractFrameDecorator
         }
 
         // Check if $frame flows off the page
-        if ($max_y <= $this->bottom_page_edge) {
+        if (Helpers::lengthLessOrEqual($max_y, $this->bottom_page_edge)) {
             // no: do nothing
             return false;
         }
