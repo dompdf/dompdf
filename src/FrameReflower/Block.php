@@ -559,9 +559,27 @@ class Block extends AbstractFrameReflower
     function vertical_align()
     {
         $fontMetrics = $this->get_dompdf()->getFontMetrics();
+        $style = $this->_frame->get_style();
+        $baseline_height = $fontMetrics->getFontBaseline($style->font_family, $style->font_size);
+        
+        $line_height = $fontMetrics->getFontBaseline($style->font_family, $style->line_height);
+        $nominal_line_height = $fontMetrics->getFontBaseline($style->font_family, $style->font_size * Style::$default_line_height);
+        $baseline_height_adjustment = $line_height - $nominal_line_height;
+
+        $line_top_adjustment = 0.0;
+        $line_bottom_adjustment = 0.0;
+        $running_line_top_adjustment = 0.0;
+        $running_line_bottom_adjustment = 0.0;
 
         foreach ($this->_frame->get_line_boxes() as $line) {
-            $height = $line->h;
+            $line->y += $running_line_top_adjustment + $running_line_bottom_adjustment;
+            $line_bottom = $line->y + $line->h;
+            $line_top_adjustment = 0.0;
+            $line_bottom_adjustment = 0.0;
+            
+            $line_baseline_height = $baseline_height + $baseline_height_adjustment;
+            $top_frames = [];
+            $bottom_frames = [];
 
             // Move all markers to the top of the line box
             foreach ($line->get_list_markers() as $marker) {
@@ -570,115 +588,139 @@ class Block extends AbstractFrameReflower
             }
 
             foreach ($line->frames_to_align() as $frame) {
-                $style = $frame->get_style();
-                $isInlineBlock = $style->display !== "inline"
-                    && $style->display !== "-dompdf-list-bullet";
+                if (!$frame->is_in_flow()) {
+                    continue;
+                }
+                $frame_style = $frame->get_style();
+                $frame_baseline_height = $frame->get_outer_baseline_height();
+                $frame_baseline_height_adjustment = 0;
+                if ($frame instanceof TextFrameDecorator) {
+                    $frame_line_height = $fontMetrics->getFontBaseline($frame_style->font_family, $frame_style->line_height);
+                    $frame_nominal_line_height = $fontMetrics->getFontBaseline($frame_style->font_family, $frame_style->font_size * Style::$default_line_height);
+                    $frame_baseline_height_adjustment = $frame_line_height - $frame_nominal_line_height;
+                }
+                if ($frame_baseline_height + $frame_baseline_height_adjustment > $line_baseline_height) {
+                    $line_baseline_height = $frame_baseline_height + $frame_baseline_height_adjustment;
+                }
+            }
 
-                $baseline = $fontMetrics->getFontBaseline($style->font_family, $style->font_size);
-                $y_offset = 0;
+            foreach ($line->frames_to_align() as $frame) {
+                $frame_style = $frame->get_style();
+                $frame_baseline_height = $frame->get_outer_baseline_height();
+                $frame_height = $frame->get_margin_height();
 
-                //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
-                if ($isInlineBlock) {
-                    // Workaround: Skip vertical alignment if the frame is the
-                    // only one one the line, excluding empty text frames, which
-                    // may be the result of trailing white space
-                    // FIXME: This special case should be removed once vertical
-                    // alignment is properly fixed
-                    $skip = true;
-
-                    foreach ($line->get_frames() as $other) {
-                        if ($other !== $frame
-                            && !($other->is_text_node() && $other->get_node()->nodeValue === "")
-                         ) {
-                            $skip = false;
+                $parent = $frame->get_parent();
+                if (!$frame->is_inline_level()) {
+                    $align = $frame_style->vertical_align;
+                } elseif ($parent instanceof TableCellFrameDecorator) {
+                    $align = $frame_style->vertical_align;
+                    switch ($parent->get_style()->vertical_align) {
+                        case "top":
                             break;
-                        }
-                    }
-
-                    if ($skip) {
-                        continue;
-                    }
-
-                    $marginHeight = $frame->get_margin_height();
-                    $imageHeightDiff = $height * 0.8 - $marginHeight;
-
-                    $align = $frame->get_style()->vertical_align;
-                    if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
-                        switch ($align) {
-                            case "middle":
-                                $y_offset = $imageHeightDiff / 2;
-                                break;
-
-                            case "sub":
-                                $y_offset = 0.3 * $height + $imageHeightDiff;
-                                break;
-
-                            case "super":
-                                $y_offset = -0.2 * $height + $imageHeightDiff;
-                                break;
-
-                            case "text-top": // FIXME: this should be the height of the frame minus the height of the text
-                                $y_offset = $height - $style->line_height;
-                                break;
-
-                            case "top":
-                                break;
-
-                            case "text-bottom": // FIXME: align bottom of image with the descender?
-                            case "bottom":
-                                $y_offset = 0.3 * $height + $imageHeightDiff;
-                                break;
-
-                            case "baseline":
-                            default:
-                                $y_offset = $imageHeightDiff;
-                                break;
-                        }
-                    } else {
-                        $y_offset = $baseline - (float)$style->length_in_pt($align, $style->font_size) - $marginHeight;
+                        case "middle":
+                            break;
+                        case "bottom":
+                            break;
+                        default:
+                            $align = "baseline";
+                            break;
                     }
                 } else {
-                    $parent = $frame->get_parent();
-                    if ($parent instanceof TableCellFrameDecorator) {
-                        $align = "baseline";
-                    } else {
-                        $align = $parent->get_style()->vertical_align;
-                    }
-                    if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
-                        switch ($align) {
-                            case "middle":
-                                $y_offset = ($height * 0.8 - $baseline) / 2;
-                                break;
-
-                            case "sub":
-                                $y_offset = $height * 0.8 - $baseline * 0.5;
-                                break;
-
-                            case "super":
-                                $y_offset = $height * 0.8 - $baseline * 1.4;
-                                break;
-
-                            case "text-top":
-                            case "top": // Not strictly accurate, but good enough for now
-                                break;
-
-                            case "text-bottom":
-                            case "bottom":
-                                $y_offset = $height * 0.8 - $baseline;
-                                break;
-
-                            case "baseline":
-                            default:
-                                $y_offset = $height * 0.8 - $baseline;
-                                break;
-                        }
-                    } else {
-                        $y_offset = $height * 0.8 - $baseline - (float)$style->length_in_pt($align, $style->font_size);
-                    }
+                    $align = $parent->get_style()->vertical_align;
                 }
 
-                if ($y_offset !== 0) {
+                $y_offset = 0.0;
+                if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
+                    switch ($align) {
+                        case "middle":
+                            // Aligns the middle of the element with the baseline plus half the x-height of the parent
+                            $y_offset = $line_baseline_height - ($frame_height / 2.0) - ($fontMetrics->getFontHeight($style->font_family, $style->font_size) / 5.0);
+                            break;
+
+                        case "sub":
+                            // Aligns the baseline of the element with the subscript-baseline of its parent
+                            $y_offset = ($line_baseline_height - $frame_baseline_height) + ($baseline_height * 0.3);
+                            break;
+
+                        case "super":
+                            // Aligns the baseline of the element with the superscript-baseline of its parent
+                            $y_offset = ($line_baseline_height - $frame_baseline_height) - ($baseline_height * 0.5);
+                            break;
+
+                        case "text-top":
+                            // Aligns the top of the element with the top of the parent element's font
+                            $y_offset = $line_baseline_height - $style->line_height;
+                            break;
+
+                        case "top":
+                            // Aligns the top of the element and its descendants with the top of the entire line
+                            // ... *after* other adjustments :/
+                            $top_frames[] = $frame;
+                            break;
+
+                        case "text-bottom":
+                            // Aligns the bottom of the element with the bottom of the parent element's font
+                            $y_offset = $line->h - $frame_height;
+                            break;
+
+                        case "bottom":
+                            // Aligns the bottom of the element and its descendants with the bottom of the entire line
+                            // ... *after* other adjustments :/
+                            $y_offset = $line->h - $frame_height;
+                            $bottom_frames[] = $frame;
+                            break;
+
+                        case "baseline":
+                        default:
+                            // Aligns the baseline of the element with the baseline of its parent
+                            $y_offset = $line_baseline_height - $frame_baseline_height;
+                            break;
+                    }
+                } elseif (Helpers::is_percent($align)) {
+                    // Aligns the baseline of the element to the given percentage above the baseline of its parent, with the value being a percentage of the line-height property
+                    $y_offset = $line_baseline_height - $frame_baseline_height - (float)$style->length_in_pt($align, $style->line_height);
+                } else {
+                    // Aligns the baseline of the element to the given length above the baseline of its parent.
+                    $y_offset = $line_baseline_height - $frame_baseline_height - (float)$frame_style->length_in_pt($align, $style->font_size);
+                }
+
+                $y_offset += $running_line_top_adjustment + $running_line_bottom_adjustment;
+
+                if (!Helpers::lengthEqual($y_offset, 0)) {
                     $frame->move(0, $y_offset);
+
+                    if ($frame->get_position("y") < $line->y) {
+                        $current_line_top_adjustment = $line->y - $frame->get_position("y");
+                        if ($current_line_top_adjustment > $line_top_adjustment) {
+                            $line_top_adjustment = $current_line_top_adjustment;
+                        }
+                    }
+                    
+                    $frame_bottom = $frame->get_position("y") + $frame_height;
+                    if ($frame_bottom > $line_bottom) {
+                        $current_line_bottom_adjustment = $frame_bottom - $line_bottom;
+                        if ($current_line_bottom_adjustment > $line_bottom_adjustment) {
+                            $line_bottom_adjustment = $current_line_bottom_adjustment;
+                        }
+                    }
+                }
+            }
+
+            $line->h += $line_top_adjustment + $line_bottom_adjustment;
+            $running_line_top_adjustment += $line_top_adjustment;
+            $running_line_bottom_adjustment += $line_bottom_adjustment;
+            if ($style->height !== "auto") {
+                $style->height += $line_top_adjustment + $line_bottom_adjustment;
+            }
+            if (Helpers::lengthGreater($line_top_adjustment, 0)) {
+                foreach ($line->get_frames() as $frame) {
+                    if (in_array($frame, $top_frames, true)) {
+                        continue;
+                    } elseif (in_array($frame, $bottom_frames, true)) {
+                        $frame->move(0, $line->h - $frame->get_margin_height());
+                    } else {
+                        $frame->move(0, $line_top_adjustment);
+                    }
                 }
             }
         }

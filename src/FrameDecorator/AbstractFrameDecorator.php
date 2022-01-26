@@ -113,6 +113,13 @@ abstract class AbstractFrameDecorator extends Frame
     public $is_split_off = false;
 
     /**
+     * Cache for the calculation of the outer baseline height
+     *
+     * @var Frame
+     */
+    private $_cached_outer_baseline_height;
+
+    /**
      * Class constructor
      *
      * @param Frame $frame   The decoration target
@@ -356,6 +363,58 @@ abstract class AbstractFrameDecorator extends Frame
     {
         return $this->_frame->get_border_box();
     }
+
+    /**
+     * Return the height of the baseline for the object
+     *
+     * @return float
+     */
+    public function get_outer_baseline_height()
+    {
+        if (isset($this->_cached_outer_baseline_height)) {
+            return $this->_cached_outer_baseline_height;
+        }
+
+        $style = $this->_frame->get_style();
+        $baseline_height = $this->_dompdf->getCanvas()->get_font_baseline($style->font_family, $style->font_size);
+
+        $isInlineBlock = $style->display !== "inline"
+        && $style->display !== "-dompdf-list-bullet";
+
+        if ($this instanceof \Dompdf\FrameDecorator\Image) {
+            $baseline_height = $style->length_in_pt([
+                $this->_frame->get_border_box()['h'],
+                $style->margin_top
+            ]);
+        } elseif ($isInlineBlock) {
+            // per https://drafts.csswg.org/css2/#propdef-vertical-align
+            // The baseline of an inline-block is the baseline of its last line box
+            // in the normal flow...
+            $hasInflowChild = false;
+            /** @var AbstractFrameDecorator $child */
+            foreach ($this->get_children() as $child) {
+                if (!$child->is_in_flow()) {
+                    continue;
+                }
+                $hasInflowChild = true;
+                $child_baseline_height = $child->get_outer_baseline_height() ;
+                $y_height = $child->get_position("y") - $this->get_content_box()["y"];
+                if ($child_baseline_height + $y_height > $baseline_height) {
+                    $baseline_height = $child_baseline_height + $y_height;
+                }
+            }
+            // ...unless it has either no in-flow line boxes or if its overflow property
+            // has a computed value other than visible, in which case the baseline is the
+            // bottom margin edge.
+            if (($style->overflow !== "visible" && $this->get_margin_height() < $baseline_height) || !$hasInflowChild) {
+                $baseline_height = $this->get_margin_height();
+            }
+            $baseline_height += $style->length_in_pt([$style->margin_top]);
+        }
+
+        return $this->_cached_outer_baseline_height = $baseline_height;
+    }
+
 
     function set_id($id)
     {
