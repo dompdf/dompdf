@@ -937,9 +937,19 @@ class Block extends AbstractFrameReflower
         if ($this->_frame->is_absolute()) {
             if ($auto_top) {
                 $this->_frame->move(0, $top);
+
+                // set line positions
+                foreach ($this->_frame->get_line_boxes() as $line_box) {
+                    $line_box->y += $top;
+                }
             }
             if ($auto_margin_top) {
                 $this->_frame->move(0, $margin_top, true);
+
+                // set line positions
+                foreach ($this->_frame->get_line_boxes() as $line_box) {
+                    $line_box->y += $margin_top;
+                }
             }
         }
 
