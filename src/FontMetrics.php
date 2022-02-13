@@ -34,6 +34,7 @@ class FontMetrics
      * ttf fonts to ufm with php-font-lib.
      */
     const CACHE_FILE = "dompdf_font_family_cache.php";
+    const JSON_CACHE_FILE = "dompdf_font_family_cache.json";
 
     /**
      * @var Canvas
@@ -83,13 +84,50 @@ class FontMetrics
     /**
      * Saves the stored font family cache
      *
+     * The name and location of the cache file are determined by
+     * {@link FontMetrics::CACHE_FILE} or {@link FontMetrics::JSON_CACHE_FILE}
+     * depending on the format provided.
+     *
+     * This file should be writable by the
+     * webserver process.
+     *
+     * @param string $format Serialization format: either 'json' or 'php'
+     * @see FontMetrics::loadFontFamilies()
+     */
+    public function saveFontFamilies($format='json')
+    {
+        if ($format != 'json') {
+            return $this->saveFontFamiliesPhp();
+        } else {
+            return $this->saveFontFamiliesJson();
+        }
+    }
+
+    /**
+     * Saves the stored font family cache in JSON format
+     *
+     * The name and location of the cache file are determined by {@link
+     * FontMetrics::JSON_CACHE_FILE}. This file should be writable by the
+     * webserver process.
+     *
+     */
+    public function saveFontFamiliesJson(): void
+    {
+        file_put_contents(
+            $this->getCacheFileJson(),
+            json_encode($this->fontLookup, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+    }
+
+    /**
+     * Saves the stored font family cache
+     *
      * The name and location of the cache file are determined by {@link
      * FontMetrics::CACHE_FILE}. This file should be writable by the
      * webserver process.
      *
-     * @see FontMetrics::loadFontFamilies()
      */
-    public function saveFontFamilies()
+    public function saveFontFamiliesPhp()
     {
         // replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)
         $cacheData = sprintf("<?php return function (%s, %s) {%s", '$fontDir', '$rootDir', PHP_EOL);
@@ -134,19 +172,28 @@ class FontMetrics
         $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
         $distFontsClosure = require $file;
         $distFonts = is_array($distFontsClosure) ? $distFontsClosure : $distFontsClosure($rootDir);
-        if (!is_readable($this->getCacheFile())) {
+        if (!is_readable($this->getCacheFile())
+            && !is_readable($this->getCacheFileJson())
+        ) {
             $this->fontLookup = $distFonts;
             return;
         }
 
+        if (is_readable($this->getCacheFileJson())) {
+            $this->fontLookup = json_decode(
+                file_get_contents($this->getCacheFileJson()),
+                true
+            );
+            $this->fontLookup += $distFonts;
+            return;
+        }
         $cacheDataClosure = require $this->getCacheFile();
-        $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
+        // check for callable/function, then assume array
+        $cacheData = is_callable($cacheDataClosure) ? $cacheDataClosure($fontDir, $rootDir) : $cacheDataClosure;
 
         $this->fontLookup = [];
-        if (is_array($this->fontLookup)) {
-            foreach ($cacheData as $key => $value) {
-                $this->fontLookup[stripslashes($key)] = $value;
-            }
+        foreach ($cacheData as $key => $value) {
+            $this->fontLookup[stripslashes($key)] = $value;
         }
 
         // Merge provided fonts
@@ -568,6 +615,14 @@ class FontMetrics
     public function getCacheFile()
     {
         return $this->options->getFontDir() . '/' . self::CACHE_FILE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCacheFileJson()
+    {
+        return $this->options->getFontDir() . '/' . self::JSON_CACHE_FILE;
     }
 
     /**
