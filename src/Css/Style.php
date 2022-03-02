@@ -882,45 +882,48 @@ class Style
 
 
     /**
-     * Set inherited properties in this style using values in $parent
+     * Resolve inherited property values using the provided parent style or the
+     * default values, in case no parent style exists.
      *
      * https://www.w3.org/TR/css-cascade-3/#inheriting
      *
-     * @param Style $parent
+     * @param Style|null $parent
      *
      * @return Style
      */
-    function inherit(Style $parent)
+    function inherit(?Style $parent = null)
     {
         $this->parent_style = $parent;
 
-        // Clear the computed value font size, as is might depend on the parent
+        // Clear the computed font size, as it might depend on the parent
         // font size
         unset($this->_props_computed["font_size"]);
         unset($this->_prop_cache["font_size"]);
 
-        foreach (self::$_inherited as $prop) {
-            // For properties that inherit by default: When the cascade did not
-            // result in a value, inherit the parent value. Inheritance is
-            // handled via the specific sub-properties for shorthands
-            if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
-                continue;
-            }
-
-            if (isset($parent->_props[$prop])) {
-                $parent_val = \array_key_exists($prop, $parent->_props_computed)
-                    ? $parent->_props_computed[$prop]
-                    : $parent->compute_prop($prop, $parent->_props[$prop]);
-
-                $this->_props[$prop] = $parent_val;
-                $this->_props_computed[$prop] = $parent_val;
-                $this->_prop_cache[$prop] = null;
+        if ($parent) {
+            foreach (self::$_inherited as $prop) {
+                // For properties that inherit by default: When the cascade did
+                // not result in a value, inherit the parent value. Inheritance
+                // is handled via the specific sub-properties for shorthands
+                if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
+                    continue;
+                }
+    
+                if (isset($parent->_props[$prop])) {
+                    $parent_val = \array_key_exists($prop, $parent->_props_computed)
+                        ? $parent->_props_computed[$prop]
+                        : $parent->compute_prop($prop, $parent->_props[$prop]);
+    
+                    $this->_props[$prop] = $parent_val;
+                    $this->_props_computed[$prop] = $parent_val;
+                    $this->_prop_cache[$prop] = null;
+                }
             }
         }
 
         foreach ($this->_props as $prop => $val) {
             if ($val === "inherit") {
-                if (isset($parent->_props[$prop])) {
+                if ($parent && isset($parent->_props[$prop])) {
                     $parent_val = \array_key_exists($prop, $parent->_props_computed)
                         ? $parent->_props_computed[$prop]
                         : $parent->compute_prop($prop, $parent->_props[$prop]);
