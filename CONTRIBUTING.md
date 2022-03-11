@@ -61,3 +61,14 @@ Questions should be asked through
 - Add a unit test in the ``test/Dompdf/Tests/`` directory.
 - Submit a pull request
 ([how to create a pull request](https://help.github.com/articles/fork-a-repo))
+
+## Releasing
+
+To create a release:
+
+1. Tag the version and push it
+2. Create the packaged release locally via:
+```sh
+php bin/create-release.php
+```
+3. Upload the created zip file to GitHub release page

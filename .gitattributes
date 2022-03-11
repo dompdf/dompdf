@@ -20,3 +20,4 @@ VERSION export-subst
 /.travis.yml        export-ignore
 /phpunit.xml.dist   export-ignore
 /tests              export-ignore
+/bin                export-ignore
