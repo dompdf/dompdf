@@ -1,6 +1,6 @@
 Dompdf
 ======
-
+![alt text](https://avatars0.githubusercontent.com/u/2776605?s=400&v=4)
 [![Build Status](https://travis-ci.org/dompdf/dompdf.png?branch=master)](https://travis-ci.org/dompdf/dompdf)
 [![Latest Stable Version](https://poser.pugx.org/dompdf/dompdf/v/stable.png)](https://packagist.org/packages/dompdf/dompdf)
 [![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads.png)](https://packagist.org/packages/dompdf/dompdf)
