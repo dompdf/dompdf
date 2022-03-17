@@ -206,7 +206,6 @@ class FontMetrics
         }
 
         $cacheEntry = $localFile;
-        $localFile .= ".".strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH), PATHINFO_EXTENSION));
 
         $entry[$styleString] = $cacheEntry;
 
@@ -256,6 +255,13 @@ class FontMetrics
         if (!$font) {
             unlink($localTempFile);
             return false;
+        }
+
+        switch ($font->getFontType()) {
+            case "TrueType":
+            default:
+                $localFile .= ".ttf";
+                break;
         }
 
         $font->parse();
