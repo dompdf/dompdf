@@ -827,7 +827,7 @@ class Style
         }
 
         elseif (($i = mb_stripos($l, "%")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) / 100 * $ref_size;
+            $value = (((float)mb_substr($l, 0, $i)) / 100.0) * (float)$ref_size;
         }
 
         elseif (($i = mb_stripos($l, "px")) !== false) {
@@ -844,32 +844,32 @@ class Style
             $root_font_size = $root_style === null || $root_style === $this
                 ? $font_size
                 : $root_style->font_size;
-            $value = (float)mb_substr($l, 0, $i) * $root_font_size;
+            $value = ((float)mb_substr($l, 0, $i)) * ((float)$root_font_size);
         }
 
         elseif (($i = mb_stripos($l, "em")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * $font_size;
+            $value = ((float)mb_substr($l, 0, $i)) * ((float)$font_size);
         }
 
         elseif (($i = mb_stripos($l, "cm")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 72 / 2.54;
+            $value = ((float)mb_substr($l, 0, $i)) * 72.0 / 2.54;
         }
 
         elseif (($i = mb_stripos($l, "mm")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 72 / 25.4;
+            $value = ((float)mb_substr($l, 0, $i)) * 72.0 / 25.4;
         }
 
         elseif (($i = mb_stripos($l, "ex")) !== false) {
             // FIXME: em:ex ratio?
-            $value = (float)mb_substr($l, 0, $i) * $font_size / 2;
+            $value = ((float)mb_substr($l, 0, $i)) * ((float)$font_size) / 2.0;
         }
 
         elseif (($i = mb_stripos($l, "in")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 72;
+            $value = ((float)mb_substr($l, 0, $i)) * 72.0;
         }
 
         elseif (($i = mb_stripos($l, "pc")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 12;
+            $value = ((float)mb_substr($l, 0, $i)) * 12.0;
         }
 
         else {
