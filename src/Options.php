@@ -635,7 +635,11 @@ class Options
      */
     public function setDefaultFont($defaultFont)
     {
-        $this->defaultFont = $defaultFont;
+        if (!($defaultFont === null || trim($defaultFont) === "")) {
+            $this->defaultFont = $defaultFont;
+        } else {
+            $this->defaultFont = "serif";
+        }
         return $this;
     }
 
