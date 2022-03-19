@@ -1055,7 +1055,7 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false) {
+        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false && !($prop == 'list_style_type' && strlen($val) == 1)) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|rem|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
