@@ -433,38 +433,39 @@ class FontMetrics
             return null;
         }
 
-        $family = "serif";
-
-        if (isset($this->fontLookup[$family][$subtype])) {
-            return $cache[$familyRaw][$subtypeRaw] = $this->fontLookup[$family][$subtype];
-        }
-
-        if (!isset($this->fontLookup[$family])) {
-            return null;
-        }
-
-        $family = $this->fontLookup[$family];
-
-        foreach ($family as $sub => $font) {
-            if (strpos($subtype, $sub) !== false) {
-                return $cache[$familyRaw][$subtypeRaw] = $font;
+        $fallback_families = [strtolower($this->options->getDefaultFont()), "serif"];
+        foreach ($fallback_families as $family) {
+            if (isset($this->fontLookup[$family][$subtype])) {
+                return $cache[$familyRaw][$subtypeRaw] = $this->fontLookup[$family][$subtype];
             }
-        }
-
-        if ($subtype !== "normal") {
+    
+            if (!isset($this->fontLookup[$family])) {
+                continue;
+            }
+    
+            $family = $this->fontLookup[$family];
+    
             foreach ($family as $sub => $font) {
-                if ($sub !== "normal") {
+                if (strpos($subtype, $sub) !== false) {
                     return $cache[$familyRaw][$subtypeRaw] = $font;
                 }
             }
+    
+            if ($subtype !== "normal") {
+                foreach ($family as $sub => $font) {
+                    if ($sub !== "normal") {
+                        return $cache[$familyRaw][$subtypeRaw] = $font;
+                    }
+                }
+            }
+    
+            $subtype = "normal";
+    
+            if (isset($family[$subtype])) {
+                return $cache[$familyRaw][$subtypeRaw] = $family[$subtype];
+            }
         }
-
-        $subtype = "normal";
-
-        if (isset($family[$subtype])) {
-            return $cache[$familyRaw][$subtypeRaw] = $family[$subtype];
-        }
-
+        
         return null;
     }
 
