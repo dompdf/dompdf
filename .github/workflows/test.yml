@@ -1,0 +1,54 @@
+name: "Run unit tests"
+
+on:
+  - push
+  - pull_request
+
+env:
+  COMPOSER_MEMORY_LIMIT: -1
+
+jobs:
+  test:
+    name: "Build"
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 12
+      matrix:
+        php: ['7.4', '8.0', '8.1']
+        package-release: [dist]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: exif,json,mbstring,dom
+
+      - name: Get user-level Composer cache
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Setup Composer cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.package-release }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.package-release }}-${{ env.cache-name }}-
+            composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.package-release }}-
+            composer-${{ runner.os }}-${{ matrix.php }}-
+            composer-${{ runner.os }}-
+
+      - name: Install composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-${{ matrix.package-release }}
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+
+      # - name: Upload to Scrutinizer
+      #   continue-on-error: true
+      #   run: |
+      #     wget https://scrutinizer-ci.com/ocular.phar
+      #     php ocular.phar code-coverage:upload --format=php-clover coverage.clover
