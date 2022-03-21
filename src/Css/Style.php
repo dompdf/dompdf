@@ -2073,6 +2073,12 @@ class Style
 
                 $this->_props_computed[$prop] = $has_line_style ? $val_computed : 0;
             }
+        } elseif (($style === "border" || $style === "outline") && $type === "style") {
+            if (in_array($val, Style::$BORDER_STYLES, true)) {
+                $this->_props_computed[$prop] = $val;
+            } else {
+                $this->_props_computed[$prop] = null;
+            }
         } elseif ($style === "margin" || $style === "padding") {
             if ($val === "none") {
                 // Legacy support for `none` keyword, not covered by spec
