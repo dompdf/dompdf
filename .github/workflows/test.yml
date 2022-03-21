@@ -45,7 +45,10 @@ jobs:
         run: composer install --no-progress --no-interaction --prefer-${{ matrix.package-release }}
 
       - name: Run unit tests
-        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+        run: vendor/bin/phpunit
+
+      - name: Run code sniffer
+        run: vendor/bin/phpcs --standard=phpcs.xml src tests
 
       # - name: Upload to Scrutinizer
       #   continue-on-error: true
