@@ -868,9 +868,9 @@ class Helpers
      *  - curl: if allow_url_fopen is false and curl is available
      *
      * @param string $uri
-     * @param resource $context (ignored if curl is used)
+     * @param resource $context
      * @param int $offset
-     * @param int $maxlen (ignored if curl is used)
+     * @param int $maxlen
      * @return string[]
      */
     public static function getFileContent($uri, $context = null, $offset = 0, $maxlen = null)
@@ -902,13 +902,48 @@ class Helpers
             } elseif (function_exists('curl_exec')) {
                 $curl = curl_init($uri);
 
-                //TODO: use $context to define additional curl options
-                curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-                curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl, CURLOPT_HEADER, true);
                 if ($offset > 0) {
                     curl_setopt($curl, CURLOPT_RESUME_FROM, $offset);
+                }
+
+                $context_options = [];
+                if (!is_null($context)) {
+                    $context_options = stream_context_get_options($context);
+                }
+                foreach ($context_options as $stream => $options) {
+                    foreach ($options as $option => $value) {
+                        $key = strtolower($stream) . ":" . strtolower($option);
+                        switch ($key) {
+                            case "curl:curl_verify_ssl_host":
+                                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, !$value ? 0 : 2);
+                                break;
+                            case "curl:max_redirects":
+                                curl_setopt($curl, CURLOPT_MAXREDIRS, $value);
+                                break;
+                            case "http:follow_location":
+                                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $value);
+                                break;
+                            case "http:header":
+                                if (is_string($value)) {
+                                    curl_setopt($curl, CURLOPT_HTTPHEADER, [$value]);
+                                } else {
+                                    curl_setopt($curl, CURLOPT_HTTPHEADER, $value);
+                                }
+                                break;
+                            case "http:timeout":
+                                curl_setopt($curl, CURLOPT_TIMEOUT, $value);
+                                break;
+                            case "http:user_agent":
+                                curl_setopt($curl, CURLOPT_USERAGENT, $value);
+                                break;
+                            case "curl:curl_verify_ssl_peer":
+                            case "ssl:verify_peer":
+                                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $value);
+                                break;
+                        }
+                    }
                 }
 
                 $data = curl_exec($curl);
