@@ -908,6 +908,14 @@ class Helpers
                     curl_setopt($curl, CURLOPT_RESUME_FROM, $offset);
                 }
 
+                if ($maxlen > 0) {
+                    curl_setopt($curl, CURLOPT_BUFFERSIZE, 128);
+                    curl_setopt($curl, CURLOPT_NOPROGRESS, false);
+                    curl_setopt($curl, CURLOPT_PROGRESSFUNCTION, function ($res, $download_size_total, $download_size, $upload_size_total, $upload_size) use ($maxlen) {
+                        return ($download_size > $maxlen) ? 1 : 0;
+                    });
+                }
+
                 $context_options = [];
                 if (!is_null($context)) {
                     $context_options = stream_context_get_options($context);
