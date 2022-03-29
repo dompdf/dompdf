@@ -21,7 +21,6 @@ class DompdfTest extends TestCase
         $this->assertIsArray($dompdf->getCallbacks());
         $this->assertInstanceOf(Stylesheet::class, $dompdf->getCss());
         $this->assertNull($dompdf->getDom());
-        $this->assertNull($dompdf->getHttpContext());
         $this->assertInstanceOf(Options::class, $dompdf->getOptions());
         $this->assertFalse($dompdf->getQuirksmode());
         $this->assertNull($dompdf->getTree());
