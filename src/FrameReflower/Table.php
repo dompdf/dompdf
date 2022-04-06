@@ -166,7 +166,8 @@ class Table extends AbstractFrameReflower
 
                     foreach ($auto as $i) {
                         $max = $columns[$i]["max-width"];
-                        $w = $max + $increment * ($max / $auto_max);
+                        $f = $auto_max > 0 ? $max / $auto_max : 1 / count($auto);
+                        $w = $max + $increment * $f;
                         $cellmap->set_column_width($i, $w);
                     }
                 }
@@ -180,7 +181,8 @@ class Table extends AbstractFrameReflower
                 foreach ($absolute as $i) {
                     $min = $columns[$i]["min-width"];
                     $abs = $columns[$i]["absolute"];
-                    $w = $min + $increment * ($abs / $absolute_used);
+                    $f = $absolute_used > 0 ? $abs / $absolute_used : 1 / count($absolute);
+                    $w = $min + $increment * $f;
                     $cellmap->set_column_width($i, $w);
                 }
                 return;

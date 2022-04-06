@@ -276,6 +276,13 @@ class FontMetrics
             return false;
         }
 
+        switch ($font->getFontType()) {
+            case "TrueType":
+            default:
+                $localFile .= ".ttf";
+                break;
+        }
+
         $font->parse();
         $font->saveAdobeFontMetrics("$localFilePath.ufm");
         $font->close();
@@ -446,38 +453,39 @@ class FontMetrics
             return null;
         }
 
-        $family = "serif";
-
-        if (isset($families[$family][$subtype])) {
-            return $cache[$familyRaw][$subtypeRaw] = $families[$family][$subtype];
-        }
-
-        if (!isset($families[$family])) {
-            return null;
-        }
-
-        $family = $families[$family];
-
-        foreach ($family as $sub => $font) {
-            if (strpos($subtype, $sub) !== false) {
-                return $cache[$familyRaw][$subtypeRaw] = $font;
+        $fallback_families = [strtolower($this->options->getDefaultFont()), "serif"];
+        foreach ($fallback_families as $family) {
+            if (isset($families[$family][$subtype])) {
+                return $cache[$familyRaw][$subtypeRaw] = $familiesp[$family][$subtype];
             }
-        }
-
-        if ($subtype !== "normal") {
+    
+            if (!isset($families[$family])) {
+                continue;
+            }
+    
+            $family = $families[$family];
+    
             foreach ($family as $sub => $font) {
-                if ($sub !== "normal") {
+                if (strpos($subtype, $sub) !== false) {
                     return $cache[$familyRaw][$subtypeRaw] = $font;
                 }
             }
+    
+            if ($subtype !== "normal") {
+                foreach ($family as $sub => $font) {
+                    if ($sub !== "normal") {
+                        return $cache[$familyRaw][$subtypeRaw] = $font;
+                    }
+                }
+            }
+    
+            $subtype = "normal";
+    
+            if (isset($family[$subtype])) {
+                return $cache[$familyRaw][$subtypeRaw] = $family[$subtype];
+            }
         }
-
-        $subtype = "normal";
-
-        if (isset($family[$subtype])) {
-            return $cache[$familyRaw][$subtypeRaw] = $family[$subtype];
-        }
-
+        
         return null;
     }
 

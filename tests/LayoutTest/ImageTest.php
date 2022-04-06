@@ -3,6 +3,7 @@ namespace Dompdf\Tests\LayoutTest;
 
 use Dompdf\Dompdf;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
+use Dompdf\Helpers;
 use Dompdf\Options;
 use Dompdf\Tests\TestCase;
 
@@ -216,7 +217,13 @@ HTML
         );
         $dompdf->render();
 
-        $this->assertSame($expectedWidth, $width);
-        $this->assertSame($expectedHeight, $height);
+        $this->assertTrue(
+            Helpers::lengthEqual($expectedWidth, $width),
+            "Failed asserting that width $width is equal to $expectedWidth."
+        );
+        $this->assertTrue(
+            Helpers::lengthEqual($expectedHeight, $height),
+            "Failed asserting that height $height is equal to $expectedHeight."
+        );
     }
 }

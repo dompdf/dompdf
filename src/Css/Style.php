@@ -882,45 +882,48 @@ class Style
 
 
     /**
-     * Set inherited properties in this style using values in $parent
+     * Resolve inherited property values using the provided parent style or the
+     * default values, in case no parent style exists.
      *
      * https://www.w3.org/TR/css-cascade-3/#inheriting
      *
-     * @param Style $parent
+     * @param Style|null $parent
      *
      * @return Style
      */
-    function inherit(Style $parent)
+    function inherit(?Style $parent = null)
     {
         $this->parent_style = $parent;
 
-        // Clear the computed value font size, as is might depend on the parent
+        // Clear the computed font size, as it might depend on the parent
         // font size
         unset($this->_props_computed["font_size"]);
         unset($this->_prop_cache["font_size"]);
 
-        foreach (self::$_inherited as $prop) {
-            // For properties that inherit by default: When the cascade did not
-            // result in a value, inherit the parent value. Inheritance is
-            // handled via the specific sub-properties for shorthands
-            if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
-                continue;
-            }
-
-            if (isset($parent->_props[$prop])) {
-                $parent_val = \array_key_exists($prop, $parent->_props_computed)
-                    ? $parent->_props_computed[$prop]
-                    : $parent->compute_prop($prop, $parent->_props[$prop]);
-
-                $this->_props[$prop] = $parent_val;
-                $this->_props_computed[$prop] = $parent_val;
-                $this->_prop_cache[$prop] = null;
+        if ($parent) {
+            foreach (self::$_inherited as $prop) {
+                // For properties that inherit by default: When the cascade did
+                // not result in a value, inherit the parent value. Inheritance
+                // is handled via the specific sub-properties for shorthands
+                if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
+                    continue;
+                }
+    
+                if (isset($parent->_props[$prop])) {
+                    $parent_val = \array_key_exists($prop, $parent->_props_computed)
+                        ? $parent->_props_computed[$prop]
+                        : $parent->compute_prop($prop, $parent->_props[$prop]);
+    
+                    $this->_props[$prop] = $parent_val;
+                    $this->_props_computed[$prop] = $parent_val;
+                    $this->_prop_cache[$prop] = null;
+                }
             }
         }
 
         foreach ($this->_props as $prop => $val) {
             if ($val === "inherit") {
-                if (isset($parent->_props[$prop])) {
+                if ($parent && isset($parent->_props[$prop])) {
                     $parent_val = \array_key_exists($prop, $parent->_props_computed)
                         ? $parent->_props_computed[$prop]
                         : $parent->compute_prop($prop, $parent->_props[$prop]);
@@ -1052,7 +1055,7 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false) {
+        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false && strlen($val) > 1) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|rem|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
@@ -1310,12 +1313,14 @@ class Style
             self::$_methods_cache[$method] = method_exists($this, $method);
         }
 
-        // During style merge, let `inherit` compute to `inherit`, because the
-        // parent style is not available yet. The keyword is resolved during
-        // inheritance
+        // During style merge, the parent style is not available yet, so
+        // temporarily use the initial value for `inherit` properties. The
+        // keyword is properly resolved during inheritance
         if ($val === "inherit") {
-            $this->_props_computed[$prop] = $val;
-        } elseif (self::$_methods_cache[$method]) {
+            $val = self::$_defaults[$prop];
+        }
+
+        if (self::$_methods_cache[$method]) {
             $this->$method($val);
         } elseif ($val !== "") {
             $this->_props_computed[$prop] = $val;
@@ -2067,6 +2072,12 @@ class Style
                 $has_line_style = $line_style !== "none" && $line_style !== "hidden";
 
                 $this->_props_computed[$prop] = $has_line_style ? $val_computed : 0;
+            }
+        } elseif (($style === "border" || $style === "outline") && $type === "style") {
+            if (in_array($val, Style::$BORDER_STYLES, true)) {
+                $this->_props_computed[$prop] = $val;
+            } else {
+                $this->_props_computed[$prop] = null;
             }
         } elseif ($style === "margin" || $style === "padding") {
             if ($val === "none") {

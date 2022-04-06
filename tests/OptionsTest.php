@@ -64,7 +64,8 @@ class OptionsTest extends TestCase
             'debugLayoutLines' => false,
             'debugLayoutBlocks' => false,
             'debugLayoutInline' => false,
-            'debugLayoutPaddingBox' => false
+            'debugLayoutPaddingBox' => false,
+            'httpContext' => ['ssl' => ['verify_peer' => false]],
         ]);
         $this->assertEquals('test1', $option->getTempDir());
         $this->assertEquals('test2', $option->getFontDir());
@@ -89,6 +90,7 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getDebugLayoutBlocks());
         $this->assertFalse($option->getDebugLayoutInline());
         $this->assertFalse($option->getDebugLayoutPaddingBox());
+        $this->assertIsResource($option->getHttpContext());
 
         $option->setChroot(['test11']);
         $this->assertEquals(['test11'], $option->getChroot());

@@ -276,6 +276,16 @@ class Options
     private $pdflibLicense = "";
 
     /**
+     * HTTP context created with stream_context_create()
+     * Will be used for file_get_contents
+     *
+     * @link https://www.php.net/manual/context.php
+     *
+     * @var resource
+     */
+    private $httpContext;
+
+    /**
      * @param array $attributes
      */
     public function __construct(array $attributes = null)
@@ -356,6 +366,8 @@ class Options
                 $this->setPdfBackend($value);
             } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
                 $this->setPdflibLicense($value);
+            } elseif ($key === 'httpContext' || $key === 'http_context') {
+                $this->setHttpContext($value);
             }
         }
         return $this;
@@ -419,6 +431,8 @@ class Options
             return $this->getPdfBackend();
         } elseif ($key === 'pdflibLicense' || $key === 'pdflib_license') {
             return $this->getPdflibLicense();
+        } elseif ($key === 'httpContext' || $key === 'http_context') {
+            return $this->getHttpContext();
         }
         return null;
     }
@@ -635,7 +649,11 @@ class Options
      */
     public function setDefaultFont($defaultFont)
     {
-        $this->defaultFont = $defaultFont;
+        if (!($defaultFont === null || trim($defaultFont) === "")) {
+            $this->defaultFont = $defaultFont;
+        } else {
+            $this->defaultFont = "serif";
+        }
         return $this;
     }
 
@@ -955,5 +973,27 @@ class Options
     public function getRootDir()
     {
         return $this->rootDir;
+    }
+
+    /**
+     * Sets the HTTP context
+     *
+     * @param resource|array $httpContext
+     * @return $this
+     */
+    public function setHttpContext($httpContext)
+    {
+        $this->httpContext = is_array($httpContext) ? stream_context_create($httpContext) : $httpContext;
+        return $this;
+    }
+
+    /**
+     * Returns the HTTP context
+     *
+     * @return resource
+     */
+    public function getHttpContext()
+    {
+        return $this->httpContext;
     }
 }

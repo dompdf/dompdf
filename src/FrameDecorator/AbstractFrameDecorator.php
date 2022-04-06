@@ -246,8 +246,12 @@ abstract class AbstractFrameDecorator extends Frame
         if ($this->content_set
             && $this->get_node()->nodeName === "dompdf_generated"
         ) {
-            foreach ($this->get_children() as $child) {
-                $this->remove_child($child);
+            $content = $this->get_style()->content;
+
+            if ($content !== "normal" && $content !== "none") {
+                foreach ($this->get_children() as $child) {
+                    $this->remove_child($child);
+                }
             }
         }
     }
