@@ -9,7 +9,7 @@
  */
 namespace Dompdf\Image;
 
-use Dompdf\Dompdf;
+use Dompdf\Options;
 use Dompdf\Helpers;
 use Dompdf\Exception\ImageException;
 
@@ -44,143 +44,97 @@ class Cache
     public static $error_message = "Image not found or type unknown";
     
     /**
-     * Current dompdf instance
-     *
-     * @var Dompdf
-     */
-    protected static $_dompdf;
-
-    /**
      * Resolve and fetch an image for use.
      *
      * @param string $url       The url of the image
      * @param string $protocol  Default protocol if none specified in $url
      * @param string $host      Default host if none specified in $url
      * @param string $base_path Default path if none specified in $url
-     * @param Dompdf $dompdf    The Dompdf instance
+     * @param Options $options  An instance of Dompdf\Options
      *
-     * @throws ImageException
-     * @return array             An array with two elements: The local path to the image and the image extension
+     * @return array            An array with three elements: The local path to the image, the image
+     *                          extension, and an error message if the image could not be cached
      */
-    static function resolve_url($url, $protocol, $host, $base_path, Dompdf $dompdf)
+    static function resolve_url($url, $protocol, $host, $base_path, Options $options)
     {
-        self::$_dompdf = $dompdf;
-        
-        $protocol = mb_strtolower($protocol);
-        $parsed_url = Helpers::explode_url($url);
+        $tempfile = null;
+        $resolved_url = null;
+        $type = null;
         $message = null;
-
-        $remote = ($protocol && $protocol !== "file://") || ($parsed_url['protocol'] !== "");
-
-        $data_uri = strpos($parsed_url['protocol'], "data:") === 0;
-        $full_url = null;
-        $enable_remote = $dompdf->getOptions()->getIsRemoteEnabled();
-        $tempfile = false;
-
+        
         try {
+            $full_url = Helpers::build_url($protocol, $host, $base_path, $url);
 
-            // Remote not allowed and is not DataURI
-            if (!$enable_remote && $remote && !$data_uri) {
-                throw new ImageException("Remote file access is disabled.", E_WARNING);
+            if ($full_url === null) {
+                throw new ImageException("Unable to parse image URL $url.", E_WARNING);
             }
+
+            $parsed_url = Helpers::explode_url($full_url);
+            $protocol = strtolower($parsed_url["protocol"]);
+            $is_data_uri = strpos($protocol, "data:") === 0;
             
-            // remote allowed or DataURI
-            if (($enable_remote && $remote) || $data_uri) {
-                // Download remote files to a temporary directory
-                $full_url = Helpers::build_url($protocol, $host, $base_path, $url);
-
-                // From cache
-                if (isset(self::$_cache[$full_url])) {
-                    $resolved_url = self::$_cache[$full_url];
-                } // From remote
-                else {
-                    $tmp_dir = $dompdf->getOptions()->getTempDir();
-                    if (($resolved_url = @tempnam($tmp_dir, "ca_dompdf_img_")) === false) {
-                        throw new ImageException("Unable to create temporary image in " . $tmp_dir, E_WARNING);
-                    }
-                    $tempfile = $resolved_url;
-                    $image = null;
-
-                    if ($data_uri) {
-                        if ($parsed_data_uri = Helpers::parse_data_uri($url)) {
-                            $image = $parsed_data_uri['data'];
-                        }
-                    } else {
-                        list($image, $http_response_header) = Helpers::getFileContent($full_url, $dompdf->getHttpContext());
-                    }
-
-                    // Image not found or invalid
-                    if ($image === null) {
-                        $msg = ($data_uri ? "Data-URI could not be parsed" : "Image not found");
-                        throw new ImageException($msg, E_WARNING);
-                    } // Image found, put in cache and process
-                    else {
-                        //e.g. fetch.php?media=url.jpg&cache=1
-                        //- Image file name might be one of the dynamic parts of the url, don't strip off!
-                        //- a remote url does not need to have a file extension at all
-                        //- local cached file does not have a matching file extension
-                        //Therefore get image type from the content
-                        if (@file_put_contents($resolved_url, $image) === false) {
-                            throw new ImageException("Unable to create temporary image in " . $tmp_dir, E_WARNING);
-                        }
+            if (!$is_data_uri) {
+                $allowed_protocols = $options->getAllowedProtocols();
+                if (!array_key_exists($protocol, $allowed_protocols)) {
+                    throw new ImageException("Permission denied on $url. The communication protocol is not supported.", E_WARNING);
+                }
+                foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+                    [$result, $message] = $rule($full_url);
+                    if (!$result) {
+                        throw new ImageException("Error loading $url: $message", E_WARNING);
                     }
                 }
-            } // Not remote, local image
-            else {
-                $resolved_url = Helpers::build_url($protocol, $host, $base_path, $url);
+            }
 
-                if ($protocol === "" || $protocol === "file://") {
-                    $realfile = realpath($resolved_url);
-        
-                    $rootDir = realpath($dompdf->getOptions()->getRootDir());
-                    if (strpos($realfile, $rootDir) !== 0) {
-                        $chroot = $dompdf->getOptions()->getChroot();
-                        $chrootValid = false;
-                        foreach ($chroot as $chrootPath) {
-                            $chrootPath = realpath($chrootPath);
-                            if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
-                                $chrootValid = true;
-                                break;
-                            }
-                        }
-                        if ($chrootValid !== true) {
-                            throw new ImageException("Permission denied on $resolved_url. The file could not be found under the paths specified by Options::chroot.", E_WARNING);
-                        }
-                    }
-        
-                    if (!$realfile) {
-                        throw new ImageException("File '$realfile' not found.", E_WARNING);
-                    }
-        
-                    $resolved_url = $realfile;
+            if ($protocol === "file://") {
+                $resolved_url = $full_url;
+            } elseif (isset(self::$_cache[$full_url])) {
+                $resolved_url = self::$_cache[$full_url];
+            } else {
+                $tmp_dir = $options->getTempDir();
+                if (($resolved_url = @tempnam($tmp_dir, "ca_dompdf_img_")) === false) {
+                    throw new ImageException("Unable to create temporary image in " . $tmp_dir, E_WARNING);
                 }
+                $tempfile = $resolved_url;
+
+                $image = null;
+                if ($is_data_uri) {
+                    if (($parsed_data_uri = Helpers::parse_data_uri($url)) !== false) {
+                        $image = $parsed_data_uri["data"];
+                    }
+                } else {
+                    list($image, $http_response_header) = Helpers::getFileContent($full_url, $options->getHttpContext());
+                }
+
+                // Image not found or invalid
+                if ($image === null) {
+                    $msg = ($is_data_uri ? "Data-URI could not be parsed" : "Image not found");
+                    throw new ImageException($msg, E_WARNING);
+                }
+
+                if (@file_put_contents($resolved_url, $image) === false) {
+                    throw new ImageException("Unable to create temporary image in " . $tmp_dir, E_WARNING);
+                }
+
+                self::$_cache[$full_url] = $resolved_url;
             }
 
             // Check if the local file is readable
             if (!is_readable($resolved_url) || !filesize($resolved_url)) {
                 throw new ImageException("Image not readable or empty", E_WARNING);
-            } // Check is the file is an image
-            else {
-                list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $dompdf->getHttpContext());
+            }
 
-                // Known image type
-                if ($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg","webp"], true)) {
-                    //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
-                    //Only execute on successful caching of remote image.
-                    if ($enable_remote && $remote || $data_uri) {
-                        self::$_cache[$full_url] = $resolved_url;
-                    }
-                } // Unknown image type
-                else {
-                    throw new ImageException("Image type unknown", E_WARNING);
-                }
+            list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $options->getHttpContext());
+
+            if (($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg","webp"], true)) === false) {
+                throw new ImageException("Image type unknown", E_WARNING);
             }
         } catch (ImageException $e) {
             if ($tempfile) {
                 unlink($tempfile);
             }
             $resolved_url = self::$broken_image;
-            $type = "png";
+            $type = "svg";
             $message = self::$error_message;
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
             self::$_cache[$full_url] = $resolved_url;
@@ -229,7 +183,9 @@ class Cache
             if ($debugPng) {
                 print "[clear unlink $file]";
             }
-            unlink($file);
+            if (file_exists($file)) {
+                unlink($file);
+            }
         }
 
         foreach (self::$tempImages as $versions) {

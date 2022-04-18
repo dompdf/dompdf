@@ -95,4 +95,44 @@ class OptionsTest extends TestCase
         $option->setChroot(['test11']);
         $this->assertEquals(['test11'], $option->getChroot());
     }
+
+    public function testAllowedProtocols()
+    {
+        $options = new Options(["isRemoteEnabled" => false]);
+        $options->setAllowedProtocols(["http://"]);
+        $allowedProtocols = $options->getAllowedProtocols();
+        $this->assertIsArray($allowedProtocols);
+        $this->assertEquals(1, count($allowedProtocols));
+        $this->assertArrayHasKey("http://", $allowedProtocols);
+        $this->assertIsArray($allowedProtocols["http://"]);
+        $this->assertArrayHasKey("rules", $allowedProtocols["http://"]);
+        $this->assertIsArray($allowedProtocols["http://"]["rules"]);
+        $this->assertEquals(1, count($allowedProtocols["http://"]["rules"]));
+        $this->assertEquals([$options, "validateRemoteUri"], $allowedProtocols["http://"]["rules"][0]);
+
+        [$validation_result] = $allowedProtocols["http://"]["rules"][0]("http://example.com/");
+        $this->assertFalse($validation_result);
+
+        
+        $mock_protocol = [
+            "mock://" => [
+                "rules" => [
+                    function ($uri) { return [true, null]; }
+                ]
+            ]
+        ];
+        $options->setAllowedProtocols($mock_protocol);
+        $allowedProtocols = $options->getAllowedProtocols();
+        $this->assertIsArray($allowedProtocols);
+        $this->assertEquals(1, count($allowedProtocols));
+        $this->assertArrayHasKey("mock://", $allowedProtocols);
+        $this->assertIsArray($allowedProtocols["mock://"]);
+        $this->assertArrayHasKey("rules", $allowedProtocols["mock://"]);
+        $this->assertIsArray($allowedProtocols["mock://"]["rules"]);
+        $this->assertEquals(1, count($allowedProtocols["mock://"]["rules"]));
+        $this->assertEquals($mock_protocol["mock://"]["rules"][0], $allowedProtocols["mock://"]["rules"][0]);
+
+        [$validation_result] = $allowedProtocols["mock://"]["rules"][0]("mock://example.com/");
+        $this->assertTrue($validation_result);
+    }
 }
