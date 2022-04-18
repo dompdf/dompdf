@@ -97,7 +97,7 @@ abstract class AbstractRenderer
             $sheet->get_protocol(),
             $sheet->get_host(),
             $sheet->get_base_path(),
-            $this->_dompdf
+            $this->_dompdf->getOptions()
         );
 
         // Bail if the image is no good

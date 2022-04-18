@@ -214,37 +214,18 @@ class FontMetrics
 
         // Download the remote file
         [$protocol] = Helpers::explode_url($remoteFile);
-        if (!$this->options->isRemoteEnabled() && ($protocol !== "" && $protocol !== "file://")) {
-            Helpers::record_warnings(E_USER_WARNING, "Remote font resource $remoteFile referenced, but remote file download is disabled.", __FILE__, __LINE__);
-            return false;
+        $allowed_protocols = $this->options->getAllowedProtocols();
+        if (!array_key_exists($protocol, $allowed_protocols)) {
+            Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The communication protocol is not supported.", __FILE__, __LINE__);
         }
-        if ($protocol === "" || $protocol === "file://") {
-            $realfile = realpath($remoteFile);
 
-            $rootDir = realpath($this->options->getRootDir());
-            if (strpos($realfile, $rootDir) !== 0) {
-                $chroot = $this->options->getChroot();
-                $chrootValid = false;
-                foreach ($chroot as $chrootPath) {
-                    $chrootPath = realpath($chrootPath);
-                    if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
-                        $chrootValid = true;
-                        break;
-                    }
-                }
-                if ($chrootValid !== true) {
-                    Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The file could not be found under the paths specified by Options::chroot.", __FILE__, __LINE__);
-                    return false;
-                }
+        foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+            [$result, $message] = $rule($remoteFile);
+            if ($result !== true) {
+                Helpers::record_warnings(E_USER_WARNING, "Error loading $remoteFile: $message", __FILE__, __LINE__);
             }
-
-            if (!$realfile) {
-                Helpers::record_warnings(E_USER_WARNING, "File '$realfile' not found.", __FILE__, __LINE__);
-                return false;
-            }
-
-            $remoteFile = $realfile;
         }
+
         list($remoteFileContent, $http_response_header) = @Helpers::getFileContent($remoteFile, $context);
         if ($remoteFileContent === null) {
             return false;

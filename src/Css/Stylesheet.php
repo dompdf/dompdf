@@ -325,46 +325,26 @@ class Stylesheet
             $parsed = Helpers::parse_data_uri($file);
             $css = $parsed["data"];
         } else {
-            $parsed_url = Helpers::explode_url($file);
-
-            [$this->_protocol, $this->_base_host, $this->_base_path, $filename] = $parsed_url;
-
-            $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
-
             $options = $this->_dompdf->getOptions();
-            // Download the remote file
-            if (!$options->isRemoteEnabled() && ($this->_protocol !== "" && $this->_protocol !== "file://")) {
-                Helpers::record_warnings(E_USER_WARNING, "Remote CSS resource '$file' referenced, but remote file download is disabled.", __FILE__, __LINE__);
-                return;
-            }
-            if ($this->_protocol === "" || $this->_protocol === "file://") {
-                $realfile = realpath($file);
 
-                $rootDir = realpath($options->getRootDir());
-                if (strpos($realfile, $rootDir) !== 0) {
-                    $chroot = $options->getChroot();
-                    $chrootValid = false;
-                    foreach ($chroot as $chrootPath) {
-                        $chrootPath = realpath($chrootPath);
-                        if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
-                            $chrootValid = true;
-                            break;
-                        }
-                    }
-                    if ($chrootValid !== true) {
-                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the paths specified by Options::chroot.", __FILE__, __LINE__);
+            $parsed_url = Helpers::explode_url($file);
+            $protocol = $parsed_url["protocol"];
+
+            if ($file !== $this->getDefaultStylesheet()) {
+                $allowed_protocols = $options->getAllowedProtocols();
+                if (!array_key_exists($protocol, $allowed_protocols)) {
+                    Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The communication protocol is not supported.", __FILE__, __LINE__);
+                    return;
+                }
+                foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+                    [$result, $message] = $rule($file);
+                    if (!$result) {
+                        Helpers::record_warnings(E_USER_WARNING, "Error loading $file: $message", __FILE__, __LINE__);
                         return;
                     }
                 }
-
-                if (!$realfile) {
-                    Helpers::record_warnings(E_USER_WARNING, "File '$realfile' not found.", __FILE__, __LINE__);
-                    return;
-                }
-
-                $file = $realfile;
             }
-            
+
             [$css, $http_response_header] = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
@@ -379,11 +359,12 @@ class Stylesheet
                     }
                 }
             }
-
             if (!$good_mime_type || $css === null) {
                 Helpers::record_warnings(E_USER_WARNING, "Unable to load css file $file", __FILE__, __LINE__);
                 return;
             }
+
+            [$this->_protocol, $this->_base_host, $this->_base_path] = $parsed_url;
         }
 
         $this->_parse_css($css);
@@ -1421,20 +1402,16 @@ class Stylesheet
             $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
-            $parsed_url = Helpers::explode_url($val);
             $path = Helpers::build_url($this->_protocol,
                 $this->_base_host,
                 $this->_base_path,
                 $val);
-            if (($parsed_url["protocol"] === "" || $parsed_url["protocol"] === "file://") && ($this->_protocol === "" || $this->_protocol === "file://")) {
-                $path = realpath($path);
-                // If realpath returns FALSE then specifically state that there is no background image
-                if ($path === false) {
-                    $path = "none";
-                }
+            if ($path === null) {
+                $path = "none";
             }
         }
         if ($DEBUGCSS) {
+            $parsed_url = Helpers::explode_url($path);
             print "<pre>[_image\n";
             print_r($parsed_url);
             print $this->_protocol . "\n" . $this->_base_path . "\n" . $path . "\n";
@@ -1483,9 +1460,9 @@ class Stylesheet
             // Above does not work for subfolders and absolute urls.
             // Todo: As above, do we need to replace php or file to an empty protocol for local files?
 
-            $url = $this->resolve_url($url);
-
-            $this->load_css_file($url);
+            if (($url = $this->resolve_url($url)) !== "none") {
+                $this->load_css_file($url);
+            }
 
             // Restore the current base url
             $this->_protocol = $protocol;
@@ -1675,7 +1652,7 @@ class Stylesheet
     {
         $options = $this->_dompdf->getOptions();
         $rootDir = realpath($options->getRootDir());
-        return $rootDir . self::DEFAULT_STYLESHEET;
+        return Helpers::build_url("file://", "", $rootDir, $rootDir . self::DEFAULT_STYLESHEET);
     }
 
     /**

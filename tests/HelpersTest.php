@@ -101,4 +101,11 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         $this->assertSame($expected, Helpers::lengthEqual(-$a, -$b));
         $this->assertSame($expected, Helpers::lengthEqual(-$b, -$a));
     }
+
+    
+    public function testCustomProtocolParsing(): void
+    {
+        $uri = "mock://path/to/resource";
+        $this->assertSame($uri, Helpers::build_url("", "", "", $uri));
+    }
 }

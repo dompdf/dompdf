@@ -57,7 +57,7 @@ class Image extends AbstractFrameDecorator
             $dompdf->getProtocol(),
             $dompdf->getBaseHost(),
             $dompdf->getBasePath(),
-            $dompdf
+            $dompdf->getOptions()
         );
 
         if (Cache::is_broken($this->_image_url) &&
