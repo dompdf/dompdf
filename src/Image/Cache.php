@@ -129,6 +129,39 @@ class Cache
             if (($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg","webp"], true)) === false) {
                 throw new ImageException("Image type unknown", E_WARNING);
             }
+
+            if ($type === "svg") {
+                $parser = xml_parser_create("utf-8");
+                xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, false);
+                xml_set_element_handler(
+                    $parser,
+                    function ($parser, $name, $attributes) use ($options, $parsed_url, $full_url) {
+                        if ($name === "image") {
+                            $attributes = array_change_key_case($attributes, CASE_LOWER);
+                            $url = $attributes["xlink:href"] ?? $attributes["href"];
+                            if (!empty($url)) {
+                                $inner_full_url = Helpers::build_url($parsed_url["protocol"], $parsed_url["host"], $parsed_url["path"], $url);
+                                if ($inner_full_url === $full_url) {
+                                    throw new ImageException("SVG self-reference is not allowed", E_WARNING);
+                                }
+                                [$resolved_url, $type, $message] = self::resolve_url($url, $parsed_url["protocol"], $parsed_url["host"], $parsed_url["path"], $options);
+                                if (!empty($message)) {
+                                    throw new ImageException("This SVG document references a restricted resource. $message", E_WARNING);
+                                }
+                            }
+                        }
+                    },
+                    false
+                );
+        
+                if (($fp = fopen($resolved_url, "r")) !== false) {
+                    while ($line = fread($fp, 8192)) {
+                        xml_parse($parser, $line, false);
+                    }
+                    fclose($fp);
+                }
+                xml_parser_free($parser);
+            }
         } catch (ImageException $e) {
             if ($tempfile) {
                 unlink($tempfile);
