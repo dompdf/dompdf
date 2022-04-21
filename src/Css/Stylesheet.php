@@ -579,8 +579,7 @@ class Stylesheet
                     // This doesn't work because libxml only supports XPath 1.0...
                     //$query .= "[matches(@$attr,\"^${tok}\$|^${tok}[ ]+|[ ]+${tok}\$|[ ]+${tok}[ ]+\")]";
 
-                    // Query improvement by Michael Sheakoski <michael@mjsdigital.com>:
-                    $query .= "[contains(concat(' ', @$attr, ' '), concat(' ', '$tok', ' '))]";
+                    $query .= "[contains(concat(' ', normalize-space(@$attr), ' '), concat(' ', '$tok', ' '))]";
                     $tok = "";
                     break;
 
@@ -857,7 +856,7 @@ class Stylesheet
                             // (e.g. [type~="a b c" "d e f"])
                             // FIXME: Don't match anything if value contains
                             // whitespace or is the empty string
-                            $query .= "[contains(concat(' ', @$attr, ' '), concat(' ', '$value', ' '))]";
+                            $query .= "[contains(concat(' ', normalize-space(@$attr), ' '), concat(' ', '$value', ' '))]";
                             break;
 
                         case "|=":

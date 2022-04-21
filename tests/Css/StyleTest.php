@@ -160,4 +160,25 @@ class StyleTest extends TestCase
         $style->set_prop("content", $value);
         $this->assertSame($expected, $style->content);
     }
+
+    public function valueCaseProvider(): array
+    {
+        return [
+            ["width", "Auto",           "width", "auto"],
+            ["list-style-type", "A",    "list_style_type", "A"],
+        ];
+    }
+
+    /**
+     * @dataProvider valueCaseProvider
+     */
+    public function testValueCase(string $cssProp, string $inputValue, string $phpProp, string $expectValue): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop($cssProp, $inputValue);
+        $this->assertSame($expectValue, $style->$phpProp);
+    }
 }

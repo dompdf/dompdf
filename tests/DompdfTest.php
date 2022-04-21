@@ -49,6 +49,10 @@ class DompdfTest extends TestCase
         $this->assertInstanceOf(Options::class, $dompdf->getOptions());
         $this->assertEquals('test3', $dompdf->getProtocol());
         $this->assertInstanceOf(FrameTree::class, $dompdf->getTree());
+
+        $dompdf = new Dompdf();
+        $dompdf->setHttpContext(['ssl' => ['verify_peer' => false]]);
+        $this->assertIsResource($dompdf->getHttpContext());
     }
 
     public function testLoadHtml()

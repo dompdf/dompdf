@@ -1055,7 +1055,7 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false) {
+        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false && strlen($val) > 1) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
             $val = preg_replace("/([0-9]+) (pt|px|pc|rem|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
@@ -1313,12 +1313,14 @@ class Style
             self::$_methods_cache[$method] = method_exists($this, $method);
         }
 
-        // During style merge, let `inherit` compute to `inherit`, because the
-        // parent style is not available yet. The keyword is resolved during
-        // inheritance
+        // During style merge, the parent style is not available yet, so
+        // temporarily use the initial value for `inherit` properties. The
+        // keyword is properly resolved during inheritance
         if ($val === "inherit") {
-            $this->_props_computed[$prop] = $val;
-        } elseif (self::$_methods_cache[$method]) {
+            $val = self::$_defaults[$prop];
+        }
+
+        if (self::$_methods_cache[$method]) {
             $this->$method($val);
         } elseif ($val !== "") {
             $this->_props_computed[$prop] = $val;
@@ -2070,6 +2072,12 @@ class Style
                 $has_line_style = $line_style !== "none" && $line_style !== "hidden";
 
                 $this->_props_computed[$prop] = $has_line_style ? $val_computed : 0;
+            }
+        } elseif (($style === "border" || $style === "outline") && $type === "style") {
+            if (in_array($val, Style::$BORDER_STYLES, true)) {
+                $this->_props_computed[$prop] = $val;
+            } else {
+                $this->_props_computed[$prop] = null;
             }
         } elseif ($style === "margin" || $style === "padding") {
             if ($val === "none") {

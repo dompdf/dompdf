@@ -6,7 +6,7 @@ Because of limited resources and general compatibility between version only the 
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.2   | :white_check_mark: |
+| 1.2.0   | :white_check_mark: |
 | < 1.0.2 | :x:                |
 
 ## Reporting a Vulnerability
