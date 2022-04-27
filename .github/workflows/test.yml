@@ -26,23 +26,10 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: exif,json,mbstring,dom
 
-      - name: Get user-level Composer cache
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Setup Composer cache
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.package-release }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.package-release }}-${{ env.cache-name }}-
-            composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.package-release }}-
-            composer-${{ runner.os }}-${{ matrix.php }}-
-            composer-${{ runner.os }}-
-
       - name: Install composer dependencies
-        run: composer install --no-progress --no-interaction --prefer-${{ matrix.package-release }}
+        uses: ramsey/composer-install@v2
+        with:
+          dependency-versions: ${{ matrix.package-release }}
 
       - name: Run unit tests
         run: vendor/bin/phpunit
