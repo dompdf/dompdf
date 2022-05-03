@@ -33,7 +33,7 @@ class FontMetrics
      * This is typically done only from command line with load_font.php on converting
      * ttf fonts to ufm with php-font-lib.
      */
-    const USER_FONTS_FILE = "font-families.json";
+    const USER_FONTS_FILE = "installed-fonts.json";
 
     /**
      * @var Canvas
@@ -122,7 +122,7 @@ class FontMetrics
      */
     public function loadFontFamilies()
     {
-        $file = $this->getOptions()->getRootDir() . "/lib/fonts/font-families-bundled.json";
+        $file = $this->options->getRootDir() . "/lib/fonts/installed-fonts.dist.json";
         $this->bundledFonts = json_decode(file_get_contents($file), true);
 
         if (is_readable($this->getUserFontsFilePath())) {
