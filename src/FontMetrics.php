@@ -77,7 +77,6 @@ class FontMetrics
         $this->setCanvas($canvas);
         $this->setOptions($options);
         $this->loadFontFamilies();
-        $this->setFontFamilies();
     }
 
     /**
@@ -290,7 +289,6 @@ class FontMetrics
         }
 
         $this->setFontFamily($fontname, $entry);
-        $this->saveFontFamilies();
 
         return true;
     }
@@ -494,9 +492,10 @@ class FontMetrics
     public function getFamily($family)
     {
         $family = str_replace(["'", '"'], "", mb_strtolower($family));
+        $families = $this->getFontFamilies();
 
-        if (isset($this->fontFamilies[$family])) {
-            return $this->fontFamilies[$family];
+        if (isset($families[$family])) {
+            return $families[$family];
         }
 
         return null;
@@ -555,6 +554,9 @@ class FontMetrics
      */
     public function getFontFamilies()
     {
+        if (!isset($this->fontFamilies)) {
+            $this->setFontFamilies();
+        }
         return $this->fontFamilies;
     }
 
@@ -606,9 +608,8 @@ class FontMetrics
     public function setFontFamily($fontname, $entry)
     {
         $this->userFonts[mb_strtolower($fontname)] = $entry;
-        $this->fontFamilies[$fontname] = array_map(function($variant){
-            return $this->getOptions()->getFontDir() . DIRECTORY_SEPARATOR . $variant;
-        }, $entry);
+        $this->saveFontFamilies();
+        unset($this->fontFamilies);
     }
 
     /**
@@ -626,6 +627,7 @@ class FontMetrics
     public function setOptions(Options $options)
     {
         $this->options = $options;
+        unset($this->fontFamilies);
         return $this;
     }
 
