@@ -98,7 +98,7 @@ class FontMetrics
      */
     public function saveFontFamilies()
     {
-        file_put_contents($this->getUserFontsFilePath(), json_encode($this->userFonts,JSON_PRETTY_PRINT));
+        file_put_contents($this->getUserFontsFilePath(), json_encode($this->userFonts, JSON_PRETTY_PRINT));
     }
 
     /**
@@ -187,8 +187,8 @@ class FontMetrics
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
-        // get unique name
         $remoteHash = md5($remoteFile);
+
         $prefix = $fontname . "_" . $styleString;
         $prefix = trim($prefix, "-");
         if (function_exists('iconv')) {
@@ -201,19 +201,16 @@ class FontMetrics
         mb_substitute_character($substchar);
         $prefix = preg_replace("[\W]", "_", $prefix);
         $prefix = preg_replace("/[^-_\w]+/", "", $prefix);
-        
+
         $localFile = $prefix . "_" . $remoteHash;
         $localFilePath = $this->getOptions()->getFontDir() . "/" . $localFile;
 
-        // check if this font is already registered
         if (isset($entry[$styleString]) && $localFilePath == $entry[$styleString]) {
             return true;
         }
 
-        $cacheEntry = $localFile;
-        $fontExtension = strtolower(pathinfo(parse_url($remoteFile, PHP_URL_PATH), PATHINFO_EXTENSION));
 
-        $entry[$styleString] = $cacheEntry;
+        $entry[$styleString] = $localFile;
 
         // Download the remote file
         [$protocol] = Helpers::explode_url($remoteFile);
@@ -263,13 +260,6 @@ class FontMetrics
             return false;
         }
 
-        switch ($font->getFontType()) {
-            case "TrueType":
-            default:
-                $localFile .= ".ttf";
-                break;
-        }
-
         $font->parse();
         $font->saveAdobeFontMetrics("$localFilePath.ufm");
         $font->close();
@@ -280,10 +270,18 @@ class FontMetrics
             return false;
         }
 
-        // Save the changes
-        file_put_contents("$localFilePath.$fontExtension", $remoteFileContent);
+        $fontExtension = ".ttf";
+        switch ($font->getFontType()) {
+            case "TrueType":
+            default:
+                $fontExtension = ".ttf";
+                break;
+        }
 
-        if ( !file_exists("$localFilePath.$fontExtension") ) {
+        // Save the changes
+        file_put_contents($localFilePath.$fontExtension, $remoteFileContent);
+
+        if ( !file_exists($localFilePath.$fontExtension) ) {
             unlink("$localFilePath.ufm");
             return false;
         }
@@ -442,7 +440,7 @@ class FontMetrics
         $fallback_families = [strtolower($this->options->getDefaultFont()), "serif"];
         foreach ($fallback_families as $family) {
             if (isset($families[$family][$subtype])) {
-                return $cache[$familyRaw][$subtypeRaw] = $familiesp[$family][$subtype];
+                return $cache[$familyRaw][$subtypeRaw] = $families[$family][$subtype];
             }
     
             if (!isset($families[$family])) {
@@ -617,7 +615,7 @@ class FontMetrics
      */
     public function getUserFontsFilePath()
     {
-        return $this->getOptions()->getFontDir() . '/' . self::USER_FONTS_FILE;
+        return $this->options->getFontDir() . '/' . self::USER_FONTS_FILE;
     }
 
     /**
