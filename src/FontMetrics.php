@@ -35,11 +35,6 @@ class FontMetrics
      */
     const USER_FONTS_FILE = "installed-fonts.json";
 
-    /**
-     * @var Canvas
-     * @deprecated
-     */
-    protected $pdf;
 
     /**
      * Underlying {@link Canvas} object to perform text size calculations
@@ -655,8 +650,6 @@ class FontMetrics
     public function setCanvas(Canvas $canvas)
     {
         $this->canvas = $canvas;
-        // Still write deprecated pdf for now. It might be used by a parent class.
-        $this->pdf = $canvas;
         return $this;
     }
 
