@@ -122,44 +122,37 @@ class FontMetrics
 
         if (is_readable($this->getUserFontsFilePath())) {
             $this->userFonts = json_decode(file_get_contents($this->getUserFontsFilePath()), true);
+        } else {
+            $this->loadFontFamiliesLegacy();
         }
-
-        $this->loadFontFamiliesLegacy();
     }
 
-    public function loadFontFamiliesLegacy()
+    private function loadFontFamiliesLegacy()
     {
-        $legacyCacheFile = $this->getOptions()->getFontDir() . '/dompdf_font_family_cache.php';
+        $legacyCacheFile = $this->options->getFontDir() . '/dompdf_font_family_cache.php';
         if (is_readable($legacyCacheFile)) {
             $fontDir = $this->options->getFontDir();
             $rootDir = $this->options->getRootDir();
     
-            // FIXME: temporarily define constants for cache files <= v0.6.2
             if (!defined("DOMPDF_DIR")) { define("DOMPDF_DIR", $rootDir); }
             if (!defined("DOMPDF_FONT_DIR")) { define("DOMPDF_FONT_DIR", $fontDir); }
     
-            $file = $rootDir . "/lib/fonts/dompdf_font_family_cache.dist.php";
             $cacheDataClosure = require $legacyCacheFile;
-            $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($rootDir);
-            $foundNewFonts = false;
+            $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
             if (is_array($cacheData)) {
                 foreach ($cacheData as $family => $variants) {
-                    if (!isset($this->bundledFonts[$family]) && !isset($this->userFonts['fontDir'][$family]) && is_array($variants)) {
+                    if (!isset($this->bundledFonts[$family]) && is_array($variants)) {
                         foreach ($variants as $variant => $variantPath) {
-                            if (strpos($variantPath, $rootDir) === 0) {
-                                $this->bundledFonts[$family][$variant] = ltrim(str_replace($rootDir,'',$variantPath), '/\\');
-                            } elseif (strpos($variantPath, $fontDir) === 0) {
-                                $this->userFonts['fontDir'][$family][$variant] = ltrim(str_replace($fontDir,'',$variantPath), '/\\');
-                                $foundNewFonts = true;
+                            $variantName = basename($variantPath);
+                            $variantDir = dirname($variantPath);
+                            if ($variantDir == $fontDir) {
+                                $this->userFonts[$family][$variant] = $variantName;
                             } else {
-                                $this->userFonts['absolute'][$family][$variant] = $variantPath;                            
-                                $foundNewFonts = true;
+                                $this->userFonts[$family][$variant] = $variantPath;
                             }
                         }
                     }
                 }
-            }
-            if ($foundNewFonts) {
                 $this->saveFontFamilies();
             }
         }
@@ -573,23 +566,24 @@ class FontMetrics
     public function setFontFamilies()
     {
         $fontFamilies = [];
-        if (isset($this->userFonts['fontDir']) && is_array($this->userFonts['fontDir'])) {
-            foreach ($this->userFonts['fontDir'] as $family => $variants) {
-                $fontFamilies[$family] = array_map(function($variant){
-                    return $this->getOptions()->getFontDir() . DIRECTORY_SEPARATOR . $variant;
-                }, $variants);
-            }
-        }
-        if (isset($this->userFonts['absolute']) && is_array($this->userFonts['absolute'])) {
-            $fontFamilies += $this->userFonts['absolute'];
-        }
         if (isset($this->bundledFonts) && is_array($this->bundledFonts)) {
             foreach ($this->bundledFonts as $family => $variants) {
                 if (!isset($fontFamilies[$family])) {
-                    $fontFamilies[$family] = array_map(function($variant){
-                        return $this->getOptions()->getRootDir() . DIRECTORY_SEPARATOR . $variant;
+                    $fontFamilies[$family] = array_map(function($variant) {
+                        return $this->getOptions()->getRootDir() . '/lib/fonts/' . $variant;
                     }, $variants);
                 }
+            }
+        }
+        if (isset($this->userFonts) && is_array($this->userFonts)) {
+            foreach ($this->userFonts as $family => $variants) {
+                $fontFamilies[$family] = array_map(function($variant) {
+                    $variantName = basename($variant);
+                    if ($variantName === $variant) {
+                        return $this->getOptions()->getFontDir() . '/' . $variant;
+                    }
+                    return $variant;
+                }, $variants);
             }
         }
         $this->fontFamilies = $fontFamilies;
@@ -611,7 +605,7 @@ class FontMetrics
      */
     public function setFontFamily($fontname, $entry)
     {
-        $this->userFonts['fontDir'][mb_strtolower($fontname)] = $entry;
+        $this->userFonts[mb_strtolower($fontname)] = $entry;
         $this->fontFamilies[$fontname] = array_map(function($variant){
             return $this->getOptions()->getFontDir() . DIRECTORY_SEPARATOR . $variant;
         }, $entry);
