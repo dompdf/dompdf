@@ -23,7 +23,7 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getIsPhpEnabled());
         $this->assertFalse($option->getIsRemoteEnabled());
         $this->assertTrue($option->getIsJavascriptEnabled());
-        $this->assertFalse($option->getIsHtml5ParserEnabled());
+        $this->assertTrue($option->getIsHtml5ParserEnabled());
         $this->assertTrue($option->getIsFontSubsettingEnabled());
         $this->assertFalse($option->getDebugPng());
         $this->assertFalse($option->getDebugKeepTemp());

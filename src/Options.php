@@ -193,11 +193,12 @@ class Options
     private $isJavascriptEnabled = true;
 
     /**
-     * Use the more-than-experimental HTML5 Lib parser
+     * Use the HTML5 Lib parser
      *
+     * @deprecated
      * @var bool
      */
-    private $isHtml5ParserEnabled = false;
+    private $isHtml5ParserEnabled = true;
 
     /**
      * Whether to enable font subsetting or not.
@@ -817,6 +818,7 @@ class Options
     }
 
     /**
+     * @deprecated
      * @param boolean $isHtml5ParserEnabled
      * @return $this
      */
@@ -827,6 +829,7 @@ class Options
     }
 
     /**
+     * @deprecated
      * @return boolean
      */
     public function getIsHtml5ParserEnabled()
@@ -835,6 +838,7 @@ class Options
     }
 
     /**
+     * @deprecated
      * @return boolean
      */
     public function isHtml5ParserEnabled()
