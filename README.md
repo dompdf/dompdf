@@ -214,12 +214,6 @@ Files accessed through the local file system have the following requirement:
 
 ## Limitations (Known Issues)
 
- * Dompdf is not particularly tolerant to poorly-formed HTML input. To avoid
-   any unexpected rendering issues you should either enable the built-in HTML5
-   parser at runtime (`$options->setIsHtml5ParserEnabled(true);`) 
-   or run your HTML through a HTML validator/cleaner (such as
-   [Tidy](http://tidy.sourceforge.net) or the
-   [W3C Markup Validation Service](http://validator.w3.org)).
  * Table cells are not pageable, meaning a table row must fit on a single page.
  * Elements are rendered on the active page when they are parsed.
  * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet, you need to

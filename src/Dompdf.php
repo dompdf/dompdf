@@ -14,11 +14,10 @@ use Dompdf\Adapter\CPDF;
 use DOMXPath;
 use Dompdf\Frame\Factory;
 use Dompdf\Frame\FrameTree;
-use HTML5_Tokenizer;
-use HTML5_TreeBuilder;
 use Dompdf\Image\Cache;
 use Dompdf\Css\Stylesheet;
 use Dompdf\Helpers;
+use Masterminds\HTML5;
 
 /**
  * Dompdf - PHP5 HTML to PDF renderer
@@ -498,43 +497,18 @@ class Dompdf
 
         try {
             // @todo Take the quirksmode into account
+            // https://quirks.spec.whatwg.org/
             // http://hsivonen.iki.fi/doctype/
-            // https://developer.mozilla.org/en/mozilla's_quirks_mode
             $quirksmode = false;
 
-            if ($this->options->isHtml5ParserEnabled() && class_exists(HTML5_Tokenizer::class)) {
-                $tokenizer = new HTML5_Tokenizer($str);
-                $tokenizer->parse();
-                $doc = $tokenizer->save();
+            $html5 = new HTML5(['encoding' => $encoding, 'disable_html_ns' => true]);
+            $dom = $html5->loadHTML($str);
 
-                $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
-            } else {
-                // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
-                // http://devzone.zend.com/1538/php-dom-xml-extension-encoding-processing/ (see #4)
-                // http://stackoverflow.com/a/11310258/264628
-                $doc = new DOMDocument("1.0", $encoding);
-                $doc->preserveWhiteSpace = true;
-                $doc->loadHTML($str);
-                $doc->encoding = $encoding;
-
-                // If some text is before the doctype, we are in quirksmode
-                if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
-                    $quirksmode = true;
-                } // If no doctype is provided, we are in quirksmode
-                elseif (!preg_match("/^<!doctype/i", ltrim($str), $matches)) {
-                    $quirksmode = true;
-                } else {
-                    // HTML5 <!DOCTYPE html>
-                    if (!$doc->doctype->publicId && !$doc->doctype->systemId) {
-                        $quirksmode = false;
-                    }
-
-                    // not XHTML
-                    if (!preg_match("/xhtml/i", $doc->doctype->publicId)) {
-                        $quirksmode = true;
-                    }
-                }
-            }
+            // extra step to normalize the HTML document structure
+            // see Masterminds/html5-php#166
+            $doc = new DOMDocument("1.0", $encoding);
+            $doc->preserveWhiteSpace = true;
+            $doc->loadHtml($dom->saveHtml(), LIBXML_NOWARNING | LIBXML_NOERROR);
 
             $this->loadDOM($doc, $quirksmode);
         } finally {
