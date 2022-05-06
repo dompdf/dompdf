@@ -14,7 +14,7 @@ class OptionsTest extends TestCase
         $this->assertEquals($root . '/lib/fonts', $option->getFontDir());
         $this->assertEquals($root . '/lib/fonts', $option->getFontCache());
         $this->assertEquals([$root], $option->getChroot());
-        $this->assertEquals(sys_get_temp_dir() . "/log.htm", $option->getLogOutputFile());
+        $this->assertEmpty($option->getLogOutputFile());
         $this->assertEquals('screen', $option->getDefaultMediaType());
         $this->assertEquals('letter', $option->getDefaultPaperSize());
         $this->assertEquals('serif', $option->getDefaultFont());

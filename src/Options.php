@@ -296,7 +296,6 @@ class Options
         $this->setTempDir(sys_get_temp_dir());
         $this->setFontDir($rootDir . "/lib/fonts");
         $this->setFontCache($this->getFontDir());
-        $this->setLogOutputFile($this->getTempDir() . "/log.htm");
 
         if (null !== $attributes) {
             $this->set($attributes);
