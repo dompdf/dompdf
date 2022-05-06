@@ -180,7 +180,6 @@ HTML
         $height = null;
 
         $options = new Options();
-        $options->setLogOutputFile("");
 
         // Use callback to inspect frame tree
         $dompdf = new Dompdf($options);
