@@ -577,7 +577,7 @@ class Stylesheet
                     // class=".* $tok .*" and class=".* $tok"
 
                     // This doesn't work because libxml only supports XPath 1.0...
-                    //$query .= "[matches(@$attr,\"^${tok}\$|^${tok}[ ]+|[ ]+${tok}\$|[ ]+${tok}[ ]+\")]";
+                    //$query .= "[matches(@$attr,\"^{$tok}\$|^{$tok}[ ]+|[ ]+{$tok}\$|[ ]+{$tok}[ ]+\")]";
 
                     $query .= "[contains(concat(' ', normalize-space(@$attr), ' '), concat(' ', '$tok', ' '))]";
                     $tok = "";
