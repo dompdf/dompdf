@@ -116,8 +116,8 @@ class Table extends AbstractFrameReflower
 
         // If the whole table fits on the page, then assign each column it's max width
         if ($width == $max_width) {
-            foreach (array_keys($columns) as $i) {
-                $cellmap->set_column_width($i, $columns[$i]["max-width"]);
+            foreach ($columns as $i => $col) {
+                $cellmap->set_column_width($i, $col["max-width"]);
             }
 
             return;
@@ -179,10 +179,9 @@ class Table extends AbstractFrameReflower
                 $increment = $width - $absolute_used;
 
                 foreach ($absolute as $i) {
-                    $min = $columns[$i]["min-width"];
-                    $abs = $columns[$i]["absolute"];
+                    $abs = $columns[$i]["min-width"];
                     $f = $absolute_used > 0 ? $abs / $absolute_used : 1 / count($absolute);
-                    $w = $min + $increment * $f;
+                    $w = $abs + $increment * $f;
                     $cellmap->set_column_width($i, $w);
                 }
                 return;
@@ -246,8 +245,8 @@ class Table extends AbstractFrameReflower
         } else {
             // We are over-constrained:
             // Each column gets its minimum width
-            foreach (array_keys($columns) as $i) {
-                $cellmap->set_column_width($i, $columns[$i]["min-width"]);
+            foreach ($columns as $i => $col) {
+                $cellmap->set_column_width($i, $col["min-width"]);
             }
         }
     }
@@ -478,19 +477,19 @@ class Table extends AbstractFrameReflower
         $this->_state["auto"] = [];
 
         $columns =& $cellmap->get_columns();
-        foreach (array_keys($columns) as $i) {
-            $this->_state["min_width"] += $columns[$i]["min-width"];
-            $this->_state["max_width"] += $columns[$i]["max-width"];
+        foreach ($columns as $i => $col) {
+            $this->_state["min_width"] += $col["min-width"];
+            $this->_state["max_width"] += $col["max-width"];
 
-            if ($columns[$i]["absolute"] > 0) {
+            if ($col["absolute"] > 0) {
                 $this->_state["absolute"][] = $i;
-                $this->_state["absolute_used"] += $columns[$i]["absolute"];
-            } else if ($columns[$i]["percent"] > 0) {
+                $this->_state["absolute_used"] += $col["min-width"];
+            } elseif ($col["percent"] > 0) {
                 $this->_state["percent"][] = $i;
-                $this->_state["percent_used"] += $columns[$i]["percent"];
+                $this->_state["percent_used"] += $col["percent"];
             } else {
                 $this->_state["auto"][] = $i;
-                $this->_state["auto_min"] += $columns[$i]["min-width"];
+                $this->_state["auto_min"] += $col["min-width"];
             }
         }
 
