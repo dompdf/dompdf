@@ -2838,12 +2838,12 @@ class Style
 
         foreach ($components as $val) {
             if (in_array($val, self::$BORDER_STYLES, true)) {
-                $this->set_prop("border_${side}_style", $val, $important);
+                $this->set_prop("border_{$side}_style", $val, $important);
             } elseif ($this->is_color_value($val)) {
-                $this->set_prop("border_${side}_color", $val, $important);
+                $this->set_prop("border_{$side}_color", $val, $important);
             } else {
                 // Assume width
-                $this->set_prop("border_${side}_width", $val, $important);
+                $this->set_prop("border_{$side}_width", $val, $important);
             }
         }
     }
