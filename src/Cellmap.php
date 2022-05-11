@@ -790,6 +790,16 @@ class Cellmap
                 }
             }
         }
+
+        // Adjust absolute columns so that the absolute (and max) width is the
+        // largest minimum width of all cells. This accounts for cells without
+        // absolute width within an absolute column
+        foreach ($this->_columns as &$col) {
+            if ($col["absolute"] > 0) {
+                $col["absolute"] = $col["min-width"];
+                $col["max-width"] = $col["min-width"];
+            }
+        }
     }
 
     /**
