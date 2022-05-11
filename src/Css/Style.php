@@ -581,6 +581,7 @@ class Style
             $d["white_space"] = "normal";
             $d["widows"] = "2";
             $d["width"] = "auto";
+            $d["word_break"] = "normal";
             $d["word_spacing"] = "normal";
             $d["z_index"] = "auto";
 
@@ -642,6 +643,7 @@ class Style
                 "volume",
                 "white_space",
                 "widows",
+                "word_break",
                 "word_spacing",
             ];
 
@@ -1079,6 +1081,13 @@ class Style
                 }
             }
         } else {
+            // Legacy support for `word-break: break-word`
+            // https://www.w3.org/TR/css-text-3/#valdef-word-break-break-word
+            if ($prop === "word_break" && $val === "break-word") {
+                $val = "normal";
+                $this->set_prop("overflow_wrap", "anywhere", $important, $clear_dependencies);
+            }
+
             // `!important` declarations take precedence over normal ones
             if (!$important && isset($this->_important_props[$prop])) {
                 return;

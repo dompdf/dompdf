@@ -181,4 +181,17 @@ class StyleTest extends TestCase
         $style->set_prop($cssProp, $inputValue);
         $this->assertSame($expectValue, $style->$phpProp);
     }
+
+    public function testWordBreakBreakWord(): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("overflow_wrap", "break-word");
+        $style->set_prop("word_break", "break-word");
+        
+        $this->assertSame("normal", $style->word_break);
+        $this->assertSame("anywhere", $style->overflow_wrap);
+    }
 }
