@@ -5,7 +5,6 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\FontMetrics;
-use Dompdf\Options;
 use Dompdf\Tests\TestCase;
 
 class CPDFTest extends TestCase
@@ -15,10 +14,7 @@ class CPDFTest extends TestCase
         global $called;
         $called = 0;
 
-        $options = new Options();
-        $options->setIsPhpEnabled(true);
-        $dompdf = new Dompdf($options);
-
+        $dompdf = new Dompdf();
         $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
         $canvas->new_page();
 

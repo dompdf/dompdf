@@ -721,7 +721,6 @@ class GD implements Canvas
      * @param int $w width (in pixels)
      * @param int $h height (in pixels)
      * @param string $resolution
-     * @return void
      *
      * @throws \Exception
      * @internal param string $img_type the type (e.g. extension) of the image
@@ -773,8 +772,6 @@ class GD implements Canvas
      * @param float $word_spacing word spacing adjustment
      * @param float $char_spacing
      * @param float $angle Text angle
-     *
-     * @return void
      */
     public function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_spacing = 0.0, $char_spacing = 0.0, $angle = 0.0)
     {
@@ -985,7 +982,7 @@ class GD implements Canvas
         // N/A
     }
 
-    public function page_script($callback)
+    public function page_script($callback): void
     {
         // N/A
     }
@@ -995,7 +992,7 @@ class GD implements Canvas
         // N/A
     }
 
-    public function page_line()
+    public function page_line($x1, $y1, $x2, $y2, $color, $width, $style = [])
     {
         // N/A
     }
