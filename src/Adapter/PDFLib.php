@@ -13,8 +13,8 @@ use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Exception;
+use Dompdf\FontMetrics;
 use Dompdf\Image\Cache;
-use Dompdf\PhpEvaluator;
 
 /**
  * PDF rendering interface
@@ -184,14 +184,14 @@ class PDFLib implements Canvas
     protected $_page_count;
 
     /**
-     * Text to display on every page
+     * Callbacks to process on every page after rendering is complete
      *
-     * @var array
+     * @var callable[]
      */
-    protected $_page_text;
+    protected $pageCallbacks;
 
     /**
-     * Array of pages for accesing after rendering is initially complete
+     * Array of pages for accessing after rendering is initially complete
      *
      * @var array
      */
@@ -271,7 +271,7 @@ class PDFLib implements Canvas
         $this->_pdf->begin_page_ext($this->_width, $this->_height, "");
 
         $this->_page_number = $this->_page_count = 1;
-        $this->_page_text = [];
+        $this->pageCallbacks = [];
 
         $this->_imgs = [];
         $this->_fonts = [];
@@ -899,25 +899,6 @@ class PDFLib implements Canvas
     }
 
     /**
-     * Draw line at the specified coordinates on every page.
-     *
-     * See {@link Style::munge_color()} for the format of the colour array.
-     *
-     * @param float $x1
-     * @param float $y1
-     * @param float $x2
-     * @param float $y2
-     * @param array $color
-     * @param float $width
-     * @param array $style optional
-     */
-    public function page_line($x1, $y1, $x2, $y2, $color, $width, $style = [])
-    {
-        $_t = 'line';
-        $this->_page_text[] = compact('_t', 'x1', 'y1', 'x2', 'y2', 'color', 'width', 'style');
-    }
-
-    /**
      * @param float $x1
      * @param float $y1
      * @param float $r1
@@ -1374,60 +1355,55 @@ class PDFLib implements Canvas
     }
 
     /**
-     * Writes text at the specified x and y coordinates on every page
+     * Processes a callback or script on every page.
      *
-     * The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are automatically replaced
-     * with their current values.
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
-     * @param float  $x
-     * @param float  $y
-     * @param string $text       the text to write
-     * @param string $font       the font file to use
-     * @param float  $size       the font size, in points
-     * @param array  $color
-     * @param float  $word_space word spacing adjustment
-     * @param float  $char_space char spacing adjustment
-     * @param float  $angle      angle to write the text at, measured CW starting from the x-axis
-     */
-    public function page_text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0)
-    {
-        $_t = "text";
-        $this->_page_text[] = compact("_t", "x", "y", "text", "font", "size", "color", "word_space", "char_space", "angle");
-    }
-
-    //........................................................................
-
-    /**
-     * Processes a callback or script on every page
-     *
-     * The callback function receives the four parameters `$pageNumber`,
-     * `$pageCount`, `$pdf`, and `$fontMetrics`, in that order. If a script is
-     * passed as string, the variables `$PAGE_NUM`, `$PAGE_COUNT`, `$pdf`, and
-     * `$fontMetrics` are available instead.
+     * The callback function receives the four parameters `int $pageNumber`,
+     * `int $pageCount`, `Canvas $canvas`, and `FontMetrics $fontMetrics`, in
+     * that order. If a script is passed as string, the variables `$PAGE_NUM`,
+     * `$PAGE_COUNT`, `$pdf`, and `$fontMetrics` are available instead. Passing
+     * a script as string is deprecated and will be removed in a future version.
      *
      * This function can be used to add page numbers to all pages after the
      * first one, for example.
      *
-     * @param callable|string $code The callback function or PHP script to process on every page
+     * @param callable|string $callback The callback function or PHP script to process on every page
      */
-    public function page_script($code)
+    public function page_script($callback): void
     {
-        if (is_callable($code)) {
-            $this->_page_text[] = [
-                "_t"       => "callback",
-                "callback" => $code
-            ];
-        } else {
-            $_t = "script";
-            $this->_page_text[] = compact("_t", "code");
+        if (is_string($callback)) {
+            $this->pageCallbacks[] = function (
+                int $PAGE_NUM,
+                int $PAGE_COUNT,
+                self $pdf,
+                FontMetrics $fontMetrics
+            ) use ($callback) {
+                eval($callback);
+            };
+            return;
         }
+
+        $this->pageCallbacks[] = $callback;
     }
 
-    /**
-     *
-     */
+    public function page_text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0)
+    {
+        $this->pageCallbacks[] = function (int $pageNumber, int $pageCount) use ($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle) {
+            $text = str_replace(
+                ["{PAGE_NUM}", "{PAGE_COUNT}"],
+                [$pageNumber, $pageCount],
+                $text
+            );
+            $this->text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
+        };
+    }
+
+    public function page_line($x1, $y1, $x2, $y2, $color, $width, $style = [])
+    {
+        $this->pageCallbacks[] = function () use ($x1, $y1, $x2, $y2, $color, $width, $style) {
+            $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
+        };
+    }
+
     public function new_page()
     {
         // Add objects to the current page
@@ -1438,48 +1414,20 @@ class PDFLib implements Canvas
         $this->_page_number = ++$this->_page_count;
     }
 
-    /**
-     * Add text to each page after rendering is complete
-     */
-    protected function _add_page_text()
+    protected function processPageCallbacks(): void
     {
-        if (count($this->_page_text) === 0) {
+        if (empty($this->pageCallbacks)) {
             return;
         }
 
-        $eval = null;
         $this->_pdf->suspend_page("");
 
         for ($p = 1; $p <= $this->_page_count; $p++) {
             $this->_pdf->resume_page("pagenumber=$p");
 
-            foreach ($this->_page_text as $pt) {
-                extract($pt);
-
-                switch ($_t) {
-                    case "text":
-                        $text = str_replace(["{PAGE_NUM}", "{PAGE_COUNT}"],
-                            [$p, $this->_page_count], $text);
-                        $this->text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
-                        break;
-
-                    case "callback":
-                        $fontMetrics = $this->get_dompdf()->getFontMetrics();
-                        $callback($p, $this->_page_count, $this, $fontMetrics);
-                        break;
-
-                    case "script":
-                        if (!$eval) {
-                            $eval = new PHPEvaluator($this);
-                        }
-                        $eval->evaluate($code, ["PAGE_NUM" => $p, "PAGE_COUNT" => $this->_page_count]);
-                        break;
-
-                    case "line":
-                        $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
-                        break;
-
-                }
+            foreach ($this->pageCallbacks as $callback) {
+                $fontMetrics = $this->_dompdf->getFontMetrics();
+                $callback($p, $this->_page_count, $this, $fontMetrics);
             }
 
             $this->_pdf->suspend_page("");
@@ -1508,7 +1456,7 @@ class PDFLib implements Canvas
             $options["Attachment"] = true;
         }
 
-        $this->_add_page_text();
+        $this->processPageCallbacks();
 
         if ($options["compress"]) {
             $this->setPDFLibValue("compress", 6);
@@ -1576,7 +1524,7 @@ class PDFLib implements Canvas
             $options["compress"] = true;
         }
 
-        $this->_add_page_text();
+        $this->processPageCallbacks();
 
         if ($options["compress"]) {
             $this->setPDFLibValue("compress", 6);
