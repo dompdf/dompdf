@@ -71,11 +71,12 @@ class Image extends Block
 
         if ($msg = $frame->get_image_msg()) {
             $parts = preg_split("/\s*\n\s*/", $msg);
+            $font = $style->font_family;
             $height = 10;
             $_y = $alt ? $y + $h - count($parts) * $height : $y;
 
             foreach ($parts as $i => $_part) {
-                $this->_canvas->text($x, $_y + $i * $height, $_part, "times", $height * 0.8, [0.5, 0.5, 0.5]);
+                $this->_canvas->text($x, $_y + $i * $height, $_part, $font, $height * 0.8, [0.5, 0.5, 0.5]);
             }
         }
 
