@@ -87,7 +87,7 @@ abstract class AbstractFrameReflower
 
         switch ($style->position) {
             case "absolute":
-                $parent = $frame->find_positionned_parent();
+                $parent = $frame->find_positioned_parent();
                 if ($parent !== $frame->get_root()) {
                     $parent_style = $parent->get_style();
                     $parent_padding_box = $parent->get_padding_box();

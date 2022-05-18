@@ -845,15 +845,15 @@ class Frame
     /**
      * @return bool
      */
-    public function is_positionned()
+    public function is_positioned(): bool
     {
-        if (isset($this->_is_cache["positionned"])) {
-            return $this->_is_cache["positionned"];
+        if (isset($this->_is_cache["positioned"])) {
+            return $this->_is_cache["positioned"];
         }
 
         $position = $this->get_style()->position;
 
-        return $this->_is_cache["positionned"] = in_array($position, Style::$POSITIONNED_TYPES, true);
+        return $this->_is_cache["positioned"] = in_array($position, Style::$POSITIONED_TYPES, true);
     }
 
     /**

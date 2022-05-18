@@ -84,7 +84,7 @@ abstract class AbstractFrameDecorator extends Frame
      *
      * @var AbstractFrameDecorator
      */
-    private $_positionned_parent;
+    private $_positioned_parent;
 
     /**
      * Cache for the get_parent while loop results
@@ -228,7 +228,7 @@ abstract class AbstractFrameDecorator extends Frame
         // clear parent lookup caches
         $this->_cached_parent = null;
         $this->_block_parent = null;
-        $this->_positionned_parent = null;
+        $this->_positioned_parent = null;
 
         // Reset all children
         foreach ($this->get_children() as $child) {
@@ -624,16 +624,16 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @return AbstractFrameDecorator
      */
-    function find_positionned_parent()
+    function find_positioned_parent()
     {
         // Find our nearest relative positioned parent
-        if (isset($this->_positionned_parent)) {
-            return $this->_positionned_parent;
+        if (isset($this->_positioned_parent)) {
+            return $this->_positioned_parent;
         }
 
         $p = $this->get_parent();
         while ($p) {
-            if ($p->is_positionned()) {
+            if ($p->is_positioned()) {
                 break;
             }
 
@@ -644,7 +644,7 @@ abstract class AbstractFrameDecorator extends Frame
             $p = $this->_root;
         }
 
-        return $this->_positionned_parent = $p;
+        return $this->_positioned_parent = $p;
     }
 
     /**
