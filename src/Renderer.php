@@ -180,7 +180,7 @@ class Renderer extends AbstractRenderer
 
             if ($child_z_index !== "auto") {
                 $z_index = intval($child_z_index) + 1;
-            } elseif ($child_style->float !== "none" || $child->is_positionned()) {
+            } elseif ($child_style->float !== "none" || $child->is_positioned()) {
                 $z_index = 1;
             }
 

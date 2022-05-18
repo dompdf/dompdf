@@ -152,7 +152,7 @@ class Style
      *
      * @var array
      */
-    static $POSITIONNED_TYPES = ["relative", "absolute", "fixed"];
+    static $POSITIONED_TYPES = ["relative", "absolute", "fixed"];
 
     /**
      * List of valid border styles.  Should also really be a constant.
