@@ -40,21 +40,6 @@ class ListBullet extends AbstractFrameDecorator
     public const MARKER_INDENT = 0.52;
 
     /**
-     * @deprecated
-     */
-    const BULLET_PADDING = 1;
-
-    /**
-     * @deprecated
-     */
-    const BULLET_DESCENT = 0.3;
-
-    /**
-     * @deprecated
-     */
-    static $BULLET_TYPES = ["disc", "circle", "square"];
-
-    /**
      * ListBullet constructor.
      * @param Frame $frame
      * @param Dompdf $dompdf

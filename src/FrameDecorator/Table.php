@@ -395,26 +395,4 @@ class Table extends AbstractFrameDecorator
             $frame->append_child($td);
         }
     }
-
-    //........................................................................
-
-    /**
-     * @deprecated
-     */
-    public function normalise()
-    {
-        $this->normalize();
-    }
-
-    /**
-     * Moves the specified frame and it's corresponding node outside of
-     * the table.
-     *
-     * @deprecated
-     * @param Frame $frame the frame to move
-     */
-    public function move_after(Frame $frame)
-    {
-        $this->get_parent()->insert_child_after($frame, $this);
-    }
 }

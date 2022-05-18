@@ -289,19 +289,6 @@ class Stylesheet
     }
 
     /**
-     * Lookup a specific Style collection
-     *
-     * @deprecated
-     * @param string $key the selector of the requested Style collection
-     *
-     * @return Style[]
-     */
-    function lookup(string $key): array
-    {
-        return $this->_styles[$key] ?? [];
-    }
-
-    /**
      * load and parse a CSS string
      *
      * @param string $css
