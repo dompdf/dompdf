@@ -20,9 +20,12 @@ use Dompdf\Frame;
  */
 class Table extends AbstractFrameDecorator
 {
-    public static $VALID_CHILDREN = Style::TABLE_INTERNAL_TYPES;
+    public const VALID_CHILDREN = Style::TABLE_INTERNAL_TYPES;
 
-    public static $ROW_GROUPS = [
+    /**
+     * List of all row-group display types.
+     */
+    public const ROW_GROUPS = [
         "table-row-group",
         "table-header-group",
         "table-footer-group"
@@ -134,7 +137,7 @@ class Table extends AbstractFrameDecorator
 
             parent::split($first_header, $page_break, $forced);
 
-        } elseif (in_array($child->get_style()->display, self::$ROW_GROUPS, true)) {
+        } elseif (in_array($child->get_style()->display, self::ROW_GROUPS, true)) {
 
             // Individual rows should have already been handled
             parent::split($child, $page_break, $forced);
@@ -248,7 +251,7 @@ class Table extends AbstractFrameDecorator
         $wsPattern = '/^[^\S\xA0\x{202F}\x{2007}]*$/u';
         $validChildOrNull = function ($frame) {
             return $frame === null
-                || in_array($frame->get_style()->display, self::$VALID_CHILDREN, true);
+                || in_array($frame->get_style()->display, self::VALID_CHILDREN, true);
         };
 
         return $frame->is_text_node() && !$frame->is_pre()
@@ -273,7 +276,7 @@ class Table extends AbstractFrameDecorator
         foreach ($children as $child) {
             $display = $child->get_style()->display;
 
-            if (in_array($display, self::$ROW_GROUPS, true)) {
+            if (in_array($display, self::ROW_GROUPS, true)) {
                 // Reset anonymous tbody
                 $tbody = null;
 
@@ -314,7 +317,7 @@ class Table extends AbstractFrameDecorator
         foreach ($this->get_children() as $child) {
             $display = $child->get_style()->display;
 
-            if (in_array($display, self::$ROW_GROUPS, true)) {
+            if (in_array($display, self::ROW_GROUPS, true)) {
                 $this->normalizeRowGroup($child);
             }
         }

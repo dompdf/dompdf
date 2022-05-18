@@ -28,30 +28,31 @@ use Dompdf\Frame;
  */
 class Style
 {
-    const CSS_IDENTIFIER = "-?[_a-zA-Z]+[_a-zA-Z0-9-]*";
-    const CSS_INTEGER = "[+-]?\d+";
-    const CSS_NUMBER = "[+-]?\d*\.?\d+";
+    protected const CSS_IDENTIFIER = "-?[_a-zA-Z]+[_a-zA-Z0-9-]*";
+    protected const CSS_INTEGER = "[+-]?\d+";
+    protected const CSS_NUMBER = "[+-]?\d*\.?\d+";
 
     /**
      * Default font size, in points.
      *
      * @var float
      */
-    static $default_font_size = 12;
+    public static $default_font_size = 12;
 
     /**
      * Default line height, as a fraction of the font size.
      *
      * @var float
      */
-    static $default_line_height = 1.2;
+    public static $default_line_height = 1.2;
 
     /**
      * Default "absolute" font sizes relative to the default font-size
-     * http://www.w3.org/TR/css3-fonts/#font-size-the-font-size-property
+     * https://www.w3.org/TR/css-fonts-3/#absolute-size-value
+     *
      * @var array<float>
      */
-    static $font_size_keywords = [
+    public static $font_size_keywords = [
         "xx-small" => 0.6, // 3/5
         "x-small" => 0.75, // 3/4
         "small" => 0.889, // 8/9
@@ -62,19 +63,15 @@ class Style
     ];
 
     /**
-     * List of valid text-align keywords.  Should also really be a constant.
-     *
-     * @var array
+     * List of valid text-align keywords.
      */
-    static $text_align_keywords = ["left", "right", "center", "justify"];
+    public const TEXT_ALIGN_KEYWORDS = ["left", "right", "center", "justify"];
 
     /**
-     * List of valid vertical-align keywords.  Should also really be a constant.
-     *
-     * @var array
+     * List of valid vertical-align keywords.
      */
-    static $vertical_align_keywords = ["baseline", "bottom", "middle", "sub",
-        "super", "text-bottom", "text-top", "top"];
+    public const VERTICAL_ALIGN_KEYWORDS = ["baseline", "bottom", "middle",
+        "sub", "super", "text-bottom", "text-top", "top"];
 
     /**
      * List of all block-level (outer) display types.
@@ -119,25 +116,19 @@ class Style
     ];
 
     /**
-     * List of all inline (inner) display types.  Should really be a constant.
-     *
-     * @var array
+     * List of all inline (inner) display types.
      */
-    static $INLINE_TYPES = ["inline"];
+    public const INLINE_TYPES = ["inline"];
 
     /**
-     * List of all block (inner) display types.  Should really be a constant.
-     *
-     * @var array
+     * List of all block (inner) display types.
      */
-    static $BLOCK_TYPES = ["block", "inline-block", "table-cell", "list-item"];
+    public const BLOCK_TYPES = ["block", "inline-block", "table-cell", "list-item"];
 
     /**
-     * List of all table (inner) display types.  Should really be a constant.
-     *
-     * @var array
+     * List of all table (inner) display types.
      */
-    static $TABLE_TYPES = ["table", "inline-table"];
+    public const TABLE_TYPES = ["table", "inline-table"];
 
     /**
      * Lookup table for valid display types. Initially computed from the
@@ -148,18 +139,14 @@ class Style
     protected static $valid_display_types = [];
 
     /**
-     * List of all positioned types.  Should really be a constant.
-     *
-     * @var array
+     * List of all positioned types.
      */
-    static $POSITIONED_TYPES = ["relative", "absolute", "fixed"];
+    public const POSITIONED_TYPES = ["relative", "absolute", "fixed"];
 
     /**
-     * List of valid border styles.  Should also really be a constant.
-     *
-     * @var array
+     * List of valid border styles.
      */
-    static $BORDER_STYLES = ["none", "hidden", "dotted", "dashed", "solid",
+    public const BORDER_STYLES = ["none", "hidden", "dotted", "dashed", "solid",
         "double", "groove", "ridge", "inset", "outset"];
 
     /**
@@ -278,7 +265,7 @@ class Style
     /**
      * Default style values.
      *
-     * @link http://www.w3.org/TR/CSS21/propidx.html
+     * @link https://www.w3.org/TR/CSS21/propidx.html
      *
      * @var array
      */
@@ -287,7 +274,7 @@ class Style
     /**
      * List of inherited properties
      *
-     * @link http://www.w3.org/TR/CSS21/propidx.html
+     * @link https://www.w3.org/TR/CSS21/propidx.html
      *
      * @var array
      */
@@ -405,7 +392,7 @@ class Style
     protected $parent_style;
 
     /**
-     * @var Frame
+     * @var Frame|null
      */
     protected $_frame;
 
@@ -416,19 +403,20 @@ class Style
      */
     protected $_origin = Stylesheet::ORIG_AUTHOR;
 
-    // private members
     /**
      * The computed bottom spacing
+     *
+     * @var float|string|null
      */
     private $_computed_bottom_spacing = null;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     private $has_border_radius_cache = null;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $resolved_border_radius = null;
 
@@ -438,14 +426,12 @@ class Style
     private $fontMetrics;
 
     /**
-     * Class constructor
-     *
-     * @param Stylesheet $stylesheet the stylesheet this Style is associated with.
-     * @param int $origin
+     * @param Stylesheet $stylesheet The stylesheet the style is associated with.
+     * @param int        $origin
      */
-    public function __construct(Stylesheet $stylesheet, $origin = Stylesheet::ORIG_AUTHOR)
+    public function __construct(Stylesheet $stylesheet, int $origin = Stylesheet::ORIG_AUTHOR)
     {
-        $this->setFontMetrics($stylesheet->getFontMetrics());
+        $this->fontMetrics = $stylesheet->getFontMetrics();
 
         $this->_stylesheet = $stylesheet;
         $this->_media_queries = [];
@@ -677,22 +663,22 @@ class Style
     /**
      * "Destructor": forcibly free all references held by this object
      */
-    function dispose()
+    public function dispose(): void
     {
     }
 
     /**
-     * @param $media_queries
+     * @param array $media_queries
      */
-    function set_media_queries($media_queries)
+    public function set_media_queries(array $media_queries): void
     {
         $this->_media_queries = $media_queries;
     }
 
     /**
-     * @return array|int
+     * @return array
      */
-    function get_media_queries()
+    public function get_media_queries(): array
     {
         return $this->_media_queries;
     }
@@ -700,23 +686,23 @@ class Style
     /**
      * @param Frame $frame
      */
-    function set_frame(Frame $frame)
+    public function set_frame(Frame $frame): void
     {
         $this->_frame = $frame;
     }
 
     /**
-     * @return Frame
+     * @return Frame|null
      */
-    function get_frame()
+    public function get_frame(): ?Frame
     {
         return $this->_frame;
     }
 
     /**
-     * @param $origin
+     * @param int $origin
      */
-    function set_origin($origin)
+    public function set_origin(int $origin): void
     {
         $this->_origin = $origin;
     }
@@ -724,17 +710,17 @@ class Style
     /**
      * @return int
      */
-    function get_origin()
+    public function get_origin(): int
     {
         return $this->_origin;
     }
 
     /**
-     * returns the {@link Stylesheet} this Style is associated with.
+     * Returns the {@link Stylesheet} the style is associated with.
      *
      * @return Stylesheet
      */
-    function get_stylesheet()
+    public function get_stylesheet(): Stylesheet
     {
         return $this->_stylesheet;
     }
@@ -766,7 +752,7 @@ class Style
      *
      * @return float|string
      */
-    function length_in_pt($length, ?float $ref_size = null)
+    public function length_in_pt($length, ?float $ref_size = null)
     {
         $font_size = $this->__get("font_size");
         $ref_size = $ref_size ?? $font_size;
@@ -882,7 +868,6 @@ class Style
         return $cache[$key] = $value;
     }
 
-
     /**
      * Resolve inherited property values using the provided parent style or the
      * default values, in case no parent style exists.
@@ -890,10 +875,8 @@ class Style
      * https://www.w3.org/TR/css-cascade-3/#inheriting
      *
      * @param Style|null $parent
-     *
-     * @return Style
      */
-    function inherit(?Style $parent = null)
+    public function inherit(?Style $parent = null): void
     {
         $this->parent_style = $parent;
 
@@ -910,12 +893,12 @@ class Style
                 if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
                     continue;
                 }
-    
+
                 if (isset($parent->_props[$prop])) {
                     $parent_val = \array_key_exists($prop, $parent->_props_computed)
                         ? $parent->_props_computed[$prop]
                         : $parent->compute_prop($prop, $parent->_props[$prop]);
-    
+
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
                     $this->_prop_cache[$prop] = null;
@@ -941,8 +924,6 @@ class Style
                 }
             }
         }
-
-        return $this;
     }
 
     /**
@@ -950,7 +931,7 @@ class Style
      *
      * @param Style $style
      */
-    function merge(Style $style)
+    public function merge(Style $style): void
     {
         foreach ($style->_props as $prop => $val) {
             $important = isset($style->_important_props[$prop]);
@@ -991,13 +972,13 @@ class Style
     }
 
     /**
-     * Returns an array(r, g, b, "r"=> r, "g"=>g, "b"=>b, "alpha"=>alpha, "hex"=>"#rrggbb")
+     * Returns an `array(r, g, b, "r" => r, "g" => g, "b" => b, "alpha" => alpha, "hex" => "#rrggbb")`
      * based on the provided CSS color value.
      *
-     * @param string $color
+     * @param string|null $color
      * @return array|string|null
      */
-    function munge_color($color)
+    public function munge_color($color)
     {
         return Color::parse($color);
     }
@@ -1022,7 +1003,7 @@ class Style
      * @param bool   $important          Whether the declaration is important.
      * @param bool   $clear_dependencies Whether to clear computed values of dependent properties.
      */
-    function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
+    public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
         $prop = str_replace("-", "_", $prop);
 
@@ -1051,11 +1032,11 @@ class Style
                 }
             } else {
                 $method = "set_$prop";
-    
+
                 if (!isset(self::$_methods_cache[$method])) {
                     self::$_methods_cache[$method] = method_exists($this, $method);
                 }
-    
+
                 if (self::$_methods_cache[$method]) {
                     $this->$method($val, $important);
                 }
@@ -1132,7 +1113,7 @@ class Style
      * @return mixed
      * @throws Exception
      */
-    function get_prop(string $prop)
+    public function get_prop(string $prop)
     {
         // Legacy property aliases
         if (isset(self::$_props_alias[$prop])) {
@@ -1184,7 +1165,7 @@ class Style
      * @param mixed $val the value of the property
      *
      */
-    function __set($prop, $val)
+    public function __set($prop, $val)
     {
         $this->set_prop($prop, $val);
     }
@@ -1202,7 +1183,7 @@ class Style
      * @return mixed
      * @throws Exception
      */
-    function __get($prop)
+    public function __get($prop)
     {
         // Legacy property aliases
         if (isset(self::$_props_alias[$prop])) {
@@ -1218,7 +1199,7 @@ class Style
         }
 
         $method = "get_$prop";
-    
+
         if (!isset(self::$_methods_cache[$method])) {
             self::$_methods_cache[$method] = method_exists($this, $method);
         }
@@ -1265,7 +1246,7 @@ class Style
      * @param string $prop
      * @param mixed  $val
      */
-    function set_used(string $prop, $val): void
+    public function set_used(string $prop, $val): void
     {
         // Legacy property aliases
         if (isset(self::$_props_alias[$prop])) {
@@ -1320,9 +1301,9 @@ class Style
 
     /**
      * @param float $cbw The width of the containing block.
-     * @return float|null|string
+     * @return float|string|null
      */
-    function computed_bottom_spacing(float $cbw)
+    public function computed_bottom_spacing(float $cbw)
     {
         // Caching the bottom spacing independently of the given width is a bit
         // iffy, but should be okay, as the containing block should only
@@ -1344,7 +1325,7 @@ class Style
     /**
      * @return string
      */
-    function get_font_family_raw()
+    public function get_font_family_raw(): string
     {
         return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
     }
@@ -1554,7 +1535,6 @@ class Style
             1 => $tmp[1], "y" => $tmp[1],
         ];
     }
-
 
     /**
      * Returns the background size as an array
@@ -2052,7 +2032,7 @@ class Style
                 $this->_props_computed[$prop] = $has_line_style ? $val_computed : 0;
             }
         } elseif (($style === "border" || $style === "outline") && $type === "style") {
-            if (in_array($val, Style::$BORDER_STYLES, true)) {
+            if (in_array($val, self::BORDER_STYLES, true)) {
                 $this->_props_computed[$prop] = $val;
             } else {
                 $this->_props_computed[$prop] = null;
@@ -2347,7 +2327,7 @@ class Style
         if (!isset($y)) {
             $y = "0%";
         }
-        
+
         $this->_props_computed["background_position"] = "$x $y";
     }
 
@@ -2591,7 +2571,7 @@ class Style
             }
         }
 
-        if (!in_array($alignment, self::$text_align_keywords, true)) {
+        if (!in_array($alignment, self::TEXT_ALIGN_KEYWORDS, true)) {
             $this->_props_computed["text_align"] = null;
             return;
         }
@@ -2806,7 +2786,7 @@ class Style
         $components = $this->parse_property_value($border_spec);
 
         foreach ($components as $val) {
-            if (in_array($val, self::$BORDER_STYLES, true)) {
+            if (in_array($val, self::BORDER_STYLES, true)) {
                 $this->set_prop("border_{$side}_style", $val, $important);
             } elseif ($this->is_color_value($val)) {
                 $this->set_prop("border_{$side}_color", $val, $important);
@@ -3101,7 +3081,7 @@ class Style
         $components = $this->parse_property_value($value);
 
         foreach ($components as $val) {
-            if (in_array($val, self::$BORDER_STYLES, true)) {
+            if (in_array($val, self::BORDER_STYLES, true)) {
                 $this->set_prop("outline_style", $val, $important);
             } elseif ($this->is_color_value($val)) {
                 $this->set_prop("outline_color", $val, $important);
@@ -3419,7 +3399,7 @@ class Style
             $this->_props_computed["transform"] = null;
             return;
         }
-        
+
         $this->_props_computed["transform"] = $val;
     }
 
@@ -3450,7 +3430,7 @@ class Style
     function get_transform_origin()
     {
         //TODO: should be handled in setter
-        
+
         $values = preg_split("/\s+/", $this->_props_computed["transform_origin"]);
 
         $values = array_map(function ($value) {
@@ -3573,18 +3553,18 @@ class Style
      * @return string
      */
     /*DEBUGCSS print: see below additional debugging util*/
-    function __toString()
+    public function __toString(): string
     {
         $parent_font_size = $this->parent_style
             ? $this->parent_style->font_size
             : self::$default_font_size;
 
-        return print_r(array_merge(["parent_font_size" => $parent_font_size ],
+        return print_r(array_merge(["parent_font_size" => $parent_font_size],
             $this->_props), true);
     }
 
     /*DEBUGCSS*/
-    function debug_print()
+    public function debug_print(): void
     {
         $parent_font_size = $this->parent_style
             ? $this->parent_style->font_size

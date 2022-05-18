@@ -833,7 +833,7 @@ class Frame
      *
      * @return bool
      */
-    public function is_text_node()
+    public function is_text_node(): bool
     {
         if (isset($this->_is_cache["text_node"])) {
             return $this->_is_cache["text_node"];
@@ -853,13 +853,13 @@ class Frame
 
         $position = $this->get_style()->position;
 
-        return $this->_is_cache["positioned"] = in_array($position, Style::$POSITIONED_TYPES, true);
+        return $this->_is_cache["positioned"] = in_array($position, Style::POSITIONED_TYPES, true);
     }
 
     /**
      * @return bool
      */
-    public function is_absolute()
+    public function is_absolute(): bool
     {
         if (isset($this->_is_cache["absolute"])) {
             return $this->_is_cache["absolute"];
@@ -873,13 +873,13 @@ class Frame
      *
      * @return bool
      */
-    public function is_block()
+    public function is_block(): bool
     {
         if (isset($this->_is_cache["block"])) {
             return $this->_is_cache["block"];
         }
 
-        return $this->_is_cache["block"] = in_array($this->get_style()->display, Style::$BLOCK_TYPES, true);
+        return $this->_is_cache["block"] = in_array($this->get_style()->display, Style::BLOCK_TYPES, true);
     }
 
     /**
@@ -917,7 +917,7 @@ class Frame
     /**
      * @return bool
      */
-    public function is_in_flow()
+    public function is_in_flow(): bool
     {
         if (isset($this->_is_cache["in_flow"])) {
             return $this->_is_cache["in_flow"];
@@ -929,7 +929,7 @@ class Frame
     /**
      * @return bool
      */
-    public function is_pre()
+    public function is_pre(): bool
     {
         if (isset($this->_is_cache["pre"])) {
             return $this->_is_cache["pre"];
@@ -943,7 +943,7 @@ class Frame
     /**
      * @return bool
      */
-    public function is_table()
+    public function is_table(): bool
     {
         if (isset($this->_is_cache["table"])) {
             return $this->_is_cache["table"];
@@ -951,7 +951,7 @@ class Frame
 
         $display = $this->get_style()->display;
 
-        return $this->_is_cache["table"] = in_array($display, Style::$TABLE_TYPES, true);
+        return $this->_is_cache["table"] = in_array($display, Style::TABLE_TYPES, true);
     }
 
 

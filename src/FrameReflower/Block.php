@@ -603,7 +603,7 @@ class Block extends AbstractFrameReflower
                     $imageHeightDiff = $height * 0.8 - $marginHeight;
 
                     $align = $frame->get_style()->vertical_align;
-                    if (in_array($align, Style::$vertical_align_keywords, true)) {
+                    if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
                         switch ($align) {
                             case "middle":
                                 $y_offset = $imageHeightDiff / 2;
@@ -644,7 +644,7 @@ class Block extends AbstractFrameReflower
                     } else {
                         $align = $parent->get_style()->vertical_align;
                     }
-                    if (in_array($align, Style::$vertical_align_keywords, true)) {
+                    if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
                         switch ($align) {
                             case "middle":
                                 $y_offset = ($height * 0.8 - $baseline) / 2;

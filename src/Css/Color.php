@@ -165,7 +165,7 @@ class Color
     ];
 
     /**
-     * @param $color
+     * @param array|string|null $color
      * @return array|string|null
      */
     static function parse($color)
@@ -306,7 +306,7 @@ class Color
     }
 
     /**
-     * @param $color
+     * @param array|string $color
      * @param float $alpha
      * @return array
      */
