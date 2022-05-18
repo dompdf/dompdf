@@ -1003,26 +1003,6 @@ class Style
     }
 
     /**
-     * @deprecated
-     * @param string $prop
-     */
-    function important_set($prop)
-    {
-        $prop = str_replace("-", "_", $prop);
-        $this->_important_props[$prop] = true;
-    }
-
-    /**
-     * @deprecated
-     * @param string $prop
-     * @return bool
-     */
-    function important_get($prop)
-    {
-        return isset($this->_important_props[$prop]);
-    }
-
-    /**
      * Clear information about important declarations after the style has been
      * finalized during stylesheet loading.
      */
@@ -1733,17 +1713,6 @@ class Style
     function get_border_left()
     {
         return $this->_get_border("left");
-    }
-
-    /**
-     * @deprecated
-     * @param float $w
-     * @param float $h
-     * @return float[]
-     */
-    function get_computed_border_radius($w, $h)
-    {
-        return $this->resolve_border_radius([0, 0, $w, $h]);
     }
 
     public function has_border_radius(): bool
