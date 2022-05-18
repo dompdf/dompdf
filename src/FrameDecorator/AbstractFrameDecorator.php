@@ -108,6 +108,13 @@ abstract class AbstractFrameDecorator extends Frame
     public $is_split = false;
 
     /**
+     * Whether the frame is a split-off frame
+     *
+     * @var bool
+     */
+    public $is_split_off = false;
+
+    /**
      * Class constructor
      *
      * @param Frame $frame   The decoration target
@@ -700,7 +707,7 @@ abstract class AbstractFrameDecorator extends Frame
 
         $split->set_style(clone $split_style);
         $this->is_split = true;
-        $split->_splitted = true;
+        $split->is_split_off = true;
         $split->_already_pushed = true;
 
         $this->get_parent()->insert_child_after($split, $this);

@@ -162,13 +162,6 @@ class Frame
     public $_float_next_line = false;
 
     /**
-     * Whether the frame is a split-off frame
-     *
-     * @var bool
-     */
-    public $_splitted;
-
-    /**
      * @var int
      */
     public static $_ws_state = self::WS_SPACE;

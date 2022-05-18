@@ -139,7 +139,7 @@ class ListBullet extends AbstractRenderer
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         // Don't render bullets twice if the list item was split
-        if ($li->_splitted) {
+        if ($li->is_split_off) {
             return;
         }
 
