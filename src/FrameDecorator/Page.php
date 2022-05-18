@@ -472,7 +472,7 @@ class Page extends AbstractFrameDecorator
                         $prev_group = $frame->get_parent()->get_prev_sibling();
 
                         if ($prev_group
-                            && in_array($prev_group->get_style()->display, Table::$ROW_GROUPS, true)
+                            && in_array($prev_group->get_style()->display, Table::ROW_GROUPS, true)
                         ) {
                             $prev = $prev_group->get_last_child();
                         }
@@ -511,7 +511,7 @@ class Page extends AbstractFrameDecorator
 
                     return true;
                 } else {
-                    if (in_array($display, Table::$ROW_GROUPS, true)) {
+                    if (in_array($display, Table::ROW_GROUPS, true)) {
 
                         // Disallow breaks at row-groups: only split at row boundaries
                         return false;

@@ -554,7 +554,7 @@ class Cellmap
         // Recursively add the frames within the table, its row groups and rows
         if ($frame === $this->_table
             || $display === "table-row"
-            || in_array($display, TableFrameDecorator::$ROW_GROUPS, true)
+            || in_array($display, TableFrameDecorator::ROW_GROUPS, true)
         ) {
             $start_row = $this->__row;
 
