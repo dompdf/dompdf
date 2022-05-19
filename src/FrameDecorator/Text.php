@@ -22,9 +22,9 @@ use Dompdf\Exception;
 class Text extends AbstractFrameDecorator
 {
     /**
-     * @var float|null
+     * @var float
      */
-    protected $_text_spacing;
+    protected $text_spacing;
 
     /**
      * Text constructor.
@@ -39,23 +39,23 @@ class Text extends AbstractFrameDecorator
         }
 
         parent::__construct($frame, $dompdf);
-        $this->_text_spacing = null;
+        $this->text_spacing = 0.0;
     }
 
     function reset()
     {
         parent::reset();
-        $this->_text_spacing = null;
+        $this->text_spacing = 0.0;
     }
 
     // Accessor methods
 
     /**
-     * @return float|null
+     * @return float
      */
-    function get_text_spacing()
+    public function get_text_spacing(): float
     {
-        return $this->_text_spacing;
+        return $this->text_spacing;
     }
 
     /**
@@ -118,19 +118,10 @@ class Text extends AbstractFrameDecorator
     /**
      * @param float $spacing
      */
-    function set_text_spacing($spacing)
+    public function set_text_spacing(float $spacing): void
     {
-        $this->_text_spacing = $spacing;
-
-        $fontMetrics = $this->_dompdf->getFontMetrics();
-        $style = $this->get_style();
-        $text = $this->get_text();
-        $font = $style->font_family;
-        $size = $style->font_size;
-        $letter_spacing = $style->letter_spacing;
-
-        // Re-adjust our width to account for the change in spacing
-        $style->width = $fontMetrics->getTextWidth($text, $font, $size, $spacing, $letter_spacing);
+        $this->text_spacing = $spacing;
+        $this->recalculate_width();
     }
 
     /**
@@ -145,7 +136,7 @@ class Text extends AbstractFrameDecorator
         $text = $this->get_text();
         $font = $style->font_family;
         $size = $style->font_size;
-        $word_spacing = $style->word_spacing;
+        $word_spacing = $this->text_spacing + $style->word_spacing;
         $letter_spacing = $style->letter_spacing;
 
         return $style->width = $fontMetrics->getTextWidth($text, $font, $size, $word_spacing, $letter_spacing);
