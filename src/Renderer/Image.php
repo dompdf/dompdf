@@ -46,7 +46,9 @@ class Image extends Block
         ) {
             $font = $style->font_family;
             $size = $style->font_size;
-            $spacing = $style->word_spacing;
+            $word_spacing = $style->word_spacing;
+            $letter_spacing = $style->letter_spacing;
+
             $this->_canvas->text(
                 $x,
                 $y,
@@ -54,7 +56,8 @@ class Image extends Block
                 $font,
                 $size,
                 $style->color,
-                $spacing
+                $word_spacing,
+                $letter_spacing
             );
         } elseif ($w > 0 && $h > 0) {
             if ($style->has_border_radius()) {

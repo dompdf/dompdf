@@ -353,6 +353,7 @@ class Style
             "border_right_width",
             "border_bottom_width",
             "border_left_width",
+            "letter_spacing",
             "line_height",
             "margin_top",
             "margin_right",
@@ -363,7 +364,8 @@ class Style
             "padding_top",
             "padding_right",
             "padding_bottom",
-            "padding_left"
+            "padding_left",
+            "word_spacing"
         ],
         "float" => [
             "display"
@@ -1407,56 +1409,58 @@ class Style
     }
 
     /**
-     * @param string $computed
-     * @return float|int|string
+     * @param float|string $computed
+     * @return float
      *
-     * @link https://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
+     * @link https://www.w3.org/TR/css-text-4/#word-spacing-property
      */
     protected function _get_word_spacing($computed)
     {
-        if ($computed === "normal") {
-            return 0;
-        }
-
-        if (mb_strpos($computed, "%") !== false) {
+        if (is_float($computed)) {
             return $computed;
         }
 
-        return (float)$this->length_in_pt($computed, $this->__get("font_size"));
+        // Resolve percentage values
+        $font_size = $this->__get("font_size");
+        return $this->single_length_in_pt($computed, $font_size);
     }
 
     /**
-     * @param string $computed
-     * @return float|int
+     * @param float|string $computed
+     * @return float
      *
-     * @link https://www.w3.org/TR/CSS21/text.html#propdef-letter-spacing
+     * @link https://www.w3.org/TR/css-text-4/#letter-spacing-property
      */
     protected function _get_letter_spacing($computed)
     {
-        if ($computed === "normal") {
-            return 0;
+        if (is_float($computed)) {
+            return $computed;
         }
 
-        return (float)$this->length_in_pt($computed, $this->__get("font_size"));
+        // Resolve percentage values
+        $font_size = $this->__get("font_size");
+        return $this->single_length_in_pt($computed, $font_size);
     }
 
     /**
-     * @param string $computed
+     * @param float|string $computed
      * @return float
      *
      * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-line-height
      */
     protected function _get_line_height($computed)
     {
-        if ($computed === "normal") {
-            return self::$default_line_height * $this->__get("font_size");
+        // Lengths have been computed to float, number values to string
+        if (is_float($computed)) {
+            return $computed;
         }
 
-        if (is_numeric($computed)) {
-            return $computed * $this->__get("font_size");
-        }
+        $font_size = $this->__get("font_size");
+        $factor = $computed === "normal"
+            ? self::$default_line_height
+            : (float) $computed;
 
-        return (float)$this->length_in_pt($computed, $this->__get("font_size"));
+        return $factor * $font_size;
     }
 
     /**
@@ -2542,29 +2546,33 @@ class Style
     /**
      * @param string $val
      *
-     * @link https://www.w3.org/TR/CSS21/text.html#propdef-word-spacing
+     * @link https://www.w3.org/TR/css-text-4/#word-spacing-property
      */
     protected function _compute_word_spacing($val)
     {
-        if ($val === "normal" || mb_strpos($val, "%") !== false) {
-            return $val;
-        } else {
-            return ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
+        if ($val === "normal") {
+            return 0.0;
         }
+
+        return mb_strpos($val, "%") === false
+            ? $this->single_length_in_pt($val)
+            : $val;
     }
 
     /**
      * @param string $val
      *
-     * @link https://www.w3.org/TR/CSS21/text.html#propdef-letter-spacing
+     * @link https://www.w3.org/TR/css-text-4/#letter-spacing-property
      */
     protected function _compute_letter_spacing($val)
     {
         if ($val === "normal") {
-            return $val;
-        } else {
-            return ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
+            return 0.0;
         }
+
+        return mb_strpos($val, "%") === false
+            ? $this->single_length_in_pt($val)
+            : $val;
     }
 
     /**
@@ -2574,11 +2582,17 @@ class Style
      */
     protected function _compute_line_height($val)
     {
-        if ($val === "normal" || is_numeric($val)) {
+        if ($val === "normal") {
             return $val;
-        } else {
-            return ((float)$this->length_in_pt($val, $this->__get("font_size"))) . "pt";
         }
+
+        // Compute number values to string and lengths to float (in pt)
+        if (is_numeric($val)) {
+            return (string) $val;
+        }
+
+        $font_size = $this->__get("font_size");
+        return $this->single_length_in_pt($val, $font_size);
     }
 
     /**
