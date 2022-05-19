@@ -225,6 +225,12 @@ class Style
             "font_weight",
             "line_height"
         ],
+        "inset" => [
+            "top",
+            "right",
+            "bottom",
+            "left"
+        ],
         "list_style" => [
             "list_style_image",
             "list_style_position",
@@ -510,6 +516,7 @@ class Style
             $d["font"] = "";
             $d["height"] = "auto";
             $d["image_resolution"] = "normal";
+            $d["inset"] = "";
             $d["left"] = "auto";
             $d["letter_spacing"] = "normal";
             $d["line_height"] = "normal";
@@ -2001,6 +2008,32 @@ class Style
         return array_map("trim", $matches[0]);
     }
 
+    /**
+     * Parse a property value with 1 to 4 components into 4 values, as required
+     * by shorthand properties such as `margin`, `padding`, and `border-radius`.
+     *
+     * @param string $value
+     *
+     * @return string[]|null An array with 4 elements, or `null` if the declaration is invalid.
+     */
+    protected function parse_quad_shorthand(string $value): ?array
+    {
+        $v = $this->parse_property_value($value);
+
+        switch (count($v)) {
+            case 1:
+                return [$v[0], $v[0], $v[0], $v[0]];
+            case 2:
+                return [$v[0], $v[1], $v[0], $v[1]];
+            case 3:
+                return [$v[0], $v[1], $v[2], $v[1]];
+            case 4:
+                return [$v[0], $v[1], $v[2], $v[3]];
+            default:
+                return null;
+        }
+    }
+
     protected function is_color_value(string $val): bool
     {
         return $val === "currentcolor"
@@ -2118,24 +2151,13 @@ class Style
      */
     protected function set_style_type(string $style, string $type, $val, bool $important): void
     {
-        $v = $this->parse_property_value($val);
+        $v = $this->parse_quad_shorthand($val);
 
-        switch (count($v)) {
-            case 1:
-                [$top, $right, $bottom, $left] = [$v[0], $v[0], $v[0], $v[0]];
-                break;
-            case 2:
-                [$top, $right, $bottom, $left] = [$v[0], $v[1], $v[0], $v[1]];
-                break;
-            case 3:
-                [$top, $right, $bottom, $left] = [$v[0], $v[1], $v[2], $v[1]];
-                break;
-            case 4:
-                [$top, $right, $bottom, $left] = [$v[0], $v[1], $v[2], $v[3]];
-                break;
-            default:
-                return;
+        if ($v === null) {
+            return;
         }
+
+        [$top, $right, $bottom, $left] = $v;
 
         $this->set_prop($this->prop_name($style, "top", $type), $top, $important);
         $this->set_prop($this->prop_name($style, "right", $type), $right, $important);
@@ -2635,6 +2657,28 @@ class Style
 
     /**
      * @param string $val
+     * @param bool   $important
+     *
+     * @link https://www.w3.org/TR/css-position-3/#propdef-inset
+     */
+    protected function _set_inset($val, bool $important = false): void
+    {
+        $v = $this->parse_quad_shorthand($val);
+
+        if ($v === null) {
+            return;
+        }
+
+        [$top, $right, $bottom, $left] = $v;
+
+        $this->set_prop("top", $top, $important);
+        $this->set_prop("right", $right, $important);
+        $this->set_prop("bottom", $bottom, $important);
+        $this->set_prop("left", $left, $important);
+    }
+
+    /**
+     * @param string $val
      *
      * @link https://www.w3.org/TR/CSS21/box.html#margin-properties
      */
@@ -2979,24 +3023,13 @@ class Style
      */
     protected function _set_border_radius($val, bool $important = false): void
     {
-        $r = $this->parse_property_value($val);
+        $v = $this->parse_quad_shorthand($val);
 
-        switch (count($r)) {
-            case 1:
-                [$tl, $tr, $br, $bl] = [$r[0], $r[0], $r[0], $r[0]];
-                break;
-            case 2:
-                [$tl, $tr, $br, $bl] = [$r[0], $r[1], $r[0], $r[1]];
-                break;
-            case 3:
-                [$tl, $tr, $br, $bl] = [$r[0], $r[1], $r[2], $r[1]];
-                break;
-            case 4:
-                [$tl, $tr, $br, $bl] = [$r[0], $r[1], $r[2], $r[3]];
-                break;
-            default:
-                return;
+        if ($v === null) {
+            return;
         }
+
+        [$tl, $tr, $br, $bl] = $v;
 
         $this->set_prop("border_top_left_radius", $tl, $important);
         $this->set_prop("border_top_right_radius", $tr, $important);
