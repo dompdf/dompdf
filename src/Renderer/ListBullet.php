@@ -212,8 +212,8 @@ class ListBullet extends AbstractRenderer
                         return;
                     }
 
-                    $word_spacing = (float) $style->length_in_pt($style->word_spacing);
-                    $letter_spacing = (float) $style->length_in_pt($style->letter_spacing);
+                    $word_spacing = $style->word_spacing;
+                    $letter_spacing = $style->letter_spacing;
                     $text_width = $this->_dompdf->getFontMetrics()->getTextWidth($text, $font_family, $font_size, $word_spacing, $letter_spacing);
 
                     [$x, $y] = $frame->get_position();
