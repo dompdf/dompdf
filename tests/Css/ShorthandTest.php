@@ -30,6 +30,25 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider marginPaddingShorthandProvider
      */
+    public function testInsetShorthand(
+        string $value,
+        string $top,
+        string $right,
+        string $bottom,
+        string $left
+    ): void {
+        $style = $this->style();
+        $style->set_prop("inset", $value);
+
+        $this->assertSame($top, $style->get_prop("top"));
+        $this->assertSame($right, $style->get_prop("right"));
+        $this->assertSame($bottom, $style->get_prop("bottom"));
+        $this->assertSame($left, $style->get_prop("left"));
+    }
+
+    /**
+     * @dataProvider marginPaddingShorthandProvider
+     */
     public function testMarginShorthand(
         string $value,
         string $top,
