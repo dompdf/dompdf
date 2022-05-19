@@ -161,6 +161,36 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->content);
     }
 
+    public function zIndexProvider(): array
+    {
+        return [
+            // Valid values
+            ["auto", "auto"],
+            ["0", 0],
+            ["1", 1],
+            ["+23", 23],
+            ["-100", -100],
+
+            // Invalid values
+            ["", "auto"],
+            ["5.5", "auto"],
+            ["invalid", "auto"]
+        ];
+    }
+
+    /**
+     * @dataProvider zIndexProvider
+     */
+    public function testZIndex(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("z_index", $value);
+        $this->assertSame($expected, $style->z_index);
+    }
+
     public function valueCaseProvider(): array
     {
         return [

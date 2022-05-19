@@ -3365,14 +3365,22 @@ class Style
 
     /**
      * @param string $val
+     *
+     * @link https://www.w3.org/TR/CSS21//visuren.html#propdef-z-index
      */
     protected function _compute_z_index($val)
     {
-        if ($val !== "auto" && round((float) $val) != $val) {
-            return null;
+        if ($val === "auto") {
+            return $val;
         }
 
-        return $val;
+        $integer = self::CSS_INTEGER;
+
+        if (preg_match("/^$integer$/", $val)) {
+            return (int) $val;
+        }
+
+        return null;
     }
 
     /**
