@@ -403,7 +403,13 @@ class Style
             "padding_right",
             "padding_bottom",
             "padding_left",
-            "word_spacing"
+            "word_spacing",
+            "width",
+            "height",
+            "min-width",
+            "min-height",
+            "max-width",
+            "max-height"
         ],
         "float" => [
             "display"
@@ -823,13 +829,7 @@ class Style
             }
 
             $val = $this->single_length_in_pt((string) $l, $ref_size, $font_size);
-
-            // FIXME: Using the ref size as fallback here currently ensures that
-            // invalid widths or heights are treated as the corresponding
-            // containing-block dimension, which can look like the declaration
-            // is being ignored. Implement proper compute methods instead, and
-            // fall back to 0 here
-            $ret += $val ?? $ref_size;
+            $ret += $val ?? 0;
         }
 
         return $ret;
@@ -2674,6 +2674,82 @@ class Style
         }
 
         return $break;
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-width
+     */
+    protected function _compute_width(string $val)
+    {
+        if ($val === "auto") {
+            return $val;
+        }
+
+        return $this->compute_length_percentage_positive($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-height
+     */
+    protected function _compute_height(string $val)
+    {
+        if ($val === "auto") {
+            return $val;
+        }
+
+        return $this->compute_length_percentage_positive($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-min-width
+     */
+    protected function _compute_min_width(string $val)
+    {
+        // Legacy support for `none`, not covered by spec
+        if ($val === "auto" || $val === "none") {
+            return "auto";
+        }
+
+        return $this->compute_length_percentage_positive($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-min-height
+     */
+    protected function _compute_min_height(string $val)
+    {
+        // Legacy support for `none`, not covered by spec
+        if ($val === "auto" || $val === "none") {
+            return "auto";
+        }
+
+        return $this->compute_length_percentage_positive($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-max-width
+     */
+    protected function _compute_max_width(string $val)
+    {
+        // Legacy support for `auto`, not covered by spec
+        if ($val === "none" || $val === "auto") {
+            return "none";
+        }
+
+        return $this->compute_length_percentage_positive($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-max-height
+     */
+    protected function _compute_max_height(string $val)
+    {
+        // Legacy support for `auto`, not covered by spec
+        if ($val === "none" || $val === "auto") {
+            return "none";
+        }
+
+        return $this->compute_length_percentage_positive($val);
     }
 
     /**
