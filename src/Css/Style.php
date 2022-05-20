@@ -1795,10 +1795,10 @@ class Style
         // Use a fixed ref size here. We don't know the border-box width here
         // and font size might be 0. Since we are only interested in whether
         // there is any border radius at all, this should do
-        $tl = (float) $this->length_in_pt($this->border_top_left_radius, 10);
-        $tr = (float) $this->length_in_pt($this->border_top_right_radius, 10);
-        $br = (float) $this->length_in_pt($this->border_bottom_right_radius, 10);
-        $bl = (float) $this->length_in_pt($this->border_bottom_left_radius, 10);
+        $tl = (float) $this->length_in_pt($this->border_top_left_radius, 12);
+        $tr = (float) $this->length_in_pt($this->border_top_right_radius, 12);
+        $br = (float) $this->length_in_pt($this->border_bottom_right_radius, 12);
+        $bl = (float) $this->length_in_pt($this->border_bottom_left_radius, 12);
 
         $this->has_border_radius_cache = $tl + $tr + $br + $bl > 0;
         return $this->has_border_radius_cache;
@@ -2121,6 +2121,63 @@ class Style
         return in_array($val, self::BORDER_STYLES, true) ? $val : null;
     }
 
+    /**
+     * @param string $val
+     * @return float|null
+     */
+    protected function compute_length(string $val): ?float
+    {
+        return mb_strpos($val, "%") === false
+            ? $this->single_length_in_pt($val)
+            : null;
+    }
+
+    /**
+     * @param string $val
+     * @return float|null
+     */
+    protected function compute_length_positive(string $val): ?float
+    {
+        $computed = $this->compute_length($val);
+        return $computed !== null && $computed >= 0 ? $computed : null;
+    }
+
+    /**
+     * @param string $val
+     * @return float|string|null
+     */
+    protected function compute_length_percentage(string $val)
+    {
+        // Compute with a fixed ref size to decide whether percentage values
+        // are valid
+        $computed = $this->single_length_in_pt($val, 12);
+
+        if ($computed === null) {
+            return null;
+        }
+
+        // Retain valid percentage declarations
+        return mb_strpos($val, "%") === false ? $computed : $val;
+    }
+
+    /**
+     * @param string $val
+     * @return float|string|null
+     */
+    protected function compute_length_percentage_positive(string $val)
+    {
+        // Compute with a fixed ref size to decide whether percentage values
+        // are valid
+        $computed = $this->single_length_in_pt($val, 12);
+
+        if ($computed === null || $computed < 0) {
+            return null;
+        }
+
+        // Retain valid percentage declarations
+        return mb_strpos($val, "%") === false ? $computed : $val;
+    }
+
     protected function prop_name(string $style, string $side, string $type): string
     {
         $prop = $style;
@@ -2152,14 +2209,8 @@ class Style
                 $computed = 1.5;
             } elseif ($val === "thick") {
                 $computed = 2.5;
-            } elseif (mb_strpos($val, "%") !== false) {
-                $computed = null;
             } else {
-                $computed = $this->single_length_in_pt($val);
-
-                if ($computed < 0) {
-                    $computed = null;
-                }
+                $computed = $this->compute_length_positive($val);
             }
 
             if ($computed === null) {
@@ -2177,14 +2228,10 @@ class Style
                 $computed = 0.0;
             } elseif ($style === "margin" && $val === "auto") {
                 $computed = $val;
-            } elseif (mb_strpos($val, "%") !== false) {
-                $computed = $val;
+            } elseif ($style === "padding") {
+                $computed = $this->compute_length_percentage_positive($val);
             } else {
-                $computed = $this->single_length_in_pt($val);
-
-                if ($style === "padding" && $computed < 0) {
-                    $computed = null;
-                }
+                $computed = $this->compute_length_percentage($val);
             }
 
             return $computed;
@@ -2617,9 +2664,7 @@ class Style
             return 0.0;
         }
 
-        return mb_strpos($val, "%") === false
-            ? $this->single_length_in_pt($val)
-            : $val;
+        return $this->compute_length_percentage($val);
     }
 
     /**
@@ -2631,9 +2676,7 @@ class Style
             return 0.0;
         }
 
-        return mb_strpos($val, "%") === false
-            ? $this->single_length_in_pt($val)
-            : $val;
+        return $this->compute_length_percentage($val);
     }
 
     /**
@@ -2651,7 +2694,8 @@ class Style
         }
 
         $font_size = $this->__get("font_size");
-        return $this->single_length_in_pt($val, $font_size);
+        $computed = $this->single_length_in_pt($val, $font_size);
+        return $computed !== null && $computed >= 0 ? $computed : null;
     }
 
     /**
@@ -2947,31 +2991,24 @@ class Style
         $this->set_prop("border_bottom_left_radius", $bl, $important, $clear_dependencies);
     }
 
-    protected function compute_border_radius_corner(string $val)
-    {
-        return mb_strpos($val, "%") === false
-            ? $this->single_length_in_pt($val)
-            : $val;
-    }
-
     protected function _compute_border_top_left_radius(string $val)
     {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_length_percentage_positive($val);
     }
 
     protected function _compute_border_top_right_radius(string $val)
     {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_length_percentage_positive($val);
     }
 
     protected function _compute_border_bottom_right_radius(string $val)
     {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_length_percentage_positive($val);
     }
 
     protected function _compute_border_bottom_left_radius(string $val)
     {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_length_percentage_positive($val);
     }
 
     /**
