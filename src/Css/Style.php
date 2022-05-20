@@ -1086,6 +1086,17 @@ class Style
                     || $prop === "border_bottom_right_radius"
                 ) {
                     $this->has_border_radius_cache = null;
+                    $this->resolved_border_radius = null;
+                }
+
+                // Clear bottom-spacing cache if necessary. Border style can
+                // disable/enable border calculations
+                if ($prop === "margin_bottom"
+                    || $prop === "padding_bottom"
+                    || $prop === "border_bottom_width"
+                    || $prop === "border_bottom_style"
+                ) {
+                    $this->_computed_bottom_spacing = null;
                 }
             }
 
@@ -2025,10 +2036,6 @@ class Style
      */
     protected function compute_style_side_type(string $style, string $side, string $type, $val)
     {
-        if ($side === "bottom") {
-            $this->_computed_bottom_spacing = null; //reset computed cache, border style can disable/enable border calculations
-        }
-
         if ($type === "color") {
             return $this->compute_color_value($val);
         } elseif (($style === "border" || $style === "outline") && $type === "width") {
