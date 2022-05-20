@@ -44,6 +44,7 @@ class CPDF implements Canvas
      * @var array;
      */
     static $PAPER_SIZES = [
+        "zl" => [0, 0, 226.77, 70.87], // Zalando Label: 2.5x8.0 cm
         "4a0" => [0, 0, 4767.87, 6740.79],
         "2a0" => [0, 0, 3370.39, 4767.87],
         "a0" => [0, 0, 2383.94, 3370.39],
