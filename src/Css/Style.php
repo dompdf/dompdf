@@ -2009,6 +2009,33 @@ class Style
             || preg_match("/^#|rgb\(|rgba\(|cmyk\(/", $val);
     }
 
+    /**
+     * @param string $val
+     * @return string|null
+     */
+    protected function compute_color_value($val)
+    {
+        // https://www.w3.org/TR/css-color-4/#resolving-other-colors
+        $munged_color = $val !== "currentcolor"
+            ? $this->munge_color($val)
+            : $val;
+
+        if ($munged_color === null) {
+            return null;
+        }
+
+        return is_array($munged_color) ? $munged_color["hex"] : $munged_color;
+    }
+
+    /**
+     * @param string $val
+     * @return string|null
+     */
+    protected function compute_border_style($val)
+    {
+        return in_array($val, self::BORDER_STYLES, true) ? $val : null;
+    }
+
     protected function prop_name(string $style, string $side, string $type): string
     {
         $prop = $style;
@@ -2022,23 +2049,17 @@ class Style
     }
 
     /**
-     * Generalized computation function for individual attributes of combined
-     * style.
-     *
-     * Applicable for margin, border, padding, outline.
+     * Compute margin, border, padding, outline width.
      *
      * @param string $style
      * @param string $side
-     * @param string $type
      * @param string $val
      *
      * @return float|string|null
      */
-    protected function compute_style_side_type(string $style, string $side, string $type, $val)
+    protected function compute_style_side_width(string $style, string $side, $val)
     {
-        if ($type === "color") {
-            return $this->compute_color_value($val);
-        } elseif (($style === "border" || $style === "outline") && $type === "width") {
+        if ($style === "border" || $style === "outline") {
             // Border-width keywords
             if ($val === "thin") {
                 $computed = 0.5;
@@ -2065,10 +2086,6 @@ class Style
 
                 return $has_line_style ? $computed : 0.0;
             }
-        } elseif (($style === "border" || $style === "outline") && $type === "style") {
-            return in_array($val, self::BORDER_STYLES, true)
-                ? $val
-                : null;
         } elseif ($style === "margin" || $style === "padding") {
             if ($val === "none") {
                 // Legacy support for `none` keyword, not covered by spec
@@ -2176,24 +2193,6 @@ class Style
                     return $val;
             }
         }
-    }
-
-    /**
-     * @param string $val
-     * @return string|null
-     */
-    protected function compute_color_value($val)
-    {
-        // https://www.w3.org/TR/css-color-4/#resolving-other-colors
-        $munged_color = $val !== "currentcolor"
-            ? $this->munge_color($val)
-            : $val;
-
-        if ($munged_color === null) {
-            return null;
-        }
-
-        return is_array($munged_color) ? $munged_color["hex"] : $munged_color;
     }
 
     /**
@@ -2641,7 +2640,7 @@ class Style
      */
     protected function _compute_margin_top($val)
     {
-        return $this->compute_style_side_type("margin", "top", "", $val);
+        return $this->compute_style_side_width("margin", "top", $val);
     }
 
     /**
@@ -2649,7 +2648,7 @@ class Style
      */
     protected function _compute_margin_right($val)
     {
-        return $this->compute_style_side_type("margin", "right", "", $val);
+        return $this->compute_style_side_width("margin", "right", $val);
     }
 
     /**
@@ -2657,7 +2656,7 @@ class Style
      */
     protected function _compute_margin_bottom($val)
     {
-        return $this->compute_style_side_type("margin", "bottom", "", $val);
+        return $this->compute_style_side_width("margin", "bottom", $val);
     }
 
     /**
@@ -2665,7 +2664,7 @@ class Style
      */
     protected function _compute_margin_left($val)
     {
-        return $this->compute_style_side_type("margin", "left", "", $val);
+        return $this->compute_style_side_width("margin", "left", $val);
     }
 
     /**
@@ -2686,7 +2685,7 @@ class Style
      */
     protected function _compute_padding_top($val)
     {
-        return $this->compute_style_side_type("padding", "top", "", $val);
+        return $this->compute_style_side_width("padding", "top", $val);
     }
 
     /**
@@ -2694,7 +2693,7 @@ class Style
      */
     protected function _compute_padding_right($val)
     {
-        return $this->compute_style_side_type("padding", "right", "", $val);
+        return $this->compute_style_side_width("padding", "right", $val);
     }
 
     /**
@@ -2702,7 +2701,7 @@ class Style
      */
     protected function _compute_padding_bottom($val)
     {
-        return $this->compute_style_side_type("padding", "bottom", "", $val);
+        return $this->compute_style_side_width("padding", "bottom", $val);
     }
 
     /**
@@ -2710,7 +2709,7 @@ class Style
      */
     protected function _compute_padding_left($val)
     {
-        return $this->compute_style_side_type("padding", "left", "", $val);
+        return $this->compute_style_side_width("padding", "left", $val);
     }
 
     /**
@@ -2763,7 +2762,7 @@ class Style
      */
     protected function _compute_border_top_color($val)
     {
-        return $this->compute_style_side_type("border", "top", "color", $val);
+        return $this->compute_color_value($val);
     }
 
     /**
@@ -2771,7 +2770,7 @@ class Style
      */
     protected function _compute_border_top_style($val)
     {
-        return $this->compute_style_side_type("border", "top", "style", $val);
+        return $this->compute_border_style($val);
     }
 
     /**
@@ -2779,7 +2778,7 @@ class Style
      */
     protected function _compute_border_top_width($val)
     {
-        return $this->compute_style_side_type("border", "top", "width", $val);
+        return $this->compute_style_side_width("border", "top", $val);
     }
 
     /**
@@ -2796,7 +2795,7 @@ class Style
      */
     protected function _compute_border_right_color($val)
     {
-        return $this->compute_style_side_type("border", "right", "color", $val);
+        return $this->compute_color_value($val);
     }
 
     /**
@@ -2804,7 +2803,7 @@ class Style
      */
     protected function _compute_border_right_style($val)
     {
-        return $this->compute_style_side_type("border", "right", "style", $val);
+        return $this->compute_border_style($val);
     }
 
     /**
@@ -2812,7 +2811,7 @@ class Style
      */
     protected function _compute_border_right_width($val)
     {
-        return $this->compute_style_side_type("border", "right", "width", $val);
+        return $this->compute_style_side_width("border", "right", $val);
     }
 
     /**
@@ -2829,7 +2828,7 @@ class Style
      */
     protected function _compute_border_bottom_color($val)
     {
-        return $this->compute_style_side_type("border", "bottom", "color", $val);
+        return $this->compute_color_value($val);
     }
 
     /**
@@ -2837,7 +2836,7 @@ class Style
      */
     protected function _compute_border_bottom_style($val)
     {
-        return $this->compute_style_side_type("border", "bottom", "style", $val);
+        return $this->compute_border_style($val);
     }
 
     /**
@@ -2845,7 +2844,7 @@ class Style
      */
     protected function _compute_border_bottom_width($val)
     {
-        return $this->compute_style_side_type("border", "bottom", "width", $val);
+        return $this->compute_style_side_width("border", "bottom", $val);
     }
 
     /**
@@ -2862,7 +2861,7 @@ class Style
      */
     protected function _compute_border_left_color($val)
     {
-        return $this->compute_style_side_type("border", "left", "color", $val);
+        return $this->compute_color_value($val);
     }
 
     /**
@@ -2870,7 +2869,7 @@ class Style
      */
     protected function _compute_border_left_style($val)
     {
-        return $this->compute_style_side_type("border", "left", "style", $val);
+        return $this->compute_border_style($val);
     }
 
     /**
@@ -2878,7 +2877,7 @@ class Style
      */
     protected function _compute_border_left_width($val)
     {
-        return $this->compute_style_side_type("border", "left", "width", $val);
+        return $this->compute_style_side_width("border", "left", $val);
     }
 
     /**
@@ -3033,7 +3032,7 @@ class Style
      */
     protected function _compute_outline_color($val)
     {
-        return $this->compute_style_side_type("outline", "", "color", $val);
+        return $this->compute_color_value($val);
     }
 
     /**
@@ -3041,7 +3040,7 @@ class Style
      */
     protected function _compute_outline_style($val)
     {
-        return $this->compute_style_side_type("outline", "", "style", $val);
+        return $this->compute_border_style($val);
     }
 
     /**
@@ -3049,7 +3048,7 @@ class Style
      */
     protected function _compute_outline_width($val)
     {
-        return $this->compute_style_side_type("outline", "", "width", $val);
+        return $this->compute_style_side_width("outline", "", $val);
     }
 
     /**
