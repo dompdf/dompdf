@@ -856,56 +856,66 @@ class Style
             return $cache[$key];
         }
 
-        if (is_numeric($l)) {
+        $number = self::CSS_NUMBER;
+        $pattern = "/^($number)(.*)?$/";
+
+        if (!preg_match($pattern, $l, $matches)) {
+            return null;
+        }
+
+        $v = (float) $matches[1];
+        $unit = mb_strtolower($matches[2]);
+
+        if ($unit === "") {
             // Legacy support for unitless values, not covered by spec. Might
             // want to restrict this to unitless `0` in the future
-            $value = (float) $l;
+            $value = $v;
         }
 
-        elseif (($i = mb_stripos($l, "%")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) / 100 * $ref_size;
+        elseif ($unit === "%") {
+            $value = $v / 100 * $ref_size;
         }
 
-        elseif (($i = mb_stripos($l, "px")) !== false) {
+        elseif ($unit === "px") {
             $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
-            $value = ((float)mb_substr($l, 0, $i) * 72) / $dpi;
+            $value = ($v * 72) / $dpi;
         }
 
-        elseif (($i = mb_stripos($l, "pt")) !== false) {
-            $value = (float)mb_substr($l, 0, $i);
+        elseif ($unit === "pt") {
+            $value = $v;
         }
 
-        elseif (($i = mb_stripos($l, "rem")) !== false) {
+        elseif ($unit === "rem") {
             $root_style = $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style();
             $root_font_size = $root_style === null || $root_style === $this
                 ? $font_size
                 : $root_style->__get("font_size");
-            $value = (float)mb_substr($l, 0, $i) * $root_font_size;
+            $value = $v * $root_font_size;
         }
 
-        elseif (($i = mb_stripos($l, "em")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * $font_size;
+        elseif ($unit === "em") {
+            $value = $v * $font_size;
         }
 
-        elseif (($i = mb_stripos($l, "cm")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 72 / 2.54;
+        elseif ($unit === "cm") {
+            $value = $v * 72 / 2.54;
         }
 
-        elseif (($i = mb_stripos($l, "mm")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 72 / 25.4;
+        elseif ($unit === "mm") {
+            $value = $v * 72 / 25.4;
         }
 
-        elseif (($i = mb_stripos($l, "ex")) !== false) {
+        elseif ($unit === "ex") {
             // FIXME: em:ex ratio?
-            $value = (float)mb_substr($l, 0, $i) * $font_size / 2;
+            $value = $v * $font_size / 2;
         }
 
-        elseif (($i = mb_stripos($l, "in")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 72;
+        elseif ($unit === "in") {
+            $value = $v * 72;
         }
 
-        elseif (($i = mb_stripos($l, "pc")) !== false) {
-            $value = (float)mb_substr($l, 0, $i) * 12;
+        elseif ($unit === "pc") {
+            $value = $v * 12;
         }
 
         else {
