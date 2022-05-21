@@ -674,13 +674,6 @@ class Style
     }
 
     /**
-     * "Destructor": forcibly free all references held by this object
-     */
-    public function dispose(): void
-    {
-    }
-
-    /**
      * @param array $media_queries
      */
     public function set_media_queries(array $media_queries): void

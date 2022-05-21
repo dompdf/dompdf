@@ -287,11 +287,9 @@ class Frame
             $this->_parent->get_node()->removeChild($this->_node);
         }
 
-        $this->_style->dispose();
         $this->_style = null;
         unset($this->_style);
 
-        $this->_original_style->dispose();
         $this->_original_style = null;
         unset($this->_original_style);
     }
