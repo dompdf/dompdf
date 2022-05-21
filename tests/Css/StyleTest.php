@@ -4,6 +4,7 @@ namespace Dompdf\Tests\Css;
 use Dompdf\Dompdf;
 use Dompdf\Css\Style;
 use Dompdf\Css\Stylesheet;
+use Dompdf\Options;
 use Dompdf\Tests\TestCase;
 
 class StyleTest extends TestCase
@@ -162,6 +163,45 @@ class StyleTest extends TestCase
 
         $style->set_prop("content", $value);
         $this->assertSame($expected, $style->content);
+    }
+
+    public function sizeProvider(): array
+    {
+        return [
+            // Valid values
+            ["auto", "auto"],
+            ["letter", [612.00, 792.00]],
+            ["portrait", [419.53, 595.28]],
+            ["landscape", [595.28, 419.53]],
+            ["A4 portrait", [595.28, 841.89]],
+            ["landscape a4", [841.89, 595.28]],
+            ["200pt", [200.0, 200.0]],
+            ["400pt 300pt", [400.0, 300.0]],
+            ["400pt 300pt portrait", [300.0, 400.0]],
+            ["landscape 300pt 400pt", [400.0, 300.0]],
+            ["landscape 400pt 300pt", [400.0, 300.0]],
+
+            // Invalid values
+            ["", "auto"],
+            ["letter auto", "auto"],
+            ["landscape landscape a4", "auto"],
+            ["letter 300mm 300mm", "auto"]
+        ];
+    }
+
+    /**
+     * @dataProvider sizeProvider
+     */
+    public function testSize(string $value, $expected): void
+    {
+        $options = new Options();
+        $options->setDefaultPaperSize("A5");
+        $dompdf = new Dompdf($options);
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("size", $value);
+        $this->assertSame($expected, $style->size);
     }
 
     public function zIndexProvider(): array

@@ -3135,38 +3135,59 @@ class Style
      */
     protected function _compute_size(string $val)
     {
-        $length_re = "/(\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%))/";
-
         if ($val === "auto") {
             return $val;
         }
 
-        $parts = preg_split("/\s+/", $val);
+        $parts = $this->parse_property_value($val);
+        $count = count($parts);
 
-        $computed = [];
-        if (preg_match($length_re, $parts[0])) {
-            $computed[] = $this->length_in_pt($parts[0]);
-
-            if (isset($parts[1]) && preg_match($length_re, $parts[1])) {
-                $computed[] = $this->length_in_pt($parts[1]);
-            } else {
-                $computed[] = $computed[0];
-            }
-
-            if (isset($parts[2]) && $parts[2] === "landscape") {
-                $computed = array_reverse($computed);
-            }
-        } elseif (isset(CPDF::$PAPER_SIZES[$parts[0]])) {
-            $computed = array_slice(CPDF::$PAPER_SIZES[$parts[0]], 2, 2);
-
-            if (isset($parts[1]) && $parts[1] === "landscape") {
-                $computed = array_reverse($computed);
-            }
-        } else {
+        if ($count === 0 || $count > 3) {
             return null;
         }
 
-        return $computed;
+        $size = null;
+        $orientation = null;
+        $lengths = [];
+
+        foreach ($parts as $part) {
+            if ($size === null && isset(CPDF::$PAPER_SIZES[$part])) {
+                $size = $part;
+            } elseif ($orientation === null && ($part === "portrait" || $part === "landscape")) {
+                $orientation = $part;
+            } else {
+                $lengths[] = $part;
+            }
+        }
+
+        if ($size !== null && $lengths !== []) {
+            return null;
+        }
+
+        if ($size !== null) {
+            // Standard paper size
+            [$l1, $l2] = array_slice(CPDF::$PAPER_SIZES[$size], 2, 2);
+        } elseif ($lengths === []) {
+            // Orientation only, use default paper size
+            $dims = $this->_stylesheet->get_dompdf()->getPaperSize();
+            [$l1, $l2] = array_slice($dims, 2, 2);
+        } else {
+            // Custom paper size
+            $l1 = $this->compute_length_positive($lengths[0]);
+            $l2 = isset($lengths[1]) ? $this->compute_length_positive($lengths[1]) : $l1;
+
+            if ($l1 === null || $l2 === null) {
+                return null;
+            }
+        }
+
+        if (($orientation === "portrait" && $l1 > $l2)
+            || ($orientation === "landscape" && $l2 > $l1)
+        ) {
+            return [$l2, $l1];
+        }
+
+        return [$l1, $l2];
     }
 
     /**
