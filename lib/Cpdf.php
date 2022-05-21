@@ -4725,10 +4725,11 @@ EOT;
     /**
      * return the height in units of the current font in the given size
      *
-     * @param $size
-     * @return float|int
+     * @param float $size
+     *
+     * @return float
      */
-    function getFontHeight($size)
+    public function getFontHeight(float $size): float
     {
         if (!$this->numFonts) {
             $this->selectFont($this->defaultFont);
@@ -4760,10 +4761,11 @@ EOT;
     }
 
     /**
-     * @param $size
-     * @return float|int
+     * @param float $size
+     *
+     * @return float
      */
-    function getFontXHeight($size)
+    public function getFontXHeight(float $size): float
     {
         if (!$this->numFonts) {
             $this->selectFont($this->defaultFont);
@@ -4786,10 +4788,11 @@ EOT;
      * if you add this number to the baseline, you get the level of the bottom of the font
      * it is in the pdf user units
      *
-     * @param $size
-     * @return float|int
+     * @param float $size
+     *
+     * @return float
      */
-    function getFontDescender($size)
+    public function getFontDescender(float $size): float
     {
         // note that this will most likely return a negative value
         if (!$this->numFonts) {
@@ -5139,13 +5142,14 @@ EOT;
      * calculate how wide a given text string will be on a page, at a given size.
      * this can be called externally, but is also used by the other class functions
      *
-     * @param float $size
+     * @param float  $size
      * @param string $text
-     * @param float $word_spacing
-     * @param float $char_spacing
+     * @param float  $word_spacing
+     * @param float  $char_spacing
+     *
      * @return float
      */
-    function getTextWidth($size, $text, $word_spacing = 0, $char_spacing = 0)
+    public function getTextWidth(float $size, string $text, float $word_spacing = 0.0, float $char_spacing = 0.0): float
     {
         static $ord_cache = [];
 
@@ -5159,9 +5163,6 @@ EOT;
         }
 
         $text = str_replace(["\r", "\n"], "", $text);
-
-        // converts a number or a float to a string so it can get the width
-        $text = "$text";
 
         // hmm, this is where it all starts to get tricky - use the font information to
         // calculate the width of each character, add them up and convert to user units

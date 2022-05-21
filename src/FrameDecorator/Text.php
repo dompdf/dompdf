@@ -129,7 +129,7 @@ class Text extends AbstractFrameDecorator
      *
      * @return float
      */
-    function recalculate_width()
+    public function recalculate_width(): float
     {
         $fontMetrics = $this->_dompdf->getFontMetrics();
         $style = $this->get_style();

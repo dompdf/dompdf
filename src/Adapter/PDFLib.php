@@ -1292,15 +1292,7 @@ class PDFLib implements Canvas
         }
     }
 
-    /**
-     * @param string $text
-     * @param string $font
-     * @param float  $size
-     * @param float  $word_spacing
-     * @param float  $letter_spacing
-     * @return mixed
-     */
-    public function get_text_width($text, $font, $size, $word_spacing = 0, $letter_spacing = 0)
+    public function get_text_width($text, $font, $size, $word_spacing = 0.0, $letter_spacing = 0.0)
     {
         $fh = $this->_load_font($font);
 
@@ -1316,11 +1308,6 @@ class PDFLib implements Canvas
         return $this->_pdf->stringwidth($text, $fh, $size) + $delta;
     }
 
-    /**
-     * @param string $font
-     * @param float  $size
-     * @return float
-     */
     public function get_font_height($font, $size)
     {
         $fh = $this->_load_font($font);
@@ -1336,11 +1323,6 @@ class PDFLib implements Canvas
         return (abs($asc) + abs($desc)) * $ratio;
     }
 
-    /**
-     * @param string $font
-     * @param float  $size
-     * @return float
-     */
     public function get_font_baseline($font, $size)
     {
         $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
