@@ -126,7 +126,7 @@ class Frame
     /**
      * This frame's decorator
      *
-     * @var \Dompdf\FrameDecorator\AbstractFrameDecorator
+     * @var FrameDecorator\AbstractFrameDecorator
      */
     protected $_decorator;
 
@@ -355,7 +355,7 @@ class Frame
     }
 
     /**
-     * @return \Dompdf\FrameDecorator\AbstractFrameDecorator
+     * @return FrameDecorator\AbstractFrameDecorator
      */
     public function get_decorator()
     {
@@ -683,7 +683,7 @@ class Frame
     }
 
     /**
-     * @param \Dompdf\FrameDecorator\AbstractFrameDecorator $decorator
+     * @param FrameDecorator\AbstractFrameDecorator $decorator
      */
     public function set_decorator(FrameDecorator\AbstractFrameDecorator $decorator)
     {
