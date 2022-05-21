@@ -358,11 +358,11 @@ interface Canvas
     /**
      * Calculates text size, in points
      *
-     * @param string $text the text to be sized
-     * @param string $font the desired font
-     * @param float $size the desired font size
-     * @param float $word_spacing word spacing, if any
-     * @param float $char_spacing char spacing, if any
+     * @param string $text         the text to be sized
+     * @param string $font         the desired font
+     * @param float  $size         the desired font size
+     * @param float  $word_spacing word spacing, if any
+     * @param float  $char_spacing char spacing, if any
      *
      * @return float
      */
@@ -372,17 +372,27 @@ interface Canvas
      * Calculates font height, in points
      *
      * @param string $font
-     * @param float $size
+     * @param float  $size
      *
      * @return float
      */
     function get_font_height($font, $size);
 
     /**
+     * Returns the font x-height, in points
+     *
+     * @param string $font
+     * @param float  $size
+     *
+     * @return float
+     */
+    //function get_font_x_height($font, $size);
+
+    /**
      * Calculates font baseline, in points
      *
      * @param string $font
-     * @param float $size
+     * @param float  $size
      *
      * @return float
      */
@@ -395,23 +405,12 @@ interface Canvas
      */
     function get_width();
 
-
     /**
-     * Return the image's height in pixels
+     * Returns the PDF's height in points
      *
      * @return float
      */
     function get_height();
-
-    /**
-     * Returns the font x-height, in points
-     *
-     * @param string $font
-     * @param float $size
-     *
-     * @return float
-     */
-    //function get_font_x_height($font, $size);
 
     /**
      * Sets the opacity

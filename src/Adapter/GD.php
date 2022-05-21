@@ -342,7 +342,7 @@ class GD implements Canvas
      * Scales value down from the current canvas DPI to 72 DPI
      *
      * @param float $length
-     * @return int
+     * @return float
      */
     protected function _downscale($length)
     {
@@ -723,7 +723,6 @@ class GD implements Canvas
      * @param string $resolution
      *
      * @throws \Exception
-     * @internal param string $img_type the type (e.g. extension) of the image
      */
     public function image($img_url, $x, $y, $w, $h, $resolution = "normal")
     {
@@ -840,17 +839,6 @@ class GD implements Canvas
         // N/A
     }
 
-    /**
-     * Calculates text size, in points
-     *
-     * @param string $text the text to be sized
-     * @param string $font the desired font
-     * @param float $size the desired font size
-     * @param float $word_spacing word spacing, if any
-     * @param float $char_spacing char spacing, if any
-     *
-     * @return float
-     */
     public function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)
     {
         $font = $this->get_ttf_file($font);
@@ -904,13 +892,6 @@ class GD implements Canvas
         return $font;
     }
 
-    /**
-     * Calculates font height, in points
-     *
-     * @param string $font
-     * @param float $size
-     * @return int
-     */
     public function get_font_height($font, $size)
     {
         $size = $this->_upscale($size) * self::FONT_SCALE;
@@ -920,6 +901,11 @@ class GD implements Canvas
         return $this->_downscale($height);
     }
 
+    /**
+     * @param string $font
+     * @param float $size
+     * @return float
+     */
     protected function get_font_height_actual($font, $size)
     {
         $font = $this->get_ttf_file($font);
@@ -930,22 +916,12 @@ class GD implements Canvas
         return ($y2 - $y1) * $ratio;
     }
 
-    /**
-     * @param string $font
-     * @param float $size
-     * @return float
-     */
     public function get_font_baseline($font, $size)
     {
         $ratio = $this->_dompdf->getOptions()->getFontHeightRatio();
         return $this->get_font_height($font, $size) / $ratio;
     }
 
-    /**
-     * Starts a new page
-     *
-     * Subsequent drawing operations will appear on the new page.
-     */
     public function new_page()
     {
         $this->_page_number++;

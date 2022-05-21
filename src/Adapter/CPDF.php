@@ -965,23 +965,15 @@ class CPDF implements Canvas
     }
 
     /**
-     * @param string $text
-     * @param string $font
-     * @param float $size
-     * @param float $word_spacing
-     * @param float $char_spacing
-     * @return float
+     * @throws FontNotFoundException
      */
-    public function get_text_width($text, $font, $size, $word_spacing = 0, $char_spacing = 0)
+    public function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)
     {
         $this->_pdf->selectFont($font, '', true, $this->_dompdf->getOptions()->getIsFontSubsettingEnabled());
         return $this->_pdf->getTextWidth($size, $text, $word_spacing, $char_spacing);
     }
 
     /**
-     * @param string $font
-     * @param float $size
-     * @return float|int
      * @throws FontNotFoundException
      */
     public function get_font_height($font, $size)
@@ -999,9 +991,7 @@ class CPDF implements Canvas
     }*/
 
     /**
-     * @param string $font
-     * @param float $size
-     * @return float
+     * @throws FontNotFoundException
      */
     public function get_font_baseline($font, $size)
     {

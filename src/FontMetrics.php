@@ -309,16 +309,15 @@ class FontMetrics
     /**
      * Calculates text size, in points
      *
-     * @param string $text the text to be sized
-     * @param string $font the desired font
-     * @param float $size  the desired font size
-     * @param float $wordSpacing
-     * @param float $charSpacing
+     * @param string $text        the text to be sized
+     * @param string $font        the desired font
+     * @param float  $size        the desired font size
+     * @param float  $wordSpacing word spacing, if any
+     * @param float  $charSpacing char spacing, if any
      *
-     * @internal param float $spacing word spacing, if any
      * @return float
      */
-    public function getTextWidth($text, $font, $size, $wordSpacing = 0.0, $charSpacing = 0.0)
+    public function getTextWidth(string $text, $font, float $size, float $wordSpacing = 0.0, float $charSpacing = 0.0): float
     {
         // @todo Make sure this cache is efficient before enabling it
         static $cache = [];
@@ -363,11 +362,11 @@ class FontMetrics
      * Calculates font height, in points
      *
      * @param string $font
-     * @param float $size
+     * @param float  $size
      *
      * @return float
      */
-    public function getFontHeight($font, $size)
+    public function getFontHeight($font, float $size): float
     {
         return $this->canvas->get_font_height($font, $size);
     }
@@ -376,11 +375,11 @@ class FontMetrics
      * Calculates font baseline, in points
      *
      * @param string $font
-     * @param float $size
+     * @param float  $size
      *
      * @return float
      */
-    public function getFontBaseline($font, $size)
+    public function getFontBaseline($font, float $size): float
     {
         return $this->canvas->get_font_baseline($font, $size);
     }
@@ -403,10 +402,10 @@ class FontMetrics
      * ({@link Options::defaultFont}) is used.  The font file returned
      * is the absolute pathname to the font file on the system.
      *
-     * @param string $familyRaw
-     * @param string $subtypeRaw
+     * @param string|null $familyRaw
+     * @param string      $subtypeRaw
      *
-     * @return string
+     * @return string|null
      */
     public function getFont($familyRaw, $subtypeRaw = "normal")
     {
