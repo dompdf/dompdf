@@ -57,10 +57,6 @@ abstract class AbstractFrameReflower
         $this->_min_max_cache = null;
     }
 
-    function dispose()
-    {
-    }
-
     /**
      * @return Dompdf
      */
