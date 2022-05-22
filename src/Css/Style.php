@@ -1606,50 +1606,6 @@ class Style
     }
 
     /**
-     * Returns the background position as an array
-     *
-     * The returned array has the following format:
-     * `array(x, y, "x" => x, "y" => y)`
-     *
-     * @param string $computed
-     * @return array
-     *
-     * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-position
-     */
-    protected function _get_background_position($computed): array
-    {
-        $tmp = explode(" ", $computed);
-
-        return [
-            0 => $tmp[0], "x" => $tmp[0],
-            1 => $tmp[1], "y" => $tmp[1],
-        ];
-    }
-
-    /**
-     * Returns the background size as an array
-     *
-     * The return value has one of the following formats:
-     * * `cover`
-     * * `contain`
-     * * `array(width, height)`
-     *
-     * @param string $computed
-     * @return array|string
-     *
-     * @link https://www.w3.org/TR/css3-background/#background-size
-     */
-    protected function _get_background_size($computed)
-    {
-        if ($computed === "cover" || $computed === "contain") {
-            return $computed;
-        }
-
-        $result = explode(" ", $computed);
-        return [$result[0], $result[1]];
-    }
-
-    /**
      * Returns the border color as an array
      *
      * See {@link Style::_get_color()} for format of the color array.
@@ -2368,9 +2324,13 @@ class Style
      */
     protected function _compute_background_position(string $val)
     {
-        $tmp = explode(" ", $val);
+        $parts = preg_split("/\s+/", $val);
 
-        switch ($tmp[0]) {
+        if (count($parts) > 2) {
+            return null;
+        }
+
+        switch ($parts[0]) {
             case "left":
                 $x = "0%";
                 break;
@@ -2393,12 +2353,12 @@ class Style
                 break;
 
             default:
-                $x = $tmp[0];
+                $x = $parts[0];
                 break;
         }
 
-        if (isset($tmp[1])) {
-            switch ($tmp[1]) {
+        if (isset($parts[1])) {
+            switch ($parts[1]) {
                 case "left":
                     $x = "0%";
                     break;
@@ -2416,7 +2376,7 @@ class Style
                     break;
 
                 case "center":
-                    if ($tmp[0] === "left" || $tmp[0] === "right" || $tmp[0] === "center") {
+                    if ($parts[0] === "left" || $parts[0] === "right" || $parts[0] === "center") {
                         $y = "50%";
                     } else {
                         $x = "50%";
@@ -2424,7 +2384,7 @@ class Style
                     break;
 
                 default:
-                    $y = $tmp[1];
+                    $y = $parts[1];
                     break;
             }
         } else {
@@ -2439,11 +2399,18 @@ class Style
             $y = "0%";
         }
 
-        return "$x $y";
+        return [$x, $y];
     }
 
     /**
-     * @link https://www.w3.org/TR/css3-background/#background-size
+     * Compute `background-size`.
+     *
+     * Computes to one of the following values:
+     * * `cover`
+     * * `contain`
+     * * `[width, height]`, each being a length, percentage, or `auto`
+     *
+     * @link https://www.w3.org/TR/css-backgrounds-3/#background-size
      */
     protected function _compute_background_size(string $val)
     {
@@ -2451,19 +2418,27 @@ class Style
             return $val;
         }
 
-        $result = explode(" ", $val);
+        $parts = preg_split("/\s+/", $val);
 
-        $width = $result[0];
-        if ($width !== "auto" && mb_strpos($width, "%") === false) {
-            $width = (float)$this->length_in_pt($width);
+        if (count($parts) > 2) {
+            return null;
         }
 
-        $height = $result[1] ?? "auto";
-        if ($height !== "auto" && mb_strpos($height, "%") === false) {
-            $height = (float)$this->length_in_pt($height);
+        $width = $parts[0];
+        if ($width !== "auto") {
+            $width = $this->compute_length_percentage_positive($width);
         }
 
-        return "$width $height";
+        $height = $parts[1] ?? "auto";
+        if ($height !== "auto") {
+            $height = $this->compute_length_percentage_positive($height);
+        }
+
+        if ($width === null || $height === null) {
+            return null;
+        }
+
+        return [$width, $height];
     }
 
     /**
@@ -3194,7 +3169,7 @@ class Style
      * @param string $computed
      * @return array|null
      *
-     * @link https://www.w3.org/TR/css3-2d-transforms/#transform-property
+     * @link https://www.w3.org/TR/css-transforms-1/#transform-property
      */
     protected function _get_transform($computed)
     {
@@ -3321,7 +3296,7 @@ class Style
      * @param string $computed
      * @return array
      *
-     * @link https://www.w3.org/TR/css3-2d-transforms/#transform-origin
+     * @link https://www.w3.org/TR/css-transforms-1/#transform-origin
      */
     protected function _get_transform_origin($computed)
     {
