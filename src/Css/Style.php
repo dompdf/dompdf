@@ -2569,16 +2569,16 @@ class Style
             $val = $match[2];
         }
 
-        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%))(?:\/|\s*)(.*)$/i", $val, $match)) {
+        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%))(?:\s*\/\s*|\s*)(.*)$/i", $val, $match)) {
             $this->set_prop("font_size", $match[1], $important, $clear_dependencies);
             $val = $match[2];
-            if (preg_match("/^(?:\/|\s*)(\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
+            if (preg_match("/^(\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
                 $this->set_prop("line_height", $match[1], $important, $clear_dependencies);
                 $val = $match[2];
             }
         }
 
-        if (strlen($val) != 0) {
+        if ($val !== "") {
             $this->set_prop("font_family", $val, $important, $clear_dependencies);
         }
     }
