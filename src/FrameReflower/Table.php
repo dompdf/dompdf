@@ -341,9 +341,8 @@ class Table extends AbstractFrameReflower
         // the cells themselves.
         if ($style->border_collapse === "separate") {
             [$h, $v] = $style->border_spacing;
-
-            $v = (float)$style->length_in_pt($v) / 2;
-            $h = (float)$style->length_in_pt($h) / 2;
+            $v = $v / 2;
+            $h = $h / 2;
 
             $style->set_used("padding_left", (float)$style->length_in_pt($style->padding_left, $cb["w"]) + $h);
             $style->set_used("padding_right", (float)$style->length_in_pt($style->padding_right, $cb["w"]) + $h);
