@@ -2088,7 +2088,7 @@ class Style
      * @param string $val
      * @return string|null
      */
-    protected function compute_color_value($val)
+    protected function compute_color_value(string $val): ?string
     {
         // https://www.w3.org/TR/css-color-4/#resolving-other-colors
         $munged_color = $val !== "currentcolor"
@@ -2106,7 +2106,7 @@ class Style
      * @param string $val
      * @return string|null
      */
-    protected function compute_border_style($val)
+    protected function compute_border_style(string $val): ?string
     {
         return in_array($val, self::BORDER_STYLES, true) ? $val : null;
     }
@@ -2132,7 +2132,7 @@ class Style
      *
      * @return float|string|null
      */
-    protected function compute_style_side_width(string $style, string $side, $val)
+    protected function compute_style_side_width(string $style, string $side, string $val)
     {
         if ($style === "border" || $style === "outline") {
             // Border-width keywords
@@ -2191,7 +2191,7 @@ class Style
      * @param string $val
      * @param bool   $important
      */
-    protected function set_style_type(string $style, string $type, $val, bool $important): void
+    protected function set_style_type(string $style, string $type, string $val, bool $important): void
     {
         $v = $this->parse_quad_shorthand($val);
 
@@ -2210,8 +2210,6 @@ class Style
     /*======================*/
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/visuren.html#display-prop
      */
     protected function _compute_display(string $val)
@@ -2260,31 +2258,25 @@ class Style
     }
 
     /**
-     * @param string $color
-     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-color
      */
-    protected function _compute_color($color)
+    protected function _compute_color(string $color)
     {
         return $this->compute_color_value($color);
     }
 
     /**
-     * @param string $color
-     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-color
      */
-    protected function _compute_background_color($color)
+    protected function _compute_background_color(string $color)
     {
         return $this->compute_color_value($color);
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-image
      */
-    protected function _compute_background_image($val)
+    protected function _compute_background_image(string $val)
     {
         $parsed_val = $this->_stylesheet->resolve_url($val);
 
@@ -2296,33 +2288,27 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-repeat
      */
-    protected function _compute_background_repeat($val)
+    protected function _compute_background_repeat(string $val)
     {
         $keywords = ["repeat", "repeat-x", "repeat-y", "no-repeat"];
         return in_array($val, $keywords, true) ? $val : null;
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-attachment
      */
-    protected function _compute_background_attachment($val)
+    protected function _compute_background_attachment(string $val)
     {
         $keywords = ["scroll", "fixed"];
         return in_array($val, $keywords, true) ? $val : null;
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background-position
      */
-    protected function _compute_background_position($val)
+    protected function _compute_background_position(string $val)
     {
         $tmp = explode(" ", $val);
 
@@ -2399,11 +2385,9 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/css3-background/#background-size
      */
-    protected function _compute_background_size($val)
+    protected function _compute_background_size(string $val)
     {
         if ($val === "cover" || $val === "contain") {
             return $val;
@@ -2430,7 +2414,7 @@ class Style
      *
      * @link https://www.w3.org/TR/CSS21/colors.html#propdef-background
      */
-    protected function _set_background($value, bool $important = false): void
+    protected function _set_background(string $value, bool $important = false): void
     {
         if ($value === "none") {
             $this->set_prop("background_image", "none", $important);
@@ -2475,11 +2459,9 @@ class Style
     }
 
     /**
-     * @param string $size
-     *
      * @link https://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
      */
-    protected function _compute_font_size($size)
+    protected function _compute_font_size(string $size)
     {
         $parent_font_size = isset($this->parent_style)
             ? $this->parent_style->__get("font_size")
@@ -2513,11 +2495,9 @@ class Style
     }
 
     /**
-     * @param string $weight
-     *
      * @link https://www.w3.org/TR/CSS21/fonts.html#font-boldness
      */
-    protected function _compute_font_weight($weight)
+    protected function _compute_font_weight(string $weight)
     {
         $computed_weight = $weight;
 
@@ -2556,7 +2536,7 @@ class Style
      *
      * @link https://www.w3.org/TR/CSS21/fonts.html#font-shorthand
      */
-    protected function _set_font($val, bool $important = false): void
+    protected function _set_font(string $val, bool $important = false): void
     {
         if (preg_match("/^(italic|oblique|normal)\s*(.*)$/i", $val, $match)) {
             $this->set_prop("font_style", $match[1], $important);
@@ -2596,11 +2576,9 @@ class Style
      * If no alignment is set on the element and the direction is rtl then
      * the property is set to "right", otherwise it is set to "left".
      *
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/text.html#propdef-text-align
      */
-    protected function _compute_text_align($val)
+    protected function _compute_text_align(string $val)
     {
         $alignment = $val;
         if ($alignment === "") {
@@ -2618,11 +2596,9 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/css-text-4/#word-spacing-property
      */
-    protected function _compute_word_spacing($val)
+    protected function _compute_word_spacing(string $val)
     {
         if ($val === "normal") {
             return 0.0;
@@ -2634,11 +2610,9 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/css-text-4/#letter-spacing-property
      */
-    protected function _compute_letter_spacing($val)
+    protected function _compute_letter_spacing(string $val)
     {
         if ($val === "normal") {
             return 0.0;
@@ -2650,11 +2624,9 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-line-height
      */
-    protected function _compute_line_height($val)
+    protected function _compute_line_height(string $val)
     {
         if ($val === "normal") {
             return $val;
@@ -2670,11 +2642,9 @@ class Style
     }
 
     /**
-     * @param string $break
-     *
      * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-before
      */
-    protected function _compute_page_break_before($break)
+    protected function _compute_page_break_before(string $break)
     {
         if ($break === "left" || $break === "right") {
             $break = "always";
@@ -2684,11 +2654,9 @@ class Style
     }
 
     /**
-     * @param string $break
-     *
      * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-after
      */
-    protected function _compute_page_break_after($break)
+    protected function _compute_page_break_after(string $break)
     {
         if ($break === "left" || $break === "right") {
             $break = "always";
@@ -2703,7 +2671,7 @@ class Style
      *
      * @link https://www.w3.org/TR/css-position-3/#propdef-inset
      */
-    protected function _set_inset($val, bool $important = false): void
+    protected function _set_inset(string $val, bool $important = false): void
     {
         $v = $this->parse_quad_shorthand($val);
 
@@ -2721,34 +2689,32 @@ class Style
 
     /**
      * @param string $val
+     * @param bool   $important
      *
      * @link https://www.w3.org/TR/CSS21/box.html#margin-properties
+     * @link https://www.w3.org/TR/CSS21/box.html#propdef-margin
      */
-    protected function _compute_margin_top($val)
+    protected function _set_margin(string $val, bool $important = false): void
+    {
+        $this->set_style_type("margin", "", $val, $important);
+    }
+
+    protected function _compute_margin_top(string $val)
     {
         return $this->compute_style_side_width("margin", "top", $val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_margin_right($val)
+    protected function _compute_margin_right(string $val)
     {
         return $this->compute_style_side_width("margin", "right", $val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_margin_bottom($val)
+    protected function _compute_margin_bottom(string $val)
     {
         return $this->compute_style_side_width("margin", "bottom", $val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_margin_left($val)
+    protected function _compute_margin_left(string $val)
     {
         return $this->compute_style_side_width("margin", "left", $val);
     }
@@ -2757,68 +2723,59 @@ class Style
      * @param string $val
      * @param bool   $important
      *
-     * @link https://www.w3.org/TR/CSS21/box.html#propdef-margin
+     * @link https://www.w3.org/TR/CSS21/box.html#padding-properties
+     * @link https://www.w3.org/TR/CSS21/box.html#propdef-padding
      */
-    protected function _set_margin($val, bool $important = false): void
+    protected function _set_padding(string $val, bool $important = false): void
     {
-        $this->set_style_type("margin", "", $val, $important);
+        $this->set_style_type("padding", "", $val, $important);
     }
 
-    /**
-     * @param string $val
-     *
-     * @link https://www.w3.org/TR/CSS21/box.html#padding-properties
-     */
-    protected function _compute_padding_top($val)
+    protected function _compute_padding_top(string $val)
     {
         return $this->compute_style_side_width("padding", "top", $val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_padding_right($val)
+    protected function _compute_padding_right(string $val)
     {
         return $this->compute_style_side_width("padding", "right", $val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_padding_bottom($val)
+    protected function _compute_padding_bottom(string $val)
     {
         return $this->compute_style_side_width("padding", "bottom", $val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_padding_left($val)
+    protected function _compute_padding_left(string $val)
     {
         return $this->compute_style_side_width("padding", "left", $val);
     }
 
     /**
-     * @param string $val
+     * @param string $value
      * @param bool   $important
      *
-     * @link https://www.w3.org/TR/CSS21/box.html#propdef-padding
+     * @link https://www.w3.org/TR/CSS21/box.html#border-properties
+     * @link https://www.w3.org/TR/CSS21/box.html#propdef-border
      */
-    protected function _set_padding($val, bool $important = false): void
+    protected function _set_border(string $value, bool $important = false): void
     {
-        $this->set_style_type("padding", "", $val, $important);
+        $this->set_border_side("top", $value, $important);
+        $this->set_border_side("right", $value, $important);
+        $this->set_border_side("bottom", $value, $important);
+        $this->set_border_side("left", $value, $important);
     }
 
     /**
      * Set a single border side property.
      *
      * @param string $side
-     * @param string $border_spec ([width] [style] [color])
+     * @param string $value     `[width] [style] [color]`
      * @param bool   $important
      */
-    protected function set_border_side(string $side, $border_spec, bool $important): void
+    protected function set_border_side(string $side, string $value, bool $important): void
     {
-        $components = $this->parse_property_value($border_spec);
+        $components = $this->parse_property_value($value);
 
         foreach ($components as $val) {
             if (in_array($val, self::BORDER_STYLES, true)) {
@@ -2832,163 +2789,24 @@ class Style
         }
     }
 
-    /**
-     * @param string $val
-     * @param bool $important
-     *
-     * @link https://www.w3.org/TR/CSS21/box.html#border-properties
-     */
-    protected function _set_border_top($val, bool $important = false): void
+    protected function _set_border_top(string $val, bool $important = false): void
     {
         $this->set_border_side("top", $val, $important);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_top_color($val)
-    {
-        return $this->compute_color_value($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_top_style($val)
-    {
-        return $this->compute_border_style($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_top_width($val)
-    {
-        return $this->compute_style_side_width("border", "top", $val);
-    }
-
-    /**
-     * @param string $val
-     * @param bool   $important
-     */
-    protected function _set_border_right($val, bool $important = false): void
+    protected function _set_border_right(string $val, bool $important = false): void
     {
         $this->set_border_side("right", $val, $important);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_right_color($val)
-    {
-        return $this->compute_color_value($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_right_style($val)
-    {
-        return $this->compute_border_style($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_right_width($val)
-    {
-        return $this->compute_style_side_width("border", "right", $val);
-    }
-
-    /**
-     * @param string $val
-     * @param bool   $important
-     */
-    protected function _set_border_bottom($val, bool $important = false): void
+    protected function _set_border_bottom(string $val, bool $important = false): void
     {
         $this->set_border_side("bottom", $val, $important);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_bottom_color($val)
-    {
-        return $this->compute_color_value($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_bottom_style($val)
-    {
-        return $this->compute_border_style($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_bottom_width($val)
-    {
-        return $this->compute_style_side_width("border", "bottom", $val);
-    }
-
-    /**
-     * @param string $val
-     * @param bool   $important
-     */
-    protected function _set_border_left($val, bool $important = false): void
+    protected function _set_border_left(string $val, bool $important = false): void
     {
         $this->set_border_side("left", $val, $important);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_left_color($val)
-    {
-        return $this->compute_color_value($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_left_style($val)
-    {
-        return $this->compute_border_style($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_left_width($val)
-    {
-        return $this->compute_style_side_width("border", "left", $val);
-    }
-
-    /**
-     * @param string $val
-     * @param bool   $important
-     *
-     * @link https://www.w3.org/TR/CSS21/box.html#propdef-border
-     */
-    protected function _set_border($val, bool $important = false): void
-    {
-        $this->set_border_side("top", $val, $important);
-        $this->set_border_side("right", $val, $important);
-        $this->set_border_side("bottom", $val, $important);
-        $this->set_border_side("left", $val, $important);
-    }
-
-    /**
-     * @param string $val
-     * @param bool   $important
-     *
-     * @link https://www.w3.org/TR/CSS21/box.html#propdef-border-width
-     */
-    protected function _set_border_width($val, bool $important = false): void
-    {
-        $this->set_style_type("border", "width", $val, $important);
     }
 
     /**
@@ -2997,9 +2815,29 @@ class Style
      *
      * @link https://www.w3.org/TR/CSS21/box.html#propdef-border-color
      */
-    protected function _set_border_color($val, bool $important = false): void
+    protected function _set_border_color(string $val, bool $important = false): void
     {
         $this->set_style_type("border", "color", $val, $important);
+    }
+
+    protected function _compute_border_top_color(string $val)
+    {
+        return $this->compute_color_value($val);
+    }
+
+    protected function _compute_border_right_color(string $val)
+    {
+        return $this->compute_color_value($val);
+    }
+
+    protected function _compute_border_bottom_color(string $val)
+    {
+        return $this->compute_color_value($val);
+    }
+
+    protected function _compute_border_left_color(string $val)
+    {
+        return $this->compute_color_value($val);
     }
 
     /**
@@ -3008,62 +2846,70 @@ class Style
      *
      * @link https://www.w3.org/TR/CSS21/box.html#propdef-border-style
      */
-    protected function _set_border_style($val, bool $important = false): void
+    protected function _set_border_style(string $val, bool $important = false): void
     {
         $this->set_style_type("border", "style", $val, $important);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function compute_border_radius_corner($val)
+    protected function _compute_border_top_style(string $val)
     {
-        return mb_strpos($val, "%") === false
-            ? $this->single_length_in_pt($val)
-            : $val;
+        return $this->compute_border_style($val);
     }
 
-    /**
-     * @param string $val
-     *
-     * @link https://www.w3.org/TR/css3-background/#corners
-     */
-    protected function _compute_border_top_left_radius($val)
+    protected function _compute_border_right_style(string $val)
     {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_border_style($val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_top_right_radius($val)
+    protected function _compute_border_bottom_style(string $val)
     {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_border_style($val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_bottom_right_radius($val)
+    protected function _compute_border_left_style(string $val)
     {
-        return $this->compute_border_radius_corner($val);
-    }
-
-    /**
-     * @param string $val
-     */
-    protected function _compute_border_bottom_left_radius($val)
-    {
-        return $this->compute_border_radius_corner($val);
+        return $this->compute_border_style($val);
     }
 
     /**
      * @param string $val
      * @param bool   $important
      *
+     * @link https://www.w3.org/TR/CSS21/box.html#propdef-border-width
+     */
+    protected function _set_border_width(string $val, bool $important = false): void
+    {
+        $this->set_style_type("border", "width", $val, $important);
+    }
+
+    protected function _compute_border_top_width(string $val)
+    {
+        return $this->compute_style_side_width("border", "top", $val);
+    }
+
+    protected function _compute_border_right_width(string $val)
+    {
+        return $this->compute_style_side_width("border", "right", $val);
+    }
+
+    protected function _compute_border_bottom_width(string $val)
+    {
+        return $this->compute_style_side_width("border", "bottom", $val);
+    }
+
+    protected function _compute_border_left_width(string $val)
+    {
+        return $this->compute_style_side_width("border", "left", $val);
+    }
+
+    /**
+     * @param string $val
+     * @param bool   $important
+     *
+     * @link https://www.w3.org/TR/css-backgrounds-3/#corners
      * @link https://www.w3.org/TR/css-backgrounds-3/#propdef-border-radius
      */
-    protected function _set_border_radius($val, bool $important = false): void
+    protected function _set_border_radius(string $val, bool $important = false): void
     {
         $v = $this->parse_quad_shorthand($val);
 
@@ -3079,6 +2925,33 @@ class Style
         $this->set_prop("border_bottom_left_radius", $bl, $important);
     }
 
+    protected function compute_border_radius_corner(string $val)
+    {
+        return mb_strpos($val, "%") === false
+            ? $this->single_length_in_pt($val)
+            : $val;
+    }
+
+    protected function _compute_border_top_left_radius(string $val)
+    {
+        return $this->compute_border_radius_corner($val);
+    }
+
+    protected function _compute_border_top_right_radius(string $val)
+    {
+        return $this->compute_border_radius_corner($val);
+    }
+
+    protected function _compute_border_bottom_right_radius(string $val)
+    {
+        return $this->compute_border_radius_corner($val);
+    }
+
+    protected function _compute_border_bottom_left_radius(string $val)
+    {
+        return $this->compute_border_radius_corner($val);
+    }
+
     /**
      * @param string $value
      * @param bool   $important
@@ -3086,7 +2959,7 @@ class Style
      * @link https://www.w3.org/TR/CSS21/ui.html#dynamic-outlines
      * @link https://www.w3.org/TR/CSS21/ui.html#propdef-outline
      */
-    protected function _set_outline($value, bool $important = false): void
+    protected function _set_outline(string $value, bool $important = false): void
     {
         $components = $this->parse_property_value($value);
 
@@ -3102,36 +2975,25 @@ class Style
         }
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_outline_color($val)
+    protected function _compute_outline_color(string $val)
     {
         return $this->compute_color_value($val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_outline_style($val)
+    protected function _compute_outline_style(string $val)
     {
         return $this->compute_border_style($val);
     }
 
-    /**
-     * @param string $val
-     */
-    protected function _compute_outline_width($val)
+    protected function _compute_outline_width(string $val)
     {
         return $this->compute_style_side_width("outline", "", $val);
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/tables.html#propdef-border-spacing
      */
-    protected function _compute_border_spacing($val)
+    protected function _compute_border_spacing(string $val)
     {
         $arr = explode(" ", $val);
 
@@ -3143,11 +3005,9 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21/generate.html#propdef-list-style-image
      */
-    protected function _compute_list_style_image($val)
+    protected function _compute_list_style_image(string $val)
     {
         $parsed_val = $this->_stylesheet->resolve_url($val);
 
@@ -3164,7 +3024,7 @@ class Style
      *
      * @link https://www.w3.org/TR/CSS21/generate.html#propdef-list-style
      */
-    protected function _set_list_style($value, bool $important = false): void
+    protected function _set_list_style(string $value, bool $important = false): void
     {
         static $positions = ["inside", "outside"];
         static $types = [
@@ -3210,11 +3070,9 @@ class Style
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/css-page-3/#page-size-prop
      */
-    protected function _compute_size($val)
+    protected function _compute_size(string $val)
     {
         $length_re = "/(\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%))/";
 
@@ -3410,7 +3268,7 @@ class Style
      * @param string $val
      * @return string|null
      */
-    protected function parse_image_resolution($val)
+    protected function parse_image_resolution(string $val): ?string
     {
         // If exif data could be get:
         // $re = '/^\s*(\d+|normal|auto)(?:\s*,\s*(\d+|normal))?\s*$/';
@@ -3426,30 +3284,24 @@ class Style
 
     /**
      * auto | normal | dpi
-     *
-     * @param string $val
      */
-    protected function _compute_background_image_resolution($val)
+    protected function _compute_background_image_resolution(string $val)
     {
         return $this->parse_image_resolution($val);
     }
 
     /**
      * auto | normal | dpi
-     *
-     * @param string $val
      */
-    protected function _compute_image_resolution($val)
+    protected function _compute_image_resolution(string $val)
     {
         return $this->parse_image_resolution($val);
     }
 
     /**
-     * @param string $val
-     *
      * @link https://www.w3.org/TR/CSS21//visuren.html#propdef-z-index
      */
-    protected function _compute_z_index($val)
+    protected function _compute_z_index(string $val)
     {
         if ($val === "auto") {
             return $val;
