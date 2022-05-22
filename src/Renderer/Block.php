@@ -195,7 +195,7 @@ class Block extends AbstractRenderer
             return;
         }
 
-        $offset = (float) $style->length_in_pt($style->outline_offset);
+        $offset = $style->outline_offset;
 
         [$x, $y, $w, $h] = $border_box;
         $d = $width + $offset;
