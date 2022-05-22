@@ -676,11 +676,8 @@ class Cellmap
         } else {
             // The additional 1/2 width gets added to the table proper
             [$h, $v] = $table_style->border_spacing;
-
-            $v = $table_style->length_in_pt($v);
-            $h = $table_style->length_in_pt($h);
-            $v_spacing = is_numeric($v) ? $v / 2 : $v;
-            $h_spacing = is_numeric($v) ? $h / 2 : $h;
+            $v_spacing = $v / 2;
+            $h_spacing = $h / 2;
         }
 
         foreach ($this->_frames as $frame_info) {

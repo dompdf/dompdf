@@ -1880,27 +1880,6 @@ class Style
     }
 
     /**
-     * Returns border spacing as an array
-     *
-     * The array has the format (h_space, v_space)
-     *
-     * @param string $computed
-     * @return array
-     *
-     * @link https://www.w3.org/TR/CSS21/tables.html#propdef-border-spacing
-     */
-    protected function _get_border_spacing($computed): array
-    {
-        $arr = explode(" ", $computed);
-
-        if (count($arr) === 1) {
-            $arr[1] = $arr[0];
-        }
-
-        return $arr;
-    }
-
-    /**
      * Returns the list style image URI, or "none"
      *
      * @param string $computed
@@ -3026,17 +3005,29 @@ class Style
     }
 
     /**
+     * Compute `border-spacing` to two lengths of the form
+     * `[horizontal, vertical]`.
+     *
      * @link https://www.w3.org/TR/CSS21/tables.html#propdef-border-spacing
      */
     protected function _compute_border_spacing(string $val)
     {
-        $arr = explode(" ", $val);
+        $parts = preg_split("/\s+/", $val);
 
-        if (count($arr) === 1) {
-            $arr[1] = $arr[0];
+        if (count($parts) > 2) {
+            return null;
         }
 
-        return "$arr[0] $arr[1]";
+        $h = $this->compute_length_positive($parts[0]);
+        $v = isset($parts[1])
+            ? $this->compute_length_positive($parts[1])
+            : $h;
+
+        if ($h === null || $v === null) {
+            return null;
+        }
+
+        return [$h, $v];
     }
 
     /**
