@@ -1096,7 +1096,6 @@ class Style
 
         if ($prop !== "content" && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
-            $val = preg_replace("/([0-9]+) (pt|px|pc|rem|em|ex|in|cm|mm|%)/S", "\\1\\2", $val);
         }
 
         if (isset(self::$_props_shorthand[$prop])) {
@@ -2570,10 +2569,10 @@ class Style
             $val = $match[2];
         }
 
-        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%))(?:\/|\s*)(.*)$/i", $val, $match)) {
+        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%))(?:\/|\s*)(.*)$/i", $val, $match)) {
             $this->set_prop("font_size", $match[1], $important, $clear_dependencies);
             $val = $match[2];
-            if (preg_match("/^(?:\/|\s*)(\d+\s*(?:pt|px|pc|rem|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
+            if (preg_match("/^(?:\/|\s*)(\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
                 $this->set_prop("line_height", $match[1], $important, $clear_dependencies);
                 $val = $match[2];
             }
