@@ -3115,6 +3115,14 @@ class Style
     }
 
     /**
+     * @link https://www.w3.org/TR/css-ui-4/#propdef-outline-offset
+     */
+    protected function _compute_outline_offset(string $val)
+    {
+        return $this->compute_length($val);
+    }
+
+    /**
      * Compute `border-spacing` to two lengths of the form
      * `[horizontal, vertical]`.
      *
