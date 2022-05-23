@@ -70,6 +70,11 @@ class Helpers
 
         if (strpos($url, "file://") === 0) {
             $url = substr($url, 7);
+
+            if ($url[0] === '.') {
+                return $url;
+            }
+
             $protocol = "";
         }
 
