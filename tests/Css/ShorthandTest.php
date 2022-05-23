@@ -24,6 +24,8 @@ class ShorthandTest extends TestCase
             ["1rem 2rem", "1rem", "2rem", "1rem", "2rem"],
             ["10% 5pt 25%", "10%", "5pt", "25%", "5pt"],
             ["5mm 4mm 3mm 2mm", "5mm", "4mm", "3mm", "2mm"],
+            // Exponential notation
+            ["1e2% 50e-1pt 2.5e+1%", "1e2%", "50e-1pt", "2.5e+1%", "50e-1pt"]
         ];
     }
 
