@@ -2757,6 +2757,7 @@ class Style
      * @param bool   $important
      * @param bool   $clear_dependencies
      *
+     * @link https://www.w3.org/TR/css-position-3/#inset-properties
      * @link https://www.w3.org/TR/css-position-3/#propdef-inset
      */
     protected function _set_inset(string $val, bool $important, bool $clear_dependencies): void
@@ -2773,6 +2774,39 @@ class Style
         $this->set_prop("right", $right, $important, $clear_dependencies);
         $this->set_prop("bottom", $bottom, $important, $clear_dependencies);
         $this->set_prop("left", $left, $important, $clear_dependencies);
+    }
+
+    /**
+     * @param string $val
+     * @return float|string|null
+     */
+    protected function compute_box_inset(string $val)
+    {
+        if ($val === "auto") {
+            return $val;
+        }
+
+        return $this->compute_length_percentage($val);
+    }
+
+    protected function _compute_top(string $val)
+    {
+        return $this->compute_box_inset($val);
+    }
+
+    protected function _compute_right(string $val)
+    {
+        return $this->compute_box_inset($val);
+    }
+
+    protected function _compute_bottom(string $val)
+    {
+        return $this->compute_box_inset($val);
+    }
+
+    protected function _compute_left(string $val)
+    {
+        return $this->compute_box_inset($val);
     }
 
     /**
