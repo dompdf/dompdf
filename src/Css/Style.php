@@ -49,7 +49,7 @@ class Style
 {
     protected const CSS_IDENTIFIER = "-?[_a-zA-Z]+[_a-zA-Z0-9-]*";
     protected const CSS_INTEGER = "[+-]?\d+";
-    protected const CSS_NUMBER = "[+-]?\d*\.?\d+";
+    protected const CSS_NUMBER = "[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?";
 
     /**
      * Default font size, in points.

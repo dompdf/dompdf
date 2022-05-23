@@ -16,6 +16,9 @@ class StyleTest extends TestCase
             ["100px", null, 75.0],
             ["100PX", null, 75.0], // Also check caps
             ["100pt", null, 100.0],
+            ["1.5e2pt", null, 150.0], // Exponential notation
+            ["1.5e+2pt", null, 150.0],
+            ["15E-2pT", null, 0.15],
             ["1.5em", 20, 18.0], // Default font size is 12pt
             ["100%", null, 12.0],
             ["50%", 360, 180.0]
