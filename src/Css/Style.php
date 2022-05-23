@@ -852,7 +852,7 @@ class Style
 
         $key = "$l/$ref_size/$font_size";
 
-        if (isset($cache[$key])) {
+        if (\array_key_exists($key, $cache)) {
             return $cache[$key];
         }
 
@@ -886,11 +886,19 @@ class Style
         }
 
         elseif ($unit === "rem") {
-            $root_style = $this->_stylesheet->get_dompdf()->getTree()->get_root()->get_style();
+            $tree = $this->_stylesheet->get_dompdf()->getTree();
+            $root_style = $tree !== null ? $tree->get_root()->get_style() : null;
             $root_font_size = $root_style === null || $root_style === $this
                 ? $font_size
                 : $root_style->__get("font_size");
             $value = $v * $root_font_size;
+
+            // Skip caching if the root style is not available yet, as to avoid
+            // incorrectly cached values if the root font size is different from
+            // the default
+            if ($root_style === null) {
+                return $value;
+            }
         }
 
         elseif ($unit === "em") {
@@ -953,9 +961,7 @@ class Style
                 }
 
                 if (isset($parent->_props[$prop])) {
-                    $parent_val = \array_key_exists($prop, $parent->_props_computed)
-                        ? $parent->_props_computed[$prop]
-                        : $parent->compute_prop($prop, $parent->_props[$prop]);
+                    $parent_val = $parent->computed($prop);
 
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
@@ -967,9 +973,7 @@ class Style
         foreach ($this->_props as $prop => $val) {
             if ($val === "inherit") {
                 if ($parent && isset($parent->_props[$prop])) {
-                    $parent_val = \array_key_exists($prop, $parent->_props_computed)
-                        ? $parent->_props_computed[$prop]
-                        : $parent->compute_prop($prop, $parent->_props[$prop]);
+                    $parent_val = $parent->computed($prop);
 
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
@@ -999,32 +1003,22 @@ class Style
                 continue;
             }
 
-            $computed = \array_key_exists($prop, $style->_props_computed)
-                ? $style->_props_computed[$prop]
-                : $style->compute_prop($prop, $val);
-
-            // Skip invalid declarations. Because styles are merged into an
-            // initially empty style object during stylesheet loading, this
-            // handles all invalid declarations
-            if ($computed === null) {
-                continue;
-            }
-
             if ($important) {
                 $this->_important_props[$prop] = true;
             }
 
             $this->_props[$prop] = $val;
 
-            // Don't use the computed value for dependent properties; they will
-            // be computed on-demand during inheritance or property access
-            // instead
-            if (isset(self::$_dependent_props[$prop])) {
+            // Copy an existing computed value only for non-dependent
+            // properties; otherwise it may be invalid for the current style
+            if (!isset(self::$_dependent_props[$prop])
+                && \array_key_exists($prop, $style->_props_computed)
+            ) {
+                $this->_props_computed[$prop] = $style->_props_computed[$prop];
+                $this->_props_used[$prop] = null;
+            } else {
                 unset($this->_props_computed[$prop]);
                 unset($this->_props_used[$prop]);
-            } else {
-                $this->_props_computed[$prop] = $computed;
-                $this->_props_used[$prop] = null;
             }
         }
     }
@@ -1145,9 +1139,16 @@ class Style
                 $val = self::$_defaults[$prop];
             }
 
+            $computed = $this->compute_prop($prop, $val);
+
+            // Skip invalid declarations
+            if ($computed === null) {
+                return;
+            }
+
             $this->_props[$prop] = $val;
-            unset($this->_props_computed[$prop]);
-            unset($this->_props_used[$prop]);
+            $this->_props_computed[$prop] = $computed;
+            $this->_props_used[$prop] = null;
 
             if ($clear_dependencies) {
                 // Clear the computed values of any dependent properties, so
@@ -1160,13 +1161,6 @@ class Style
                 }
 
                 $this->clear_cache($prop);
-            }
-
-            // FIXME: temporary hack around lack of persistence of base href for
-            // URLs. Compute value immediately, before the original base href is
-            // no longer available
-            if ($prop === "background_image" || $prop === "list_style_image") {
-                $this->compute_prop($prop, $val);
             }
         }
     }
@@ -1309,17 +1303,7 @@ class Style
                 }, self::$_props_shorthand[$prop]));
             }
         } else {
-            // Compute the value if needed
-            if (!\array_key_exists($prop, $this->_props_computed)) {
-                $val = $this->_props[$prop] ?? self::$_defaults[$prop];
-                $this->compute_prop($prop, $val);
-            }
-
-            // Invalid declarations are skipped on style merge, but during
-            // style parsing, styles might contain invalid declarations. Fall
-            // back to the default value in that case
-            $computed = $this->_props_computed[$prop]
-                ?? $this->compute_prop($prop, self::$_defaults[$prop]);
+            $computed = $this->computed($prop);
             $used = self::$_methods_cache[$method]
                 ? $this->$method($computed)
                 : $computed;
@@ -1331,11 +1315,11 @@ class Style
 
     /**
      * @param string $prop The property to compute.
-     * @param mixed  $val  The value to compute.
+     * @param string $val  The value to compute.
      *
      * @return mixed The computed value.
      */
-    protected function compute_prop(string $prop, $val)
+    protected function compute_prop(string $prop, string $val)
     {
         $method = "_compute_$prop";
 
@@ -1351,17 +1335,31 @@ class Style
         }
 
         if (self::$_methods_cache[$method]) {
-            $computed = $this->$method($val);
+            return $this->$method($val);
         } elseif ($val !== "") {
-            $computed = $val;
+            return $val;
         } else {
-            $computed = null;
+            return null;
+        }
+    }
+
+    /**
+     * Get the computed value for the given property.
+     *
+     * @param string $prop The property to get the computed value of.
+     *
+     * @return mixed The computed value.
+     */
+    protected function computed(string $prop)
+    {
+        if (!\array_key_exists($prop, $this->_props_computed)) {
+            $val = $this->_props[$prop] ?? self::$_defaults[$prop];
+            $computed = $this->compute_prop($prop, $val);
+
+            $this->_props_computed[$prop] = $computed;
         }
 
-        $this->_props_computed[$prop] = $computed;
-        $this->_props_used[$prop] = null;
-
-        return $computed;
+        return $this->_props_computed[$prop];
     }
 
     /**
