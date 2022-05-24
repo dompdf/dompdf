@@ -348,12 +348,12 @@ interface Canvas
     function add_link($url, $x, $y, $width, $height);
 
     /**
-     * Add meta information to the pdf
+     * Add meta information to the PDF.
      *
-     * @param string $name Label of the value (Creator, Producer, etc.)
+     * @param string $label Label of the value (Creator, Producer, etc.)
      * @param string $value The text to set
      */
-    function add_info($name, $value);
+    public function add_info(string $label, string $value): void;
 
     /**
      * Calculates text size, in points

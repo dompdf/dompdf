@@ -314,13 +314,7 @@ class PDFLib implements Canvas
         return $this->_pdf;
     }
 
-    /**
-     * Add meta information to the PDF
-     *
-     * @param string $label label of the value (Creator, Producter, etc.)
-     * @param string $value the text to set
-     */
-    public function add_info($label, $value)
+    public function add_info(string $label, string $value): void
     {
         $this->_pdf->set_info($label, $value);
     }
