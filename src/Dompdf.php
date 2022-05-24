@@ -508,7 +508,7 @@ class Dompdf
             // see Masterminds/html5-php#166
             $doc = new DOMDocument("1.0", $encoding);
             $doc->preserveWhiteSpace = true;
-            $doc->loadHtml($dom->saveHtml(), LIBXML_NOWARNING | LIBXML_NOERROR);
+            $doc->loadHTML($html5->saveHTML($dom), LIBXML_NOWARNING | LIBXML_NOERROR);
 
             $this->loadDOM($doc, $quirksmode);
         } finally {
