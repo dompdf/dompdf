@@ -232,13 +232,7 @@ class CPDF implements Canvas
         return $this->_pdf;
     }
 
-    /**
-     * Add meta information to the PDF
-     *
-     * @param string $label label of the value (Creator, Producer, etc.)
-     * @param string $value the text to set
-     */
-    public function add_info($label, $value)
+    public function add_info(string $label, string $value): void
     {
         $this->_pdf->addInfo($label, $value);
     }

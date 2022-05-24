@@ -821,17 +821,6 @@ class Dompdf
     }
 
     /**
-     * Add meta information to the PDF after rendering
-     */
-    public function add_info($label, $value)
-    {
-        $canvas = $this->getCanvas();
-        if (!is_null($canvas)) {
-            $canvas->add_info($label, $value);
-        }
-    }
-
-    /**
      * Writes the output buffer in the log file
      *
      * @param string $logOutputFile
@@ -855,6 +844,30 @@ class Dompdf
         ob_clean();
 
         file_put_contents($logOutputFile, $out);
+    }
+
+    /**
+     * Add meta information to the PDF after rendering.
+     *
+     * @deprecated
+     */
+    public function add_info($label, $value)
+    {
+        $this->addInfo($label, $value);
+    }
+
+    /**
+     * Add meta information to the PDF after rendering.
+     *
+     * @param string $label Label of the value (Creator, Producer, etc.)
+     * @param string $value The text to set
+     */
+    public function addInfo(string $label, string $value): void
+    {
+        $canvas = $this->getCanvas();
+        if (!is_null($canvas)) {
+            $canvas->add_info($label, $value);
+        }
     }
 
     /**

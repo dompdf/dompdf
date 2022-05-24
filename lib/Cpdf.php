@@ -5471,12 +5471,12 @@ EOT;
     }
 
     /**
-     * add content to the documents info object
+     * Add content to the documents info object
      *
-     * @param $label
-     * @param int $value
+     * @param string|array $label
+     * @param string       $value
      */
-    function addInfo($label, $value = 0)
+    public function addInfo($label, string $value = ""): void
     {
         // this will only work if the label is one of the valid ones.
         // modify this so that arrays can be passed as well.
@@ -5484,7 +5484,7 @@ EOT;
         // else assume that they are both scalar, anything else will probably error
         if (is_array($label)) {
             foreach ($label as $l => $v) {
-                $this->o_info($this->infoObject, $l, $v);
+                $this->o_info($this->infoObject, $l, (string) $v);
             }
         } else {
             $this->o_info($this->infoObject, $label, $value);
