@@ -23,10 +23,8 @@ class Cellmap
 {
     /**
      * Border style weight lookup for collapsed border resolution.
-     *
-     * @var array
      */
-    protected static $_BORDER_STYLE_SCORE = [
+    protected const BORDER_STYLE_SCORE = [
         "double" => 8,
         "solid"  => 7,
         "dashed" => 6,
@@ -131,10 +129,7 @@ class Cellmap
         $this->reset();
     }
 
-    /**
-     *
-     */
-    public function reset()
+    public function reset(): void
     {
         $this->_num_rows = 0;
         $this->_num_cols = 0;
@@ -153,10 +148,7 @@ class Cellmap
         $this->__col = $this->__row = 0;
     }
 
-    /**
-     *
-     */
-    public function lock_columns()
+    public function lock_columns(): void
     {
         $this->_columns_locked = true;
     }
@@ -170,9 +162,9 @@ class Cellmap
     }
 
     /**
-     * @param $fixed
+     * @param bool $fixed
      */
-    public function set_layout_fixed($fixed)
+    public function set_layout_fixed(bool $fixed)
     {
         $this->_fixed_layout = $fixed;
     }
@@ -456,12 +448,12 @@ class Cellmap
     /**
      * https://www.w3.org/TR/CSS21/tables.html#border-conflict-resolution
      *
-     * @param int $i
-     * @param int $j
-     * @param string $h_v
-     * @param array $border_spec
+     * @param int    $i
+     * @param int    $j
+     * @param string $h_v         `horizontal` or `vertical`
+     * @param array  $border_spec
      */
-    protected function _resolve_border($i, $j, $h_v, $border_spec)
+    protected function resolve_border(int $i, int $j, string $h_v, array $border_spec): void
     {
         if (!isset($this->_borders[$i][$j][$h_v])) {
             $this->_borders[$i][$j][$h_v] = $border_spec;
@@ -483,9 +475,9 @@ class Cellmap
         // width here, as its resolved width is always 0
         if ($n_style === "hidden" || $n_width > $o_width
             || ($o_width == $n_width
-                && isset(self::$_BORDER_STYLE_SCORE[$n_style])
-                && isset(self::$_BORDER_STYLE_SCORE[$o_style])
-                && self::$_BORDER_STYLE_SCORE[$n_style] > self::$_BORDER_STYLE_SCORE[$o_style])
+                && isset(self::BORDER_STYLE_SCORE[$n_style])
+                && isset(self::BORDER_STYLE_SCORE[$o_style])
+                && self::BORDER_STYLE_SCORE[$n_style] > self::BORDER_STYLE_SCORE[$o_style])
         ) {
             $this->_borders[$i][$j][$h_v] = $border_spec;
         }
@@ -579,14 +571,14 @@ class Cellmap
 
                 // Resolve vertical borders
                 for ($i = 0; $i < $num_rows + 1; $i++) {
-                    $this->_resolve_border($start_row + $i, 0, "vertical", $bp["left"]);
-                    $this->_resolve_border($start_row + $i, $this->_num_cols, "vertical", $bp["right"]);
+                    $this->resolve_border($start_row + $i, 0, "vertical", $bp["left"]);
+                    $this->resolve_border($start_row + $i, $this->_num_cols, "vertical", $bp["right"]);
                 }
 
                 // Resolve horizontal borders
                 for ($j = 0; $j < $this->_num_cols; $j++) {
-                    $this->_resolve_border($start_row, $j, "horizontal", $bp["top"]);
-                    $this->_resolve_border($this->__row, $j, "horizontal", $bp["bottom"]);
+                    $this->resolve_border($start_row, $j, "horizontal", $bp["top"]);
+                    $this->resolve_border($this->__row, $j, "horizontal", $bp["bottom"]);
                 }
 
                 if ($frame === $this->_table) {
@@ -644,8 +636,8 @@ class Cellmap
 
             if ($collapse) {
                 // Resolve vertical borders
-                $this->_resolve_border($row, $this->__col, "vertical", $bp["left"]);
-                $this->_resolve_border($row, $this->__col + $colspan, "vertical", $bp["right"]);
+                $this->resolve_border($row, $this->__col, "vertical", $bp["left"]);
+                $this->resolve_border($row, $this->__col + $colspan, "vertical", $bp["right"]);
             }
         }
 
@@ -656,8 +648,8 @@ class Cellmap
 
             if ($collapse) {
                 // Resolve horizontal borders
-                $this->_resolve_border($this->__row, $col, "horizontal", $bp["top"]);
-                $this->_resolve_border($this->__row + $rowspan, $col, "horizontal", $bp["bottom"]);
+                $this->resolve_border($this->__row, $col, "horizontal", $bp["top"]);
+                $this->resolve_border($this->__row + $rowspan, $col, "horizontal", $bp["bottom"]);
             }
         }
 
