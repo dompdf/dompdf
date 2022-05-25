@@ -794,10 +794,7 @@ class Cellmap
         }
     }
 
-    /**
-     *
-     */
-    public function add_row()
+    protected function add_row(): void
     {
         $this->__row++;
         $this->_num_rows++;
@@ -901,10 +898,7 @@ class Cellmap
         $this->_frames[$g_key]["rows"] = range($first_index, $last_index);
     }
 
-    /**
-     *
-     */
-    public function assign_x_positions()
+    public function assign_x_positions(): void
     {
         // Pre-condition: widths must be resolved and assigned to columns and
         // column[0]["x"] must be set.
@@ -920,10 +914,7 @@ class Cellmap
         }
     }
 
-    /**
-     *
-     */
-    public function assign_frame_heights()
+    public function assign_frame_heights(): void
     {
         // Pre-condition: widths and heights of each column & row must be
         // calcluated
@@ -951,7 +942,7 @@ class Cellmap
     /**
      * Re-adjust frame height if the table height is larger than its content
      */
-    public function set_frame_heights($table_height, $content_height)
+    public function set_frame_heights(float $table_height, float $content_height): void
     {
         // Distribute the increased height proportionally amongst each row
         foreach ($this->_frames as $arr) {
@@ -985,7 +976,7 @@ class Cellmap
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $str = "";
         $str .= "Columns:<br/>";
