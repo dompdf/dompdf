@@ -2681,6 +2681,14 @@ class Style
     }
 
     /**
+     * @link https://www.w3.org/TR/css-text-3/#text-indent-property
+     */
+    protected function _compute_text_indent(string $val)
+    {
+        return $this->compute_length_percentage($val);
+    }
+
+    /**
      * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-before
      */
     protected function _compute_page_break_before(string $break)
