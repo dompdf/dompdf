@@ -2523,57 +2523,79 @@ class Style
     /**
      * Handle the `font` shorthand property.
      *
-     * exactly this order, separate by space. Multiple fonts separated by comma:
-     * font-style, font-variant, font-weight, font-size, line-height, font-family
-     *
-     * Other than with border and list, existing partial attributes should
-     * reset when starting here, even when not mentioned.
-     * If individual attribute is !important and explicit or implicit replacement is not,
-     * keep individual attribute
-     *
-     * require whitespace as delimiters for single value attributes
-     * On delimiter "/" treat first as font height, second as line height
-     * treat all remaining at the end of line as font
-     * font-style, font-variant, font-weight, font-size, line-height, font-family
-     *
-     * missing font-size and font-family might be not allowed, but accept it here and
-     * use default (medium size, empty font name)
+     * `[ font-style || font-variant || font-weight ] font-size [ / line-height ] font-family`
      *
      * @link https://www.w3.org/TR/CSS21/fonts.html#font-shorthand
      */
-    protected function _set_font(string $val): array
+    protected function _set_font(string $value): array
     {
+        $components = $this->parse_property_value($value);
         $props = [];
-        if (preg_match("/^(italic|oblique|normal)\s*(.*)$/i", $val, $match)) {
-            $props["font_style"] = $match[1];
-            $val = $match[2];
-        }
 
-        if (preg_match("/^(small-caps|normal)\s*(.*)$/i", $val, $match)) {
-            $props["font_variant"] = $match[1];
-            $val = $match[2];
-        }
+        $number = self::CSS_NUMBER;
+        $unit = "pt|px|pc|rem|em|ex|in|cm|mm|%";
+        $sizePattern = "/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|$number(?:$unit))$/";
+        $sizeIndex = null;
 
-        //matching numeric value followed by unit -> this is indeed a subsequent font size. Skip!
-        if (preg_match("/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900|normal)\s*(.*)$/i", $val, $match) &&
-            !preg_match("/^(?:pt|px|pc|rem|em|ex|in|cm|mm|%)/", $match[2])
-        ) {
-            $props["font_weight"] = $match[1];
-            $val = $match[2];
-        }
-
-        if (preg_match("/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%))(?:\s*\/\s*|\s*)(.*)$/i", $val, $match)) {
-            $props["font_size"] = $match[1];
-            $val = $match[2];
-            if (preg_match("/^(\d+(?:pt|px|pc|rem|em|ex|in|cm|mm|%)?)\s*(.*)$/i", $val, $match)) {
-                $props["line_height"] = $match[1];
-                $val = $match[2];
+        // Find index of font-size to split the component list
+        foreach ($components as $i => $val) {
+            if (preg_match($sizePattern, $val)) {
+                $sizeIndex = $i;
+                $props["font_size"] = $val;
+                break;
             }
         }
 
-        if ($val !== "") {
-            $props["font_family"] = $val;
+        // `font-size` is mandatory
+        if ($sizeIndex === null) {
+            return [];
         }
+
+        // `font-style`, `font-variant`, `font-weight` in any order
+        $styleVariantWeight = array_slice($components, 0, $sizeIndex);
+        $stylePattern = "/^(italic|oblique)$/";
+        $variantPattern = "/^(small-caps)$/";
+        $weightPattern = "/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900)$/";
+
+        if (count($styleVariantWeight) > 3) {
+            return [];
+        }
+
+        foreach ($styleVariantWeight as $val) {
+            if ($val === "normal") {
+                // Ignore any `normal` value, as it is valid and the initial
+                // value for all three properties
+            } elseif (!isset($props["font_style"]) && preg_match($stylePattern, $val)) {
+                $props["font_style"] = $val;
+            } elseif (!isset($props["font_variant"]) && preg_match($variantPattern, $val)) {
+                $props["font_variant"] = $val;
+            } elseif (!isset($props["font_weight"]) && preg_match($weightPattern, $val)) {
+                $props["font_weight"] = $val;
+            } else {
+                // Duplicates and other values disallowed here
+                return [];
+            }
+        }
+
+        // Optional slash + `line-height` followed by mandatory `font-family`
+        $lineFamily = array_slice($components, $sizeIndex + 1);
+        $hasLineHeight = $lineFamily !== [] && $lineFamily[0] === "/";
+        $lineHeight = $hasLineHeight ? array_slice($lineFamily, 1, 1) : [];
+        $fontFamily = $hasLineHeight ? array_slice($lineFamily, 2) : $lineFamily;
+        $lineHeightPattern = "/^(normal|$number(?:$unit)?)$/";
+
+        // Missing `font-family` or `line-height` after slash
+        if ($fontFamily === []
+            || ($hasLineHeight && !preg_match($lineHeightPattern, $lineHeight[0]))
+        ) {
+            return [];
+        }
+
+        if ($hasLineHeight) {
+            $props["line_height"] = $lineHeight[0];
+        }
+
+        $props["font_family"] = implode("", $fontFamily);
 
         return $props;
     }
