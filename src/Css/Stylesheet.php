@@ -640,16 +640,17 @@ class Stylesheet
                             $pseudo_classes[$tok] = true;
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+                            $position = $last ? "(last()-position()+1)" : "position()";
 
                             // 1
                             if (preg_match("/^\d+$/", $nth)) {
-                                $condition = "position() = $nth";
+                                $condition = "$position = $nth";
                             } // odd
                             elseif ($nth === "odd") {
-                                $condition = "(position() mod 2) = 1";
+                                $condition = "($position mod 2) = 1";
                             } // even
                             elseif ($nth === "even") {
-                                $condition = "(position() mod 2) = 0";
+                                $condition = "($position mod 2) = 0";
                             } // an+b
                             else {
                                 $condition = $this->_selector_an_plus_b($nth, $last);
@@ -671,16 +672,17 @@ class Stylesheet
                             $pseudo_classes[$tok] = true;
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+                            $position = $last ? "(last()-position()+1)" : "position()";
 
                             // 1
                             if (preg_match("/^\d+$/", $nth)) {
-                                $condition = "position() = $nth";
+                                $condition = "$position = $nth";
                             } // odd
                             elseif ($nth === "odd") {
-                                $condition = "(position() mod 2) = 1";
+                                $condition = "($position mod 2) = 1";
                             } // even
                             elseif ($nth === "even") {
-                                $condition = "(position() mod 2) = 0";
+                                $condition = "($position mod 2) = 0";
                             } // an+b
                             else {
                                 $condition = $this->_selector_an_plus_b($nth, $last);
@@ -907,26 +909,27 @@ class Stylesheet
     /**
      * https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
      *
-     * @param $expr
+     * @param string $expr
      * @param bool $last
+     *
      * @return string
      */
-    protected function _selector_an_plus_b($expr, $last = false)
+    protected function _selector_an_plus_b(string $expr, bool $last = false): string
     {
         $expr = preg_replace("/\s/", "", $expr);
         if (!preg_match("/^(?P<a>-?[0-9]*)?n(?P<b>[-+]?[0-9]+)?$/", $expr, $matches)) {
             return "false()";
         }
 
-        $a = ((isset($matches["a"]) && $matches["a"] !== "") ? intval($matches["a"]) : 1);
-        $b = ((isset($matches["b"]) && $matches["b"] !== "") ? intval($matches["b"]) : 0);
+        $a = (isset($matches["a"]) && $matches["a"] !== "") ? intval($matches["a"]) : 1;
+        $b = (isset($matches["b"]) && $matches["b"] !== "") ? intval($matches["b"]) : 0;
 
-        $position = ($last ? "(last()-position()+1)" : "position()");
+        $position = $last ? "(last()-position()+1)" : "position()";
 
         if ($b == 0) {
             return "($position mod $a) = 0";
         } else {
-            $compare = (($a < 0) ? "<=" : ">=");
+            $compare = ($a < 0) ? "<=" : ">=";
             $b2 = -$b;
             if ($b2 >= 0) {
                 $b2 = "+$b2";
