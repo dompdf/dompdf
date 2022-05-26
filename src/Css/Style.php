@@ -2049,6 +2049,18 @@ class Style
 
     /**
      * @param string $val
+     * @return int|null
+     */
+    protected function compute_integer(string $val): ?int
+    {
+        $integer = self::CSS_INTEGER;
+        return preg_match("/^$integer$/", $val)
+            ? (int) $val
+            : null;
+    }
+
+    /**
+     * @param string $val
      * @return float|null
      */
     protected function compute_length(string $val): ?float
@@ -3429,6 +3441,22 @@ class Style
     }
 
     /**
+     * @link https://www.w3.org/TR/css-break-3/#propdef-orphans
+     */
+    protected function _compute_orphans(string $val)
+    {
+        return $this->compute_integer($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/css-break-3/#propdef-widows
+     */
+    protected function _compute_widows(string $val)
+    {
+        return $this->compute_integer($val);
+    }
+
+    /**
      * @link https://www.w3.org/TR/CSS21//visuren.html#propdef-z-index
      */
     protected function _compute_z_index(string $val)
@@ -3437,13 +3465,7 @@ class Style
             return $val;
         }
 
-        $integer = self::CSS_INTEGER;
-
-        if (preg_match("/^$integer$/", $val)) {
-            return (int) $val;
-        }
-
-        return null;
+        return $this->compute_integer($val);
     }
 
     /**
