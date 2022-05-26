@@ -548,7 +548,6 @@ abstract class AbstractFrameReflower
      */
     protected function _parse_content(): string
     {
-        // The `content` property will be returned parsed into its components
         $style = $this->_frame->get_style();
         $content = $style->content;
 
