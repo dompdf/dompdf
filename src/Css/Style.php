@@ -43,6 +43,132 @@ use Dompdf\Frame;
  *
  * Actual CSS parsing is performed in the {@link Stylesheet} class.
  *
+ * @property string          $azimuth
+ * @property string          $background_attachment
+ * @property array|string    $background_color
+ * @property string          $background_image
+ * @property string          $background_image_resolution
+ * @property array           $background_position
+ * @property string          $background_repeat
+ * @property array|string    $background_size             `cover`, `contain`, or `[width, height]`, each being a length, percentage, or `auto`
+ * @property string          $border_collapse
+ * @property string          $border_color                Only use for setting all sides to the same color
+ * @property float[]         $border_spacing              Pair of `[horizontal, vertical]` spacing
+ * @property string          $border_style                Only use for setting all sides to the same style
+ * @property array|string    $border_top_color
+ * @property array|string    $border_right_color
+ * @property array|string    $border_bottom_color
+ * @property array|string    $border_left_color
+ * @property string          $border_top_style
+ * @property string          $border_right_style
+ * @property string          $border_bottom_style
+ * @property string          $border_left_style
+ * @property float           $border_top_width            Length in pt
+ * @property float           $border_right_width          Length in pt
+ * @property float           $border_bottom_width         Length in pt
+ * @property float           $border_left_width           Length in pt
+ * @property string          $border_width                Only use for setting all sides to the same width
+ * @property float|string    $border_bottom_left_radius   Radius in pt or a percentage value
+ * @property float|string    $border_bottom_right_radius  Radius in pt or a percentage value
+ * @property float|string    $border_top_left_radius      Radius in pt or a percentage value
+ * @property float|string    $border_top_right_radius     Radius in pt or a percentage value
+ * @property string          $border_radius               Only use for setting all corners to the same radius
+ * @property float|string    $bottom                      Length in pt, a percentage value, or `auto`
+ * @property string          $caption_side
+ * @property string          $clear
+ * @property string          $clip
+ * @property array|string    $color
+ * @property string[]|string $content                     List of content components, `normal`, or `none`
+ * @property array|string    $counter_increment           Array defining the counters to increment or `none`
+ * @property array|string    $counter_reset               Array defining the counters to reset or `none`
+ * @property string          $cue_after
+ * @property string          $cue_before
+ * @property string          $cue
+ * @property string          $cursor
+ * @property string          $direction
+ * @property string          $display
+ * @property string          $elevation
+ * @property string          $empty_cells
+ * @property string          $float
+ * @property string          $font_family
+ * @property float           $font_size                   Length in pt
+ * @property string          $font_style
+ * @property string          $font_variant
+ * @property string          $font_weight
+ * @property float|string    $height                      Length in pt, a percentage value, or `auto`
+ * @property string          $image_resolution
+ * @property string          $inset                       Only use for setting all box insets to the same length
+ * @property float|string    $left                        Length in pt, a percentage value, or `auto`
+ * @property float           $letter_spacing              Length in pt
+ * @property float           $line_height                 Length in pt
+ * @property string          $list_style_image
+ * @property string          $list_style_position
+ * @property string          $list_style_type
+ * @property float|string    $margin_right                Length in pt, a percentage value, or `auto`
+ * @property float|string    $margin_left                 Length in pt, a percentage value, or `auto`
+ * @property float|string    $margin_top                  Length in pt, a percentage value, or `auto`
+ * @property float|string    $margin_bottom               Length in pt, a percentage value, or `auto`
+ * @property string          $margin                      Only use for setting all sides to the same length
+ * @property float|string    $max_height                  Length in pt, a percentage value, or `none`
+ * @property float|string    $max_width                   Length in pt, a percentage value, or `none`
+ * @property float|string    $min_height                  Length in pt, a percentage value, or `auto`
+ * @property float|string    $min_width                   Length in pt, a percentage value, or `auto`
+ * @property string          $opacity
+ * @property int             $orphans
+ * @property array|string    $outline_color
+ * @property string          $outline_style
+ * @property float           $outline_width               Length in pt
+ * @property float           $outline_offset              Length in pt
+ * @property string          $overflow
+ * @property string          $overflow_wrap
+ * @property float|string    $padding_top                 Length in pt or a percentage value
+ * @property float|string    $padding_right               Length in pt or a percentage value
+ * @property float|string    $padding_bottom              Length in pt or a percentage value
+ * @property float|string    $padding_left                Length in pt or a percentage value
+ * @property string          $padding                     Only use for setting all sides to the same length
+ * @property string          $page_break_after
+ * @property string          $page_break_before
+ * @property string          $page_break_inside
+ * @property string          $pause_after
+ * @property string          $pause_before
+ * @property string          $pause
+ * @property string          $pitch_range
+ * @property string          $pitch
+ * @property string          $play_during
+ * @property string          $position
+ * @property string          $quotes
+ * @property string          $richness
+ * @property float|string    $right                       Length in pt, a percentage value, or `auto`
+ * @property float[]|string  $size                        Pair of `[width, height]` or `auto`
+ * @property string          $speak_header
+ * @property string          $speak_numeral
+ * @property string          $speak_punctuation
+ * @property string          $speak
+ * @property string          $speech_rate
+ * @property string          $src
+ * @property string          $stress
+ * @property string          $table_layout
+ * @property string          $text_align
+ * @property string          $text_decoration
+ * @property float|string    $text_indent                 Length in pt or a percentage value
+ * @property string          $text_transform
+ * @property float|string    $top                         Length in pt, a percentage value, or `auto`
+ * @property array           $transform
+ * @property array           $transform_origin
+ * @property string          $unicode_bidi
+ * @property string          $unicode_range
+ * @property string          $vertical_align
+ * @property string          $visibility
+ * @property string          $voice_family
+ * @property string          $volume
+ * @property string          $white_space
+ * @property int             $widows
+ * @property float|string    $width                       Length in pt, a percentage value, or `auto`
+ * @property string          $word_break
+ * @property float           $word_spacing                Length in pt
+ * @property int|string      $z_index                     Integer value or `auto`
+ * @property string          $_dompdf_keep
+ *
  * @package dompdf
  */
 class Style
