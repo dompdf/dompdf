@@ -290,6 +290,41 @@ class ShorthandTest extends TestCase
         $this->assertSame($color, $style->get_specified("background_color"));
     }
 
+    public function fontShorthandProvider(): array
+    {
+        return [
+            ["8.5mm Helvetica", "normal", "normal", "normal", "8.5mm", "normal", "helvetica"],
+            ["bold 16pt/10pt serif", "normal", "normal", "bold", "16pt", "10pt", "serif"],
+            ["italic 700\n\t15.5pt / 2.1 'Courier', sans-serif", "italic", "normal", "700", "15.5pt", "2.1", "'courier',sans-serif"],
+            ["700   normal  ITALIC    15.5PT /2.1 'Courier',sans-serif", "italic", "normal", "700", "15.5pt", "2.1", "'courier',sans-serif"],
+            ["normal normal small-caps 100.01% serif, sans-serif", "normal", "small-caps", "normal", "100.01%", "normal", "serif,sans-serif"],
+            ["normal normal normal xx-small/normal monospace", "normal", "normal", "normal", "xx-small", "normal", "monospace"]
+        ];
+    }
+
+    /**
+     * @dataProvider fontShorthandProvider
+     */
+    public function testFontShorthand(
+        string $value,
+        string $fontStyle,
+        string $fontVariant,
+        string $fontWeight,
+        string $fontSize,
+        string $lineHeight,
+        string $fontFamily
+    ): void {
+        $style = $this->style();
+        $style->set_prop("font", $value);
+
+        $this->assertSame($fontStyle, $style->get_specified("font_style"));
+        $this->assertSame($fontVariant, $style->get_specified("font_variant"));
+        $this->assertSame($fontWeight, $style->get_specified("font_weight"));
+        $this->assertSame($fontSize, $style->get_specified("font_size"));
+        $this->assertSame($lineHeight, $style->get_specified("line_height"));
+        $this->assertSame($fontFamily, $style->get_specified("font_family"));
+    }
+
     public function listStyleShorthandProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
