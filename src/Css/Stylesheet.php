@@ -607,7 +607,7 @@ class Stylesheet
                     switch ($tok) {
 
                         case "first-child":
-                            $query .= "[1]";
+                            $query .= "[not(preceding-sibling::*)]";
                             $tok = "";
                             break;
 
