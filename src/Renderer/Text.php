@@ -54,19 +54,10 @@ class Text extends AbstractRenderer
         list($x, $y) = $frame->get_position();
         $cb = $frame->get_containing_block();
 
-        if (($ml = $style->margin_left) === "auto" || $ml === "none") {
-            $ml = 0;
-        }
-
-        if (($pl = $style->padding_left) === "auto" || $pl === "none") {
-            $pl = 0;
-        }
-
-        if (($bl = $style->border_left_width) === "auto" || $bl === "none") {
-            $bl = 0;
-        }
-
-        $x += (float)$style->length_in_pt([$ml, $pl, $bl], $cb["w"]);
+        $ml = $style->margin_left;
+        $pl = $style->padding_left;
+        $bl = $style->border_left_width;
+        $x += (float) $style->length_in_pt([$ml, $pl, $bl], $cb["w"]);
 
         $font = $style->font_family;
         $size = $style->font_size;
