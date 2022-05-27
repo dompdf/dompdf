@@ -921,7 +921,7 @@ class Stylesheet
             return "false()";
         }
 
-        $a = (isset($matches["a"]) && $matches["a"] !== "") ? intval($matches["a"]) : 1;
+        $a = (isset($matches["a"]) && $matches["a"] !== "") ? ($matches["a"] !== "-" ? intval($matches["a"]) : -1) : 1;
         $b = (isset($matches["b"]) && $matches["b"] !== "") ? intval($matches["b"]) : 0;
 
         $position = $last ? "(last()-position()+1)" : "position()";
