@@ -184,13 +184,6 @@ class PDFLib implements Canvas
     protected $_page_count;
 
     /**
-     * Callbacks to process on every page after rendering is complete
-     *
-     * @var callable[]
-     */
-    protected $pageCallbacks;
-
-    /**
      * Array of pages for accessing after rendering is initially complete
      *
      * @var array
@@ -264,7 +257,6 @@ class PDFLib implements Canvas
         $this->_pdf->begin_page_ext($this->_width, $this->_height, "");
 
         $this->_page_number = $this->_page_count = 1;
-        $this->pageCallbacks = [];
 
         $this->_imgs = [];
         $this->_fonts = [];
@@ -1222,37 +1214,37 @@ class PDFLib implements Canvas
     public function page_script($callback): void
     {
         if (is_string($callback)) {
-            $this->pageCallbacks[] = function (
+            $this->processPageScript(function (
                 int $PAGE_NUM,
                 int $PAGE_COUNT,
                 self $pdf,
                 FontMetrics $fontMetrics
             ) use ($callback) {
                 eval($callback);
-            };
+            });
             return;
         }
 
-        $this->pageCallbacks[] = $callback;
+        $this->processPageScript($callback);
     }
 
     public function page_text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0)
     {
-        $this->pageCallbacks[] = function (int $pageNumber, int $pageCount) use ($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle) {
+        $this->processPageScript(function (int $pageNumber, int $pageCount) use ($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle) {
             $text = str_replace(
                 ["{PAGE_NUM}", "{PAGE_COUNT}"],
                 [$pageNumber, $pageCount],
                 $text
             );
             $this->text($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle);
-        };
+        });
     }
 
     public function page_line($x1, $y1, $x2, $y2, $color, $width, $style = [])
     {
-        $this->pageCallbacks[] = function () use ($x1, $y1, $x2, $y2, $color, $width, $style) {
+        $this->processPageScript(function () use ($x1, $y1, $x2, $y2, $color, $width, $style) {
             $this->line($x1, $y1, $x2, $y2, $color, $width, $style);
-        };
+        });
     }
 
     public function new_page()
@@ -1265,21 +1257,15 @@ class PDFLib implements Canvas
         $this->_page_number = ++$this->_page_count;
     }
 
-    protected function processPageCallbacks(): void
+    protected function processPageScript(callable $callback): void
     {
-        if (empty($this->pageCallbacks)) {
-            return;
-        }
-
         $this->_pdf->suspend_page("");
 
         for ($p = 1; $p <= $this->_page_count; $p++) {
             $this->_pdf->resume_page("pagenumber=$p");
 
-            foreach ($this->pageCallbacks as $callback) {
-                $fontMetrics = $this->_dompdf->getFontMetrics();
-                $callback($p, $this->_page_count, $this, $fontMetrics);
-            }
+            $fontMetrics = $this->_dompdf->getFontMetrics();
+            $callback($p, $this->_page_count, $this, $fontMetrics);
 
             $this->_pdf->suspend_page("");
         }
@@ -1302,8 +1288,6 @@ class PDFLib implements Canvas
         if (!isset($options["Attachment"])) {
             $options["Attachment"] = true;
         }
-
-        $this->processPageCallbacks();
 
         if ($options["compress"]) {
             $this->setPDFLibValue("compress", 6);
@@ -1364,8 +1348,6 @@ class PDFLib implements Canvas
         if (!isset($options["compress"])) {
             $options["compress"] = true;
         }
-
-        $this->processPageCallbacks();
 
         if ($options["compress"]) {
             $this->setPDFLibValue("compress", 6);

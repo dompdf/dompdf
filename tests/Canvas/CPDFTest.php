@@ -36,13 +36,34 @@ class CPDFTest extends TestCase
             $pdf->text(20, 0, "Page $PAGE_NUM of $PAGE_COUNT", $font, 12);
         ');
 
-        $font = $dompdf->getFontMetrics()->getFont("Helvetica");
-        $canvas->page_text(60, 40, "Page {PAGE_NUM} of {PAGE_COUNT}", $font, 12);
-        $canvas->page_line(0, 0, 200, 200, [0, 0, 0], 1);
-
         $output = $canvas->output();
 
         $this->assertNotSame("", $output);
         $this->assertSame(4, $called);
+    }
+
+    public function testPageText(): void
+    {
+        $dompdf = new Dompdf();
+        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas->new_page();
+
+        $font = $dompdf->getFontMetrics()->getFont("Helvetica");
+        $canvas->page_text(60, 40, "Page {PAGE_NUM} of {PAGE_COUNT}", $font, 12);
+
+        $output = $canvas->output();
+        $this->assertNotSame("", $output);
+    }
+
+    public function testPageLine(): void
+    {
+        $dompdf = new Dompdf();
+        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas->new_page();
+
+        $canvas->page_line(0, 0, 200, 200, [0, 0, 0], 1);
+
+        $output = $canvas->output();
+        $this->assertNotSame("", $output);
     }
 }
