@@ -181,20 +181,18 @@ class Page extends AbstractFrameReflower
     protected function _check_callbacks(string $event, Frame $frame): void
     {
         if (!isset($this->_callbacks)) {
-            $dompdf = $this->_frame->get_dompdf();
+            $dompdf = $this->get_dompdf();
             $this->_callbacks = $dompdf->getCallbacks();
             $this->_canvas = $dompdf->getCanvas();
         }
 
         if (isset($this->_callbacks[$event])) {
             $fs = $this->_callbacks[$event];
-            $info = [
-                0 => $this->_canvas, "canvas" => $this->_canvas,
-                1 => $frame,         "frame"  => $frame,
-            ];
+            $canvas = $this->_canvas;
+            $fontMetrics = $this->get_dompdf()->getFontMetrics();
 
             foreach ($fs as $f) {
-                $f($info);
+                $f($frame, $canvas, $fontMetrics);
             }
         }
     }

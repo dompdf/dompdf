@@ -225,13 +225,11 @@ class Renderer extends AbstractRenderer
 
         if (isset($this->_callbacks[$event])) {
             $fs = $this->_callbacks[$event];
-            $info = [
-                0 => $this->_canvas, "canvas" => $this->_canvas,
-                1 => $frame,         "frame"  => $frame
-            ];
+            $canvas = $this->_canvas;
+            $fontMetrics = $this->_dompdf->getFontMetrics();
 
             foreach ($fs as $f) {
-                $f($info);
+                $f($frame, $canvas, $fontMetrics);
             }
         }
     }

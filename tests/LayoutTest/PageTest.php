@@ -96,11 +96,7 @@ HTML
         $dompdf->setCallbacks([
             [
                 "event" => "begin_frame",
-                "f" => function ($info) use ($expectedPages, &$elementPages) {
-                    /** @var Canvas */
-                    $canvas = $info["canvas"];
-                    /** @var AbstractFrameDecorator */
-                    $frame = $info["frame"];
+                "f" => function (AbstractFrameDecorator $frame, Canvas $canvas) use ($expectedPages, &$elementPages) {
                     $node = $frame->get_node();
 
                     if (!($node instanceof DOMElement)) {
