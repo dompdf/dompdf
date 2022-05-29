@@ -187,10 +187,7 @@ HTML
         $dompdf->setCallbacks([
             [
                 "event" => "begin_frame",
-                "f" => function ($info) use (&$width, &$height) {
-                    /** @var AbstractFrameDecorator */
-                    $frame = $info["frame"];
-
+                "f" => function (AbstractFrameDecorator $frame) use (&$width, &$height) {
                     if ($frame->get_node()->nodeName === "img") {
                         [, , $width, $height] = $frame->get_content_box();
                     }

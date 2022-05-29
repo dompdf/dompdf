@@ -1390,11 +1390,10 @@ class Dompdf
      * * `end_page_render`: called after page rendering is complete
      * * `end_document`: called for every page after rendering is complete
      *
-     * The function `f` receives an array as argument, which contains info
-     * about the event (`[0 => Canvas, 1 => Frame, "canvas" => Canvas,
-     * "frame" => Frame]`). For the `end_document` event, the function receives
-     * four arguments `int $pageNumber`, `int $pageCount`, `Canvas $canvas`, and
-     * `FontMetrics $fontMetrics` instead.
+     * The function `f` receives three arguments `Frame $frame`, `Canvas $canvas`,
+     * and `FontMetrics $fontMetrics` for all events but `end_document`. For
+     * `end_document`, the function receives four arguments `int $pageNumber`,
+     * `int $pageCount`, `Canvas $canvas`, and `FontMetrics $fontMetrics` instead.
      *
      * @param array $callbacks The set of callbacks to set.
      * @return $this
