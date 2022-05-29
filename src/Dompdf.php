@@ -769,6 +769,14 @@ class Dompdf
         // This is where the magic happens:
         $root->reflow();
 
+        if (isset($this->callbacks["end_document"])) {
+            $fs = $this->callbacks["end_document"];
+
+            foreach ($fs as $f) {
+                $canvas->page_script($f);
+            }
+        }
+
         // Clean up cached images
         if (!$this->options->getDebugKeepTemp()) {
             Cache::clear($this->options->getDebugPng());
@@ -1369,7 +1377,7 @@ class Dompdf
     }
 
     /**
-     * Sets callbacks for events like rendering of pages and elements.
+     * Define callbacks that allow modifying the document during render.
      *
      * The callbacks array should contain arrays with `event` set to a callback
      * event name and `f` set to a function or any other callable.
@@ -1380,28 +1388,31 @@ class Dompdf
      * * `end_frame`: called after frame rendering is complete
      * * `begin_page_render`: called before a page is rendered
      * * `end_page_render`: called after page rendering is complete
+     * * `end_document`: called for every page after rendering is complete
      *
-     * The function `f` must take an array as argument, which contains info
+     * The function `f` receives an array as argument, which contains info
      * about the event (`[0 => Canvas, 1 => Frame, "canvas" => Canvas,
-     * "frame" => Frame]`).
+     * "frame" => Frame]`). For the `end_document` event, the function receives
+     * four arguments `int $pageNumber`, `int $pageCount`, `Canvas $canvas`, and
+     * `FontMetrics $fontMetrics` instead.
      *
-     * @param array $callbacks The set of callbacks to set
+     * @param array $callbacks The set of callbacks to set.
      * @return $this
      */
-    public function setCallbacks($callbacks)
+    public function setCallbacks(array $callbacks): self
     {
-        if (is_array($callbacks)) {
-            $this->callbacks = [];
-            foreach ($callbacks as $c) {
-                if (is_array($c) && isset($c["event"]) && isset($c["f"])) {
-                    $event = $c["event"];
-                    $f = $c["f"];
-                    if (is_string($event) && is_callable($f)) {
-                        $this->callbacks[$event][] = $f;
-                    }
+        $this->callbacks = [];
+
+        foreach ($callbacks as $c) {
+            if (is_array($c) && isset($c["event"]) && isset($c["f"])) {
+                $event = $c["event"];
+                $f = $c["f"];
+                if (is_string($event) && is_callable($f)) {
+                    $this->callbacks[$event][] = $f;
                 }
             }
         }
+
         return $this;
     }
 

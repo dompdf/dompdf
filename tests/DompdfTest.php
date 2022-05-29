@@ -110,6 +110,30 @@ class DompdfTest extends TestCase
         $this->assertSame($numCalls, $called);
     }
 
+    public function testEndDocumentCallback(): void
+    {
+        $called = 0;
+
+        $dompdf = new Dompdf();
+        $dompdf->setCallbacks([
+            [
+                "event" => "end_document",
+                "f" => function ($pageNumber, $pageCount, $canvas, $fontMetrics) use (&$called) {
+                    $called++;
+                    $this->assertSame($called, $pageNumber);
+                    $this->assertSame(2, $pageCount);
+                    $this->assertInstanceOf(Canvas::class, $canvas);
+                    $this->assertInstanceOf(FontMetrics::class, $fontMetrics);
+                }
+            ]
+        ]);
+
+        $dompdf->loadHtml("<html><body><p>Page 1</p><p style='page-break-before: always;'>Page 2</p></body></html>");
+        $dompdf->render();
+
+        $this->assertSame(2, $called);
+    }
+
     public function customCanvasProvider(): array
     {
         return [
