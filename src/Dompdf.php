@@ -726,22 +726,21 @@ class Dompdf
             $pageStyle->inherit($basePageStyle);
         }
 
-        $defaultOptionPaperSize = $this->getPaperSize($options->getDefaultPaperSize());
-        // If there is a CSS defined paper size compare to the paper size used to create the canvas to determine a
-        // recreation need
+        // Set paper size if defined via CSS
         if (is_array($basePageStyle->size)) {
-            $basePageStyleSize = $basePageStyle->size;
-            $this->setPaper([0, 0, $basePageStyleSize[0], $basePageStyleSize[1]]);
+            [$width, $height] = $basePageStyle->size;
+            $this->setPaper([0, 0, $width, $height]);
         }
 
-        $paperSize = $this->getPaperSize();
-        if (
-            $defaultOptionPaperSize[2] !== $paperSize[2] ||
-            $defaultOptionPaperSize[3] !== $paperSize[3] ||
-            $options->getDefaultPaperOrientation() !== $this->paperOrientation
-        ) {
-            $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-            $this->fontMetrics->setCanvas($this->getCanvas());
+        // Create a new canvas instance if the current one does not match the
+        // desired paper size
+        $canvasWidth = $this->canvas->get_width();
+        $canvasHeight = $this->canvas->get_height();
+        $size = $this->getPaperSize();
+
+        if ($canvasWidth !== $size[2] || $canvasHeight !== $size[3]) {
+            $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+            $this->fontMetrics->setCanvas($this->canvas);
         }
 
         $canvas = $this->canvas;
@@ -980,7 +979,7 @@ class Dompdf
     /**
      * Sets the paper size & orientation
      *
-     * @param string|array $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
+     * @param string|float[] $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
      * @param string $orientation 'portrait' or 'landscape'
      * @return $this
      */
@@ -994,19 +993,25 @@ class Dompdf
     /**
      * Gets the paper size
      *
-     * @param null|string|array $paperSize
-     * @return int[] A four-element integer array
+     * @return float[] A four-element float array
      */
-    public function getPaperSize($paperSize = null)
+    public function getPaperSize()
     {
-        $size = $paperSize !== null ? $paperSize : $this->paperSize;
-        if (is_array($size)) {
-            return $size;
-        } else if (isset(Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)])) {
-            return Adapter\CPDF::$PAPER_SIZES[mb_strtolower($size)];
+        $paper = $this->paperSize;
+        $orientation = $this->paperOrientation;
+
+        if (is_array($paper)) {
+            $size = array_map("floatval", $paper);
         } else {
-            return Adapter\CPDF::$PAPER_SIZES["letter"];
+            $paper = strtolower($paper);
+            $size = CPDF::$PAPER_SIZES[$paper] ?? CPDF::$PAPER_SIZES["letter"];
         }
+
+        if (strtolower($orientation) === "landscape") {
+            [$size[2], $size[3]] = [$size[3], $size[2]];
+        }
+
+        return $size;
     }
 
     /**
@@ -1239,6 +1244,11 @@ class Dompdf
     }
 
     /**
+     * Set a custom `Canvas` instance to render the document to.
+     *
+     * Be aware that the instance will be replaced on render if the document
+     * defines a paper size different from the canvas.
+     *
      * @param Canvas $canvas
      * @return $this
      */
