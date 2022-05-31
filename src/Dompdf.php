@@ -258,7 +258,7 @@ class Dompdf
     /**
      * Class constructor
      *
-     * @param array|Options $options
+     * @param Options|array|null $options
      */
     public function __construct($options = null)
     {
@@ -280,8 +280,8 @@ class Dompdf
         $this->paperSize = $this->options->getDefaultPaperSize();
         $this->paperOrientation = $this->options->getDefaultPaperOrientation();
 
-        $this->setCanvas(CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation));
-        $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
+        $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+        $this->fontMetrics = new FontMetrics($this->canvas, $this->options);
         $this->css = new Stylesheet($this);
 
         $this->restorePhpConfig();
@@ -700,9 +700,8 @@ class Dompdf
     public function render()
     {
         $this->setPhpConfig();
-        $options = $this->options;
 
-        $logOutputFile = $options->getLogOutputFile();
+        $logOutputFile = $this->options->getLogOutputFile();
         if ($logOutputFile) {
             if (!file_exists($logOutputFile) && is_writable(dirname($logOutputFile))) {
                 touch($logOutputFile);
@@ -745,8 +744,7 @@ class Dompdf
             $this->fontMetrics->setCanvas($this->getCanvas());
         }
 
-        $canvas = $this->getCanvas();
-
+        $canvas = $this->canvas;
         $root = null;
 
         foreach ($this->tree as $frame) {
@@ -864,10 +862,7 @@ class Dompdf
      */
     public function addInfo(string $label, string $value): void
     {
-        $canvas = $this->getCanvas();
-        if (!is_null($canvas)) {
-            $canvas->add_info($label, $value);
-        }
+        $this->canvas->add_info($label, $value);
     }
 
     /**
@@ -890,10 +885,7 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        $canvas = $this->getCanvas();
-        if (!is_null($canvas)) {
-            $canvas->stream($filename, $options);
-        }
+        $this->canvas->stream($filename, $options);
 
         $this->restorePhpConfig();
     }
@@ -914,12 +906,7 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        $canvas = $this->getCanvas();
-        if (is_null($canvas)) {
-            return null;
-        }
-
-        $output = $canvas->output($options);
+        $output = $this->canvas->output($options);
 
         $this->restorePhpConfig();
 
@@ -1348,7 +1335,7 @@ class Dompdf
         }
 
         $this->options = $options;
-        $fontMetrics = $this->getFontMetrics();
+        $fontMetrics = $this->fontMetrics;
         if (isset($fontMetrics)) {
             $fontMetrics->setOptions($options);
         }
