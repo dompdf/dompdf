@@ -111,6 +111,46 @@ class DompdfTest extends TestCase
         $this->assertSame($numCalls, $called);
     }
 
+    public function customCanvasProvider(): array
+    {
+        return [
+            ["A4", "portrait", true, "auto"],
+            ["A5", "landscape", true, "A5 landscape"],
+            ["A5", "landscape", false, "A5 landscape"],
+            [[0, 0, 300, 400], "portrait", true, "300pt 400pt"]
+        ];
+    }
+
+    /**
+     * Test that a custom canvas is not replaced on render if its size matches
+     * the desired paper size.
+     *
+     * @dataProvider customCanvasProvider
+     */
+    public function testCustomCanvas(
+        $size,
+        string $orientation,
+        bool $setPaper,
+        string $cssSize
+    ): void {
+        $options = new Options();
+        $options->setDefaultPaperSize("Letter");
+
+        $dompdf = new Dompdf($options);
+
+        if ($setPaper) {
+            $dompdf->setPaper($size, $orientation);
+        }
+
+        $c1 = new CPDF($size, $orientation, $dompdf);
+        $dompdf->setCanvas($c1);
+        $dompdf->loadHtml("<html><head><style>@page { size: $cssSize; }</style></head><body></body></html>");
+        $dompdf->render();
+        $c2 = $dompdf->getCanvas();
+
+        $this->assertSame($c1, $c2);
+    }
+
     public function testSpaceAtStartOfSecondInlineTag()
     {
         $text_frame_contents = [];
