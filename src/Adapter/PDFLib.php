@@ -11,9 +11,9 @@ namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
 use Dompdf\Dompdf;
-use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
+use Dompdf\Helpers;
 use Dompdf\Image\Cache;
 
 /**
@@ -37,7 +37,7 @@ class PDFLib implements Canvas
     /**
      * Dimensions of paper sizes in points
      *
-     * @var array;
+     * @var array
      */
     public static $PAPER_SIZES = []; // Set to Dompdf\Adapter\CPDF::$PAPER_SIZES below.
 
@@ -197,26 +197,17 @@ class PDFLib implements Canvas
      */
     protected $_pages;
 
-    /**
-     * Class constructor
-     *
-     * @param string|array $paper The size of paper to use either a string (see {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}) or
-     *                            an array(xmin,ymin,xmax,ymax)
-     * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
-     * @param Dompdf $dompdf
-     */
-    public function __construct($paper = "letter", $orientation = "portrait", Dompdf $dompdf = null)
+    public function __construct($paper = "letter", $orientation = "portrait", ?Dompdf $dompdf = null)
     {
         if (is_array($paper)) {
-            $size = $paper;
-        } elseif (isset(self::$PAPER_SIZES[mb_strtolower($paper)])) {
-            $size = self::$PAPER_SIZES[mb_strtolower($paper)];
+            $size = array_map("floatval", $paper);
         } else {
-            $size = self::$PAPER_SIZES["letter"];
+            $paper = strtolower($paper);
+            $size = self::$PAPER_SIZES[$paper] ?? self::$PAPER_SIZES["letter"];
         }
 
-        if (mb_strtolower($orientation) === "landscape") {
-            list($size[2], $size[3]) = [$size[3], $size[2]];
+        if (strtolower($orientation) === "landscape") {
+            [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 
         $this->_width = $size[2] - $size[0];
