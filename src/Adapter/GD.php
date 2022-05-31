@@ -10,8 +10,8 @@ namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
 use Dompdf\Dompdf;
-use Dompdf\Image\Cache;
 use Dompdf\Helpers;
+use Dompdf\Image\Cache;
 
 /**
  * Image rendering interface
@@ -130,29 +130,24 @@ class GD implements Canvas
     const FONT_SCALE = 0.75;
 
     /**
-     * Class constructor
-     *
-     * @param mixed $size The size of image to create: array(x1,y1,x2,y2) or "letter", "legal", etc.
-     * @param string $orientation The orientation of the document (either 'landscape' or 'portrait')
-     * @param Dompdf $dompdf
-     * @param float $aa_factor Anti-aliasing factor, 1 for no AA
-     * @param array $bg_color Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
+     * @param string|float[] $paper       The paper size to use as either a standard paper size (see {@link CPDF::$PAPER_SIZES}) or
+     *                                    an array of the form `[x1, y1, x2, y2]` (typically `[0, 0, width, height]`).
+     * @param string         $orientation The paper orientation, either `portrait` or `landscape`.
+     * @param Dompdf         $dompdf      The Dompdf instance.
+     * @param float          $aa_factor   Anti-aliasing factor, 1 for no AA
+     * @param array          $bg_color    Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
      */
-    public function __construct($size = 'letter', $orientation = "portrait", Dompdf $dompdf = null, $aa_factor = 1.0, $bg_color = [1, 1, 1, 0])
+    public function __construct($paper = "letter", $orientation = "portrait", ?Dompdf $dompdf = null, $aa_factor = 1.0, $bg_color = [1, 1, 1, 0])
     {
-
-        if (!is_array($size)) {
-            $size = strtolower($size);
-
-            if (isset(CPDF::$PAPER_SIZES[$size])) {
-                $size = CPDF::$PAPER_SIZES[$size];
-            } else {
-                $size = CPDF::$PAPER_SIZES["letter"];
-            }
+        if (is_array($paper)) {
+            $size = array_map("floatval", $paper);
+        } else {
+            $paper = strtolower($paper);
+            $size = CPDF::$PAPER_SIZES[$paper] ?? CPDF::$PAPER_SIZES["letter"];
         }
 
         if (strtolower($orientation) === "landscape") {
-            list($size[2], $size[3]) = [$size[3], $size[2]];
+            [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 
         if ($dompdf === null) {

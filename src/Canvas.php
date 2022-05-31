@@ -24,7 +24,13 @@ namespace Dompdf;
  */
 interface Canvas
 {
-    function __construct($paper = "letter", $orientation = "portrait", Dompdf $dompdf = null);
+    /**
+     * @param string|float[] $paper       The paper size to use as either a standard paper size (see {@link Dompdf\Adapter\CPDF::$PAPER_SIZES})
+     *                                    or an array of the form `[x1, y1, x2, y2]` (typically `[0, 0, width, height]`).
+     * @param string         $orientation The paper orientation, either `portrait` or `landscape`.
+     * @param Dompdf         $dompdf      The Dompdf instance.
+     */
+    public function __construct($paper = "letter", $orientation = "portrait", ?Dompdf $dompdf = null);
 
     /**
      * @return Dompdf
