@@ -1483,9 +1483,7 @@ class Stylesheet
 
         preg_match_all("/(url|local)\s*\([\"\']?([^\"\'\)]+)[\"\']?\)\s*(format\s*\([\"\']?([^\"\'\)]+)[\"\']?\))?/i", $descriptors->src, $src);
 
-        $sources = [];
         $valid_sources = [];
-
         foreach ($src[0] as $i => $value) {
             $source = [
                 "local" => strtolower($src[1][$i]) === "local",
@@ -1494,11 +1492,9 @@ class Stylesheet
                 "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
             ];
 
-            if (!$source["local"] && in_array($source["format"], ["", "truetype"])) {
+            if (!$source["local"] && in_array($source["format"], ["", "truetype"]) && $source["path"] !== null) {
                 $valid_sources[] = $source;
             }
-
-            $sources[] = $source;
         }
 
         // No valid sources
