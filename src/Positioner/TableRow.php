@@ -21,7 +21,7 @@ class TableRow extends AbstractPositioner
     /**
      * @param AbstractFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame)
+    function position(AbstractFrameDecorator $frame): void
     {
         $cb = $frame->get_containing_block();
         $p = $frame->get_prev_sibling();

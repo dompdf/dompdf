@@ -91,8 +91,8 @@ class Inline extends AbstractFrameDecorator
         //On continuation of inline element on next line,
         //don't repeat non-horizontally repeatable background images
         //See e.g. in testcase image_variants, long descriptions
-        if (($url = $split->get_style()->background_image) && $url !== "none"
-            && ($repeat = $split->get_style()->background_repeat) && $repeat !== "repeat" && $repeat !== "repeat-x"
+        if (($url = $style->background_image) && $url !== "none"
+            && ($repeat = $style->background_repeat) && $repeat !== "repeat" && $repeat !== "repeat-x"
         ) {
             $split_style->background_image = "none";
         }
