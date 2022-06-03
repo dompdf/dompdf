@@ -167,7 +167,7 @@ class Cache
                 unlink($tempfile);
             }
             $resolved_url = self::$broken_image;
-            $type = "svg";
+            list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $options->getHttpContext());
             $message = self::$error_message;
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
             self::$_cache[$full_url] = $resolved_url;
