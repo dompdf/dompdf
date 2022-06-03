@@ -272,16 +272,16 @@ abstract class AbstractFrameReflower
             if ($left === "auto" && $right === "auto") {
                 $left = 0;
             } elseif ($left === "auto") {
-                $left = -(float) $right;
+                $left = -$right;
             }
 
             if ($top === "auto" && $bottom === "auto") {
                 $top = 0;
             } elseif ($top === "auto") {
-                $top = -(float) $bottom;
+                $top = -$bottom;
             }
 
-            $frame->move((float) $left, (float) $top);
+            $frame->move($left, $top);
         }
     }
 
