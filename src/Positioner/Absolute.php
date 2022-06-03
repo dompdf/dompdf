@@ -20,7 +20,7 @@ class Absolute extends AbstractPositioner
     /**
      * @param AbstractFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame)
+    function position(AbstractFrameDecorator $frame): void
     {
         if ($frame->get_reflower() instanceof Block) {
             $style = $frame->get_style();

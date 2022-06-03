@@ -22,7 +22,7 @@ class TableCell extends AbstractPositioner
     /**
      * @param AbstractFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame)
+    function position(AbstractFrameDecorator $frame): void
     {
         $table = Table::find_parent_table($frame);
         $cellmap = $table->get_cellmap();

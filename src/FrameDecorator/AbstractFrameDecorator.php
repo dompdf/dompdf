@@ -898,9 +898,9 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @param float $offset_x
      * @param float $offset_y
-     * @param bool $ignore_self
+     * @param bool  $ignore_self
      */
-    final function move($offset_x, $offset_y, $ignore_self = false)
+    final function move(float $offset_x, float $offset_y, bool $ignore_self = false): void
     {
         $this->_positioner->move($this, $offset_x, $offset_y, $ignore_self);
     }

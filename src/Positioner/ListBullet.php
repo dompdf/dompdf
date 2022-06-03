@@ -22,7 +22,7 @@ class ListBullet extends AbstractPositioner
     /**
      * @param ListBulletFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame)
+    function position(AbstractFrameDecorator $frame): void
     {
         // List markers are positioned to the left of the border edge of their
         // parent element (FIXME: right for RTL)
