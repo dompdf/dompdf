@@ -23,7 +23,6 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getIsPhpEnabled());
         $this->assertFalse($option->getIsRemoteEnabled());
         $this->assertTrue($option->getIsJavascriptEnabled());
-        $this->assertTrue($option->getIsHtml5ParserEnabled());
         $this->assertTrue($option->getIsFontSubsettingEnabled());
         $this->assertFalse($option->getDebugPng());
         $this->assertFalse($option->getDebugKeepTemp());
@@ -80,7 +79,6 @@ class OptionsTest extends TestCase
         $this->assertTrue($option->getIsPhpEnabled());
         $this->assertTrue($option->getIsRemoteEnabled());
         $this->assertFalse($option->getIsJavascriptEnabled());
-        $this->assertTrue($option->getIsHtml5ParserEnabled());
         $this->assertFalse($option->getIsFontSubsettingEnabled());
         $this->assertTrue($option->getDebugPng());
         $this->assertTrue($option->getDebugKeepTemp());
