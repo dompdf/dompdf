@@ -1264,16 +1264,12 @@ class PDFLib implements Canvas
                     "contents={$url} destname=" . substr($url, 1) . " linewidth=0");
             }
         } else {
-            list($proto, $host, $path, $file) = Helpers::explode_url($url);
-
-            if ($proto === "" || $proto === "file://") {
-                return; // Local links are not allowed
+            //TODO: PDFLib::create_action does not permit non-HTTP links for URI actions
+            $action = $this->_pdf->create_action("URI", "url={{$url}}");
+            // add the annotation only if the action was created
+            if ($action !== 0) {
+                $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={{$url}} action={activate=$action} linewidth=0");
             }
-            $url = Helpers::build_url($proto, $host, $path, $file);
-            $url = '{' . rawurldecode($url) . '}';
-
-            $action = $this->_pdf->create_action("URI", "url=" . $url);
-            $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={$url} action={activate=$action} linewidth=0");
         }
     }
 
