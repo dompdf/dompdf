@@ -714,8 +714,7 @@ class CPDF implements Canvas
      * @param string $image_url
      * @param string $type
      *
-     * @throws Exception
-     * @return string The url of the newly converted image
+     * @return string|null The url of the newly converted image
      */
     protected function _convert_to_png($image_url, $type)
     {
@@ -727,14 +726,14 @@ class CPDF implements Canvas
  
         $func_name = "imagecreatefrom$type";
 
+        set_error_handler([Helpers::class, "record_warnings"]);
+
         if (!function_exists($func_name)) {
             if (!method_exists(Helpers::class, $func_name)) {
                 throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
             }
             $func_name = [Helpers::class, $func_name];
         }
-
-        set_error_handler([Helpers::class, "record_warnings"]);
 
         try {
             $im = call_user_func($func_name, $image_url);
@@ -750,13 +749,15 @@ class CPDF implements Canvas
                 imagepng($im, $filename);
                 imagedestroy($im);
             } else {
-                $filename = Cache::$broken_image;
+                $filename = null;
             }
         } finally {
             restore_error_handler();
         }
 
-        Cache::addTempImage($image_url, $filename);
+        if ($filename !== null) {
+            Cache::addTempImage($image_url, $filename);
+        }
 
         return $filename;
     }
@@ -794,6 +795,11 @@ class CPDF implements Canvas
             case "bmp":
                 if ($debug_png) print "!!!{$type}!!!";
                 $img = $this->_convert_to_png($img, $type);
+                if ($img === null) {
+                    if ($debug_png) print '!!!conversion to PDF failed!!!';
+                    $this->image(Cache::$broken_image, $x, $y, $w, $h, $resolution);
+                    break;
+                }
 
             case "png":
                 if ($debug_png) print '!!!png!!!';
