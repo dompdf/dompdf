@@ -948,7 +948,7 @@ class CPDF implements Canvas
                 $this->_pdf->addInternalLink($name, $x, $y, $x + $width, $y + $height);
             }
         } else {
-            $this->_pdf->addLink(rawurldecode($url), $x, $y, $x + $width, $y + $height);
+            $this->_pdf->addLink($url, $x, $y, $x + $width, $y + $height);
         }
     }
 

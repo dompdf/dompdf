@@ -118,7 +118,7 @@ class Inline extends AbstractRenderer
         // Handle anchors & links
         if ($is_link_node) {
             if ($href = $node->getAttribute("href")) {
-                $href = Helpers::build_url($dompdf->getProtocol(), $dompdf->getBaseHost(), $dompdf->getBasePath(), $href);
+                $href = Helpers::build_url($dompdf->getProtocol(), $dompdf->getBaseHost(), $dompdf->getBasePath(), $href) ?? $href;
                 $this->_canvas->add_link($href, $x, $y, $w, $h);
             }
         }
