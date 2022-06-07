@@ -28,6 +28,9 @@ Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](
 
 ---
 
+## Wrapper for Laravel
+
+There's a [Laravel wrapper](https://github.com/barryvdh/laravel-dompdf) for Dompdf HTML to PDF Converter
 
 
 ## Features
