@@ -60,14 +60,221 @@ abstract class AbstractRenderer
     abstract function render(Frame $frame);
 
     /**
+     * @param Frame   $frame
+     * @param float[] $border_box
+     */
+    protected function _render_background(Frame $frame, array $border_box): void
+    {
+        $style = $frame->get_style();
+        [$x, $y, $w, $h] = $border_box;
+
+        if ($style->has_border_radius()) {
+            [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box);
+            $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
+        }
+
+        if (($bg = $style->background_color) !== "transparent") {
+            $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
+        }
+
+        if (($url = $style->background_image) && $url !== "none") {
+            $this->_background_image($url, $x, $y, $w, $h, $style);
+        }
+
+        if ($style->has_border_radius()) {
+            $this->_canvas->clipping_end();
+        }
+    }
+
+    /**
+     * @param Frame   $frame
+     * @param float[] $border_box
+     * @param string  $corner_style
+     */
+    protected function _render_border(Frame $frame, array $border_box, string $corner_style = "bevel"): void
+    {
+        $style = $frame->get_style();
+        $bp = $style->get_border_properties();
+        [$x, $y, $w, $h] = $border_box;
+        [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box);
+
+        // Short-cut: If all the borders are "solid" with the same color and style, and no radius, we'd better draw a rectangle
+        if (in_array($bp["top"]["style"], ["solid", "dashed", "dotted"], true) &&
+            $bp["top"] === $bp["right"] &&
+            $bp["right"] === $bp["bottom"] &&
+            $bp["bottom"] === $bp["left"] &&
+            !$style->has_border_radius()
+        ) {
+            $props = $bp["top"];
+            if ($props["color"] === "transparent" || $props["width"] <= 0) {
+                return;
+            }
+
+            $width = (float)$style->length_in_pt($props["width"]);
+            $pattern = $this->_get_dash_pattern($props["style"], $width);
+            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width, $pattern);
+            return;
+        }
+
+        // Do it the long way
+        $widths = [
+            (float)$style->length_in_pt($bp["top"]["width"]),
+            (float)$style->length_in_pt($bp["right"]["width"]),
+            (float)$style->length_in_pt($bp["bottom"]["width"]),
+            (float)$style->length_in_pt($bp["left"]["width"])
+        ];
+
+        foreach ($bp as $side => $props) {
+            if ($props["style"] === "none" ||
+                $props["style"] === "hidden" ||
+                $props["color"] === "transparent" ||
+                $props["width"] <= 0
+            ) {
+                continue;
+            }
+
+            [$x, $y, $w, $h] = $border_box;
+            $method = "_border_" . $props["style"];
+
+            switch ($side) {
+                case "top":
+                    $length = $w;
+                    $r1 = $tl;
+                    $r2 = $tr;
+                    break;
+
+                case "bottom":
+                    $length = $w;
+                    $y += $h;
+                    $r1 = $bl;
+                    $r2 = $br;
+                    break;
+
+                case "left":
+                    $length = $h;
+                    $r1 = $tl;
+                    $r2 = $bl;
+                    break;
+
+                case "right":
+                    $length = $h;
+                    $x += $w;
+                    $r1 = $tr;
+                    $r2 = $br;
+                    break;
+
+                default:
+                    break;
+            }
+
+            // draw rounded corners
+            $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style, $r1, $r2);
+        }
+    }
+
+    /**
+     * @param Frame   $frame
+     * @param float[] $border_box
+     * @param string  $corner_style
+     */
+    protected function _render_outline(Frame $frame, array $border_box, string $corner_style = "bevel"): void
+    {
+        $style = $frame->get_style();
+
+        $width = $style->outline_width;
+        $outline_style = $style->outline_style;
+        $color = $style->outline_color;
+
+        if ($outline_style === "none" || $color === "transparent" || $width <= 0) {
+            return;
+        }
+
+        $offset = $style->outline_offset;
+
+        [$x, $y, $w, $h] = $border_box;
+        $d = $width + $offset;
+        $outline_box = [$x - $d, $y - $d, $w + $d * 2, $h + $d * 2];
+        [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box, $outline_box);
+
+        $x -= $offset;
+        $y -= $offset;
+        $w += $offset * 2;
+        $h += $offset * 2;
+
+        // For a simple outline, we can draw a rectangle
+        if (in_array($outline_style, ["solid", "dashed", "dotted"], true)
+            && !$style->has_border_radius()
+        ) {
+            $x -= $width / 2;
+            $y -= $width / 2;
+            $w += $width;
+            $h += $width;
+
+            $pattern = $this->_get_dash_pattern($outline_style, $width);
+            $this->_canvas->rectangle($x, $y, $w, $h, $color, $width, $pattern);
+            return;
+        }
+
+        $x -= $width;
+        $y -= $width;
+        $w += $width * 2;
+        $h += $width * 2;
+
+        $method = "_border_" . $outline_style;
+        $widths = array_fill(0, 4, $width);
+        $sides = ["top", "right", "left", "bottom"];
+
+        foreach ($sides as $side) {
+            switch ($side) {
+                case "top":
+                    $length = $w;
+                    $side_x = $x;
+                    $side_y = $y;
+                    $r1 = $tl;
+                    $r2 = $tr;
+                    break;
+
+                case "bottom":
+                    $length = $w;
+                    $side_x = $x;
+                    $side_y = $y + $h;
+                    $r1 = $bl;
+                    $r2 = $br;
+                    break;
+
+                case "left":
+                    $length = $h;
+                    $side_x = $x;
+                    $side_y = $y;
+                    $r1 = $tl;
+                    $r2 = $bl;
+                    break;
+
+                case "right":
+                    $length = $h;
+                    $side_x = $x + $w;
+                    $side_y = $y;
+                    $r1 = $tr;
+                    $r2 = $br;
+                    break;
+
+                default:
+                    break;
+            }
+
+            $this->$method($side_x, $side_y, $length, $color, $widths, $side, $corner_style, $r1, $r2);
+        }
+    }
+
+    /**
      * Render a background image over a rectangular area
      *
-     * @param string $url   The background image to load
-     * @param float $x      The left edge of the rectangular area
-     * @param float $y      The top edge of the rectangular area
-     * @param float $width  The width of the rectangular area
-     * @param float $height The height of the rectangular area
-     * @param Style $style  The associated Style object
+     * @param string $url    The background image to load
+     * @param float  $x      The left edge of the rectangular area
+     * @param float  $y      The top edge of the rectangular area
+     * @param float  $width  The width of the rectangular area
+     * @param float  $height The height of the rectangular area
+     * @param Style  $style  The associated Style object
      *
      * @throws \Exception
      */
@@ -457,8 +664,9 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $style
-     * @param $width
+     * @param string $style
+     * @param float  $width
+     *
      * @return array
      */
     protected function _get_dash_pattern($style, $width)
@@ -492,84 +700,50 @@ abstract class AbstractRenderer
         return $pattern;
     }
 
-    /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
-     */
-    protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
-    {
-        return;
-    }
-
-    /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
-     */
-    protected function _border_hidden($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
-    {
-        return;
-    }
-
     // Border rendering functions
 
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "dotted", $r1, $r2);
     }
 
-
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_dashed($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "dashed", $r1, $r2);
     }
 
-
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_solid($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
@@ -622,17 +796,17 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $side
-     * @param $ratio
-     * @param $top
-     * @param $right
-     * @param $bottom
-     * @param $left
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $r1
-     * @param $r2
+     * @param string $side
+     * @param float  $ratio
+     * @param float  $top
+     * @param float  $right
+     * @param float  $bottom
+     * @param float  $left
+     * @param float  $x
+     * @param float  $y
+     * @param float  $length
+     * @param float  $r1
+     * @param float  $r2
      */
     protected function _apply_ratio($side, $ratio, $top, $right, $bottom, $left, &$x, &$y, &$length, &$r1, &$r2)
     {
@@ -675,15 +849,15 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_double($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
@@ -700,15 +874,15 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_groove($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
@@ -724,15 +898,15 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_ridge($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
@@ -774,15 +948,15 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_inset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
@@ -805,15 +979,15 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param float   $r1
+     * @param float   $r2
      */
     protected function _border_outset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
@@ -838,16 +1012,16 @@ abstract class AbstractRenderer
     /**
      * Draws a solid, dotted, or dashed line, observing the border radius
      *
-     * @param $x
-     * @param $y
-     * @param $length
-     * @param $color
-     * @param $widths
-     * @param $side
-     * @param string $corner_style
-     * @param $pattern_name
-     * @param int $r1
-     * @param int $r2
+     * @param float   $x
+     * @param float   $y
+     * @param float   $length
+     * @param array   $color
+     * @param float[] $widths
+     * @param string  $side
+     * @param string  $corner_style
+     * @param string  $pattern_name
+     * @param float   $r1
+     * @param float   $r2
      *
      * @var $top
      */
@@ -939,9 +1113,9 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param array $box
-     * @param string $color
-     * @param array $style
+     * @param float[] $box
+     * @param string  $color
+     * @param array   $style
      */
     protected function _debug_layout($box, $color = "red", $style = [])
     {
@@ -949,12 +1123,13 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param float $img_width
-     * @param float $img_height
-     * @param float $container_width
-     * @param float $container_height
+     * @param float        $img_width
+     * @param float        $img_height
+     * @param float        $container_width
+     * @param float        $container_height
      * @param array|string $bg_resize
-     * @param int $dpi
+     * @param int          $dpi
+     *
      * @return array
      */
     protected function _resize_background_image(
