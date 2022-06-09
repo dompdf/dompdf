@@ -558,9 +558,11 @@ class Dompdf
         $acceptedmedia[] = $this->options->getDefaultMediaType();
 
         // <base href="" />
-        $base_nodes = $this->dom->getElementsByTagName("base");
-        if ($base_nodes->length && ($href = $base_nodes->item(0)->getAttribute("href"))) {
-            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($href);
+        /** @var \DOMElement|null */
+        $baseNode = $this->dom->getElementsByTagName("base")->item(0);
+        $baseHref = $baseNode ? $baseNode->getAttribute("href") : "";
+        if ($baseHref !== "") {
+            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($baseHref);
         }
 
         // Set the base path of the Stylesheet to that of the file being processed
