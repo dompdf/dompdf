@@ -59,10 +59,10 @@ use Dompdf\Frame;
  * @property array|string    $border_right_color
  * @property array|string    $border_bottom_color
  * @property array|string    $border_left_color
- * @property string          $border_top_style
- * @property string          $border_right_style
- * @property string          $border_bottom_style
- * @property string          $border_left_style
+ * @property string          $border_top_style            Valid border style
+ * @property string          $border_right_style          Valid border style
+ * @property string          $border_bottom_style         Valid border style
+ * @property string          $border_left_style           Valid border style
  * @property float           $border_top_width            Length in pt
  * @property float           $border_right_width          Length in pt
  * @property float           $border_bottom_width         Length in pt
@@ -116,7 +116,7 @@ use Dompdf\Frame;
  * @property string          $opacity
  * @property int             $orphans
  * @property array|string    $outline_color
- * @property string          $outline_style
+ * @property string          $outline_style               Valid border style, except for `hidden`
  * @property float           $outline_width               Length in pt
  * @property float           $outline_offset              Length in pt
  * @property string          $overflow
@@ -291,8 +291,23 @@ class Style
     /**
      * List of valid border styles.
      */
-    public const BORDER_STYLES = ["none", "hidden", "dotted", "dashed", "solid",
-        "double", "groove", "ridge", "inset", "outset"];
+    public const BORDER_STYLES = [
+        "none", "hidden",
+        "dotted", "dashed", "solid",
+        "double", "groove", "ridge", "inset", "outset"
+    ];
+
+    /**
+     * List of valid outline-style values.
+     * Same as the border styles, except `auto` is allowed, `hidden` is not.
+     *
+     * @link https://www.w3.org/TR/css-ui-4/#typedef-outline-line-style
+     */
+    protected const OUTLINE_STYLES = [
+        "auto", "none",
+        "dotted", "dashed", "solid",
+        "double", "groove", "ridge", "inset", "outset"
+    ];
 
     /**
      * Map of CSS shorthand properties and their corresponding sub-properties.
@@ -1995,11 +2010,22 @@ class Style
      * @param string $computed
      * @return array|string
      *
-     * @link https://www.w3.org/TR/CSS21/box.html#border-color-properties
+     * @link https://www.w3.org/TR/css-ui-4/#propdef-outline-color
      */
     protected function _get_outline_color($computed)
     {
         return $this->get_color_value($computed);
+    }
+
+    /**
+     * @param string $computed
+     * @return string
+     *
+     * @link https://www.w3.org/TR/css-ui-4/#propdef-outline-style
+     */
+    protected function _get_outline_style($computed): string
+    {
+        return $computed === "auto" ? "solid" : $computed;
     }
 
     /**
@@ -3015,63 +3041,89 @@ class Style
     }
 
     /**
+     * @param string   $value  `width || style || color`
+     * @param string[] $styles The list of border styles to accept.
+     *
+     * @return array Array of `[width, style, color]`, or `null` if the declaration is invalid.
+     */
+    protected function parse_border_side(string $value, array $styles = self::BORDER_STYLES): ?array
+    {
+        $components = $this->parse_property_value($value);
+        $width = null;
+        $style = null;
+        $color = null;
+
+        foreach ($components as $val) {
+            if ($style === null && in_array($val, $styles, true)) {
+                $style = $val;
+            } elseif ($color === null && $this->is_color_value($val)) {
+                $color = $val;
+            } elseif ($width === null) {
+                // Assume width
+                $width = $val;
+            } else {
+                // Duplicates are not allowed
+                return null;
+            }
+        }
+
+        return [$width, $style, $color];
+    }
+
+    /**
      * @link https://www.w3.org/TR/CSS21/box.html#border-properties
      * @link https://www.w3.org/TR/CSS21/box.html#propdef-border
      */
     protected function _set_border(string $value): array
     {
+        $values = $this->parse_border_side($value);
+
+        if ($values === null) {
+            return [];
+        }
+
         return array_merge(
-            $this->set_border_side("top", $value),
-            $this->set_border_side("right", $value),
-            $this->set_border_side("bottom", $value),
-            $this->set_border_side("left", $value)
+            array_combine(self::$_props_shorthand["border_top"], $values),
+            array_combine(self::$_props_shorthand["border_right"], $values),
+            array_combine(self::$_props_shorthand["border_bottom"], $values),
+            array_combine(self::$_props_shorthand["border_left"], $values)
         );
     }
 
     /**
-     * Set a single border side property.
-     *
-     * @param string $side
-     * @param string $value `[width] [style] [color]`
+     * @param string $prop
+     * @param string $value
      * @return array
      */
-    protected function set_border_side(string $side, string $value): array
+    protected function set_border_side(string $prop, string $value): array
     {
-        $components = $this->parse_property_value($value);
-        $props = [];
+        $values = $this->parse_border_side($value);
 
-        foreach ($components as $val) {
-            if (in_array($val, self::BORDER_STYLES, true)) {
-                $props["border_{$side}_style"] = $val;
-            } elseif ($this->is_color_value($val)) {
-                $props["border_{$side}_color"] = $val;
-            } else {
-                // Assume width
-                $props["border_{$side}_width"] = $val;
-            }
+        if ($values === null) {
+            return [];
         }
 
-        return $props;
+        return array_combine(self::$_props_shorthand[$prop], $values);
     }
 
     protected function _set_border_top(string $val): array
     {
-        return $this->set_border_side("top", $val);
+        return $this->set_border_side("border_top", $val);
     }
 
     protected function _set_border_right(string $val): array
     {
-        return $this->set_border_side("right", $val);
+        return $this->set_border_side("border_right", $val);
     }
 
     protected function _set_border_bottom(string $val): array
     {
-        return $this->set_border_side("bottom", $val);
+        return $this->set_border_side("border_bottom", $val);
     }
 
     protected function _set_border_left(string $val): array
     {
-        return $this->set_border_side("left", $val);
+        return $this->set_border_side("border_left", $val);
     }
 
     /**
@@ -3188,26 +3240,18 @@ class Style
     }
 
     /**
-     * @link https://www.w3.org/TR/CSS21/ui.html#dynamic-outlines
-     * @link https://www.w3.org/TR/CSS21/ui.html#propdef-outline
+     * @link https://www.w3.org/TR/css-ui-4/#outline-props
+     * @link https://www.w3.org/TR/css-ui-4/#propdef-outline
      */
     protected function _set_outline(string $value): array
     {
-        $components = $this->parse_property_value($value);
-        $props = [];
+        $values = $this->parse_border_side($value, self::OUTLINE_STYLES);
 
-        foreach ($components as $val) {
-            if (in_array($val, self::BORDER_STYLES, true)) {
-                $props["outline_style"] = $val;
-            } elseif ($this->is_color_value($val)) {
-                $props["outline_color"] = $val;
-            } else {
-                // Assume width
-                $props["outline_width"] = $val;
-            }
+        if ($values === null) {
+            return [];
         }
 
-        return $props;
+        return array_combine(self::$_props_shorthand["outline"], $values);
     }
 
     protected function _compute_outline_color(string $val)
@@ -3217,7 +3261,7 @@ class Style
 
     protected function _compute_outline_style(string $val)
     {
-        return $this->compute_border_style($val);
+        return in_array($val, self::OUTLINE_STYLES, true) ? $val : null;
     }
 
     protected function _compute_outline_width(string $val)

@@ -206,8 +206,21 @@ class ShorthandTest extends TestCase
         }
     }
 
+    public function outlineShorthandProvider(): array
+    {
+        return [
+            ["transparent", "medium", "none", "transparent"],
+            ["currentcolor 1pc", "1pc", "none", "currentcolor"],
+            ["thick inset", "thick", "inset", "currentcolor"],
+            ["auto 5pt", "5pt", "auto", "currentcolor"],
+            ["1pt solid red", "1pt", "solid", "red"],
+            ["rgb(0, 0, 0) double 1rem", "1rem", "double", "rgb(0, 0, 0)"],
+            ["thin rgb(0 255 0 / 0.2) auto", "thin", "auto", "rgb(0 255 0 / 0.2)"]
+        ];
+    }
+
     /**
-     * @dataProvider borderShorthandProvider
+     * @dataProvider outlineShorthandProvider
      */
     public function testOutlineShorthand(
         string $value,
