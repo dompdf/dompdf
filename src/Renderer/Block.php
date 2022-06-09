@@ -102,11 +102,10 @@ class Block extends AbstractRenderer
         [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box);
 
         // Short-cut: If all the borders are "solid" with the same color and style, and no radius, we'd better draw a rectangle
-        if (
-            in_array($bp["top"]["style"], ["solid", "dashed", "dotted"]) &&
-            $bp["top"] == $bp["right"] &&
-            $bp["right"] == $bp["bottom"] &&
-            $bp["bottom"] == $bp["left"] &&
+        if (in_array($bp["top"]["style"], ["solid", "dashed", "dotted"], true) &&
+            $bp["top"] === $bp["right"] &&
+            $bp["right"] === $bp["bottom"] &&
+            $bp["bottom"] === $bp["left"] &&
             !$style->has_border_radius()
         ) {
             $props = $bp["top"];
@@ -129,18 +128,16 @@ class Block extends AbstractRenderer
         ];
 
         foreach ($bp as $side => $props) {
-            list($x, $y, $w, $h) = $border_box;
-            $length = 0;
-            $r1 = 0;
-            $r2 = 0;
-
-            if (!$props["style"] ||
-                $props["style"] === "none" ||
-                $props["width"] <= 0 ||
-                $props["color"] == "transparent"
+            if ($props["style"] === "none" ||
+                $props["style"] === "hidden" ||
+                $props["color"] === "transparent" ||
+                $props["width"] <= 0
             ) {
                 continue;
             }
+
+            [$x, $y, $w, $h] = $border_box;
+            $method = "_border_" . $props["style"];
 
             switch ($side) {
                 case "top":
@@ -168,10 +165,10 @@ class Block extends AbstractRenderer
                     $r1 = $tr;
                     $r2 = $br;
                     break;
+
                 default:
                     break;
             }
-            $method = "_border_" . $props["style"];
 
             // draw rounded corners
             $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style, $r1, $r2);
@@ -187,11 +184,11 @@ class Block extends AbstractRenderer
     {
         $style = $frame->get_style();
 
-        $width = (float) $style->length_in_pt($style->outline_width);
+        $width = $style->outline_width;
         $outline_style = $style->outline_style;
         $color = $style->outline_color;
 
-        if (!$outline_style || $outline_style === "none" || $color === "transparent" || $width <= 0) {
+        if ($outline_style === "none" || $color === "transparent" || $width <= 0) {
             return;
         }
 
