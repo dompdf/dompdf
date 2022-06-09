@@ -37,13 +37,18 @@ class Inline extends AbstractRenderer
         [$x, $y] = $frame->get_first_child()->get_position();
         [$w, $h] = $this->get_child_size($frame, $do_debug_layout_line);
 
-        // Make sure the border and background start inside the left margin
-        $margin_left = (float)$style->length_in_pt($style->margin_left);
-        $x += $margin_left;
+        [, , $cbw] = $frame->get_containing_block();
+        $margin_left = $style->length_in_pt($style->margin_left, $cbw);
+        $pt = $style->length_in_pt($style->padding_top, $cbw);
+        $pb = $style->length_in_pt($style->padding_bottom, $cbw);
 
-        // Add the border widths
+        // Make sure that border and background start inside the left margin
+        // Extend the drawn box by border and padding in vertical direction, as
+        // these do not affect layout
+        $x += $margin_left;
+        $y -= $pt;
         $w += $style->border_left_width + $style->border_right_width;
-        $h += $style->border_top_width + $style->border_bottom_width;
+        $h += $style->border_top_width + $pt + $style->border_bottom_width + $pb;
 
         $border_box = [$x, $y, $w, $h];
         $this->_render_background($frame, $border_box);
