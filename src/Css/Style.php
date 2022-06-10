@@ -2192,15 +2192,6 @@ class Style
 
     /**
      * @param string $val
-     * @return string|null
-     */
-    protected function compute_border_style(string $val): ?string
-    {
-        return in_array($val, self::BORDER_STYLES, true) ? $val : null;
-    }
-
-    /**
-     * @param string $val
      * @return int|null
      */
     protected function compute_integer(string $val): ?int
@@ -2268,68 +2259,47 @@ class Style
         return mb_strpos($val, "%") === false ? $computed : $val;
     }
 
-    protected function prop_name(string $style, string $side, string $type): string
+    /**
+     * @param string $val
+     * @param string $style_prop The corresponding border-/outline-style property.
+     *
+     * @return float|null
+     *
+     * @link https://www.w3.org/TR/css-backgrounds-3/#typedef-line-width
+     */
+    protected function compute_line_width(string $val, string $style_prop): ?float
     {
-        $prop = $style;
-        if ($side !== "") {
-            $prop .= "_" . $side;
-        };
-        if ($type !== "") {
-            $prop .= "_" . $type;
-        };
-        return $prop;
+        // Border-width keywords
+        if ($val === "thin") {
+            $computed = 0.5;
+        } elseif ($val === "medium") {
+            $computed = 1.5;
+        } elseif ($val === "thick") {
+            $computed = 2.5;
+        } else {
+            $computed = $this->compute_length_positive($val);
+        }
+
+        if ($computed === null) {
+            return null;
+        }
+
+        // Computed width is 0 if the line style is `none` or `hidden`
+        // https://www.w3.org/TR/css-backgrounds-3/#border-width
+        // https://www.w3.org/TR/css-ui-4/#outline-width
+        $lineStyle = $this->__get($style_prop);
+        $hasLineStyle = $lineStyle !== "none" && $lineStyle !== "hidden";
+
+        return $hasLineStyle ? $computed : 0.0;
     }
 
     /**
-     * Compute margin, border, padding, outline width.
-     *
-     * @param string $style
-     * @param string $side
      * @param string $val
-     *
-     * @return float|string|null
+     * @return string|null
      */
-    protected function compute_style_side_width(string $style, string $side, string $val)
+    protected function compute_border_style(string $val): ?string
     {
-        if ($style === "border" || $style === "outline") {
-            // Border-width keywords
-            if ($val === "thin") {
-                $computed = 0.5;
-            } elseif ($val === "medium") {
-                $computed = 1.5;
-            } elseif ($val === "thick") {
-                $computed = 2.5;
-            } else {
-                $computed = $this->compute_length_positive($val);
-            }
-
-            if ($computed === null) {
-                return null;
-            } else {
-                $line_style_prop = $this->prop_name($style, $side, "style");
-                $line_style = $this->__get($line_style_prop);
-                $has_line_style = $line_style !== "none" && $line_style !== "hidden";
-
-                return $has_line_style ? $computed : 0.0;
-            }
-        } elseif ($style === "margin" || $style === "padding") {
-            if ($val === "none") {
-                // Legacy support for `none` keyword, not covered by spec
-                $computed = 0.0;
-            } elseif ($style === "margin" && $val === "auto") {
-                $computed = $val;
-            } elseif ($style === "padding") {
-                $computed = $this->compute_length_percentage_positive($val);
-            } else {
-                $computed = $this->compute_length_percentage($val);
-            }
-
-            return $computed;
-        } elseif ($val !== "") {
-            return $val;
-        }
-
-        return null;
+        return in_array($val, self::BORDER_STYLES, true) ? $val : null;
     }
 
     /**
@@ -2991,24 +2961,42 @@ class Style
         return $this->set_quad_shorthand("margin", $val);
     }
 
+    /**
+     * @param string $val
+     * @return float|string|null
+     */
+    protected function compute_margin(string $val)
+    {
+        // Legacy support for `none` keyword, not covered by spec
+        if ($val === "none") {
+            return 0.0;
+        }
+
+        if ($val === "auto") {
+            return $val;
+        }
+
+        return $this->compute_length_percentage($val);
+    }
+
     protected function _compute_margin_top(string $val)
     {
-        return $this->compute_style_side_width("margin", "top", $val);
+        return $this->compute_margin($val);
     }
 
     protected function _compute_margin_right(string $val)
     {
-        return $this->compute_style_side_width("margin", "right", $val);
+        return $this->compute_margin($val);
     }
 
     protected function _compute_margin_bottom(string $val)
     {
-        return $this->compute_style_side_width("margin", "bottom", $val);
+        return $this->compute_margin($val);
     }
 
     protected function _compute_margin_left(string $val)
     {
-        return $this->compute_style_side_width("margin", "left", $val);
+        return $this->compute_margin($val);
     }
 
     /**
@@ -3020,24 +3008,38 @@ class Style
         return $this->set_quad_shorthand("padding", $val);
     }
 
+    /**
+     * @param string $val
+     * @return float|string|null
+     */
+    protected function compute_padding(string $val)
+    {
+        // Legacy support for `none` keyword, not covered by spec
+        if ($val === "none") {
+            return 0.0;
+        }
+
+        return $this->compute_length_percentage_positive($val);
+    }
+
     protected function _compute_padding_top(string $val)
     {
-        return $this->compute_style_side_width("padding", "top", $val);
+        return $this->compute_padding($val);
     }
 
     protected function _compute_padding_right(string $val)
     {
-        return $this->compute_style_side_width("padding", "right", $val);
+        return $this->compute_padding($val);
     }
 
     protected function _compute_padding_bottom(string $val)
     {
-        return $this->compute_style_side_width("padding", "bottom", $val);
+        return $this->compute_padding($val);
     }
 
     protected function _compute_padding_left(string $val)
     {
-        return $this->compute_style_side_width("padding", "left", $val);
+        return $this->compute_padding($val);
     }
 
     /**
@@ -3192,22 +3194,22 @@ class Style
 
     protected function _compute_border_top_width(string $val)
     {
-        return $this->compute_style_side_width("border", "top", $val);
+        return $this->compute_line_width($val, "border_top_style");
     }
 
     protected function _compute_border_right_width(string $val)
     {
-        return $this->compute_style_side_width("border", "right", $val);
+        return $this->compute_line_width($val, "border_right_style");
     }
 
     protected function _compute_border_bottom_width(string $val)
     {
-        return $this->compute_style_side_width("border", "bottom", $val);
+        return $this->compute_line_width($val, "border_bottom_style");
     }
 
     protected function _compute_border_left_width(string $val)
     {
-        return $this->compute_style_side_width("border", "left", $val);
+        return $this->compute_line_width($val, "border_left_style");
     }
 
     /**
@@ -3266,7 +3268,7 @@ class Style
 
     protected function _compute_outline_width(string $val)
     {
-        return $this->compute_style_side_width("outline", "", $val);
+        return $this->compute_line_width($val, "outline_style");
     }
 
     /**
