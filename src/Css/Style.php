@@ -640,17 +640,20 @@ class Style
             $d =& self::$_defaults;
 
             // All CSS 2.1 properties, and their default values
+            // Some properties are specified with their computed value for
+            // efficiency; this only works if the computed value is not
+            // dependent on another property
             $d["azimuth"] = "center";
             $d["background_attachment"] = "scroll";
             $d["background_color"] = "transparent";
             $d["background_image"] = "none";
             $d["background_image_resolution"] = "normal";
-            $d["background_position"] = "0% 0%";
+            $d["background_position"] = ["0%", "0%"];
             $d["background_repeat"] = "repeat";
             $d["background"] = "";
             $d["border_collapse"] = "separate";
             $d["border_color"] = "";
-            $d["border_spacing"] = "0";
+            $d["border_spacing"] = [0.0, 0.0];
             $d["border_style"] = "";
             $d["border_top"] = "";
             $d["border_right"] = "";
@@ -669,10 +672,10 @@ class Style
             $d["border_bottom_width"] = "medium";
             $d["border_left_width"] = "medium";
             $d["border_width"] = "";
-            $d["border_bottom_left_radius"] = "0";
-            $d["border_bottom_right_radius"] = "0";
-            $d["border_top_left_radius"] = "0";
-            $d["border_top_right_radius"] = "0";
+            $d["border_bottom_left_radius"] = 0.0;
+            $d["border_bottom_right_radius"] = 0.0;
+            $d["border_top_left_radius"] = 0.0;
+            $d["border_top_right_radius"] = 0.0;
             $d["border_radius"] = "";
             $d["border"] = "";
             $d["bottom"] = "auto";
@@ -708,27 +711,27 @@ class Style
             $d["list_style_position"] = "outside";
             $d["list_style_type"] = "disc";
             $d["list_style"] = "";
-            $d["margin_right"] = "0";
-            $d["margin_left"] = "0";
-            $d["margin_top"] = "0";
-            $d["margin_bottom"] = "0";
+            $d["margin_right"] = 0.0;
+            $d["margin_left"] = 0.0;
+            $d["margin_top"] = 0.0;
+            $d["margin_bottom"] = 0.0;
             $d["margin"] = "";
             $d["max_height"] = "none";
             $d["max_width"] = "none";
             $d["min_height"] = "auto";
             $d["min_width"] = "auto";
-            $d["orphans"] = "2";
+            $d["orphans"] = 2;
             $d["outline_color"] = "currentcolor"; // "invert" special color is not supported
             $d["outline_style"] = "none";
             $d["outline_width"] = "medium";
-            $d["outline_offset"] = "0";
+            $d["outline_offset"] = 0.0;
             $d["outline"] = "";
             $d["overflow"] = "visible";
             $d["overflow_wrap"] = "normal";
-            $d["padding_top"] = "0";
-            $d["padding_right"] = "0";
-            $d["padding_bottom"] = "0";
-            $d["padding_left"] = "0";
+            $d["padding_top"] = 0.0;
+            $d["padding_right"] = 0.0;
+            $d["padding_bottom"] = 0.0;
+            $d["padding_left"] = 0.0;
             $d["padding"] = "";
             $d["page_break_after"] = "auto";
             $d["page_break_before"] = "auto";
@@ -753,7 +756,7 @@ class Style
             $d["table_layout"] = "auto";
             $d["text_align"] = "";
             $d["text_decoration"] = "none";
-            $d["text_indent"] = "0";
+            $d["text_indent"] = 0.0;
             $d["text_transform"] = "none";
             $d["top"] = "auto";
             $d["unicode_bidi"] = "normal";
@@ -762,15 +765,15 @@ class Style
             $d["voice_family"] = "";
             $d["volume"] = "medium";
             $d["white_space"] = "normal";
-            $d["widows"] = "2";
+            $d["widows"] = 2;
             $d["width"] = "auto";
             $d["word_break"] = "normal";
             $d["word_spacing"] = "normal";
             $d["z_index"] = "auto";
 
             // CSS3
-            $d["opacity"] = "1.0";
-            $d["background_size"] = "auto auto";
+            $d["opacity"] = 1.0;
+            $d["background_size"] = ["auto", "auto"];
             $d["transform"] = "none";
             $d["transform_origin"] = "50% 50%";
 
@@ -1219,11 +1222,11 @@ class Style
      * unnecessary work while loading stylesheets.
      *
      * @param string $prop               The property to set.
-     * @param string $val                The value declaration.
+     * @param mixed  $val                The value declaration or computed value.
      * @param bool   $important          Whether the declaration is important.
      * @param bool   $clear_dependencies Whether to clear computed values of dependent properties.
      */
-    public function set_prop(string $prop, string $val, bool $important = false, bool $clear_dependencies = true): void
+    public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
         $prop = str_replace("-", "_", $prop);
 
@@ -1238,7 +1241,7 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
+        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
         }
 
@@ -1476,23 +1479,28 @@ class Style
 
     /**
      * @param string $prop The property to compute.
-     * @param string $val  The value to compute.
+     * @param mixed  $val  The value to compute. Non-string values are treated as already computed.
      *
      * @return mixed The computed value.
      */
-    protected function compute_prop(string $prop, string $val)
+    protected function compute_prop(string $prop, $val)
     {
-        $method = "_compute_$prop";
-
-        if (!isset(self::$_methods_cache[$method])) {
-            self::$_methods_cache[$method] = method_exists($this, $method);
-        }
-
         // During style merge, the parent style is not available yet, so
         // temporarily use the initial value for `inherit` properties. The
         // keyword is properly resolved during inheritance
         if ($val === "inherit") {
             $val = self::$_defaults[$prop];
+        }
+
+        // Check for values which are already computed
+        if (!is_string($val)) {
+            return $val;
+        }
+
+        $method = "_compute_$prop";
+
+        if (!isset(self::$_methods_cache[$method])) {
+            self::$_methods_cache[$method] = method_exists($this, $method);
         }
 
         if (self::$_methods_cache[$method]) {
