@@ -65,19 +65,21 @@ class Renderer extends AbstractRenderer
 
         $style = $frame->get_style();
 
-        if (in_array($style->visibility, ["hidden", "collapse"])) {
+        if (in_array($style->visibility, ["hidden", "collapse"], true)) {
             return;
         }
 
         $display = $style->display;
+        $transformList = $style->transform;
+        $hasTransform = $transformList !== [];
 
         // Starts the CSS transformation
-        if ($style->transform && is_array($style->transform)) {
+        if ($hasTransform) {
             $this->_canvas->save();
             list($x, $y) = $frame->get_padding_box();
             $origin = $style->transform_origin;
 
-            foreach ($style->transform as $transform) {
+            foreach ($transformList as $transform) {
                 list($function, $values) = $transform;
                 if ($function === "matrix") {
                     $function = "transform";
@@ -200,7 +202,7 @@ class Renderer extends AbstractRenderer
             $this->_canvas->clipping_end();
         }
 
-        if ($style->transform && is_array($style->transform)) {
+        if ($hasTransform) {
             $this->_canvas->restore();
         }
 

@@ -153,7 +153,7 @@ use Dompdf\Frame;
  * @property float|string    $text_indent                 Length in pt or a percentage value
  * @property string          $text_transform
  * @property float|string    $top                         Length in pt, a percentage value, or `auto`
- * @property array           $transform
+ * @property array           $transform                   List of transforms
  * @property array           $transform_origin
  * @property string          $unicode_bidi
  * @property string          $unicode_range
@@ -3440,7 +3440,7 @@ class Style
 
     /**
      * @param string $computed
-     * @return array|null
+     * @return array
      *
      * @link https://www.w3.org/TR/css-transforms-1/#transform-property
      */
@@ -3453,7 +3453,7 @@ class Style
         $angle = "\s*([^,\s]+(?:deg|rad)?)\s*";
 
         if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $computed, $parts, PREG_SET_ORDER)) {
-            return null;
+            return [];
         }
 
         $functions = [
