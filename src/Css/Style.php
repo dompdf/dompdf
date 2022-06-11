@@ -964,7 +964,7 @@ class Style
         $font_size = $this->__get("font_size");
         $ref_size = $ref_size ?? $font_size;
 
-        if (!is_array($length)) {
+        if (!\is_array($length)) {
             $length = [$length];
         }
 
@@ -1241,7 +1241,7 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && is_string($val) && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
+        if ($prop !== "content" && \is_string($val) && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
             $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
         }
 
@@ -1293,7 +1293,7 @@ class Style
 
             // https://www.w3.org/TR/css-cascade-3/#inherit-initial
             if ($val === "unset") {
-                $val = in_array($prop, self::$_inherited, true)
+                $val = \in_array($prop, self::$_inherited, true)
                     ? "inherit"
                     : "initial";
             }
@@ -1463,7 +1463,7 @@ class Style
             } else {
                 return implode(" ", array_map(function ($sub_prop) {
                     $val = $this->__get($sub_prop);
-                    return is_array($val) ? implode(" ", $val) : $val;
+                    return \is_array($val) ? implode(" ", $val) : $val;
                 }, self::$_props_shorthand[$prop]));
             }
         } else {
@@ -1493,7 +1493,7 @@ class Style
         }
 
         // Check for values which are already computed
-        if (!is_string($val)) {
+        if (!\is_string($val)) {
             return $val;
         }
 
@@ -1656,7 +1656,7 @@ class Style
      */
     protected function _get_word_spacing($computed)
     {
-        if (is_float($computed)) {
+        if (\is_float($computed)) {
             return $computed;
         }
 
@@ -1673,7 +1673,7 @@ class Style
      */
     protected function _get_letter_spacing($computed)
     {
-        if (is_float($computed)) {
+        if (\is_float($computed)) {
             return $computed;
         }
 
@@ -1691,7 +1691,7 @@ class Style
     protected function _get_line_height($computed)
     {
         // Lengths have been computed to float, number values to string
-        if (is_float($computed)) {
+        if (\is_float($computed)) {
             return $computed;
         }
 
@@ -1865,7 +1865,7 @@ class Style
 
         return $this->__get("border_{$side}_width") . " " .
             $this->__get("border_{$side}_style") . " " .
-            (is_array($color) ? $color["hex"] : $color);
+            (\is_array($color) ? $color["hex"] : $color);
     }
 
     /**
@@ -2053,7 +2053,7 @@ class Style
 
         return $this->__get("outline_width") . " " .
             $this->__get("outline_style") . " " .
-            (is_array($color) ? $color["hex"] : $color);
+            (\is_array($color) ? $color["hex"] : $color);
     }
 
     /**
@@ -2195,7 +2195,7 @@ class Style
             return null;
         }
 
-        return is_array($munged_color) ? $munged_color["hex"] : $munged_color;
+        return \is_array($munged_color) ? $munged_color["hex"] : $munged_color;
     }
 
     /**
@@ -2307,7 +2307,7 @@ class Style
      */
     protected function compute_border_style(string $val): ?string
     {
-        return in_array($val, self::BORDER_STYLES, true) ? $val : null;
+        return \in_array($val, self::BORDER_STYLES, true) ? $val : null;
     }
 
     /**
@@ -2323,7 +2323,7 @@ class Style
     {
         $v = $this->parse_property_value($value);
 
-        switch (count($v)) {
+        switch (\count($v)) {
             case 1:
                 $values = [$v[0], $v[0], $v[0], $v[0]];
                 break;
@@ -2429,7 +2429,7 @@ class Style
     protected function _compute_background_repeat(string $val)
     {
         $keywords = ["repeat", "repeat-x", "repeat-y", "no-repeat"];
-        return in_array($val, $keywords, true) ? $val : null;
+        return \in_array($val, $keywords, true) ? $val : null;
     }
 
     /**
@@ -2438,7 +2438,7 @@ class Style
     protected function _compute_background_attachment(string $val)
     {
         $keywords = ["scroll", "fixed"];
-        return in_array($val, $keywords, true) ? $val : null;
+        return \in_array($val, $keywords, true) ? $val : null;
     }
 
     /**
@@ -2448,7 +2448,7 @@ class Style
     {
         $parts = preg_split("/\s+/", $val);
 
-        if (count($parts) > 2) {
+        if (\count($parts) > 2) {
             return null;
         }
 
@@ -2542,7 +2542,7 @@ class Style
 
         $parts = preg_split("/\s+/", $val);
 
-        if (count($parts) > 2) {
+        if (\count($parts) > 2) {
             return null;
         }
 
@@ -2586,13 +2586,13 @@ class Style
             }
         }
 
-        if (count($pos_size)) {
+        if (\count($pos_size)) {
             // Split value list at "/"
             $index = array_search("/", $pos_size, true);
 
             if ($index !== false) {
-                $pos = array_slice($pos_size, 0, $index);
-                $size = array_slice($pos_size, $index + 1);
+                $pos = \array_slice($pos_size, 0, $index);
+                $size = \array_slice($pos_size, $index + 1);
             } else {
                 $pos = $pos_size;
                 $size = [];
@@ -2600,7 +2600,7 @@ class Style
 
             $props["background_position"] = implode(" ", $pos);
 
-            if (count($size)) {
+            if (\count($size)) {
                 $props["background_size"] = implode(" ", $size);
             }
         }
@@ -2694,12 +2694,12 @@ class Style
         }
 
         // `font-style`, `font-variant`, `font-weight` in any order
-        $styleVariantWeight = array_slice($components, 0, $sizeIndex);
+        $styleVariantWeight = \array_slice($components, 0, $sizeIndex);
         $stylePattern = "/^(italic|oblique)$/";
         $variantPattern = "/^(small-caps)$/";
         $weightPattern = "/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900)$/";
 
-        if (count($styleVariantWeight) > 3) {
+        if (\count($styleVariantWeight) > 3) {
             return [];
         }
 
@@ -2720,10 +2720,10 @@ class Style
         }
 
         // Optional slash + `line-height` followed by mandatory `font-family`
-        $lineFamily = array_slice($components, $sizeIndex + 1);
+        $lineFamily = \array_slice($components, $sizeIndex + 1);
         $hasLineHeight = $lineFamily !== [] && $lineFamily[0] === "/";
-        $lineHeight = $hasLineHeight ? array_slice($lineFamily, 1, 1) : [];
-        $fontFamily = $hasLineHeight ? array_slice($lineFamily, 2) : $lineFamily;
+        $lineHeight = $hasLineHeight ? \array_slice($lineFamily, 1, 1) : [];
+        $fontFamily = $hasLineHeight ? \array_slice($lineFamily, 2) : $lineFamily;
         $lineHeightPattern = "/^(normal|$number(?:$unit)?)$/";
 
         // Missing `font-family` or `line-height` after slash
@@ -2760,7 +2760,7 @@ class Style
             }
         }
 
-        if (!in_array($alignment, self::TEXT_ALIGN_KEYWORDS, true)) {
+        if (!\in_array($alignment, self::TEXT_ALIGN_KEYWORDS, true)) {
             return null;
         }
 
@@ -3064,7 +3064,7 @@ class Style
         $color = null;
 
         foreach ($components as $val) {
-            if ($style === null && in_array($val, $styles, true)) {
+            if ($style === null && \in_array($val, $styles, true)) {
                 $style = $val;
             } elseif ($color === null && $this->is_color_value($val)) {
                 $color = $val;
@@ -3271,7 +3271,7 @@ class Style
 
     protected function _compute_outline_style(string $val)
     {
-        return in_array($val, self::OUTLINE_STYLES, true) ? $val : null;
+        return \in_array($val, self::OUTLINE_STYLES, true) ? $val : null;
     }
 
     protected function _compute_outline_width(string $val)
@@ -3297,7 +3297,7 @@ class Style
     {
         $parts = preg_split("/\s+/", $val);
 
-        if (count($parts) > 2) {
+        if (\count($parts) > 2) {
             return null;
         }
 
@@ -3368,9 +3368,9 @@ class Style
                 continue;
             }
 
-            if (in_array($val, $types, true)) {
+            if (\in_array($val, $types, true)) {
                 $props["list_style_type"] = $val;
-            } elseif (in_array($val, $positions, true)) {
+            } elseif (\in_array($val, $positions, true)) {
                 $props["list_style_position"] = $val;
             }
         }
@@ -3388,7 +3388,7 @@ class Style
         }
 
         $parts = $this->parse_property_value($val);
-        $count = count($parts);
+        $count = \count($parts);
 
         if ($count === 0 || $count > 3) {
             return null;
@@ -3414,11 +3414,11 @@ class Style
 
         if ($size !== null) {
             // Standard paper size
-            [$l1, $l2] = array_slice(CPDF::$PAPER_SIZES[$size], 2, 2);
+            [$l1, $l2] = \array_slice(CPDF::$PAPER_SIZES[$size], 2, 2);
         } elseif ($lengths === []) {
             // Orientation only, use default paper size
             $dims = $this->_stylesheet->get_dompdf()->getPaperSize();
-            [$l1, $l2] = array_slice($dims, 2, 2);
+            [$l1, $l2] = \array_slice($dims, 2, 2);
         } else {
             // Custom paper size
             $l1 = $this->compute_length_positive($lengths[0]);
@@ -3481,7 +3481,7 @@ class Style
 
             foreach ($functions as $name => $pattern) {
                 if (preg_match("/$name\s*$pattern/i", $t, $matches)) {
-                    $values = array_slice($matches, 1);
+                    $values = \array_slice($matches, 1);
 
                     switch ($name) {
                         // <angle> units
@@ -3492,9 +3492,9 @@ class Style
 
                             foreach ($values as $i => $value) {
                                 if (strpos($value, "rad")) {
-                                    $values[$i] = rad2deg(floatval($value));
+                                    $values[$i] = rad2deg((float) $value);
                                 } else {
-                                    $values[$i] = floatval($value);
+                                    $values[$i] = (float) $value;
                                 }
                             }
 
@@ -3569,7 +3569,7 @@ class Style
      * @param string $computed
      * @return array
      *
-     * @link https://www.w3.org/TR/css-transforms-1/#transform-origin
+     * @link https://www.w3.org/TR/css-transforms-1/#transform-origin-property
      */
     protected function _get_transform_origin($computed)
     {
@@ -3578,9 +3578,9 @@ class Style
         $values = preg_split("/\s+/", $computed);
 
         $values = array_map(function ($value) {
-            if (in_array($value, ["top", "left"])) {
+            if (\in_array($value, ["top", "left"], true)) {
                 return 0;
-            } else if (in_array($value, ["bottom", "right"])) {
+            } else if (\in_array($value, ["bottom", "right"], true)) {
                 return "100%";
             } else {
                 return $value;
