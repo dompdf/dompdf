@@ -929,11 +929,11 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param $opacity
+     * @param float $opacity
      */
-    protected function _set_opacity($opacity)
+    protected function _set_opacity(float $opacity): void
     {
-        if (is_numeric($opacity) && $opacity <= 1.0 && $opacity >= 0.0) {
+        if ($opacity >= 0.0 && $opacity <= 1.0) {
             $this->_canvas->set_opacity($opacity);
         }
     }

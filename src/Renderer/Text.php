@@ -45,12 +45,15 @@ class Text extends AbstractRenderer
      */
     function render(Frame $frame)
     {
+        $style = $frame->get_style();
         $text = $frame->get_text();
+
         if (trim($text) === "") {
             return;
         }
 
-        $style = $frame->get_style();
+        $this->_set_opacity($frame->get_opacity($style->opacity));
+
         list($x, $y) = $frame->get_position();
         $cb = $frame->get_containing_block();
 

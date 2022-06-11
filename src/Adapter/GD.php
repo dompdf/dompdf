@@ -263,13 +263,7 @@ class GD implements Canvas
         $this->_page_count = $count;
     }
 
-    /**
-     * Sets the opacity
-     *
-     * @param $opacity
-     * @param $mode
-     */
-    public function set_opacity($opacity, $mode = "Normal")
+    public function set_opacity(float $opacity, string $mode = "Normal"): void
     {
         // FIXME
     }

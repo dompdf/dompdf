@@ -615,11 +615,11 @@ class Frame
     }
 
     /**
-     * @param null $opacity
+     * @param float|null $opacity
      *
      * @return float
      */
-    public function get_opacity($opacity = null)
+    public function get_opacity(?float $opacity = null): float
     {
         if ($opacity !== null) {
             $this->set_opacity($opacity);
@@ -722,12 +722,12 @@ class Frame
     }
 
     /**
-     * @param $opacity
+     * @param float $opacity
      */
-    public function set_opacity($opacity)
+    public function set_opacity(float $opacity): void
     {
         $parent = $this->get_parent();
-        $base_opacity = (($parent && $parent->_opacity !== null) ? $parent->_opacity : 1.0);
+        $base_opacity = $parent && $parent->_opacity !== null ? $parent->_opacity : 1.0;
         $this->_opacity = $base_opacity * $opacity;
     }
 
