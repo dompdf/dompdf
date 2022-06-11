@@ -261,7 +261,7 @@ class Color
 
             // Parse alpha value
             if (Helpers::is_percent($alpha)) {
-                $alpha = round((float) $alpha / 100, 2);
+                $alpha = (float) $alpha / 100;
             } else {
                 $alpha = (float) $alpha;
             }

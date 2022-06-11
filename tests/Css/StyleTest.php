@@ -204,6 +204,46 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->size);
     }
 
+    public function opacityProvider(): array
+    {
+        return [
+            // Valid values
+            ["0", 0.0],
+            ["1", 1.0],
+            ["+1.0", 1.0],
+            ["0.5", 0.5],
+            [".5", 0.5],
+            ["100%", 1.0],
+            ["23.78%", 0.2378],
+            ["2e-2%", 0.0002],
+
+            // Out-of-range values (clamped instead of invalid)
+            ["500.95", 1.0],
+            ["300%", 1.0],
+            ["-100", 0.0],
+            ["-23.3%", 0.0],
+
+            // Invalid values
+            ["", 1.0],
+            ["auto", 1.0],
+            ["invalid", 1.0],
+            ["0.5pt", 1.0]
+        ];
+    }
+
+    /**
+     * @dataProvider opacityProvider
+     */
+    public function testOpacity(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("opacity", $value);
+        $this->assertSame($expected, $style->opacity);
+    }
+
     public function zIndexProvider(): array
     {
         return [
