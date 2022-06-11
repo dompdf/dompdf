@@ -113,7 +113,7 @@ use Dompdf\Frame;
  * @property float|string    $max_width                   Length in pt, a percentage value, or `none`
  * @property float|string    $min_height                  Length in pt, a percentage value, or `auto`
  * @property float|string    $min_width                   Length in pt, a percentage value, or `auto`
- * @property string          $opacity
+ * @property float           $opacity                     Number in the range [0, 1]
  * @property int             $orphans
  * @property array|string    $outline_color
  * @property string          $outline_style               Valid border style, except for `hidden`
@@ -3634,6 +3634,25 @@ class Style
     protected function _compute_widows(string $val)
     {
         return $this->compute_integer($val);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/css-color-4/#propdef-opacity
+     */
+    protected function _compute_opacity(string $val)
+    {
+        $number = self::CSS_NUMBER;
+        $pattern = "/^($number)(%?)$/";
+
+        if (!preg_match($pattern, $val, $matches)) {
+            return null;
+        }
+
+        $v = (float) $matches[1];
+        $percent = $matches[2] === "%";
+        $opacity = $percent ? ($v / 100) : $v;
+
+        return max(0.0, min($opacity, 1.0));
     }
 
     /**
