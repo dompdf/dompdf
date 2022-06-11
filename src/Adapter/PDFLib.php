@@ -130,7 +130,7 @@ class PDFLib implements Canvas
     /**
      * The current opacity level
      *
-     * @var array
+     * @var float|null
      */
     protected $_current_opacity;
 
@@ -674,7 +674,7 @@ class PDFLib implements Canvas
      */
     public function _set_fill_opacity($opacity, $mode = "Normal")
     {
-        if ($mode === "Normal" && is_null($opacity) === false) {
+        if ($mode === "Normal" && isset($opacity)) {
             $this->_set_gstate("opacityfill=$opacity");
         }
     }
@@ -687,20 +687,14 @@ class PDFLib implements Canvas
      */
     public function _set_stroke_opacity($opacity, $mode = "Normal")
     {
-        if ($mode === "Normal" && is_null($opacity) === false) {
+        if ($mode === "Normal" && isset($opacity)) {
             $this->_set_gstate("opacitystroke=$opacity");
         }
     }
 
-    /**
-     * Sets the opacity
-     *
-     * @param $opacity
-     * @param $mode
-     */
-    public function set_opacity($opacity, $mode = "Normal")
+    public function set_opacity(float $opacity, string $mode = "Normal"): void
     {
-        if ($mode === "Normal" && is_null($opacity) === false) {
+        if ($mode === "Normal") {
             $this->_set_gstate("opacityfill=$opacity opacitystroke=$opacity");
             $this->_current_opacity = $opacity;
         }

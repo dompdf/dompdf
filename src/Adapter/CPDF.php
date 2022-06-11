@@ -394,9 +394,7 @@ class CPDF implements Canvas
     {
         $this->_pdf->setStrokeColor($color);
         $alpha = isset($color["alpha"]) ? $color["alpha"] : 1;
-        if ($this->_current_opacity != 1) {
-            $alpha *= $this->_current_opacity;
-        }
+        $alpha *= $this->_current_opacity;
         $this->_set_line_transparency("Normal", $alpha);
     }
 
@@ -410,9 +408,7 @@ class CPDF implements Canvas
     {
         $this->_pdf->setColor($color);
         $alpha = isset($color["alpha"]) ? $color["alpha"] : 1;
-        if ($this->_current_opacity) {
-            $alpha *= $this->_current_opacity;
-        }
+        $alpha *= $this->_current_opacity;
         $this->_set_fill_transparency("Normal", $alpha);
     }
 
@@ -467,13 +463,7 @@ class CPDF implements Canvas
         $this->_pdf->setLineStyle($width, $cap, $join, $dash);
     }
 
-    /**
-     * Sets the opacity
-     *
-     * @param $opacity
-     * @param $mode
-     */
-    public function set_opacity($opacity, $mode = "Normal")
+    public function set_opacity(float $opacity, string $mode = "Normal"): void
     {
         $this->_set_line_transparency($mode, $opacity);
         $this->_set_fill_transparency($mode, $opacity);

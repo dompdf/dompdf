@@ -421,10 +421,10 @@ interface Canvas
     /**
      * Sets the opacity
      *
-     * @param float $opacity
+     * @param float  $opacity
      * @param string $mode
      */
-    function set_opacity($opacity, $mode = "Normal");
+    public function set_opacity(float $opacity, string $mode = "Normal"): void;
 
     /**
      * Sets the default view
