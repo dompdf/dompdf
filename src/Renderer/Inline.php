@@ -45,8 +45,10 @@ class Inline extends AbstractRenderer
         // Make sure that border and background start inside the left margin
         // Extend the drawn box by border and padding in vertical direction, as
         // these do not affect layout
+        // FIXME: Using a small vertical offset of a fraction of the height here
+        // to work around the vertical position being slightly off in general
         $x += $margin_left;
-        $y -= $style->border_top_width + $pt;
+        $y -= $style->border_top_width + $pt - ($h * 0.1);
         $w += $style->border_left_width + $style->border_right_width;
         $h += $style->border_top_width + $pt + $style->border_bottom_width + $pb;
 
