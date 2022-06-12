@@ -46,7 +46,7 @@ class Inline extends AbstractRenderer
         // Extend the drawn box by border and padding in vertical direction, as
         // these do not affect layout
         $x += $margin_left;
-        $y -= $pt;
+        $y -= $style->border_top_width + $pt;
         $w += $style->border_left_width + $style->border_right_width;
         $h += $style->border_top_width + $pt + $style->border_bottom_width + $pb;
 
