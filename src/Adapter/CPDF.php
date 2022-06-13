@@ -678,7 +678,7 @@ class CPDF implements Canvas
             $points[$i] = $this->y($points[$i]);
         }
 
-        $this->_pdf->polygon($points, count($points) / 2, $fill);
+        $this->_pdf->polygon($points, $fill);
 
         $this->_set_fill_transparency("Normal", $this->_current_opacity);
         $this->_set_line_transparency("Normal", $this->_current_opacity);

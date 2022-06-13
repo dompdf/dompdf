@@ -4172,18 +4172,18 @@ EOT;
      * draw a polygon, the syntax for this is similar to the GD polygon command
      *
      * @param float[] $p
-     * @param int     $np
-     * @param bool    $f
+     * @param bool    $fill
      */
-    function polygon($p, $np, $f = false)
+    public function polygon(array $p, bool $fill = false): void
     {
         $this->addContent(sprintf("\n%.3F %.3F m ", $p[0], $p[1]));
 
-        for ($i = 2; $i < $np * 2; $i = $i + 2) {
+        $n = count($p);
+        for ($i = 2; $i < $n; $i = $i + 2) {
             $this->addContent(sprintf("%.3F %.3F l ", $p[$i], $p[$i + 1]));
         }
 
-        if ($f) {
+        if ($fill) {
             $this->addContent(' f');
         } else {
             $this->addContent(' S');
