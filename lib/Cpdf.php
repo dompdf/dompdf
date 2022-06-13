@@ -3871,11 +3871,11 @@ EOT;
     /**
      * draw a line from one set of coordinates to another
      *
-     * @param $x1
-     * @param $y1
-     * @param $x2
-     * @param $y2
-     * @param bool $stroke
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @param bool  $stroke
      */
     function line($x1, $y1, $x2, $y2, $stroke = true)
     {
@@ -3889,14 +3889,14 @@ EOT;
     /**
      * draw a bezier curve based on 4 control points
      *
-     * @param $x0
-     * @param $y0
-     * @param $x1
-     * @param $y1
-     * @param $x2
-     * @param $y2
-     * @param $x3
-     * @param $y3
+     * @param float $x0
+     * @param float $y0
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @param float $x3
+     * @param float $y3
      */
     function curve($x0, $y0, $x1, $y1, $x2, $y2, $x3, $y3)
     {
@@ -3910,13 +3910,13 @@ EOT;
     /**
      * draw a part of an ellipse
      *
-     * @param $x0
-     * @param $y0
-     * @param $astart
-     * @param $afinish
-     * @param $r1
-     * @param int $r2
-     * @param int $angle
+     * @param float $x0
+     * @param float $y0
+     * @param float $astart
+     * @param float $afinish
+     * @param float $r1
+     * @param float $r2
+     * @param float $angle
      * @param int $nSeg
      */
     function partEllipse($x0, $y0, $astart, $afinish, $r1, $r2 = 0, $angle = 0, $nSeg = 8)
@@ -3927,14 +3927,14 @@ EOT;
     /**
      * draw a filled ellipse
      *
-     * @param $x0
-     * @param $y0
-     * @param $r1
-     * @param int $r2
-     * @param int $angle
+     * @param float $x0
+     * @param float $y0
+     * @param float $r1
+     * @param float $r2
+     * @param float $angle
      * @param int $nSeg
-     * @param int $astart
-     * @param int $afinish
+     * @param float $astart
+     * @param float $afinish
      */
     function filledEllipse($x0, $y0, $r1, $r2 = 0, $angle = 0, $nSeg = 8, $astart = 0, $afinish = 360)
     {
@@ -3942,8 +3942,8 @@ EOT;
     }
 
     /**
-     * @param $x
-     * @param $y
+     * @param float $x
+     * @param float $y
      */
     function lineTo($x, $y)
     {
@@ -3951,8 +3951,8 @@ EOT;
     }
 
     /**
-     * @param $x
-     * @param $y
+     * @param float $x
+     * @param float $y
      */
     function moveTo($x, $y)
     {
@@ -3962,12 +3962,12 @@ EOT;
     /**
      * draw a bezier curve based on 4 control points
      *
-     * @param $x1
-     * @param $y1
-     * @param $x2
-     * @param $y2
-     * @param $x3
-     * @param $y3
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @param float $x3
+     * @param float $y3
      */
     function curveTo($x1, $y1, $x2, $y2, $x3, $y3)
     {
@@ -3976,6 +3976,11 @@ EOT;
 
     /**
      * draw a bezier curve based on 4 control points
+     *
+     * @param float $cpx
+     * @param float $cpy
+     * @param float $x
+     * @param float $y
      */
     function quadTo($cpx, $cpy, $x, $y)
     {
@@ -4003,18 +4008,18 @@ EOT;
      * nSeg is not allowed to be less than 2, as this will simply draw a line (and will even draw a
      * pretty crappy shape at 2, as we are approximating with bezier curves.
      *
-     * @param $x0
-     * @param $y0
-     * @param $r1
-     * @param int $r2
-     * @param int $angle
-     * @param int $nSeg
-     * @param int $astart
-     * @param int $afinish
-     * @param bool $close
-     * @param bool $fill
-     * @param bool $stroke
-     * @param bool $incomplete
+     * @param float $x0
+     * @param float $y0
+     * @param float $r1
+     * @param float $r2
+     * @param float $angle
+     * @param int   $nSeg
+     * @param float $astart
+     * @param float $afinish
+     * @param bool  $close
+     * @param bool  $fill
+     * @param bool  $stroke
+     * @param bool  $incomplete
      */
     function ellipse(
         $x0,
@@ -4128,11 +4133,11 @@ EOT;
      *   (2,1) is 2 on, 1 off, 2 on, 1 off.. etc
      * phase is a modifier on the dash pattern which is used to shift the point at which the pattern starts.
      *
-     * @param int $width
+     * @param float  $width
      * @param string $cap
      * @param string $join
-     * @param string $dash
-     * @param int $phase
+     * @param array  $dash
+     * @param int    $phase
      */
     function setLineStyle($width = 1, $cap = '', $join = '', $dash = '', $phase = 0)
     {
@@ -4166,9 +4171,9 @@ EOT;
     /**
      * draw a polygon, the syntax for this is similar to the GD polygon command
      *
-     * @param $p
-     * @param $np
-     * @param bool $f
+     * @param float[] $p
+     * @param int     $np
+     * @param bool    $f
      */
     function polygon($p, $np, $f = false)
     {
@@ -4189,10 +4194,10 @@ EOT;
      * a filled rectangle, note that it is the width and height of the rectangle which are the secondary parameters, not
      * the coordinates of the upper-right corner
      *
-     * @param $x1
-     * @param $y1
-     * @param $width
-     * @param $height
+     * @param float $x1
+     * @param float $y1
+     * @param float $width
+     * @param float $height
      */
     function filledRectangle($x1, $y1, $width, $height)
     {
@@ -4203,10 +4208,10 @@ EOT;
      * draw a rectangle, note that it is the width and height of the rectangle which are the secondary parameters, not
      * the coordinates of the upper-right corner
      *
-     * @param $x1
-     * @param $y1
-     * @param $width
-     * @param $height
+     * @param float $x1
+     * @param float $y1
+     * @param float $width
+     * @param float $height
      */
     function rectangle($x1, $y1, $width, $height)
     {
@@ -4217,10 +4222,10 @@ EOT;
      * draw a rectangle, note that it is the width and height of the rectangle which are the secondary parameters, not
      * the coordinates of the upper-right corner
      *
-     * @param $x1
-     * @param $y1
-     * @param $width
-     * @param $height
+     * @param float $x1
+     * @param float $y1
+     * @param float $width
+     * @param float $height
      */
     function rect($x1, $y1, $width, $height)
     {
@@ -4448,10 +4453,10 @@ EOT;
     /**
      * draw a clipping rectangle, all the elements added after this will be clipped
      *
-     * @param $x1
-     * @param $y1
-     * @param $width
-     * @param $height
+     * @param float $x1
+     * @param float $y1
+     * @param float $width
+     * @param float $height
      */
     function clippingRectangle($x1, $y1, $width, $height)
     {
@@ -4462,14 +4467,14 @@ EOT;
     /**
      * draw a clipping rounded rectangle, all the elements added after this will be clipped
      *
-     * @param $x1
-     * @param $y1
-     * @param $w
-     * @param $h
-     * @param $rTL
-     * @param $rTR
-     * @param $rBR
-     * @param $rBL
+     * @param float $x1
+     * @param float $y1
+     * @param float $w
+     * @param float $h
+     * @param float $rTL
+     * @param float $rTR
+     * @param float $rBR
+     * @param float $rBL
      */
     function clippingRectangleRounded($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL)
     {
@@ -5001,8 +5006,8 @@ EOT;
     /**
      * register text for font subsetting
      *
-     * @param $font
-     * @param $text
+     * @param string $font
+     * @param string $text
      */
     function registerText($font, $text)
     {
@@ -5022,14 +5027,14 @@ EOT;
     /**
      * add text to the document, at a specified location, size and angle on the page
      *
-     * @param $x
-     * @param $y
-     * @param $size
-     * @param $text
-     * @param int $angle
-     * @param int $wordSpaceAdjust
-     * @param int $charSpaceAdjust
-     * @param bool $smallCaps
+     * @param float  $x
+     * @param float  $y
+     * @param float  $size
+     * @param string $text
+     * @param float  $angle
+     * @param float  $wordSpaceAdjust
+     * @param float  $charSpaceAdjust
+     * @param bool   $smallCaps
      */
     function addText($x, $y, $size, $text, $angle = 0, $wordSpaceAdjust = 0, $charSpaceAdjust = 0, $smallCaps = false)
     {
@@ -5144,12 +5149,12 @@ EOT;
      *
      * @param float  $size
      * @param string $text
-     * @param float  $word_spacing
-     * @param float  $char_spacing
+     * @param float  $wordSpacing
+     * @param float  $charSpacing
      *
      * @return float
      */
-    public function getTextWidth(float $size, string $text, float $word_spacing = 0.0, float $char_spacing = 0.0): float
+    public function getTextWidth(float $size, string $text, float $wordSpacing = 0.0, float $charSpacing = 0.0): float
     {
         static $ord_cache = [];
 
@@ -5190,14 +5195,14 @@ EOT;
 
                     // add additional padding for space
                     if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
-                        $w += $word_spacing * $space_scale;
+                        $w += $wordSpacing * $space_scale;
                     }
                 }
             }
 
             // add additional char spacing
-            if ($char_spacing != 0) {
-                $w += $char_spacing * $space_scale * count($unicode);
+            if ($charSpacing != 0) {
+                $w += $charSpacing * $space_scale * count($unicode);
             }
 
         } else {
@@ -5225,14 +5230,14 @@ EOT;
 
                     // add additional padding for space
                     if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
-                        $w += $word_spacing * $space_scale;
+                        $w += $wordSpacing * $space_scale;
                     }
                 }
             }
 
             // add additional char spacing
-            if ($char_spacing != 0) {
-                $w += $char_spacing * $space_scale * $len;
+            if ($charSpacing != 0) {
+                $w += $charSpacing * $space_scale * $len;
             }
         }
 
