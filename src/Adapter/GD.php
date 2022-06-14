@@ -185,9 +185,6 @@ class GD implements Canvas
         $this->new_page();
     }
 
-    /**
-     * @return Dompdf
-     */
     public function get_dompdf()
     {
         return $this->_dompdf;
@@ -223,21 +220,11 @@ class GD implements Canvas
         return round($this->_height / $this->_aa_factor);
     }
 
-    /**
-     * Returns the current page number
-     *
-     * @return int
-     */
     public function get_page_number()
     {
         return $this->_page_number;
     }
 
-    /**
-     * Returns the total number of pages in the document
-     *
-     * @return int
-     */
     public function get_page_count()
     {
         return $this->_page_count;
@@ -253,11 +240,6 @@ class GD implements Canvas
         $this->_page_number = $num;
     }
 
-    /**
-     * Sets the page count
-     *
-     * @param int $count
-     */
     public function set_page_count($count)
     {
         $this->_page_count = $count;
@@ -273,7 +255,7 @@ class GD implements Canvas
      * previously allocated colors in $this->_colors.
      *
      * @param array $color The new current color
-     * @return int           The allocated color
+     * @return int The allocated color
      */
     protected function _allocate_color($color)
     {
@@ -338,24 +320,8 @@ class GD implements Canvas
         return round(($length / $this->dpi * 72) / $this->_aa_factor);
     }
 
-    /**
-     * Draws a line from x1,y1 to x2,y2
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the format of the
-     * $style parameter (aka dash).
-     *
-     * @param float $x1
-     * @param float $y1
-     * @param float $x2
-     * @param float $y2
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     */
     public function line($x1, $y1, $x2, $y2, $color, $width, $style = null)
     {
-
         // Scale by the AA factor and DPI
         $x1 = $this->_upscale($x1);
         $y1 = $this->_upscale($y1);
@@ -407,40 +373,13 @@ class GD implements Canvas
         imageline($this->get_image(), $x1, $y1, $x2, $y2, $c);
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $r1
-     * @param float $r2
-     * @param float $astart
-     * @param float $aend
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     */
-    public function arc($x1, $y1, $r1, $r2, $astart, $aend, $color, $width, $style = [])
+    public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [])
     {
         // @todo
     }
 
-    /**
-     * Draws a rectangle at x1,y1 with width w and height h
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
-     *
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     */
     public function rectangle($x1, $y1, $w, $h, $color, $width, $style = null)
     {
-
         // Scale by the AA factor and DPI
         $x1 = $this->_upscale($x1);
         $y1 = $this->_upscale($y1);
@@ -471,17 +410,6 @@ class GD implements Canvas
         imagerectangle($this->get_image(), $x1, $y1, $x1 + $w, $y1 + $h, $c);
     }
 
-    /**
-     * Draws a filled rectangle at x1,y1 with width w and height h
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     * @param array $color
-     */
     public function filled_rectangle($x1, $y1, $w, $h, $color)
     {
         // Scale by the AA factor and DPI
@@ -495,14 +423,6 @@ class GD implements Canvas
         imagefilledrectangle($this->get_image(), $x1, $y1, $x1 + $w, $y1 + $h, $c);
     }
 
-    /**
-     * Starts a clipping rectangle at x1,y1 with width w and height h
-     *
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     */
     public function clipping_rectangle($x1, $y1, $w, $h)
     {
         // @todo
@@ -513,108 +433,46 @@ class GD implements Canvas
         // @todo
     }
 
-    /**
-     * Ends the last clipping shape
-     */
     public function clipping_end()
     {
         // @todo
     }
 
-    /**
-     *
-     */
     public function save()
     {
         $this->get_dompdf()->getOptions()->setDpi(72);
     }
 
-    /**
-     *
-     */
     public function restore()
     {
         $this->get_dompdf()->getOptions()->setDpi($this->dpi);
     }
 
-    /**
-     * @param $angle
-     * @param $x
-     * @param $y
-     */
     public function rotate($angle, $x, $y)
     {
         // @todo
     }
 
-    /**
-     * @param $angle_x
-     * @param $angle_y
-     * @param $x
-     * @param $y
-     */
     public function skew($angle_x, $angle_y, $x, $y)
     {
         // @todo
     }
 
-    /**
-     * @param $s_x
-     * @param $s_y
-     * @param $x
-     * @param $y
-     */
     public function scale($s_x, $s_y, $x, $y)
     {
         // @todo
     }
 
-    /**
-     * @param $t_x
-     * @param $t_y
-     */
     public function translate($t_x, $t_y)
     {
         // @todo
     }
 
-    /**
-     * @param $a
-     * @param $b
-     * @param $c
-     * @param $d
-     * @param $e
-     * @param $f
-     */
     public function transform($a, $b, $c, $d, $e, $f)
     {
         // @todo
     }
 
-    /**
-     * Draws a polygon
-     *
-     * The polygon is formed by joining all the points stored in the $points
-     * array.  $points has the following structure:
-     * <code>
-     * array(0 => x1,
-     *       1 => y1,
-     *       2 => x2,
-     *       3 => y2,
-     *       ...
-     *       );
-     * </code>
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
-     *
-     * @param array $points
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     * @param bool $fill Fills the polygon if true
-     */
     public function polygon($points, $color, $width = null, $style = null, $fill = false)
     {
 
@@ -650,21 +508,6 @@ class GD implements Canvas
         }
     }
 
-    /**
-     * Draws a circle at $x,$y with radius $r
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
-     *
-     * @param float $x
-     * @param float $y
-     * @param float $r
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     * @param bool $fill Fills the circle if true
-     */
     public function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false)
     {
         // Scale by the AA factor and DPI
@@ -700,22 +543,11 @@ class GD implements Canvas
     }
 
     /**
-     * Add an image to the pdf.
-     * The image is placed at the specified x and y coordinates with the
-     * given width and height.
-     *
-     * @param string $img_url the path to the image
-     * @param float $x x position
-     * @param float $y y position
-     * @param int $w width (in pixels)
-     * @param int $h height (in pixels)
-     * @param string $resolution
-     *
      * @throws \Exception
      */
-    public function image($img_url, $x, $y, $w, $h, $resolution = "normal")
+    public function image($img, $x, $y, $w, $h, $resolution = "normal")
     {
-        $img_type = Cache::detect_type($img_url, $this->get_dompdf()->getHttpContext());
+        $img_type = Cache::detect_type($img, $this->get_dompdf()->getHttpContext());
 
         if (!$img_type) {
             return;
@@ -724,11 +556,11 @@ class GD implements Canvas
         $func_name = "imagecreatefrom$img_type";
         if (!function_exists($func_name)) {
             if (!method_exists(Helpers::class, $func_name)) {
-                throw new \Exception("Function $func_name() not found.  Cannot convert $img_type image: $img_url.  Please install the image PHP extension.");
+                throw new \Exception("Function $func_name() not found.  Cannot convert $img_type image: $img.  Please install the image PHP extension.");
             }
             $func_name = [Helpers::class, $func_name];
         }
-        $src = @call_user_func($func_name, $img_url);
+        $src = @call_user_func($func_name, $img);
 
         if (!$src) {
             return; // Probably should add to $_dompdf_errors or whatever here
@@ -747,20 +579,6 @@ class GD implements Canvas
         imagecopyresampled($this->get_image(), $src, $x, $y, 0, 0, $w, $h, $img_w, $img_h);
     }
 
-    /**
-     * Writes text at the specified x and y coordinates
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
-     * @param float $x
-     * @param float $y
-     * @param string $text the text to write
-     * @param string $font the font file to use
-     * @param float $size the font size, in points
-     * @param array $color
-     * @param float $word_spacing word spacing adjustment
-     * @param float $char_spacing
-     * @param float $angle Text angle
-     */
     public function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_spacing = 0.0, $char_spacing = 0.0, $angle = 0.0)
     {
         // Scale by the AA factor and DPI
@@ -790,25 +608,11 @@ class GD implements Canvas
         // Not implemented
     }
 
-    /**
-     * Add a named destination (similar to <a name="foo">...</a> in html)
-     *
-     * @param string $anchorname The name of the named destination
-     */
     public function add_named_dest($anchorname)
     {
         // Not implemented
     }
 
-    /**
-     * Add a link to the pdf
-     *
-     * @param string $url The url to link to
-     * @param float $x The x position of the link
-     * @param float $y The y position of the link
-     * @param float $width The width of the link
-     * @param float $height The height of the link
-     */
     public function add_link($url, $x, $y, $width, $height)
     {
         // Not implemented
@@ -819,10 +623,6 @@ class GD implements Canvas
         // N/A
     }
 
-    /**
-     * @param string $view
-     * @param array $options
-     */
     public function set_default_view($view, $options = [])
     {
         // N/A
@@ -892,7 +692,8 @@ class GD implements Canvas
 
     /**
      * @param string $font
-     * @param float $size
+     * @param float  $size
+     *
      * @return float
      */
     protected function get_font_height_actual($font, $size)
@@ -960,7 +761,7 @@ class GD implements Canvas
      * Streams the image to the client.
      *
      * @param string $filename The filename to present to the client.
-     * @param array $options Associative array: 'type' => jpeg|jpg|png; 'quality' => 0 - 100 (JPEG only);
+     * @param array  $options  Associative array: 'type' => jpeg|jpg|png; 'quality' => 0 - 100 (JPEG only);
      *     'page' => Number of the page to output (defaults to the first); 'Attachment': 1 or 0 (default 1).
      */
     public function stream($filename, $options = [])
