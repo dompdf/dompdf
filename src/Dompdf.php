@@ -1360,11 +1360,12 @@ class Dompdf
 
     /**
      * @param array $callbacks the set of callbacks to set
+     * @return $this
      * @deprecated
      */
     public function set_callbacks($callbacks)
     {
-        $this->setCallbacks($callbacks);
+        return $this->setCallbacks($callbacks);
     }
 
     /**
@@ -1385,6 +1386,7 @@ class Dompdf
      * "frame" => Frame]`).
      *
      * @param array $callbacks The set of callbacks to set
+     * @return $this
      */
     public function setCallbacks($callbacks)
     {
@@ -1400,6 +1402,7 @@ class Dompdf
                 }
             }
         }
+        return $this;
     }
 
     /**
