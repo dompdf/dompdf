@@ -4515,6 +4515,25 @@ EOT;
     }
 
     /**
+     * draw a clipping polygon, the syntax for this is similar to the GD polygon command
+     *
+     * @param float[] $p
+     */
+    public function clippingPolygon(array $p): void
+    {
+        $this->save();
+
+        $this->addContent(sprintf("\n%.3F %.3F m ", $p[0], $p[1]));
+
+        $n = count($p);
+        for ($i = 2; $i < $n; $i = $i + 2) {
+            $this->addContent(sprintf("%.3F %.3F l ", $p[$i], $p[$i + 1]));
+        }
+
+        $this->addContent("W n");
+    }
+
+    /**
      * ends the last clipping shape
      */
     function clippingEnd()

@@ -509,6 +509,16 @@ class CPDF implements Canvas
         $this->_pdf->clippingRectangleRounded($x1, $this->y($y1) - $h, $w, $h, $rTL, $rTR, $rBR, $rBL);
     }
 
+    public function clipping_polygon(array $points): void
+    {
+        // Adjust y values
+        for ($i = 1; $i < count($points); $i += 2) {
+            $points[$i] = $this->y($points[$i]);
+        }
+
+        $this->_pdf->clippingPolygon($points);
+    }
+
     public function clipping_end()
     {
         $this->_pdf->clippingEnd();

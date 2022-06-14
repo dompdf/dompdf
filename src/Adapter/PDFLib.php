@@ -941,6 +941,24 @@ class PDFLib implements Canvas
         $this->_pdf->draw_path($path, $x1, $this->_height-$y1-$h, "clip=true");
     }
 
+    public function clipping_polygon(array $points): void
+    {
+        $this->_pdf->save();
+
+        $y = $this->y(array_pop($points));
+        $x = array_pop($points);
+        $this->_pdf->moveto($x, $y);
+
+        while (count($points) > 1) {
+            $y = $this->y(array_pop($points));
+            $x = array_pop($points);
+            $this->_pdf->lineto($x, $y);
+        }
+
+        $this->_pdf->closepath();
+        $this->_pdf->clip();
+    }
+
     public function clipping_end()
     {
         $this->_pdf->restore();
