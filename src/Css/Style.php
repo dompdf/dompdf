@@ -46,7 +46,7 @@ use Dompdf\Frame;
  * @property string          $azimuth
  * @property string          $background_attachment
  * @property array|string    $background_color
- * @property string          $background_image
+ * @property string          $background_image            Image URL or `none`
  * @property string          $background_image_resolution
  * @property array           $background_position
  * @property string          $background_repeat
@@ -101,7 +101,7 @@ use Dompdf\Frame;
  * @property float|string    $left                        Length in pt, a percentage value, or `auto`
  * @property float           $letter_spacing              Length in pt
  * @property float           $line_height                 Length in pt
- * @property string          $list_style_image
+ * @property string          $list_style_image            Image URL or `none`
  * @property string          $list_style_position
  * @property string          $list_style_type
  * @property float|string    $margin_right                Length in pt, a percentage value, or `auto`
