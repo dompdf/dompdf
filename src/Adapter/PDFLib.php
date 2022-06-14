@@ -226,7 +226,9 @@ class PDFLib implements Canvas
             $this->setPDFLibParameter("license", $license);
         }
 
-        $this->setPDFLibParameter("textformat", "utf8");
+        if ($this->getPDFLibMajorVersion() < 10) {
+            $this->setPDFLibParameter("textformat", "utf8");
+        }
         if ($this->getPDFLibMajorVersion() >= 7) {
             $this->setPDFLibParameter("errorpolicy", "return");
             //            $this->_pdf->set_option('logging={filename=' . \APP_PATH . '/logs/pdflib.log classes={api=1 warning=2}}');
