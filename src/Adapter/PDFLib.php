@@ -1218,6 +1218,10 @@ class PDFLib implements Canvas
      */
     public function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_spacing = 0, $char_spacing = 0, $angle = 0)
     {
+        if ($size == 0) {
+            return;
+        }
+
         $fh = $this->_load_font($font);
 
         $this->_pdf->setfont($fh, $size);
@@ -1285,6 +1289,10 @@ class PDFLib implements Canvas
 
     public function get_text_width($text, $font, $size, $word_spacing = 0.0, $letter_spacing = 0.0)
     {
+        if ($size == 0) {
+            return 0.0;
+        }
+
         $fh = $this->_load_font($font);
 
         // Determine the additional width due to extra spacing
@@ -1301,6 +1309,10 @@ class PDFLib implements Canvas
 
     public function get_font_height($font, $size)
     {
+        if ($size == 0) {
+            return 0.0;
+        }
+
         $fh = $this->_load_font($font);
 
         $this->_pdf->setfont($fh, $size);
