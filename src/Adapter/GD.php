@@ -433,6 +433,11 @@ class GD implements Canvas
         // @todo
     }
 
+    public function clipping_polygon(array $points): void
+    {
+        // @todo
+    }
+
     public function clipping_end()
     {
         // @todo

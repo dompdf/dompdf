@@ -104,8 +104,9 @@ abstract class AbstractRenderer
         [$x, $y, $w, $h] = $border_box;
         [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box);
 
-        // Short-cut: If all the borders are "solid" with the same color and style, and no radius, we'd better draw a rectangle
-        if (in_array($bp["top"]["style"], ["solid", "dashed", "dotted"], true) &&
+        // Short-cut: If all the borders are "solid" with the same color and
+        // style, and no radius, we'd better draw a rectangle
+        if ($bp["top"]["style"] === "solid" &&
             $bp["top"] === $bp["right"] &&
             $bp["right"] === $bp["bottom"] &&
             $bp["bottom"] === $bp["left"] &&
@@ -117,8 +118,7 @@ abstract class AbstractRenderer
             }
 
             $width = (float)$style->length_in_pt($props["width"]);
-            $pattern = $this->_get_dash_pattern($props["style"], $width);
-            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width, $pattern);
+            $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width);
             return;
         }
 
@@ -208,16 +208,13 @@ abstract class AbstractRenderer
         $h += $offset * 2;
 
         // For a simple outline, we can draw a rectangle
-        if (in_array($outline_style, ["solid", "dashed", "dotted"], true)
-            && !$style->has_border_radius()
-        ) {
+        if ($outline_style === "solid" && !$style->has_border_radius()) {
             $x -= $width / 2;
             $y -= $width / 2;
             $w += $width;
             $h += $width;
 
-            $pattern = $this->_get_dash_pattern($outline_style, $width);
-            $this->_canvas->rectangle($x, $y, $w, $h, $color, $width, $pattern);
+            $this->_canvas->rectangle($x, $y, $w, $h, $color, $width);
             return;
         }
 
@@ -669,43 +666,6 @@ abstract class AbstractRenderer
         $this->_canvas->clipping_end();
     }
 
-    /**
-     * @param string $style
-     * @param float  $width
-     *
-     * @return array
-     */
-    protected function _get_dash_pattern($style, $width)
-    {
-        $pattern = [];
-
-        switch ($style) {
-            default:
-                /*case "solid":
-                case "double":
-                case "groove":
-                case "inset":
-                case "outset":
-                case "ridge":*/
-            case "none":
-                break;
-
-            case "dotted":
-                if ($width <= 1) {
-                    $pattern = [$width, $width * 2];
-                } else {
-                    $pattern = [$width];
-                }
-                break;
-
-            case "dashed":
-                $pattern = [3 * $width];
-                break;
-        }
-
-        return $pattern;
-    }
-
     // Border rendering functions
 
     /**
@@ -753,52 +713,7 @@ abstract class AbstractRenderer
      */
     protected function _border_solid($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
-        // TODO: Solve rendering where one corner is beveled (radius == 0), one corner isn't.
-        if ($corner_style !== "bevel" || $r1 > 0 || $r2 > 0) {
-            // do it the simple way
-            $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "solid", $r1, $r2);
-            return;
-        }
-
-        list($top, $right, $bottom, $left) = $widths;
-
-        // All this polygon business is for beveled corners...
-        switch ($side) {
-            case "top":
-                $points = [$x, $y,
-                    $x + $length, $y,
-                    $x + $length - $right, $y + $top,
-                    $x + $left, $y + $top];
-                $this->_canvas->polygon($points, $color, null, null, true);
-                break;
-
-            case "bottom":
-                $points = [$x, $y,
-                    $x + $length, $y,
-                    $x + $length - $right, $y - $bottom,
-                    $x + $left, $y - $bottom];
-                $this->_canvas->polygon($points, $color, null, null, true);
-                break;
-
-            case "left":
-                $points = [$x, $y,
-                    $x, $y + $length,
-                    $x + $left, $y + $length - $bottom,
-                    $x + $left, $y + $top];
-                $this->_canvas->polygon($points, $color, null, null, true);
-                break;
-
-            case "right":
-                $points = [$x, $y,
-                    $x, $y + $length,
-                    $x - $right, $y + $length - $bottom,
-                    $x - $right, $y + $top];
-                $this->_canvas->polygon($points, $color, null, null, true);
-                break;
-
-            default:
-                return;
-        }
+        $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "solid", $r1, $r2);
     }
 
     /**
@@ -1016,6 +931,55 @@ abstract class AbstractRenderer
     }
 
     /**
+     * Get the dash pattern for the given border style, width, and line length.
+     *
+     * The base pattern is adjusted so that it fits the given line length
+     * symmetrically.
+     *
+     * @param string $style
+     * @param float  $width
+     * @param float  $length
+     *
+     * @return array
+     */
+    protected function dashPattern(string $style, float $width, float $length): array
+    {
+        if ($style === "dashed") {
+            $w = 3 * $width;
+
+            if ($length < $w) {
+                $s = $w;
+            } else {
+                // Scale dashes and gaps
+                $r = round($length / $w);
+                $r = $r % 2 === 0 ? $r + 1 : $r;
+                $s = $length / $r;
+            }
+
+            return [$s];
+        }
+
+        if ($style === "dotted") {
+            $gap = $width <= 1 ? 2 : 1;
+            $w = $width;
+
+            if ($length < 2 * $w) {
+                $s = $w;
+            } else {
+                // Only scale gaps
+                // Fit $r + 1 squares plus $r scaled gaps into $length
+                $rw = round($length / $w);
+                $r = max(floor(($rw - 1) / 2), 1);
+                $s = ($length - ($r + 1) * $w) / ($r * $gap);
+            }
+
+            return [$w, $gap * $s];
+        }
+
+        return [];
+    }
+
+    /**
      * Draws a solid, dotted, or dashed line, observing the border radius
      *
      * @param float   $x
@@ -1028,83 +992,143 @@ abstract class AbstractRenderer
      * @param string  $pattern_name
      * @param float   $r1
      * @param float   $r2
-     *
-     * @var $top
      */
     protected function _border_line($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $pattern_name = "none", $r1 = 0, $r2 = 0)
     {
         /** used by $$side */
-        list($top, $right, $bottom, $left) = $widths;
+        [$top, $right, $bottom, $left] = $widths;
         $width = $$side;
 
-        $pattern = $this->_get_dash_pattern($pattern_name, $width);
+        // No need to clip corners if border radius is large enough
+        $cornerClip = $corner_style === "bevel" && ($r1 < $width || $r2 < $width);
+        $lineLength = $length - $r1 - $r2;
+        $pattern = $this->dashPattern($pattern_name, $width, $lineLength);
 
-        $half_width = $width / 2;
-        $r1 -= $half_width;
-        $r2 -= $half_width;
-        $adjust = $r1 / 80;
-        $length -= $width;
+        // Determine arc border radius for corner arcs
+        $halfWidth = $width / 2;
+        $ar1 = max($r1 - $halfWidth, 0);
+        $ar2 = max($r2 - $halfWidth, 0);
+
+        // Small angle adjustments to prevent the background from shining through
+        $adj1 = $ar1 / 80;
+        $adj2 = $ar2 / 80;
 
         switch ($side) {
             case "top":
-                $x += $half_width;
-                $y += $half_width;
-
-                if ($r1 > 0) {
-                    $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 90 - $adjust, 135 + $adjust, $color, $width, $pattern);
+                if ($cornerClip) {
+                    $points = [
+                        $x, $y,
+                        $x, $y - 1, // Extend outwards to avoid gaps
+                        $x + $length, $y - 1, // Extend outwards to avoid gaps
+                        $x + $length, $y,
+                        $x + $length - max($right, $r2), $y + max($width, $r2),
+                        $x + max($left, $r1), $y + max($width, $r1)
+                    ];
+                    $this->_canvas->clipping_polygon($points);
                 }
 
-                $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                $y += $halfWidth;
 
-                if ($r2 > 0) {
-                    $this->_canvas->arc($x + $length - $r2, $y + $r2, $r2, $r2, 45 - $adjust, 90 + $adjust, $color, $width, $pattern);
+                if ($ar1 > 0) {
+                    $this->_canvas->arc($x + $r1, $y + $ar1, $ar1, $ar1, 90 - $adj1, 135 + $adj1, $color, $width, $pattern);
+                }
+
+                if ($lineLength > 0) {
+                    $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                }
+
+                if ($ar2 > 0) {
+                    $this->_canvas->arc($x + $length - $r2, $y + $ar2, $ar2, $ar2, 45 - $adj2, 90 + $adj2, $color, $width, $pattern);
                 }
                 break;
 
             case "bottom":
-                $x += $half_width;
-                $y -= $half_width;
-
-                if ($r1 > 0) {
-                    $this->_canvas->arc($x + $r1, $y - $r1, $r1, $r1, 225 - $adjust, 270 + $adjust, $color, $width, $pattern);
+                if ($cornerClip) {
+                    $points = [
+                        $x, $y,
+                        $x, $y + 1, // Extend outwards to avoid gaps
+                        $x + $length, $y + 1, // Extend outwards to avoid gaps
+                        $x + $length, $y,
+                        $x + $length - max($right, $r2), $y - max($width, $r2),
+                        $x + max($left, $r1), $y - max($width, $r1)
+                    ];
+                    $this->_canvas->clipping_polygon($points);
                 }
 
-                $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                $y -= $halfWidth;
 
-                if ($r2 > 0) {
-                    $this->_canvas->arc($x + $length - $r2, $y - $r2, $r2, $r2, 270 - $adjust, 315 + $adjust, $color, $width, $pattern);
+                if ($ar1 > 0) {
+                    $this->_canvas->arc($x + $r1, $y - $ar1, $ar1, $ar1, 225 - $adj1, 270 + $adj1, $color, $width, $pattern);
+                }
+
+                if ($lineLength > 0) {
+                    $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                }
+
+                if ($ar2 > 0) {
+                    $this->_canvas->arc($x + $length - $r2, $y - $ar2, $ar2, $ar2, 270 - $adj2, 315 + $adj2, $color, $width, $pattern);
                 }
                 break;
 
             case "left":
-                $y += $half_width;
-                $x += $half_width;
-
-                if ($r1 > 0) {
-                    $this->_canvas->arc($x + $r1, $y + $r1, $r1, $r1, 135 - $adjust, 180 + $adjust, $color, $width, $pattern);
+                if ($cornerClip) {
+                    $points = [
+                        $x, $y,
+                        $x - 1, $y, // Extend outwards to avoid gaps
+                        $x - 1, $y + $length, // Extend outwards to avoid gaps
+                        $x, $y + $length,
+                        $x + max($width, $r2), $y + $length - max($bottom, $r2),
+                        $x + max($width, $r1), $y + max($top, $r1)
+                    ];
+                    $this->_canvas->clipping_polygon($points);
                 }
 
-                $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                $x += $halfWidth;
 
-                if ($r2 > 0) {
-                    $this->_canvas->arc($x + $r2, $y + $length - $r2, $r2, $r2, 180 - $adjust, 225 + $adjust, $color, $width, $pattern);
+                if ($ar1 > 0) {
+                    $this->_canvas->arc($x + $ar1, $y + $r1, $ar1, $ar1, 135 - $adj1, 180 + $adj1, $color, $width, $pattern);
+                }
+
+                if ($lineLength > 0) {
+                    $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                }
+
+                if ($ar2 > 0) {
+                    $this->_canvas->arc($x + $ar2, $y + $length - $r2, $ar2, $ar2, 180 - $adj2, 225 + $adj2, $color, $width, $pattern);
                 }
                 break;
 
             case "right":
-                $y += $half_width;
-                $x -= $half_width;
-
-                if ($r1 > 0) {
-                    $this->_canvas->arc($x - $r1, $y + $r1, $r1, $r1, 0 - $adjust, 45 + $adjust, $color, $width, $pattern);
+                if ($cornerClip) {
+                    $points = [
+                        $x, $y,
+                        $x + 1, $y, // Extend outwards to avoid gaps
+                        $x + 1, $y + $length, // Extend outwards to avoid gaps
+                        $x, $y + $length,
+                        $x - max($width, $r2), $y + $length - max($bottom, $r2),
+                        $x - max($width, $r1), $y + max($top, $r1)
+                    ];
+                    $this->_canvas->clipping_polygon($points);
                 }
 
-                $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                $x -= $halfWidth;
 
-                if ($r2 > 0) {
-                    $this->_canvas->arc($x - $r2, $y + $length - $r2, $r2, $r2, 315 - $adjust, 360 + $adjust, $color, $width, $pattern);
+                if ($ar1 > 0) {
+                    $this->_canvas->arc($x - $ar1, $y + $r1, $ar1, $ar1, 0 - $adj1, 45 + $adj1, $color, $width, $pattern);
+                }
+
+                if ($lineLength > 0) {
+                    $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                }
+
+                if ($ar2 > 0) {
+                    $this->_canvas->arc($x - $ar2, $y + $length - $r2, $ar2, $ar2, 315 - $adj2, 360 + $adj2, $color, $width, $pattern);
                 }
                 break;
+        }
+
+        if ($cornerClip) {
+            $this->_canvas->clipping_end();
         }
     }
 

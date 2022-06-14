@@ -149,6 +149,13 @@ interface Canvas
     function clipping_roundrectangle($x1, $y1, $w, $h, $tl, $tr, $br, $bl);
 
     /**
+     * Starts a clipping polygon
+     *
+     * @param float[] $points
+     */
+    public function clipping_polygon(array $points): void;
+
+    /**
      * Ends the last clipping shape
      */
     function clipping_end();
