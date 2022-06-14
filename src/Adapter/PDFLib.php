@@ -269,9 +269,6 @@ class PDFLib implements Canvas
         $this->_objs = [];
     }
 
-    /**
-     * @return Dompdf
-     */
     function get_dompdf()
     {
         return $this->_dompdf;
@@ -449,33 +446,21 @@ class PDFLib implements Canvas
         }
     }
 
-    /**
-     * @return float|mixed
-     */
     public function get_width()
     {
         return $this->_width;
     }
 
-    /**
-     * @return float|mixed
-     */
     public function get_height()
     {
         return $this->_height;
     }
 
-    /**
-     * @return int
-     */
     public function get_page_number()
     {
         return $this->_page_number;
     }
 
-    /**
-     * @return int
-     */
     public function get_page_count()
     {
         return $this->_page_count;
@@ -489,9 +474,6 @@ class PDFLib implements Canvas
         $this->_page_number = (int)$num;
     }
 
-    /**
-     * @param int $count
-     */
     public function set_page_count($count)
     {
         $this->_page_count = (int)$count;
@@ -501,11 +483,9 @@ class PDFLib implements Canvas
      * Sets the line style
      *
      * @param float  $width
-     * @param        $cap
+     * @param string $cap
      * @param string $join
      * @param array  $dash
-     *
-     * @return void
      */
     protected function _set_line_style($width, $cap, $join, $dash)
     {
@@ -669,8 +649,8 @@ class PDFLib implements Canvas
     /**
      * Sets the fill opacity
      *
-     * @param $opacity
-     * @param $mode
+     * @param float  $opacity
+     * @param string $mode
      */
     public function _set_fill_opacity($opacity, $mode = "Normal")
     {
@@ -682,8 +662,8 @@ class PDFLib implements Canvas
     /**
      * Sets the stroke opacity
      *
-     * @param $opacity
-     * @param $mode
+     * @param float  $opacity
+     * @param string $mode
      */
     public function _set_stroke_opacity($opacity, $mode = "Normal")
     {
@@ -853,15 +833,6 @@ class PDFLib implements Canvas
         return $this->_height - $y;
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $x2
-     * @param float $y2
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     */
     public function line($x1, $y1, $x2, $y2, $color, $width, $style = null)
     {
         $this->_set_line_style($width, "butt", "", $style);
@@ -877,39 +848,19 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $r1
-     * @param float $r2
-     * @param float $astart
-     * @param float $aend
-     * @param array $color
-     * @param float $width
-     * @param array $style
-     */
-    public function arc($x1, $y1, $r1, $r2, $astart, $aend, $color, $width, $style = [])
+    public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [])
     {
         $this->_set_line_style($width, "butt", "", $style);
         $this->_set_stroke_color($color);
 
-        $y1 = $this->y($y1);
+        $y = $this->y($y);
 
-        $this->_pdf->arc($x1, $y1, $r1, $astart, $aend);
+        $this->_pdf->arc($x, $y, $r1, $astart, $aend);
         $this->_pdf->stroke();
 
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     * @param array $color
-     * @param float $width
-     * @param null  $style
-     */
     public function rectangle($x1, $y1, $w, $h, $color, $width, $style = null)
     {
         $this->_set_stroke_color($color);
@@ -923,13 +874,6 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     * @param array $color
-     */
     public function filled_rectangle($x1, $y1, $w, $h, $color)
     {
         $this->_set_fill_color($color);
@@ -942,12 +886,6 @@ class PDFLib implements Canvas
         $this->_set_fill_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     */
     public function clipping_rectangle($x1, $y1, $w, $h)
     {
         $this->_pdf->save();
@@ -958,16 +896,6 @@ class PDFLib implements Canvas
         $this->_pdf->clip();
     }
 
-    /**
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     * @param float $rTL
-     * @param float $rTR
-     * @param float $rBR
-     * @param float $rBL
-     */
     public function clipping_roundrectangle($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL)
     {
         if ($this->getPDFLibMajorVersion() < 9) {
@@ -1003,17 +931,11 @@ class PDFLib implements Canvas
         $this->_pdf->draw_path($path, $x1, $this->_height-$y1-$h, "clip=true");
     }
 
-    /**
-     *
-     */
     public function clipping_end()
     {
         $this->_pdf->restore();
     }
 
-    /**
-     *
-     */
     public function save()
     {
         $this->_pdf->save();
@@ -1024,11 +946,6 @@ class PDFLib implements Canvas
         $this->_pdf->restore();
     }
 
-    /**
-     * @param $angle
-     * @param $x
-     * @param $y
-     */
     public function rotate($angle, $x, $y)
     {
         $pdf = $this->_pdf;
@@ -1037,12 +954,6 @@ class PDFLib implements Canvas
         $pdf->translate(-$x, -$this->_height + $y);
     }
 
-    /**
-     * @param $angle_x
-     * @param $angle_y
-     * @param $x
-     * @param $y
-     */
     public function skew($angle_x, $angle_y, $x, $y)
     {
         $pdf = $this->_pdf;
@@ -1051,12 +962,6 @@ class PDFLib implements Canvas
         $pdf->translate(-$x, -$this->_height + $y);
     }
 
-    /**
-     * @param $s_x
-     * @param $s_y
-     * @param $x
-     * @param $y
-     */
     public function scale($s_x, $s_y, $x, $y)
     {
         $pdf = $this->_pdf;
@@ -1065,35 +970,16 @@ class PDFLib implements Canvas
         $pdf->translate(-$x, -$this->_height + $y);
     }
 
-    /**
-     * @param $t_x
-     * @param $t_y
-     */
     public function translate($t_x, $t_y)
     {
         $this->_pdf->translate($t_x, -$t_y);
     }
 
-    /**
-     * @param $a
-     * @param $b
-     * @param $c
-     * @param $d
-     * @param $e
-     * @param $f
-     */
     public function transform($a, $b, $c, $d, $e, $f)
     {
         $this->_pdf->concat($a, $b, $c, $d, $e, $f);
     }
 
-    /**
-     * @param array $points
-     * @param array $color
-     * @param null  $width
-     * @param null  $style
-     * @param bool  $fill
-     */
     public function polygon($points, $color, $width = null, $style = null, $fill = false)
     {
         $this->_set_fill_color($color);
@@ -1123,15 +1009,6 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param float $x
-     * @param float $y
-     * @param float $r
-     * @param array $color
-     * @param null  $width
-     * @param null  $style
-     * @param bool  $fill
-     */
     public function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false)
     {
         $this->_set_fill_color($color);
@@ -1155,37 +1032,29 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param string $img_url
-     * @param float  $x
-     * @param float  $y
-     * @param int    $w
-     * @param int    $h
-     * @param string $resolution
-     */
-    public function image($img_url, $x, $y, $w, $h, $resolution = "normal")
+    public function image($img, $x, $y, $w, $h, $resolution = "normal")
     {
         $w = (int)$w;
         $h = (int)$h;
 
-        $img_type = Cache::detect_type($img_url, $this->get_dompdf()->getHttpContext());
+        $img_type = Cache::detect_type($img, $this->get_dompdf()->getHttpContext());
 
-        if (!isset($this->_imgs[$img_url])) {
+        if (!isset($this->_imgs[$img])) {
             if (strtolower($img_type) === "svg") {
                 //FIXME: PDFLib loads SVG but returns error message "Function must not be called in 'page' scope"
-                $image_load_response = $this->_pdf->load_graphics($img_type, $img_url, "");
+                $image_load_response = $this->_pdf->load_graphics($img_type, $img, "");
             } else {
-                $image_load_response = $this->_pdf->load_image($img_type, $img_url, "");
+                $image_load_response = $this->_pdf->load_image($img_type, $img, "");
             }
             if ($image_load_response === 0) {
                 //TODO: should do something with the error message
                 $error = $this->_pdf->get_errmsg();
                 return;
             }
-            $this->_imgs[$img_url] = $image_load_response;
+            $this->_imgs[$img] = $image_load_response;
         }
 
-        $img = $this->_imgs[$img_url];
+        $img = $this->_imgs[$img];
 
         $y = $this->y($y) - $h;
         if (strtolower($img_type) === "svg") {
@@ -1195,17 +1064,6 @@ class PDFLib implements Canvas
         }
     }
 
-    /**
-     * @param float  $x
-     * @param float  $y
-     * @param string $text
-     * @param string $font
-     * @param float  $size
-     * @param array  $color
-     * @param int    $word_spacing
-     * @param int    $char_spacing
-     * @param int    $angle
-     */
     public function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_spacing = 0, $char_spacing = 0, $angle = 0)
     {
         $fh = $this->_load_font($font);
@@ -1224,9 +1082,6 @@ class PDFLib implements Canvas
         $this->_set_fill_opacity($this->_current_opacity, "Normal");
     }
 
-    /**
-     * @param string $code
-     */
     public function javascript($code)
     {
         if (strlen($this->_dompdf->getOptions()->getPdflibLicense()) > 0) {
@@ -1234,25 +1089,11 @@ class PDFLib implements Canvas
         }
     }
 
-    /**
-     * Add a named destination (similar to <a name="foo">...</a> in html)
-     *
-     * @param string $anchorname The name of the named destination
-     */
     public function add_named_dest($anchorname)
     {
         $this->_pdf->add_nameddest($anchorname, "");
     }
 
-    /**
-     * Add a link to the pdf
-     *
-     * @param string $url    The url to link to
-     * @param float  $x      The x position of the link
-     * @param float  $y      The y position of the link
-     * @param float  $width  The width of the link
-     * @param float  $height The height of the link
-     */
     public function add_link($url, $x, $y, $width, $height)
     {
         $y = $this->y($y) - $height;
@@ -1394,10 +1235,6 @@ class PDFLib implements Canvas
     }
 
     /**
-     * Streams the PDF to the client.
-     *
-     * @param string $filename The filename to present to the client.
-     * @param array  $options  Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      * @throws Exception
      */
     public function stream($filename = "document.pdf", $options = [])
@@ -1469,12 +1306,6 @@ class PDFLib implements Canvas
         flush();
     }
 
-    /**
-     * Returns the PDF as a string.
-     *
-     * @param array $options Associative array: 'compress' => 1 or 0 (default 1).
-     * @return string
-     */
     public function output($options = [])
     {
         if (!isset($options["compress"])) {

@@ -45,7 +45,7 @@ interface Canvas
     function get_page_number();
 
     /**
-     * Returns the total number of pages
+     * Returns the total number of pages in the document
      *
      * @return int
      */
@@ -79,8 +79,8 @@ interface Canvas
      * Draws a rectangle at x1,y1 with width w and height h
      *
      * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
+     * See {@link Cpdf::setLineStyle()} for a description of the format of the
+     * $style parameter (aka dash).
      *
      * @param float $x1
      * @param float $y1
@@ -126,8 +126,6 @@ interface Canvas
      * @param float $tr
      * @param float $br
      * @param float $bl
-     *
-     * @return
      */
     function clipping_roundrectangle($x1, $y1, $w, $h, $tl, $tr, $br, $bl);
 
@@ -209,8 +207,8 @@ interface Canvas
      *
      * @param float $angle_x
      * @param float $angle_y
-     * @param float $x Origin abscissa
-     * @param float $y Origin ordinate
+     * @param float $x       Origin abscissa
+     * @param float $y       Origin ordinate
      */
     function skew($angle_x, $angle_y, $x, $y);
 
@@ -235,13 +233,12 @@ interface Canvas
     /**
      * Transform
      *
-     * @param $a
-     * @param $b
-     * @param $c
-     * @param $d
-     * @param $e
-     * @param $f
-     * @return
+     * @param float $a
+     * @param float $b
+     * @param float $c
+     * @param float $d
+     * @param float $e
+     * @param float $f
      */
     function transform($a, $b, $c, $d, $e, $f);
 
@@ -260,14 +257,14 @@ interface Canvas
      * </code>
      *
      * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
+     * See {@link Cpdf::setLineStyle()} for a description of the format of the
+     * $style parameter (aka dash).
      *
      * @param array $points
      * @param array $color
      * @param float $width
      * @param array $style
-     * @param bool $fill Fills the polygon if true
+     * @param bool  $fill   Fills the polygon if true
      */
     function polygon($points, $color, $width = null, $style = null, $fill = false);
 
@@ -275,8 +272,8 @@ interface Canvas
      * Draws a circle at $x,$y with radius $r
      *
      * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the $style
-     * parameter (aka dash)
+     * See {@link Cpdf::setLineStyle()} for a description of the format of the
+     * $style parameter (aka dash).
      *
      * @param float $x
      * @param float $y
@@ -284,7 +281,7 @@ interface Canvas
      * @param array $color
      * @param float $width
      * @param array $style
-     * @param bool $fill Fills the circle if true
+     * @param bool  $fill  Fills the circle if true
      */
     function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false);
 
@@ -294,26 +291,29 @@ interface Canvas
      * The image is placed at the specified x and y coordinates with the
      * given width and height.
      *
-     * @param string $img_url the path to the image
-     * @param float $x x position
-     * @param float $y y position
-     * @param int $w width (in pixels)
-     * @param int $h height (in pixels)
+     * @param string $img        the path to the image
+     * @param float  $x          x position
+     * @param float  $y          y position
+     * @param float  $w          width
+     * @param float  $h          height
      * @param string $resolution The resolution of the image
      */
-    function image($img_url, $x, $y, $w, $h, $resolution = "normal");
+    function image($img, $x, $y, $w, $h, $resolution = "normal");
 
     /**
-     * Add an arc to the PDF
-     * See {@link Style::munge_color()} for the format of the color array.
+     * Draws an arc
      *
-     * @param float $x X coordinate of the arc
-     * @param float $y Y coordinate of the arc
-     * @param float $r1 Radius 1
-     * @param float $r2 Radius 2
+     * See {@link Style::munge_color()} for the format of the color array.
+     * See {@link Cpdf::setLineStyle()} for a description of the format of the
+     * $style parameter (aka dash).
+     *
+     * @param float $x      X coordinate of the arc
+     * @param float $y      Y coordinate of the arc
+     * @param float $r1     Radius 1
+     * @param float $r2     Radius 2
      * @param float $astart Start angle in degrees
-     * @param float $aend End angle in degrees
-     * @param array $color Color
+     * @param float $aend   End angle in degrees
+     * @param array $color  Color
      * @param float $width
      * @param array $style
      */
@@ -321,17 +321,18 @@ interface Canvas
 
     /**
      * Writes text at the specified x and y coordinates
+     *
      * See {@link Style::munge_color()} for the format of the color array.
      *
-     * @param float $x
-     * @param float $y
-     * @param string $text the text to write
-     * @param string $font the font file to use
-     * @param float $size the font size, in points
-     * @param array $color
-     * @param float $word_space word spacing adjustment
-     * @param float $char_space char spacing adjustment
-     * @param float $angle angle
+     * @param float  $x
+     * @param float  $y
+     * @param string $text        the text to write
+     * @param string $font        the font file to use
+     * @param float  $size        the font size, in points
+     * @param array  $color
+     * @param float  $word_space  word spacing adjustment
+     * @param float  $char_space  char spacing adjustment
+     * @param float  $angle       angle to write the text at, measured CW starting from the x-axis
      */
     function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0);
 
@@ -345,11 +346,11 @@ interface Canvas
     /**
      * Add a link to the pdf
      *
-     * @param string $url The url to link to
-     * @param float $x The x position of the link
-     * @param float $y The y position of the link
-     * @param float $width The width of the link
-     * @param float $height The height of the link
+     * @param string $url    The url to link to
+     * @param float  $x      The x position of the link
+     * @param float  $y      The y position of the link
+     * @param float  $width  The width of the link
+     * @param float  $height The height of the link
      */
     function add_link($url, $x, $y, $width, $height);
 
@@ -439,17 +440,13 @@ interface Canvas
      * 'FitBH' top
      * 'FitBV' left
      * @param array $options
-     *
-     * @return void
      */
     function set_default_view($view, $options = []);
 
     /**
-     * @param string $script
-     *
-     * @return void
+     * @param string $code
      */
-    function javascript($script);
+    function javascript($code);
 
     /**
      * Starts a new page
@@ -459,10 +456,10 @@ interface Canvas
     function new_page();
 
     /**
-     * Streams the PDF directly to the browser.
+     * Streams the PDF to the client.
      *
-     * @param string $filename The filename to present to the browser.
-     * @param array $options Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
+     * @param string $filename The filename to present to the client.
+     * @param array  $options  Associative array: 'compress' => 1 or 0 (default 1); 'Attachment' => 1 or 0 (default 1).
      */
     function stream($filename, $options = []);
 
@@ -470,6 +467,7 @@ interface Canvas
      * Returns the PDF as a string.
      *
      * @param array $options Associative array: 'compress' => 1 or 0 (default 1).
+     *
      * @return string
      */
     function output($options = []);
