@@ -917,19 +917,27 @@ class PDFLib implements Canvas
         // line: left edge, bottom end
         $path = $this->_pdf->add_path_point($path, 0, 0 + $rBL, "line", "");
         // curve: bottom-left corner
-        $path = $this->_pdf->add_path_point($path, 0 + $rBL, 0, "elliptical", "radius=$rBL clockwise=false");
+        if ($rBL > 0) {
+            $path = $this->_pdf->add_path_point($path, 0 + $rBL, 0, "elliptical", "radius=$rBL clockwise=false");
+        }
         // line: bottom edge, left end
         $path = $this->_pdf->add_path_point($path, 0 - $rBR + $w, 0, "line", "");
         // curve: bottom-right corner
-        $path = $this->_pdf->add_path_point($path, 0 + $w, 0 + $rBR, "elliptical", "radius=$rBR clockwise=false");
+        if ($rBR > 0) {
+            $path = $this->_pdf->add_path_point($path, 0 + $w, 0 + $rBR, "elliptical", "radius=$rBR clockwise=false");
+        }
         // line: right edge, top end
         $path = $this->_pdf->add_path_point($path, 0 + $w, 0 - $rTR + $h, "line", "");
         // curve: top-right corner
-        $path = $this->_pdf->add_path_point($path, 0 - $rTR + $w, 0 +$h, "elliptical", "radius=$rTR clockwise=false");
+        if ($rTR > 0) {
+            $path = $this->_pdf->add_path_point($path, 0 - $rTR + $w, 0 + $h, "elliptical", "radius=$rTR clockwise=false");
+        }
         // line: top edge, left end
         $path = $this->_pdf->add_path_point($path, 0 + $rTL, 0 + $h, "line", "");
         // curve: top-left corner
-        $path = $this->_pdf->add_path_point($path, 0, 0 - $rTL + $h, "elliptical", "radius=$rTL clockwise=false");
+        if ($rTL > 0) {
+            $path = $this->_pdf->add_path_point($path, 0, 0 - $rTL + $h, "elliptical", "radius=$rTL clockwise=false");
+        }
         $this->_pdf->draw_path($path, $x1, $this->_height-$y1-$h, "clip=true");
     }
 
