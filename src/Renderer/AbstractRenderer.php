@@ -66,19 +66,25 @@ abstract class AbstractRenderer
     protected function _render_background(Frame $frame, array $border_box): void
     {
         $style = $frame->get_style();
+        $color = $style->background_color;
+        $image = $style->background_image;
         [$x, $y, $w, $h] = $border_box;
+
+        if ($color === "transparent" && $image === "none") {
+            return;
+        }
 
         if ($style->has_border_radius()) {
             [$tl, $tr, $br, $bl] = $style->resolve_border_radius($border_box);
             $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
         }
 
-        if (($bg = $style->background_color) !== "transparent") {
-            $this->_canvas->filled_rectangle($x, $y, $w, $h, $bg);
+        if ($color !== "transparent") {
+            $this->_canvas->filled_rectangle($x, $y, $w, $h, $color);
         }
 
-        if (($url = $style->background_image) && $url !== "none") {
-            $this->_background_image($url, $x, $y, $w, $h, $style);
+        if ($image !== "none") {
+            $this->_background_image($image, $x, $y, $w, $h, $style);
         }
 
         if ($style->has_border_radius()) {
