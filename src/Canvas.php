@@ -63,53 +63,56 @@ interface Canvas
      *
      * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
-     * $style parameter (aka dash).
+     * $style and $cap parameters (aka dash and cap).
      *
-     * @param float $x1
-     * @param float $y1
-     * @param float $x2
-     * @param float $y2
-     * @param array $color
-     * @param float $width
-     * @param array $style
+     * @param float  $x1
+     * @param float  $y1
+     * @param float  $x2
+     * @param float  $y2
+     * @param array  $color
+     * @param float  $width
+     * @param array  $style
+     * @param string $cap   `butt`, `round`, or `square`.
      */
-    function line($x1, $y1, $x2, $y2, $color, $width, $style = []);
+    function line($x1, $y1, $x2, $y2, $color, $width, $style = [], $cap = "butt");
 
     /**
      * Draws an arc
      *
      * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
-     * $style parameter (aka dash).
+     * $style and $cap parameters (aka dash and cap).
      *
-     * @param float $x      X coordinate of the arc
-     * @param float $y      Y coordinate of the arc
-     * @param float $r1     Radius 1
-     * @param float $r2     Radius 2
-     * @param float $astart Start angle in degrees
-     * @param float $aend   End angle in degrees
-     * @param array $color  Color
-     * @param float $width
-     * @param array $style
+     * @param float  $x      X coordinate of the arc
+     * @param float  $y      Y coordinate of the arc
+     * @param float  $r1     Radius 1
+     * @param float  $r2     Radius 2
+     * @param float  $astart Start angle in degrees
+     * @param float  $aend   End angle in degrees
+     * @param array  $color  Color
+     * @param float  $width
+     * @param array  $style
+     * @param string $cap   `butt`, `round`, or `square`.
      */
-    function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = []);
+    function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [], $cap = "butt");
 
     /**
      * Draws a rectangle at x1,y1 with width w and height h
      *
      * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
-     * $style parameter (aka dash).
+     * $style and $cap parameters (aka dash and cap).
      *
-     * @param float $x1
-     * @param float $y1
-     * @param float $w
-     * @param float $h
-     * @param array $color
-     * @param float $width
-     * @param array $style
+     * @param float  $x1
+     * @param float  $y1
+     * @param float  $w
+     * @param float  $h
+     * @param array  $color
+     * @param float  $width
+     * @param array  $style
+     * @param string $cap   `butt`, `round`, or `square`.
      */
-    function rectangle($x1, $y1, $w, $h, $color, $width, $style = []);
+    function rectangle($x1, $y1, $w, $h, $color, $width, $style = [], $cap = "butt");
 
     /**
      * Draws a filled rectangle at x1,y1 with width w and height h

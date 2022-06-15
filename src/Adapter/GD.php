@@ -343,8 +343,32 @@ class GD implements Canvas
         return $gdStyle;
     }
 
-    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [])
+    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [], $cap = "butt")
     {
+        // Account for the fact that round and square caps are expected to
+        // extend outwards
+        if ($cap === "round" || $cap === "square") {
+            // Shift line by half width
+            $w = $width / 2;
+            $a = $x2 - $x1;
+            $b = $y2 - $y1;
+            $c = sqrt($a ** 2 + $b ** 2);
+            $dx = $a * $w / $c;
+            $dy = $b * $w / $c;
+
+            $x1 -= $dx;
+            $x2 -= $dx;
+            $y1 -= $dy;
+            $y2 -= $dy;
+
+            // Adapt dash pattern
+            if (is_array($style)) {
+                foreach ($style as $index => &$s) {
+                    $s = $index % 2 === 0 ? $s + $width : $s - $width;
+                }
+            }
+        }
+
         // Scale by the AA factor and DPI
         $x1 = $this->_upscale($x1);
         $y1 = $this->_upscale($y1);
@@ -369,8 +393,19 @@ class GD implements Canvas
         imageline($this->get_image(), $x1, $y1, $x2, $y2, $c);
     }
 
-    public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [])
+    public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [], $cap = "butt")
     {
+        // Account for the fact that round and square caps are expected to
+        // extend outwards
+        if ($cap === "round" || $cap === "square") {
+            // Adapt dash pattern
+            if (is_array($style)) {
+                foreach ($style as $index => &$s) {
+                    $s = $index % 2 === 0 ? $s + $width : $s - $width;
+                }
+            }
+        }
+
         // Scale by the AA factor and DPI
         $x = $this->_upscale($x);
         $y = $this->_upscale($y);
@@ -399,8 +434,19 @@ class GD implements Canvas
         imagearc($this->get_image(), $x, $y, $w, $h, $start, $end, $c);
     }
 
-    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [])
+    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [], $cap = "butt")
     {
+        // Account for the fact that round and square caps are expected to
+        // extend outwards
+        if ($cap === "round" || $cap === "square") {
+            // Adapt dash pattern
+            if (is_array($style)) {
+                foreach ($style as $index => &$s) {
+                    $s = $index % 2 === 0 ? $s + $width : $s - $width;
+                }
+            }
+        }
+
         // Scale by the AA factor and DPI
         $x1 = $this->_upscale($x1);
         $y1 = $this->_upscale($y1);
