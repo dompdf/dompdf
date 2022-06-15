@@ -320,6 +320,29 @@ class GD implements Canvas
         return round(($length / $this->dpi * 72) / $this->_aa_factor);
     }
 
+    protected function convertStyle(array $style, int $color, int $width): array
+    {
+        $gdStyle = [];
+
+        if (count($style) === 1) {
+            $style[] = $style[0];
+        }
+
+        foreach ($style as $index => $s) {
+            $d = $this->_upscale($s);
+
+            for ($i = 0; $i < $d; $i++) {
+                for ($j = 0; $j < $width; $j++) {
+                    $gdStyle[] = $index % 2 === 0
+                        ? $color
+                        : IMG_COLOR_TRANSPARENT;
+                }
+            }
+        }
+
+        return $gdStyle;
+    }
+
     public function line($x1, $y1, $x2, $y2, $color, $width, $style = [])
     {
         // Scale by the AA factor and DPI
@@ -333,34 +356,7 @@ class GD implements Canvas
 
         // Convert the style array if required
         if (is_array($style) && count($style) > 0) {
-            $gd_style = [];
-
-            if (count($style) == 1) {
-                for ($i = 0; $i < $style[0] * $this->_aa_factor; $i++) {
-                    $gd_style[] = $c;
-                }
-
-                for ($i = 0; $i < $style[0] * $this->_aa_factor; $i++) {
-                    $gd_style[] = $this->_bg_color;
-                }
-            } else {
-                $i = 0;
-                foreach ($style as $length) {
-                    if ($i % 2 == 0) {
-                        // 'On' pattern
-                        for ($i = 0; $i < $style[0] * $this->_aa_factor; $i++) {
-                            $gd_style[] = $c;
-                        }
-
-                    } else {
-                        // Off pattern
-                        for ($i = 0; $i < $style[0] * $this->_aa_factor; $i++) {
-                            $gd_style[] = $this->_bg_color;
-                        }
-                    }
-                    $i++;
-                }
-            }
+            $gd_style = $this->convertStyle($style, $c, $width);
 
             if (!empty($gd_style)) {
                 imagesetstyle($this->get_image(), $gd_style);
@@ -375,7 +371,32 @@ class GD implements Canvas
 
     public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [])
     {
-        // @todo
+        // Scale by the AA factor and DPI
+        $x = $this->_upscale($x);
+        $y = $this->_upscale($y);
+        $w = $this->_upscale($r1 * 2);
+        $h = $this->_upscale($r2 * 2);
+        $width = $this->_upscale($width);
+
+        // Adapt angles as imagearc counts clockwise
+        $start = 360 - $aend;
+        $end = 360 - $astart;
+
+        $c = $this->_allocate_color($color);
+
+        // Convert the style array if required
+        if (is_array($style) && count($style) > 0) {
+            $gd_style = $this->convertStyle($style, $c, $width);
+
+            if (!empty($gd_style)) {
+                imagesetstyle($this->get_image(), $gd_style);
+                $c = IMG_COLOR_STYLED;
+            }
+        }
+
+        imagesetthickness($this->get_image(), $width);
+
+        imagearc($this->get_image(), $x, $y, $w, $h, $start, $end, $c);
     }
 
     public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [])
@@ -391,13 +412,7 @@ class GD implements Canvas
 
         // Convert the style array if required
         if (is_array($style) && count($style) > 0) {
-            $gd_style = [];
-
-            foreach ($style as $length) {
-                for ($i = 0; $i < $length; $i++) {
-                    $gd_style[] = $c;
-                }
-            }
+            $gd_style = $this->convertStyle($style, $c, $width);
 
             if (!empty($gd_style)) {
                 imagesetstyle($this->get_image(), $gd_style);
@@ -407,7 +422,16 @@ class GD implements Canvas
 
         imagesetthickness($this->get_image(), $width);
 
-        imagerectangle($this->get_image(), $x1, $y1, $x1 + $w, $y1 + $h, $c);
+        if ($c === IMG_COLOR_STYLED) {
+            imagepolygon($this->get_image(), [
+                $x1, $y1,
+                $x1 + $w, $y1,
+                $x1 + $w, $y1 + $h,
+                $x1, $y1 + $h
+            ], $c);
+        } else {
+            imagerectangle($this->get_image(), $x1, $y1, $x1 + $w, $y1 + $h, $c);
+        }
     }
 
     public function filled_rectangle($x1, $y1, $w, $h, $color)
@@ -480,23 +504,18 @@ class GD implements Canvas
 
     public function polygon($points, $color, $width = null, $style = [], $fill = false)
     {
-
         // Scale each point by the AA factor and DPI
         foreach (array_keys($points) as $i) {
             $points[$i] = $this->_upscale($points[$i]);
         }
 
+        $width = isset($width) ? $this->_upscale($width) : null;
+
         $c = $this->_allocate_color($color);
 
         // Convert the style array if required
-        if (is_array($style) && count($style) > 0 && !$fill) {
-            $gd_style = [];
-
-            foreach ($style as $length) {
-                for ($i = 0; $i < $length; $i++) {
-                    $gd_style[] = $c;
-                }
-            }
+        if (is_array($style) && count($style) > 0 && isset($width) && !$fill) {
+            $gd_style = $this->convertStyle($style, $c, $width);
 
             if (!empty($gd_style)) {
                 imagesetstyle($this->get_image(), $gd_style);
@@ -504,7 +523,7 @@ class GD implements Canvas
             }
         }
 
-        imagesetthickness($this->get_image(), isset($width) ? round($width) : 0);
+        imagesetthickness($this->get_image(), isset($width) ? $width : 0);
 
         if ($fill) {
             imagefilledpolygon($this->get_image(), $points, $c);
@@ -519,18 +538,13 @@ class GD implements Canvas
         $x = $this->_upscale($x);
         $y = $this->_upscale($y);
         $d = $this->_upscale(2 * $r);
+        $width = isset($width) ? $this->_upscale($width) : null;
 
         $c = $this->_allocate_color($color);
 
         // Convert the style array if required
-        if (is_array($style) && count($style) > 0 && !$fill) {
-            $gd_style = [];
-
-            foreach ($style as $length) {
-                for ($i = 0; $i < $length; $i++) {
-                    $gd_style[] = $c;
-                }
-            }
+        if (is_array($style) && count($style) > 0 && isset($width) && !$fill) {
+            $gd_style = $this->convertStyle($style, $c, $width);
 
             if (!empty($gd_style)) {
                 imagesetstyle($this->get_image(), $gd_style);
@@ -538,7 +552,7 @@ class GD implements Canvas
             }
         }
 
-        imagesetthickness($this->get_image(), isset($width) ? round($width) : 0);
+        imagesetthickness($this->get_image(), isset($width) ? $width : 0);
 
         if ($fill) {
             imagefilledellipse($this->get_image(), $x, $y, $d, $d, $c);
