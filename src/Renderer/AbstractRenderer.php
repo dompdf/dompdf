@@ -931,7 +931,8 @@ abstract class AbstractRenderer
     }
 
     /**
-     * Get the dash pattern for the given border style, width, and line length.
+     * Get the dash pattern and cap style for the given border style, width, and
+     * line length.
      *
      * The base pattern is adjusted so that it fits the given line length
      * symmetrically.
@@ -956,27 +957,29 @@ abstract class AbstractRenderer
                 $s = $length / $r;
             }
 
-            return [$s];
+            return [[$s], "butt"];
         }
 
         if ($style === "dotted") {
+            // Draw circles along the line
+            // Round caps extend outwards by half line width, so a zero dash
+            // width results in a circle
             $gap = $width <= 1 ? 2 : 1;
-            $w = $width;
+            $w = ($gap + 1) * $width;
 
-            if ($length < 2 * $w) {
+            if ($length < $w) {
                 $s = $w;
             } else {
                 // Only scale gaps
-                // Fit $r + 1 squares plus $r scaled gaps into $length
-                $rw = round($length / $w);
-                $r = max(floor(($rw - 1) / 2), 1);
-                $s = ($length - ($r + 1) * $w) / ($r * $gap);
+                $l = $length - $width;
+                $r = max(round($l / $w), 1);
+                $s = $l / $r;
             }
 
-            return [$w, $gap * $s];
+            return [[0, $s], "round"];
         }
 
-        return [];
+        return [[], "butt"];
     }
 
     /**
@@ -1002,7 +1005,7 @@ abstract class AbstractRenderer
         // No need to clip corners if border radius is large enough
         $cornerClip = $corner_style === "bevel" && ($r1 < $width || $r2 < $width);
         $lineLength = $length - $r1 - $r2;
-        $pattern = $this->dashPattern($pattern_name, $width, $lineLength);
+        [$pattern, $cap] = $this->dashPattern($pattern_name, $width, $lineLength);
 
         // Determine arc border radius for corner arcs
         $halfWidth = $width / 2;
@@ -1012,6 +1015,19 @@ abstract class AbstractRenderer
         // Small angle adjustments to prevent the background from shining through
         $adj1 = $ar1 / 80;
         $adj2 = $ar2 / 80;
+
+        // Adjust line width and corner angles to account for the fact that
+        // round caps extend outwards. The line is actually only shifted below,
+        // not shortened, as otherwise the end dash (circle) will vanish
+        // occasionally
+        $dl = $cap === "round" ? $halfWidth : 0;
+
+        if ($cap === "round" && $ar1 > 0) {
+            $adj1 -= rad2deg(asin($halfWidth / $ar1));
+        }
+        if ($cap === "round" && $ar2 > 0) {
+            $adj2 -= rad2deg(asin($halfWidth / $ar2));
+        }
 
         switch ($side) {
             case "top":
@@ -1029,16 +1045,16 @@ abstract class AbstractRenderer
 
                 $y += $halfWidth;
 
-                if ($ar1 > 0) {
-                    $this->_canvas->arc($x + $r1, $y + $ar1, $ar1, $ar1, 90 - $adj1, 135 + $adj1, $color, $width, $pattern);
+                if ($ar1 > 0 && $adj1 > -22.5) {
+                    $this->_canvas->arc($x + $r1, $y + $ar1, $ar1, $ar1, 90 - $adj1, 135 + $adj1, $color, $width, $pattern, $cap);
                 }
 
                 if ($lineLength > 0) {
-                    $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                    $this->_canvas->line($x + $dl + $r1, $y, $x + $dl + $length - $r2, $y, $color, $width, $pattern, $cap);
                 }
 
-                if ($ar2 > 0) {
-                    $this->_canvas->arc($x + $length - $r2, $y + $ar2, $ar2, $ar2, 45 - $adj2, 90 + $adj2, $color, $width, $pattern);
+                if ($ar2 > 0 && $adj2 > -22.5) {
+                    $this->_canvas->arc($x + $length - $r2, $y + $ar2, $ar2, $ar2, 45 - $adj2, 90 + $adj2, $color, $width, $pattern, $cap);
                 }
                 break;
 
@@ -1057,16 +1073,16 @@ abstract class AbstractRenderer
 
                 $y -= $halfWidth;
 
-                if ($ar1 > 0) {
-                    $this->_canvas->arc($x + $r1, $y - $ar1, $ar1, $ar1, 225 - $adj1, 270 + $adj1, $color, $width, $pattern);
+                if ($ar1 > 0 && $adj1 > -22.5) {
+                    $this->_canvas->arc($x + $r1, $y - $ar1, $ar1, $ar1, 225 - $adj1, 270 + $adj1, $color, $width, $pattern, $cap);
                 }
 
                 if ($lineLength > 0) {
-                    $this->_canvas->line($x + $r1, $y, $x + $length - $r2, $y, $color, $width, $pattern);
+                    $this->_canvas->line($x + $dl + $r1, $y, $x + $dl + $length - $r2, $y, $color, $width, $pattern, $cap);
                 }
 
-                if ($ar2 > 0) {
-                    $this->_canvas->arc($x + $length - $r2, $y - $ar2, $ar2, $ar2, 270 - $adj2, 315 + $adj2, $color, $width, $pattern);
+                if ($ar2 > 0 && $adj2 > -22.5) {
+                    $this->_canvas->arc($x + $length - $r2, $y - $ar2, $ar2, $ar2, 270 - $adj2, 315 + $adj2, $color, $width, $pattern, $cap);
                 }
                 break;
 
@@ -1085,16 +1101,16 @@ abstract class AbstractRenderer
 
                 $x += $halfWidth;
 
-                if ($ar1 > 0) {
-                    $this->_canvas->arc($x + $ar1, $y + $r1, $ar1, $ar1, 135 - $adj1, 180 + $adj1, $color, $width, $pattern);
+                if ($ar1 > 0 && $adj1 > -22.5) {
+                    $this->_canvas->arc($x + $ar1, $y + $r1, $ar1, $ar1, 135 - $adj1, 180 + $adj1, $color, $width, $pattern, $cap);
                 }
 
                 if ($lineLength > 0) {
-                    $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                    $this->_canvas->line($x, $y + $dl + $r1, $x, $y + $dl + $length - $r2, $color, $width, $pattern, $cap);
                 }
 
-                if ($ar2 > 0) {
-                    $this->_canvas->arc($x + $ar2, $y + $length - $r2, $ar2, $ar2, 180 - $adj2, 225 + $adj2, $color, $width, $pattern);
+                if ($ar2 > 0 && $adj2 > -22.5) {
+                    $this->_canvas->arc($x + $ar2, $y + $length - $r2, $ar2, $ar2, 180 - $adj2, 225 + $adj2, $color, $width, $pattern, $cap);
                 }
                 break;
 
@@ -1113,16 +1129,16 @@ abstract class AbstractRenderer
 
                 $x -= $halfWidth;
 
-                if ($ar1 > 0) {
-                    $this->_canvas->arc($x - $ar1, $y + $r1, $ar1, $ar1, 0 - $adj1, 45 + $adj1, $color, $width, $pattern);
+                if ($ar1 > 0 && $adj1 > -22.5) {
+                    $this->_canvas->arc($x - $ar1, $y + $r1, $ar1, $ar1, 0 - $adj1, 45 + $adj1, $color, $width, $pattern, $cap);
                 }
 
                 if ($lineLength > 0) {
-                    $this->_canvas->line($x, $y + $r1, $x, $y + $length - $r2, $color, $width, $pattern);
+                    $this->_canvas->line($x, $y + $dl + $r1, $x, $y + $dl + $length - $r2, $color, $width, $pattern, $cap);
                 }
 
-                if ($ar2 > 0) {
-                    $this->_canvas->arc($x - $ar2, $y + $length - $r2, $ar2, $ar2, 315 - $adj2, 360 + $adj2, $color, $width, $pattern);
+                if ($ar2 > 0 && $adj2 > -22.5) {
+                    $this->_canvas->arc($x - $ar2, $y + $length - $r2, $ar2, $ar2, 315 - $adj2, 360 + $adj2, $color, $width, $pattern, $cap);
                 }
                 break;
         }

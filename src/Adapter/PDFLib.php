@@ -495,6 +495,14 @@ class PDFLib implements Canvas
             $dash = [];
         }
 
+        // Work around PDFLib limitation with 0 dash length:
+        // Value 0 for option 'dasharray' is too small (minimum 1.5e-05)
+        foreach ($dash as &$d) {
+            if ($d == 0) {
+                $d = 1.5e-5;
+            }
+        }
+
         if (count($dash) === 1) {
             $dash[] = $dash[0];
         }
@@ -835,9 +843,9 @@ class PDFLib implements Canvas
         return $this->_height - $y;
     }
 
-    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [])
+    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [], $cap = "butt")
     {
-        $this->_set_line_style($width, "butt", "", $style);
+        $this->_set_line_style($width, $cap, "", $style);
         $this->_set_stroke_color($color);
 
         $y1 = $this->y($y1);
@@ -850,9 +858,9 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [])
+    public function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [], $cap = "butt")
     {
-        $this->_set_line_style($width, "butt", "", $style);
+        $this->_set_line_style($width, $cap, "", $style);
         $this->_set_stroke_color($color);
 
         $y = $this->y($y);
@@ -863,10 +871,10 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [])
+    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [], $cap = "butt")
     {
         $this->_set_stroke_color($color);
-        $this->_set_line_style($width, "butt", "", $style);
+        $this->_set_line_style($width, $cap, "", $style);
 
         $y1 = $this->y($y1) - $h;
 
