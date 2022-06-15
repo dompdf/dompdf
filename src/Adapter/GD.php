@@ -320,7 +320,7 @@ class GD implements Canvas
         return round(($length / $this->dpi * 72) / $this->_aa_factor);
     }
 
-    public function line($x1, $y1, $x2, $y2, $color, $width, $style = null)
+    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [])
     {
         // Scale by the AA factor and DPI
         $x1 = $this->_upscale($x1);
@@ -378,7 +378,7 @@ class GD implements Canvas
         // @todo
     }
 
-    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = null)
+    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [])
     {
         // Scale by the AA factor and DPI
         $x1 = $this->_upscale($x1);
@@ -473,7 +473,7 @@ class GD implements Canvas
         // @todo
     }
 
-    public function polygon($points, $color, $width = null, $style = null, $fill = false)
+    public function polygon($points, $color, $width = null, $style = [], $fill = false)
     {
 
         // Scale each point by the AA factor and DPI
@@ -508,7 +508,7 @@ class GD implements Canvas
         }
     }
 
-    public function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false)
+    public function circle($x, $y, $r, $color, $width = null, $style = [], $fill = false)
     {
         // Scale by the AA factor and DPI
         $x = $this->_upscale($x);

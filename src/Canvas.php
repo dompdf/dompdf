@@ -73,7 +73,26 @@ interface Canvas
      * @param float $width
      * @param array $style
      */
-    function line($x1, $y1, $x2, $y2, $color, $width, $style = null);
+    function line($x1, $y1, $x2, $y2, $color, $width, $style = []);
+
+    /**
+     * Draws an arc
+     *
+     * See {@link Style::munge_color()} for the format of the color array.
+     * See {@link Cpdf::setLineStyle()} for a description of the format of the
+     * $style parameter (aka dash).
+     *
+     * @param float $x      X coordinate of the arc
+     * @param float $y      Y coordinate of the arc
+     * @param float $r1     Radius 1
+     * @param float $r2     Radius 2
+     * @param float $astart Start angle in degrees
+     * @param float $aend   End angle in degrees
+     * @param array $color  Color
+     * @param float $width
+     * @param array $style
+     */
+    function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = []);
 
     /**
      * Draws a rectangle at x1,y1 with width w and height h
@@ -90,7 +109,7 @@ interface Canvas
      * @param float $width
      * @param array $style
      */
-    function rectangle($x1, $y1, $w, $h, $color, $width, $style = null);
+    function rectangle($x1, $y1, $w, $h, $color, $width, $style = []);
 
     /**
      * Draws a filled rectangle at x1,y1 with width w and height h
@@ -266,7 +285,7 @@ interface Canvas
      * @param array $style
      * @param bool  $fill   Fills the polygon if true
      */
-    function polygon($points, $color, $width = null, $style = null, $fill = false);
+    function polygon($points, $color, $width = null, $style = [], $fill = false);
 
     /**
      * Draws a circle at $x,$y with radius $r
@@ -283,7 +302,7 @@ interface Canvas
      * @param array $style
      * @param bool  $fill  Fills the circle if true
      */
-    function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false);
+    function circle($x, $y, $r, $color, $width = null, $style = [], $fill = false);
 
     /**
      * Add an image to the pdf.
@@ -299,25 +318,6 @@ interface Canvas
      * @param string $resolution The resolution of the image
      */
     function image($img, $x, $y, $w, $h, $resolution = "normal");
-
-    /**
-     * Draws an arc
-     *
-     * See {@link Style::munge_color()} for the format of the color array.
-     * See {@link Cpdf::setLineStyle()} for a description of the format of the
-     * $style parameter (aka dash).
-     *
-     * @param float $x      X coordinate of the arc
-     * @param float $y      Y coordinate of the arc
-     * @param float $r1     Radius 1
-     * @param float $r2     Radius 2
-     * @param float $astart Start angle in degrees
-     * @param float $aend   End angle in degrees
-     * @param array $color  Color
-     * @param float $width
-     * @param array $style
-     */
-    function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = []);
 
     /**
      * Writes text at the specified x and y coordinates
