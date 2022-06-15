@@ -1049,6 +1049,11 @@ class PDFLib implements Canvas
 
         $img_type = Cache::detect_type($img, $this->get_dompdf()->getHttpContext());
 
+        // Strip file:// prefix
+        if (substr($img, 0, 7) === "file://") {
+            $img = substr($img, 7);
+        }
+
         if (!isset($this->_imgs[$img])) {
             if (strtolower($img_type) === "svg") {
                 //FIXME: PDFLib loads SVG but returns error message "Function must not be called in 'page' scope"
