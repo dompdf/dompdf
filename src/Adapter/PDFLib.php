@@ -492,10 +492,10 @@ class PDFLib implements Canvas
     protected function _set_line_style($width, $cap, $join, $dash)
     {
         if (!is_array($dash)) {
-            $dash = array();
+            $dash = [];
         }
 
-        if (count($dash) == 1) {
+        if (count($dash) === 1) {
             $dash[] = $dash[0];
         }
 
@@ -835,7 +835,7 @@ class PDFLib implements Canvas
         return $this->_height - $y;
     }
 
-    public function line($x1, $y1, $x2, $y2, $color, $width, $style = null)
+    public function line($x1, $y1, $x2, $y2, $color, $width, $style = [])
     {
         $this->_set_line_style($width, "butt", "", $style);
         $this->_set_stroke_color($color);
@@ -863,7 +863,7 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = null)
+    public function rectangle($x1, $y1, $w, $h, $color, $width, $style = [])
     {
         $this->_set_stroke_color($color);
         $this->_set_line_style($width, "butt", "", $style);
@@ -990,7 +990,7 @@ class PDFLib implements Canvas
         $this->_pdf->concat($a, $b, $c, $d, $e, $f);
     }
 
-    public function polygon($points, $color, $width = null, $style = null, $fill = false)
+    public function polygon($points, $color, $width = null, $style = [], $fill = false)
     {
         $this->_set_fill_color($color);
         $this->_set_stroke_color($color);
@@ -1019,7 +1019,7 @@ class PDFLib implements Canvas
         $this->_set_stroke_opacity($this->_current_opacity, "Normal");
     }
 
-    public function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false)
+    public function circle($x, $y, $r, $color, $width = null, $style = [], $fill = false)
     {
         $this->_set_fill_color($color);
         $this->_set_stroke_color($color);

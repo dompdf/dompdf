@@ -554,6 +554,10 @@ class CPDF implements Canvas
         $this->_set_fill_color($color);
         $this->_set_stroke_color($color);
 
+        if (!$fill && isset($width)) {
+            $this->_set_line_style($width, "square", "miter", $style);
+        }
+
         // Adjust y values
         for ($i = 1; $i < count($points); $i += 2) {
             $points[$i] = $this->y($points[$i]);
@@ -565,7 +569,7 @@ class CPDF implements Canvas
         $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
-    public function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false)
+    public function circle($x, $y, $r, $color, $width = null, $style = [], $fill = false)
     {
         $this->_set_fill_color($color);
         $this->_set_stroke_color($color);
