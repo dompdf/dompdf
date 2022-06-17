@@ -13,7 +13,7 @@ class Options
     /**
      * The location of a temporary directory.
      *
-     * The directory specified must be writable by the webserver process.
+     * The directory specified must be writable by the executing process.
      * The temporary directory is required to download remote images and when
      * using the PFDLib back end.
      *
@@ -25,7 +25,7 @@ class Options
      * The location of the DOMPDF font directory
      *
      * The location of the directory where DOMPDF will store fonts and font metrics
-     * Note: This directory must exist and be writable by the webserver process.
+     * Note: This directory must exist and be writable by the executing process.
      *
      * @var string
      */
@@ -37,7 +37,7 @@ class Options
      * This directory contains the cached font metrics for the fonts used by DOMPDF.
      * This directory can be the same as $fontDir
      *
-     * Note: This directory must exist and be writable by the webserver process.
+     * Note: This directory must exist and be writable by the executing process.
      *
      * @var string
      */
@@ -46,10 +46,10 @@ class Options
     /**
      * dompdf's "chroot"
      *
-     * Prevents dompdf from accessing system files or other files on the webserver.
-     * All local files opened by dompdf must be in a subdirectory of this directory
-     * or array of directories.
-     * DO NOT set it to '/' since this could allow an attacker to use dompdf to
+     * Utilized by Dompdf's default file:// protocol URI validation rule.
+     * All local files opened by dompdf must be in a subdirectory of the directory
+     * or directories specified by this option.
+     * DO NOT set this value to '/' since this could allow an attacker to use dompdf to
      * read any files on the server.  This should be an absolute path.
      *
      * ==== IMPORTANT ====
@@ -65,8 +65,10 @@ class Options
     /**
     * Protocol whitelist
     *
-    * Protocols and PHP wrappers allowed in URIs. Full support is not
-    * guaranteed for the protocols/wrappers specified by this array.
+    * Protocols and PHP wrappers allowed in URIs, and the validation rules
+    * that determine if a resouce may be loaded. Full support is not guaranteed
+    * for the protocols/wrappers specified
+    * by this array.
     *
     * @var array
     */
@@ -82,14 +84,9 @@ class Options
     private $logOutputFile;
 
     /**
-     * html target media view which should be rendered into pdf.
-     * List of types and parsing rules for future extensions:
-     * http://www.w3.org/TR/REC-html40/types.html
-     *   screen, tty, tv, projection, handheld, print, braille, aural, all
-     * Note: aural is deprecated in CSS 2.1 because it is replaced by speech in CSS 3.
-     * Note, even though the generated pdf file is intended for print output,
-     * the desired content might be different (e.g. screen or projection view of html file).
-     * Therefore allow specification of content here.
+     * Styles targeted to this media type are applied to the document.
+     * This is on top of the media types that are always applied:
+     *    all, static, visual, bitmap, paged, dompdf
      *
      * @var string
      */
@@ -197,10 +194,14 @@ class Options
     private $isRemoteEnabled = false;
 
     /**
-     * Enable inline Javascript
+     * Enable inline JavaScript
      *
      * If this setting is set to true then DOMPDF will automatically insert
-     * JavaScript code contained within <script type="text/javascript"> ... </script> tags.
+     * JavaScript code contained within <script type="text/javascript"> ... </script>
+     * tags as written into the PDF.
+     *
+     * NOTE: This is PDF-based JavaScript to be executed by the PDF viewer,
+     * not browser-based JavaScript executed by Dompdf.
      *
      * @var bool
      */
@@ -531,7 +532,10 @@ class Options
     }
 
     /**
-     * @param array $allowedProtocols The protocols to allow as an array (["protocol://" => ["rules" => [callable]]], ...) or a string list of the protocols
+     * @param array $allowedProtocols The protocols to allow, as an array
+     * formatted as ["protocol://" => ["rules" => [callable]], ...]
+     * or ["protocol://", ...]
+     *
      * @return $this
      */
     public function setAllowedProtocols(array $allowedProtocols)
