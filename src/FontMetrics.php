@@ -290,11 +290,11 @@ class FontMetrics
     /**
      * Calculates text size, in points
      *
-     * @param string $text        the text to be sized
-     * @param string $font        the desired font
-     * @param float  $size        the desired font size
-     * @param float  $wordSpacing word spacing, if any
-     * @param float  $charSpacing char spacing, if any
+     * @param string $text        The text to be sized
+     * @param string $font        The font file to use
+     * @param float  $size        The font size, in points
+     * @param float  $wordSpacing Word spacing, if any
+     * @param float  $charSpacing Char spacing, if any
      *
      * @return float
      */
@@ -342,8 +342,8 @@ class FontMetrics
     /**
      * Calculates font height, in points
      *
-     * @param string $font
-     * @param float  $size
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
      *
      * @return float
      */
@@ -355,8 +355,8 @@ class FontMetrics
     /**
      * Calculates font baseline, in points
      *
-     * @param string $font
-     * @param float  $size
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
      *
      * @return float
      */

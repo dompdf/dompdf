@@ -61,7 +61,6 @@ interface Canvas
     /**
      * Draws a line from x1,y1 to x2,y2
      *
-     * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
      * $style and $cap parameters (aka dash and cap).
      *
@@ -69,17 +68,17 @@ interface Canvas
      * @param float  $y1
      * @param float  $x2
      * @param float  $y2
-     * @param array  $color
+     * @param array  $color Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                      where r, g, b, and alpha are float values between 0 and 1
      * @param float  $width
      * @param array  $style
-     * @param string $cap   `butt`, `round`, or `square`.
+     * @param string $cap   `butt`, `round`, or `square`
      */
     function line($x1, $y1, $x2, $y2, $color, $width, $style = [], $cap = "butt");
 
     /**
      * Draws an arc
      *
-     * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
      * $style and $cap parameters (aka dash and cap).
      *
@@ -89,17 +88,17 @@ interface Canvas
      * @param float  $r2     Radius 2
      * @param float  $astart Start angle in degrees
      * @param float  $aend   End angle in degrees
-     * @param array  $color  Color
+     * @param array  $color  Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                       where r, g, b, and alpha are float values between 0 and 1
      * @param float  $width
      * @param array  $style
-     * @param string $cap   `butt`, `round`, or `square`.
+     * @param string $cap   `butt`, `round`, or `square`
      */
     function arc($x, $y, $r1, $r2, $astart, $aend, $color, $width, $style = [], $cap = "butt");
 
     /**
      * Draws a rectangle at x1,y1 with width w and height h
      *
-     * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
      * $style and $cap parameters (aka dash and cap).
      *
@@ -107,23 +106,23 @@ interface Canvas
      * @param float  $y1
      * @param float  $w
      * @param float  $h
-     * @param array  $color
+     * @param array  $color  Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                       where r, g, b, and alpha are float values between 0 and 1
      * @param float  $width
      * @param array  $style
-     * @param string $cap   `butt`, `round`, or `square`.
+     * @param string $cap   `butt`, `round`, or `square`
      */
     function rectangle($x1, $y1, $w, $h, $color, $width, $style = [], $cap = "butt");
 
     /**
      * Draws a filled rectangle at x1,y1 with width w and height h
      *
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
      * @param float $x1
      * @param float $y1
      * @param float $w
      * @param float $h
-     * @param array $color
+     * @param array $color Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                     where r, g, b, and alpha are float values between 0 and 1
      */
     function filled_rectangle($x1, $y1, $w, $h, $color);
 
@@ -183,32 +182,30 @@ interface Canvas
      * The strings '{PAGE_NUM}' and '{PAGE_COUNT}' are automatically replaced
      * with their current values.
      *
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
      * @param float  $x
      * @param float  $y
-     * @param string $text       the text to write
-     * @param string $font       the font file to use
-     * @param float  $size       the font size, in points
-     * @param array  $color
-     * @param float  $word_space word spacing adjustment
-     * @param float  $char_space char spacing adjustment
-     * @param float  $angle      angle to write the text at, measured CW starting from the x-axis
+     * @param string $text       The text to write
+     * @param string $font       The font file to use
+     * @param float  $size       The font size, in points
+     * @param array  $color      Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                           where r, g, b, and alpha are float values between 0 and 1
+     * @param float  $word_space Word spacing adjustment
+     * @param float  $char_space Char spacing adjustment
+     * @param float  $angle      Angle to write the text at, measured clockwise starting from the x-axis
      */
     public function page_text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0);
 
     /**
      * Draws a line at the specified coordinates on every page.
      *
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
      * @param float $x1
      * @param float $y1
      * @param float $x2
      * @param float $y2
-     * @param array $color
+     * @param array $color Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                     where r, g, b, and alpha are float values between 0 and 1
      * @param float $width
-     * @param array $style optional
+     * @param array $style
      */
     public function page_line($x1, $y1, $x2, $y2, $color, $width, $style = []);
 
@@ -276,21 +273,21 @@ interface Canvas
      *
      * The polygon is formed by joining all the points stored in the $points
      * array.  $points has the following structure:
-     * <code>
+     * ```
      * array(0 => x1,
      *       1 => y1,
      *       2 => x2,
      *       3 => y2,
      *       ...
      *       );
-     * </code>
+     * ```
      *
-     * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
      * $style parameter (aka dash).
      *
      * @param array $points
-     * @param array $color
+     * @param array $color  Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                      where r, g, b, and alpha are float values between 0 and 1
      * @param float $width
      * @param array $style
      * @param bool  $fill   Fills the polygon if true
@@ -300,14 +297,14 @@ interface Canvas
     /**
      * Draws a circle at $x,$y with radius $r
      *
-     * See {@link Style::munge_color()} for the format of the color array.
      * See {@link Cpdf::setLineStyle()} for a description of the format of the
      * $style parameter (aka dash).
      *
      * @param float $x
      * @param float $y
      * @param float $r
-     * @param array $color
+     * @param array $color Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                     where r, g, b, and alpha are float values between 0 and 1
      * @param float $width
      * @param array $style
      * @param bool  $fill  Fills the circle if true
@@ -320,11 +317,11 @@ interface Canvas
      * The image is placed at the specified x and y coordinates with the
      * given width and height.
      *
-     * @param string $img        the path to the image
-     * @param float  $x          x position
-     * @param float  $y          y position
-     * @param float  $w          width
-     * @param float  $h          height
+     * @param string $img        The path to the image
+     * @param float  $x          X position
+     * @param float  $y          Y position
+     * @param float  $w          Width
+     * @param float  $h          Height
      * @param string $resolution The resolution of the image
      */
     function image($img, $x, $y, $w, $h, $resolution = "normal");
@@ -332,17 +329,16 @@ interface Canvas
     /**
      * Writes text at the specified x and y coordinates
      *
-     * See {@link Style::munge_color()} for the format of the color array.
-     *
      * @param float  $x
      * @param float  $y
-     * @param string $text        the text to write
-     * @param string $font        the font file to use
-     * @param float  $size        the font size, in points
-     * @param array  $color
-     * @param float  $word_space  word spacing adjustment
-     * @param float  $char_space  char spacing adjustment
-     * @param float  $angle       angle to write the text at, measured CW starting from the x-axis
+     * @param string $text        The text to write
+     * @param string $font        The font file to use
+     * @param float  $size        The font size, in points
+     * @param array  $color       Color array in the format `[r, g, b, "alpha" => alpha]`
+     *                            where r, g, b, and alpha are float values between 0 and 1
+     * @param float  $word_space  Word spacing adjustment
+     * @param float  $char_space  Char spacing adjustment
+     * @param float  $angle       Angle to write the text at, measured clockwise starting from the x-axis
      */
     function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0);
 
@@ -375,11 +371,11 @@ interface Canvas
     /**
      * Calculates text size, in points
      *
-     * @param string $text         the text to be sized
-     * @param string $font         the desired font
-     * @param float  $size         the desired font size
-     * @param float  $word_spacing word spacing, if any
-     * @param float  $char_spacing char spacing, if any
+     * @param string $text         The text to be sized
+     * @param string $font         The font file to use
+     * @param float  $size         The font size, in points
+     * @param float  $word_spacing Word spacing, if any
+     * @param float  $char_spacing Char spacing, if any
      *
      * @return float
      */
@@ -388,8 +384,8 @@ interface Canvas
     /**
      * Calculates font height, in points
      *
-     * @param string $font
-     * @param float  $size
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
      *
      * @return float
      */
@@ -398,8 +394,8 @@ interface Canvas
     /**
      * Returns the font x-height, in points
      *
-     * @param string $font
-     * @param float  $size
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
      *
      * @return float
      */
@@ -408,8 +404,8 @@ interface Canvas
     /**
      * Calculates font baseline, in points
      *
-     * @param string $font
-     * @param float  $size
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
      *
      * @return float
      */

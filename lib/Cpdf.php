@@ -3532,7 +3532,7 @@ EOT;
      * note that encoding='none' will need to be used for symbolic fonts
      * and 'differences' => an array of mappings between numbers 0->255 and character names.
      *
-     * @param $fontName
+     * @param string $fontName
      * @param string $encoding
      * @param bool $set
      * @param bool $isSubsetting
@@ -3680,8 +3680,8 @@ EOT;
     /**
      * sets the color for fill operations
      *
-     * @param $color
-     * @param bool $force
+     * @param array $color
+     * @param bool  $force
      */
     function setColor($color, $force = false)
     {
@@ -3703,9 +3703,7 @@ EOT;
     }
 
     /**
-     * sets the color for fill operations
-     *
-     * @param $fillRule
+     * @param string $fillRule
      */
     function setFillRule($fillRule)
     {
@@ -3719,8 +3717,8 @@ EOT;
     /**
      * sets the color for stroke operations
      *
-     * @param $color
-     * @param bool $force
+     * @param array $color
+     * @param bool  $force
      */
     function setStrokeColor($color, $force = false)
     {
