@@ -549,7 +549,7 @@ class FontMetrics
         if (isset($this->bundledFonts) && is_array($this->bundledFonts)) {
             foreach ($this->bundledFonts as $family => $variants) {
                 if (!isset($fontFamilies[$family])) {
-                    $fontFamilies[$family] = array_map(function($variant) {
+                    $fontFamilies[$family] = array_map(function ($variant) {
                         return $this->getOptions()->getRootDir() . '/lib/fonts/' . $variant;
                     }, $variants);
                 }
@@ -557,7 +557,7 @@ class FontMetrics
         }
         if (isset($this->userFonts) && is_array($this->userFonts)) {
             foreach ($this->userFonts as $family => $variants) {
-                $fontFamilies[$family] = array_map(function($variant) {
+                $fontFamilies[$family] = array_map(function ($variant) {
                     $variantName = basename($variant);
                     if ($variantName === $variant) {
                         return $this->getOptions()->getFontDir() . '/' . $variant;

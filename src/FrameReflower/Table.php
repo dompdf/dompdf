@@ -93,7 +93,7 @@ class Table extends AbstractFrameReflower
         } else {
             if ($max_width + $delta < $cb["w"]) {
                 $width = $max_width;
-            } else if ($cb["w"] - $delta > $min_width) {
+            } elseif ($cb["w"] - $delta > $min_width) {
                 $width = $cb["w"] - $delta;
             } else {
                 $width = $min_width;

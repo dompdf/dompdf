@@ -1048,7 +1048,7 @@ class Cpdf
             }
         }
 
-        return 'SUB' . str_pad($base_26, 3 , 'A', STR_PAD_LEFT);
+        return 'SUB' . str_pad($base_26, 3, 'A', STR_PAD_LEFT);
     }
 
     /**
@@ -1381,7 +1381,7 @@ EOT;
 
                 $res = "\n$id 0 obj\n";
                 $res .= "<</Length " . mb_strlen($stream, '8bit') . " >>\n";
-                $res .= "stream\n" . $stream . "\nendstream" . "\nendobj";;
+                $res .= "stream\n" . $stream . "\nendstream" . "\nendobj";
 
                 return $res;
         }
@@ -2423,8 +2423,7 @@ EOT;
                 $res = "\n$id 0 obj\n<< /Type /XObject\n";
 
                 foreach ($o["info"] as $k => $v) {
-                    switch($k)
-                    {
+                    switch ($k) {
                         case 'Subtype':
                             $res .= "/Subtype /$v\n";
                             break;
@@ -2477,7 +2476,7 @@ EOT;
                 }
 
                 $res .= "/Length " . mb_strlen($tmp, '8bit') . " >>\n";
-                $res .= "stream\n" . $tmp . "\nendstream" . "\nendobj";;
+                $res .= "stream\n" . $tmp . "\nendstream" . "\nendobj";
 
                 return $res;
         }
@@ -2515,7 +2514,7 @@ EOT;
                 $res = "\n$id 0 obj\n<<";
 
                 foreach ($o["info"] as $k => $v) {
-                    switch($k) {
+                    switch ($k) {
                         case 'Fields':
                             $res .= " /Fields [";
                             foreach ($v as $i) {
@@ -2619,7 +2618,7 @@ EOT;
                             $res .= ">>\n";
                             break;
                         case 'T':
-                            if($encrypted) {
+                            if ($encrypted) {
                                 $v = $this->filterText($this->ARC4($v), false, false);
                             }
                             $res .= "/T ($v)\n";
@@ -2662,7 +2661,7 @@ EOT;
                 $pos = strpos($content, sprintf("/ByteRange [ %'.010d", $id));
                 $len = strlen('/ByteRange [ ********** ********** ********** ********** ]');
                 $rangeStartPos = $pos + $len + 1 + 10; // before '<'
-                $content = substr_replace($content, str_pad(sprintf('/ByteRange [ 0 %u %u %u ]', $rangeStartPos, $rangeStartPos + $sign_maxlen + 2, $content_len - 2 - $sign_maxlen - $rangeStartPos ), $len, ' ', STR_PAD_RIGHT), $pos, $len);
+                $content = substr_replace($content, str_pad(sprintf('/ByteRange [ 0 %u %u %u ]', $rangeStartPos, $rangeStartPos + $sign_maxlen + 2, $content_len - 2 - $sign_maxlen - $rangeStartPos), $len, ' ', STR_PAD_RIGHT), $pos, $len);
 
                 $fuid = uniqid();
                 $tmpInput = $this->tmp . "/pkcs7.tmp." . $fuid . '.in';
@@ -2726,7 +2725,7 @@ EOT;
 
                 $o = &$this->objects[$id];
                 foreach ($o['info'] as $k => $v) {
-                    switch($k) {
+                    switch ($k) {
                         case 'Name':
                         case 'Location':
                         case 'Reason':
@@ -2852,7 +2851,7 @@ EOT;
             case 'out':
                 $res = "\n$id 0 obj << ";
 
-                foreach($this->objects[$id]['info'] as $referenceObjName => $referenceObjId) {
+                foreach ($this->objects[$id]['info'] as $referenceObjName => $referenceObjId) {
                     $res .= "/$referenceObjName $referenceObjId 0 R ";
                 }
 
@@ -4335,8 +4334,10 @@ EOT;
         $color = implode(' ', $color) . ' rg';
 
         $currentFontNum = $this->currentFontNum;
-        $font = array_filter($this->objects[$this->currentNode]['info']['fonts'],
-          function($item) use ($currentFontNum) { return $item['fontNum'] == $currentFontNum; });
+        $font = array_filter(
+            $this->objects[$this->currentNode]['info']['fonts'],
+            function ($item) use ($currentFontNum) { return $item['fontNum'] == $currentFontNum; }
+        );
 
         $this->o_acroform($this->acroFormId, 'font',
           ['objNum' => $font[0]['objNum'], 'fontNum' => $font[0]['fontNum']]);
@@ -4852,7 +4853,7 @@ EOT;
                 //$text = html_entity_decode($text, ENT_QUOTES);
                 $text = mb_convert_encoding($text, self::$targetEncoding, 'UTF-8');
             }
-        } else if ($bom) {
+        } elseif ($bom) {
             $text = $this->utf8toUtf16BE($text, $bom);
         }
 
