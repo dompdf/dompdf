@@ -3580,7 +3580,7 @@ class Style
         $values = array_map(function ($value) {
             if (\in_array($value, ["top", "left"], true)) {
                 return 0;
-            } else if (\in_array($value, ["bottom", "right"], true)) {
+            } elseif (\in_array($value, ["bottom", "right"], true)) {
                 return "100%";
             } else {
                 return $value;

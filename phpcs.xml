@@ -34,9 +34,6 @@
  <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose">
   <severity>0</severity>
  </rule>
- <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpenBrace">
-  <severity>0</severity>
- </rule>
  <rule ref="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace">
   <severity>0</severity>
  </rule>
@@ -50,9 +47,6 @@
   <severity>0</severity>
  </rule>
  <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
-  <severity>0</severity>
- </rule>
- <rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
   <severity>0</severity>
  </rule>
  <rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE">

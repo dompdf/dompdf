@@ -1301,7 +1301,7 @@ class Stylesheet
                                             $media_query_feature = strtolower($media_query_match[3]);
                                             $media_query_value = strtolower($media_query_match[2]);
                                             $mq[] = [$media_query_feature, $media_query_value];
-                                        } else if (empty($media_query_match[4]) === false) {
+                                        } elseif (empty($media_query_match[4]) === false) {
                                             $media_query_feature = strtolower($media_query_match[5]);
                                             $media_query_value = (array_key_exists(8, $media_query_match) ? strtolower($media_query_match[8]) : null);
                                             $mq[] = [$media_query_feature, $media_query_value];

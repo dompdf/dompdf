@@ -638,7 +638,7 @@ class Page extends AbstractFrameDecorator
 
                 if ($next->is_table() && !$iter->is_table()) {
                     $this->_in_table++;
-                } else if (!$next->is_table() && $iter->is_table()) {
+                } elseif (!$next->is_table() && $iter->is_table()) {
                     $this->_in_table--;
                 }
 

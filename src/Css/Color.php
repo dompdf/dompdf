@@ -294,7 +294,7 @@ class Color
                 return null;
             }
 
-            $values = array_map(function($c) {
+            $values = array_map(function ($c) {
                 return min(1.0, max(0.0, floatval(trim($c))));
             }, $values);
 

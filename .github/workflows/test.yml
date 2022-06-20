@@ -35,7 +35,7 @@ jobs:
         run: vendor/bin/phpunit
 
       - name: Run code sniffer
-        run: vendor/bin/phpcs --standard=phpcs.xml src tests
+        run: vendor/bin/phpcs --standard=phpcs.xml src tests lib
 
       # - name: Upload to Scrutinizer
       #   continue-on-error: true
