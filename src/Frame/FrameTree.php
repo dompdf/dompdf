@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @package dompdf
+ * @link    https://github.com/dompdf/dompdf
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
 namespace Dompdf\Frame;
 
 use DOMDocument;
@@ -10,13 +14,6 @@ use DOMXPath;
 use Dompdf\Exception;
 use Dompdf\Frame;
 use IteratorAggregate;
-
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
 
 /**
  * Represents an entire document as a tree of frames

@@ -3,19 +3,10 @@
  * A PHP class to provide the basic functionality to create a pdf document without
  * any requirement for additional modules.
  *
- * Extended by Orion Richardson to support Unicode / UTF-8 characters using
- * TCPDF and others as a guide.
- *
- * @author  Wayne Munro <pdf@ros.co.nz>
- * @author  Orion Richardson <orionr@yahoo.com>
- * @author  Helmut Tischer <htischer@weihenstephan.org>
- * @author  Ryan H. Masten <ryan.masten@gmail.com>
- * @author  Brian Sweeney <eclecticgeek@gmail.com>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license Public Domain http://creativecommons.org/licenses/publicdomain/
+ * @author  Wayne Munro
+ * @license http://creativecommons.org/licenses/publicdomain/ Public Domain
  * @package Cpdf
  */
-
 namespace Dompdf;
 
 use FontLib\Exception\FontNotFoundException;
@@ -4869,11 +4860,7 @@ EOT;
      * RFC for UTF-8 at http://www.faqs.org/rfcs/rfc3629.html
      *
      * @access private
-     * @author Orion Richardson
-     * @since  January 5, 2008
-     *
      * @param string $text UTF-8 string to process
-     *
      * @return array UTF-8 codepoints array for the string
      */
     function utf8toCodePointsArray(&$text)
@@ -4944,12 +4931,8 @@ EOT;
      * RFC for UTF-8 at http://www.faqs.org/rfcs/rfc3629.html
      *
      * @access private
-     * @author Orion Richardson
-     * @since  January 5, 2008
-     *
      * @param string  $text UTF-8 string to process
      * @param boolean $bom  whether to add the byte order marker
-     *
      * @return string UTF-16 result string
      */
     function utf8toUtf16BE(&$text, $bom = true)
