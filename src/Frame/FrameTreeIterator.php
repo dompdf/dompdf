@@ -14,7 +14,6 @@ use Dompdf\Frame;
  *
  * Returns frames in preorder traversal order (parent then children)
  *
- * @access private
  * @package dompdf
  */
 class FrameTreeIterator implements Iterator

@@ -23,7 +23,6 @@ use Dompdf\Positioner\AbstractPositioner;
  * objects.  This is determined primarily by the Frame's display type, but
  * also by the Frame's node's type (e.g. DomElement vs. #text)
  *
- * @access  private
  * @package dompdf
  */
 class Factory

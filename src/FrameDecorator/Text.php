@@ -13,7 +13,6 @@ use Dompdf\Exception;
 /**
  * Decorates Frame objects for text layout
  *
- * @access  private
  * @package dompdf
  */
 class Text extends AbstractFrameDecorator

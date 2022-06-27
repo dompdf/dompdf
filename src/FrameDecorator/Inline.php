@@ -13,7 +13,6 @@ use Dompdf\Exception;
 /**
  * Decorates frames for inline layout
  *
- * @access  private
  * @package dompdf
  */
 class Inline extends AbstractFrameDecorator

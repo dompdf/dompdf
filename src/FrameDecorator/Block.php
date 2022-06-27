@@ -13,7 +13,6 @@ use Dompdf\LineBox;
 /**
  * Decorates frames for block layout
  *
- * @access  private
  * @package dompdf
  */
 class Block extends AbstractFrameDecorator

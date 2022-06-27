@@ -14,7 +14,6 @@ use Dompdf\Image\Cache;
 /**
  * Renders list bullets
  *
- * @access  private
  * @package dompdf
  */
 class ListBullet extends AbstractRenderer

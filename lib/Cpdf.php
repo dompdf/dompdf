@@ -4823,8 +4823,6 @@ EOT;
      * filter the text, this is applied to all text just before being inserted into the pdf document
      * it escapes the various things that need to be escaped, and so on
      *
-     * @access private
-     *
      * @param $text
      * @param bool $bom
      * @param bool $convert_encoding
@@ -4859,7 +4857,6 @@ EOT;
      * based on the excellent TCPDF code by Nicola Asuni and the
      * RFC for UTF-8 at http://www.faqs.org/rfcs/rfc3629.html
      *
-     * @access private
      * @param string $text UTF-8 string to process
      * @return array UTF-8 codepoints array for the string
      */
@@ -4930,7 +4927,6 @@ EOT;
      * based on the excellent TCPDF code by Nicola Asuni and the
      * RFC for UTF-8 at http://www.faqs.org/rfcs/rfc3629.html
      *
-     * @access private
      * @param string  $text UTF-8 string to process
      * @param boolean $bom  whether to add the byte order marker
      * @return string UTF-16 result string

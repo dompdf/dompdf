@@ -12,7 +12,6 @@ use Dompdf\Helpers;
 /**
  * Renders inline frames
  *
- * @access  private
  * @package dompdf
  */
 class Inline extends AbstractRenderer

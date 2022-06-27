@@ -13,7 +13,6 @@ use Dompdf\Helpers;
 /**
  * Reflows tables
  *
- * @access  private
  * @package dompdf
  */
 class Table extends AbstractFrameReflower

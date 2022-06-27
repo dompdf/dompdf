@@ -295,17 +295,13 @@ class CPDF implements Canvas
     }
 
     /**
-     * @access private
+     * Serialize the pdf object's current state for retrieval later
      */
     public function serialize_object($id)
     {
-        // Serialize the pdf object's current state for retrieval later
         return $this->_pdf->serializeObject($id);
     }
 
-    /**
-     * @access private
-     */
     public function reopen_serialized_object($obj)
     {
         return $this->_pdf->restoreSerializedObject($obj);

@@ -14,7 +14,6 @@ use Dompdf\Renderer;
 /**
  * Decorates frames for page layout
  *
- * @access  private
  * @package dompdf
  */
 class Page extends AbstractFrameDecorator
