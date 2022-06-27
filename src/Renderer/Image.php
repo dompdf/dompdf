@@ -13,7 +13,6 @@ use Dompdf\Image\Cache;
 /**
  * Image renderer
  *
- * @access  private
  * @package dompdf
  */
 class Image extends Block

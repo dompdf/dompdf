@@ -13,7 +13,6 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
  *
  * Defines positioner interface
  *
- * @access  private
  * @package dompdf
  */
 abstract class AbstractPositioner

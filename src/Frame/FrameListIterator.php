@@ -15,7 +15,6 @@ use Dompdf\Frame;
  * Returns children in order and allows for the list to change during iteration,
  * provided the changes occur to or after the current element.
  *
- * @access private
  * @package dompdf
  */
 class FrameListIterator implements Iterator

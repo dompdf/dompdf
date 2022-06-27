@@ -11,7 +11,6 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 /**
  * Positions block frames
  *
- * @access  private
  * @package dompdf
  */
 class Block extends AbstractPositioner
