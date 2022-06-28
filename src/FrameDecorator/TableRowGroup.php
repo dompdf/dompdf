@@ -42,7 +42,9 @@ class TableRowGroup extends AbstractFrameDecorator
         }
 
         // Remove child & all subsequent rows from the cellmap
-        $cellmap = $this->get_parent()->get_cellmap();
+        /** @var Table $parent */
+        $parent = $this->get_parent();
+        $cellmap = $parent->get_cellmap();
         $iter = $child;
 
         while ($iter) {
