@@ -7,6 +7,7 @@
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Frame;
+use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
@@ -25,6 +26,8 @@ class Block extends AbstractFrameReflower
     const MIN_JUSTIFY_WIDTH = 0.80;
 
     /**
+     * Frame for this reflower
+     *
      * @var BlockFrameDecorator
      */
     protected $_frame;
@@ -683,9 +686,9 @@ class Block extends AbstractFrameReflower
     }
 
     /**
-     * @param Frame $child
+     * @param AbstractFrameDecorator $child
      */
-    function process_clear(Frame $child)
+    function process_clear(AbstractFrameDecorator $child)
     {
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
@@ -717,11 +720,11 @@ class Block extends AbstractFrameReflower
     }
 
     /**
-     * @param Frame $child
+     * @param AbstractFrameDecorator $child
      * @param float $cb_x
      * @param float $cb_w
      */
-    function process_float(Frame $child, $cb_x, $cb_w)
+    function process_float(AbstractFrameDecorator $child, $cb_x, $cb_w)
     {
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();

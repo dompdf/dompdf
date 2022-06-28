@@ -43,6 +43,8 @@ class Text extends AbstractFrameReflower
     public static $_wordbreak_pattern = '/([^\S\xA0\x{202F}\x{2007}\n]+|\R|\-+|\xAD+)/u';
 
     /**
+     * Frame for this reflower
+     *
      * @var TextFrameDecorator
      */
     protected $_frame;

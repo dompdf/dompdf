@@ -195,7 +195,8 @@ class Table extends AbstractFrameDecorator
                 || in_array($frame->get_style()->display, self::VALID_CHILDREN, true);
         };
 
-        return $frame->is_text_node() && !$frame->is_pre()
+        return $frame instanceof Text
+            && !$frame->is_pre()
             && preg_match($wsPattern, $frame->get_text())
             && $validChildOrNull($frame->get_prev_sibling())
             && $validChildOrNull($frame->get_next_sibling());

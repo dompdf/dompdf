@@ -103,9 +103,12 @@ class TableCell extends Block
         // Determine our height
         $style_height = (float)$style->length_in_pt($style->height, $h);
 
-        $this->_frame->set_content_height($this->_calculate_content_height());
+        /** @var FrameDecorator\TableCell */
+        $frame = $this->_frame;
 
-        $height = max($style_height, (float)$this->_frame->get_content_height());
+        $frame->set_content_height($this->_calculate_content_height());
+
+        $height = max($style_height, (float)$frame->get_content_height());
 
         // Let the cellmap know our height
         $cell_height = $height / count($cells["rows"]);

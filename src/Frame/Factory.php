@@ -214,8 +214,7 @@ class Factory
 
             $node = $frame->get_node();
             $parent_node = $node->parentNode;
-
-            if ($parent_node) {
+            if ($parent_node && $parent_node instanceof \DOMElement) {
                 if (!$parent_node->hasAttribute("dompdf-children-count")) {
                     $xpath = new DOMXPath($xml);
                     $count = $xpath->query("li", $parent_node)->length;
