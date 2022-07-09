@@ -123,11 +123,13 @@ class Text extends AbstractFrameReflower
     }
 
     /**
-     * @param string $text
+     * @param string              $text
      * @param BlockFrameDecorator $block
+     * @param bool                $nowrap
+     *
      * @return bool|int
      */
-    protected function line_break(string $text, BlockFrameDecorator $block)
+    protected function line_break(string $text, BlockFrameDecorator $block, bool $nowrap = false)
     {
         $fontMetrics = $this->getFontMetrics();
         $frame = $this->_frame;
@@ -160,12 +162,16 @@ class Text extends AbstractFrameReflower
             return false;
         }
 
+        if ($nowrap) {
+            return $current_line_width == 0 ? false : 0;
+        }
+
         // Split the text into words
         $words = preg_split(self::$_wordbreak_pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         $wc = count($words);
 
         // Determine the split point
-        $width = 0;
+        $width = 0.0;
         $str = "";
 
         $space_width = $fontMetrics->getTextWidth(" ", $font, $size, $word_spacing, $letter_spacing);
@@ -208,7 +214,7 @@ class Text extends AbstractFrameReflower
 
         // The first word has overflowed. Force it onto the line, or as many
         // characters as fit if breaking words is allowed
-        if ($current_line_width == 0 && $width == 0) {
+        if ($current_line_width == 0 && $width === 0.0) {
             if ($sep === " ") {
                 $word .= $sep;
             }
@@ -282,30 +288,25 @@ class Text extends AbstractFrameReflower
 
         // Determine the next line break
         // http://www.w3.org/TR/CSS21/text.html#propdef-white-space
-        switch ($style->white_space) {
+        $white_space = $style->white_space;
+        $nowrap = $white_space === "nowrap" || $white_space === "pre";
+
+        switch ($white_space) {
             default:
             case "normal":
-                $split = $this->line_break($text, $block);
-                $add_line = false;
-                break;
-
             case "nowrap":
-                $split = false;
+                $split = $this->line_break($text, $block, $nowrap);
                 $add_line = false;
                 break;
 
             case "pre":
-                $split = $this->newline_break($text);
-                $add_line = $split !== false;
-                break;
-
             case "pre-line":
             case "pre-wrap":
                 $hard_split = $this->newline_break($text);
                 $first_line = $hard_split !== false
                     ? mb_substr($text, 0, $hard_split)
                     : $text;
-                $soft_split = $this->line_break($first_line, $block);
+                $soft_split = $this->line_break($first_line, $block, $nowrap);
 
                 $split = $soft_split !== false ? $soft_split : $hard_split;
                 $add_line = $hard_split !== false;
