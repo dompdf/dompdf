@@ -1016,6 +1016,11 @@ class Style
 
         $font_size = $font_size ?? $this->__get("font_size");
 
+        $calcPattern = "/^calc\((.*)?\)$/i";
+        if (preg_match($calcPattern, $l, $calcMatches)) {
+            return $this->evaluate_func_calc($this->parse_calc($calcMatches[1]), $ref_size, $font_size);
+        }
+
         $key = "$l/$ref_size/$font_size";
 
         if (\array_key_exists($key, $cache)) {
@@ -1098,6 +1103,112 @@ class Style
         }
 
         return $cache[$key] = $value;
+    }
+
+    /**
+     * Shunting-yard Algorithm
+     * @param string $expr infix expression
+     * @return array
+     */
+    private function parse_calc(string $expr): array
+    {
+        if (substr_count($expr, '(') !== substr_count($expr, ')')) {
+            return [];
+        }
+
+        $expr = str_replace(['(', ')', '*', '/'], [' ( ', ' ) ', ' * ', ' / '], $expr);
+        $expr = trim(preg_replace('/\s+/', ' ', $expr));
+
+        if ($expr === '') {
+            return [];
+        }
+
+        $precedence = ['*' => 3, '/' => 3, '+' => 2, '-' => 2];
+
+        $opStack = [];
+        $queue = [];
+
+        $parts = explode(' ', $expr);
+
+        foreach ($parts as $part) {
+            if ($part === '(') {
+                $opStack[] = $part;
+            } elseif ($part === ')') {
+                while (count($opStack) > 0 && end($opStack) !== '(') {
+                    $queue[] = array_pop($opStack);
+                }
+                if (end($opStack) === '(') {
+                    array_pop($opStack);
+                }
+            } elseif (array_key_exists($part, $precedence)) {
+                while (count($opStack) > 0 && end($opStack) !== '(' && $precedence[end($opStack)] >= $precedence[$part]) {
+                    $queue[] = array_pop($opStack);
+                }
+                $opStack[] = $part;
+            } else {
+                $queue[] = $part;
+            }
+        }
+
+        while (count($opStack) > 0) {
+            $queue[] = array_pop($opStack);
+        }
+
+        return $queue;
+    }
+
+    /**
+     * Reverse Polish Notation
+     * @param array $rpn
+     * @param float $ref_size
+     * @param float|null $font_size
+     * @return float|null
+     */
+    private function evaluate_func_calc(array $rpn, float $ref_size = 0, ?float $font_size = null): ?float
+    {
+        if (count($rpn) === 0) {
+            return null;
+        }
+
+        $ops = ['*', '/', '+', '-'];
+
+        $stack = [];
+
+        foreach ($rpn as $part) {
+            if (in_array($part, $ops, true)) {
+                $rightValue = array_pop($stack);
+                $leftValue = array_pop($stack);
+                switch ($part) {
+                    case '*':
+                        $stack[] = $leftValue * $rightValue;
+                        break;
+                    case '/':
+                        if ($rightValue === 0.0) {
+                            return null;
+                        }
+                        $stack[] = $leftValue / $rightValue;
+                        break;
+                    case '+':
+                        $stack[] = $leftValue + $rightValue;
+                        break;
+                    case '-':
+                        $stack[] = $leftValue - $rightValue;
+                        break;
+                }
+            } else {
+                $val = $this->single_length_in_pt($part, $ref_size, $font_size);
+                if ($val === null) {
+                    return null;
+                }
+                $stack[] = $val;
+            }
+        }
+
+        if (count($stack) > 1) {
+            return null;
+        }
+
+        return floatval(end($stack));
     }
 
     /**

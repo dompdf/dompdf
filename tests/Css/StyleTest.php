@@ -32,7 +32,25 @@ class StyleTest extends TestCase
             ["15E-2pT", null, 0.15],
             ["1.5em", 20, 18.0], // Default font size is 12pt
             ["100%", null, 12.0],
-            ["50%", 360, 180.0]
+            ["50%", 360, 180.0],
+
+            ["calc(100%)", null, 12.0],
+            ["calc(50% - 1pt)", 200, 99.0],
+            ["calc(100)", null, 100.0],
+            ["calc(100% / 3)", 100, 33.333333333333336],
+            ["calc(  100pt    +   50pt  )", null, 150.0],  // extra whitespace
+            ["calc( (100pt + 50pt) / 3)", null, 50.0],     // parentheses
+            ["calc(50pt*2)", null, 100.0],                 // * do not require whitespace
+            ["calc(50%/2)", 120, 30.0],                    // / do not require whitespace
+            ["calc(10pt + -50%)", 12, 4.0],                // negative value
+            ["CalC(10)", null, 10.0],                      // case-insensitive
+
+            ["calc()", null, 0.0],                         // invalid - empty
+            ["calc(invalid)", 100, 0.0],                   // invalid
+            ["calc(5pt - x)", 100, 0.0],                   // invalid
+            ["calc((50% + 10) 1pt)", 100, 0.0],            // invalid - missing op
+            ["calc(50% -1pt)", 100, 0.0],                  // invalid - missing op
+            ["calc((50% + 10) + 2pt))", 100, 0.0]          // invalid - extra bracket
         ];
     }
 
