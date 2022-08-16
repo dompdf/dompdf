@@ -222,7 +222,7 @@ Files accessed through the local file system have the following requirement:
      $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
      ```
      Watch https://github.com/dompdf/dompdf/issues/320 for progress
-
+ * Does not support CSS flexbox.
 ---
 
 [![Donate button](https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif)](http://goo.gl/DSvWf)
