@@ -223,6 +223,7 @@ Files accessed through the local file system have the following requirement:
      ```
      Watch https://github.com/dompdf/dompdf/issues/320 for progress
  * Does not support CSS flexbox.
+ * Does not support CSS Grid.
 ---
 
 [![Donate button](https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif)](http://goo.gl/DSvWf)
