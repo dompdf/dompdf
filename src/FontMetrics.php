@@ -213,12 +213,14 @@ class FontMetrics
         $allowed_protocols = $this->options->getAllowedProtocols();
         if (!array_key_exists($protocol, $allowed_protocols)) {
             Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The communication protocol is not supported.", __FILE__, __LINE__);
+            return false;
         }
 
         foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
             [$result, $message] = $rule($remoteFile);
             if ($result !== true) {
                 Helpers::record_warnings(E_USER_WARNING, "Error loading $remoteFile: $message", __FILE__, __LINE__);
+                return false;
             }
         }
 
