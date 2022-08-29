@@ -1478,7 +1478,7 @@ class Stylesheet
     {
         $descriptors = $this->_parse_properties($str);
 
-        preg_match_all("/(url|local)\s*\([\"\']?([^\"\'\)]+)[\"\']?\)\s*(format\s*\([\"\']?([^\"\'\)]+)[\"\']?\))?/i", $descriptors->src, $src);
+        preg_match_all("/(url|local)\s*\(\s*[\"\']?([^\"\'\)]+)[\"\']?\s*\)\s*(format\s*\(\s*[\"\']?([^\"\'\)]+)[\"\']?\s*\))?/i", $descriptors->src, $src);
 
         $valid_sources = [];
         foreach ($src[0] as $i => $value) {
