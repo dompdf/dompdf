@@ -397,7 +397,7 @@ class Text extends AbstractFrameReflower
         $text = $this->pre_process_text($frame->get_text());
         $frame->set_text($text);
 
-        $add_line = $this->layout_line($block);
+        $add_line = $block !== null ? $this->layout_line($block) : null;
 
         if ($add_line === null) {
             return;
