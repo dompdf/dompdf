@@ -769,6 +769,10 @@ class Stylesheet
                         $attr .= $tok[$j++];
                     }
 
+                    if (isset($tok[$j])){
+                        break;
+                    }
+
                     switch ($tok[$j]) {
 
                         case "~":
