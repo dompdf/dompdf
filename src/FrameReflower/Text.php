@@ -397,7 +397,11 @@ class Text extends AbstractFrameReflower
         $text = $this->pre_process_text($frame->get_text());
         $frame->set_text($text);
 
-        $add_line = $block !== null ? $this->layout_line($block) : null;
+        if ($block === null) {
+            return;
+        }
+
+        $add_line = $this->layout_line($block);
 
         if ($add_line === null) {
             return;
@@ -405,20 +409,18 @@ class Text extends AbstractFrameReflower
 
         $frame->position();
 
-        if ($block) {
-            $line = $block->add_frame_to_line($frame);
-            $trimmed = trim($frame->get_text());
+        $line = $block->add_frame_to_line($frame);
+        $trimmed = trim($frame->get_text());
 
-            // Split the text into words (used to determine spacing between
-            // words on justified lines)
-            if ($trimmed !== "") {
-                $words = preg_split(self::$_whitespace_pattern, $trimmed);
-                $line->wc += count($words);
-            }
+        // Split the text into words (used to determine spacing between
+        // words on justified lines)
+        if ($trimmed !== "") {
+            $words = preg_split(self::$_whitespace_pattern, $trimmed);
+            $line->wc += count($words);
+        }
 
-            if ($add_line) {
-                $block->add_line();
-            }
+        if ($add_line) {
+            $block->add_line();
         }
     }
 
