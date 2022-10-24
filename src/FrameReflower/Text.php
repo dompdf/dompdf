@@ -278,12 +278,10 @@ class Text extends AbstractFrameReflower
             $text = ltrim($text, " ");
         }
 
-        // Exclude wrapped white space. This handles white space between block
-        // elements in case white space is collapsed
         if ($text === "") {
             $frame->set_text("");
             $style->set_used("width", 0.0);
-            return null;
+            return false;
         }
 
         // Determine the next line break
@@ -408,6 +406,12 @@ class Text extends AbstractFrameReflower
         }
 
         $frame->position();
+
+        // Skip wrapped white space between block-level elements in case white
+        // space is collapsed
+        if ($frame->get_text() === "" && $frame->get_margin_width() === 0.0) {
+            return;
+        }
 
         $line = $block->add_frame_to_line($frame);
         $trimmed = trim($frame->get_text());
