@@ -45,7 +45,7 @@ class Text extends AbstractRenderer
         $style = $frame->get_style();
         $text = $frame->get_text();
 
-        if (trim($text) === "") {
+        if ($text === "") {
             return;
         }
 
