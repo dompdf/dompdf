@@ -706,7 +706,7 @@ class Dompdf
         // Set paper size if defined via CSS
         if (is_array($basePageStyle->size)) {
             [$width, $height] = $basePageStyle->size;
-            $this->setPaper([0, 0, $width, $height]);
+            $this->setPaper([0, 0, $width, $height], $this->getPaperOrientation());
         }
 
         // Create a new canvas instance if the current one does not match the
