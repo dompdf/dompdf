@@ -426,9 +426,9 @@ class Stylesheet
      * @param bool $first_pass
      *
      * @throws Exception
-     * @return array
+     * @return array|null
      */
-    private function _css_selector_to_xpath(string $selector, bool $first_pass = false): array
+    private function _css_selector_to_xpath(string $selector, bool $first_pass = false): ?array
     {
         // Collapse white space and strip whitespace around delimiters
         //$search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
@@ -742,11 +742,9 @@ class Stylesheet
                             $tok = "";
                             break;
 
-                        // the selector is not handled, until we support all possible selectors force an empty set (silent failure)
+                        // Invalid or unsupported pseudo-class or pseudo-element
                         default:
-                            $query = "/../.."; // go up two levels because generated content starts on the body element
-                            $tok = "";
-                            break;
+                            return null;
                     }
 
                     break;
@@ -769,6 +767,11 @@ class Stylesheet
                         $attr .= $tok[$j++];
                     }
 
+                    if (!isset($tok[$j])) {
+                        // Selector invalid
+                        return null;
+                    }
+
                     switch ($tok[$j]) {
 
                         case "~":
@@ -778,8 +781,9 @@ class Stylesheet
                         case "*":
                             $op .= $tok[$j++];
 
-                            if ($tok[$j] !== "=") {
-                                throw new Exception("Invalid CSS selector syntax: invalid attribute selector: $selector");
+                            if (!isset($tok[$j]) || $tok[$j] !== "=") {
+                                // Selector invalid: Incomplete attribute operator
+                                return null;
                             }
 
                             $op .= $tok[$j];
@@ -803,7 +807,8 @@ class Stylesheet
                     }
 
                     if ($attr === "") {
-                        throw new Exception("Invalid CSS selector syntax: missing attribute name");
+                        // Selector invalid: Missing attribute name
+                        return null;
                     }
 
                     $value = trim($value, "\"'");
@@ -875,13 +880,12 @@ class Stylesheet
 
 //    }
 
-
         // Trim the trailing '/' from the query
         if (mb_strlen($query) > 2) {
             $query = rtrim($query, "/");
         }
 
-        return ['query' => $query, 'pseudo_elements' => $pseudo_elements];
+        return ["query" => $query, "pseudo_elements" => $pseudo_elements];
     }
 
     /**
@@ -952,9 +956,13 @@ class Stylesheet
                 }
 
                 $query = $this->_css_selector_to_xpath($selector, true);
+                if ($query === null) {
+                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                    continue;
+                }
 
                 // Retrieve the nodes, limit to body for generated content
-                //TODO: If we use a context node can we remove the leading dot?
+                // TODO: If we use a context node can we remove the leading dot?
                 $nodes = @$xp->query('.' . $query["query"]);
                 if ($nodes === false) {
                     Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
@@ -1002,6 +1010,10 @@ class Stylesheet
             /** @var Style $style */
             foreach ($selector_styles as $style) {
                 $query = $this->_css_selector_to_xpath($selector);
+                if ($query === null) {
+                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                    continue;
+                }
 
                 // Retrieve the nodes
                 $nodes = @$xp->query($query["query"]);
