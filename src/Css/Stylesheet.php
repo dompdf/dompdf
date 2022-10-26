@@ -378,7 +378,7 @@ class Stylesheet
      *
      * @return int
      */
-    private function _specificity($selector, $origin = self::ORIG_AUTHOR)
+    private function _specificity(string $selector, int $origin = self::ORIG_AUTHOR): int
     {
         // http://www.w3.org/TR/CSS21/cascade.html#specificity
         // ignoring the ":" pseudoclass modifiers
@@ -457,7 +457,7 @@ class Stylesheet
 
         // Add an implicit space at the beginning of the selector if there is no
         // delimiter there already.
-        if (!in_array($selector[0], $delimiters)) {
+        if (!in_array($selector[0], $delimiters, true)) {
             $selector = " $selector";
         }
 
@@ -479,7 +479,7 @@ class Stylesheet
                 $c = $selector[$i];
                 $c_prev = $selector[$i - 1];
 
-                if (!$in_func && !$in_attr && in_array($c, $delimiters) && !($c === $c_prev && $c === ":")) {
+                if (!$in_func && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
                     break;
                 }
 
@@ -517,7 +517,7 @@ class Stylesheet
                     // Tag names are case-insensitive
                     $tok = strtolower($tok);
 
-                    if (!$tok) {
+                    if ($tok === "") {
                         $tok = "*";
                     }
 
@@ -560,7 +560,7 @@ class Stylesheet
                     // Tag names are case-insensitive
                     $tok = strtolower($tok);
 
-                    if (!$tok) {
+                    if ($tok === "") {
                         $tok = "*";
                     }
 
@@ -575,7 +575,7 @@ class Stylesheet
 
                 case ":":
                     $i2 = $i - strlen($tok) - 2; // the char before ":"
-                    if (($i2 < 0 || !isset($selector[$i2]) || (in_array($selector[$i2], $delimiters) && $selector[$i2] != ":")) && substr($query, -1) != "*") {
+                    if (($i2 < 0 || !isset($selector[$i2]) || (in_array($selector[$i2], $delimiters, true) && $selector[$i2] !== ":")) && substr($query, -1) !== "*") {
                         $query .= "*";
                     }
 
@@ -611,7 +611,7 @@ class Stylesheet
                         case "nth-of-type":
                             //FIXME: this fix-up is pretty ugly, would parsing the selector in reverse work better generally?
                             $descendant_delimeter = strrpos($query, "::");
-                            $isChild = substr($query, $descendant_delimeter-5, 5) == "child";
+                            $isChild = substr($query, $descendant_delimeter-5, 5) === "child";
                             $el = substr($query, $descendant_delimeter+2);
                             $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . $el;
 
@@ -643,7 +643,7 @@ class Stylesheet
                         case "nth-child":
                             //FIXME: this fix-up is pretty ugly, would parsing the selector in reverse work better generally?
                             $descendant_delimeter = strrpos($query, "::");
-                            $isChild = substr($query, $descendant_delimeter-5, 5) == "child";
+                            $isChild = substr($query, $descendant_delimeter-5, 5) === "child";
                             $el = substr($query, $descendant_delimeter+2);
                             $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . "*";
 
@@ -667,7 +667,7 @@ class Stylesheet
                             }
 
                             $query .= "[$condition]";
-                            if ($el != "*") {
+                            if ($el !== "*") {
                                 $query .= "[name() = '$el']";
                             }
                             $tok = "";
@@ -763,7 +763,7 @@ class Stylesheet
                     $value = "";
 
                     while ($j < $tok_len) {
-                        if (in_array($tok[$j], $attr_delimiters)) {
+                        if (in_array($tok[$j], $attr_delimiters, true)) {
                             break;
                         }
                         $attr .= $tok[$j++];
@@ -792,7 +792,7 @@ class Stylesheet
                     }
 
                     // Read the attribute value, if required
-                    if ($op != "") {
+                    if ($op !== "") {
                         $j++;
                         while ($j < $tok_len) {
                             if ($tok[$j] === "]") {
@@ -802,7 +802,7 @@ class Stylesheet
                         }
                     }
 
-                    if ($attr == "") {
+                    if ($attr === "") {
                         throw new Exception("Invalid CSS selector syntax: missing attribute name");
                     }
 
@@ -904,7 +904,7 @@ class Stylesheet
 
         $position = $last ? "(last()-position()+1)" : "position()";
 
-        if ($b == 0) {
+        if ($b === 0) {
             return "($position mod $a) = 0";
         } else {
             $compare = ($a < 0) ? "<=" : ">=";
@@ -923,7 +923,7 @@ class Stylesheet
      * {@link FrameTree}.  Aside from parsing CSS, this is the main purpose
      * of this class.
      *
-     * @param \Dompdf\Frame\FrameTree $tree
+     * @param FrameTree $tree
      */
     function apply_styles(FrameTree $tree)
     {
@@ -1614,7 +1614,7 @@ class Stylesheet
             foreach ($selectors as $selector) {
                 $selector = trim($selector);
 
-                if ($selector == "") {
+                if ($selector === "") {
                     if ($DEBUGCSS) print '#empty#';
                     continue;
                 }
