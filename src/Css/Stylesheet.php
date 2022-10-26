@@ -961,10 +961,9 @@ class Stylesheet
                     continue;
                 }
 
-                /** @var \DOMElement $node */
                 foreach ($nodes as $node) {
                     // Only DOMElements get styles
-                    if ($node->nodeType != XML_ELEMENT_NODE) {
+                    if (!($node instanceof DOMElement)) {
                         continue;
                     }
 
@@ -1014,9 +1013,8 @@ class Stylesheet
                 $spec = $this->_specificity($selector, $style->get_origin());
 
                 foreach ($nodes as $node) {
-                    // Retrieve the node id
                     // Only DOMElements get styles
-                    if ($node->nodeType != XML_ELEMENT_NODE) {
+                    if (!($node instanceof DOMElement)) {
                         continue;
                     }
 
