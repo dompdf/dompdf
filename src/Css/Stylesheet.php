@@ -86,7 +86,7 @@ class Stylesheet
     /**
      * Array of currently defined styles
      *
-     * @var Style[]
+     * @var Style[][]
      */
     private $_styles;
 
@@ -949,26 +949,25 @@ class Stylesheet
 
         // Add generated content
         foreach ($this->_styles as $selector => $selector_styles) {
-            /** @var Style $style */
+            if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
+                continue;
+            }
+
+            $query = $this->_css_selector_to_xpath($selector, true);
+            if ($query === null) {
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                continue;
+            }
+
+            // Retrieve the nodes, limit to body for generated content
+            // TODO: If we use a context node can we remove the leading dot?
+            $nodes = @$xp->query('.' . $query["query"]);
+            if ($nodes === false) {
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                continue;
+            }
+
             foreach ($selector_styles as $style) {
-                if (strpos($selector, ":before") === false && strpos($selector, ":after") === false) {
-                    continue;
-                }
-
-                $query = $this->_css_selector_to_xpath($selector, true);
-                if ($query === null) {
-                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                    continue;
-                }
-
-                // Retrieve the nodes, limit to body for generated content
-                // TODO: If we use a context node can we remove the leading dot?
-                $nodes = @$xp->query('.' . $query["query"]);
-                if ($nodes === false) {
-                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                    continue;
-                }
-
                 foreach ($nodes as $node) {
                     // Only DOMElements get styles
                     if (!($node instanceof DOMElement)) {
@@ -1007,21 +1006,20 @@ class Stylesheet
 
         // Apply all styles in stylesheet
         foreach ($this->_styles as $selector => $selector_styles) {
-            /** @var Style $style */
+            $query = $this->_css_selector_to_xpath($selector);
+            if ($query === null) {
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                continue;
+            }
+
+            // Retrieve the nodes
+            $nodes = @$xp->query($query["query"]);
+            if ($nodes === false) {
+                Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
+                continue;
+            }
+
             foreach ($selector_styles as $style) {
-                $query = $this->_css_selector_to_xpath($selector);
-                if ($query === null) {
-                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                    continue;
-                }
-
-                // Retrieve the nodes
-                $nodes = @$xp->query($query["query"]);
-                if ($nodes === false) {
-                    Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
-                    continue;
-                }
-
                 $spec = $this->_specificity($selector, $style->get_origin());
 
                 foreach ($nodes as $node) {
@@ -1688,7 +1686,6 @@ class Stylesheet
     {
         $str = "";
         foreach ($this->_styles as $selector => $selector_styles) {
-            /** @var Style $style */
             foreach ($selector_styles as $style) {
                 $str .= "$selector => " . $style->__toString() . "\n";
             }
