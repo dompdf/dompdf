@@ -479,7 +479,7 @@ class Stylesheet
                 $c = $selector[$i];
                 $c_prev = $selector[$i - 1];
 
-                if (!$in_func && !$in_attr && in_array($c, $delimiters) && !(($c == $c_prev) == ":")) {
+                if (!$in_func && !$in_attr && in_array($c, $delimiters) && !($c === $c_prev && $c === ":")) {
                     break;
                 }
 
