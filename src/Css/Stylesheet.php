@@ -762,8 +762,8 @@ class Stylesheet
 
                         case "~":
                         case "|":
-                        case "$":
                         case "^":
+                        case "$":
                         case "*":
                             $op .= $tok[$j++];
 
@@ -828,16 +828,22 @@ class Stylesheet
                             $query = rtrim($query, " or ") . "]";
                             break;
 
-                        case "$=":
-                            $query .= "[substring(@$attr, string-length(@$attr)-" . (strlen($value) - 1) . ")=\"$value\"]";
+                        case "^=":
+                            $query .= $value !== ""
+                                ? "[starts-with(@$attr,\"$value\")]"
+                                : "[false()]";
                             break;
 
-                        case "^=":
-                            $query .= "[starts-with(@$attr,\"$value\")]";
+                        case "$=":
+                            $query .= $value !== ""
+                                ? "[substring(@$attr, string-length(@$attr)-" . (strlen($value) - 1) . ")=\"$value\"]"
+                                : "[false()]";
                             break;
 
                         case "*=":
-                            $query .= "[contains(@$attr,\"$value\")]";
+                            $query .= $value !== ""
+                                ? "[contains(@$attr,\"$value\")]"
+                                : "[false()]";
                             break;
                     }
 
