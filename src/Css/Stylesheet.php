@@ -812,9 +812,9 @@ class Stylesheet
                         case "~=":
                             // FIXME: this will break if $value contains quoted strings
                             // (e.g. [type~="a b c" "d e f"])
-                            // FIXME: Don't match anything if value contains
-                            // whitespace or is the empty string
-                            $query .= "[contains(concat(' ', normalize-space(@$attr), ' '), concat(' ', '$value', ' '))]";
+                            $query .= $value !== "" && !preg_match("/\s+/", $value)
+                                ? "[contains(concat(' ', normalize-space(@$attr), ' '), concat(' ', \"$value\", ' '))]"
+                                : "[false()]";
                             break;
 
                         case "|=":
