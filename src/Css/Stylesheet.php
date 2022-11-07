@@ -441,9 +441,6 @@ class Stylesheet
         // Will contain :before and :after
         $pseudo_elements = [];
 
-        // Will contain :link, etc
-        $pseudo_classes = [];
-
         // Parse the selector
         //$s = preg_split("/([ :>.#+])/", $selector, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -615,7 +612,6 @@ class Stylesheet
                             $el = substr($query, $descendant_delimeter+2);
                             $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . $el;
 
-                            $pseudo_classes[$tok] = true;
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
                             $position = $last ? "(last()-position()+1)" : "position()";
@@ -647,7 +643,6 @@ class Stylesheet
                             $el = substr($query, $descendant_delimeter+2);
                             $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . "*";
 
-                            $pseudo_classes[$tok] = true;
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
                             $position = $last ? "(last()-position()+1)" : "position()";
@@ -675,7 +670,6 @@ class Stylesheet
 
                         //TODO: bit of a hack attempt at matches support, currently only matches against elements
                         case "matches":
-                            $pseudo_classes[$tok] = true;
                             $p = $i + 1;
                             $matchList = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
 
