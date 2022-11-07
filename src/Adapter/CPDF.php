@@ -155,7 +155,7 @@ class CPDF implements Canvas
      */
     protected $_current_opacity = 1;
 
-    public function __construct($paper = "letter", $orientation = "portrait", ?Dompdf $dompdf = null)
+    public function __construct($paper = "letter", string $orientation = "portrait", ?Dompdf $dompdf = null)
     {
         if (is_array($paper)) {
             $size = array_map("floatval", $paper);

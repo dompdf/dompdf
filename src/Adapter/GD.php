@@ -106,7 +106,7 @@ class GD implements Canvas
     /**
      * Background color array
      *
-     * @var int
+     * @var array
      */
     protected $_bg_color_array;
 
@@ -131,11 +131,11 @@ class GD implements Canvas
      * @param string|float[] $paper       The paper size to use as either a standard paper size (see {@link CPDF::$PAPER_SIZES}) or
      *                                    an array of the form `[x1, y1, x2, y2]` (typically `[0, 0, width, height]`).
      * @param string         $orientation The paper orientation, either `portrait` or `landscape`.
-     * @param Dompdf         $dompdf      The Dompdf instance.
+     * @param Dompdf|null    $dompdf      The Dompdf instance.
      * @param float          $aa_factor   Anti-aliasing factor, 1 for no AA
      * @param array          $bg_color    Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
      */
-    public function __construct($paper = "letter", $orientation = "portrait", ?Dompdf $dompdf = null, $aa_factor = 1.0, $bg_color = [1, 1, 1, 0])
+    public function __construct($paper = "letter", string $orientation = "portrait", ?Dompdf $dompdf = null, float $aa_factor = 1.0, array $bg_color = [1, 1, 1, 0])
     {
         if (is_array($paper)) {
             $size = array_map("floatval", $paper);
