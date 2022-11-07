@@ -627,25 +627,20 @@ class Stylesheet
                                 $condition = "($position mod 2) = 0";
                             } // an+b
                             else {
-                                $condition = $this->_selector_an_plus_b($nth, $last);
+                                $condition = $this->_selector_an_plus_b($nth, $position);
                             }
 
                             $query .= "[$condition]";
                             $tok = "";
                             break;
+
                         /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-child":
                             $last = true;
                         case "nth-child":
-                            //FIXME: this fix-up is pretty ugly, would parsing the selector in reverse work better generally?
-                            $descendant_delimeter = strrpos($query, "::");
-                            $isChild = substr($query, $descendant_delimeter-5, 5) === "child";
-                            $el = substr($query, $descendant_delimeter+2);
-                            $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . "*";
-
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
-                            $position = $last ? "(last()-position()+1)" : "position()";
+                            $position = $last ? "(count(following-sibling::*) + 1)" : "(count(preceding-sibling::*) + 1)";
 
                             // 1
                             if (preg_match("/^\d+$/", $nth)) {
@@ -658,13 +653,10 @@ class Stylesheet
                                 $condition = "($position mod 2) = 0";
                             } // an+b
                             else {
-                                $condition = $this->_selector_an_plus_b($nth, $last);
+                                $condition = $this->_selector_an_plus_b($nth, $position);
                             }
 
                             $query .= "[$condition]";
-                            if ($el !== "*") {
-                                $query .= "[name() = '$el']";
-                            }
                             $tok = "";
                             break;
 
@@ -886,11 +878,11 @@ class Stylesheet
      * https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
      *
      * @param string $expr
-     * @param bool $last
+     * @param string $position
      *
      * @return string
      */
-    protected function _selector_an_plus_b(string $expr, bool $last = false): string
+    protected function _selector_an_plus_b(string $expr, string $position): string
     {
         $expr = preg_replace("/\s/", "", $expr);
         if (!preg_match("/^(?P<a>-?[0-9]*)?n(?P<b>[-+]?[0-9]+)?$/", $expr, $matches)) {
@@ -899,8 +891,6 @@ class Stylesheet
 
         $a = (isset($matches["a"]) && $matches["a"] !== "") ? ($matches["a"] !== "-" ? intval($matches["a"]) : -1) : 1;
         $b = (isset($matches["b"]) && $matches["b"] !== "") ? intval($matches["b"]) : 0;
-
-        $position = $last ? "(last()-position()+1)" : "position()";
 
         if ($b === 0) {
             return "($position mod $a) = 0";
