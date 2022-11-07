@@ -522,14 +522,24 @@ class Stylesheet
                     $tok = "";
                     break;
 
-                case ".":
                 case "#":
-                    // All elements matching the current token with a class/id equal to
-                    // the _next_ token.
+                    // https://www.w3.org/TR/selectors-3/#id-selectors
+                    // All elements matching the current token with id equal
+                    // to the _next_ token
 
-                    $attr = $s === "." ? "class" : "id";
+                    if (mb_substr($query, -1, 1) === "/") {
+                        $query .= "*";
+                    }
 
-                    // empty class/id == *
+                    $query .= "[@id=\"$tok\"]";
+                    $tok = "";
+                    break;
+
+                case ".":
+                    // https://www.w3.org/TR/selectors-3/#class-html
+                    // All elements matching the current token with a class
+                    // equal to the _next_ token
+
                     if (mb_substr($query, -1, 1) === "/") {
                         $query .= "*";
                     }
@@ -541,7 +551,7 @@ class Stylesheet
                     // This doesn't work because libxml only supports XPath 1.0...
                     //$query .= "[matches(@$attr,\"^{$tok}\$|^{$tok}[ ]+|[ ]+{$tok}\$|[ ]+{$tok}[ ]+\")]";
 
-                    $query .= "[contains(concat(' ', normalize-space(@$attr), ' '), concat(' ', '$tok', ' '))]";
+                    $query .= "[contains(concat(' ', normalize-space(@class), ' '), concat(' ', '$tok', ' '))]";
                     $tok = "";
                     break;
 
