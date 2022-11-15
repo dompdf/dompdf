@@ -581,6 +581,10 @@ class Stylesheet
                             $query .= "[not(following-sibling::*)]";
                             break;
 
+                        case "only-child":
+                            $query .= "[not(preceding-sibling::*) and not(following-sibling::*)]";
+                            break;
+
                         // https://www.w3.org/TR/selectors-3/#nth-child-pseudo
                         /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-child":
@@ -602,6 +606,10 @@ class Stylesheet
 
                         case "last-of-type":
                             $query .= "[position() = last()]";
+                            break;
+
+                        case "only-of-type":
+                            $query .= "[position() = 1 and position() = last()]";
                             break;
 
                         // https://www.w3.org/TR/selectors-3/#nth-of-type-pseudo
