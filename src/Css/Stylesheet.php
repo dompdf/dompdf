@@ -661,7 +661,9 @@ class Stylesheet
                             break;
 
                         // https://www.w3.org/TR/selectors-3/#dynamic-pseudos
+                        // https://www.w3.org/TR/selectors-4/#the-any-link-pseudo
                         case "link":
+                        case "any-link":
                             $query .= "[@href]";
                             break;
 
@@ -670,6 +672,8 @@ class Stylesheet
                         case "hover":
                         case "active":
                         case "focus":
+                        case "focus-visible":
+                        case "focus-within":
                             $query .= "[false()]";
                             break;
 
