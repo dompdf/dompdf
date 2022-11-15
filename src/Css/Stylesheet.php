@@ -510,35 +510,6 @@ class Stylesheet
                     $query .= "/$expr::$tok";
                     break;
 
-                case "#":
-                    // https://www.w3.org/TR/selectors-3/#id-selectors
-                    // All elements matching the current token with id equal
-                    // to the _next_ token
-                    if ($query === "/") {
-                        $query .= "/*";
-                    }
-
-                    $query .= "[@id=\"$tok\"]";
-                    break;
-
-                case ".":
-                    // https://www.w3.org/TR/selectors-3/#class-html
-                    // All elements matching the current token with a class
-                    // equal to the _next_ token
-                    if ($query === "/") {
-                        $query .= "/*";
-                    }
-
-                    // Match multiple classes: $tok contains the current selected
-                    // class.  Search for class attributes with class="$tok",
-                    // class=".* $tok .*" and class=".* $tok"
-
-                    // This doesn't work because libxml only supports XPath 1.0...
-                    //$query .= "[matches(@$attr,\"^{$tok}\$|^{$tok}[ ]+|[ ]+{$tok}\$|[ ]+{$tok}[ ]+\")]";
-
-                    $query .= "[contains(concat(' ', normalize-space(@class), ' '), concat(' ', '$tok', ' '))]";
-                    break;
-
                 case "+":
                 case "~":
                     // Next-sibling combinator
@@ -559,6 +530,35 @@ class Stylesheet
                     }
                     break;
 
+                case "#":
+                    // All elements matching the current token with id equal
+                    // to the _next_ token
+                    // https://www.w3.org/TR/selectors-3/#id-selectors
+                    if ($query === "/") {
+                        $query .= "/*";
+                    }
+
+                    $query .= "[@id=\"$tok\"]";
+                    break;
+
+                case ".":
+                    // All elements matching the current token with a class
+                    // equal to the _next_ token
+                    // https://www.w3.org/TR/selectors-3/#class-html
+                    if ($query === "/") {
+                        $query .= "/*";
+                    }
+
+                    // Match multiple classes: $tok contains the current selected
+                    // class.  Search for class attributes with class="$tok",
+                    // class=".* $tok .*" and class=".* $tok"
+
+                    // This doesn't work because libxml only supports XPath 1.0...
+                    //$query .= "[matches(@$attr,\"^{$tok}\$|^{$tok}[ ]+|[ ]+{$tok}\$|[ ]+{$tok}[ ]+\")]";
+
+                    $query .= "[contains(concat(' ', normalize-space(@class), ' '), concat(' ', '$tok', ' '))]";
+                    break;
+
                 case ":":
                     if ($query === "/") {
                         $query .= "/*";
@@ -575,6 +575,21 @@ class Stylesheet
 
                         case "last-child":
                             $query .= "[not(following-sibling::*)]";
+                            break;
+
+                        // https://www.w3.org/TR/selectors-3/#nth-child-pseudo
+                        /** @noinspection PhpMissingBreakStatementInspection */
+                        case "nth-last-child":
+                            $last = true;
+                        case "nth-child":
+                            $p = $i + 1;
+                            $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+                            $position = $last
+                                ? "(count(following-sibling::*) + 1)"
+                                : "(count(preceding-sibling::*) + 1)";
+
+                            $condition = $this->_selector_an_plus_b($nth, $position);
+                            $query .= "[$condition]";
                             break;
 
                         case "first-of-type":
@@ -604,22 +619,12 @@ class Stylesheet
                             $query .= "[$condition]";
                             break;
 
-                        // https://www.w3.org/TR/selectors-3/#nth-child-pseudo
-                        /** @noinspection PhpMissingBreakStatementInspection */
-                        case "nth-last-child":
-                            $last = true;
-                        case "nth-child":
-                            $p = $i + 1;
-                            $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
-                            $position = $last
-                                ? "(count(following-sibling::*) + 1)"
-                                : "(count(preceding-sibling::*) + 1)";
-
-                            $condition = $this->_selector_an_plus_b($nth, $position);
-                            $query .= "[$condition]";
+                        // https://www.w3.org/TR/selectors-4/#empty-pseudo
+                        case "empty":
+                            $query .= "[not(*) and not(normalize-space())]";
                             break;
 
-                        //TODO: bit of a hack attempt at matches support, currently only matches against elements
+                        // TODO: bit of a hack attempt at matches support, currently only matches against elements
                         case "matches":
                             $p = $i + 1;
                             $matchList = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
@@ -633,10 +638,31 @@ class Stylesheet
                             $query .= "[" . implode(" or ", $elements) . "]";
                             break;
 
+                        // https://www.w3.org/TR/selectors-3/#UIstates
+                        case "disabled":
+                        case "checked":
+                            $query .= "[@$tok]";
+                            break;
+
+                        case "enabled":
+                            $query .= "[not(@disabled)]";
+                            break;
+
+                        // https://www.w3.org/TR/selectors-3/#dynamic-pseudos
                         case "link":
                             $query .= "[@href]";
                             break;
 
+                        // N/A
+                        case "visited":
+                        case "hover":
+                        case "active":
+                        case "focus":
+                            $query .= "[false()]";
+                            break;
+
+                        // https://www.w3.org/TR/selectors-3/#first-line
+                        // https://www.w3.org/TR/selectors-3/#first-letter
                         case "first-line":
                         case ":first-line":
                         case "first-letter":
@@ -646,15 +672,7 @@ class Stylesheet
                             $pseudo_elements[$el] = true;
                             break;
 
-                            // N/A
-                        case "focus":
-                        case "active":
-                        case "hover":
-                        case "visited":
-                            $query .= "[false()]";
-                            break;
-
-                        /* Pseudo-elements */
+                        // https://www.w3.org/TR/selectors-3/#gen-content
                         case "before":
                         case ":before":
                         case "after":
@@ -664,19 +682,6 @@ class Stylesheet
                             if (!$first_pass) {
                                 $query .= "/*[@$pos]";
                             }
-                            break;
-
-                        case "empty":
-                            $query .= "[not(*) and not(normalize-space())]";
-                            break;
-
-                        case "disabled":
-                        case "checked":
-                            $query .= "[@$tok]";
-                            break;
-
-                        case "enabled":
-                            $query .= "[not(@disabled)]";
                             break;
 
                         // Invalid or unsupported pseudo-class or pseudo-element
