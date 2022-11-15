@@ -450,6 +450,7 @@ class Stylesheet
             $selector = " $selector";
         }
 
+        $name = "*";
         $len = mb_strlen($selector);
         $i = 0;
 
@@ -507,6 +508,7 @@ class Stylesheet
                         $tok = "*";
                     }
 
+                    $name = $tok;
                     $query .= "/$expr::$tok";
                     break;
 
@@ -523,6 +525,7 @@ class Stylesheet
                         $tok = "*";
                     }
 
+                    $name = $tok;
                     $query .= "/following-sibling::$tok";
 
                     if ($s === "+") {
@@ -600,16 +603,20 @@ class Stylesheet
                             $query .= "[$condition]";
                             break;
 
+                        // TODO: `*:first-of-type`, `*:nth-of-type` etc.
+                        // (without fixed element name) are treated equivalent
+                        // to their `:*-child` counterparts here. They might
+                        // not be properly expressible in XPath 1.0
                         case "first-of-type":
-                            $query .= "[position() = 1]";
+                            $query .= "[not(preceding-sibling::$name)]";
                             break;
 
                         case "last-of-type":
-                            $query .= "[position() = last()]";
+                            $query .= "[not(following-sibling::$name)]";
                             break;
 
                         case "only-of-type":
-                            $query .= "[position() = 1 and position() = last()]";
+                            $query .= "[not(preceding-sibling::$name) and not(following-sibling::$name)]";
                             break;
 
                         // https://www.w3.org/TR/selectors-3/#nth-of-type-pseudo
@@ -617,15 +624,11 @@ class Stylesheet
                         case "nth-last-of-type":
                             $last = true;
                         case "nth-of-type":
-                            //FIXME: this fix-up is pretty ugly, would parsing the selector in reverse work better generally?
-                            $descendant_delimeter = strrpos($query, "::");
-                            $isChild = substr($query, $descendant_delimeter-5, 5) === "child";
-                            $el = substr($query, $descendant_delimeter+2);
-                            $query = substr($query, 0, strrpos($query, "/")) . ($isChild ? "/" : "//") . $el;
-
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
-                            $position = $last ? "(last()-position()+1)" : "position()";
+                            $position = $last
+                                ? "(count(following-sibling::$name) + 1)"
+                                : "(count(preceding-sibling::$name) + 1)";
 
                             $condition = $this->_selector_an_plus_b($nth, $position);
                             $query .= "[$condition]";
