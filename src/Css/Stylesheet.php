@@ -423,9 +423,8 @@ class Stylesheet
      * Converts a CSS selector to an XPath query.
      *
      * @param string $selector
-     * @param bool $first_pass
+     * @param bool   $first_pass
      *
-     * @throws Exception
      * @return array|null
      */
     private function _css_selector_to_xpath(string $selector, bool $first_pass = false): ?array
@@ -435,8 +434,8 @@ class Stylesheet
         //$replace = array(" ", "\\1");
         //$selector = preg_replace($search, $replace, trim($selector));
 
-        // Initial query (non-absolute)
-        $query = "//";
+        // Initial query, always expanded to // below (non-absolute)
+        $query = "/";
 
         // Will contain :before and :after
         $pseudo_elements = [];
@@ -446,19 +445,12 @@ class Stylesheet
 
         $delimiters = [" ", ">", ".", "#", "+", "~", ":", "[", "("];
 
-        // Add an implicit * at the beginning of the selector
-        // if it begins with an attribute selector
-        if ($selector[0] === "[") {
-            $selector = "*$selector";
-        }
-
         // Add an implicit space at the beginning of the selector if there is no
         // delimiter there already.
         if (!in_array($selector[0], $delimiters, true)) {
             $selector = " $selector";
         }
 
-        $tok = "";
         $len = mb_strlen($selector);
         $i = 0;
 
@@ -503,13 +495,11 @@ class Stylesheet
 
                 case " ":
                 case ">":
-                    // All elements matching the next token that are direct children of
-                    // the current token
+                    // All elements matching the next token that are descendants
+                    // or children of the current token
+                    // https://www.w3.org/TR/selectors-3/#descendant-combinators
+                    // https://www.w3.org/TR/selectors-3/#child-combinators
                     $expr = $s === " " ? "descendant" : "child";
-
-                    if (mb_substr($query, -1, 1) !== "/") {
-                        $query .= "/";
-                    }
 
                     // Tag names are case-insensitive
                     $tok = strtolower($tok);
@@ -518,30 +508,26 @@ class Stylesheet
                         $tok = "*";
                     }
 
-                    $query .= "$expr::$tok";
-                    $tok = "";
+                    $query .= "/$expr::$tok";
                     break;
 
                 case "#":
                     // https://www.w3.org/TR/selectors-3/#id-selectors
                     // All elements matching the current token with id equal
                     // to the _next_ token
-
-                    if (mb_substr($query, -1, 1) === "/") {
-                        $query .= "*";
+                    if ($query === "/") {
+                        $query .= "/*";
                     }
 
                     $query .= "[@id=\"$tok\"]";
-                    $tok = "";
                     break;
 
                 case ".":
                     // https://www.w3.org/TR/selectors-3/#class-html
                     // All elements matching the current token with a class
                     // equal to the _next_ token
-
-                    if (mb_substr($query, -1, 1) === "/") {
-                        $query .= "*";
+                    if ($query === "/") {
+                        $query .= "/*";
                     }
 
                     // Match multiple classes: $tok contains the current selected
@@ -552,7 +538,6 @@ class Stylesheet
                     //$query .= "[matches(@$attr,\"^{$tok}\$|^{$tok}[ ]+|[ ]+{$tok}\$|[ ]+{$tok}[ ]+\")]";
 
                     $query .= "[contains(concat(' ', normalize-space(@class), ' '), concat(' ', '$tok', ' '))]";
-                    $tok = "";
                     break;
 
                 case "+":
@@ -560,9 +545,6 @@ class Stylesheet
                     // Next-sibling combinator
                     // Subsequent-sibling combinator
                     // https://www.w3.org/TR/selectors-3/#sibling-combinators
-                    if (mb_substr($query, -1, 1) !== "/") {
-                        $query .= "/";
-                    }
 
                     // Tag names are case-insensitive
                     $tok = strtolower($tok);
@@ -571,19 +553,16 @@ class Stylesheet
                         $tok = "*";
                     }
 
-                    $query .= "following-sibling::$tok";
+                    $query .= "/following-sibling::$tok";
 
                     if ($s === "+") {
                         $query .= "[1]";
                     }
-
-                    $tok = "";
                     break;
 
                 case ":":
-                    $i2 = $i - strlen($tok) - 2; // the char before ":"
-                    if (($i2 < 0 || !isset($selector[$i2]) || (in_array($selector[$i2], $delimiters, true) && $selector[$i2] !== ":")) && substr($query, -1) !== "*") {
-                        $query .= "*";
+                    if ($query === "/") {
+                        $query .= "/*";
                     }
 
                     $last = false;
@@ -593,25 +572,21 @@ class Stylesheet
 
                         case "first-child":
                             $query .= "[not(preceding-sibling::*)]";
-                            $tok = "";
                             break;
 
                         case "last-child":
                             $query .= "[not(following-sibling::*)]";
-                            $tok = "";
                             break;
 
                         case "first-of-type":
                             $query .= "[position() = 1]";
-                            $tok = "";
                             break;
 
                         case "last-of-type":
                             $query .= "[position() = last()]";
-                            $tok = "";
                             break;
 
-                        // an+b, n, odd, and even
+                        // https://www.w3.org/TR/selectors-3/#nth-of-type-pseudo
                         /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-of-type":
                             $last = true;
@@ -626,48 +601,23 @@ class Stylesheet
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
                             $position = $last ? "(last()-position()+1)" : "position()";
 
-                            // 1
-                            if (preg_match("/^\d+$/", $nth)) {
-                                $condition = "$position = $nth";
-                            } // odd
-                            elseif ($nth === "odd") {
-                                $condition = "($position mod 2) = 1";
-                            } // even
-                            elseif ($nth === "even") {
-                                $condition = "($position mod 2) = 0";
-                            } // an+b
-                            else {
-                                $condition = $this->_selector_an_plus_b($nth, $position);
-                            }
-
+                            $condition = $this->_selector_an_plus_b($nth, $position);
                             $query .= "[$condition]";
-                            $tok = "";
                             break;
 
+                        // https://www.w3.org/TR/selectors-3/#nth-child-pseudo
                         /** @noinspection PhpMissingBreakStatementInspection */
                         case "nth-last-child":
                             $last = true;
                         case "nth-child":
                             $p = $i + 1;
                             $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
-                            $position = $last ? "(count(following-sibling::*) + 1)" : "(count(preceding-sibling::*) + 1)";
+                            $position = $last
+                                ? "(count(following-sibling::*) + 1)"
+                                : "(count(preceding-sibling::*) + 1)";
 
-                            // 1
-                            if (preg_match("/^\d+$/", $nth)) {
-                                $condition = "$position = $nth";
-                            } // odd
-                            elseif ($nth === "odd") {
-                                $condition = "($position mod 2) = 1";
-                            } // even
-                            elseif ($nth === "even") {
-                                $condition = "($position mod 2) = 0";
-                            } // an+b
-                            else {
-                                $condition = $this->_selector_an_plus_b($nth, $position);
-                            }
-
+                            $condition = $this->_selector_an_plus_b($nth, $position);
                             $query .= "[$condition]";
-                            $tok = "";
                             break;
 
                         //TODO: bit of a hack attempt at matches support, currently only matches against elements
@@ -682,12 +632,10 @@ class Stylesheet
                             }
 
                             $query .= "[" . implode(" or ", $elements) . "]";
-                            $tok = "";
                             break;
 
                         case "link":
                             $query .= "[@href]";
-                            $tok = "";
                             break;
 
                         case "first-line":
@@ -705,7 +653,6 @@ class Stylesheet
                         case "hover":
                         case "visited":
                             $query .= "[false()]";
-                            $tok = "";
                             break;
 
                         /* Pseudo-elements */
@@ -718,24 +665,19 @@ class Stylesheet
                             if (!$first_pass) {
                                 $query .= "/*[@$pos]";
                             }
-
-                            $tok = "";
                             break;
 
                         case "empty":
                             $query .= "[not(*) and not(normalize-space())]";
-                            $tok = "";
                             break;
 
                         case "disabled":
                         case "checked":
                             $query .= "[@$tok]";
-                            $tok = "";
                             break;
 
                         case "enabled":
                             $query .= "[not(@disabled)]";
-                            $tok = "";
                             break;
 
                         // Invalid or unsupported pseudo-class or pseudo-element
@@ -746,8 +688,13 @@ class Stylesheet
                     break;
 
                 case "[":
-                    // Attribute selectors.  All with an attribute matching the following token(s)
+                    // Attribute selectors.  All with an attribute matching the
+                    // following token(s)
                     // https://www.w3.org/TR/selectors-3/#attribute-selectors
+                    if ($query === "/") {
+                        $query .= "/*";
+                    }
+
                     $attr_delimiters = ["=", "]", "~", "|", "$", "^", "*"];
                     $tok_len = mb_strlen($tok);
                     $j = 0;
@@ -860,46 +807,35 @@ class Stylesheet
                     break;
             }
         }
-        $i++;
-
-//       case ":":
-//         // Pseudo selectors: ignore for now.  Partially handled directly
-//         // below.
-
-//         // Skip until the next special character, leaving the token as-is
-//         while ( $i < $len ) {
-//           if ( in_array($selector[$i], $delimiters) )
-//             break;
-//           $i++;
-//         }
-//         break;
-
-//       default:
-//         // Add the character to the token
-//         $tok .= $selector[$i++];
-//         break;
-//       }
-
-//    }
-
-        // Trim the trailing '/' from the query
-        if (mb_strlen($query) > 2) {
-            $query = rtrim($query, "/");
-        }
 
         return ["query" => $query, "pseudo_elements" => $pseudo_elements];
     }
 
     /**
-     * https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
+     * Parse an `nth-child` expression of the form `an+b`, `odd`, or `even`.
      *
      * @param string $expr
      * @param string $position
      *
      * @return string
+     *
+     * @link https://www.w3.org/TR/selectors-3/#nth-child-pseudo
      */
     protected function _selector_an_plus_b(string $expr, string $position): string
     {
+        // odd
+        if ($expr === "odd") {
+            return "($position mod 2) = 1";
+        } // even
+        elseif ($expr === "even") {
+            return "($position mod 2) = 0";
+        } // b
+        elseif (preg_match("/^\d+$/", $expr)) {
+            return "$position = $expr";
+        }
+
+        // an+b
+        // https://github.com/tenderlove/nokogiri/blob/master/lib/nokogiri/css/xpath_visitor.rb
         $expr = preg_replace("/\s/", "", $expr);
         if (!preg_match("/^(?P<a>-?[0-9]*)?n(?P<b>[-+]?[0-9]+)?$/", $expr, $matches)) {
             return "false()";
