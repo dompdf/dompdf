@@ -368,10 +368,10 @@ class Stylesheet
     }
 
     /**
-     * @link http://www.w3.org/TR/CSS21/cascade.html#specificity
+     * @link https://www.w3.org/TR/CSS21/cascade.html#specificity
      *
      * @param string $selector
-     * @param int $origin :
+     * @param int    $origin
      *    - Stylesheet::ORIG_UA: user agent style sheet
      *    - Stylesheet::ORIG_USER: user style sheet
      *    - Stylesheet::ORIG_AUTHOR: author style sheet
@@ -380,22 +380,21 @@ class Stylesheet
      */
     private function _specificity(string $selector, int $origin = self::ORIG_AUTHOR): int
     {
-        // http://www.w3.org/TR/CSS21/cascade.html#specificity
-        // ignoring the ":" pseudoclass modifiers
-        // also ignored in _css_selector_to_xpath
-
         $a = ($selector === "!attr") ? 1 : 0;
 
         $b = min(mb_substr_count($selector, "#"), 255);
 
         $c = min(mb_substr_count($selector, ".") +
-            mb_substr_count($selector, "["), 255);
+            mb_substr_count($selector, "[") +
+            mb_substr_count($selector, ":") -
+            2 * mb_substr_count($selector, "::"), 255);
 
         $d = min(mb_substr_count($selector, " ") +
             mb_substr_count($selector, ">") +
             mb_substr_count($selector, "+") +
             mb_substr_count($selector, "~") -
-            mb_substr_count($selector, "~="), 255);
+            mb_substr_count($selector, "~=") +
+            mb_substr_count($selector, "::"), 255);
 
         //If a normal element name is at the beginning of the string,
         //a leading whitespace might have been removed on whitespace collapsing and removal
