@@ -569,6 +569,10 @@ class Stylesheet
                     // Pseudo-classes
                     switch ($tok) {
 
+                        case "root":
+                            $query .= "[not(parent::*)]";
+                            break;
+
                         case "first-child":
                             $query .= "[not(preceding-sibling::*)]";
                             break;
