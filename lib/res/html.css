@@ -10,7 +10,7 @@
  * @license http://mozilla.org/MPL/2.0/ Mozilla Public License, v. 2.0
  *
  * Portions from W3C
- * @link https://drafts.csswg.org/css-ui-3/#default-style-sheet
+ * @link https://www.w3.org/TR/css-ui-3/#default-style-sheet
  *
  */
 
@@ -219,11 +219,11 @@ th {
 
 /* inlines */
 
-q:before {
+q::before {
   content: open-quote;
 }
 
-q:after {
+q::after {
   content: close-quote;
 }
 
@@ -307,7 +307,7 @@ li {
   display: list-item;
 }
 
-/*li:before {
+/*li::before {
   display: -dompdf-list-bullet !important;
   content: counter(-dompdf-default-counter) ". ";
   padding-right: 0.5em;
@@ -339,7 +339,7 @@ li {
 }
 
 /* forms */
-/* From https://drafts.csswg.org/css-ui-3/#default-style-sheet */
+/* From https://www.w3.org/TR/css-ui-3/#default-style-sheet */
 form {
   display: block;
 }
@@ -383,18 +383,18 @@ input[type=file] {
   width: 8em;
 }
 
-input[type=text]:before,
-input[type=button]:before,
-input[type=submit]:before,
-input[type=reset]:before {
+input[type=text]::before,
+input[type=button]::before,
+input[type=submit]::before,
+input[type=reset]::before {
   content: attr(value);
 }
 
-input[type=file]:before {
+input[type=file]::before {
   content: "Choose a file";
 }
 
-input[type=password][value]:before {
+input[type=password][value]::before {
   font-family: "DejaVu Sans" !important;
   content: "\2022\2022\2022\2022\2022\2022\2022\2022";
   line-height: 1em;
@@ -402,25 +402,25 @@ input[type=password][value]:before {
 
 input[type=checkbox],
 input[type=radio],
-select:after {
+select::after {
   font-family: "DejaVu Sans" !important;
   font-size: 18px;
   line-height: 1;
 }
 
-input[type=checkbox]:before {
+input[type=checkbox]::before {
   content: "\2610";
 }
 
-input[type=checkbox][checked]:before {
+input[type=checkbox][checked]::before {
   content: "\2611";
 }
 
-input[type=radio]:before {
+input[type=radio]::before {
   content: "\25CB";
 }
 
-input[type=radio][checked]:before {
+input[type=radio][checked]::before {
   content: "\25C9";
 }
 
@@ -438,7 +438,7 @@ select {
   overflow: hidden!important;
 }
 
-select:after {
+select::after {
   position: absolute;
   right: 0;
   top: 0;
