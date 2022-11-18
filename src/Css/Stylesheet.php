@@ -502,35 +502,30 @@ class Stylesheet
                     $expr = $s === " " ? "descendant" : "child";
 
                     // Tag names are case-insensitive
-                    $tok = strtolower($tok);
-
-                    if ($tok === "") {
-                        $tok = "*";
-                    }
-
-                    $name = $tok;
-                    $query .= "/$expr::$tok";
+                    $name = $tok === "" ? "*" : strtolower($tok);
+                    $query .= "/$expr::$name";
                     break;
 
                 case "+":
-                case "~":
                     // Next-sibling combinator
+                    // https://www.w3.org/TR/selectors-3/#sibling-combinators
+
+                    // Tag names are case-insensitive
+                    $name = $tok === "" ? "*" : strtolower($tok);
+                    $query .= "/following-sibling::*[1]";
+
+                    if ($name !== "*") {
+                        $query .= "[name() = '$name']";
+                    }
+                    break;
+
+                case "~":
                     // Subsequent-sibling combinator
                     // https://www.w3.org/TR/selectors-3/#sibling-combinators
 
                     // Tag names are case-insensitive
-                    $tok = strtolower($tok);
-
-                    if ($tok === "") {
-                        $tok = "*";
-                    }
-
-                    $name = $tok;
-                    $query .= "/following-sibling::$tok";
-
-                    if ($s === "+") {
-                        $query .= "[1]";
-                    }
+                    $name = $tok === "" ? "*" : strtolower($tok);
+                    $query .= "/following-sibling::$name";
                     break;
 
                 case "#":
