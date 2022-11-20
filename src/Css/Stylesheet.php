@@ -378,7 +378,7 @@ class Stylesheet
      *
      * @return int
      */
-    private function _specificity(string $selector, int $origin = self::ORIG_AUTHOR): int
+    protected function specificity(string $selector, int $origin = self::ORIG_AUTHOR): int
     {
         $a = ($selector === "!attr") ? 1 : 0;
 
@@ -400,9 +400,9 @@ class Stylesheet
         //a leading whitespace might have been removed on whitespace collapsing and removal
         //therefore there might be one whitespace less as selected element names
         //this can lead to a too small specificity
-        //see _css_selector_to_xpath
+        //see selectorToXpath
 
-        if (!in_array($selector[0], [" ", ">", ".", "#", "+", "~", ":", "["]) && $selector !== "*") {
+        if (!in_array($selector[0], [" ", ">", ".", "#", "+", "~", ":", "["], true) && $selector !== "*") {
             $d++;
         }
 
@@ -410,7 +410,7 @@ class Stylesheet
             /*DEBUGCSS*/
             print "<pre>\n";
             /*DEBUGCSS*/
-            printf("_specificity(): 0x%08x \"%s\"\n", self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d)), $selector);
+            printf("specificity(): 0x%08x \"%s\"\n", self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d)), $selector);
             /*DEBUGCSS*/
             print "</pre>";
         }
@@ -422,11 +422,11 @@ class Stylesheet
      * Converts a CSS selector to an XPath query.
      *
      * @param string $selector
-     * @param bool   $first_pass
+     * @param bool   $firstPass
      *
      * @return array|null
      */
-    private function _css_selector_to_xpath(string $selector, bool $first_pass = false): ?array
+    protected function selectorToXpath(string $selector, bool $firstPass = false): ?array
     {
         // Collapse white space and strip whitespace around delimiters
         //$search = array("/\\s+/", "/\\s+([.>#+:])\\s+/");
@@ -594,7 +594,7 @@ class Stylesheet
                                 ? "(count(following-sibling::*) + 1)"
                                 : "(count(preceding-sibling::*) + 1)";
 
-                            $condition = $this->_selector_an_plus_b($nth, $position);
+                            $condition = $this->selectorAnPlusB($nth, $position);
                             $query .= "[$condition]";
                             break;
 
@@ -625,7 +625,7 @@ class Stylesheet
                                 ? "(count(following-sibling::$name) + 1)"
                                 : "(count(preceding-sibling::$name) + 1)";
 
-                            $condition = $this->_selector_an_plus_b($nth, $position);
+                            $condition = $this->selectorAnPlusB($nth, $position);
                             $query .= "[$condition]";
                             break;
 
@@ -682,7 +682,7 @@ class Stylesheet
                         case "first-letter":
                         case ":first-letter":
                             // TODO
-                            $el = trim($tok, ":");
+                            $el = ltrim($tok, ":");
                             $pseudo_elements[$el] = true;
                             break;
 
@@ -691,9 +691,9 @@ class Stylesheet
                         case ":before":
                         case "after":
                         case ":after":
-                            $pos = trim($tok, ":");
+                            $pos = ltrim($tok, ":");
                             $pseudo_elements[$pos] = true;
-                            if (!$first_pass) {
+                            if (!$firstPass) {
                                 $query .= "/*[@$pos]";
                             }
                             break;
@@ -728,8 +728,13 @@ class Stylesheet
                         $attr .= $tok[$j++];
                     }
 
+                    if ($attr === "") {
+                        // Selector invalid: Missing attribute name
+                        return null;
+                    }
+
                     if (!isset($tok[$j])) {
-                        // Selector invalid
+                        // Selector invalid: Missing ] or operator
                         return null;
                     }
 
@@ -767,8 +772,8 @@ class Stylesheet
                         }
                     }
 
-                    if ($attr === "") {
-                        // Selector invalid: Missing attribute name
+                    if (!isset($tok[$j])) {
+                        // Selector invalid: Missing ]
                         return null;
                     }
 
@@ -839,7 +844,7 @@ class Stylesheet
      *
      * @link https://www.w3.org/TR/selectors-3/#nth-child-pseudo
      */
-    protected function _selector_an_plus_b(string $expr, string $position): string
+    protected function selectorAnPlusB(string $expr, string $position): string
     {
         // odd
         if ($expr === "odd") {
@@ -907,7 +912,7 @@ class Stylesheet
                 continue;
             }
 
-            $query = $this->_css_selector_to_xpath($selector, true);
+            $query = $this->selectorToXpath($selector, true);
             if ($query === null) {
                 Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                 continue;
@@ -960,7 +965,7 @@ class Stylesheet
 
         // Apply all styles in stylesheet
         foreach ($this->_styles as $selector => $selector_styles) {
-            $query = $this->_css_selector_to_xpath($selector);
+            $query = $this->selectorToXpath($selector);
             if ($query === null) {
                 Helpers::record_warnings(E_USER_WARNING, "The CSS selector '$selector' is not valid", __FILE__, __LINE__);
                 continue;
@@ -974,7 +979,7 @@ class Stylesheet
             }
 
             foreach ($selector_styles as $style) {
-                $spec = $this->_specificity($selector, $style->get_origin());
+                $spec = $this->specificity($selector, $style->get_origin());
 
                 foreach ($nodes as $node) {
                     // Only DOMElements get styles
@@ -1042,7 +1047,7 @@ class Stylesheet
                 // Destroy CSS comments
                 $str = preg_replace("'/\*.*?\*/'si", "", $str);
 
-                $spec = $this->_specificity("!attr", self::ORIG_AUTHOR);
+                $spec = $this->specificity("!attr", self::ORIG_AUTHOR);
                 $styles[$id][$spec][] = $this->_parse_properties($str);
             }
 
