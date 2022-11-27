@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The last block should be fully opaque">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font: bold 20pt sans-serif;
+}
+
+p {
+    background-color: red;
+    border: 2pt solid black;
+}
+</style>
+</head>
+
+<body>
+    <p style="opacity: 0.1;">Opacity 10%</p>
+    <p style="transform: scale(1);">Transformed</p>
+    <p>Opacity 100%</p>
+</body>
+
+</html>

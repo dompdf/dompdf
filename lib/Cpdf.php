@@ -134,13 +134,13 @@ class Cpdf
     private $gstates = [];
 
     /**
-     * @var array Current color for fill operations, defaults to inactive value,
+     * @var array|null Current color for fill operations, defaults to inactive value,
      * all three components should be between 0 and 1 inclusive when active
      */
     public $currentColor = null;
 
     /**
-     * @var array Current color for stroke operations (lines etc.)
+     * @var array|null Current color for stroke operations (lines etc.)
      */
     public $currentStrokeColor = null;
 
@@ -155,12 +155,12 @@ class Cpdf
     public $currentLineStyle = '';
 
     /**
-     * @var array Current line transparency (partial graphics state)
+     * @var array|null Current line transparency (partial graphics state)
      */
     public $currentLineTransparency = ["mode" => "Normal", "opacity" => 1.0];
 
     /**
-     * array Current fill transparency (partial graphics state)
+     * @var array|null Current fill transparency (partial graphics state)
      */
     public $currentFillTransparency = ["mode" => "Normal", "opacity" => 1.0];
 
@@ -3755,12 +3755,12 @@ EOT;
      * ColorDogde, ColorBurn, HardLight, SoftLight, Difference,
      * Exclusion
      *
-     * @param string $mode    the blend mode to use
+     * @param string $mode    The blend mode to use
      * @param float  $opacity 0.0 fully transparent, 1.0 fully opaque
      */
-    function setLineTransparency($mode, $opacity)
+    public function setLineTransparency(string $mode, float $opacity): void
     {
-        static $blend_modes = [
+        static $blendModes = [
             "Normal",
             "Multiply",
             "Screen",
@@ -3775,27 +3775,24 @@ EOT;
             "Exclusion"
         ];
 
-        if (!in_array($mode, $blend_modes)) {
+        if (!in_array($mode, $blendModes, true)) {
             $mode = "Normal";
         }
 
-        if (is_null($this->currentLineTransparency)) {
-            $this->currentLineTransparency = [];
-        }
+        $newState = [
+            "mode"    => $mode,
+            "opacity" => $opacity
+        ];
 
-        if ($mode === (key_exists('mode', $this->currentLineTransparency) ?
-            $this->currentLineTransparency['mode'] : '') &&
-            $opacity === (key_exists('opacity', $this->currentLineTransparency) ?
-            $this->currentLineTransparency["opacity"] : '')) {
+        if ($newState === $this->currentLineTransparency) {
             return;
         }
 
-        $this->currentLineTransparency["mode"] = $mode;
-        $this->currentLineTransparency["opacity"] = $opacity;
+        $this->currentLineTransparency = $newState;
 
         $options = [
             "BM" => "/$mode",
-            "CA" => (float)$opacity
+            "CA" => $opacity
         ];
 
         $this->setGraphicsState($options);
@@ -3810,12 +3807,12 @@ EOT;
      * ColorDogde, ColorBurn, HardLight, SoftLight, Difference,
      * Exclusion
      *
-     * @param string $mode    the blend mode to use
+     * @param string $mode    The blend mode to use
      * @param float  $opacity 0.0 fully transparent, 1.0 fully opaque
      */
-    function setFillTransparency($mode, $opacity)
+    public function setFillTransparency(string $mode, float $opacity): void
     {
-        static $blend_modes = [
+        static $blendModes = [
             "Normal",
             "Multiply",
             "Screen",
@@ -3830,27 +3827,24 @@ EOT;
             "Exclusion"
         ];
 
-        if (!in_array($mode, $blend_modes)) {
+        if (!in_array($mode, $blendModes, true)) {
             $mode = "Normal";
         }
 
-        if (is_null($this->currentFillTransparency)) {
-            $this->currentFillTransparency = [];
-        }
+        $newState = [
+            "mode"    => $mode,
+            "opacity" => $opacity
+        ];
 
-        if ($mode === (key_exists('mode', $this->currentFillTransparency) ?
-            $this->currentFillTransparency['mode'] : '') &&
-            $opacity === (key_exists('opacity', $this->currentFillTransparency) ?
-            $this->currentFillTransparency["opacity"] : '')) {
+        if ($newState === $this->currentFillTransparency) {
             return;
         }
 
-        $this->currentFillTransparency["mode"] = $mode;
-        $this->currentFillTransparency["opacity"] = $opacity;
+        $this->currentFillTransparency = $newState;
 
         $options = [
             "BM" => "/$mode",
-            "ca" => (float)$opacity,
+            "ca" => $opacity,
         ];
 
         $this->setGraphicsState($options);
@@ -4152,6 +4146,10 @@ EOT;
             $string .= ' [ ' . implode(' ', $dash) . " ] $phase d";
         }
 
+        if ($string === $this->currentLineStyle) {
+            return;
+        }
+
         $this->currentLineStyle = $string;
         $this->addContent("\n$string");
     }
@@ -4423,9 +4421,6 @@ EOT;
      */
     function save()
     {
-        // we must reset the color cache or it will keep bad colors after clipping
-        $this->currentColor = null;
-        $this->currentStrokeColor = null;
         $this->addContent("\nq");
     }
 
@@ -4434,9 +4429,13 @@ EOT;
      */
     function restore()
     {
-        // we must reset the color cache or it will keep bad colors after clipping
+        // Reset color and transparency caches, as any changes to the graphics
+        // state since saving will be discarded
         $this->currentColor = null;
         $this->currentStrokeColor = null;
+        $this->currentLineStyle = '';
+        $this->currentLineTransparency = null;
+        $this->currentFillTransparency = null;
         $this->addContent("\nQ");
     }
 
@@ -4688,7 +4687,7 @@ EOT;
         }
 
         // if there is a line style set, then put this in too
-        if (mb_strlen($this->currentLineStyle, '8bit')) {
+        if ($this->currentLineStyle !== '') {
             $this->addContent("\n$this->currentLineStyle");
         }
 
