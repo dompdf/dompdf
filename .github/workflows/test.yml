@@ -14,17 +14,25 @@ jobs:
     strategy:
       max-parallel: 12
       matrix:
-        php: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+        php: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
         package-release: [dist]
+        extensions: ['gd']
+        include:
+          - php: '8.1'
+            package-release: 'dist'
+            extensions: 'gmagick'
+          - php: '8.2'
+            package-release: 'dist'
+            extensions: 'imagick'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: exif,json,mbstring,dom
+          extensions: exif,json,mbstring,dom,${{ matrix.extensions }}
 
       - name: Install composer dependencies
         uses: ramsey/composer-install@v2
