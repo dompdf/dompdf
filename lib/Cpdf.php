@@ -5716,8 +5716,10 @@ EOT;
                 }
             }
 
-            $imagick = new \Imagick($file);
+            $imagick = new \Imagick();
+            $imagick->setRegistry('temporary-path', $this->tmp);
             $imagick->setFormat('PNG');
+            $imagick->readImage($file);
 
             // Get opacity channel (negative of alpha channel)
             if ($imagick->getImageAlphaChannel()) {
@@ -5747,6 +5749,7 @@ EOT;
 
             // Make opaque image
             $color_channels = new \Imagick();
+            $color_channels->setRegistry('temporary-path', $this->tmp);
             $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
             $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYRED, 0, 0);
             $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYGREEN, 0, 0);
