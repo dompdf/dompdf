@@ -130,9 +130,6 @@ class FontMetrics
             $fontDir = $this->options->getFontDir();
             $rootDir = $this->options->getRootDir();
     
-            if (!defined("DOMPDF_DIR")) { define("DOMPDF_DIR", $rootDir); }
-            if (!defined("DOMPDF_FONT_DIR")) { define("DOMPDF_FONT_DIR", $fontDir); }
-    
             $cacheDataClosure = require $legacyCacheFile;
             $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
             if (is_array($cacheData)) {
