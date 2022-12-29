@@ -684,7 +684,6 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $font .= ".afm";
         $pdf->selectFont($font);
 
         if (!isset($pdf->acroFormId)) {
@@ -702,7 +701,6 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $font .= ".afm";
         $pdf->selectFont($font);
 
         if (!isset($pdf->acroFormId)) {
@@ -719,7 +717,6 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $font .= ".afm";
         $pdf->selectFont($font);
 
         if (!isset($pdf->acroFormId)) {
@@ -752,7 +749,7 @@ class CPDF implements Canvas
         $this->_set_fill_color($color);
 
         $is_font_subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
-        $pdf->selectFont($font . '.afm', '', true, $is_font_subsetting);
+        $pdf->selectFont($font, '', true, $is_font_subsetting);
 
         $pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size), $size, $text, $angle, $word_space, $char_space);
 
