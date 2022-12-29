@@ -617,11 +617,10 @@ class GD implements Canvas
         }
 
         $func_name = "imagecreatefrom$img_type";
-        if (!function_exists($func_name)) {
-            if (!method_exists(Helpers::class, $func_name)) {
-                throw new \Exception("Function $func_name() not found.  Cannot convert $img_type image: $img.  Please install the image PHP extension.");
-            }
+        if (method_exists(Helpers::class, $func_name)) {
             $func_name = [Helpers::class, $func_name];
+        } elseif (!function_exists($func_name)) {
+            throw new \Exception("Function $func_name() not found.  Cannot convert $img_type image: $img.  Please install the image PHP extension.");
         }
         $src = @call_user_func($func_name, $img);
 
