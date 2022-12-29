@@ -54,6 +54,34 @@ class Stylesheet
      */
     const ORIG_AUTHOR = 3;
 
+    /**
+     * RegEx pattern representing a CSS string
+     *
+     * @var string
+     */
+    const PATTERN_CSS_STRING = '(?<CSS_STRING>(?<CSS_STRING_QUOTE>[\'"])(?<CSS_STRING_VALUE>.*?)(?<!\\\\)\g{CSS_STRING_QUOTE})';
+
+    /**
+     * RegEx pattern representing the CSS url() function
+     *
+     * @var string
+     */
+    const PATTERN_CSS_URL_FN = '(?<CSS_URL_FN>url\(\s*(?<CSS_URL_FN_QUOTE>[\'"]?)(?<CSS_URL_FN_VALUE>.*?)(?(CSS_URL_FN_QUOTE)(?<!\\\\)\g{CSS_URL_FN_QUOTE})\s*\))';
+
+    /**
+     * RegEx pattern representing the CSS local() function
+     *
+     * @var string
+     */
+    const PATTERN_CSS_LOCAL_FN = '(?<CSS_LOCAL_FN>local\(\s*(?<CSS_LOCAL_FN_QUOTE>[\'"]?)(?<CSS_LOCAL_FN_VALUE>.*?)(?(CSS_LOCAL_FN_QUOTE)(?<!\\\\)\g{CSS_LOCAL_FN_QUOTE})\s*\))';
+
+    /**
+     * RegEx pattern representing a CSS media query
+     *
+     * @var string
+     */
+    const PATTERN_MEDIA_QUERY = '(?<CSS_MEDIA_QUERY>(?:(?:(?:(?<CSS_MEDIA_QUERY_OP>only|not)\s+)?(?<CSS_MEDIA_QUERY_TYPE>all|aural|bitmap|braille|dompdf|embossed|handheld|paged|print|projection|screen|speech|static|tty|tv|visual))|(?:\(\s*(?<CSS_MEDIA_QUERY_FEATURE>(?:(?:(?:min|max)-)?(?:width|height))|orientation|[^:]*?)\s*(?:\:\s*(?<CSS_MEDIA_QUERY_CONDITION>.*?)\s*)?\))))';
+
     /*
      * The highest possible specificity is 0x01000000 (and that is only for author
      * stylesheets, as it is for inline styles). Origin precedence can be achieved by
@@ -347,7 +375,6 @@ class Stylesheet
 
             $good_mime_type = true;
 
-            // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
             if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
                     if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
@@ -1209,81 +1236,96 @@ class Stylesheet
             "/-->$/"
         ], "", $str);
 
-        // FIXME: handle '{' within strings, e.g. [attr="string {}"]
+        // shim constants for string interpolation
+        $pattern_atimport_string = str_replace("CSS_STRING", "CSS_ATIMPORT_STRING", self::PATTERN_CSS_STRING);
+        $pattern_atimport_url = str_replace("CSS_URL_FN", "CSS_ATIMPORT_URL_FN", self::PATTERN_CSS_URL_FN);
+        $pattern_media_query = self::PATTERN_MEDIA_QUERY;
 
         // Something more legible:
-        $re =
-            "/\s*                                   # Skip leading whitespace                             \n" .
-            "( @([^\s{]+)\s*([^{;]*) (?:;|({)) )?   # Match @rules followed by ';' or '{'                 \n" .
-            "(?(1)                                  # Only parse sub-sections if we're in an @rule...     \n" .
-            "  (?(4)                                # ...and if there was a leading '{'                   \n" .
-            "    \s*( (?:(?>[^{}]+) ({)?            # Parse rulesets and individual @page rules           \n" .
-            "            (?(6) (?>[^}]*) }) \s*)+?                                                        \n" .
-            "       )                                                                                     \n" .
-            "   })                                  # Balancing '}'                                       \n" .
-            "|                                      # Branch to match regular rules (not preceded by '@') \n" .
-            "([^{]*{[^}]*}))                        # Parse normal rulesets                               \n" .
-            "/xs";
+        // ... does not handle '{' within strings, e.g. [attr="string {}"]
+        $re = <<<EOL
+            /
+                # Skip leading whitespace
+                \s*
+                
+                # Match at-rules
+                (?<CSS_ATRULE>@(?<CSS_ATRULE_IDENTIFIER>
+                    (?<CSS_ATFONT>font-face)
+                    |(?<CSS_ATIMPORT>import)
+                    |(?<CSS_ATMEDIA>media)
+                    |(?<CSS_ATPAGE>page)
+                    |(?<CSS_AT>[\w-]*)
+                ))?
+                
+                # Branch to process segment following at-rule match
+                (?(CSS_ATRULE)(?:
+                    (?(CSS_ATFONT)\s*{(?<CSS_ATFONT_BODY>.*?)})
+                    (?(CSS_ATIMPORT)\s*(?<CSS_ATIMPORT_RULE>
+                        (?<CSS_ATIMPORT_URL>
+                            {$pattern_atimport_string}
+                            |{$pattern_atimport_url}
+                        )
+                        (?<CSS_ATIMPORT_MEDIA_QUERY>.*?)
+                    );)
+                    (?(CSS_ATMEDIA)\s*(?<CSS_ATMEDIA_RULE>[^{]*){(?<CSS_ATMEDIA_BODY> (?:(?>[^{}]+) (?<CSS_ATMEDIA_BODY_BRACKET>{)?
+                        (?(CSS_ATMEDIA_BODY_BRACKET) (?>[^}]*) }) \s*)+?
+                    )})
+                    (?(CSS_ATPAGE)\s*(?<CSS_ATPAGE_RULE>[^{]*){(?<CSS_ATPAGE_BODY>.*?)})
+                    (?(CSS_AT)\s*([^{;]*)(;|{(?<CSS_AT_BODY> (?:(?>[^{}]+) (?<CSS_AT_BODY_BRACKET>{)?
+                        (?(CSS_AT_BODY_BRACKET) (?>[^}]*) }) \s*)+?
+                    )}))
+                )
+                
+                # Branch to match regular rules (not preceded by '@')
+                |(?<CSS_RULESET>[^{]*{[^}]*}))
+            /isx
+EOL;
 
         if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
-            // An error occurred
             throw new Exception("Error parsing css file: preg_match_all() failed.");
         }
 
-        // After matching, the array indices are set as follows:
-        //
-        // [0] => complete text of match
-        // [1] => contains '@import ...;' or '@media {' if applicable
-        // [2] => text following @ for cases where [1] is set
-        // [3] => media types or full text following '@import ...;'
-        // [4] => '{', if present
-        // [5] => rulesets within media rules
-        // [6] => '{', within media rules
-        // [7] => individual rules, outside of media rules
-        //
-
-        $media_query_regex = "/(?:((only|not)?\s*(" . implode("|", self::$VALID_MEDIA_TYPES) . "))|(\s*\(\s*((?:(min|max)-)?([\w\-]+))\s*(?:\:\s*(.*?)\s*)?\)))/isx";
-
-        //Helpers::pre_r($matches);
+        $media_query_regex = "/{$pattern_media_query}/isx";
+        $accepted_media = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
+        $accepted_media[] = $this->_dompdf->getOptions()->getDefaultMediaType();
         foreach ($matches as $match) {
-            $match[2] = trim($match[2]);
-
-            if ($match[2] !== "") {
+            if ($match["CSS_ATRULE_IDENTIFIER"] !== "") {
+                $atrule_identifier = strtolower($match["CSS_ATRULE_IDENTIFIER"]);
                 // Handle @rules
-                switch ($match[2]) {
+                switch ($atrule_identifier) {
 
                     case "import":
-                        $this->_parse_import($match[3]);
+                        $this->_parse_import($match["CSS_ATIMPORT_URL"], $match["CSS_ATIMPORT_MEDIA_QUERY"]);
                         break;
 
                     case "media":
-                        $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
-                        $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
-
-                        $media_queries = preg_split("/\s*,\s*/", mb_strtolower(trim($match[3])));
+                        $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($match["CSS_ATMEDIA_RULE"])));
                         foreach ($media_queries as $media_query) {
-                            if (in_array($media_query, $acceptedmedia)) {
+                            if (in_array($media_query, $accepted_media)) {
                                 //if we have a media type match go ahead and parse the stylesheet
-                                $this->_parse_sections($match[5]);
+                                $this->_parse_sections($match["CSS_ATMEDIA_BODY"]);
                                 break;
                             } elseif (!in_array($media_query, self::$VALID_MEDIA_TYPES)) {
                                 // otherwise conditionally parse the stylesheet assuming there are parseable media queries
-                                if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) !== false) {
-                                    $mq = [];
-                                    foreach ($media_query_matches as $media_query_match) {
-                                        if (empty($media_query_match[1]) === false) {
-                                            $media_query_feature = strtolower($media_query_match[3]);
-                                            $media_query_value = strtolower($media_query_match[2]);
-                                            $mq[] = [$media_query_feature, $media_query_value];
-                                        } elseif (empty($media_query_match[4]) === false) {
-                                            $media_query_feature = strtolower($media_query_match[5]);
-                                            $media_query_value = (array_key_exists(8, $media_query_match) ? strtolower($media_query_match[8]) : null);
-                                            $mq[] = [$media_query_feature, $media_query_value];
-                                        }
-                                    }
-                                    $this->_parse_sections($match[5], $mq);
-                                    break;
+                                $media_query_matches = [];
+                                if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) === false) {
+                                    continue;
                                 }
+
+                                $mq = [];
+                                foreach ($media_query_matches as $media_query_match) {
+                                    if (empty($media_query_match["CSS_MEDIA_QUERY_TYPE"]) === false) {
+                                        $media_query_feature = strtolower($media_query_match["CSS_MEDIA_QUERY_TYPE"]);
+                                        $media_query_value = strtolower($media_query_match["CSS_MEDIA_QUERY_OP"]);
+                                        $mq[] = [$media_query_feature, $media_query_value];
+                                    } elseif (empty($media_query_match["CSS_MEDIA_QUERY_FEATURE"]) === false) {
+                                        $media_query_feature = strtolower($media_query_match["CSS_MEDIA_QUERY_FEATURE"]);
+                                        $media_query_value = (array_key_exists("CSS_MEDIA_QUERY_CONDITION", $media_query_match) ? strtolower($media_query_match["CSS_MEDIA_QUERY_CONDITION"]) : null);
+                                        $mq[] = [$media_query_feature, $media_query_value];
+                                    }
+                                }
+                                $this->_parse_sections($match["CSS_ATMEDIA_BODY"], $mq);
+                                break;
                             }
                         }
                         break;
@@ -1309,7 +1351,7 @@ class Stylesheet
                         //assign it to the <body> tag, possibly only for the css of the correct media type.
 
                         // If the page has a name, skip the style.
-                        $page_selector = trim($match[3]);
+                        $page_selector = trim($match["CSS_ATPAGE_RULE"]);
 
                         $key = null;
                         switch ($page_selector) {
@@ -1332,14 +1374,14 @@ class Stylesheet
 
                         // Store the style for later...
                         if (empty($this->_page_styles[$key])) {
-                            $this->_page_styles[$key] = $this->_parse_properties($match[5]);
+                            $this->_page_styles[$key] = $this->_parse_properties($match["CSS_ATPAGE_BODY"]);
                         } else {
-                            $this->_page_styles[$key]->merge($this->_parse_properties($match[5]));
+                            $this->_page_styles[$key]->merge($this->_parse_properties($match["CSS_ATPAGE_BODY"]));
                         }
                         break;
 
                     case "font-face":
-                        $this->_parse_font_face($match[5]);
+                        $this->_parse_font_face($match["CSS_ATFONT_BODY"]);
                         break;
 
                     default:
@@ -1350,8 +1392,8 @@ class Stylesheet
                 continue;
             }
 
-            if ($match[7] !== "") {
-                $this->_parse_sections($match[7]);
+            if ($match["CSS_RULESET"] !== "") {
+                $this->_parse_sections($match["CSS_RULESET"]);
             }
         }
     }
@@ -1395,31 +1437,27 @@ class Stylesheet
     }
 
     /**
-     * parse @import{} sections
+     * parse @import at-rule
      *
      * @param string $url the url of the imported CSS file
      */
-    private function _parse_import($url)
+    private function _parse_import($url, $import_media_query)
     {
-        $arr = preg_split("/[\s\n,]/", $url, -1, PREG_SPLIT_NO_EMPTY);
-        $url = array_shift($arr);
-        $accept = false;
-
-        if (count($arr) > 0) {
+        $accept = true;
+        $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($import_media_query ?? "")));
+        if (count($media_queries) > 0) {
+            $accept = false;
             $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
             $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
-
-            // @import url media_type [media_type...]
-            foreach ($arr as $type) {
-                if (in_array(mb_strtolower(trim($type)), $acceptedmedia)) {
+            foreach ($media_queries as $media_query) {
+                if (in_array($media_query, $acceptedmedia)) {
+                    //if we have a media type match go ahead and parse the stylesheet
                     $accept = true;
                     break;
+                } elseif (!in_array($media_query, self::$VALID_MEDIA_TYPES)) {
+                    $accept = true;
                 }
             }
-
-        } else {
-            // unconditional import
-            $accept = true;
         }
 
         if ($accept) {
@@ -1428,14 +1466,13 @@ class Stylesheet
             $host = $this->_base_host;
             $path = $this->_base_path;
 
-            // $url = str_replace(array('"',"url", "(", ")"), "", $url);
-            // If the protocol is php, assume that we will import using file://
-            // $url = Helpers::build_url($protocol === "php://" ? "file://" : $protocol, $host, $path, $url);
-            // Above does not work for subfolders and absolute urls.
-            // Todo: As above, do we need to replace php or file to an empty protocol for local files?
+            // if URL is a CSS string, wrap it in the url function for parsing by the resolve_url method
+            if (mb_strpos($url, "url(") === false) {
+                $url = "url($url)";
+            }
 
             if (($url = $this->resolve_url($url)) !== "none") {
-                $this->load_css_file($url);
+                $this->load_css_file($url, $this->_current_origin);
             }
 
             // Restore the current base url
@@ -1455,23 +1492,24 @@ class Stylesheet
     {
         $descriptors = $this->_parse_properties($str);
 
-        preg_match_all("/(url|local)\s*\(\s*[\"\']?([^\"\'\)]+)[\"\']?\s*\)\s*(format\s*\(\s*[\"\']?([^\"\'\)]+)[\"\']?\s*\))?/i", $descriptors->src, $src);
+        preg_match_all("/" . self::PATTERN_CSS_LOCAL_FN  . "|" . self::PATTERN_CSS_URL_FN . "\s*(?<FORMAT>format\s*\((?<FORMAT_VALUE>collection|embedded-opentype|opentype|svg|truetype|woff|woff2|" . self::PATTERN_CSS_STRING . ")\))?/i", $descriptors->src, $sources, PREG_SET_ORDER);
 
         $valid_sources = [];
-        foreach ($src[0] as $i => $value) {
-            $source = [
-                "local" => strtolower($src[1][$i]) === "local",
-                "uri" => $src[2][$i],
-                "format" => strtolower($src[4][$i]),
-                "path" => Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $src[2][$i]),
-            ];
-
-            if (!$source["local"] && in_array($source["format"], ["", "truetype"]) && $source["path"] !== null) {
-                $valid_sources[] = $source;
+        foreach ($sources as $source) {
+            if (isset($source["CSS_URL_FN_VALUE"]) && in_array($source["CSS_STRING_VALUE"], ["", "truetype"])) {
+                $url = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $source["CSS_URL_FN_VALUE"]);
+                if (empty($url)) {
+                    continue;
+                }
+                $source_info = [
+                    "uri" => $source["CSS_URL_FN_VALUE"],
+                    "format" => strtolower(isset($source["CSS_STRING_VALUE"]) ? $source["CSS_STRING_VALUE"] : $source["FORMAT_VALUE"]),
+                    "path" => $url,
+                ];
+                $valid_sources[] = $source_info;
             }
         }
 
-        // No valid sources
         if (empty($valid_sources)) {
             return;
         }
@@ -1482,7 +1520,11 @@ class Stylesheet
             "style" => $descriptors->font_style,
         ];
 
-        $this->getFontMetrics()->registerFont($style, $valid_sources[0]["path"], $this->_dompdf->getHttpContext());
+        foreach ($valid_sources as $valid_source) {
+            if ($this->fontMetrics->registerFont($style, $valid_source["path"], $this->_dompdf->getHttpContext())) {
+                break;
+            }
+        }
     }
 
     /**
