@@ -802,11 +802,15 @@ class Helpers
      * http://www.programmierer-forum.de/function-imagecreatefrombmp-welche-variante-laeuft-t143137.htm
      * Modified by Fabien Menager to support RGB555 BMP format
      */
-    public static function imagecreatefrombmp($filename, $context = null)
+    public static function imagecreatefrombmp($filename)
     {
         if (!function_exists("imagecreatetruecolor")) {
             trigger_error("The PHP GD extension is required, but is not installed.", E_ERROR);
             return false;
+        }
+
+        if (function_exists("imagecreatefrombmp") && ($im = imagecreatefrombmp($filename)) !== false) {
+            return $im;
         }
 
         // version 1.00

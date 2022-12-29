@@ -598,11 +598,10 @@ class CPDF implements Canvas
 
         set_error_handler([Helpers::class, "record_warnings"]);
 
-        if (!function_exists($func_name)) {
-            if (!method_exists(Helpers::class, $func_name)) {
-                throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
-            }
+        if (method_exists(Helpers::class, $func_name)) {
             $func_name = [Helpers::class, $func_name];
+        } elseif (!function_exists($func_name)) {
+            throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
         }
 
         try {
