@@ -2,14 +2,13 @@
 
 ## Supported Versions
 
-Because of limited resources and general compatibility between version only the most recent release of Dompdf is actively supported.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.2.0   | :white_check_mark: |
-| < 1.0.2 | :x:                |
+Because of limited resources and general compatibility 
+between versions only the [latest release](https://github.com/dompdf/dompdf/releases) of Dompdf 
+is actively supported.
 
 ## Reporting a Vulnerability
 
-In order to give the community time to respond and upgrade we strongly urge you report all security issues privately. Please email us at security@dompdf.org with details
-and we will respond ASAP.
+In order to give the community time to respond and upgrade
+we strongly urge you report all security issues privately. 
+Please email us at security@dompdf.org with details and 
+we will respond ASAP.
