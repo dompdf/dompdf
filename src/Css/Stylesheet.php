@@ -713,7 +713,7 @@ class Stylesheet
                         $query .= "/*";
                     }
 
-                    $attr_delimiters = ["=", "]", "~", "|", "$", "^", "*"];
+                    $attr_delimiters = ["=", "]", "~", "|", "$", "^", "*", ")"];
                     $tok_len = mb_strlen($tok);
                     $j = 0;
 
