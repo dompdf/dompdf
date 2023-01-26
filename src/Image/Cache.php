@@ -133,7 +133,7 @@ class Cache
                 xml_set_element_handler(
                     $parser,
                     function ($parser, $name, $attributes) use ($options, $parsed_url, $full_url) {
-                        if ($name === "image") {
+                        if (strtolower($name) === "image") {
                             $attributes = array_change_key_case($attributes, CASE_LOWER);
                             $url = $attributes["xlink:href"] ?? $attributes["href"];
                             if (!empty($url)) {
