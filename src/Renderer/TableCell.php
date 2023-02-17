@@ -32,6 +32,9 @@ class TableCell extends Block
 
         $border_box = $frame->get_border_box();
         $table = Table::find_parent_table($frame);
+        if ($table === null) {
+            throw new Exception("Parent table not found for table cell");
+        }
 
         if ($table->get_style()->border_collapse !== "collapse") {
             $this->_render_background($frame, $border_box);
