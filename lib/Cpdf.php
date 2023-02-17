@@ -3323,7 +3323,7 @@ EOT;
 
         $cache_name = "$metrics_name.json";
         $this->addMessage("metrics: $metrics_name, cache: $cache_name");
-        
+
         if (file_exists($fontcache . '/' . $cache_name)) {
             $this->addMessage("openFont: json metrics file exists $fontcache/$cache_name");
             $cached_font_info = json_decode(file_get_contents($fontcache . '/' . $cache_name), true);
@@ -3693,6 +3693,8 @@ EOT;
     }
 
     /**
+     * sets the color for fill operations
+     *
      * @param string $fillRule
      */
     function setFillRule($fillRule)
@@ -5907,8 +5909,7 @@ EOT;
     }
 
     /**
-     * add a PNG image into the document, from a file
-     * this should work with remote files
+     * add an SVG image into the document from a file
      *
      * @param $file
      * @param $x
