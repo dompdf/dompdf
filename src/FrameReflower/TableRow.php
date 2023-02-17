@@ -65,6 +65,9 @@ class TableRow extends AbstractFrameReflower
         }
 
         $table = TableFrameDecorator::find_parent_table($this->_frame);
+        if ($table === null) {
+            throw new Exception("Parent table not found for table row");
+        }
         $cellmap = $table->get_cellmap();
         $style->set_used("width", $cellmap->get_frame_width($this->_frame));
         $style->set_used("height", $cellmap->get_frame_height($this->_frame));

@@ -37,6 +37,9 @@ class TableCell extends Block
         $style = $this->_frame->get_style();
 
         $table = TableFrameDecorator::find_parent_table($this->_frame);
+        if ($table === null) {
+            throw new Exception("Parent table not found for table cell");
+        }
         $cellmap = $table->get_cellmap();
 
         list($x, $y) = $cellmap->get_frame_position($this->_frame);
