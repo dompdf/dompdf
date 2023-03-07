@@ -9,7 +9,8 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         failOnSkipped="true">
   <testsuites>
     <testsuite name="Dompdf Test Suite">
       <directory>tests</directory>
