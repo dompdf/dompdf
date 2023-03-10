@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 240pt;
+    margin: 20pt;
+}
+
+.break {
+    page-break-before: always;
+}
+
+.container {
+    position: relative;
+    margin-bottom: 10pt;
+}
+
+.box {
+    position: absolute;
+    top: 0;
+    width: 45pt;
+    height: 45pt;
+    border-width: 5pt;
+    outline: thin solid lightgray;
+}
+
+.c1 .box {
+    border-style: solid;
+}
+
+.c2 .box {
+    border-style: dashed;
+}
+
+.c3 .box {
+    border-style: dotted;
+}
+
+.b1 {
+    position: static;
+    border-color: rgb(255 0 0 / 0.4);
+}
+
+.b2 {
+    left: 70pt;
+    border-color: rgb(255 0 0 / 0.4) transparent;
+}
+
+.b3 {
+    left: 140pt;
+    border-color: transparent rgb(255 0 0 / 0.4);
+}
+
+.b4 {
+    left: 210pt;
+    width: 55pt;
+    border-color: rgb(255 0 0 / 0.4) transparent;
+    border-left-width: 0;
+    border-right-width: 0;
+}
+
+.b5 {
+    left: 280pt;
+    height: 55pt;
+    border-color: transparent rgb(255 0 0 / 0.4);
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.border-radius .box {
+    border-radius: 10pt;
+}
+
+.partial-border-radius-1 .box {
+    border-radius: 10pt 0;
+}
+
+.partial-border-radius-2 .box {
+    border-radius: 10pt 0 0 10pt;
+}
+</style>
+</head>
+
+<body>
+<div class="container c1">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="container c2">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="container c3">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="break"></div>
+
+<div class="container c1 border-radius">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="container c2 border-radius">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="container c3 border-radius">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="break"></div>
+
+<div class="container c1 partial-border-radius-1">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="container c3 partial-border-radius-1">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+
+<div class="container c3 partial-border-radius-2">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+    <div class="box b5"></div>
+</div>
+</body>
+
+</html>

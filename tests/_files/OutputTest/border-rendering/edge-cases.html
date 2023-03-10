@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 500pt 500pt;
+    margin: 35pt;
+}
+
+.container {
+    position: relative;
+    margin-bottom: 10pt;
+}
+
+.box {
+    display: inline-block;
+    margin-right: 20pt;
+    vertical-align: top;
+    width: 0;
+    height: 0;
+    border-width: 60pt;
+    border-color: rgb(255 0 0 / 0.4) rgb(0 255 0 / 0.4) rgb(0 0 255 / 0.4) rgb(0 255 255 / 0.4);
+    outline: thin solid lightgray;
+}
+
+.b1 {
+    border-style: double;
+}
+
+.b2 {
+    border-style: dashed;
+}
+
+.b3 {
+    border-style: dotted;
+}
+
+.c2 .box {
+    border-radius: 20pt;
+}
+
+.c3 .box {
+    border-radius: 50%;
+    width: 40pt;
+    height: 40pt;
+    border-width: 20pt;
+}
+
+.c4 .box {
+    border-radius: 50%;
+    width: 60pt;
+    height: 60pt;
+    border-width: 5pt;
+}
+
+.container .b4 {
+    border-style: dotted;
+    border-radius: 10pt;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container c1">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+</div>
+
+<div class="container c2">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+</div>
+
+<div class="container c3">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+</div>
+
+<div class="container c4">
+    <div class="box b1"></div>
+    <div class="box b2"></div>
+    <div class="box b3"></div>
+    <div class="box b4"></div>
+</div>
+</body>
+
+</html>
