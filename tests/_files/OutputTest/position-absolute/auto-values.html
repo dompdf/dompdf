@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The box positions should account for the 10pt body margin and
+    padding">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 12pt;
+}
+
+body {
+    position: static;
+    margin: 10pt;
+    padding: 10pt;
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+div {
+    position: absolute;
+    width: 98pt;
+    height: 98pt;
+    border: solid red;
+}
+
+.zero {
+    top: 0;
+    bottom: auto;
+    left: 0;
+    right: auto;
+    margin: auto;
+}
+
+.static {
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin: auto;
+}
+
+.center {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.percentage {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 65%;
+    height: 65%;
+    margin: auto;
+}
+
+.auto {
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: auto;
+    height: auto;
+    margin: auto;
+}
+
+.bottom-left {
+    bottom: 0;
+    left: 0;
+}
+
+.top-right {
+    top: 0;
+    right: 0;
+}
+
+.over-constrained {
+    left: 250pt;
+    right: 100pt;
+    top: 150pt;
+    bottom: 100pt;
+    width: 98pt;
+    height: 98pt;
+    margin: auto;
+}
+</style>
+</head>
+
+<body>
+
+<div class="zero">Top left</div>
+<div class="static">Auto position</div>
+<div class="center">Auto margins</div>
+<div class="percentage">Percentage size</div>
+<div class="auto bottom-left">Auto dimensions + bottom left</div>
+<div class="auto top-right">Auto dimensions + top right</div>
+<div class="over-constrained">Over-constrained</div>
+
+</body>
+
+</html>

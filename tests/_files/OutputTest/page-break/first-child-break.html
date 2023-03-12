@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The page should break after the first red box, and not split the
+    second box">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+.block {
+    margin-bottom: 20pt;
+    outline: 2pt solid red;
+}
+
+.block div {
+    height: 140pt;
+    background-color: lightblue;
+    page-break-inside: avoid;
+}
+
+.padding {
+    padding-top: 20pt;
+}
+</style>
+</head>
+
+<body>
+
+<div class="block">
+    <div></div>
+</div>
+
+<div class="block padding">
+    <div></div>
+</div>
+
+</body>
+
+</html>
