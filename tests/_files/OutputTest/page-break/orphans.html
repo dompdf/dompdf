@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The second paragraph should move to the second page">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 15pt;
+    line-height: 18pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+p {
+    margin: 0;
+    orphans: 5;
+}
+
+p + p {
+    margin-top: 15pt;
+}
+</style>
+</head>
+
+<body>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
+    incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+    nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.</p>
+    <p>Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat
+    nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa
+    qui officia deserunt mollit anim id est laborum.</p>
+</body>
+
+</html>

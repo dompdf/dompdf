@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+.block {
+    position: relative;
+    top: 15pt;
+    left: 15pt;
+    height: 39pt;
+    border-top: 1pt solid black;
+    background-color: lightblue;
+}
+</style>
+</head>
+
+<body>
+    <div class="block"></div>
+
+    <div class="block">
+        <div class="block">
+            <div class="block"></div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The blocks should be split across pages as if there was no offset">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+.block {
+    position: relative;
+    top: 50pt;
+    left: 50pt;
+    height: 39pt;
+    border-top: 1pt solid black;
+    background-color: lightblue;
+    page-break-inside: avoid;
+}
+</style>
+</head>
+
+<body>
+    <div class="block"></div>
+    <div class="block"></div>
+    <div class="block"></div>
+    <div class="block"></div>
+    <div class="block"></div>
+    <div class="block"></div>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The width of the red floating boxes should be calculated as
+    shrink-to-fit. The boxes with multi-line text should span the entire width">
+<style>
+@page {
+    size: 400pt 450pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 18pt;
+}
+
+div {
+    clear: both;
+}
+
+span {
+    margin: 5pt 0;
+    outline: solid red;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+</style>
+</head>
+
+<body>
+    <div>float: left</div>
+    <span class="left">Lorem ipsum</span>
+
+    <div>float: right</div>
+    <span class="right">Lorem ipsum</span>
+
+    <div>float: left with multi-line text</div>
+    <span class="left">Lorem ipsum dolor sit amet, consectetur adipisici elit,
+    sed eiusmod tempor incidunt ut labore et dolore magna aliqua.</span>
+
+    <div>float: right with multi-line text</div>
+    <span class="right">Lorem ipsum dolor sit amet, consectetur adipisici elit,
+    sed eiusmod tempor incidunt ut labore et dolore magna aliqua.</span>
+
+    <div>float: right with long words</div>
+    <span class="right">loooooooooooooooooooooooong woooooooooooooooooords</span>
+</body>
+
+</html>

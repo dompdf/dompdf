@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The page should break before the span, because of inline-block
+    display">
+<style>
+@page {
+    size: 400pt 200pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 18pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+p {
+    margin: 78pt 0 0 0;
+    orphans: 1;
+    widows: 1;
+}
+
+span {
+    display: inline-block;
+    border: solid red;
+}
+</style>
+</head>
+
+<body>
+    <p>Lorem ipsum dolor sit amet, consectetur <span>adipisici elit, sed eiusmod
+    tempor incidunt ut labore et dolore magna aliqua.</span></p>
+</body>
+
+</html>

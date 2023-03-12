@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The red box should have a top and left offset, the text should
+    sit in the top left of the black box">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 18pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+table {
+    position: relative;
+    bottom: -18pt;
+    right: -18pt;
+    border-collapse: collapse;
+    border: solid red;
+}
+
+td {
+    padding: 0;
+}
+
+p {
+    position: relative;
+    bottom: 18pt;
+    right: 18pt;
+    margin: 0;
+}
+</style>
+</head>
+
+<body>
+    <table><tr><td>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
+    incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+    nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi
+    consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu
+    fugiat nulla pariatur.</p>
+    </td></tr></table>
+</body>
+
+</html>
