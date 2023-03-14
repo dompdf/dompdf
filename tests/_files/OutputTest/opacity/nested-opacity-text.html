@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The word 'invisible' should be invisible">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font: bold 20pt sans-serif;
+}
+
+p {
+    opacity: 0.7;
+}
+
+p > span {
+    opacity: 0.35;
+}
+
+p > span > span {
+    opacity: 0;
+}
+</style>
+</head>
+
+<body>
+    <p>Nested opacity <span>to <span>invisible</span> levels</span> and back</p>
+</body>
+
+</html>
