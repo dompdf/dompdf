@@ -705,6 +705,11 @@ class Dompdf
 
         // Set paper size if defined via CSS
         if (is_array($basePageStyle->size)) {
+            // Orientation is already applied when reading the computed CSS
+            // `size` value. The `Canvas` back ends, however, unconditionally
+            // swap with an orientation of `landscape` and leave the defined
+            // size as-is with `portrait`; so passing `portrait` as orientation
+            // here (via the default value) is correct
             [$width, $height] = $basePageStyle->size;
             $this->setPaper([0, 0, $width, $height]);
         }
