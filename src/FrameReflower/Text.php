@@ -6,10 +6,12 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Exception;
+use Dompdf\FontMetrics;
+use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
-use Dompdf\FontMetrics;
 use Dompdf\Helpers;
 
 /**
@@ -373,6 +375,7 @@ class Text extends AbstractFrameReflower
 
     /**
      * @param BlockFrameDecorator|null $block
+     * @throws Exception
      */
     function reflow(BlockFrameDecorator $block = null)
     {
@@ -384,16 +387,21 @@ class Text extends AbstractFrameReflower
             return;
         }
 
-        // Determine the text height
         $style = $frame->get_style();
+        $font_metrics = $this->getFontMetrics();
+
+        // Handle text transform and white space
+        $frame->set_text($this->pre_process_text($frame->get_text()));
+
+        // map text to fonts based on supported Unicode range
+        $frame->apply_font_mapping();
+        $text = $frame->get_text();
+
+        // Determine the text height
         $size = $style->font_size;
         $font = $style->font_family;
         $font_height = $this->getFontMetrics()->getFontHeight($font, $size);
         $style->set_used("height", $font_height);
-
-        // Handle text transform and white space
-        $text = $this->pre_process_text($frame->get_text());
-        $frame->set_text($text);
 
         if ($block === null) {
             return;
@@ -409,12 +417,13 @@ class Text extends AbstractFrameReflower
 
         // Skip wrapped white space between block-level elements in case white
         // space is collapsed
-        if ($frame->get_text() === "" && $frame->get_margin_width() === 0.0) {
+        $text = $frame->get_text();
+        if ($text === "" && $frame->get_margin_width() === 0.0) {
             return;
         }
 
         $line = $block->add_frame_to_line($frame);
-        $trimmed = trim($frame->get_text());
+        $trimmed = trim($text);
 
         // Split the text into words (used to determine spacing between
         // words on justified lines)
@@ -466,14 +475,18 @@ class Text extends AbstractFrameReflower
         $fontMetrics = $this->getFontMetrics();
         $frame = $this->_frame;
         $style = $frame->get_style();
+
+        // Handle text transform and white space
+        $frame->set_text($this->pre_process_text($frame->get_text()));
+
+        // map text to fonts based on supported Unicode range
+        $frame->apply_font_mapping();
         $text = $frame->get_text();
+
         $font = $style->font_family;
         $size = $style->font_size;
         $word_spacing = $style->word_spacing;
         $letter_spacing = $style->letter_spacing;
-
-        // Handle text transform and white space
-        $text = $this->pre_process_text($frame->get_text());
 
         if (!$frame->is_pre()) {
             // Determine whether the frame is at the start of its parent block.
