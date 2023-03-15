@@ -23,6 +23,11 @@ class Text extends AbstractFrameDecorator
     protected $text_spacing;
 
     /**
+     * @var string
+     */
+    protected $mapped_font;
+
+    /**
      * Text constructor.
      * @param Frame $frame
      * @param Dompdf $dompdf
@@ -42,6 +47,7 @@ class Text extends AbstractFrameDecorator
     {
         parent::reset();
         $this->text_spacing = 0.0;
+        $this->mapped_font = null;
     }
 
     // Accessor methods
@@ -187,5 +193,35 @@ class Text extends AbstractFrameDecorator
     function set_text($text)
     {
         $this->_frame->get_node()->data = $text;
+    }
+
+    /**
+     * Determines the optimal font that applies to the frame and splits
+     * the frame where the optimal font changes.
+     */
+    function apply_font_mapping() {
+        if (!empty($this->mapped_font)) {
+            return;
+        }
+
+        $fontMetrics = $this->_dompdf->getFontMetrics();
+        $style = $this->get_style();
+        $families = array_map(
+            function ($value) {
+                return trim($value, " '\"");
+            },
+            explode(",", $style->get_specified("font_family"))
+        );
+        $charMapping = $fontMetrics->mapTextToFonts($this->get_text(), $families, $fontMetrics->getType($style->font_weight . ' ' . $style->font_style), 1);
+        if (isset($charMapping[0])) {
+            if ($charMapping[0]["length"] !== 0) {
+                $this->split_text($charMapping[0]["length"]);
+            }
+            $mapped_font = $charMapping[0]["font"];
+            if ($mapped_font !== null) {
+                $style->set_used("font_family", $mapped_font);
+                $this->mapped_font = $mapped_font;
+            }
+        }
     }
 }
