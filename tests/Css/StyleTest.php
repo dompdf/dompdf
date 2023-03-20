@@ -128,6 +128,82 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $s->background_image);
     }
 
+    public function counterIncrementProvider(): array
+    {
+        return [
+            // Valid values
+            ["none", "none"],
+            ["c", ["c" => 1]],
+            ["c1 c2 c3", ["c1" => 1, "c2" => 1, "c3" => 1]],
+            ["c 0", ["c" => 0]],
+            ["c 1", ["c" => 1]],
+            ["c -5", ["c" => -5]],
+            ["c1 -5 c2 2", ["c1" => -5, "c2" => 2]],
+            ["c1 -5 c2", ["c1" => -5, "c2" => 1]],
+            ["c1 c2 2", ["c1" => 1, "c2" => 2]],
+
+            // Duplicate counter
+            ["c 2 c 4", ["c" => 6]],
+
+            // Invalid values
+            ["", "none"],
+            ["3", "none"],
+            ["c 3 7", "none"],
+            ["3 c 7", "none"]
+        ];
+    }
+
+    /**
+     * @dataProvider counterIncrementProvider
+     */
+    public function testCounterIncrement(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("counter_increment", $value);
+        $this->assertSame($expected, $style->counter_increment);
+    }
+
+    public function counterResetProvider(): array
+    {
+        return [
+            // Valid values
+            ["none", "none"],
+            ["c", ["c" => 0]],
+            ["c1 c2 c3", ["c1" => 0, "c2" => 0, "c3" => 0]],
+            ["c 0", ["c" => 0]],
+            ["c 1", ["c" => 1]],
+            ["c -5", ["c" => -5]],
+            ["c1 -5 c2 2", ["c1" => -5, "c2" => 2]],
+            ["c1 -5 c2", ["c1" => -5, "c2" => 0]],
+            ["c1 c2 2", ["c1" => 0, "c2" => 2]],
+
+            // Duplicate counter
+            ["c 2 c 4", ["c" => 4]],
+
+            // Invalid values
+            ["", "none"],
+            ["3", "none"],
+            ["c 3 7", "none"],
+            ["3 c 7", "none"]
+        ];
+    }
+
+    /**
+     * @dataProvider counterResetProvider
+     */
+    public function testCounterReset(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("counter_reset", $value);
+        $this->assertSame($expected, $style->counter_reset);
+    }
+
     public function contentProvider(): array
     {
         return [
