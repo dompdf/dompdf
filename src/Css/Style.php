@@ -2066,63 +2066,6 @@ class Style
     }
 
     /**
-     * @param string $value
-     * @param int    $default
-     *
-     * @return array|string
-     */
-    protected function parse_counter_prop(string $value, int $default)
-    {
-        $ident = self::CSS_IDENTIFIER;
-        $integer = self::CSS_INTEGER;
-        $pattern = "/($ident)(?:\s+($integer))?/";
-
-        if (!preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {
-            return "none";
-        }
-
-        $counters = [];
-
-        foreach ($matches as $match) {
-            $counter = $match[1];
-            $value = isset($match[2]) ? (int) $match[2] : $default;
-            $counters[$counter] = $value;
-        }
-
-        return $counters;
-    }
-
-    /**
-     * @param string $computed
-     * @return array|string
-     *
-     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-counter-increment
-     */
-    protected function _get_counter_increment($computed)
-    {
-        if ($computed === "none") {
-            return $computed;
-        }
-
-        return $this->parse_counter_prop($computed, 1);
-    }
-
-    /**
-     * @param string $computed
-     * @return array|string
-     *
-     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-counter-reset
-     */
-    protected function _get_counter_reset($computed)
-    {
-        if ($computed === "none") {
-            return $computed;
-        }
-
-        return $this->parse_counter_prop($computed, 0);
-    }
-
-    /**
      * @param string $computed
      * @return string[]|string
      *
@@ -3372,6 +3315,57 @@ class Style
         }
 
         return $props;
+    }
+
+    /**
+     * @param string $value
+     * @param int    $default
+     *
+     * @return array|string|null
+     */
+    protected function compute_counter_prop(string $value, int $default, bool $sumDuplicates = false)
+    {
+        if ($value === "none") {
+            return $value;
+        }
+
+        $ident = self::CSS_IDENTIFIER;
+        $integer = self::CSS_INTEGER;
+        $counterDef = "($ident)(?:\s+($integer))?";
+        $validationPattern = "/^$counterDef(\s+$counterDef)*$/";
+
+        if (!preg_match($validationPattern, $value)) {
+            return null;
+        }
+
+        preg_match_all("/$counterDef/", $value, $matches, PREG_SET_ORDER);
+        $counters = [];
+
+        foreach ($matches as $match) {
+            $counter = $match[1];
+            $value = isset($match[2]) ? (int) $match[2] : $default;
+            $counters[$counter] = $sumDuplicates
+                ? ($counters[$counter] ?? 0) + $value
+                : $value;
+        }
+
+        return $counters;
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-counter-increment
+     */
+    protected function _compute_counter_increment(string $val)
+    {
+        return $this->compute_counter_prop($val, 1, true);
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-counter-reset
+     */
+    protected function _compute_counter_reset(string $val)
+    {
+        return $this->compute_counter_prop($val, 0);
     }
 
     /**
