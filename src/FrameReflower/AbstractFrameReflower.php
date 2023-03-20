@@ -623,7 +623,8 @@ abstract class AbstractFrameReflower
                     } else {
                         $type = "decimal";
                     }
-                    $p = $this->_frame->lookup_counter_frame($counter_id);
+
+                    $p = $this->_frame->lookup_counter_frame($counter_id, true);
 
                     $text .= $p->counter_value($counter_id, $type);
                 } elseif (strtolower($args[1]) === "counters") {
@@ -640,13 +641,10 @@ abstract class AbstractFrameReflower
                         $type = "decimal";
                     }
 
-                    $p = $this->_frame->lookup_counter_frame($counter_id);
+                    $p = $this->_frame->lookup_counter_frame($counter_id, true);
                     $tmp = [];
                     while ($p) {
-                        // We only want to use the counter values when they actually increment the counter
-                        if (array_key_exists($counter_id, $p->_counters)) {
-                            array_unshift($tmp, $p->counter_value($counter_id, $type));
-                        }
+                        array_unshift($tmp, $p->counter_value($counter_id, $type));
                         $p = $p->lookup_counter_frame($counter_id);
                     }
                     $text .= implode($string, $tmp);
