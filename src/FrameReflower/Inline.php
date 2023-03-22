@@ -153,6 +153,8 @@ class Inline extends AbstractFrameReflower
             $l_style->border_right_color = $style->border_right_color;
         }
 
+        $frame->position();
+
         $cb = $frame->get_containing_block();
 
         // Set the containing blocks and reflow each child.  The containing
@@ -168,13 +170,17 @@ class Inline extends AbstractFrameReflower
             }
         }
 
-        if (!$frame->get_first_child()) {
-            return;
+        // Assume the position of the first in-flow child, otherwise use the
+        // fallback position that was set before child reflow
+        $child = $frame->get_first_child();
+        while ($child && !$child->is_in_flow()) {
+            $child = $child->get_next_sibling();
         }
 
-        // Assume the position of the first child
-        [$x, $y] = $frame->get_first_child()->get_position();
-        $frame->set_position($x, $y);
+        if ($child) {
+            [$x, $y] = $child->get_position();
+            $frame->set_position($x, $y);
+        }
 
         // Handle relative positioning
         foreach ($frame->get_children() as $child) {
