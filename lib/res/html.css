@@ -325,9 +325,8 @@ li {
 
 /* 2 deep unordered lists use a circle */
 :matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul {
+:matches(ul, ol, dir, menu) menu,
+:matches(ul, ol, dir, menu) dir {
   list-style-type: circle;
 }
 
