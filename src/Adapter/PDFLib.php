@@ -333,7 +333,6 @@ class PDFLib implements Canvas
      * @param int $object the ID of a previously opened object
      *
      * @throws Exception
-     * @return void
      */
     public function reopen_object($object)
     {

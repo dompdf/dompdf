@@ -699,8 +699,6 @@ class Page extends AbstractFrameDecorator
      * Add a floating frame
      *
      * @param Frame $frame
-     *
-     * @return void
      */
     function add_floating_frame(Frame $frame)
     {
