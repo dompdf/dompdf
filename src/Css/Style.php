@@ -858,8 +858,6 @@ class Style
 
     /**
      * Clear all non-final used values.
-     *
-     * @return void
      */
     public function reset(): void
     {
