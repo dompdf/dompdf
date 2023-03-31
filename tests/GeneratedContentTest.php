@@ -202,6 +202,220 @@ HTML
 
             // Tests from the CSS2.1 Conformance Test Suite
             // http://test.csswg.org/suites/css21_dev/20110323/
+            "counters-scope-000" => [
+                <<<HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>
+  <title>CSS Test: Counter scope</title>
+  <link rel="author" title="L. David Baron" href="http://dbaron.org/">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#scope">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#counters">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#propdef-content">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/syndata.html#counter">
+  <style type="text/css">
+
+  body { white-space: nowrap; }
+
+
+  .scope { counter-reset: c 1; }
+  .scope:before, .scope:after { content: counter(c); }
+  .c:before { content: counter(c); }
+
+  .one:before { counter-reset: c 2; }
+  .two { counter-reset: c 3; }
+
+  </style>
+ </head>
+ <body>
+
+ <p>The next 2 lines should be identical:</p>
+
+ <div>
+   <span class="scope"><span class="one c"><span class="c"></span></span><span class="c"></span></span><span class="c"></span>
+   <span class="scope"><span class="two c"><span class="c"></span></span><span class="c"></span></span><span class="c"></span>
+ </div>
+
+ <div>
+   122111
+   133331
+ </div>
+
+ </body>
+</html>
+HTML
+,
+                [
+                    "div" => [
+                        "122111 133331",
+                        "122111 133331"
+                    ]
+                ]
+            ],
+            "counters-scope-001" => [
+                <<<HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>
+  <title>CSS Test: Counter scope and nesting on elements</title>
+  <link rel="author" title="L. David Baron" href="http://dbaron.org/">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#scope">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#counters">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#propdef-content">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/syndata.html#counter">
+  <style type="text/css">
+
+  body { white-space: nowrap; }
+
+
+  span:before { counter-increment: c 1; content: "B" counters(c,".") "-" }
+  span:after  { counter-increment: c 1; content: "A" counters(c,".") "-" }
+
+  body, span#reset { counter-reset: c 0; }
+
+  </style>
+ </head>
+ <body>
+
+ <p>The following two lines should be the same:</p>
+
+ <div><span><span><span id="reset"><span></span><span></span></span><span><span></span></span></span></span></div>
+ <div>B1-B2-B2.1-B2.2-A2.3-B2.4-A2.5-A2.6-B2.7-B2.8-A2.9-A2.10-A2.11-A3-</div>
+
+ </body>
+</html>
+HTML
+,
+                [
+                    "div" => [
+                        "B1-B2-B2.1-B2.2-A2.3-B2.4-A2.5-A2.6-B2.7-B2.8-A2.9-A2.10-A2.11-A3-",
+                        "B1-B2-B2.1-B2.2-A2.3-B2.4-A2.5-A2.6-B2.7-B2.8-A2.9-A2.10-A2.11-A3-"
+                    ]
+                ]
+            ],
+            "counters-scope-002" => [
+                <<<HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>
+  <title>CSS Test: Counter scope and nesting on :before</title>
+  <link rel="author" title="L. David Baron" href="http://dbaron.org/">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#scope">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#counters">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#propdef-content">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/syndata.html#counter">
+  <style type="text/css">
+
+  body { white-space: nowrap; }
+
+
+  span:before { counter-increment: c 1; content: "B" counters(c,".") "-" }
+  span:after  { counter-increment: c 1; content: "A" counters(c,".") "-" }
+
+  body, span#reset:before { counter-reset: c 0; }
+
+  </style>
+ </head>
+ <body>
+
+ <p>The following two lines should be the same:</p>
+
+ <div><span><span id="reset"><span></span></span></span></div>
+ <div>B1-B1.1-B1.2-A1.3-A1.4-A2-</div>
+
+ </body>
+</html>
+HTML
+,
+                [
+                    "div" => [
+                        "B1-B1.1-B1.2-A1.3-A1.4-A2-",
+                        "B1-B1.1-B1.2-A1.3-A1.4-A2-"
+                    ]
+                ]
+            ],
+            "counters-scope-003" => [
+                <<<HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>
+  <title>CSS Test: Counter scope and nesting on :after</title>
+  <link rel="author" title="L. David Baron" href="http://dbaron.org/">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#scope">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#counters">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#propdef-content">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/syndata.html#counter">
+  <style type="text/css">
+
+  body { white-space: nowrap; }
+
+
+  span:before { counter-increment: c 1; content: "B" counters(c,".") "-" }
+  span:after  { counter-increment: c 1; content: "A" counters(c,".") "-" }
+
+  body, span#reset:after { counter-reset: c 0; }
+
+  </style>
+ </head>
+ <body>
+
+ <p>The following two lines should be the same:</p>
+
+ <div><span><span id="reset"><span></span></span></span></div>
+ <div>B1-B2-B3-A4-A4.1-A5-</div>
+
+ </body>
+</html>
+HTML
+,
+                [
+                    "div" => [
+                        "B1-B2-B3-A4-A4.1-A5-",
+                        "B1-B2-B3-A4-A4.1-A5-"
+                    ]
+                ]
+            ],
+            "counters-scope-004" => [
+                <<<HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>
+  <title>CSS Test: Counter scope and nesting</title>
+  <link rel="author" title="L. David Baron" href="http://dbaron.org/">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#scope">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#counters">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/generate.html#propdef-content">
+  <link rel="help" href="http://www.w3.org/TR/CSS21/syndata.html#counter">
+  <style type="text/css">
+
+  body { white-space: nowrap; }
+
+
+  .reset { counter-reset: c; }
+  .rb:before { counter-reset: c; content: "R"; }
+  .use { counter-increment: c; }
+  .use:before { content: counters(c, ".") " "; }
+
+  </style>
+ </head>
+ <body>
+
+ <p>The next two lines should be the same:</p>
+
+ <div><span class="reset"></span><span class="use"></span><span class="reset"></span><span class="use"></span><span class="rb"><span class="use"></span><span class="reset"></span><span class="use"></span></span></div>
+ <div>1 1 R1.1 1.1</div>
+
+ </body>
+</html>
+HTML
+,
+                [
+                    "div" => [
+                        "1 1 R1.1 1.1",
+                        "1 1 R1.1 1.1"
+                    ]
+                ]
+            ],
             "counters-scope-implied-000" => [
                 <<<HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
