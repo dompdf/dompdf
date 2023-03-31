@@ -1,6 +1,16 @@
 <?php
 namespace Dompdf\Tests\Css;
 
+use Dompdf\Css\Content\Attr;
+use Dompdf\Css\Content\CloseQuote;
+use Dompdf\Css\Content\ContentPart;
+use Dompdf\Css\Content\Counter;
+use Dompdf\Css\Content\Counters;
+use Dompdf\Css\Content\NoCloseQuote;
+use Dompdf\Css\Content\NoOpenQuote;
+use Dompdf\Css\Content\OpenQuote;
+use Dompdf\Css\Content\StringPart;
+use Dompdf\Css\Content\Url;
 use Dompdf\Dompdf;
 use Dompdf\Css\Style;
 use Dompdf\Css\Stylesheet;
@@ -149,7 +159,13 @@ class StyleTest extends TestCase
             ["", "none"],
             ["3", "none"],
             ["c 3 7", "none"],
-            ["3 c 7", "none"]
+            ["3 c 7", "none"],
+
+            // Reserved names
+            ["inherit 1", "none"],
+            ["initial 1", "none"],
+            ["unset 1", "none"],
+            ["default 1", "none"]
         ];
     }
 
@@ -187,7 +203,13 @@ class StyleTest extends TestCase
             ["", "none"],
             ["3", "none"],
             ["c 3 7", "none"],
-            ["3 c 7", "none"]
+            ["3 c 7", "none"],
+
+            // Reserved names
+            ["inherit 1", "none"],
+            ["initial 1", "none"],
+            ["unset 1", "none"],
+            ["default 1", "none"]
         ];
     }
 
@@ -204,31 +226,137 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->counter_reset);
     }
 
-    public function contentProvider(): array
+    public function quotesProvider(): array
     {
+        $autoResolved = [['"', '"'], ["'", "'"]];
+
         return [
-            ["normal", "normal"],
+            // Valid values
             ["none", "none"],
-            [
-                "'–' attr(title) '–'",
-                ["'–'", "attr(title)", "'–'"]
-            ],
-            [
-                'counter(page)" / {PAGES}"',
-                ["counter(page)", '" / {PAGES}"']
-            ],
-            [
-                "counter(li1, decimal)\".\"counter(li2, upper-roman)  ')'url('image.png')",
-                ["counter(li1, decimal)", '"."', "counter(li2, upper-roman)", "')'", "url('image.png')"]
-            ],
-            [
-                '"url(\' \')"open-quote url(" ")close-quote',
-                ['"url(\' \')"', "open-quote", 'url(" ")', "close-quote"]
-            ]
+            ["auto", $autoResolved],
+            ["'\"' '\"'", [['"', '"']]],
+            [" '\"'   '\"'   \"'\"   \"'\" ", [['"', '"'], ["'", "'"]]],
+            ["'“' '”' '‘' '’'", [['“', '”'], ['‘', '’']]],
+            ["'open-quote' 'close-quote'", [["open-quote", "close-quote"]]],
+            ["'😀️' '😐️' '\"2\"' '\"2\"' '›' '‹'", [['😀️', '😐️'], ['"2"', '"2"'], ['›', '‹']]],
+
+            // Invalid values
+            ["'\''", $autoResolved]
         ];
     }
 
     /**
+     * @dataProvider quotesProvider
+     */
+    public function testQuotes(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("quotes", $value);
+        $this->assertSame($expected, $style->quotes);
+    }
+
+    public function contentProvider(): array
+    {
+        return [
+            // Valid values
+            ["normal", "normal"],
+            ["none", "none"],
+
+            // String
+            ['"string"', [new StringPart("string")]],
+            ["'string'", [new StringPart("string")]],
+            ["\"'s't\\\"r'\"", [new StringPart("'s't\"r'")]],
+            ["'attr(title)'", [new StringPart("attr(title)")]],
+            ['"url(\'image.png\')"', [new StringPart("url('image.png')")]],
+
+            // Attr
+            ["attr(title)", [new Attr("title")]],
+            ["ATTR(  TITLE )", [new Attr("title")]],
+
+            // Url
+            ["url(image.png)", [new Url("image.png")]],
+            ["url('image.png')", [new Url("image.png")]],
+            ['url(  "image.png"  )', [new Url("image.png")]],
+            ["URL(\"'image.PNG'\")", [new Url("'image.PNG'")]],
+
+            // Counter/Counters
+            ["counter(c)", [new Counter("c", "decimal")]],
+            ["COUNTER(  UPPER  ,  UPPER-roman  )", [new Counter("UPPER", "upper-roman")]],
+            ["counters(c, '')", [new Counters("c", "", "decimal")]],
+            ["counters(c, '', decimal)", [new Counters("c", "", "decimal")]],
+            ["COUNTERS(  UPPER  ,  'UPPER'  , lower-ROMAN  )", [new Counters("UPPER", "UPPER", "lower-roman")]],
+
+            // Quotes
+            ["open-quote", [new OpenQuote]],
+            ["OPEN-QUOTE", [new OpenQuote]],
+            ["close-quote", [new CloseQuote]],
+            ["CLOSE-QUOTE", [new CloseQuote]],
+            ["no-open-quote", [new NoOpenQuote]],
+            ["NO-OPEN-QUOTE", [new NoOpenQuote]],
+            ["no-close-quote", [new NoCloseQuote]],
+            ["NO-CLOSE-QUOTE", [new NoCloseQuote]],
+
+            // Content lists
+            [
+                "'–' attr( title ) '–'",
+                [new StringPart("–"), new Attr("title"), new StringPart("–")]
+            ],
+            [
+                'counter(page)" / {PAGES}"',
+                [new Counter("page", "decimal"), new StringPart(" / {PAGES}")]
+            ],
+            [
+                "counter(li1, decimal)\".\"counters(li2, '.', upper-roman)  ')'URL('IMAGE.png')",
+                [new Counter("li1", "decimal"), new StringPart("."), new Counters("li2", ".", "upper-roman"), new StringPart(")"), new Url("IMAGE.png")]
+            ],
+            [
+                '"url(\' \')"open-quote url(" ")close-quote',
+                [new StringPart("url(' ')"), new OpenQuote, new Url(" "), new CloseQuote]
+            ],
+
+            // Invalid values
+            ["attr()", "normal"],
+            ["count", "normal"],
+            ["counter", "normal"],
+            ["counter(c", "normal"],
+            ["count()", "normal"],
+            ["counters(c)", "normal"],
+            ["counters(c, decimal, '')", "normal"],
+            ["counters(c, decimal)", "normal"],
+            ["open-quoteclose-quote", "normal"],
+            ["😀️()", "normal"],
+
+            // Reserved names
+            ["counter(none)", "normal"],
+            ["counter(inherit)", "normal"],
+            ["counter(initial)", "normal"],
+            ["counter(unset)", "normal"],
+            ["counter(default)", "normal"],
+            ["counters(none, '')", "normal"],
+            ["counters(inherit, '')", "normal"],
+            ["counters(initial, '')", "normal"],
+            ["counters(unset, '')", "normal"],
+            ["counters(default, '')", "normal"],
+            ["counter(c, none)", "normal"],
+            ["counter(c, inherit)", "normal"],
+            ["counter(c, initial)", "normal"],
+            ["counter(c, unset)", "normal"],
+            ["counter(c, default)", "normal"],
+            ["counters(c, '', none)", "normal"],
+            ["counters(c, '', inherit)", "normal"],
+            ["counters(c, '', initial)", "normal"],
+            ["counters(c, '', unset)", "normal"],
+            ["counters(c, '', default)", "normal"]
+        ];
+    }
+
+    /**
+     * @param string               $value
+     * @param ContentPart[]|string $expected
+     *
      * @dataProvider contentProvider
      */
     public function testContent(string $value, $expected): void
@@ -238,7 +366,20 @@ class StyleTest extends TestCase
         $style = new Style($sheet);
 
         $style->set_prop("content", $value);
-        $this->assertSame($expected, $style->content);
+
+        if (is_array($expected)) {
+            $content = $style->content;
+
+            $this->assertIsArray($content);
+            $this->assertCount(count($expected), $content);
+
+            foreach ($expected as $i => $part) {
+                $actualPart = $content[$i];
+                $this->assertTrue($part->equals($actualPart), "Failed asserting that $actualPart equals $part.");
+            }
+        } else {
+            $this->assertSame($expected, $style->content);
+        }
     }
 
     public function sizeProvider(): array

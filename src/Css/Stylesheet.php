@@ -8,11 +8,12 @@ namespace Dompdf\Css;
 
 use DOMElement;
 use DOMXPath;
+use Dompdf\Css\Content\Url;
 use Dompdf\Dompdf;
-use Dompdf\Helpers;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Frame\FrameTree;
+use Dompdf\Helpers;
 
 /**
  * The master stylesheet class
@@ -939,16 +940,25 @@ class Stylesheet
                             continue;
                         }
 
-                        $content = $style->get_specified("content");
+                        $content = $style->content;
 
-                        // Do not create non-displayed before/after pseudo elements
+                        // Do not create non-displayed before/after pseudo
+                        // elements. Since styles have not been inherited yet,
+                        // a specified value of `inherit` will always be treated
+                        // as `normal` here. This is fine according to the
+                        // CSS 2.1 spec, as any value computes to `normal` on
+                        // regular elements
                         // https://www.w3.org/TR/CSS21/generate.html#content
                         // https://www.w3.org/TR/CSS21/generate.html#undisplayed-counters
                         if ($content === "normal" || $content === "none") {
                             continue;
                         }
 
-                        if (($src = $this->resolve_url($content)) !== "none") {
+                        // https://www.w3.org/TR/css-content-3/#content-property
+                        $single = count($content) === 1 ? $content[0] : null;
+
+                        if ($single instanceof Url) {
+                            $src = $this->resolve_url("url($single->url)");
                             $new_node = $node->ownerDocument->createElement("img_generated");
                             $new_node->setAttribute("src", $src);
                         } else {
