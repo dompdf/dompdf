@@ -786,6 +786,39 @@ class CPDF implements Canvas
         }
     }
 
+    public function font_supports_text(string $font, string $text): bool
+    {
+        if ($text === "") {
+            return true;
+        }
+
+        $is_font_subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
+        $this->_pdf->selectFont($font, '', false, $is_font_subsetting);
+        if (!array_key_exists($font, $this->_pdf->fonts)) {
+            return false;
+        }
+        $font_info = $this->_pdf->fonts[$font];
+
+        if (function_exists("mb_str_split")) {
+            $chars = array_unique(mb_str_split($text, 1, "UTF-8"), SORT_STRING);
+        } else {
+            $chars = array_unique(preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY), SORT_STRING);
+        }
+        $char_codes = array_map(
+            function($char) {
+                return Helpers::uniord($char, "UTF-8");
+            },
+            $chars
+        );
+
+        foreach ($char_codes as $char_code) {
+            if (!array_key_exists($char_code, $font_info['C'])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * @throws FontNotFoundException
      */

@@ -366,6 +366,16 @@ interface Canvas
     public function add_info(string $label, string $value): void;
 
     /**
+     * Determines if the font supports the characters in the specified text
+     *
+     * @param string $font The font file to use
+     * @param string $text The string of characters to check
+     *
+     * @return bool
+     */
+    function font_supports_text(string $font, string $text): bool;
+
+    /**
      * Calculates text size, in points
      *
      * @param string $text         The text to be sized
