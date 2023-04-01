@@ -726,17 +726,14 @@ class PDFLib implements Canvas
         // Fix for PDFLibs case-sensitive font names
         $baseFont = basename($font);
         $isNativeFont = false;
-        if (isset(self::$nativeFontsTpPDFLib[$baseFont])) {
-            $font = self::$nativeFontsTpPDFLib[$baseFont];
+        $lcBaseFont = strtolower($basefont);
+        if (isset(self::$nativeFontsTpPDFLib[$lcBaseFont])) {
+            $font = self::$nativeFontsTpPDFLib[$lcBaseFont];
             $isNativeFont = true;
         }
 
-        // Check if the font is a native PDF font
         // Embed non-native fonts
-        $test = strtolower($baseFont);
-        if (in_array($test, DOMPDF::$nativeFonts)) {
-            $font = basename($font);
-        } else {
+        if ($isNativeFont) {
             // Embed non-native fonts
             $options .= " embedding=true";
         }
@@ -761,7 +758,6 @@ class PDFLib implements Canvas
         // Native fonts are build in, just load it
         if ($isNativeFont) {
             $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
-
             return $this->_fonts[$key];
         }
 
@@ -816,7 +812,7 @@ class PDFLib implements Canvas
             }
         }
 
-        $this->_fonts[$key] = $this->_pdf->load_font($font, $encoding, $options);
+        $this->_fonts[$key] = $this->_pdf->load_font($baseFont, $encoding, $options);
 
         return $this->_fonts[$key];
     }
@@ -1146,6 +1142,36 @@ class PDFLib implements Canvas
                 $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link', "contents={{$url}} action={activate=$action} linewidth=0");
             }
         }
+    }
+
+    public function font_supports_text(string $font, string $text): bool
+    {
+        if ($text === "") {
+            return true;
+        }
+
+        $fh = $this->_load_font($font);
+        if ($fh === 0) {
+            return false;
+        }
+        $this->_pdf->setfont($fh, 10);
+
+        if (function_exists("mb_str_split")) {
+            $chars = array_unique(mb_str_split($text, 1, "UTF-8"), SORT_STRING);
+        } else {
+            $chars = array_unique(preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY), SORT_STRING);
+        }
+        foreach ($chars as $char) {
+            $options = "unicode=$char";
+            if ($char === " ") {
+                $options = "glyphname=space";
+            }
+            $glyphid = (int)($this->_pdf->info_font($fh, "glyphid", $options));
+            if ($glyphid === -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function get_text_width($text, $font, $size, $word_spacing = 0.0, $letter_spacing = 0.0)
