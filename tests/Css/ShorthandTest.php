@@ -276,7 +276,7 @@ class ShorthandTest extends TestCase
             ["url( \"$imagePath\" )", "url( \"$imagePath\" )"],
             ["rgba( 5, 5, 5, 1 )", "none", ["0%", "0%"], ["auto", "auto"], "repeat", "scroll", "rgba( 5, 5, 5, 1 )"],
             ["url(non-existing.png) top center no-repeat red fixed", "url(non-existing.png)", "top center", ["auto", "auto"], "no-repeat", "fixed", "red"],
-            ["url($imagePath) left/200pt 30% rgb( 123 16 69/0.8 )no-repeat", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"]
+            ["url($imagePath) LEFT/200PT 30% RGB( 123 16 69/0.8 )no-REPEAT", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"]
         ];
     }
 
@@ -348,7 +348,8 @@ class ShorthandTest extends TestCase
             ["url($imagePath)", "disc", "url($imagePath)"],
             ["url( '$imagePath' ) outside", "disc", "url( '$imagePath' )", "outside"],
             ["inside url($imagePath) square", "square", "url($imagePath)", "inside"],
-            ["inside decimal", "decimal", "none", "inside"]
+            ["inside decimal", "decimal", "none", "inside"],
+            ["OUTSIDE    LOWER-GREEK", "LOWER-GREEK", "none", "outside"]
         ];
     }
 

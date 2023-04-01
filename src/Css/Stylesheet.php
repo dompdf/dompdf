@@ -1368,12 +1368,12 @@ class Stylesheet
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
 
-        if (empty($val) || $val === "none") {
+        if ($val === null || $val === "" || strcasecmp($val, "none") === 0) {
             $path = "none";
-        } elseif (mb_strpos($val, "url") === false) {
+        } elseif (strncasecmp($val, "url(", 4) !== 0) {
             $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
         } else {
-            $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
+            $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/i", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
             $path = Helpers::build_url($this->_protocol,

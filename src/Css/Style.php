@@ -109,7 +109,7 @@ use Dompdf\Helpers;
  * @property float                $letter_spacing              Length in pt
  * @property float                $line_height                 Length in pt
  * @property string               $list_style_image            Image URL or `none`
- * @property string               $list_style_position
+ * @property string               $list_style_position         `inside` or `outside`
  * @property string               $list_style_type
  * @property float|string         $margin_right                Length in pt, a percentage value, or `auto`
  * @property float|string         $margin_left                 Length in pt, a percentage value, or `auto`
@@ -1030,7 +1030,7 @@ class Style
         }
 
         $v = (float) $matches[1];
-        $unit = mb_strtolower($matches[2]);
+        $unit = strtolower($matches[2]);
 
         if ($unit === "") {
             // Legacy support for unitless values, not covered by spec. Might
@@ -1254,8 +1254,16 @@ class Style
             return;
         }
 
-        if ($prop !== "content" && \is_string($val) && mb_strpos($val, "url") === false && mb_strlen($val) > 1) {
-            $val = mb_strtolower(trim(str_replace(["\n", "\t"], [" "], $val)));
+        // Trim declarations unconditionally, but only lower-case for comparison
+        // with the general keywords. Properties must handle case-insensitive
+        // comparisons individually
+        if (\is_string($val)) {
+            $val = trim($val);
+            $lower = strtolower($val);
+
+            if ($lower === "initial" || $lower === "inherit" || $lower === "unset") {
+                $val = $lower;
+            }
         }
 
         if (isset(self::$_props_shorthand[$prop])) {
@@ -1290,7 +1298,9 @@ class Style
         } else {
             // Legacy support for `word-break: break-word`
             // https://www.w3.org/TR/css-text-3/#valdef-word-break-break-word
-            if ($prop === "word_break" && $val === "break-word") {
+            if ($prop === "word_break"
+                && \is_string($val) && strcasecmp($val, "break-word") === 0
+            ) {
                 $val = "normal";
                 $this->set_prop("overflow_wrap", "anywhere", $important, $clear_dependencies);
             }
@@ -1519,7 +1529,7 @@ class Style
         if (self::$_methods_cache[$method]) {
             return $this->$method($val);
         } elseif ($val !== "") {
-            return $val;
+            return strtolower($val);
         } else {
             return null;
         }
@@ -2166,6 +2176,7 @@ class Style
     protected function compute_color_value(string $val): ?string
     {
         // https://www.w3.org/TR/css-color-4/#resolving-other-colors
+        $val = strtolower($val);
         $munged_color = $val !== "currentcolor"
             ? $this->munge_color($val)
             : $val;
@@ -2256,6 +2267,8 @@ class Style
      */
     protected function compute_line_width(string $val, string $style_prop): ?float
     {
+        $val = strtolower($val);
+
         // Border-width keywords
         if ($val === "thin") {
             $computed = 0.5;
@@ -2286,6 +2299,7 @@ class Style
      */
     protected function compute_border_style(string $val): ?string
     {
+        $val = strtolower($val);
         return \in_array($val, self::BORDER_STYLES, true) ? $val : null;
     }
 
@@ -2347,6 +2361,8 @@ class Style
      */
     protected function _compute_display(string $val)
     {
+        $val = strtolower($val);
+
         // Make sure that common valid, but unsupported display types have an
         // appropriate fallback display type
         switch ($val) {
@@ -2426,6 +2442,7 @@ class Style
     protected function _compute_background_repeat(string $val)
     {
         $keywords = ["repeat", "repeat-x", "repeat-y", "no-repeat"];
+        $val = strtolower($val);
         return \in_array($val, $keywords, true) ? $val : null;
     }
 
@@ -2435,6 +2452,7 @@ class Style
     protected function _compute_background_attachment(string $val)
     {
         $keywords = ["scroll", "fixed"];
+        $val = strtolower($val);
         return \in_array($val, $keywords, true) ? $val : null;
     }
 
@@ -2443,6 +2461,7 @@ class Style
      */
     protected function _compute_background_position(string $val)
     {
+        $val = strtolower($val);
         $parts = preg_split("/\s+/", $val);
 
         if (\count($parts) > 2) {
@@ -2533,6 +2552,8 @@ class Style
      */
     protected function _compute_background_size(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "cover" || $val === "contain") {
             return $val;
         }
@@ -2570,16 +2591,20 @@ class Style
         $pos_size = [];
 
         foreach ($components as $val) {
-            if ($val === "none" || mb_substr($val, 0, 4) === "url(") {
+            $lower = strtolower($val);
+
+            if ($lower === "none") {
+                $props["background_image"] = $lower;
+            } elseif (strncmp($lower, "url(", 4) === 0) {
                 $props["background_image"] = $val;
-            } elseif ($val === "scroll" || $val === "fixed") {
-                $props["background_attachment"] = $val;
-            } elseif ($val === "repeat" || $val === "repeat-x" || $val === "repeat-y" || $val === "no-repeat") {
-                $props["background_repeat"] = $val;
-            } elseif ($this->is_color_value($val)) {
-                $props["background_color"] = $val;
+            } elseif ($lower === "scroll" || $lower === "fixed") {
+                $props["background_attachment"] = $lower;
+            } elseif ($lower === "repeat" || $lower === "repeat-x" || $lower === "repeat-y" || $lower === "no-repeat") {
+                $props["background_repeat"] = $lower;
+            } elseif ($this->is_color_value($lower)) {
+                $props["background_color"] = $lower;
             } else {
-                $pos_size[] = $val;
+                $pos_size[] = $lower;
             }
         }
 
@@ -2610,6 +2635,7 @@ class Style
      */
     protected function _compute_font_size(string $size)
     {
+        $size = strtolower($size);
         $parent_font_size = isset($this->parent_style)
             ? $this->parent_style->__get("font_size")
             : self::$default_font_size;
@@ -2644,19 +2670,20 @@ class Style
     /**
      * @link https://www.w3.org/TR/CSS21/fonts.html#font-boldness
      */
-    protected function _compute_font_weight(string $weight)
+    protected function _compute_font_weight(string $val)
     {
-        $computed_weight = $weight;
+        $val = strtolower($val);
+        $computed = $val;
 
-        if ($weight === "bolder") {
+        if ($val === "bolder") {
             //TODO: One font weight heavier than the parent element (among the available weights of the font).
-            $computed_weight = "bold";
-        } elseif ($weight === "lighter") {
+            $computed = "bold";
+        } elseif ($val === "lighter") {
             //TODO: One font weight lighter than the parent element (among the available weights of the font).
-            $computed_weight = "normal";
+            $computed = "normal";
         }
 
-        return $computed_weight;
+        return $computed;
     }
 
     /**
@@ -2668,6 +2695,7 @@ class Style
      */
     protected function _set_font(string $value): array
     {
+        $value = strtolower($value);
         $components = $this->parse_property_value($value);
         $props = [];
 
@@ -2749,12 +2777,12 @@ class Style
      */
     protected function _compute_text_align(string $val)
     {
-        $alignment = $val;
+        $alignment = strtolower($val);
+
         if ($alignment === "") {
-            $alignment = "left";
-            if ($this->__get("direction") === "rtl") {
-                $alignment = "right";
-            }
+            $alignment = $this->__get("direction") === "rtl"
+                ? "right"
+                : "left";
         }
 
         if (!\in_array($alignment, self::TEXT_ALIGN_KEYWORDS, true)) {
@@ -2769,6 +2797,8 @@ class Style
      */
     protected function _compute_word_spacing(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "normal") {
             return 0.0;
         }
@@ -2781,6 +2811,8 @@ class Style
      */
     protected function _compute_letter_spacing(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "normal") {
             return 0.0;
         }
@@ -2793,6 +2825,8 @@ class Style
      */
     protected function _compute_line_height(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "normal") {
             return $val;
         }
@@ -2818,8 +2852,10 @@ class Style
     /**
      * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-before
      */
-    protected function _compute_page_break_before(string $break)
+    protected function _compute_page_break_before(string $val)
     {
+        $break = strtolower($val);
+
         if ($break === "left" || $break === "right") {
             $break = "always";
         }
@@ -2830,8 +2866,10 @@ class Style
     /**
      * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-after
      */
-    protected function _compute_page_break_after(string $break)
+    protected function _compute_page_break_after(string $val)
     {
+        $break = strtolower($val);
+
         if ($break === "left" || $break === "right") {
             $break = "always";
         }
@@ -2844,6 +2882,8 @@ class Style
      */
     protected function _compute_width(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "auto") {
             return $val;
         }
@@ -2856,6 +2896,8 @@ class Style
      */
     protected function _compute_height(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "auto") {
             return $val;
         }
@@ -2868,6 +2910,8 @@ class Style
      */
     protected function _compute_min_width(string $val)
     {
+        $val = strtolower($val);
+
         // Legacy support for `none`, not covered by spec
         if ($val === "auto" || $val === "none") {
             return "auto";
@@ -2881,6 +2925,8 @@ class Style
      */
     protected function _compute_min_height(string $val)
     {
+        $val = strtolower($val);
+
         // Legacy support for `none`, not covered by spec
         if ($val === "auto" || $val === "none") {
             return "auto";
@@ -2894,6 +2940,8 @@ class Style
      */
     protected function _compute_max_width(string $val)
     {
+        $val = strtolower($val);
+
         // Legacy support for `auto`, not covered by spec
         if ($val === "none" || $val === "auto") {
             return "none";
@@ -2907,6 +2955,8 @@ class Style
      */
     protected function _compute_max_height(string $val)
     {
+        $val = strtolower($val);
+
         // Legacy support for `auto`, not covered by spec
         if ($val === "none" || $val === "auto") {
             return "none";
@@ -2930,6 +2980,8 @@ class Style
      */
     protected function compute_box_inset(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "auto") {
             return $val;
         }
@@ -2972,6 +3024,8 @@ class Style
      */
     protected function compute_margin(string $val)
     {
+        $val = strtolower($val);
+
         // Legacy support for `none` keyword, not covered by spec
         if ($val === "none") {
             return 0.0;
@@ -3019,6 +3073,8 @@ class Style
      */
     protected function compute_padding(string $val)
     {
+        $val = strtolower($val);
+
         // Legacy support for `none` keyword, not covered by spec
         if ($val === "none") {
             return 0.0;
@@ -3055,6 +3111,7 @@ class Style
      */
     protected function parse_border_side(string $value, array $styles = self::BORDER_STYLES): ?array
     {
+        $value = strtolower($value);
         $components = $this->parse_property_value($value);
         $width = null;
         $style = null;
@@ -3268,6 +3325,7 @@ class Style
 
     protected function _compute_outline_style(string $val)
     {
+        $val = strtolower($val);
         return \in_array($val, self::OUTLINE_STYLES, true) ? $val : null;
     }
 
@@ -3292,6 +3350,7 @@ class Style
      */
     protected function _compute_border_spacing(string $val)
     {
+        $val = strtolower($val);
         $parts = preg_split("/\s+/", $val);
 
         if (\count($parts) > 2) {
@@ -3325,33 +3384,48 @@ class Style
     }
 
     /**
+     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-list-style-type
+     */
+    protected function _compute_list_style_position(string $val)
+    {
+        $val = strtolower($val);
+        return $val === "inside" || $val === "outside" ? $val : null;
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-list-style-type
+     */
+    protected function _compute_list_style_type(string $val)
+    {
+        $val = strtolower($val);
+
+        if ($val === "none") {
+            return $val;
+        }
+
+        $ident = self::CSS_IDENTIFIER;
+        return $val !== "default" && preg_match("/^$ident$/", $val)
+            ? $val
+            : null;
+    }
+
+    /**
      * @link https://www.w3.org/TR/CSS21/generate.html#propdef-list-style
      */
     protected function _set_list_style(string $value): array
     {
-        static $positions = ["inside", "outside"];
-        static $types = [
-            "disc", "circle", "square",
-            "decimal-leading-zero", "decimal", "1",
-            "lower-roman", "upper-roman", "a", "A",
-            "lower-greek",
-            "lower-latin", "upper-latin",
-            "lower-alpha", "upper-alpha",
-            "armenian", "georgian", "hebrew",
-            "cjk-ideographic", "hiragana", "katakana",
-            "hiragana-iroha", "katakana-iroha", "none"
-        ];
-
         $components = $this->parse_property_value($value);
         $props = [];
 
         foreach ($components as $val) {
+            $lower = strtolower($val);
+
             /* https://www.w3.org/TR/CSS21/generate.html#list-style
              * A value of 'none' for the 'list-style' property sets both 'list-style-type' and 'list-style-image' to 'none'
              */
-            if ($val === "none") {
-                $props["list_style_type"] = $val;
-                $props["list_style_image"] = $val;
+            if ($lower === "none") {
+                $props["list_style_type"] = "none";
+                $props["list_style_image"] = "none";
                 continue;
             }
 
@@ -3360,15 +3434,16 @@ class Style
             //Firefox is wrong here (list_style_image gets overwritten on explicit list_style_type)
             //Internet Explorer 7/8 and dompdf is right.
 
-            if (mb_substr($val, 0, 4) === "url(") {
+            if (strncmp($lower, "url(", 4) === 0) {
                 $props["list_style_image"] = $val;
-                continue;
             }
 
-            if (\in_array($val, $types, true)) {
+            elseif ($lower === "inside" || $lower === "outside") {
+                $props["list_style_position"] = $lower;
+            }
+
+            else {
                 $props["list_style_type"] = $val;
-            } elseif (\in_array($val, $positions, true)) {
-                $props["list_style_position"] = $val;
             }
         }
 
@@ -3384,8 +3459,10 @@ class Style
      */
     protected function compute_counter_prop(string $value, int $default, bool $sumDuplicates = false)
     {
-        if ($value === "none") {
-            return $value;
+        $lower = strtolower($value);
+
+        if ($lower === "none") {
+            return $lower;
         }
 
         $ident = self::CSS_IDENTIFIER;
@@ -3437,9 +3514,11 @@ class Style
      */
     protected function _compute_quotes(string $val)
     {
+        $lower = strtolower($val);
+
         // `auto` is resolved in the getter, so it can inherit as is
-        if ($val === "none" || $val === "auto") {
-            return $val;
+        if ($lower === "none" || $lower === "auto") {
+            return $lower;
         }
 
         $components = $this->parse_property_value($val);
@@ -3468,8 +3547,10 @@ class Style
      */
     protected function _compute_content(string $val)
     {
-        if ($val === "normal" || $val === "none") {
-            return $val;
+        $lower = strtolower($val);
+
+        if ($lower === "normal" || $lower === "none") {
+            return $lower;
         }
 
         $components = $this->parse_property_value($val);
@@ -3587,6 +3668,8 @@ class Style
      */
     protected function _compute_size(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "auto") {
             return $val;
         }
@@ -3807,6 +3890,7 @@ class Style
         // If exif data could be get:
         // $re = '/^\s*(\d+|normal|auto)(?:\s*,\s*(\d+|normal))?\s*$/';
 
+        $val = strtolower($val);
         $re = '/^\s*(\d+|normal|auto)\s*$/';
 
         if (!preg_match($re, $val, $matches)) {
@@ -3872,6 +3956,8 @@ class Style
      */
     protected function _compute_z_index(string $val)
     {
+        $val = strtolower($val);
+
         if ($val === "auto") {
             return $val;
         }
