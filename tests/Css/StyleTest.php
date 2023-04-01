@@ -55,7 +55,8 @@ class StyleTest extends TestCase
             "no value" => ["", "none"],
             "keyword none" => ["none", "none"],
             "bare url" => ["http://example.com/test.png", "none"],
-            "http" => ["url(http://example.com/test.png)", "http://example.com/test.png"]
+            "http" => ["url(http://example.com/test.png)", "http://example.com/test.png"],
+            "case" => ["URL(http://example.com/Test.png)", "http://example.com/Test.png"]
         ];
     }
 
@@ -138,11 +139,213 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $s->background_image);
     }
 
+    private function testLengthProperty(
+        string $prop,
+        string $value,
+        float $fontSize,
+        $expected,
+        $initialProps = []
+    ): void {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->font_size = $fontSize;
+
+        foreach ($initialProps as $p => $v) {
+            $style->$p = $v;
+        }
+
+        $style->set_prop($prop, $value);
+        $this->assertSame($expected, $style->$prop);
+    }
+
+    public function widthHeightProvider(): array
+    {
+        return [
+            // Keywords
+            ["auto", 12.0, "auto", 0.0],
+
+            // Lengths
+            ["0", 12.0, 0.0],
+            ["1em", 20.0, 20.0],
+            ["100pt", 12.0, 100.0],
+            ["50%", 12.0, "50%"],
+
+            // Case variations
+            ["Auto", 12.0, "auto", 0.0],
+            ["AUTO", 12.0, "auto", 0.0],
+            ["1EM", 20.0, 20.0],
+
+            // Invalid values
+            ["none", 12.0, "auto"],
+            ["-100pt", 12.0, "auto"],
+            ["-50%", 12.0, "auto"]
+        ];
+    }
+
+    /**
+     * @dataProvider widthHeightProvider
+     */
+    public function testWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("width", $value, $fontSize, $expected, ["width" => $initial]);
+    }
+
+    /**
+     * @dataProvider widthHeightProvider
+     */
+    public function testHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("height", $value, $fontSize, $expected, ["height" => $initial]);
+    }
+
+    public function minWidthHeightProvider(): array
+    {
+        return [
+            // Keywords
+            ["auto", 12.0, "auto", 0.0],
+
+            // Legacy keywords
+            ["none", 12.0, "auto", 0.0],
+
+            // Lengths
+            ["0", 12.0, 0.0],
+            ["1em", 20.0, 20.0],
+            ["100pt", 12.0, 100.0],
+            ["50%", 12.0, "50%"],
+
+            // Case variations
+            ["Auto", 12.0, "auto", 0.0],
+            ["AUTO", 12.0, "auto", 0.0],
+            ["1EM", 20.0, 20.0],
+
+            // Invalid values
+            ["-100pt", 12.0, "auto"],
+            ["-50%", 12.0, "auto"]
+        ];
+    }
+
+    /**
+     * @dataProvider minWidthHeightProvider
+     */
+    public function testMinWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("min_width", $value, $fontSize, $expected, ["min_width" => $initial]);
+    }
+
+    /**
+     * @dataProvider minWidthHeightProvider
+     */
+    public function testMinHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("min_height", $value, $fontSize, $expected, ["min_height" => $initial]);
+    }
+
+    public function maxWidthHeightProvider(): array
+    {
+        return [
+            // Keywords
+            ["none", 12.0, "none", 0.0],
+
+            // Legacy keywords
+            ["auto", 12.0, "none", 0.0],
+
+            // Lengths
+            ["0", 12.0, 0.0],
+            ["1em", 20.0, 20.0],
+            ["100pt", 12.0, 100.0],
+            ["50%", 12.0, "50%"],
+
+            // Case variations
+            ["None", 12.0, "none", 0.0],
+            ["NONE", 12.0, "none", 0.0],
+            ["1EM", 20.0, 20.0],
+
+            // Invalid values
+            ["-100pt", 12.0, "none"],
+            ["-50%", 12.0, "none"]
+        ];
+    }
+
+    /**
+     * @dataProvider maxWidthHeightProvider
+     */
+    public function testMaxWidth(string $value, float $fontSize, $expected, $initial = "none"): void
+    {
+        $this->testLengthProperty("max_width", $value, $fontSize, $expected, ["max_width" => $initial]);
+    }
+
+    /**
+     * @dataProvider maxWidthHeightProvider
+     */
+    public function testMaxHeight(string $value, float $fontSize, $expected, $initial = "none"): void
+    {
+        $this->testLengthProperty("max_height", $value, $fontSize, $expected, ["max_height" => $initial]);
+    }
+
+    public function lineWidthProvider(): array
+    {
+        return [
+            // Keywords
+            ["thin", 12.0, 0.5],
+            ["medium", 12.0, 1.5],
+            ["thick", 12.0, 2.5],
+
+            // Lengths
+            ["0", 12.0, 0.0],
+            ["1em", 20.0, 20.0],
+            ["100pt", 12.0, 100.0],
+
+            // Case variations
+            ["THIN", 12.0, 0.5],
+            ["Medium", 12.0, 1.5],
+            ["thICK", 12.0, 2.5],
+            ["1EM", 20.0, 20.0],
+
+            // Invalid values
+            ["auto", 12.0, 5.0, 5.0, 5.0],
+            ["none", 12.0, 5.0, 5.0, 5.0],
+            ["-100pt", 12.0, 5.0, 5.0, 5.0],
+            ["50%", 12.0, 5.0, 5.0, 5.0],
+            ["-50%", 12.0, 5.0, 5.0, 5.0]
+        ];
+    }
+
+    /**
+     * @dataProvider lineWidthProvider
+     */
+    public function testBorderOutlineWidth(
+        string $value,
+        float $fontSize,
+        $expectedStyleSolid,
+        $expectedStyleNone = 0.0,
+        $initial = "50.0"
+    ): void {
+        $props = ["border_top", "border_right", "border_bottom", "border_left", "outline"];
+
+        foreach ($props as $prop) {
+            $initialPropsSolid = [
+                "{$prop}_width" => $initial,
+                "{$prop}_style" => "solid"
+            ];
+            $initialPropsNone = [
+                "{$prop}_width" => $initial,
+                "{$prop}_style" => "none"
+            ];
+
+            $this->testLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleSolid, $initialPropsSolid);
+            $this->testLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleNone, $initialPropsNone);
+        }
+    }
+
     public function counterIncrementProvider(): array
     {
         return [
-            // Valid values
+            // Keywords
             ["none", "none"],
+
+            // Valid values
             ["c", ["c" => 1]],
             ["c1 c2 c3", ["c1" => 1, "c2" => 1, "c3" => 1]],
             ["c 0", ["c" => 0]],
@@ -151,9 +354,14 @@ class StyleTest extends TestCase
             ["c1 -5 c2 2", ["c1" => -5, "c2" => 2]],
             ["c1 -5 c2", ["c1" => -5, "c2" => 1]],
             ["c1 c2 2", ["c1" => 1, "c2" => 2]],
+            ["UPPER lower", ["UPPER" => 1, "lower" => 1]],
 
             // Duplicate counter
             ["c 2 c 4", ["c" => 6]],
+
+            // Case and whitespace variations
+            ["NONE", "none"],
+            ["UPPER\tlower       \n   5", ["UPPER" => 1, "lower" => 5]],
 
             // Invalid values
             ["", "none"],
@@ -185,8 +393,10 @@ class StyleTest extends TestCase
     public function counterResetProvider(): array
     {
         return [
-            // Valid values
+            // Keywords
             ["none", "none"],
+
+            // Valid values
             ["c", ["c" => 0]],
             ["c1 c2 c3", ["c1" => 0, "c2" => 0, "c3" => 0]],
             ["c 0", ["c" => 0]],
@@ -195,9 +405,14 @@ class StyleTest extends TestCase
             ["c1 -5 c2 2", ["c1" => -5, "c2" => 2]],
             ["c1 -5 c2", ["c1" => -5, "c2" => 0]],
             ["c1 c2 2", ["c1" => 0, "c2" => 2]],
+            ["UPPER lower", ["UPPER" => 0, "lower" => 0]],
 
             // Duplicate counter
             ["c 2 c 4", ["c" => 4]],
+
+            // Case and whitespace variations
+            ["NONE", "none"],
+            ["UPPER\tlower       \n   5", ["UPPER" => 0, "lower" => 5]],
 
             // Invalid values
             ["", "none"],
@@ -231,14 +446,22 @@ class StyleTest extends TestCase
         $autoResolved = [['"', '"'], ["'", "'"]];
 
         return [
-            // Valid values
+            // Keywords
             ["none", "none"],
             ["auto", $autoResolved],
+
+            // Valid values
             ["'\"' '\"'", [['"', '"']]],
             [" '\"'   '\"'   \"'\"   \"'\" ", [['"', '"'], ["'", "'"]]],
             ["'“' '”' '‘' '’'", [['“', '”'], ['‘', '’']]],
             ["'open-quote' 'close-quote'", [["open-quote", "close-quote"]]],
             ["'😀️' '😐️' '\"2\"' '\"2\"' '›' '‹'", [['😀️', '😐️'], ['"2"', '"2"'], ['›', '‹']]],
+
+            // Case and whitespace variations
+            ["NONE", "none"],
+            ["Auto", $autoResolved],
+            ["AUTO", $autoResolved],
+            ["'\"'    '\"'", [['"', '"']]],
 
             // Invalid values
             ["'\''", $autoResolved]
@@ -261,7 +484,7 @@ class StyleTest extends TestCase
     public function contentProvider(): array
     {
         return [
-            // Valid values
+            // Keywords
             ["normal", "normal"],
             ["none", "none"],
 
@@ -274,30 +497,35 @@ class StyleTest extends TestCase
 
             // Attr
             ["attr(title)", [new Attr("title")]],
-            ["ATTR(  TITLE )", [new Attr("title")]],
 
             // Url
             ["url(image.png)", [new Url("image.png")]],
+            ['url("image.png")', [new Url("image.png")]],
             ["url('image.png')", [new Url("image.png")]],
-            ['url(  "image.png"  )', [new Url("image.png")]],
-            ["URL(\"'image.PNG'\")", [new Url("'image.PNG'")]],
+            ["url(\"'image.PNG'\")", [new Url("'image.PNG'")]],
 
             // Counter/Counters
             ["counter(c)", [new Counter("c", "decimal")]],
-            ["COUNTER(  UPPER  ,  UPPER-roman  )", [new Counter("UPPER", "upper-roman")]],
+            ["counter(UPPER, UPPER-roman)", [new Counter("UPPER", "upper-roman")]],
             ["counters(c, '')", [new Counters("c", "", "decimal")]],
             ["counters(c, '', decimal)", [new Counters("c", "", "decimal")]],
-            ["COUNTERS(  UPPER  ,  'UPPER'  , lower-ROMAN  )", [new Counters("UPPER", "UPPER", "lower-roman")]],
+            ["counters(UPPER, 'UPPER', lower-ROMAN)", [new Counters("UPPER", "UPPER", "lower-roman")]],
 
             // Quotes
             ["open-quote", [new OpenQuote]],
-            ["OPEN-QUOTE", [new OpenQuote]],
             ["close-quote", [new CloseQuote]],
-            ["CLOSE-QUOTE", [new CloseQuote]],
             ["no-open-quote", [new NoOpenQuote]],
-            ["NO-OPEN-QUOTE", [new NoOpenQuote]],
             ["no-close-quote", [new NoCloseQuote]],
-            ["NO-CLOSE-QUOTE", [new NoCloseQuote]],
+
+            // Case and whitespace variations
+            ["Normal", "normal"],
+            ["NONE", "none"],
+            ["ATTR(  TITLE )", [new Attr("title")]],
+            ["URL( \n\t \"'image.PNG ' \"  )", [new Url("'image.PNG ' ")]],
+            ["COUNTER(  UPPER  ,  UPPER-roman  )", [new Counter("UPPER", "upper-roman")]],
+            ["COUNTERS(  UPPER  ,  ' \"UPPER\"'  , lower-ROMAN  )", [new Counters("UPPER", " \"UPPER\"", "lower-roman")]],
+            ["OPEN-QUOTE", [new OpenQuote]],
+            ["No-Close-Quote", [new NoCloseQuote]],
 
             // Content lists
             [
@@ -309,7 +537,7 @@ class StyleTest extends TestCase
                 [new Counter("page", "decimal"), new StringPart(" / {PAGES}")]
             ],
             [
-                "counter(li1, decimal)\".\"counters(li2, '.', upper-roman)  ')'URL('IMAGE.png')",
+                "counter(li1, decimal)\".\"counters(li2, '.', upper-roman)   ')'URL('IMAGE.png')",
                 [new Counter("li1", "decimal"), new StringPart("."), new Counters("li2", ".", "upper-roman"), new StringPart(")"), new Url("IMAGE.png")]
             ],
             [
@@ -328,6 +556,7 @@ class StyleTest extends TestCase
             ["counters(c, decimal)", "normal"],
             ["open-quoteclose-quote", "normal"],
             ["😀️()", "normal"],
+            ["attr(title) unknown-keyword", "normal"],
 
             // Reserved names
             ["counter(none)", "normal"],
@@ -385,18 +614,29 @@ class StyleTest extends TestCase
     public function sizeProvider(): array
     {
         return [
-            // Valid values
+            // Keywords
             ["auto", "auto"],
+
+            // Default paper sizes
             ["letter", [612.00, 792.00]],
             ["portrait", [419.53, 595.28]],
             ["landscape", [595.28, 419.53]],
             ["A4 portrait", [595.28, 841.89]],
             ["landscape a4", [841.89, 595.28]],
+
+            // Custom paper sizes
             ["200pt", [200.0, 200.0]],
             ["400pt 300pt", [400.0, 300.0]],
             ["400pt 300pt portrait", [300.0, 400.0]],
             ["landscape 300pt 400pt", [400.0, 300.0]],
             ["landscape 400pt 300pt", [400.0, 300.0]],
+
+            // Case and whitespace variations
+            ["Auto", "auto"],
+            ["AUTO", "auto"],
+            ["LETTER", [612.00, 792.00]],
+            ["a4    PORTRAIT", [595.28, 841.89]],
+            ["LANDSCAPE\n400PT    300PT", [400.0, 300.0]],
 
             // Invalid values
             ["", "auto"],
@@ -471,6 +711,9 @@ class StyleTest extends TestCase
             ["+23", 23],
             ["-100", -100],
 
+            // Case variations
+            ["AUTO", "auto"],
+
             // Invalid values
             ["", "auto"],
             ["5.5", "auto"],
@@ -489,27 +732,6 @@ class StyleTest extends TestCase
 
         $style->set_prop("z_index", $value);
         $this->assertSame($expected, $style->z_index);
-    }
-
-    public function valueCaseProvider(): array
-    {
-        return [
-            ["width", "Auto",           "width", "auto"],
-            ["list-style-type", "A",    "list_style_type", "A"],
-        ];
-    }
-
-    /**
-     * @dataProvider valueCaseProvider
-     */
-    public function testValueCase(string $cssProp, string $inputValue, string $phpProp, string $expectValue): void
-    {
-        $dompdf = new Dompdf();
-        $sheet = new Stylesheet($dompdf);
-        $style = new Style($sheet);
-
-        $style->set_prop($cssProp, $inputValue);
-        $this->assertSame($expectValue, $style->$phpProp);
     }
 
     public function testWordBreakBreakWord(): void
