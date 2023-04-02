@@ -3,6 +3,7 @@ name: "Run unit tests"
 on:
   - push
   - pull_request
+  - workflow_dispatch
 
 env:
   COMPOSER_MEMORY_LIMIT: -1
@@ -42,7 +43,9 @@ jobs:
       - name: Install Ghostscript
         run: |
           sudo apt-get update
+          sudo apt --fix-broken install
           sudo apt-get install ghostscript
+          sudo apt --fix-broken install
 
       - name: Run unit tests
         run: vendor/bin/phpunit
