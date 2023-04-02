@@ -274,7 +274,7 @@ class ShorthandTest extends TestCase
             ["none", "none"],
             ["url($imagePath)", "url($imagePath)"],
             ["url( \"$imagePath\" )", "url( \"$imagePath\" )"],
-            ["rgba( 5, 5, 5, 1 )", "none", ["0%", "0%"], ["auto", "auto"], "repeat", "scroll", "rgba( 5, 5, 5, 1 )"],
+            ["rgba( 5, 5, 5, 1 )", "none", [0.0, 0.0], ["auto", "auto"], "repeat", "scroll", "rgba( 5, 5, 5, 1 )"],
             ["url(non-existing.png) top center no-repeat red fixed", "url(non-existing.png)", "top center", ["auto", "auto"], "no-repeat", "fixed", "red"],
             ["url($imagePath) LEFT/200PT 30% RGB( 123 16 69/0.8 )no-REPEAT", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"]
         ];
@@ -286,7 +286,7 @@ class ShorthandTest extends TestCase
     public function testBackgroundShorthand(
         string $value,
         string $image,
-        $position = ["0%", "0%"],
+        $position = [0.0, 0.0],
         $size = ["auto", "auto"],
         string $repeat = "repeat",
         string $attachment = "scroll",
