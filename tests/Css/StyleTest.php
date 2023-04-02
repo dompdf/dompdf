@@ -139,6 +139,80 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $s->background_image);
     }
 
+    public function backgroundPositionProvider(): array
+    {
+        return [
+            // One value
+            ["left", [0.0, "50%"]],
+            ["right", ["100%", "50%"]],
+            ["top", ["50%", 0.0]],
+            ["bottom", ["50%", "100%"]],
+            ["center", ["50%", "50%"]],
+            ["20pt", [20.0, "50%"]],
+            ["-10pt", [-10.0, "50%"]],
+            ["23%", ["23%", "50%"]],
+            ["-75%", ["-75%", "50%"]],
+
+            // Two values
+            ["left top", [0.0, 0.0]],
+            ["top left", [0.0, 0.0]],
+            ["left bottom", [0.0, "100%"]],
+            ["bottom left", [0.0, "100%"]],
+            ["left center", [0.0, "50%"]],
+            ["center left", [0.0, "50%"]],
+            ["right top", ["100%", 0.0]],
+            ["top right", ["100%", 0.0]],
+            ["right bottom", ["100%", "100%"]],
+            ["bottom right", ["100%", "100%"]],
+            ["right center", ["100%", "50%"]],
+            ["center right", ["100%", "50%"]],
+            ["bottom center", ["50%", "100%"]],
+            ["center bottom", ["50%", "100%"]],
+            ["top center", ["50%", 0.0]],
+            ["center top", ["50%", 0.0]],
+            ["center center", ["50%", "50%"]],
+            ["left 23%", [0.0, "23%"]],
+            ["right 23%", ["100%", "23%"]],
+            ["center 23%", ["50%", "23%"]],
+            ["23% top", ["23%", 0.0]],
+            ["23% bottom", ["23%", "100%"]],
+            ["23% center", ["23%", "50%"]],
+            ["23% 50pt", ["23%", 50.0]],
+            ["50pt 23%", [50.0, "23%"]],
+
+            // Case and whitespace variations
+            ["LEFT", [0.0, "50%"]],
+            ["TOP    Right", ["100%", 0.0]],
+            ["-23PT     BoTTom", [-23.0, "100%"]],
+
+            // Invalid values
+            ["none", [0.0, 0.0]],
+            ["auto", [0.0, 0.0]],
+            ["left left", [0.0, 0.0]],
+            ["left right", [0.0, 0.0]],
+            ["bottom top", [0.0, 0.0]],
+            ["center center center", [0.0, 0.0]],
+            ["1pt 2pt 3pt 4pt", [0.0, 0.0]],
+            ["23% left", [0.0, 0.0]],
+            ["23% right", [0.0, 0.0]],
+            ["top 23%", [0.0, 0.0]],
+            ["bottom 23%", [0.0, 0.0]]
+        ];
+    }
+
+    /**
+     * @dataProvider backgroundPositionProvider
+     */
+    public function testBackgroundPosition(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("background_position", $value);
+        $this->assertSame($expected, $style->background_position);
+    }
+
     private function testLengthProperty(
         string $prop,
         string $value,

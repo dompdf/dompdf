@@ -55,7 +55,7 @@ use Dompdf\Helpers;
  * @property array|string         $background_color
  * @property string               $background_image            Image URL or `none`
  * @property string               $background_image_resolution
- * @property array                $background_position
+ * @property array                $background_position         Pair of `[x, y]`, each value being a length in pt or a percentage value
  * @property string               $background_repeat
  * @property array|string         $background_size             `cover`, `contain`, or `[width, height]`, each being a length, percentage, or `auto`
  * @property string               $border_collapse
@@ -663,7 +663,7 @@ class Style
             $d["background_color"] = "transparent";
             $d["background_image"] = "none";
             $d["background_image_resolution"] = "normal";
-            $d["background_position"] = ["0%", "0%"];
+            $d["background_position"] = [0.0, 0.0];
             $d["background_repeat"] = "repeat";
             $d["background"] = "";
             $d["border_collapse"] = "separate";
@@ -2463,78 +2463,93 @@ class Style
     {
         $val = strtolower($val);
         $parts = preg_split("/\s+/", $val);
+        $count = \count($parts);
+        $x = null;
+        $y = null;
 
-        if (\count($parts) > 2) {
-            return null;
-        }
-
-        switch ($parts[0]) {
-            case "left":
-                $x = "0%";
-                break;
-
-            case "right":
-                $x = "100%";
-                break;
-
-            case "top":
-                $y = "0%";
-                break;
-
-            case "bottom":
-                $y = "100%";
-                break;
-
-            case "center":
-                $x = "50%";
-                $y = "50%";
-                break;
-
-            default:
-                $x = $parts[0];
-                break;
-        }
-
-        if (isset($parts[1])) {
-            switch ($parts[1]) {
+        if ($count === 1) {
+            switch ($parts[0]) {
                 case "left":
-                    $x = "0%";
+                    $x = 0.0;
+                    $y = "50%";
                     break;
-
+                case "right":
+                    $x = "100%";
+                    $y = "50%";
+                    break;
+                case "top":
+                    $x = "50%";
+                    $y = 0.0;
+                    break;
+                case "bottom":
+                    $x = "50%";
+                    $y = "100%";
+                    break;
+                case "center":
+                    $x = "50%";
+                    $y = "50%";
+                    break;
+                default:
+                    $x = $this->compute_length_percentage($parts[0]);
+                    $y = "50%";
+                    break;
+            }
+        } elseif ($count === 2) {
+            switch ($parts[0]) {
+                case "left":
+                    $x = 0.0;
+                    break;
                 case "right":
                     $x = "100%";
                     break;
-
                 case "top":
-                    $y = "0%";
+                    $y = 0.0;
                     break;
-
                 case "bottom":
                     $y = "100%";
                     break;
-
                 case "center":
-                    if ($parts[0] === "left" || $parts[0] === "right" || $parts[0] === "center") {
+                    if ($parts[1] === "left" || $parts[1] === "right") {
                         $y = "50%";
                     } else {
                         $x = "50%";
                     }
                     break;
-
                 default:
-                    $y = $parts[1];
+                    $x = $this->compute_length_percentage($parts[0]);
+                    break;
+            }
+
+            switch ($parts[1]) {
+                case "left":
+                    $x = 0.0;
+                    break;
+                case "right":
+                    $x = "100%";
+                    break;
+                case "top":
+                    $y = 0.0;
+                    break;
+                case "bottom":
+                    $y = "100%";
+                    break;
+                case "center":
+                    if ($parts[0] === "top" || $parts[0] === "bottom") {
+                        $x = "50%";
+                    } else {
+                        $y = "50%";
+                    }
+                    break;
+                default:
+                    $y = $this->compute_length_percentage($parts[1]);
                     break;
             }
         } else {
-            $y = "50%";
+            return null;
         }
 
-        if (!isset($x)) {
-            $x = "0%";
-        }
-
-        if (!isset($y)) {
-            $y = "0%";
+        if ($x === null || $y === null) {
+            return null;
         }
 
         return [$x, $y];
@@ -3428,7 +3443,7 @@ class Style
             $lower = strtolower($val);
 
             // `none` can occur max 2 times (for image and type each)
-            if ($none <= 2 && $lower === "none") {
+            if ($none < 2 && $lower === "none") {
                 $none++;
             } elseif ($position === null && ($lower === "inside" || $lower === "outside")) {
                 $position = $lower;
