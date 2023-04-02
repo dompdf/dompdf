@@ -345,11 +345,16 @@ class ShorthandTest extends TestCase
 
         return [
             ["none", "none", "none"],
+            ["NONE    None", "none", "none"],
             ["url($imagePath)", "disc", "url($imagePath)"],
+            ["url($imagePath) none", "none", "url($imagePath)"],
             ["url( '$imagePath' ) outside", "disc", "url( '$imagePath' )", "outside"],
             ["inside url($imagePath) square", "square", "url($imagePath)", "inside"],
             ["inside decimal", "decimal", "none", "inside"],
-            ["OUTSIDE    LOWER-GREEK", "LOWER-GREEK", "none", "outside"]
+            ["OUTSIDE    LOWER-GREEK", "LOWER-GREEK", "none", "outside"],
+
+            // Invalid values
+            ["inside none none none", "disc"]
         ];
     }
 

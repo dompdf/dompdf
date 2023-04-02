@@ -3410,44 +3410,65 @@ class Style
     }
 
     /**
-     * @link https://www.w3.org/TR/CSS21/generate.html#propdef-list-style
+     * Handle the `list-style` shorthand property.
+     *
+     * `[ list-style-position || list-style-image || list-style-type ]`
+     *
+     * @link https://www.w3.org/TR/css-lists-3/#list-style-property
      */
     protected function _set_list_style(string $value): array
     {
         $components = $this->parse_property_value($value);
-        $props = [];
+        $none = 0;
+        $position = null;
+        $image = null;
+        $type = null;
 
         foreach ($components as $val) {
             $lower = strtolower($val);
 
-            /* https://www.w3.org/TR/CSS21/generate.html#list-style
-             * A value of 'none' for the 'list-style' property sets both 'list-style-type' and 'list-style-image' to 'none'
-             */
-            if ($lower === "none") {
-                $props["list_style_type"] = "none";
-                $props["list_style_image"] = "none";
-                continue;
-            }
-
-            //On setting or merging or inheriting list_style_image as well as list_style_type,
-            //and url exists, then url has precedence, otherwise fall back to list_style_type
-            //Firefox is wrong here (list_style_image gets overwritten on explicit list_style_type)
-            //Internet Explorer 7/8 and dompdf is right.
-
-            if (strncmp($lower, "url(", 4) === 0) {
-                $props["list_style_image"] = $val;
-            }
-
-            elseif ($lower === "inside" || $lower === "outside") {
-                $props["list_style_position"] = $lower;
-            }
-
-            else {
-                $props["list_style_type"] = $val;
+            // `none` can occur max 2 times (for image and type each)
+            if ($none <= 2 && $lower === "none") {
+                $none++;
+            } elseif ($position === null && ($lower === "inside" || $lower === "outside")) {
+                $position = $lower;
+            } elseif ($image === null && strncmp($lower, "url(", 4) === 0) {
+                $image = $val;
+            } elseif ($type === null) {
+                $type = $val;
+            } else {
+                // Duplicates are not allowed
+                return [];
             }
         }
 
-        return $props;
+        // From the spec:
+        // Using a value of `none` in the shorthand is potentially ambiguous, as
+        // `none` is a valid value for both `list-style-image` and `list-style-type`.
+        // To resolve this ambiguity, a value of `none` in the shorthand must be
+        // applied to whichever of the two properties aren’t otherwise set by
+        // the shorthand.
+        if ($none === 2) {
+            if ($image !== null || $type !== null) {
+                return [];
+            }
+
+            $image = "none";
+            $type = "none";
+        } elseif ($none === 1) {
+            if ($image !== null && $type !== null) {
+                return [];
+            }
+
+            $image = $image ?? "none";
+            $type = $type ?? "none";
+        }
+
+        return [
+            "list_style_position" => $position,
+            "list_style_image" => $image,
+            "list_style_type" => $type
+        ];
     }
 
     /**
