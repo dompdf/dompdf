@@ -35,26 +35,22 @@ class ListBullet extends AbstractRenderer
         $text = "";
 
         switch ($type) {
-            case "decimal-leading-zero":
+            default:
             case "decimal":
-            case "1":
+            case "decimal-leading-zero":
                 return "0123456789";
 
             case "upper-alpha":
             case "upper-latin":
-            case "A":
                 $uppercase = true;
             case "lower-alpha":
             case "lower-latin":
-            case "a":
                 $text = "abcdefghijklmnopqrstuvwxyz";
                 break;
 
             case "upper-roman":
-            case "I":
                 $uppercase = true;
             case "lower-roman":
-            case "i":
                 $text = "ivxlcdm";
                 break;
 
@@ -86,9 +82,9 @@ class ListBullet extends AbstractRenderer
         $uppercase = false;
 
         switch ($type) {
-            case "decimal-leading-zero":
+            default:
             case "decimal":
-            case "1":
+            case "decimal-leading-zero":
                 if ($pad) {
                     $text = str_pad($n, $pad, "0", STR_PAD_LEFT);
                 } else {
@@ -98,19 +94,15 @@ class ListBullet extends AbstractRenderer
 
             case "upper-alpha":
             case "upper-latin":
-            case "A":
                 $uppercase = true;
             case "lower-alpha":
             case "lower-latin":
-            case "a":
                 $text = chr((($n - 1) % 26) + ord('a'));
                 break;
 
             case "upper-roman":
-            case "I":
                 $uppercase = true;
             case "lower-roman":
-            case "i":
                 $text = Helpers::dec2roman($n);
                 break;
 
@@ -158,7 +150,6 @@ class ListBullet extends AbstractRenderer
             $bullet_style = $style->list_style_type;
 
             switch ($bullet_style) {
-                default:
                 case "disc":
                 case "circle":
                     [$x, $y] = $frame->get_position();
@@ -178,8 +169,9 @@ class ListBullet extends AbstractRenderer
                     $this->_canvas->filled_rectangle($x, $y, $w, $w, $style->color);
                     break;
 
-                case "decimal-leading-zero":
+                default:
                 case "decimal":
+                case "decimal-leading-zero":
                 case "lower-alpha":
                 case "lower-latin":
                 case "lower-roman":
@@ -187,11 +179,6 @@ class ListBullet extends AbstractRenderer
                 case "upper-alpha":
                 case "upper-latin":
                 case "upper-roman":
-                case "1": // HTML 4.0 compatibility
-                case "a":
-                case "i":
-                case "A":
-                case "I":
                     $pad = null;
                     if ($bullet_style === "decimal-leading-zero") {
                         $pad = strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
