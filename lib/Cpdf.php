@@ -5012,7 +5012,7 @@ EOT;
         }
 
         if (!isset($this->stringSubsets[$font])) {
-            $base_subset = "\u{fffd}\u{fffe}\u{ffff}";
+            $base_subset = "\u{fffd}\u{fffe}\u{ffff}"; // fffd => replacement character, fffe/ffff => not a character
             $this->stringSubsets[$font] = $this->utf8toCodePointsArray($base_subset);
         }
 
@@ -5164,7 +5164,8 @@ EOT;
             $this->selectFont($this->defaultFont);
         }
 
-        $text = str_replace(["\r", "\n"], "", $text);
+        // remove non-printable characters since they have no width
+        $text = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
 
         // hmm, this is where it all starts to get tricky - use the font information to
         // calculate the width of each character, add them up and convert to user units
@@ -5186,14 +5187,19 @@ EOT;
 
                 if (isset($current_font['C'][$char])) {
                     $char_width = $current_font['C'][$char];
+                } elseif (isset($current_font['C'][0xFFFD])) {
+                    // fffd => replacement character
+                    $char_width = $current_font['C'][0xFFFD];
+                } else {
+                    $char_width = $current_font['C'][0x0020];
+                }
 
-                    // add the character width
-                    $w += $char_width;
+                // add the character width
+                $w += $char_width;
 
-                    // add additional padding for space
-                    if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
-                        $w += $wordSpacing * $space_scale;
-                    }
+                // add additional padding for space
+                if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
+                    $w += $wordSpacing * $space_scale;
                 }
             }
 
@@ -5221,14 +5227,19 @@ EOT;
 
                 if (isset($current_font['C'][$char])) {
                     $char_width = $current_font['C'][$char];
+                } elseif (isset($current_font['C'][0xFFFD])) {
+                    // fffd => replacement character
+                    $char_width = $current_font['C'][0xFFFD];
+                } else {
+                    $char_width = $current_font['C'][0x0020];
+                }
 
-                    // add the character width
-                    $w += $char_width;
+                // add the character width
+                $w += $char_width;
 
-                    // add additional padding for space
-                    if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
-                        $w += $wordSpacing * $space_scale;
-                    }
+                // add additional padding for space
+                if (isset($current_font['codeToName'][$char]) && $current_font['codeToName'][$char] === 'space') {  // Space
+                    $w += $wordSpacing * $space_scale;
                 }
             }
 
