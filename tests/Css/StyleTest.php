@@ -213,6 +213,72 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->background_position);
     }
 
+    public function fontWeightProvider(): array
+    {
+        return [
+            // Absolute
+            ["normal", 400],
+            ["bold", 700],
+            ["1", 1],
+            ["100", 100],
+            ["125", 125],
+            ["400", 400],
+            ["700", 700],
+            ["900", 900],
+            ["1000", 1000],
+            ["+1e3", 1000],
+
+            // Relative
+            ["bolder", 400, 1],
+            ["bolder", 400, 100],
+            ["bolder", 400, 200],
+            ["bolder", 400, 300],
+            ["bolder", 700, 400],
+            ["bolder", 700, 500],
+            ["bolder", 900, 600],
+            ["bolder", 900, 700],
+            ["bolder", 900, 800],
+            ["bolder", 900, 900],
+            ["bolder", 917, 917],
+            ["lighter", 15, 15],
+            ["lighter", 100, 100],
+            ["lighter", 100, 200],
+            ["lighter", 100, 300],
+            ["lighter", 100, 400],
+            ["lighter", 100, 500],
+            ["lighter", 400, 600],
+            ["lighter", 400, 700],
+            ["lighter", 700, 800],
+            ["lighter", 700, 900],
+            ["lighter", 700, 1000],
+
+            // Case variations
+            ["BOLD", 700],
+
+            // Invalid values
+            ["none", 400],
+            ["-100", 400],
+            ["1001", 400]
+        ];
+    }
+
+    /**
+     * @dataProvider fontWeightProvider
+     */
+    public function testFontWeight(string $value, $expected, int $parentWeight = 400): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+        $parentStyle = new Style($sheet);
+
+        $parentStyle->set_prop("font_weight", $parentWeight);
+        $style->inherit($parentStyle);
+
+        $style->set_prop("font_weight", $value);
+        $this->assertSame($expected, $style->font_weight);
+    }
+
     private function testLengthProperty(
         string $prop,
         string $value,
