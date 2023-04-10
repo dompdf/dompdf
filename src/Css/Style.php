@@ -99,9 +99,9 @@ use Dompdf\Helpers;
  * @property string               $float
  * @property string               $font_family
  * @property float                $font_size                   Length in pt
- * @property string               $font_style
+ * @property string               $font_style                  `normal`, `italic`, or `oblique`
  * @property string               $font_variant
- * @property string               $font_weight
+ * @property int                  $font_weight                 Number in the range [1, 1000]
  * @property float|string         $height                      Length in pt, a percentage value, or `auto`
  * @property string               $image_resolution
  * @property string               $inset                       Only use for setting all box insets to the same length
@@ -714,7 +714,7 @@ class Style
             $d["font_size"] = "medium";
             $d["font_style"] = "normal";
             $d["font_variant"] = "normal";
-            $d["font_weight"] = "normal";
+            $d["font_weight"] = 400;
             $d["font"] = "";
             $d["height"] = "auto";
             $d["image_resolution"] = "normal";
@@ -1621,15 +1621,6 @@ class Style
 
         // Resolve font-weight
         $weight = $this->__get("font_weight");
-        if ($weight === 'bold') {
-            $weight = 700;
-        } elseif (preg_match('/^[0-9]+$/', $weight, $match)) {
-            $weight = (int)$match[0];
-        } else {
-            $weight = 400;
-        }
-
-        // Resolve font-style
         $font_style = $this->__get("font_style");
         $subtype = $fontMetrics->getType($weight . ' ' . $font_style);
 
@@ -2683,22 +2674,71 @@ class Style
     }
 
     /**
-     * @link https://www.w3.org/TR/CSS21/fonts.html#font-boldness
+     * @link https://www.w3.org/TR/CSS21/fonts.html#propdef-font-style
+     */
+    protected function _compute_font_style(string $val)
+    {
+        $val = strtolower($val);
+        return $val === "normal" || $val === "italic" || $val === "oblique"
+            ? $val
+            : null;
+    }
+
+    /**
+     * @link https://www.w3.org/TR/css-fonts-4/#propdef-font-weight
      */
     protected function _compute_font_weight(string $val)
     {
         $val = strtolower($val);
-        $computed = $val;
 
-        if ($val === "bolder") {
-            //TODO: One font weight heavier than the parent element (among the available weights of the font).
-            $computed = "bold";
-        } elseif ($val === "lighter") {
-            //TODO: One font weight lighter than the parent element (among the available weights of the font).
-            $computed = "normal";
+        switch ($val) {
+            case "normal":
+                return 400;
+
+            case "bold":
+                return 700;
+
+            case "bolder":
+                // https://www.w3.org/TR/css-fonts-4/#relative-weights
+                $w = isset($this->parent_style)
+                    ? $this->parent_style->__get("font_weight")
+                    : 400;
+
+                if ($w < 350) {
+                    return 400;
+                } elseif ($w < 550) {
+                    return 700;
+                } elseif ($w < 900) {
+                    return 900;
+                } else {
+                    return $w;
+                }
+
+            case "lighter":
+                // https://www.w3.org/TR/css-fonts-4/#relative-weights
+                $w = isset($this->parent_style)
+                    ? $this->parent_style->__get("font_weight")
+                    : 400;
+
+                if ($w < 100) {
+                    return $w;
+                } elseif ($w < 550) {
+                    return 100;
+                } elseif ($w < 750) {
+                    return 400;
+                } else {
+                    return 700;
+                }
+
+            default:
+                $number = self::CSS_NUMBER;
+                $weight = preg_match("/^$number$/", $val)
+                    ? (int) $val
+                    : null;
+                return $weight !== null && $weight >= 1 && $weight <= 1000
+                    ? $weight
+                    : null;
         }
-
-        return $computed;
     }
 
     /**
@@ -2716,7 +2756,7 @@ class Style
 
         $number = self::CSS_NUMBER;
         $unit = "pt|px|pc|rem|em|ex|in|cm|mm|%";
-        $sizePattern = "/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|$number(?:$unit))$/";
+        $sizePattern = "/^(xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger|$number(?:$unit)|0)$/";
         $sizeIndex = null;
 
         // Find index of font-size to split the component list
@@ -2737,7 +2777,7 @@ class Style
         $styleVariantWeight = \array_slice($components, 0, $sizeIndex);
         $stylePattern = "/^(italic|oblique)$/";
         $variantPattern = "/^(small-caps)$/";
-        $weightPattern = "/^(bold|bolder|lighter|100|200|300|400|500|600|700|800|900)$/";
+        $weightPattern = "/^(bold|bolder|lighter|$number)$/";
 
         if (\count($styleVariantWeight) > 3) {
             return [];

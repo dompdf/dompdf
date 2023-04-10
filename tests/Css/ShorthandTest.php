@@ -306,12 +306,13 @@ class ShorthandTest extends TestCase
     public function fontShorthandProvider(): array
     {
         return [
-            ["8.5mm Helvetica", "normal", "normal", "normal", "8.5mm", "normal", "helvetica"],
+            ["8.5mm Helvetica", "normal", "normal", 400, "8.5mm", "normal", "helvetica"],
             ["bold 16pt/10pt serif", "normal", "normal", "bold", "16pt", "10pt", "serif"],
             ["italic 700\n\t15.5pt / 2.1 'Courier', sans-serif", "italic", "normal", "700", "15.5pt", "2.1", "'courier',sans-serif"],
             ["700   normal  ITALIC    15.5PT /2.1 'Courier',sans-serif", "italic", "normal", "700", "15.5pt", "2.1", "'courier',sans-serif"],
-            ["normal normal small-caps 100.01% serif, sans-serif", "normal", "small-caps", "normal", "100.01%", "normal", "serif,sans-serif"],
-            ["normal normal normal xx-small/normal monospace", "normal", "normal", "normal", "xx-small", "normal", "monospace"]
+            ["normal normal small-caps 100.01% serif, sans-serif", "normal", "small-caps", 400, "100.01%", "normal", "serif,sans-serif"],
+            ["normal normal normal xx-small/normal monospace", "normal", "normal", 400, "xx-small", "normal", "monospace"],
+            ["1 0 serif", "normal", "normal", "1", "0", "normal", "serif"]
         ];
     }
 
@@ -322,7 +323,7 @@ class ShorthandTest extends TestCase
         string $value,
         string $fontStyle,
         string $fontVariant,
-        string $fontWeight,
+        $fontWeight,
         string $fontSize,
         string $lineHeight,
         string $fontFamily
