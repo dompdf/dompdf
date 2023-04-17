@@ -5706,7 +5706,7 @@ EOT;
             }
 
             $imagick = new \Imagick($file);
-            $imagick->setFormat('png');
+            $imagick->setFormat('PNG');
 
             // Get opacity channel (negative of alpha channel)
             if ($imagick->getImageAlphaChannel()) {
