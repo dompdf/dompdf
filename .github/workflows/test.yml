@@ -50,6 +50,14 @@ jobs:
       - name: Run unit tests
         run: vendor/bin/phpunit
 
+      - name: Upload failed tests
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: failed-output-tests
+          path: /home/runner/work/dompdf/dompdf/tmp/failed-output-tests
+          if-no-files-found: ignore
+
       - name: Run code sniffer
         run: vendor/bin/phpcs --standard=phpcs.xml src tests lib
 
