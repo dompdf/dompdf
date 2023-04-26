@@ -1774,6 +1774,18 @@ class Style
     }
 
     /**
+     * @param float $computed
+     * @return float
+     *
+     * @link https://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
+     */
+    protected function _get_font_size($computed)
+    {
+        // Computed value may be negative when specified via `calc()`
+        return max($computed, 0.0);
+    }
+
+    /**
      * @param float|string $computed
      * @return float
      *
@@ -1817,7 +1829,8 @@ class Style
     {
         // Lengths have been computed to float, number values to string
         if (\is_float($computed)) {
-            return $computed;
+            // Computed value may be negative when specified via `calc()`
+            return max($computed, 0.0);
         }
 
         $font_size = $this->__get("font_size");
@@ -2320,7 +2333,15 @@ class Style
     protected function compute_length_positive(string $val): ?float
     {
         $computed = $this->compute_length($val);
-        return $computed !== null && $computed >= 0 ? $computed : null;
+
+        // Negative non-`calc` values are invalid
+        if ($computed === null
+            || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+        ) {
+            return null;
+        }
+
+        return $computed;
     }
 
     /**
@@ -2351,7 +2372,10 @@ class Style
         // are valid
         $computed = $this->single_length_in_pt($val, 12);
 
-        if ($computed === null || $computed < 0) {
+        // Negative non-`calc` values are invalid
+        if ($computed === null
+            || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+        ) {
             return null;
         }
 
@@ -2750,14 +2774,14 @@ class Style
     /**
      * @link https://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
      */
-    protected function _compute_font_size(string $size)
+    protected function _compute_font_size(string $val)
     {
-        $size = strtolower($size);
-        $parent_font_size = isset($this->parent_style)
+        $val = strtolower($val);
+        $parentFontSize = isset($this->parent_style)
             ? $this->parent_style->__get("font_size")
             : self::$default_font_size;
 
-        switch ($size) {
+        switch ($val) {
             case "xx-small":
             case "x-small":
             case "small":
@@ -2765,23 +2789,30 @@ class Style
             case "large":
             case "x-large":
             case "xx-large":
-                $fs = self::$default_font_size * self::$font_size_keywords[$size];
+                $computed = self::$default_font_size * self::$font_size_keywords[$val];
                 break;
 
             case "smaller":
-                $fs = 8 / 9 * $parent_font_size;
+                $computed = 8 / 9 * $parentFontSize;
                 break;
 
             case "larger":
-                $fs = 6 / 5 * $parent_font_size;
+                $computed = 6 / 5 * $parentFontSize;
                 break;
 
             default:
-                $fs = $this->single_length_in_pt($size, $parent_font_size, $parent_font_size);
+                $computed = $this->single_length_in_pt($val, $parentFontSize, $parentFontSize);
+
+                // Negative non-`calc` values are invalid
+                if ($computed === null
+                    || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+                ) {
+                    return null;
+                }
                 break;
         }
 
-        return $fs;
+        return $computed;
     }
 
     /**
@@ -3004,7 +3035,15 @@ class Style
 
         $font_size = $this->__get("font_size");
         $computed = $this->single_length_in_pt($val, $font_size);
-        return $computed !== null && $computed >= 0 ? $computed : null;
+
+        // Negative non-`calc` values are invalid
+        if ($computed === null
+            || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+        ) {
+            return null;
+        }
+
+        return $computed;
     }
 
     /**

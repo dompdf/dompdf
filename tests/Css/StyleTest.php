@@ -50,7 +50,8 @@ class StyleTest extends TestCase
             ["calc(5pt - x)", 100, 0.0],                   // invalid
             ["calc((50% + 10) 1pt)", 100, 0.0],            // invalid - missing op
             ["calc(50% -1pt)", 100, 0.0],                  // invalid - missing op
-            ["calc((50% + 10) + 2pt))", 100, 0.0]          // invalid - extra bracket
+            ["calc((50% + 10) + 2pt))", 100, 0.0],         // invalid - extra bracket
+            ["calc(100pt / 0)", null, 0.0]                 // invalid - division by zero
         ];
     }
 
@@ -318,32 +319,49 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->$prop);
     }
 
-    public static function widthHeightProvider(): array
+    public static function lengthPercentagePositiveProvider(): array
     {
         return [
-            // Keywords
-            ["auto", 12.0, "auto", 0.0],
-
             // Lengths
             ["0", 12.0, 0.0],
             ["1em", 20.0, 20.0],
             ["100pt", 12.0, 100.0],
             ["50%", 12.0, "50%"],
 
+            // Calc values
+            ["calc(6pt + 2em)", 12.0, 30.0],
+            ["calc(50% + 2em)", 12.0, "calc(50% + 2em)"],
+            ["calc(100% - 100pt)", 12.0, "calc(100% - 100pt)"],
+            ["calc(-100pt)", 12.0, -100.0], // Negative calc values are valid
+            ["calc(-50%)", 12.0, "calc(-50%)"],
+
             // Case variations
-            ["Auto", 12.0, "auto", 0.0],
-            ["AUTO", 12.0, "auto", 0.0],
             ["1EM", 20.0, 20.0],
 
             // Invalid values
-            ["none", 12.0, "auto"],
-            ["-100pt", 12.0, "auto"],
-            ["-50%", 12.0, "auto"]
+            ["-100pt", 12.0, 79.0, 79.0],
+            ["-50%", 12.0, 79.0, 79.0]
+        ];
+    }
+
+    public static function widthHeightProvider(): array
+    {
+        return [
+            // Keywords
+            ["auto", 12.0, "auto", 0.0],
+
+            // Case variations
+            ["Auto", 12.0, "auto", 0.0],
+            ["AUTO", 12.0, "auto", 0.0],
+
+            // Invalid values
+            ["none", 12.0, 79.0, 79.0]
         ];
     }
 
     /**
      * @dataProvider widthHeightProvider
+     * @dataProvider lengthPercentagePositiveProvider
      */
     public function testWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
@@ -352,6 +370,7 @@ class StyleTest extends TestCase
 
     /**
      * @dataProvider widthHeightProvider
+     * @dataProvider lengthPercentagePositiveProvider
      */
     public function testHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
@@ -367,25 +386,18 @@ class StyleTest extends TestCase
             // Legacy keywords
             ["none", 12.0, "auto", 0.0],
 
-            // Lengths
-            ["0", 12.0, 0.0],
-            ["1em", 20.0, 20.0],
-            ["100pt", 12.0, 100.0],
-            ["50%", 12.0, "50%"],
-
             // Case variations
             ["Auto", 12.0, "auto", 0.0],
             ["AUTO", 12.0, "auto", 0.0],
-            ["1EM", 20.0, 20.0],
 
             // Invalid values
-            ["-100pt", 12.0, "auto"],
-            ["-50%", 12.0, "auto"]
+            ["other", 12.0, 79.0, 79.0]
         ];
     }
 
     /**
      * @dataProvider minWidthHeightProvider
+     * @dataProvider lengthPercentagePositiveProvider
      */
     public function testMinWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
@@ -394,6 +406,7 @@ class StyleTest extends TestCase
 
     /**
      * @dataProvider minWidthHeightProvider
+     * @dataProvider lengthPercentagePositiveProvider
      */
     public function testMinHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
@@ -409,25 +422,18 @@ class StyleTest extends TestCase
             // Legacy keywords
             ["auto", 12.0, "none", 0.0],
 
-            // Lengths
-            ["0", 12.0, 0.0],
-            ["1em", 20.0, 20.0],
-            ["100pt", 12.0, 100.0],
-            ["50%", 12.0, "50%"],
-
             // Case variations
             ["None", 12.0, "none", 0.0],
             ["NONE", 12.0, "none", 0.0],
-            ["1EM", 20.0, 20.0],
 
             // Invalid values
-            ["-100pt", 12.0, "none"],
-            ["-50%", 12.0, "none"]
+            ["other", 12.0, 79.0, 79.0]
         ];
     }
 
     /**
      * @dataProvider maxWidthHeightProvider
+     * @dataProvider lengthPercentagePositiveProvider
      */
     public function testMaxWidth(string $value, float $fontSize, $expected, $initial = "none"): void
     {
@@ -436,6 +442,7 @@ class StyleTest extends TestCase
 
     /**
      * @dataProvider maxWidthHeightProvider
+     * @dataProvider lengthPercentagePositiveProvider
      */
     public function testMaxHeight(string $value, float $fontSize, $expected, $initial = "none"): void
     {
@@ -455,6 +462,10 @@ class StyleTest extends TestCase
             ["1em", 20.0, 20.0],
             ["100pt", 12.0, 100.0],
 
+            // Calc values
+            ["calc(6pt + 2em)", 12.0, 30.0],
+            ["calc(-100pt)", 12.0, -100.0], // Negative calc values are valid
+
             // Case variations
             ["THIN", 12.0, 0.5],
             ["Medium", 12.0, 1.5],
@@ -466,7 +477,8 @@ class StyleTest extends TestCase
             ["none", 12.0, 5.0, 5.0, 5.0],
             ["-100pt", 12.0, 5.0, 5.0, 5.0],
             ["50%", 12.0, 5.0, 5.0, 5.0],
-            ["-50%", 12.0, 5.0, 5.0, 5.0]
+            ["-50%", 12.0, 5.0, 5.0, 5.0],
+            ["calc(50% + 2em)", 12.0, 5.0, 5.0, 5.0]
         ];
     }
 
