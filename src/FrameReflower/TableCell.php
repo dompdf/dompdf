@@ -38,7 +38,7 @@ class TableCell extends Block
 
         $table = TableFrameDecorator::find_parent_table($this->_frame);
 
-        if(is_null($table)) throw new Exception("table corrupt");
+        if(is_null($table)) throw new \Exception("table corrupt");
 
         $cellmap = $table->get_cellmap();
 
