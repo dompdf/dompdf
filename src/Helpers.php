@@ -1205,3 +1205,104 @@ class Helpers
         return $a >= $b || self::lengthEqual($a, $b);
     }
 }
+
+// https://stackoverflow.com/a/40848207/264628
+// class MbStrIterator implements \Iterator
+// {
+//     private $iPos   = 0;
+//     public $charIndex = 0;
+//     private $iSize  = 0;
+//     private $sStr   = null;
+
+//     // Constructor
+//     public function __construct(string $str)
+//     {
+//         // Save the string
+//         $this->sStr = $str;
+
+//         // Calculate the size of the current character
+//         $this->calculateSize();
+//     }
+
+//     // Calculate size
+//     private function calculateSize() {
+
+//         // If we're done already
+//         if(!isset($this->sStr[$this->iPos])) {
+//             return;
+//         }
+
+//         // Get the character at the current position
+//         $iChar = ord($this->sStr[$this->iPos]);
+
+//         if ($iChar <= 0x7F) {
+//             $this->iSize = 1;
+//         } elseif (($iChar >> 0x05) === 0x06) { // 2 bytes character (0x06 = 110 BIN)
+//             $this->iSize = 2;
+//         } elseif (($iChar >> 0x04) === 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
+//             $this->iSize = 3;
+//         } elseif (($iChar >> 0x03) === 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
+//             $this->iSize = 4;
+//         } else {
+//             // invalid
+//             $this->iSize = 1;
+//         }
+        
+//     }
+
+//     // Current
+//     public function current() {
+
+//         // If we're done
+//         if(!isset($this->sStr[$this->iPos])) {
+//             return false;
+//         }
+
+//         // Else if we have one byte
+//         else if($this->iSize === 1) {
+//             return $this->sStr[$this->iPos];
+//         }
+
+//         // Else, it's multi-byte
+//         else {
+//             //return ($this->sStr, $this->iPos, $this->iSize);
+//             $char = $this->sStr[$this->iPos];
+//             for ($i = 1; $i < $this->iSize; $i++) {
+//                 $char .= $this->sStr[$this->iPos+$i];
+//             }
+//             return $char;
+//         }
+//     }
+
+//     // Key
+//     public function key()
+//     {
+//         // Return the current position
+//         return $this->iPos;
+//     }
+
+//     // Next
+//     public function next(): void
+//     {
+//         // Increment the position by the current size and then recalculate
+//         $this->iPos += $this->iSize;
+//         $this->charIndex++;
+//         $this->calculateSize();
+//     }
+
+//     // Rewind
+//     public function rewind(): void
+//     {
+//         // Reset the position and size
+//         $this->iPos     = 0;
+//         $this->charIndex = 0;
+//         $this->calculateSize();
+//     }
+
+//     // Valid
+//     public function valid(): bool
+//     {
+//         // Return if the current position is valid
+//         return isset($this->sStr[$this->iPos]);
+//     }
+// }

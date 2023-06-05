@@ -85,6 +85,20 @@ abstract class AbstractFrameDecorator extends Frame
     private $_positioned_parent;
 
     /**
+     * First column parent (position: | absolute | fixed, display: table-cell, float: left | right)
+     *
+     * @var AbstractFrameDecorator
+     */
+    private $_pageable_context;
+
+    /**
+     * Flag indicating this element can no longer accept content for the current page.
+     *
+     * @var bool
+     */
+    protected $_page_full;
+
+    /**
      * Cache for the get_parent while loop results
      *
      * @var Frame
@@ -123,6 +137,8 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame = $frame;
         $this->_root = null;
         $this->_dompdf = $dompdf;
+        $this->_pageable_context = null;
+        $this->_page_full = false;
         $frame->set_decorator($this);
     }
 
@@ -151,6 +167,27 @@ abstract class AbstractFrameDecorator extends Frame
 
         $this->_reflower = null;
         unset($this->_reflower);
+    }
+
+    /**
+     * Returns true if the page is full and is no longer accepting frames.
+     */
+    function is_full(): bool
+    {
+        $pageable_context = $this->find_pageable_context();
+        if ($pageable_context !== null && $pageable_context->is_full())
+        {
+            return true;
+        }
+        return $this->_page_full;
+    }
+
+    /**
+     * Returns true if the page is full and is no longer accepting frames.
+     */
+    function mark_full(): void
+    {
+        $this->_page_full = true;
     }
 
     /**
@@ -240,6 +277,8 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_cached_parent = null;
         $this->_block_parent = null;
         $this->_positioned_parent = null;
+        $this->_pageable_context = null;
+        $this->_page_full = false;
 
         // Reset all children
         foreach ($this->get_children() as $child) {
@@ -670,6 +709,33 @@ abstract class AbstractFrameDecorator extends Frame
     }
 
     /**
+     * @return AbstractFrameDecorator
+     *
+     * position: | absolute | fixed, display: table-cell, float: left | right
+     */
+    function find_pageable_context()
+    {
+        if (isset($this->_pageable_context)) {
+            return $this->_pageable_context;
+        }
+
+        $p = $this->get_parent();
+        while ($p) {
+            if (!$p->is_in_flow() || $p instanceof TableCell) {
+                break;
+            }
+
+            $p = $p->get_parent();
+        }
+
+        if (!$p) {
+            $p = $this->_root;
+        }
+
+        return $this->_pageable_context = $p;
+    }
+
+    /**
      * Split this frame at $child.
      * The current frame is cloned and $child and all children following
      * $child are added to the clone.  The clone is then passed to the
@@ -723,9 +789,7 @@ abstract class AbstractFrameDecorator extends Frame
 
         $this->is_split = true;
         $split->is_split_off = true;
-        $split->_already_pushed = true;
-
-        $this->get_parent()->insert_child_after($split, $this);
+        $split->_already_pushed = false;
 
         if ($this instanceof Block) {
             // Remove the frames that will be moved to the new split node from
@@ -744,7 +808,6 @@ abstract class AbstractFrameDecorator extends Frame
             $child->get_style()->margin_top = 0.0;
         }
 
-        // Add $child and all following siblings to the new split node
         $iter = $child;
         while ($iter) {
             $frame = $iter;
@@ -753,11 +816,25 @@ abstract class AbstractFrameDecorator extends Frame
             $split->append_child($frame);
         }
 
-        $this->get_parent()->split($split, $page_break, $forced);
+        if ($node->nodeName === "body") {
+            while ($floating_frame = array_pop($this->_root->_dangling_floating_frames)) {
+                $floating_frame->reset();
+                $split->prepend_child($floating_frame);
+            }
+        }
 
-        // Preserve the current counter values. This must be done after the
-        // parent split, as counters get reset on frame reset
-        $split->_counters = $this->_counters;
+        // Add $child and all following siblings to the new split node
+        if ($this->get_style()->float !== "none") {
+            //$split->_already_pushed = false;
+            $this->get_root()->_dangling_floating_frames[] = $split;
+        } else {
+            $this->get_parent()->insert_child_after($split, $this);
+            $this->get_parent()->split($split, $page_break, $forced);
+
+            // Preserve the current counter values. This must be done after the
+            // parent split, as counters get reset on frame reset
+            $split->_counters = $this->_counters;
+        }
     }
 
     /**

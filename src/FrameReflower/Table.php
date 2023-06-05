@@ -306,7 +306,7 @@ class Table extends AbstractFrameReflower
         $page->check_forced_page_break($frame);
 
         // Bail if the page is full
-        if ($page->is_full()) {
+        if ($this->_frame->find_pageable_context()->is_full()) {
             return;
         }
 
@@ -417,7 +417,7 @@ class Table extends AbstractFrameReflower
                 // Check if a split has occurred
                 $page->check_page_break($child);
     
-                if ($page->is_full()) {
+                if ($this->_frame->find_pageable_context()->is_full()) {
                     break;
                 }
             }
@@ -425,7 +425,7 @@ class Table extends AbstractFrameReflower
 
         // Stop reflow if a page break has occurred before the frame, in which
         // case it has been reset, including its position
-        if ($page->is_full() && $frame->get_position("x") === null) {
+        if ($this->_frame->find_pageable_context()->is_full() && $frame->get_position("x") === null) {
             $page->table_reflow_end();
             return;
         }

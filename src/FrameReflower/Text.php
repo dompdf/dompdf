@@ -387,7 +387,7 @@ class Text extends AbstractFrameReflower
         $page = $frame->get_root();
         $page->check_forced_page_break($frame);
 
-        if ($page->is_full()) {
+        if ($this->_frame->find_pageable_context()->is_full()) {
             return;
         }
 

@@ -40,7 +40,7 @@ class TableRow extends AbstractFrameReflower
         $page->check_forced_page_break($frame);
 
         // Bail if the page is full
-        if ($page->is_full()) {
+        if ($this->_frame->find_pageable_context()->is_full()) {
             return;
         }
 
@@ -55,12 +55,12 @@ class TableRow extends AbstractFrameReflower
             $child->set_containing_block($cb);
             $child->reflow();
 
-            if ($page->is_full()) {
+            if ($this->_frame->find_pageable_context()->is_full()) {
                 break;
             }
         }
 
-        if ($page->is_full()) {
+        if ($this->_frame->find_pageable_context()->is_full()) {
             return;
         }
 
@@ -74,6 +74,17 @@ class TableRow extends AbstractFrameReflower
         $style->set_used("height", $cellmap->get_frame_height($frame));
 
         $frame->set_position($cellmap->get_frame_position($frame));
+        
+        // split the row if one of the children was split
+        foreach ($this->_frame->get_children() as $child) {
+            if ($child->_split_frame !== null) {
+                $frame->split($child, true, false);
+                // Preserve the current counter values. This must be done after the
+                // parent split, as counters get reset on frame reset
+
+                break;
+            }
+        }
     }
 
     /**

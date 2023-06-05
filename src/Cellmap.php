@@ -329,6 +329,31 @@ class Cellmap
      * @param Frame $frame
      *
      * @return array
+     */
+    public function frames_in_row(Frame $frame)
+    {
+        $row_key = $frame->get_id();
+
+        if (!isset($this->_frames[$row_key])) {
+            return null;
+        }
+
+        $ret = [];
+        $row_id = key($this->_frames[$row_key]["rows"]);
+        foreach ($this->_frames as $key => $frame_info) {
+            $frame = $frame_info["frame"];
+            $style = $frame->get_style();
+            if ($style->display === "table-cell" && in_array($row_id, $frame_info["rows"], true)) {
+                $ret[] = $frame;
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * @param Frame $frame
+     *
+     * @return array
      * @throws Exception
      */
     public function get_frame_position(Frame $frame)
@@ -338,6 +363,7 @@ class Cellmap
         $key = $frame->get_id();
 
         if (!isset($this->_frames[$key])) {
+            error_log($frame->get_node()->textContent);
             throw new Exception("Frame not found in cellmap");
         }
 

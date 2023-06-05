@@ -785,8 +785,7 @@ class Block extends AbstractFrameReflower
         $page = $this->_frame->get_root();
         $page->check_forced_page_break($this->_frame);
 
-        // Bail if the page is full
-        if ($page->is_full()) {
+        if ($this->_frame->find_pageable_context()->is_full()) {
             return;
         }
 
@@ -870,7 +869,7 @@ class Block extends AbstractFrameReflower
             // Don't add the child to the line if a page break has occurred
             // before it (possibly via a descendant), in which case it has been
             // reset, including its position
-            if ($page->is_full() && $child->get_position("x") === null) {
+            if ($this->_frame->find_pageable_context()->is_full() && $child->get_position("x") === null) {
                 break;
             }
 
@@ -879,7 +878,7 @@ class Block extends AbstractFrameReflower
 
         // Stop reflow if a page break has occurred before the frame, in which
         // case it has been reset, including its position
-        if ($page->is_full() && $this->_frame->get_position("x") === null) {
+        if ($this->_frame->find_pageable_context()->is_full() && $this->_frame->get_position("x") === null) {
             return;
         }
 
@@ -916,6 +915,16 @@ class Block extends AbstractFrameReflower
                 $block->add_line();
             }
         }
+
+        // if this is the body element and dangling floating frames remain start a new page
+        // if ($this->_frame->get_node()->nodeName === "body" && count($this->_frame->get_root()->_dangling_floating_frames) > 0) {
+        //     $frame = $first_child = array_shift($this->_frame->get_root()->_dangling_floating_frames);
+        //     do {
+        //         $frame->reset();
+        //         $this->_frame->append_child($frame);
+        //     } while ($frame = array_shift($this->_frame->get_root()->_dangling_floating_frames));
+        //     $this->_frame->split($frame, false, false);
+        // }
     }
 
     public function get_min_max_content_width(): array
