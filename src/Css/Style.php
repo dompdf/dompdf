@@ -1248,7 +1248,8 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop])) {
+        // props beginning with "--" (changed above to "__") are css variables --> always allow them
+        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == '__') {
             global $_dompdf_warnings;
             $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
             return;
@@ -1367,7 +1368,8 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop])) {
+        // props beginning with "--" (changed in set_prop() to "__") are css variables --> always allow them
+        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == '__') {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1508,6 +1510,12 @@ class Style
      */
     protected function compute_prop(string $prop, $val)
     {
+        // handle css var() functions as already computed (late binding)
+        // TODO: extend to calc() and other css functons?
+        if(is_string($val) && substr($val, 0, 4) == 'var(') {
+            return $val;
+        }
+
         // During style merge, the parent style is not available yet, so
         // temporarily use the initial value for `inherit` properties. The
         // keyword is properly resolved during inheritance
@@ -1549,6 +1557,23 @@ class Style
             $computed = $this->compute_prop($prop, $val);
 
             $this->_props_computed[$prop] = $computed;
+        }
+
+        // now compute value of css var access (late binding)
+        if(isset($this->_props_computed[$prop])) {
+            $value = $this->_props_computed[$prop];
+            if(!is_array($value)) {
+		    $value = [$value];
+            }
+            foreach($value as &$part) {
+                if(is_string($part) && substr($part, 0, 4) == 'var(') {
+                    $css_var = str_replace("-", "_", substr(trim($part), 4, -1));
+                    $part = $this->get_specified($css_var) ?? (isset($this->parent_style) ? $this->parent_style->get_specified($css_var) : null);
+		}
+            }
+            if(!is_array($this->_props_computed[$prop])) {
+                $this->_props_computed[$prop] = $value[0];
+            }
         }
 
         return $this->_props_computed[$prop];
