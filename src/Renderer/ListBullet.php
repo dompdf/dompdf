@@ -22,6 +22,7 @@ class ListBullet extends AbstractRenderer
     /**
      * @param $type
      * @return mixed|string
+     * @deprecated
      */
     static function get_counter_chars($type)
     {
@@ -94,14 +95,18 @@ class ListBullet extends AbstractRenderer
 
             case "upper-alpha":
             case "upper-latin":
-                $uppercase = true;
+                $text = chr((($n - 1) % 26) + ord('A'));
+                break;
+
             case "lower-alpha":
             case "lower-latin":
                 $text = chr((($n - 1) % 26) + ord('a'));
                 break;
 
             case "upper-roman":
-                $uppercase = true;
+                $text = strtoupper(Helpers::dec2roman($n));
+                break;
+
             case "lower-roman":
                 $text = Helpers::dec2roman($n);
                 break;
@@ -109,10 +114,6 @@ class ListBullet extends AbstractRenderer
             case "lower-greek":
                 $text = Helpers::unichr($n + 944);
                 break;
-        }
-
-        if ($uppercase) {
-            $text = strtoupper($text);
         }
 
         return "$text.";
@@ -208,6 +209,7 @@ class ListBullet extends AbstractRenderer
                     $this->_canvas->text($x, $y, $text,
                         $font_family, $font_size,
                         $style->color, $word_spacing, $letter_spacing);
+                    break;
 
                 case "none":
                     break;
