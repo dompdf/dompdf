@@ -186,6 +186,10 @@ class CPDF implements Canvas
         $this->_pdf->addInfo("CreationDate", "D:$time");
         $this->_pdf->addInfo("ModDate", "D:$time");
 
+        if ($this->_dompdf->getOptions()->isPdfAEnabled()) {
+            $this->_pdf->enablePdfACompliance();
+        }
+
         $this->_width = $size[2] - $size[0];
         $this->_height = $size[3] - $size[1];
 
