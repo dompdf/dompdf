@@ -5717,7 +5717,7 @@ EOT;
             }
 
             $imagick = new \Imagick($file);
-            $imagick->setFormat('png');
+            $imagick->setFormat('PNG');
 
             // Get opacity channel (negative of alpha channel)
             if ($imagick->getImageAlphaChannel()) {
@@ -5727,7 +5727,14 @@ EOT;
                 if (\Imagick::getVersion()['versionNumber'] < 1800) {
                     $alpha_channel->negateImage(true);
                 }
-                $alpha_channel->writeImage($tempfile_alpha);
+
+                try {
+                    $alpha_channel->writeImage($tempfile_alpha);
+                } catch (\ImagickException $th) {
+                    // Backwards compatible retry attempt in case the IMagick policy is still configured in lowercase
+                    $alpha_channel->setFormat('png');
+                    $alpha_channel->writeImage($tempfile_alpha);
+                }
 
                 // Cast to 8bit+palette
                 $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
