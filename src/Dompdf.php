@@ -432,6 +432,11 @@ class Dompdf
         }
 
         if (in_array(strtoupper($encoding), array('UTF-8','UTF8')) === false) {
+
+						if($encoding == null) {
+							$encoding = 'UTF-8';
+						}
+
             $str = mb_convert_encoding($str, 'UTF-8', $encoding);
 
             //Update encoding after converting
