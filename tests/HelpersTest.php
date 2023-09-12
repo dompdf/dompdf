@@ -21,7 +21,7 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         );
     }
 
-    public function dec2RomanProvider(): array
+    public static function dec2RomanProvider(): array
     {
         return [
             [-5, "-5"],
@@ -43,7 +43,7 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         $this->assertSame($expected, $roman);
     }
 
-    public function lengthEqualProvider(): array
+    public static function lengthEqualProvider(): array
     {
         // Adapted from
         // https://floating-point-gui.de/errors/NearlyEqualsTest.java

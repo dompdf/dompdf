@@ -19,7 +19,7 @@ use Dompdf\Tests\TestCase;
 
 class StyleTest extends TestCase
 {
-    public function lengthInPtProvider(): array
+    public static function lengthInPtProvider(): array
     {
         return [
             ["auto", null, "auto"],
@@ -49,7 +49,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    public function cssImageBasicProvider(): array
+    public static function cssImageBasicProvider(): array
     {
         return [
             "no value" => ["", "none"],
@@ -60,7 +60,7 @@ class StyleTest extends TestCase
         ];
     }
 
-    public function cssImageNoBaseHrefProvider(): array
+    public static function cssImageNoBaseHrefProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
         return [
@@ -69,7 +69,7 @@ class StyleTest extends TestCase
         ];
     }
 
-    public function cssImageWithBaseHrefProvider(): array
+    public static function cssImageWithBaseHrefProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
         return [
@@ -78,7 +78,7 @@ class StyleTest extends TestCase
         ];
     }
 
-    public function cssImageWithStylesheetBaseHrefProvider(): array
+    public static function cssImageWithStylesheetBaseHrefProvider(): array
     {
         return [
             "local absolute" => ["url(/_files/jamaica.jpg)", "https://example.com/_files/jamaica.jpg"],
@@ -139,7 +139,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $s->background_image);
     }
 
-    public function backgroundPositionProvider(): array
+    public static function backgroundPositionProvider(): array
     {
         return [
             // One value
@@ -213,7 +213,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->background_position);
     }
 
-    public function fontWeightProvider(): array
+    public static function fontWeightProvider(): array
     {
         return [
             // Absolute
@@ -300,7 +300,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->$prop);
     }
 
-    public function widthHeightProvider(): array
+    public static function widthHeightProvider(): array
     {
         return [
             // Keywords
@@ -340,7 +340,7 @@ class StyleTest extends TestCase
         $this->testLengthProperty("height", $value, $fontSize, $expected, ["height" => $initial]);
     }
 
-    public function minWidthHeightProvider(): array
+    public static function minWidthHeightProvider(): array
     {
         return [
             // Keywords
@@ -382,7 +382,7 @@ class StyleTest extends TestCase
         $this->testLengthProperty("min_height", $value, $fontSize, $expected, ["min_height" => $initial]);
     }
 
-    public function maxWidthHeightProvider(): array
+    public static function maxWidthHeightProvider(): array
     {
         return [
             // Keywords
@@ -424,7 +424,7 @@ class StyleTest extends TestCase
         $this->testLengthProperty("max_height", $value, $fontSize, $expected, ["max_height" => $initial]);
     }
 
-    public function lineWidthProvider(): array
+    public static function lineWidthProvider(): array
     {
         return [
             // Keywords
@@ -479,7 +479,7 @@ class StyleTest extends TestCase
         }
     }
 
-    public function counterIncrementProvider(): array
+    public static function counterIncrementProvider(): array
     {
         return [
             // Keywords
@@ -530,7 +530,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->counter_increment);
     }
 
-    public function counterResetProvider(): array
+    public static function counterResetProvider(): array
     {
         return [
             // Keywords
@@ -581,7 +581,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->counter_reset);
     }
 
-    public function quotesProvider(): array
+    public static function quotesProvider(): array
     {
         $autoResolved = [['"', '"'], ["'", "'"]];
 
@@ -621,7 +621,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->quotes);
     }
 
-    public function contentProvider(): array
+    public static function contentProvider(): array
     {
         return [
             // Keywords
@@ -751,7 +751,7 @@ class StyleTest extends TestCase
         }
     }
 
-    public function sizeProvider(): array
+    public static function sizeProvider(): array
     {
         return [
             // Keywords
@@ -801,7 +801,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->size);
     }
 
-    public function opacityProvider(): array
+    public static function opacityProvider(): array
     {
         return [
             // Valid values
@@ -841,7 +841,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->opacity);
     }
 
-    public function zIndexProvider(): array
+    public static function zIndexProvider(): array
     {
         return [
             // Valid values

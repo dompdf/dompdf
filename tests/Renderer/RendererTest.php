@@ -22,7 +22,7 @@ class RendererTest extends TestCase
     }
 
     /**
-     * @dataProvider providerTestResizeBackgroundImage
+     * @dataProvider testResizeBackgroundImageProvider
      */
     public function testResizeBackgroundImage(
         $img_width,
@@ -48,7 +48,7 @@ class RendererTest extends TestCase
         $this->assertEquals([$new_img_width, $new_img_height], $result);
     }
 
-    public function providerTestResizeBackgroundImage()
+    public static function testResizeBackgroundImageProvider(): array
     {
         return [
             "cover scale up" => [100.0, 200.0, 400.0, 300.0, "cover", 400.0, 800.0],

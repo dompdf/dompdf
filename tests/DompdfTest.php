@@ -77,7 +77,7 @@ class DompdfTest extends TestCase
         $this->assertEquals('', $dompdf->getDom()->textContent);
     }
 
-    public function callbacksProvider(): array
+    public static function callbacksProvider(): array
     {
         return [
             ["begin_page_reflow", 1],
@@ -138,7 +138,7 @@ class DompdfTest extends TestCase
         $this->assertSame(2, $called);
     }
 
-    public function customCanvasProvider(): array
+    public static function customCanvasProvider(): array
     {
         return [
             ["A4", "portrait", true, "auto"],

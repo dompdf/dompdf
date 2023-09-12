@@ -7,7 +7,7 @@ use Dompdf\Tests\TestCase;
 
 final class GeneratedContentTest extends TestCase
 {
-    public function countersProvider(): array
+    public static function countersProvider(): array
     {
         return [
             // TODO: Heredocs can be nicely indented starting with PHP 7.3
