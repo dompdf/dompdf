@@ -7,7 +7,7 @@ use Dompdf\Tests\TestCase;
 
 final class AttributeTranslatorTest extends TestCase
 {
-    public function attributeToStyleTranslationProvider(): array
+    public static function attributeToStyleTranslationProvider(): array
     {
         return [
             // TODO: Heredocs can be nicely indented starting with PHP 7.3

@@ -17,7 +17,7 @@ class ShorthandTest extends TestCase
         return new Style($sheet);
     }
 
-    public function marginPaddingShorthandProvider(): array
+    public static function marginPaddingShorthandProvider(): array
     {
         return [
             ["5pt", "5pt", "5pt", "5pt", "5pt"],
@@ -103,7 +103,7 @@ class ShorthandTest extends TestCase
         $this->assertSame($left, $style->get_specified("border_left_{$type}"));
     }
 
-    public function borderWidthShorthandProvider(): array
+    public static function borderWidthShorthandProvider(): array
     {
         return [
             ["thin", "thin", "thin", "thin", "thin"],
@@ -126,7 +126,7 @@ class ShorthandTest extends TestCase
         $this->borderTypeShorthandTest("width", $value, $top, $right, $bottom, $left);
     }
 
-    public function borderStyleShorthandProvider(): array
+    public static function borderStyleShorthandProvider(): array
     {
         return [
             ["solid", "solid", "solid", "solid", "solid"],
@@ -149,7 +149,7 @@ class ShorthandTest extends TestCase
         $this->borderTypeShorthandTest("style", $value, $top, $right, $bottom, $left);
     }
 
-    public function borderColorShorthandProvider(): array
+    public static function borderColorShorthandProvider(): array
     {
         return [
             ["transparent", "transparent", "transparent", "transparent", "transparent"],
@@ -172,7 +172,7 @@ class ShorthandTest extends TestCase
         $this->borderTypeShorthandTest("color", $value, $top, $right, $bottom, $left);
     }
 
-    public function borderShorthandProvider(): array
+    public static function borderShorthandProvider(): array
     {
         return [
             ["transparent", "medium", "none", "transparent"],
@@ -206,7 +206,7 @@ class ShorthandTest extends TestCase
         }
     }
 
-    public function outlineShorthandProvider(): array
+    public static function outlineShorthandProvider(): array
     {
         return [
             ["transparent", "medium", "none", "transparent"],
@@ -236,7 +236,7 @@ class ShorthandTest extends TestCase
         $this->assertSame($expectedColor, $style->get_specified("outline_color"));
     }
 
-    public function borderRadiusShorthandProvider(): array
+    public static function borderRadiusShorthandProvider(): array
     {
         return [
             ["5pt", "5pt", "5pt", "5pt", "5pt"],
@@ -265,7 +265,7 @@ class ShorthandTest extends TestCase
         $this->assertSame($bl, $style->get_specified("border_bottom_left_radius"));
     }
 
-    public function backgroundShorthandProvider(): array
+    public static function backgroundShorthandProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
         $imagePath = "$basePath/_files/jamaica.jpg";
@@ -303,7 +303,7 @@ class ShorthandTest extends TestCase
         $this->assertSame($color, $style->get_specified("background_color"));
     }
 
-    public function fontShorthandProvider(): array
+    public static function fontShorthandProvider(): array
     {
         return [
             ["8.5mm Helvetica", "normal", "normal", 400, "8.5mm", "normal", "helvetica"],
@@ -339,7 +339,7 @@ class ShorthandTest extends TestCase
         $this->assertSame($fontFamily, $style->get_specified("font_family"));
     }
 
-    public function listStyleShorthandProvider(): array
+    public static function listStyleShorthandProvider(): array
     {
         $basePath = realpath(__DIR__ . "/..");
         $imagePath = "$basePath/_files/jamaica.jpg";
