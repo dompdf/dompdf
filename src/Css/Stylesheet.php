@@ -1114,64 +1114,56 @@ class Stylesheet
                 // Merge the new styles with the inherited styles
                 $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
                 $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
+
                 foreach ($applied_styles as $arr) {
                     /** @var Style $s */
                     foreach ($arr as $s) {
                         $media_queries = $s->get_media_queries();
-                        foreach ($media_queries as $media_query) {
-                            list($media_query_feature, $media_query_value) = $media_query;
-                            // if any of the Style's media queries fail then do not apply the style
-                            //TODO: When the media query logic is fully developed we should not apply the Style when any of the media queries fail or are bad, per https://www.w3.org/TR/css3-mediaqueries/#error-handling
-                            if (in_array($media_query_feature, self::$VALID_MEDIA_TYPES)) {
-                                if ((strlen($media_query_feature) === 0 && !in_array($media_query, $acceptedmedia)) || (in_array($media_query, $acceptedmedia) && $media_query_value == "not")) {
-                                    continue (3);
+                        if (count($media_queries) > 0) {
+                            $media_query_match = false;
+                            foreach ($media_queries as $media_query_group) {
+                                foreach ($media_query_group as $media_query) {
+                                    list($media_query_feature, $media_query_value, $media_query_operator) = $media_query;
+                                    switch ($media_query_feature) {
+                                        case "height":
+                                            $feature_match = $paper_height === (float)$style->length_in_pt($media_query_value);
+                                            break;
+                                        case "min-height":
+                                            $feature_match = $paper_height >= (float)$style->length_in_pt($media_query_value);
+                                            break;
+                                        case "max-height":
+                                            $feature_match = $paper_height <= (float)$style->length_in_pt($media_query_value);
+                                            break;
+                                        case "width":
+                                            $feature_match = $paper_width === (float)$style->length_in_pt($media_query_value);
+                                            break;
+                                        case "min-width":
+                                            $feature_match = $paper_width >= (float)$style->length_in_pt($media_query_value);
+                                            break;
+                                        case "max-width":
+                                            $feature_match = $paper_width <= (float)$style->length_in_pt($media_query_value);
+                                            break;
+                                        case "orientation":
+                                            $feature_match = $paper_orientation === $media_query_value;
+                                            break;
+                                        case "type":
+                                            $feature_match = in_array($media_query_value, $acceptedmedia, true);
+                                            break;
+                                        default:
+                                            Helpers::record_warnings(E_USER_WARNING, "Unknown media query: $media_query_feature", __FILE__, __LINE__);
+                                            continue (2); // unknown query, move to the next grouping
+                                    }
+                                    $negate = $media_query_operator === "not";
+                                    if ($negate xor !$feature_match) {
+                                        continue (2); // failed query match, move to the next grouping
+                                    }
                                 }
-                            } else {
-                                switch ($media_query_feature) {
-                                    case "height":
-                                        if ($paper_height !== (float)$style->length_in_pt($media_query_value)) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    case "min-height":
-                                        if ($paper_height < (float)$style->length_in_pt($media_query_value)) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    case "max-height":
-                                        if ($paper_height > (float)$style->length_in_pt($media_query_value)) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    case "width":
-                                        if ($paper_width !== (float)$style->length_in_pt($media_query_value)) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    case "min-width":
-                                        //if (min($paper_width, $media_query_width) === $paper_width) {
-                                        if ($paper_width < (float)$style->length_in_pt($media_query_value)) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    case "max-width":
-                                        //if (max($paper_width, $media_query_width) === $paper_width) {
-                                        if ($paper_width > (float)$style->length_in_pt($media_query_value)) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    case "orientation":
-                                        if ($paper_orientation !== $media_query_value) {
-                                            continue (3);
-                                        }
-                                        break;
-                                    default:
-                                        Helpers::record_warnings(E_USER_WARNING, "Unknown media query: $media_query_feature", __FILE__, __LINE__);
-                                        break;
-                                }
+                                $media_query_match = true;
+                            }
+                            if (!$media_query_match) {
+                                continue;
                             }
                         }
-
                         $style->merge($s);
                     }
                 }
@@ -1299,35 +1291,37 @@ EOL;
                         break;
 
                     case "media":
+                        $mq = [];
                         $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($match["CSS_ATMEDIA_RULE"])));
                         foreach ($media_queries as $media_query) {
-                            if (in_array($media_query, $accepted_media)) {
-                                //if we have a media type match go ahead and parse the stylesheet
-                                $this->_parse_sections($match["CSS_ATMEDIA_BODY"]);
-                                break;
-                            } elseif (!in_array($media_query, self::$VALID_MEDIA_TYPES)) {
-                                // otherwise conditionally parse the stylesheet assuming there are parseable media queries
-                                $media_query_matches = [];
-                                if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) === false) {
-                                    continue;
-                                }
+                            $media_query_matches = [];
+                            if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) === false) {
+                                continue;
+                            }
 
-                                $mq = [];
-                                foreach ($media_query_matches as $media_query_match) {
-                                    if (empty($media_query_match["CSS_MEDIA_QUERY_TYPE"]) === false) {
-                                        $media_query_feature = strtolower($media_query_match["CSS_MEDIA_QUERY_TYPE"]);
-                                        $media_query_value = strtolower($media_query_match["CSS_MEDIA_QUERY_OP"]);
-                                        $mq[] = [$media_query_feature, $media_query_value];
-                                    } elseif (empty($media_query_match["CSS_MEDIA_QUERY_FEATURE"]) === false) {
-                                        $media_query_feature = strtolower($media_query_match["CSS_MEDIA_QUERY_FEATURE"]);
-                                        $media_query_value = (array_key_exists("CSS_MEDIA_QUERY_CONDITION", $media_query_match) ? strtolower($media_query_match["CSS_MEDIA_QUERY_CONDITION"]) : null);
-                                        $mq[] = [$media_query_feature, $media_query_value];
-                                    }
+                            $mq_grouping = [];
+                            foreach ($media_query_matches as $media_query_match) {
+                                if (empty($media_query_match["CSS_MEDIA_QUERY_TYPE"]) === false) {
+                                    $media_query_feature = "type";
+                                    $media_query_value = strtolower($media_query_match["CSS_MEDIA_QUERY_TYPE"]);
+                                    $media_query_operator = strtolower($media_query_match["CSS_MEDIA_QUERY_OP"]);
+                                } elseif (empty($media_query_match["CSS_MEDIA_QUERY_FEATURE"]) === false) {
+                                    $media_query_feature = strtolower($media_query_match["CSS_MEDIA_QUERY_FEATURE"]);
+                                    $media_query_value = (array_key_exists("CSS_MEDIA_QUERY_CONDITION", $media_query_match) ? strtolower($media_query_match["CSS_MEDIA_QUERY_CONDITION"]) : null);
+                                    $media_query_operator = strtolower($media_query_match["CSS_MEDIA_QUERY_OP"]);
+                                } else {
+                                    // partial error handling implementation per https://www.w3.org/TR/css3-mediaqueries/#error-handling
+                                    $media_query_feature = "type";
+                                    $media_query_value = "all";
+                                    $media_query_operator = "not";
                                 }
-                                $this->_parse_sections($match["CSS_ATMEDIA_BODY"], $mq);
-                                break;
+                                $mq_grouping[] = [$media_query_feature, $media_query_value, $media_query_operator];
+                            }
+                            if (count($mq_grouping) > 0) {
+                                $mq[] = $mq_grouping;
                             }
                         }
+                        $this->_parse_sections($match["CSS_ATMEDIA_BODY"], $mq);
                         break;
 
                     case "page":
@@ -1443,43 +1437,108 @@ EOL;
      */
     private function _parse_import($url, $import_media_query)
     {
-        $accept = true;
+        // if URL is a CSS string, wrap it in the url function for parsing by the resolve_url method
+        if (mb_strpos($url, "url(") === false) {
+            $url = "url($url)";
+        }
+        if (($url = $this->resolve_url($url)) === "none") {
+            return;
+        }
+
+        // Store our current base url properties in case the new url is elsewhere
+        $protocol = $this->_protocol;
+        $host = $this->_base_host;
+        $path = $this->_base_path;
+
+        $media_query_regex = "/" . self::PATTERN_MEDIA_QUERY . "/isx";
         $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($import_media_query ?? "")));
-        if (count($media_queries) > 0) {
-            $accept = false;
+        if (count($media_queries) === 0) {
+            $this->load_css_file($url, $this->_current_origin);
+        } else {
+            // Set the page width, height, and orientation based on the canvas paper size
+            $canvas = $this->_dompdf->getCanvas();
+            $paper_width = $canvas->get_width();
+            $paper_height = $canvas->get_height();
+            $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+
+            $style = $this->_page_styles["base"] ?? new Style($this);
+            if (is_array($style->size)) {
+                $paper_width = $style->size[0];
+                $paper_height = $style->size[1];
+                $paper_orientation = ($paper_width > $paper_height ? "landscape" : "portrait");
+            }
+
             $acceptedmedia = self::$ACCEPTED_GENERIC_MEDIA_TYPES;
             $acceptedmedia[] = $this->_dompdf->getOptions()->getDefaultMediaType();
+
             foreach ($media_queries as $media_query) {
-                if (in_array($media_query, $acceptedmedia)) {
-                    //if we have a media type match go ahead and parse the stylesheet
-                    $accept = true;
-                    break;
-                } elseif (!in_array($media_query, self::$VALID_MEDIA_TYPES)) {
-                    $accept = true;
+                $media_query_matches = [];
+                if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) === false) {
+                    continue;
                 }
-            }
-        }
 
-        if ($accept) {
-            // Store our current base url properties in case the new url is elsewhere
-            $protocol = $this->_protocol;
-            $host = $this->_base_host;
-            $path = $this->_base_path;
+                foreach ($media_query_matches as $media_query_match) {
+                    if (empty($media_query_match["CSS_MEDIA_QUERY_TYPE"]) === false) {
+                        $media_query_feature = "type";
+                        $media_query_value = strtolower($media_query_match["CSS_MEDIA_QUERY_TYPE"]);
+                        $media_query_operator = strtolower($media_query_match["CSS_MEDIA_QUERY_OP"]);
+                    } elseif (empty($media_query_match["CSS_MEDIA_QUERY_FEATURE"]) === false) {
+                        $media_query_feature = strtolower($media_query_match["CSS_MEDIA_QUERY_FEATURE"]);
+                        $media_query_value = (array_key_exists("CSS_MEDIA_QUERY_CONDITION", $media_query_match) ? strtolower($media_query_match["CSS_MEDIA_QUERY_CONDITION"]) : null);
+                        $media_query_operator = strtolower($media_query_match["CSS_MEDIA_QUERY_OP"]);
+                    } else {
+                        // partial error handling implementation per https://www.w3.org/TR/css3-mediaqueries/#error-handling
+                        $media_query_feature = "type";
+                        $media_query_value = "all";
+                        $media_query_operator = "not";
+                    }
 
-            // if URL is a CSS string, wrap it in the url function for parsing by the resolve_url method
-            if (mb_strpos($url, "url(") === false) {
-                $url = "url($url)";
-            }
+                    switch ($media_query_feature) {
+                        case "height":
+                            $feature_match = $paper_height === (float)$style->length_in_pt($media_query_value);
+                            break;
+                        case "min-height":
+                            $feature_match = $paper_height >= (float)$style->length_in_pt($media_query_value);
+                            break;
+                        case "max-height":
+                            $feature_match = $paper_height <= (float)$style->length_in_pt($media_query_value);
+                            break;
+                        case "width":
+                            $feature_match = $paper_width === (float)$style->length_in_pt($media_query_value);
+                            break;
+                        case "min-width":
+                            $feature_match = $paper_width >= (float)$style->length_in_pt($media_query_value);
+                            break;
+                        case "max-width":
+                            $feature_match = $paper_width <= (float)$style->length_in_pt($media_query_value);
+                            break;
+                        case "orientation":
+                            $feature_match = $paper_orientation === $media_query_value;
+                            break;
+                        case "type":
+                            $feature_match = in_array($media_query_value, $acceptedmedia, true);
+                            break;
+                        default:
+                            Helpers::record_warnings(E_USER_WARNING, "Unknown media query: $media_query_feature", __FILE__, __LINE__);
+                            continue (2);
+                    }
+                    $negate = $media_query_operator === "not";
+                    if ($negate xor !$feature_match) {
+                        continue (2);
+                    }
+                }
 
-            if (($url = $this->resolve_url($url)) !== "none") {
+                //TODO: pass media queries as an argument to load_css_file and apply to all contained styles
+                //      to better accommodate styling content in, for example, documents with varying page orientations
                 $this->load_css_file($url, $this->_current_origin);
+                break; // stop here so we don't load the same CSS more than once (at least until we implement that TODO)
             }
-
-            // Restore the current base url
-            $this->_protocol = $protocol;
-            $this->_base_host = $host;
-            $this->_base_path = $path;
         }
+
+        // Restore the current base url
+        $this->_protocol = $protocol;
+        $this->_base_host = $host;
+        $this->_base_path = $path;
     }
 
     /**
