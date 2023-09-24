@@ -319,7 +319,11 @@ class Helpers
         $score = [
             '%23'=>'#'
         ];
-        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved, $unescaped, $score));
+        return preg_replace(
+            '/%25([a-fA-F0-9]{2,2})/',
+            '%$1',
+            strtr(rawurlencode($uri), array_merge($reserved, $unescaped, $score))
+        );
     }
 
     /**

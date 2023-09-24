@@ -6,6 +6,23 @@ use Dompdf\Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
+    public static function uriEncodingProvider(): array
+    {
+        return [
+            ["https://example.com/test.html", "https://example.com/test.html"],
+            ["https://example.com?a[]=1&b%5B%5D=1&c=d+e&f=g h&i=j%2Bk%26l", "https://example.com?a%5B%5D=1&b%5B%5D=1&c=d+e&f=g%20h&i=j%2Bk%26l"],
+        ];
+    }
+    
+    /**
+     * @dataProvider uriEncodingProvider
+     */
+    public function testUriEncoding(string $uri, string $expected): void
+    {
+        $encodedUri = Helpers::encodeURI($uri);
+        $this->assertEquals($expected, $encodedUri);
+    }
+
     public function testParseDataUriBase64Image(): void
     {
         $imageParts = [
