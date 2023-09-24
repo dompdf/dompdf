@@ -2751,6 +2751,14 @@ class Style
     }
 
     /**
+     * @link https://www.w3.org/TR/css-fonts-4/#src-desc
+     */
+    protected function _compute_src(string $val)
+    {
+        return $val;
+    }
+
+    /**
      * Handle the `font` shorthand property.
      *
      * `[ font-style || font-variant || font-weight ] font-size [ / line-height ] font-family`
