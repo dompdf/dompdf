@@ -487,6 +487,15 @@ class Style
     /**
      * Media queries attached to the style
      *
+     * This is a two-dimensional array where the first dimension represents
+     * the media query grouping (logic-or) and the second dimension the
+     * media queries within the grouping.
+     *
+     * The structure of the actual query element is:
+     * - media query feature
+     * - media query value or condition
+     * - media query operator (e.g., not)
+     *
      * @var array
      */
     protected $_media_queries;
