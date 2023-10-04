@@ -2146,18 +2146,17 @@ class Style
         $number = self::CSS_NUMBER;
 
         $pattern = "/\n" .
-            "\s* ($string)             |\n" . // String
-            "\s* ($ident \\([^)]*\\) ) |\n" . // Functional
-            "\s* ($ident)              |\n" . // Keyword
-            "\s* (\#[0-9a-fA-F]*)      |\n" . // Hex value
-            "\s* ($number [a-zA-Z%]*)  |\n" . // Number (+ unit/percentage)
-            "\s* ([\/,;])               \n" . // Delimiter
-            "/Sx";
+            "\s* ($string)                                                                   |\n" . // String
+            "\s* ($ident \\((?<FN_QUOTE>[\'\"]?)(.*?)(?(FN_QUOTE)(?<!\\\\)\g{FN_QUOTE})\\))  |\n" . // Function
+            "\s* ($ident)                                                                    |\n" . // Keyword
+            "\s* (\#[0-9a-fA-F]*)                                                            |\n" . // Hex value
+            "\s* ($number [a-zA-Z%]*)                                                        |\n" . // Number (+ unit/percentage)
+            "\s* ([\/,;])                                                                    \n" . // Delimiter
+            "/isSx";
 
         if (!preg_match_all($pattern, $value, $matches)) {
             return [];
         }
-
         return array_map("trim", $matches[0]);
     }
 
@@ -2432,7 +2431,7 @@ class Style
         if ($parsed_val === "none") {
             return "none";
         } else {
-            return "url($parsed_val)";
+            return "url(\"" . str_replace("\"", "\\\"", $parsed_val) . "\")";
         }
     }
 
@@ -3451,7 +3450,7 @@ class Style
         if ($parsed_val === "none") {
             return "none";
         } else {
-            return "url($parsed_val)";
+            return "url(\"" . str_replace("\"", "\\\"", $parsed_val) . "\")";
         }
     }
 

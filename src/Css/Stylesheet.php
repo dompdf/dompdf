@@ -1402,23 +1402,35 @@ EOL;
     public function resolve_url($val): string
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
-        $parsed_url = "none";
 
+        static $pattern = "/" . self::PATTERN_CSS_URL_FN . "/isx";
         if ($val === null || $val === "" || strcasecmp($val, "none") === 0) {
             $path = "none";
-        } elseif (strncasecmp($val, "url(", 4) !== 0) {
-            $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
-        } else {
-            $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/i", "\\1", trim($val));
-
+        } elseif (preg_match($pattern, $val, $matches)) {
             // Resolve the url now in the context of the current stylesheet
-            $path = Helpers::build_url($this->_protocol,
+            $url = $matches["CSS_URL_FN_VALUE"];
+            switch ($matches["CSS_URL_FN_QUOTE"]) {
+                case "\"":
+                    $url = str_replace("\\\"", "\"", $url);
+                    break;
+                case "'":
+                    $url = str_replace("\\'", "'", $url);
+                    break;
+                default:
+                    $url = str_replace(["\\(", "\\)"], ["(", ")"], $url);
+                    break;
+            }
+            $path = Helpers::build_url(
+                $this->_protocol,
                 $this->_base_host,
                 $this->_base_path,
-                $val);
+                $url
+            );
             if ($path === null) {
                 $path = "none";
             }
+        } else {
+            $path = "none";
         }
         if ($DEBUGCSS) {
             $parsed_url = Helpers::explode_url($path);

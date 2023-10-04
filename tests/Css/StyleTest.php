@@ -56,7 +56,11 @@ class StyleTest extends TestCase
             "keyword none" => ["none", "none"],
             "bare url" => ["http://example.com/test.png", "none"],
             "http" => ["url(http://example.com/test.png)", "http://example.com/test.png"],
-            "case" => ["URL(http://example.com/Test.png)", "http://example.com/Test.png"]
+            "case" => ["URL(http://example.com/Test.png)", "http://example.com/Test.png"],
+            "quoted parens" => ["url(\"http://example.com/Test(1).png\")", "http://example.com/Test(1).png"],
+            "escaped parens" => ["url(http://example.com/Test\(1\).png)", "http://example.com/Test(1).png"],
+            "quotes" => ["url(http://example.com/Test\"1\".png)", "http://example.com/Test\"1\".png"],
+            "escaped quotes" => ["url(\"http://example.com/Test\\\"1\\\".png\")", "http://example.com/Test\"1\".png"]
         ];
     }
 
@@ -643,6 +647,8 @@ class StyleTest extends TestCase
             ['url("image.png")', [new Url("image.png")]],
             ["url('image.png')", [new Url("image.png")]],
             ["url(\"'image.PNG'\")", [new Url("'image.PNG'")]],
+            ["url(\"image(1).PNG\")", [new Url("image(1).PNG")]],
+            ["url(\"image\\\"1\\\".PNG\")", [new Url("image\"1\".PNG")]],
 
             // Counter/Counters
             ["counter(c)", [new Counter("c", "decimal")]],
