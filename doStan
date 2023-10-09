@@ -1,0 +1,3 @@
+#!/bin/bash
+# Use -b as argument to generate baseline
+phpstan analyze --configuration .github/workflows/phpstan.neon.dist --memory-limit 4G "$@" | tee stan.log
