@@ -58,7 +58,7 @@ class PDFLib implements Canvas
      *
      * @var array
      */
-    public static $nativeFontsTpPDFLib = [
+    public static $nativeFontsToPDFLib = [
         "courier"               => "Courier",
         "courier-bold"          => "Courier-Bold",
         "courier-oblique"       => "Courier-Oblique",
@@ -726,9 +726,9 @@ class PDFLib implements Canvas
         // Fix for PDFLib's case-sensitive font names
         $baseFont = basename($font);
         $isNativeFont = false;
-        $lcBaseFont = strtolower($basefont);
-        if (isset(self::$nativeFontsTpPDFLib[$lcBaseFont])) {
-            $baseFont = self::$nativeFontsTpPDFLib[$lcBaseFont];
+        $lcBaseFont = strtolower($baseFont);
+        if (isset(self::$nativeFontsToPDFLib[$lcBaseFont])) {
+            $baseFont = self::$nativeFontsToPDFLib[$lcBaseFont];
             $isNativeFont = true;
         }
 
@@ -1238,12 +1238,25 @@ class PDFLib implements Canvas
         } else {
             $chars = array_unique(preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY), SORT_STRING);
         }
-        foreach ($chars as $char) {
-            $options = "unicode=$char";
-            if ($char === " ") {
-                $options = "glyphname=space";
+
+        // unicode character glyph id lookup supports both the character and the unicode ordinal value
+        // because some characters can not be specified directly we'll specify the ordinal for all characters
+        // known problematic characters: "{", "}", " ", "=", "\u{feff}"
+        $char_codes = array_map(
+            function($char) {
+                return Helpers::uniord($char, "UTF-8");
+            },
+            $chars
+        );
+
+        foreach ($char_codes as $char_code) {
+            $options = "unicode=$char_code";
+            $glyphid = -1;
+            try {
+                $glyphid = (int)($this->_pdf->info_font($fh, "glyphid", $options));
+            } catch (\Throwable $ex) {
+                continue;
             }
-            $glyphid = (int)($this->_pdf->info_font($fh, "glyphid", $options));
             if ($glyphid === -1) {
                 return false;
             }
