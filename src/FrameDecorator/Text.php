@@ -199,7 +199,8 @@ class Text extends AbstractFrameDecorator
      * Determines the optimal font that applies to the frame and splits
      * the frame where the optimal font changes.
      */
-    function apply_font_mapping() {
+    function apply_font_mapping(): void
+    {
         if (!empty($this->mapped_font)) {
             return;
         }
