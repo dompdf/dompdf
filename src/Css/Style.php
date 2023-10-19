@@ -1134,14 +1134,14 @@ class Style
             if ($part === '(') {
                 $opStack[] = $part;
             } elseif ($part === ')') {
-                while (count($opStack) > 0 && end($opStack) !== '(') {
+                while (\count($opStack) > 0 && end($opStack) !== '(') {
                     $queue[] = array_pop($opStack);
                 }
                 if (end($opStack) === '(') {
                     array_pop($opStack);
                 }
-            } elseif (array_key_exists($part, $precedence)) {
-                while (count($opStack) > 0 && end($opStack) !== '(' && $precedence[end($opStack)] >= $precedence[$part]) {
+            } elseif (\array_key_exists($part, $precedence)) {
+                while (\count($opStack) > 0 && end($opStack) !== '(' && $precedence[end($opStack)] >= $precedence[$part]) {
                     $queue[] = array_pop($opStack);
                 }
                 $opStack[] = $part;
@@ -1150,7 +1150,7 @@ class Style
             }
         }
 
-        while (count($opStack) > 0) {
+        while (\count($opStack) > 0) {
             $queue[] = array_pop($opStack);
         }
 
@@ -1166,7 +1166,7 @@ class Style
      */
     private function evaluate_func_calc(array $rpn, float $ref_size = 0, ?float $font_size = null): ?float
     {
-        if (count($rpn) === 0) {
+        if (\count($rpn) === 0) {
             return null;
         }
 
@@ -1175,7 +1175,7 @@ class Style
         $stack = [];
 
         foreach ($rpn as $part) {
-            if (in_array($part, $ops, true)) {
+            if (\in_array($part, $ops, true)) {
                 $rightValue = array_pop($stack);
                 $leftValue = array_pop($stack);
                 switch ($part) {
@@ -1204,7 +1204,7 @@ class Style
             }
         }
 
-        if (count($stack) > 1) {
+        if (\count($stack) > 1) {
             return null;
         }
 
