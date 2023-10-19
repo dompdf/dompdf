@@ -388,7 +388,6 @@ class Text extends AbstractFrameReflower
         }
 
         $style = $frame->get_style();
-        $font_metrics = $this->getFontMetrics();
 
         // Handle text transform and white space
         $frame->set_text($this->pre_process_text($frame->get_text()));
