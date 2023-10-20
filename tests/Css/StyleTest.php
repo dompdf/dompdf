@@ -344,7 +344,34 @@ class StyleTest extends TestCase
         ];
     }
 
-    public static function widthHeightProvider(): array
+    public static function lengthPercentageProvider(): array
+    {
+        return [
+            // Lengths
+            ["0", 12.0, 0.0],
+            ["1em", 20.0, 20.0],
+            ["100pt", 12.0, 100.0],
+            ["-100pt", 12.0, -100.0],
+            ["50%", 12.0, "50%"],
+            ["-50%", 12.0, "-50%"],
+
+            // Calc values
+            ["calc(6pt - 2em)", 12.0, -18.0],
+            ["calc(50% + 2em)", 12.0, "calc(50% + 2em)"],
+            ["calc(100% - 100pt)", 12.0, "calc(100% - 100pt)"],
+            ["calc(-100pt)", 12.0, -100.0],
+            ["calc(-50%)", 12.0, "calc(-50%)"],
+
+            // Case variations
+            ["1EM", 20.0, 20.0],
+
+            // Invalid values
+            ["invalid", 12.0, 79.0, 79.0],
+            ["-50% + 2em", 12.0, 79.0, 79.0]
+        ];
+    }
+
+    public static function autoKeywordProvider(): array
     {
         return [
             // Keywords
@@ -360,7 +387,7 @@ class StyleTest extends TestCase
     }
 
     /**
-     * @dataProvider widthHeightProvider
+     * @dataProvider autoKeywordProvider
      * @dataProvider lengthPercentagePositiveProvider
      */
     public function testWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
@@ -369,7 +396,7 @@ class StyleTest extends TestCase
     }
 
     /**
-     * @dataProvider widthHeightProvider
+     * @dataProvider autoKeywordProvider
      * @dataProvider lengthPercentagePositiveProvider
      */
     public function testHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
@@ -449,6 +476,71 @@ class StyleTest extends TestCase
         $this->testLengthProperty("max_height", $value, $fontSize, $expected, ["max_height" => $initial]);
     }
 
+    /**
+     * @dataProvider autoKeywordProvider
+     * @dataProvider lengthPercentageProvider
+     */
+    public function testBoxInset(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("top", $value, $fontSize, $expected, ["top" => $initial]);
+        $this->testLengthProperty("right", $value, $fontSize, $expected, ["right" => $initial]);
+        $this->testLengthProperty("bottom", $value, $fontSize, $expected, ["bottom" => $initial]);
+        $this->testLengthProperty("left", $value, $fontSize, $expected, ["left" => $initial]);
+    }
+
+    public static function marginProvider(): array
+    {
+        return [
+            // Keywords
+            ["auto", 12.0, "auto", 0.0],
+
+            // Legacy keywords
+            ["none", 12.0, 0.0, 0.0],
+
+            // Case variations
+            ["Auto", 12.0, "auto", 0.0],
+            ["AUTO", 12.0, "auto", 0.0],
+
+            // Invalid values
+            ["other", 12.0, 79.0, 79.0]
+        ];
+    }
+
+    /**
+     * @dataProvider marginProvider
+     * @dataProvider lengthPercentageProvider
+     */
+    public function testMargin(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("margin_top", $value, $fontSize, $expected, ["margin_top" => $initial]);
+        $this->testLengthProperty("margin_right", $value, $fontSize, $expected, ["margin_right" => $initial]);
+        $this->testLengthProperty("margin_bottom", $value, $fontSize, $expected, ["margin_bottom" => $initial]);
+        $this->testLengthProperty("margin_left", $value, $fontSize, $expected, ["margin_left" => $initial]);
+    }
+
+    public static function paddingProvider(): array
+    {
+        return [
+            // Legacy keywords
+            ["none", 12.0, 0.0, 0.0],
+
+            // Invalid values
+            ["auto", 12.0, 79.0, 79.0]
+        ];
+    }
+
+    /**
+     * @dataProvider paddingProvider
+     * @dataProvider lengthPercentagePositiveProvider
+     */
+    public function testPadding(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("padding_top", $value, $fontSize, $expected, ["padding_top" => $initial]);
+        $this->testLengthProperty("padding_right", $value, $fontSize, $expected, ["padding_right" => $initial]);
+        $this->testLengthProperty("padding_bottom", $value, $fontSize, $expected, ["padding_bottom" => $initial]);
+        $this->testLengthProperty("padding_left", $value, $fontSize, $expected, ["padding_left" => $initial]);
+    }
+
     public static function lineWidthProvider(): array
     {
         return [
@@ -507,6 +599,27 @@ class StyleTest extends TestCase
             $this->testLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleSolid, $initialPropsSolid);
             $this->testLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleNone, $initialPropsNone);
         }
+    }
+
+    public static function borderRadiusProvider(): array
+    {
+        return [
+            // Invalid values
+            ["auto", 12.0, 79.0, 79.0],
+            ["none", 12.0, 79.0, 79.0]
+        ];
+    }
+
+    /**
+     * @dataProvider borderRadiusProvider
+     * @dataProvider lengthPercentagePositiveProvider
+     */
+    public function testBorderRadius(string $value, float $fontSize, $expected, $initial = "auto"): void
+    {
+        $this->testLengthProperty("border_top_left_radius", $value, $fontSize, $expected, ["border_top_left_radius" => $initial]);
+        $this->testLengthProperty("border_top_right_radius", $value, $fontSize, $expected, ["border_top_right_radius" => $initial]);
+        $this->testLengthProperty("border_bottom_right_radius", $value, $fontSize, $expected, ["border_bottom_right_radius" => $initial]);
+        $this->testLengthProperty("border_bottom_left_radius", $value, $fontSize, $expected, ["border_bottom_left_radius" => $initial]);
     }
 
     public static function counterIncrementProvider(): array
