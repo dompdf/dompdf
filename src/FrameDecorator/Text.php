@@ -23,7 +23,7 @@ class Text extends AbstractFrameDecorator
     protected $text_spacing;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $mapped_font;
 
@@ -153,11 +153,11 @@ class Text extends AbstractFrameDecorator
      * text is added as a sibling frame following this one and is returned.
      *
      * @param int $offset
-     * @return Frame|null
+     * @return Text|null
      */
-    function split_text($offset)
+    function split_text(int $offset): ?self
     {
-        if ($offset == 0) {
+        if ($offset === 0) {
             return null;
         }
 
@@ -165,8 +165,14 @@ class Text extends AbstractFrameDecorator
         if ($split === false) {
             return null;
         }
-        
+
+        /** @var Text */
         $deco = $this->copy($split);
+
+        if ($this->mapped_font !== null) {
+            $deco->get_style()->set_used("font_family", $this->mapped_font);
+            $deco->mapped_font = $this->mapped_font;
+        }
 
         $p = $this->get_parent();
         $p->insert_child_after($deco, $this, false);
@@ -201,7 +207,7 @@ class Text extends AbstractFrameDecorator
      */
     function apply_font_mapping(): void
     {
-        if (!empty($this->mapped_font)) {
+        if ($this->mapped_font !== null) {
             return;
         }
 
