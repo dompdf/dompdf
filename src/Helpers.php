@@ -601,12 +601,11 @@ class Helpers
     public static function uniord(string $c, string $encoding = null)
     {
         if (function_exists("mb_ord")) {
-            if (version_compare(PHP_VERSION, '8.0.0', '<') && $encoding === null) {
+            if (PHP_VERSION_ID < 80000 && $encoding === null) {
                 // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
                 $encoding = "UTF-8";
             }
-            $ord = mb_ord($c, $encoding);
-            return $ord;
+            return mb_ord($c, $encoding);
         }
 
         if ($encoding != "UTF-8") {
@@ -678,12 +677,11 @@ class Helpers
     public static function unichr(int $c, string $encoding = null)
     {
         if (function_exists("mb_chr")) {
-            if (version_compare(PHP_VERSION, '8.0.0', '<') && $encoding === null) {
+            if (PHP_VERSION_ID < 80000 && $encoding === null) {
                 // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
                 $encoding = "UTF-8";
             }
-            $chr = mb_chr($c, $encoding);
-            return $chr;
+            return mb_chr($c, $encoding);
         }
 
         $chr = false;
