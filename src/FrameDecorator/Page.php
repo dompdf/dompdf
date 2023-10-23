@@ -7,6 +7,7 @@
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
+use Dompdf\Exception;
 use Dompdf\Helpers;
 use Dompdf\Frame;
 use Dompdf\Renderer;

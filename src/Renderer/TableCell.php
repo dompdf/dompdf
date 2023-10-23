@@ -6,6 +6,7 @@
  */
 namespace Dompdf\Renderer;
 
+use Dompdf\Exception;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\Table;
 
