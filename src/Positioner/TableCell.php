@@ -6,6 +6,7 @@
  */
 namespace Dompdf\Positioner;
 
+use Dompdf\Exception;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Table;
 

@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Exception;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
 use Dompdf\FrameDecorator\TableRowGroup as TableRowGroupFrameDecorator;
