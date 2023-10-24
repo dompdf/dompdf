@@ -261,6 +261,14 @@ class LineBox
     }
 
     /**
+     * @return bool
+     */
+    public function is_empty(): bool
+    {
+        return $this->_frames === [];
+    }
+
+    /**
      * @param AbstractFrameDecorator $frame
      */
     public function add_frame(Frame $frame): void
