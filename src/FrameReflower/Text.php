@@ -192,7 +192,7 @@ class Text extends AbstractFrameReflower
             $word_width = $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $letter_spacing);
             $used_width = $width + $word_width + $mbp_width;
 
-            if (Helpers::lengthGreater($used_width, $available_width)) {
+            if ($used_width > 0 && Helpers::lengthGreater($used_width, $available_width)) {
                 // If the previous split happened by soft hyphen, we have to
                 // append its width again because the last hyphen of a line
                 // won't be removed
