@@ -163,8 +163,12 @@ class Text extends AbstractFrameReflower
             return false;
         }
 
+        $force_first = $current_line->left == 0
+            && $current_line->right == 0
+            && $current_line->is_empty();
+
         if ($nowrap) {
-            return $current_line_width == 0 ? false : 0;
+            return $force_first ? false : 0;
         }
 
         // Split the text into words
@@ -215,7 +219,7 @@ class Text extends AbstractFrameReflower
 
         // The first word has overflowed. Force it onto the line, or as many
         // characters as fit if breaking words is allowed
-        if ($current_line_width == 0 && $width === 0.0) {
+        if ($force_first && $width === 0.0) {
             if ($sep === " ") {
                 $word .= $sep;
             }
@@ -276,7 +280,7 @@ class Text extends AbstractFrameReflower
         $text = $frame->get_text();
 
         // Trim leading white space if this is the first text on the line
-        if ($current_line->w === 0.0 && !$frame->is_pre()) {
+        if ($current_line->is_empty() && !$frame->is_pre()) {
             $text = ltrim($text, " ");
         }
 
