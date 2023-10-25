@@ -17,15 +17,15 @@ use Dompdf\FrameDecorator\Table;
  */
 class TableCell extends Block
 {
-
     /**
      * @param Frame $frame
      */
     function render(Frame $frame)
     {
         $style = $frame->get_style();
+        $node = $frame->get_node();
 
-        if (trim($frame->get_node()->nodeValue) === "" && $style->empty_cells === "hide") {
+        if (trim($node->nodeValue) === "" && $style->empty_cells === "hide") {
             return;
         }
 
@@ -62,10 +62,8 @@ class TableCell extends Block
             $this->_render_outline($frame, $border_box);
         }
 
-        $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
-        }
+        $this->addNamedDest($node);
+        $this->addHyperlink($node, $border_box);
 
         // $this->debugBlockLayout($frame, "red", false);
     }

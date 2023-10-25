@@ -23,6 +23,7 @@ class Image extends Block
     function render(Frame $frame)
     {
         $style = $frame->get_style();
+        $node = $frame->get_node();
         $border_box = $frame->get_border_box();
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
@@ -38,7 +39,7 @@ class Image extends Block
         $src = $frame->get_image_url();
         $alt = "";
 
-        if (Cache::is_broken($src) && ($alt = $frame->get_node()->getAttribute("alt")) !== "") {
+        if (Cache::is_broken($src) && ($alt = $node->getAttribute("alt")) !== "") {
             $font = $style->font_family;
             $size = $style->font_size;
             $word_spacing = $style->word_spacing;
@@ -78,11 +79,7 @@ class Image extends Block
             }
         }
 
-        $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
-        }
-
+        $this->addNamedDest($node);
         $this->debugBlockLayout($frame, "blue");
     }
 }
