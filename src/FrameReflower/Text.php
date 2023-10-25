@@ -8,7 +8,6 @@ namespace Dompdf\FrameReflower;
 
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
-use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
@@ -129,7 +128,7 @@ class Text extends AbstractFrameReflower
      * @param BlockFrameDecorator $block
      * @param bool                $nowrap
      *
-     * @return bool|int
+     * @return int|false
      */
     protected function line_break(string $text, BlockFrameDecorator $block, bool $nowrap = false)
     {
@@ -227,8 +226,9 @@ class Text extends AbstractFrameReflower
 
             if ($break_word) {
                 $s = "";
+                $len = mb_strlen($word);
 
-                for ($j = 0; $j < mb_strlen($word); $j++) {
+                for ($j = 0; $j < $len; $j++) {
                     $c = mb_substr($word, $j, 1);
                     $w = $fontMetrics->getTextWidth($s . $c, $font, $size, $word_spacing, $letter_spacing);
 
@@ -252,7 +252,7 @@ class Text extends AbstractFrameReflower
 
     /**
      * @param string $text
-     * @return bool|int
+     * @return int|false
      */
     protected function newline_break(string $text)
     {
