@@ -6,12 +6,13 @@
  */
 namespace Dompdf\Renderer;
 
+use DOMElement;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Css\Color;
 use Dompdf\Css\Style;
 use Dompdf\Dompdf;
-use Dompdf\Helpers;
 use Dompdf\Frame;
+use Dompdf\Helpers;
 use Dompdf\Image\Cache;
 
 /**
@@ -1152,6 +1153,49 @@ abstract class AbstractRenderer
     {
         if ($opacity >= 0.0 && $opacity <= 1.0) {
             $this->_canvas->set_opacity($opacity);
+        }
+    }
+
+    /**
+     * Add a named destination if the element has an ID or is an anchor element
+     * with `name` attribute.
+     *
+     * @param DOMElement $node
+     */
+    protected function addNamedDest(DOMElement $node): void
+    {
+        $id = $node->getAttribute("id");
+        if ($id !== "") {
+            $this->_canvas->add_named_dest($id);
+        }
+
+        if ($node->nodeName === "a") {
+            $name = $node->getAttribute("name");
+            if ($name !== "") {
+                $this->_canvas->add_named_dest($name);
+            }
+        }
+    }
+
+    /**
+     * Add a hyperlink if the element is an anchor element with `href`
+     * attribute.
+     *
+     * @param DOMElement $node
+     * @param float[]    $borderBox
+     */
+    protected function addHyperlink(DOMElement $node, array $borderBox): void
+    {
+        if ($node->nodeName === "a" && ($href = $node->getAttribute("href")) !== "") {
+            [$x, $y, $w, $h] = $borderBox;
+            $dompdf = $this->_dompdf;
+            $href = Helpers::build_url(
+                $dompdf->getProtocol(),
+                $dompdf->getBaseHost(),
+                $dompdf->getBasePath(),
+                $href
+            ) ?? $href;
+            $this->_canvas->add_link($href, $x, $y, $w, $h);
         }
     }
 

@@ -22,6 +22,7 @@ class TableRowGroup extends Block
     function render(Frame $frame)
     {
         $style = $frame->get_style();
+        $node = $frame->get_node();
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
@@ -30,11 +31,8 @@ class TableRowGroup extends Block
         $this->_render_border($frame, $border_box);
         $this->_render_outline($frame, $border_box);
 
-        $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
-        }
-
+        $this->addNamedDest($node);
+        $this->addHyperlink($node, $border_box);
         $this->debugBlockLayout($frame, "red");
     }
 }

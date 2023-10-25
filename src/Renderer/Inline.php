@@ -7,7 +7,6 @@
 namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
-use Dompdf\Helpers;
 
 /**
  * Renders inline frames
@@ -23,6 +22,7 @@ class Inline extends AbstractRenderer
         }
 
         $style = $frame->get_style();
+        $node = $frame->get_node();
         $dompdf = $this->_dompdf;
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
@@ -55,31 +55,8 @@ class Inline extends AbstractRenderer
         $this->_render_border($frame, $border_box);
         $this->_render_outline($frame, $border_box);
 
-        $node = $frame->get_node();
-        $id = $node->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
-        }
-
-        // Only two levels of links frames
-        $is_link_node = $node->nodeName === "a";
-        if ($is_link_node) {
-            if (($name = $node->getAttribute("name"))) {
-                $this->_canvas->add_named_dest($name);
-            }
-        }
-
-        if ($frame->get_parent() && $frame->get_parent()->get_node()->nodeName === "a") {
-            $link_node = $frame->get_parent()->get_node();
-        }
-
-        // Handle anchors & links
-        if ($is_link_node) {
-            if ($href = $node->getAttribute("href")) {
-                $href = Helpers::build_url($dompdf->getProtocol(), $dompdf->getBaseHost(), $dompdf->getBasePath(), $href) ?? $href;
-                $this->_canvas->add_link($href, $x, $y, $w, $h);
-            }
-        }
+        $this->addNamedDest($node);
+        $this->addHyperlink($node, $border_box);
     }
 
     protected function get_child_size(Frame $frame, bool $do_debug_layout_line): array
