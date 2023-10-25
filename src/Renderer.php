@@ -9,8 +9,10 @@ namespace Dompdf;
 use Dompdf\Renderer\AbstractRenderer;
 use Dompdf\Renderer\Block;
 use Dompdf\Renderer\Image;
+use Dompdf\Renderer\Inline;
 use Dompdf\Renderer\ListBullet;
 use Dompdf\Renderer\TableCell;
+use Dompdf\Renderer\TableRow;
 use Dompdf\Renderer\TableRowGroup;
 use Dompdf\Renderer\Text;
 
@@ -112,6 +114,10 @@ class Renderer extends AbstractRenderer
 
             case "table-cell":
                 $this->_render_frame("table-cell", $frame);
+                break;
+
+            case "table-row":
+                $this->_render_frame("table-row", $frame);
                 break;
 
             case "table-row-group":
@@ -252,7 +258,7 @@ class Renderer extends AbstractRenderer
                     break;
 
                 case "inline":
-                    $this->_renderers[$type] = new Renderer\Inline($this->_dompdf);
+                    $this->_renderers[$type] = new Inline($this->_dompdf);
                     break;
 
                 case "text":
@@ -265,6 +271,10 @@ class Renderer extends AbstractRenderer
 
                 case "table-cell":
                     $this->_renderers[$type] = new TableCell($this->_dompdf);
+                    break;
+
+                case "table-row":
+                    $this->_renderers[$type] = new TableRow($this->_dompdf);
                     break;
 
                 case "table-row-group":
