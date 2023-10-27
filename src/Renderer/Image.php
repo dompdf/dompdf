@@ -68,17 +68,6 @@ class Image extends Block
             }
         }
 
-        if ($msg = $frame->get_image_msg()) {
-            $parts = preg_split("/\s*\n\s*/", $msg);
-            $font = $style->font_family;
-            $height = 10;
-            $offset = $alt !== "" ? $h : 0;
-
-            foreach ($parts as $i => $part) {
-                $this->_canvas->text($x, $y + $offset + $i * $height, $part, $font, $height * 0.8, [0.5, 0.5, 0.5]);
-            }
-        }
-
         $this->addNamedDest($node);
         $this->debugBlockLayout($frame, "blue");
     }
