@@ -57,15 +57,118 @@ class DompdfTest extends TestCase
         $this->assertIsResource($dompdf->getHttpContext());
     }
 
-    public function testLoadHtml()
+    public static function loadHtmlProvider(): array
     {
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml('<html><body><strong>Hello</strong></body></html>');
-        $this->assertEquals('Hello', $dompdf->getDom()->textContent);
+        $textContent = "Some – Unicode";
+        $document = function (string $encoding, string $head = "") use ($textContent) {
+            $html = "<html><head>$head</head><body><strong>$textContent</strong></body></html>";
+            return $encoding !== "UTF-8"
+                ? mb_convert_encoding($html, $encoding, "UTF-8")
+                : $html;
+        };
+        $metaCharset = function (string $charset) {
+            return "<meta charset='$charset'>";
+        };
+        $metaContent1 = function (string $charset) {
+            return "<meta http-equiv='Content-Type' content='text/html; charset=$charset'>";
+        };
+        $metaContent2 = function (string $charset) {
+            return "<meta content='text/html; charset=$charset' http-equiv='Content-Type'>";
+        };
 
-        //Test when encoding parameter is used
-        $dompdf->loadHtml(mb_convert_encoding('<html><body><strong>Hello</strong></body></html>', 'windows-1252'), 'windows-1252');
-        $this->assertEquals('Hello', $dompdf->getDom()->textContent);
+        return [
+            // Without encoding parameter
+            "utf-8 no encoding" => [
+                $document("UTF-8"),
+                null,
+                $textContent
+            ],
+            "utf-8 meta no encoding" => [
+                $document("UTF-8", $metaCharset("UTF-8")),
+                null,
+                $textContent
+            ],
+            "windows-1252 meta no encoding 1" => [
+                $document("Windows-1252", $metaCharset("Windows-1252")),
+                null,
+                $textContent
+            ],
+            "windows-1252 meta no encoding 2" => [
+                $document("Windows-1252", $metaContent1("Windows-1252")),
+                null,
+                $textContent
+            ],
+            "windows-1252 meta no encoding 3" => [
+                $document("Windows-1252", $metaContent2("Windows-1252")),
+                null,
+                $textContent
+            ],
+
+            // With encoding parameter
+            "utf-8 with encoding" => [
+                $document("UTF-8"),
+                "UTF-8",
+                $textContent
+            ],
+            "windows-1252 with encoding" => [
+                $document("Windows-1252"),
+                "Windows-1252",
+                $textContent
+            ],
+            // Verify that passed encoding takes precedence
+            "windows-1252 meta mismatch with encoding" => [
+                $document("Windows-1252", $metaCharset("UTF-8")),
+                "Windows-1252",
+                $textContent
+            ],
+            "utf-16 meta with encoding" => [
+                $document("UTF-16", $metaCharset("UTF-16")),
+                "UTF-16",
+                $textContent
+            ],
+
+            // With BOM
+            "utf-8 bom" => [
+                "\xEF\xBB\xBF" . $document("UTF-8"),
+                null,
+                $textContent
+            ],
+            "utf-16be bom" => [
+                "\xFE\xFF" . $document("UTF-16BE", $metaCharset("UTF-16")),
+                null,
+                $textContent
+            ],
+            "utf-16le bom" => [
+                "\xFF\xFE" . $document("UTF-16LE", $metaCharset("UTF-16")),
+                null,
+                $textContent
+            ],
+            // Verify that BOM takes precedence
+            "utf-8 bom with encoding mismatch" => [
+                "\xEF\xBB\xBF" . $document("UTF-8"),
+                "Windows-1252",
+                $textContent
+            ],
+            "utf-16le bom with encoding mismatch" => [
+                "\xFF\xFE" . $document("UTF-16LE", $metaCharset("UTF-16")),
+                "UTF-8",
+                $textContent
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider loadHtmlProvider
+     */
+    public function testLoadHtml(
+        string $html,
+        ?string $encoding,
+        string $expectedText
+    ): void {
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html, $encoding);
+
+        $this->assertSame($expectedText, $dompdf->getDom()->textContent);
     }
 
     public function testRender()
