@@ -1277,11 +1277,11 @@ abstract class AbstractRenderer
     }
 
     /**
-     * @param float[] $box
-     * @param string  $color
-     * @param array   $style
+     * @param float[]      $box
+     * @param array|string $color
+     * @param array        $style
      */
-    protected function _debug_layout($box, $color = "red", $style = [])
+    protected function debugLayout(array $box, $color = "red", array $style = []): void
     {
         $this->_canvas->rectangle($box[0], $box[1], $box[2], $box[3], Color::parse($color), 0.1, $style);
     }

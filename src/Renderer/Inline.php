@@ -90,10 +90,10 @@ class Inline extends AbstractRenderer
             $h = max($h, $child_h);
 
             if ($do_debug_layout_line) {
-                $this->_debug_layout($child->get_border_box(), "blue");
+                $this->debugLayout($child->get_border_box(), "blue");
 
                 if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                    $this->_debug_layout($child->get_padding_box(), "blue", [0.5, 0.5]);
+                    $this->debugLayout($child->get_padding_box(), "blue", [0.5, 0.5]);
                 }
             }
         }
