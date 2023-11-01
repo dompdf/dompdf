@@ -37,7 +37,6 @@ class Image extends Block
         [$x, $y, $w, $h] = $content_box;
 
         $src = $frame->get_image_url();
-        $alt = "";
 
         if (Cache::is_broken($src) && ($alt = $node->getAttribute("alt")) !== "") {
             $font = $style->font_family;
