@@ -155,7 +155,7 @@ class Text extends AbstractRenderer
         if ($options->getDebugLayout() && $options->getDebugLayoutLines()) {
             $fontMetrics = $this->_dompdf->getFontMetrics();
             $textWidth = $fontMetrics->getTextWidth($text, $font, $size, $word_spacing, $letter_spacing);
-            $this->_debug_layout([$x, $y, $textWidth, $frame_font_size], "orange", [0.5, 0.5]);
+            $this->debugLayout([$x, $y, $textWidth, $frame_font_size], "orange", [0.5, 0.5]);
         }
     }
 }

@@ -47,7 +47,12 @@ class Block extends AbstractRenderer
         $this->debugBlockLayout($frame, "red", false);
     }
 
-    protected function debugBlockLayout(Frame $frame, ?string $color, bool $lines = false): void
+    /**
+     * @param Frame        $frame
+     * @param array|string $color
+     * @param bool         $lines
+     */
+    protected function debugBlockLayout(Frame $frame, $color, bool $lines = false): void
     {
         $options = $this->_dompdf->getOptions();
         $debugLayout = $options->getDebugLayout();
@@ -56,11 +61,11 @@ class Block extends AbstractRenderer
             return;
         }
 
-        if ($color && $options->getDebugLayoutBlocks()) {
-            $this->_debug_layout($frame->get_border_box(), $color);
+        if ($options->getDebugLayoutBlocks()) {
+            $this->debugLayout($frame->get_border_box(), $color);
 
             if ($options->getDebugLayoutPaddingBox()) {
-                $this->_debug_layout($frame->get_padding_box(), $color, [0.5, 0.5]);
+                $this->debugLayout($frame->get_padding_box(), $color, [0.5, 0.5]);
             }
         }
 
@@ -69,7 +74,7 @@ class Block extends AbstractRenderer
 
             foreach ($frame->get_line_boxes() as $line) {
                 $lw = $cw - $line->left - $line->right;
-                $this->_debug_layout([$cx + $line->left, $line->y, $lw, $line->h], "orange");
+                $this->debugLayout([$cx + $line->left, $line->y, $lw, $line->h], "orange");
             }
         }
     }
