@@ -1137,130 +1137,130 @@ class StyleTest extends TestCase
         $this->assertSame("anywhere", $style->overflow_wrap);
     }
 
-	public static function varValueProvider(): array {
-		return [
-			// Expected value, value to set, [fallback value]
-			'standard' => ["Helvetica", "Helvetica"],
-			// Test values with a comma.
-			'comma_value' => ["Helvetica, Courier", "Helvetica, Courier"],
-			// Ensure that the fallback is skipped when value is set.
-			'valid_value' => ["Helvetica", "Helvetica", "Courier"],
-			// Assert that the fallback property is used for empty values.
-			'empty_value' => ["Helvetica", null, "Helvetica"],
-			// Test fallback values with a comma.
-			'comma_fallback' => ["Helvetica, Courier", null, "Helvetica, Courier"],
-			// Assert that variable fallback properties work as well.
-			'var_fallback' => ["ZapfDingbats", null, "var(--fallback-property)"],
-			// Test custom property values.
-			'var_value1' => ["Symbol", "var(--cool-font)", "Helvetica"],
-			'var_value2' => ["Symbol", "var(--cool-font)", "var(--fallback-property)"],
-			// Test invalid property value.
-			'invalid_value' => ["Helvetica", "var(--undefined)", "Helvetica"],
-		];
-	}
+    public static function varValueProvider(): array {
+        return [
+            // Expected value, value to set, [fallback value]
+            'standard' => ["Helvetica", "Helvetica"],
+            // Test values with a comma.
+            'comma_value' => ["Helvetica, Courier", "Helvetica, Courier"],
+            // Ensure that the fallback is skipped when value is set.
+            'valid_value' => ["Helvetica", "Helvetica", "Courier"],
+            // Assert that the fallback property is used for empty values.
+            'empty_value' => ["Helvetica", null, "Helvetica"],
+            // Test fallback values with a comma.
+            'comma_fallback' => ["Helvetica, Courier", null, "Helvetica, Courier"],
+            // Assert that variable fallback properties work as well.
+            'var_fallback' => ["ZapfDingbats", null, "var(--fallback-property)"],
+            // Test custom property values.
+            'var_value1' => ["Symbol", "var(--cool-font)", "Helvetica"],
+            'var_value2' => ["Symbol", "var(--cool-font)", "var(--fallback-property)"],
+            // Test invalid property value.
+            'invalid_value' => ["Helvetica", "var(--undefined)", "Helvetica"],
+        ];
+    }
 
-	/**
-	 * @dataProvider varValueProvider
-	 */
-	public function testVar($expected, $set_value, $fallback_value = null): void
-	{
-		$dompdf = new Dompdf();
-		$sheet = new Stylesheet($dompdf);
-		$style = new Style($sheet);
+    /**
+     * @dataProvider varValueProvider
+     */
+    public function testVar($expected, $set_value, $fallback_value = null): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
 
-		// Set the variable value.
-		$style->set_prop("--font-family", $set_value);
-		// Construct the var() input.
-		$var = "--font-family" . ($fallback_value ? ", $fallback_value" : "");
-		// Set the var as value of a real property.
-		$style->set_prop("font_family", "var($var)");
-		// Set some other custom properties for various tests.
-		$style->set_prop("--cool-font", "Symbol");
-		$style->set_prop("--fallback-property", "ZapfDingbats");
-		// Assert the parsed result.
-		$this->assertStringContainsString($expected, $style->font_family);
-	}
+        // Set the variable value.
+        $style->set_prop("--font-family", $set_value);
+        // Construct the var() input.
+        $var = "--font-family" . ($fallback_value ? ", $fallback_value" : "");
+        // Set the var as value of a real property.
+        $style->set_prop("font_family", "var($var)");
+        // Set some other custom properties for various tests.
+        $style->set_prop("--cool-font", "Symbol");
+        $style->set_prop("--fallback-property", "ZapfDingbats");
+        // Assert the parsed result.
+        $this->assertStringContainsString($expected, $style->font_family);
+    }
 
-	public static function inheritedVarValueProvider(): array {
-		return [
-			'green' => [0, '#00ff00FF'],
-			'red' => [1, '#ff0000FF'],
-			'yellow' => [2, '#ffff00FF'],
-			'blue' => [3, '#0000ffFF'],
-			'purple' => [4, '#ff00ffFF'],
-		];
-	}
+    public static function inheritedVarValueProvider(): array {
+        return [
+            'green' => [0, '#00ff00FF'],
+            'red' => [1, '#ff0000FF'],
+            'yellow' => [2, '#ffff00FF'],
+            'blue' => [3, '#0000ffFF'],
+            'purple' => [4, '#ff00ffFF'],
+        ];
+    }
 
-	/**
-	 * @dataProvider inheritedVarValueProvider
-	 */
-	public function testInheritedVar($index, $hexval): void
-	{
-		$html = '<!DOCTYPE html>
+    /**
+     * @dataProvider inheritedVarValueProvider
+     */
+    public function testInheritedVar($index, $hexval): void
+    {
+        $html = '<!DOCTYPE html>
 <html>
-	<head>
-		<style>
-			#inner {
-				background-color: var(--custom-color);
-			}
-			#middle1 {
-				background-color: var(--custom-color, turquoise);
-			}
-			div {
-				height: 4em;
-				width: 4em;
-			}
-			#outer {
-				height: 16em;
-				width: 16em;
-				--custom-color: #00ff00ff;
-				background-color: #0000ffff;
-			}
-			#middle2 {
-				--custom-color: #ff0000ff;
-				background-color: #ffff00ff;
-				height: 9em;
-				width: 9em;
-			}
-			#other {
-				width: 16em;
-				height: 16em;
-				--color-property: #ffffffff;
-				--fallback-property: #ff00ffff;
-				background-color: var(--undefined-property, var(--fallback-property));
-				color: var(--color-property, var(--fallback-property);
-			}
-		</style>
-	</head>
-	<body>
-		<div id="outer">
-			<div id="middle1"></div>
-			<div id="middle2">
-				<div id="inner"></div>
-			</div>
-		</div>
-		<div id="other">TEXT</div>
-	</body>
+    <head>
+        <style>
+            #inner {
+                background-color: var(--custom-color);
+            }
+            #middle1 {
+                background-color: var(--custom-color, turquoise);
+            }
+            div {
+                height: 4em;
+                width: 4em;
+            }
+            #outer {
+                height: 16em;
+                width: 16em;
+                --custom-color: #00ff00ff;
+                background-color: #0000ffff;
+            }
+            #middle2 {
+                --custom-color: #ff0000ff;
+                background-color: #ffff00ff;
+                height: 9em;
+                width: 9em;
+            }
+            #other {
+                width: 16em;
+                height: 16em;
+                --color-property: #ffffffff;
+                --fallback-property: #ff00ffff;
+                background-color: var(--undefined-property, var(--fallback-property));
+                color: var(--color-property, var(--fallback-property);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="outer">
+            <div id="middle1"></div>
+            <div id="middle2">
+                <div id="inner"></div>
+            </div>
+        </div>
+        <div id="other">TEXT</div>
+    </body>
 </html>';
 
-		$styles = [];
+        $styles = [];
 
-		$dompdf = new Dompdf();
+        $dompdf = new Dompdf();
 
-		$dompdf->setCallbacks(['test' => [
-			'event' => 'end_frame',
-			'f' => function (Frame $frame) use (&$styles) {
+        $dompdf->setCallbacks(['test' => [
+            'event' => 'end_frame',
+            'f' => function (Frame $frame) use (&$styles) {
 
-				$node = $frame->get_node();
-				if ($node->nodeName === 'div') {
-					$styles[] = $frame->get_style()->background_color;
-				}
-			}
-		]]);
+                $node = $frame->get_node();
+                if ($node->nodeName === 'div') {
+                    $styles[] = $frame->get_style()->background_color;
+                }
+            }
+        ]]);
 
-		$dompdf->loadHtml($html);
-		$dompdf->render();
+        $dompdf->loadHtml($html);
+        $dompdf->render();
 
-		$this->assertEquals($hexval, $styles[$index]['hex']);
-	}
+        $this->assertEquals($hexval, $styles[$index]['hex']);
+    }
 }

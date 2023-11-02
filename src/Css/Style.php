@@ -1229,7 +1229,7 @@ class Style
     private function parse_var(string $variable) {
         // Split property name and an optional fallback value.
         [$custom_prop, $fallback] = explode(',', $variable, 2) + [null, null];
-		$fallback = trim($fallback);
+        $fallback = trim($fallback);
 
         // Recursively try to resolve the property value through all parents.
         $value = $this->_props[$custom_prop] ?: (
@@ -1238,19 +1238,19 @@ class Style
                 : null
         );
 
-		// If the resolved value is a variable, resolve that too.
-		if (is_string($value) && substr($value, 0, 4) === 'var(') {
-			$var = substr(trim($value), 4, -1);
-			$value = $this->parse_var($var);
-		}
+        // If the resolved value is a variable, resolve that too.
+        if (is_string($value) && substr($value, 0, 4) === 'var(') {
+            $var = substr(trim($value), 4, -1);
+            $value = $this->parse_var($var);
+        }
 
-		// If the resolved fallback is a variable, resolve that too.
-		if (is_string($fallback) && substr($fallback, 0, 4) === 'var(') {
-			$var = substr(trim($fallback), 4, -1);
-			$fallback = $this->parse_var($var);
-		}
+        // If the resolved fallback is a variable, resolve that too.
+        if (is_string($fallback) && substr($fallback, 0, 4) === 'var(') {
+            $var = substr(trim($fallback), 4, -1);
+            $fallback = $this->parse_var($var);
+        }
 
-		return $value ?: $fallback;
+        return $value ?: $fallback;
     }
 
     /**
@@ -1481,8 +1481,8 @@ class Style
 
             // Do not resolve CSS custom property values when setting them,
             // because the required custom property might not have been set yet,
-			// or need to be derived from a parent. Let the compute() method
-			// resolve this when the value is needed. Just set the property now.
+            // or need to be derived from a parent. Let the compute() method
+            // resolve this when the value is needed. Just set the property now.
             if (is_string($val) && substr($val, 0, 4) === 'var(') {
                 $this->_props[$prop] = $val;
                 return;
