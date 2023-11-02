@@ -70,15 +70,14 @@ class ListBullet extends AbstractRenderer
     }
 
     /**
-     * @param int $n
-     * @param string $type
+     * @param int      $n
+     * @param string   $type
      * @param int|null $pad
      *
      * @return string
      */
-    private function make_counter($n, $type, $pad = null)
+    private function make_counter(int $n, string $type, ?int $pad = null): string
     {
-        $n = intval($n);
         $text = "";
 
         switch ($type) {
@@ -190,12 +189,8 @@ class ListBullet extends AbstractRenderer
                         return;
                     }
 
-                    $index = $node->getAttribute("dompdf-counter");
+                    $index = (int) $node->getAttribute("dompdf-counter");
                     $text = $this->make_counter($index, $bullet_style, $pad);
-
-                    if (trim($text) === "") {
-                        return;
-                    }
 
                     $word_spacing = $style->word_spacing;
                     $letter_spacing = $style->letter_spacing;
