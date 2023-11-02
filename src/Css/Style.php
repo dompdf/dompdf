@@ -1390,7 +1390,7 @@ class Style
      */
     public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
-		// Store CSS custom property as-is and leave.
+        // Store CSS custom property as-is and leave.
         if (substr($prop, 0, 2) === "--") {
             $this->_props[$prop] = trim($val);
             return;
