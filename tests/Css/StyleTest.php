@@ -1263,6 +1263,7 @@ class StyleTest extends TestCase
         $dompdf->loadHtml($html);
         $dompdf->render();
 
+        // Todo: Ideally have the style associated with the div id or something. 
         $this->assertEquals($hexval, $styles[$index]['hex']);
     }
 }
