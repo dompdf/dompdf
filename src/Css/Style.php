@@ -1221,6 +1221,39 @@ class Style
     }
 
     /**
+     * Resolves the actual values for used CSS custom properties.
+     *
+     * This function receives the whole content of the var() function, which
+     * can also include a fallback value.
+     */
+    private function parse_var(string $variable) {
+        // Split property name and an optional fallback value.
+        [$custom_prop, $fallback] = explode(',', $variable, 2) + [null, null];
+		$fallback = trim($fallback);
+
+        // Recursively try to resolve the property value through all parents.
+        $value = $this->_props[$custom_prop] ?: (
+            isset($this->parent_style)
+                ? $this->parent_style->parse_var($variable)
+                : null
+        );
+
+		// If the resolved value is a variable, resolve that too.
+		if (is_string($value) && substr($value, 0, 4) === 'var(') {
+			$var = substr(trim($value), 4, -1);
+			$value = $this->parse_var($var);
+		}
+
+		// If the resolved fallback is a variable, resolve that too.
+		if (is_string($fallback) && substr($fallback, 0, 4) === 'var(') {
+			$var = substr(trim($fallback), 4, -1);
+			$fallback = $this->parse_var($var);
+		}
+
+		return $value ?: $fallback;
+    }
+
+    /**
      * Resolve inherited property values using the provided parent style or the
      * default values, in case no parent style exists.
      *
@@ -1357,6 +1390,12 @@ class Style
      */
     public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
+		// Store CSS custom property as-is and leave.
+        if (substr($prop, 0, 2) === "--") {
+            $this->_props[$prop] = trim($val);
+            return;
+        }
+
         $prop = str_replace("-", "_", $prop);
 
         // Legacy property aliases
@@ -1438,6 +1477,15 @@ class Style
             // https://www.w3.org/TR/css-cascade-3/#valdef-all-initial
             if ($val === "initial") {
                 $val = self::$_defaults[$prop];
+            }
+
+            // Do not resolve CSS custom property values when setting them,
+            // because the required custom property might not have been set yet,
+			// or need to be derived from a parent. Let the compute() method
+			// resolve this when the value is needed. Just set the property now.
+            if (is_string($val) && substr($val, 0, 4) === 'var(') {
+                $this->_props[$prop] = $val;
+                return;
             }
 
             $computed = $this->compute_prop($prop, $val);
@@ -1632,6 +1680,12 @@ class Style
         // Check for values which are already computed
         if (!\is_string($val)) {
             return $val;
+        }
+
+        // Resolve CSS custom property value.
+        if (substr($val, 0, 4) === 'var(') {
+            $var = substr(trim($val), 4, -1);
+            return $this->parse_var($var);
         }
 
         $method = "_compute_$prop";
