@@ -80,7 +80,6 @@ class ListBullet extends AbstractRenderer
     {
         $n = intval($n);
         $text = "";
-        $uppercase = false;
 
         switch ($type) {
             default:
