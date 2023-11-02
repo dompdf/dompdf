@@ -612,11 +612,11 @@ class Helpers
             return mb_ord($c, $encoding);
         }
 
-        if ($encoding != "UTF-8") {
-            $c = mb_convert_encoding($c, $encoding);
+        if ($encoding != "UTF-8" && $encoding !== null) {
+            $c = mb_convert_encoding($c, "UTF-8", $encoding);
         }
 
-        $length = mb_strlen($c, '8bit');
+        $length = mb_strlen(mb_substr($c, 0, 1), '8bit');
         $ord = false;
         $bytes = [];
         $numbytes = 1;
