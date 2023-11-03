@@ -213,13 +213,10 @@ class Text extends AbstractFrameDecorator
 
         $fontMetrics = $this->_dompdf->getFontMetrics();
         $style = $this->get_style();
-        $families = array_map(
-            function ($value) {
-                return trim($value, " '\"");
-            },
-            explode(",", $style->get_specified("font_family"))
-        );
-        $charMapping = $fontMetrics->mapTextToFonts($this->get_text(), $families, $fontMetrics->getType($style->font_weight . ' ' . $style->font_style), 1);
+        $families = $style->get_font_family_computed();
+        $subtype = $fontMetrics->getType($style->font_weight . ' ' . $style->font_style);
+        $charMapping = $fontMetrics->mapTextToFonts($this->get_text(), $families, $subtype, 1);
+
         if (isset($charMapping[0])) {
             if ($charMapping[0]["length"] !== 0) {
                 $this->split_text($charMapping[0]["length"]);

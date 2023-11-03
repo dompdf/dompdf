@@ -1718,68 +1718,56 @@ class Style
     }
 
     /**
+     * @return string[]
+     */
+    public function get_font_family_computed(): array
+    {
+        return $this->computed("font_family");
+    }
+
+    /**
      * Getter for the `font-family` CSS property.
      *
      * Uses the {@link FontMetrics} class to resolve the font family into an
      * actual font file.
      *
-     * @param string $computed
+     * @param string[] $computed
      * @return string
+     *
      * @throws Exception
      *
      * @link https://www.w3.org/TR/CSS21/fonts.html#propdef-font-family
      */
     protected function _get_font_family($computed): string
     {
-        //TODO: we should be using the calculated prop rather than perform the entire family parsing operation again
-
-        $fontMetrics = $this->getFontMetrics();
-        $DEBUGCSS = $this->_stylesheet->get_dompdf()->getOptions()->getDebugCss();
+        // TODO: It probably makes sense to perform the font selection outside
+        // the Style class completely. It is now done primarily in
+        // `FrameDecorator\Text::apply_font_mapping`
 
         // Select the appropriate font.  First determine the subtype, then check
         // the specified font-families for a candidate.
 
-        // Resolve font-weight
+        $fontMetrics = $this->getFontMetrics();
         $weight = $this->__get("font_weight");
-        $font_style = $this->__get("font_style");
-        $subtype = $fontMetrics->getType($weight . ' ' . $font_style);
+        $fontStyle = $this->__get("font_style");
+        $subtype = $fontMetrics->getType($weight . ' ' . $fontStyle);
 
-        $families = preg_split("/\s*,\s*/", $computed);
-
-        $font = null;
-        foreach ($families as $family) {
-            //remove leading and trailing string delimiters, e.g. on font names with spaces;
-            //remove leading and trailing whitespace
-            $family = trim($family, " \t\n\r\x0B\"'");
-            if ($DEBUGCSS) {
-                print '(' . $family . ')';
-            }
+        foreach ($computed as $family) {
             $font = $fontMetrics->getFont($family, $subtype);
 
-            if ($font) {
-                if ($DEBUGCSS) {
-                    print "<pre>[get_font_family:";
-                    print '(' . $computed . '.' . $font_style . '.' . $weight . '.' . $subtype . ')';
-                    print '(' . $font . ")get_font_family]\n</pre>";
-                }
+            if ($font !== null) {
                 return $font;
             }
         }
 
-        $family = null;
-        if ($DEBUGCSS) {
-            print '(default)';
-        }
-        $font = $fontMetrics->getFont($family, $subtype);
+        $font = $fontMetrics->getFont(null, $subtype);
 
-        if ($font) {
-            if ($DEBUGCSS) {
-                print '(' . $font . ")get_font_family]\n</pre>";
-            }
+        if ($font !== null) {
             return $font;
         }
 
-        throw new Exception("Unable to find a suitable font replacement for: '" . $computed . "'");
+        $specified = implode(", ", $computed);
+        throw new Exception("Unable to find a suitable font replacement for: '$specified'");
     }
 
     /**
@@ -2777,6 +2765,19 @@ class Style
         }
 
         return $props;
+    }
+
+    /**
+     * @link https://www.w3.org/TR/CSS21/fonts.html#propdef-font-family
+     */
+    protected function _compute_font_family(string $val)
+    {
+        return array_map(
+            function ($name) {
+                return trim($name, " '\"");
+            },
+            preg_split("/\s*,\s*/", $val)
+        );
     }
 
     /**
