@@ -367,7 +367,7 @@ class FontMetrics
             }
             $mapped_font = null;
             foreach ($fonts as $font) {
-                if ($this->canvas->font_supports_text($font, $char)) {
+                if ($this->canvas->font_supports_char($font, $char)) {
                     $mapped_font = $font;
                     break;
                 }

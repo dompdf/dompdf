@@ -798,32 +798,16 @@ class GD implements Canvas
         return $unicodeCharMapTables[$font] = $char_map;
     }
 
-    public function font_supports_text(string $font, string $text): bool
+    public function font_supports_char(string $font, string $char): bool
     {
-        if ($text === "") {
+        if ($char === "") {
             return true;
         }
 
-        if (function_exists("mb_str_split")) {
-            $chars = array_unique(mb_str_split($text, 1, "UTF-8"), SORT_STRING);
-        } else {
-            $chars = array_unique(preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY), SORT_STRING);
-        }
-        $char_codes = array_map(
-            function($char) {
-                return Helpers::uniord($char, "UTF-8");
-            },
-            $chars
-        );
-
+        $char_code = Helpers::uniord($char, "UTF-8");
         $char_map = $this->getCharMap($font);
 
-        foreach ($char_codes as $char_code) {
-            if (!array_key_exists($char_code, $char_map)) {
-                return false;
-            }
-        }
-        return true;
+        return \array_key_exists($char_code, $char_map);
     }
 
     public function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)
