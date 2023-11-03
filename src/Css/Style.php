@@ -1232,7 +1232,7 @@ class Style
         $fallback = trim($fallback);
 
         // Recursively try to resolve the property value through all parents.
-        $value = $this->_props[$custom_prop] ?: (
+        $value = $this->_props[$custom_prop] ?? (
             isset($this->parent_style)
                 ? $this->parent_style->parse_var($variable)
                 : null
