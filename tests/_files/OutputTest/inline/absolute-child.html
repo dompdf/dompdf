@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The absolutely positioned bold text should not affect the
+    dimensions of the red boxes. White-space collapse in interaction with inline
+    elements and rendering of empty inline elements is not handled correctly
+    currently">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 16pt;
+}
+
+p {
+    margin: 0 0 16pt;
+}
+
+span {
+    position: relative;
+    outline: solid red;
+}
+
+b {
+    position: absolute;
+    top: 16pt;
+    width: 200pt;
+}
+</style>
+</head>
+
+<body>
+    <p>Lorem <span>ipsum dolor sit amet</span>.</p>
+    <p>Lorem <span>ipsum <b>dolor sit</b> amet</span>.</p>
+    <p>Lorem <span><b>ipsum dolor sit</b> amet</span>.</p>
+    <p>Lorem <span><b>ipsum dolor sit amet</b></span>.</p>
+</body>
+
+</html>
