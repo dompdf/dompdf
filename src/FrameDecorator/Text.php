@@ -153,6 +153,7 @@ class Text extends AbstractFrameDecorator
      * text is added as a sibling frame following this one and is returned.
      *
      * @param int $offset
+     *
      * @return Text|null
      */
     function split_text(int $offset): ?self
@@ -168,11 +169,23 @@ class Text extends AbstractFrameDecorator
 
         /** @var Text */
         $deco = $this->copy($split);
+        $style = $this->_frame->get_style();
+        $split_style = $deco->get_style();
 
         if ($this->mapped_font !== null) {
-            $deco->get_style()->set_used("font_family", $this->mapped_font);
+            $split_style->set_used("font_family", $this->mapped_font);
             $deco->mapped_font = $this->mapped_font;
         }
+
+        // Clear decoration widths at the split point. They might have been
+        // copied from the parent frame during inline reflow
+        $style->margin_right = 0.0;
+        $style->padding_right = 0.0;
+        $style->border_right_width = 0.0;
+
+        $split_style->margin_left = 0.0;
+        $split_style->padding_left = 0.0;
+        $split_style->border_left_width = 0.0;
 
         $p = $this->get_parent();
         $p->insert_child_after($deco, $this, false);
