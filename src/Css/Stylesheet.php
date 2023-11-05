@@ -1563,18 +1563,21 @@ EOL;
     {
         $descriptors = $this->_parse_properties($str);
 
-        preg_match_all("/" . self::PATTERN_CSS_LOCAL_FN  . "|" . self::PATTERN_CSS_URL_FN . "\s*(?<FORMAT>format\s*\((?<FORMAT_VALUE>collection|embedded-opentype|opentype|svg|truetype|woff|woff2|" . self::PATTERN_CSS_STRING . ")\))?/i", $descriptors->src, $sources, PREG_SET_ORDER);
+        preg_match_all("/" . self::PATTERN_CSS_LOCAL_FN . "|" . self::PATTERN_CSS_URL_FN . "\s*(?<FORMAT>format\s*\((?<FORMAT_VALUE>collection|embedded-opentype|opentype|svg|truetype|woff|woff2|" . self::PATTERN_CSS_STRING . ")\))?/i", $descriptors->src, $sources, PREG_SET_ORDER);
 
         $valid_sources = [];
         foreach ($sources as $source) {
-            if (isset($source["CSS_URL_FN_VALUE"]) && in_array($source["CSS_STRING_VALUE"], ["", "truetype"])) {
-                $url = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $source["CSS_URL_FN_VALUE"]);
-                if (empty($url)) {
+            $url_value = $source["CSS_URL_FN_VALUE"] ?? "";
+            $format = strtolower($source["CSS_STRING_VALUE"] ?? $source["FORMAT_VALUE"] ?? "truetype");
+
+            if ($url_value !== "" && $format === "truetype") {
+                $url = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $url_value);
+                if ($url === null) {
                     continue;
                 }
                 $source_info = [
-                    "uri" => $source["CSS_URL_FN_VALUE"],
-                    "format" => strtolower(isset($source["CSS_STRING_VALUE"]) ? $source["CSS_STRING_VALUE"] : $source["FORMAT_VALUE"]),
+                    "uri" => $url_value,
+                    "format" => $format,
                     "path" => $url,
                 ];
                 $valid_sources[] = $source_info;
