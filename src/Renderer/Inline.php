@@ -51,7 +51,6 @@ class Inline extends AbstractRenderer
         // to work around the vertical position being slightly off in general
         $x += $margin_left;
         $y -= $style->border_top_width + $pt - ($h * 0.1);
-        $w += $style->border_left_width + $style->border_right_width;
         $h += $style->border_top_width + $pt + $style->border_bottom_width + $pb;
 
         $border_box = [$x, $y, $w, $h];
@@ -99,7 +98,7 @@ class Inline extends AbstractRenderer
             $style = $child->get_style();
             $auto_width = $style->width === "auto";
             $auto_height = $style->height === "auto";
-            [, , $child_w, $child_h] = $child->get_padding_box();
+            [, , $child_w, $child_h] = $child->get_border_box();
 
             if ($auto_width || $auto_height) {
                 [$child_w2, $child_h2] = $this->get_child_size($child);
