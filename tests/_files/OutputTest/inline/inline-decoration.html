@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The inline decoration should be sliced between line breaks,
+    except for the outline">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 3;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+span {
+    margin: 20pt;
+    padding: 4pt 20pt;
+    outline: 2pt solid red;
+    border: 4pt solid rgb(255, 0, 0, 0.25);
+    border-radius: 14pt;
+    background-color: rgb(255, 0, 0, 0.1);
+}
+</style>
+</head>
+
+<body>
+    Lorem ipsum dolor <span>sit amet, consectetur adipisici elit, sed eiusmod tempor
+    incidunt ut labore et dolore magna aliqua.</span> Ut enim ad minim veniam.
+</body>
+
+</html>
