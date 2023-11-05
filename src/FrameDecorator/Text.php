@@ -152,11 +152,12 @@ class Text extends AbstractFrameDecorator
      * Split the text in this frame at the offset specified.  The remaining
      * text is added as a sibling frame following this one and is returned.
      *
-     * @param int $offset
+     * @param int  $offset
+     * @param bool $split_parent Whether to split parent inline frames.
      *
      * @return Text|null
      */
-    function split_text(int $offset): ?self
+    function split_text(int $offset, bool $split_parent = true): ?self
     {
         if ($offset === 0) {
             return null;
@@ -190,7 +191,7 @@ class Text extends AbstractFrameDecorator
         $p = $this->get_parent();
         $p->insert_child_after($deco, $this, false);
 
-        if ($p instanceof Inline) {
+        if ($split_parent && $p instanceof Inline) {
             $p->split($deco);
         }
 
@@ -232,7 +233,7 @@ class Text extends AbstractFrameDecorator
 
         if (isset($charMapping[0])) {
             if ($charMapping[0]["length"] !== 0) {
-                $this->split_text($charMapping[0]["length"]);
+                $this->split_text($charMapping[0]["length"], false);
             }
             $mapped_font = $charMapping[0]["font"];
             if ($mapped_font !== null) {

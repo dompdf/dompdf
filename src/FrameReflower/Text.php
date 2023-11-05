@@ -354,7 +354,7 @@ class Text extends AbstractFrameReflower
         if ($split !== false && $split < mb_strlen($text)) {
             // Split the line
             $frame->set_text($text);
-            $frame->split_text($split);
+            $frame->split_text($split, true);
             $add_line = true;
 
             // Remove inner soft hyphens
