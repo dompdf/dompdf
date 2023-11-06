@@ -329,7 +329,7 @@ class Style
      * The order of the sub-properties is relevant for the fallback getter,
      * which is used in case no specific getter method is defined.
      *
-     * @var array
+     * @var array<string, string[]>
      */
     protected static $_props_shorthand = [
         "background" => [
@@ -442,7 +442,7 @@ class Style
     /**
      * Maps legacy property names to actual property names.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected static $_props_alias = [
         "word_wrap"                           => "overflow_wrap",
@@ -457,7 +457,7 @@ class Style
      *
      * @link https://www.w3.org/TR/CSS21/propidx.html
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected static $_defaults = null;
 
@@ -471,73 +471,8 @@ class Style
     protected static $_inherited = null;
 
     /**
-     * Caches method_exists result
-     *
-     * @var array<bool>
+     * @var array<string, string[]>
      */
-    protected static $_methods_cache = [];
-
-    /**
-     * The stylesheet this style belongs to
-     *
-     * @var Stylesheet
-     */
-    protected $_stylesheet;
-
-    /**
-     * Media queries attached to the style
-     *
-     * This is a two-dimensional array where the first dimension represents
-     * the media query grouping (logic-or) and the second dimension the
-     * media queries within the grouping.
-     *
-     * The structure of the actual query element is:
-     * - media query feature
-     * - media query value or condition
-     * - media query operator (e.g., not)
-     *
-     * @var array
-     */
-    protected $_media_queries;
-
-    /**
-     * Properties set by an `!important` declaration.
-     *
-     * @var array
-     */
-    protected $_important_props = [];
-
-    /**
-     * Specified (or declared) values of the CSS properties.
-     *
-     * https://www.w3.org/TR/css-cascade-3/#value-stages
-     *
-     * @var array
-     */
-    protected $_props = [];
-
-    /**
-     * Computed values of the CSS properties.
-     *
-     * @var array
-     */
-    protected $_props_computed = [];
-
-    /**
-     * Used values of the CSS properties.
-     *
-     * @var array
-     */
-    protected $_props_used = [];
-
-    /**
-     * Marks properties with non-final used values that should be cleared on
-     * style reset.
-     *
-     * @var array
-     */
-    protected $non_final_used = [];
-
     protected static $_dependency_map = [
         "border_top_style" => [
             "border_top_width"
@@ -600,9 +535,77 @@ class Style
      * Lookup table for dependent properties. Initially computed from the
      * dependency map.
      *
-     * @var array
+     * @var array<string, true>
      */
     protected static $_dependent_props = [];
+
+    /**
+     * Caches method_exists result
+     *
+     * @var array<string, bool>
+     */
+    protected static $_methods_cache = [];
+
+    /**
+     * The stylesheet this style belongs to
+     *
+     * @var Stylesheet
+     */
+    protected $_stylesheet;
+
+    /**
+     * Media queries attached to the style
+     *
+     * This is a two-dimensional array where the first dimension represents
+     * the media query grouping (logic-or) and the second dimension the
+     * media queries within the grouping.
+     *
+     * The structure of the actual query element is:
+     * - media query feature
+     * - media query value or condition
+     * - media query operator (e.g., not)
+     *
+     * @var array
+     */
+    protected $_media_queries;
+
+    /**
+     * Properties set by an `!important` declaration.
+     *
+     * @var array<string, true>
+     */
+    protected $_important_props = [];
+
+    /**
+     * Specified (or declared) values of the CSS properties.
+     *
+     * https://www.w3.org/TR/css-cascade-3/#value-stages
+     *
+     * @var array<string, mixed>
+     */
+    protected $_props = [];
+
+    /**
+     * Computed values of the CSS properties.
+     *
+     * @var array<string, mixed>
+     */
+    protected $_props_computed = [];
+
+    /**
+     * Used values of the CSS properties.
+     *
+     * @var array<string, mixed>
+     */
+    protected $_props_used = [];
+
+    /**
+     * Marks properties with non-final used values that should be cleared on
+     * style reset.
+     *
+     * @var array<string, true>
+     */
+    protected $non_final_used = [];
 
     /**
      * Style of the parent element in document tree.
