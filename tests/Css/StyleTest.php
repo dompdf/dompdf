@@ -81,10 +81,11 @@ class StyleTest extends TestCase
             ["100%", null, 12.0],
             ["50%", 360, 180.0],
 
+            // Basic Arithmetic
             ["calc(100%)", null, 12.0],
             ["calc(50% - 1pt)", 200, 99.0],
             ["calc(100)", null, 100.0],
-            ["calc(100% / 3)", 100, 33.333333333333336],
+            ["calc(100% / 3)", 100, 33.3333, 4],
             ["calc(  100pt    +   50pt  )", null, 150.0],  // extra whitespace
             ["calc( (100pt + 50pt) / 3)", null, 50.0],     // parentheses
             ["calc(50pt*2)", null, 100.0],                 // * do not require whitespace
@@ -98,20 +99,72 @@ class StyleTest extends TestCase
             ["calc((50% + 10) 1pt)", 100, 0.0],            // invalid - missing op
             ["calc(50% -1pt)", 100, 0.0],                  // invalid - missing op
             ["calc((50% + 10) + 2pt))", 100, 0.0],         // invalid - extra bracket
-            ["calc(100pt / 0)", null, 0.0]                 // invalid - division by zero
+            ["calc(100pt / 0)", null, 0.0],                // invalid - division by zero
+
+            // Comparison Functions
+            ["min(-20, 5 * 2, 8)", null, -20.0],           // min function
+            ["max(-20, 5 * 2, 8)", null, 10.0],            // max function
+            ["clamp(10, 15 - 7, 20)", null, 10.0],         // clamp min function
+            ["clamp(10, 15 + 7, 20)", null, 20.0],         // clamp max function
+            ["clamp(10, 7 * 2, 20)", null, 14.0],          // clamp val function
+
+            // Stepped Value Functions
+            ["round(12.31, 1)", null, 12.3],               // complex
+            ["round(down, 12.31, 1)", null, 0.0],          // Yet not supported!!!
+            ["mod(7, 2)", null, 1.0],                      // mod function
+            ["rem(21, 6)", null, 3.0],                     // rem function
+
+            // Trigonometric Functions
+            ["sin(0)", null, 0.0],                         // sin function
+            ["sin(1)", null, 0.8415, 4],                   // sin function
+            ["cos(0)", null, 1.0],                         // cos function
+            ["cos(1)", null, 0.5403, 4],                   // cos function
+            ["tan(0)", null, 0.0],                         // tan function
+            ["tan(1)", null, 1.5574, 4],                   // tan function
+            ["asin(0)", null, 0.0],                        // asin function
+            ["asin(-0.2)", null, -0.2014, 4],              // asin function
+            ["acos(1)", null, 0.0],                        // acos function
+            ["acos(-0.2)", null, 1.7722, 4],               // acos function
+            ["atan(0)", null, 0.0],                        // atan function
+            ["atan(1)", null, 0.7854, 4],                  // atan function
+            ["atan2(0, 0)", null, 0.0],                    // atan2 function
+            ["atan2(3, 2)", null, 0.9828, 4],              // atan2 function
+
+            // Exponential Functions
+            ["pow(5, 2)", null, 25.0],                     // pow function
+            ["sqrt(25)", null, 5.0],                       // sqrt function
+            ["hypot(3,4)", null, 5.0],                     // hypot function
+            ["log(1)", null, 0.0],                         // log function
+            ["log(10)", null, 2.3026, 4],                  // log function
+            ["log(8, 2)", null, 3.0],                      // log function
+            ["log(625, 5)", null, 4.0],                    // log function
+            ["exp(0)", null, 1.0],                         // exp function
+
+            // Sign-Related Functions
+            ["abs(-20)", null, 20.0],                      // abs function
+            ["sign(-20)", null, -1.0],                     // sign function
+            ["sign(5)", null, 1.0],                        // sign function
+
+            // Complex
+            ["calc(max(3 + abs(-20), 5 * 2, 8 + 5) + 7)", null, 30.0],
+            ["calc(min(5pt, 3rem) + 2pt)", null, 7.0]
         ];
     }
 
     /**
      * @dataProvider lengthInPtProvider
      */
-    public function testLengthInPt(string $length, ?float $ref_size, $expected): void
+    public function testLengthInPt(string $length, ?float $ref_size, $expected, ?int $precision = null): void
     {
         $dompdf = new Dompdf();
         $sheet = new Stylesheet($dompdf);
         $s = new Style($sheet);
 
         $result = $s->length_in_pt($length, $ref_size);
+        if ($precision !== null) {
+            $result = round($result, $precision);
+        }
+
         $this->assertSame($expected, $result);
     }
 

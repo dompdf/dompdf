@@ -188,6 +188,39 @@ class Style
         "'(?:[^']|\\\\['])*(?<!\\\\)'";   // String ''
 
     /**
+     * https://www.w3.org/TR/css-values-4/#calc-syntax
+     */
+    protected const CSS_MATH_FUNCTIONS = [
+        // Basic Arithmetic
+        "calc",
+        // Comparison Functions
+        "min",
+        "max",
+        "clamp",
+        // Stepped Value Functions
+        "round",                          // Not fully supported yet!!!
+        "mod",
+        "rem",
+        // Trigonometric Functions
+        "sin",
+        "cos",
+        "tan",
+        "asin",
+        "acos",
+        "atan",
+        "atan2",
+        // Exponential Functions
+        "pow",
+        "sqrt",
+        "hypot",
+        "log",
+        "exp",
+        // Sign-Related Functions
+        "abs",
+        "sign"
+    ];
+
+    /**
      * https://www.w3.org/TR/css-values-3/#custom-idents
      */
     protected const CUSTOM_IDENT_FORBIDDEN = ["inherit", "initial", "unset", "default"];
@@ -1025,11 +1058,6 @@ class Style
 
         $font_size = $font_size ?? $this->__get("font_size");
 
-        $calcPattern = "/^calc\((.*)?\)$/i";
-        if (preg_match($calcPattern, $l, $calcMatches)) {
-            return $this->evaluate_func_calc($this->parse_calc($calcMatches[1]), $ref_size, $font_size);
-        }
-
         $key = "$l/$ref_size/$font_size";
 
         if (\array_key_exists($key, $cache)) {
@@ -1040,6 +1068,12 @@ class Style
         $pattern = "/^($number)(.*)?$/";
 
         if (!preg_match($pattern, $l, $matches)) {
+            $ident = self::CSS_IDENTIFIER;
+            $pattern = "/^($ident)\(.*\)$/i";
+            if (preg_match($pattern, $l)) {
+                $value = $this->evaluate_func($this->parse_func($l), $ref_size, $font_size);
+                return $cache[$key] = $value;
+            }
             return null;
         }
 
@@ -1119,20 +1153,20 @@ class Style
      * @param string $expr infix expression
      * @return array
      */
-    private function parse_calc(string $expr): array
+    private function parse_func(string $expr): array
     {
         if (substr_count($expr, '(') !== substr_count($expr, ')')) {
             return [];
         }
 
-        $expr = str_replace(['(', ')', '*', '/'], [' ( ', ' ) ', ' * ', ' / '], $expr);
+        $expr = str_replace(['(', ')', '*', '/', ','], [' ( ', ' ) ', ' * ', ' / ', ' , '], $expr);
         $expr = trim(preg_replace('/\s+/', ' ', $expr));
 
         if ($expr === '') {
             return [];
         }
 
-        $precedence = ['*' => 3, '/' => 3, '+' => 2, '-' => 2];
+        $precedence = ['*' => 3, '/' => 3, '+' => 2, '-' => 2, ',' => 1];
 
         $opStack = [];
         $queue = [];
@@ -1142,12 +1176,17 @@ class Style
         foreach ($parts as $part) {
             if ($part === '(') {
                 $opStack[] = $part;
+            } elseif (in_array(strtolower($part), self::CSS_MATH_FUNCTIONS)) {
+                $opStack[] = strtolower($part);
             } elseif ($part === ')') {
-                while (\count($opStack) > 0 && end($opStack) !== '(') {
+                while (\count($opStack) > 0 && end($opStack) !== '(' && !in_array(end($opStack), self::CSS_MATH_FUNCTIONS)) {
                     $queue[] = array_pop($opStack);
                 }
                 if (end($opStack) === '(') {
                     array_pop($opStack);
+                }
+                if (in_array(end($opStack), self::CSS_MATH_FUNCTIONS)) {
+                    $queue[] = array_pop($opStack);
                 }
             } elseif (\array_key_exists($part, $precedence)) {
                 while (\count($opStack) > 0 && end($opStack) !== '(' && $precedence[end($opStack)] >= $precedence[$part]) {
@@ -1173,18 +1212,103 @@ class Style
      * @param float|null $font_size
      * @return float|null
      */
-    private function evaluate_func_calc(array $rpn, float $ref_size = 0, ?float $font_size = null): ?float
+    private function evaluate_func(array $rpn, float $ref_size = 0, ?float $font_size = null): ?float
     {
         if (\count($rpn) === 0) {
             return null;
         }
 
-        $ops = ['*', '/', '+', '-'];
+        $ops = ['*', '/', '+', '-', ','];
 
         $stack = [];
 
         foreach ($rpn as $part) {
-            if (\in_array($part, $ops, true)) {
+            if (\in_array($part, self::CSS_MATH_FUNCTIONS, true)) {
+                $argv = array_pop($stack);
+                if (!is_array($argv)) {
+                    $argv = [$argv];
+                }
+                $argc = \count($argv);
+                switch ($part) {
+                    case 'abs':
+                    case 'acos':
+                    case 'asin':
+                    case 'atan':
+                    case 'cos':
+                    case 'exp':
+                    case 'sin':
+                    case 'sqrt':
+                    case 'tan':
+                        if ($argc !== 1) {
+                            return null;
+                        }
+                        $stack[] = call_user_func_array($part, $argv);
+                        break;
+                    case 'atan2':
+                    case 'hypot':
+                    case 'pow':
+                        if ($argc !== 2) {
+                            return null;
+                        }
+                        $stack[] = call_user_func_array($part, $argv);
+                        break;
+                    case 'log':
+                        if ($argc === 1) {
+                            $stack[] = log($argv[0]);
+                        } elseif ($argc === 2) {
+                            $stack[] = log($argv[0], $argv[1]);
+                        } else {
+                            return null;
+                        }
+                        break;
+                    case 'max':
+                        $stack[] = max($argv);
+                        break;
+                    case 'min':
+                        $stack[] = min($argv);
+                        break;
+                    case 'mod':
+                        if ($argc !== 2) {
+                            return null;
+                        }
+                        $stack[] = $argv[0] % $argv[1];
+                        break;
+                    case 'rem':
+                        if ($argc !== 2) {
+                            return null;
+                        }
+                        $stack[] = fmod($argv[0], $argv[1]);
+                        break;
+                    case 'round':
+                        if ($argc === 2) {
+                            $stack[] = round($argv[0], $argv[1], PHP_ROUND_HALF_UP);
+                        // <rounding-strategy> not supported yet
+                        // } elseif ($argc === 3) {
+                        //    // 'nearest', 'up', 'down', 'to-zero'
+                        //    return null;
+                        } else {
+                            return null;
+                        }
+                        break;
+                    case 'calc':
+                        $stack[] = $argv[0];
+                        break;
+                    case 'clamp':
+                        if ($argc !== 3) {
+                            return null;
+                        }
+                        $stack[] = max($argv[0], min($argv[1], $argv[2]));
+                        break;
+                    case 'sign':
+                        if ($argc !== 1) {
+                            return null;
+                        }
+                        $stack[] = $argv[0] == 0 ? 0.0 : ($argv[0] / abs($argv[0]));
+                        break;
+                    default:
+                        return null;
+                }
+            } elseif (\in_array($part, $ops, true)) {
                 $rightValue = array_pop($stack);
                 $leftValue = array_pop($stack);
                 switch ($part) {
@@ -1202,6 +1326,14 @@ class Style
                         break;
                     case '-':
                         $stack[] = $leftValue - $rightValue;
+                        break;
+                    case ',':
+                        if (is_array($leftValue)) {
+                            $leftValue[] = $rightValue;
+                            $stack[] = $leftValue;
+                        } else {
+                            $stack[] = [$leftValue, $rightValue];
+                        }
                         break;
                 }
             } else {
