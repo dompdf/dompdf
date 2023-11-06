@@ -19,6 +19,53 @@ use Dompdf\Tests\TestCase;
 
 class StyleTest extends TestCase
 {
+    public function testInitial(): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("width", "100pt");
+        $this->assertSame(100.0, $style->width);
+
+        $style->set_prop("width", "initial");
+        $this->assertSame("auto", $style->width);
+    }
+
+    public function testUnsetNonInherited(): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $s1 = new Style($sheet);
+        $s2 = new Style($sheet);
+
+        $s1->set_prop("width", "100pt");
+        $s2->set_prop("width", "200pt");
+        $this->assertSame(100.0, $s1->width);
+        $this->assertSame(200.0, $s2->width);
+
+        $s1->set_prop("width", "unset");
+        $s1->inherit($s2);
+        $this->assertSame("auto", $s1->width);
+    }
+
+    public function testUnsetInherited(): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $s1 = new Style($sheet);
+        $s2 = new Style($sheet);
+
+        $s1->set_prop("orphans", "4");
+        $s2->set_prop("orphans", "6");
+        $this->assertSame(4, $s1->orphans);
+        $this->assertSame(6, $s2->orphans);
+
+        $s1->set_prop("orphans", "unset");
+        $s1->inherit($s2);
+        $this->assertSame(6, $s1->orphans);
+    }
+
     public static function lengthInPtProvider(): array
     {
         return [
