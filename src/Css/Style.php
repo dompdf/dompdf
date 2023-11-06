@@ -462,13 +462,59 @@ class Style
     protected static $_defaults = null;
 
     /**
-     * List of inherited properties
+     * Lookup table for properties that inherit by default.
      *
      * @link https://www.w3.org/TR/CSS21/propidx.html
      *
-     * @var array
+     * @var array<string, true>
      */
-    protected static $_inherited = null;
+    protected static $_inherited = [
+        "azimuth" => true,
+        "background_image_resolution" => true,
+        "border_collapse" => true,
+        "border_spacing" => true,
+        "caption_side" => true,
+        "color" => true,
+        "cursor" => true,
+        "direction" => true,
+        "elevation" => true,
+        "empty_cells" => true,
+        "font_family" => true,
+        "font_size" => true,
+        "font_style" => true,
+        "font_variant" => true,
+        "font_weight" => true,
+        "font" => true,
+        "image_resolution" => true,
+        "letter_spacing" => true,
+        "line_height" => true,
+        "list_style_image" => true,
+        "list_style_position" => true,
+        "list_style_type" => true,
+        "list_style" => true,
+        "orphans" => true,
+        "overflow_wrap" => true,
+        "pitch_range" => true,
+        "pitch" => true,
+        "quotes" => true,
+        "richness" => true,
+        "speak_header" => true,
+        "speak_numeral" => true,
+        "speak_punctuation" => true,
+        "speak" => true,
+        "speech_rate" => true,
+        "stress" => true,
+        "text_align" => true,
+        "text_indent" => true,
+        "text_transform" => true,
+        "visibility" => true,
+        "voice_family" => true,
+        "volume" => true,
+        "white_space" => true,
+        "widows" => true,
+        "word_break" => true,
+        "word_spacing" => true
+    ];
 
     /**
      * @var array<string, string[]>
@@ -810,55 +856,6 @@ class Style
 
             // vendor-prefixed properties
             $d["_dompdf_keep"] = "";
-
-            // Properties that inherit by default
-            self::$_inherited = [
-                "azimuth",
-                "background_image_resolution",
-                "border_collapse",
-                "border_spacing",
-                "caption_side",
-                "color",
-                "cursor",
-                "direction",
-                "elevation",
-                "empty_cells",
-                "font_family",
-                "font_size",
-                "font_style",
-                "font_variant",
-                "font_weight",
-                "font",
-                "image_resolution",
-                "letter_spacing",
-                "line_height",
-                "list_style_image",
-                "list_style_position",
-                "list_style_type",
-                "list_style",
-                "orphans",
-                "overflow_wrap",
-                "pitch_range",
-                "pitch",
-                "quotes",
-                "richness",
-                "speak_header",
-                "speak_numeral",
-                "speak_punctuation",
-                "speak",
-                "speech_rate",
-                "stress",
-                "text_align",
-                "text_indent",
-                "text_transform",
-                "visibility",
-                "voice_family",
-                "volume",
-                "white_space",
-                "widows",
-                "word_break",
-                "word_spacing",
-            ];
 
             // Compute dependent props from dependency map
             foreach (self::$_dependency_map as $props) {
@@ -1241,15 +1238,11 @@ class Style
         unset($this->_props_used["font_size"]);
 
         if ($parent) {
-            foreach (self::$_inherited as $prop) {
-                // For properties that inherit by default: When the cascade did
-                // not result in a value, inherit the parent value. Inheritance
-                // is handled via the specific sub-properties for shorthands
-                if (isset($this->_props[$prop]) || isset(self::$_props_shorthand[$prop])) {
-                    continue;
-                }
-
-                if (isset($parent->_props[$prop])) {
+            // For properties that inherit by default: When the cascade did
+            // not result in a value, inherit the parent value. Inheritance
+            // is handled via the specific sub-properties for shorthands
+            foreach ($parent->_props as $prop => $val) {
+                if (!isset($this->_props[$prop]) && isset(self::$_inherited[$prop])) {
                     $parent_val = $parent->computed($prop);
 
                     $this->_props[$prop] = $parent_val;
@@ -1439,9 +1432,7 @@ class Style
 
             // https://www.w3.org/TR/css-cascade-3/#inherit-initial
             if ($val === "unset") {
-                $val = \in_array($prop, self::$_inherited, true)
-                    ? "inherit"
-                    : "initial";
+                $val = isset(self::$_inherited[$prop]) ? "inherit" : "initial";
             }
 
             // https://www.w3.org/TR/css-cascade-3/#valdef-all-initial
