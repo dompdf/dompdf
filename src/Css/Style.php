@@ -1520,7 +1520,7 @@ class Style
 
                 // If this property is depending on another value, clear the
                 // computed value so that it can be used later.
-                if (self::$_dependent_props[$prop]) {
+                if (!empty(self::$_dependent_props[$prop])) {
                     unset($this->_props_computed[$prop]);
                     unset($this->_props_used[$prop]);
                 }
