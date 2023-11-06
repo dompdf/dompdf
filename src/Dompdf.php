@@ -589,9 +589,9 @@ class Dompdf
                 // load <link rel="STYLESHEET" ... /> tags
                 case "link":
                     if (
-                        (stripos(mb_strtolower($tag->getAttribute("rel")), "stylesheet") !== false // may be "appendix stylesheet"
+                        (stripos($tag->getAttribute("rel"), "stylesheet") !== false // may be "appendix stylesheet"
                         || mb_strtolower($tag->getAttribute("type")) === "text/css")
-                        && stripos(mb_strtolower($tag->getAttribute("rel")), "alternate") === false // don't load "alternate stylesheet"
+                        && stripos($tag->getAttribute("rel"), "alternate") === false // don't load "alternate stylesheet"
                     ) {
                         //Check if the css file is for an accepted media type
                         //media not given then always valid
