@@ -186,6 +186,7 @@ class Style
     protected const CSS_STRING = "" .
         '"(?>(?:\\\\["]|[^"])*)(?<!\\\\)"|' . // String ""
         "'(?>(?:\\\\[']|[^'])*)(?<!\\\\)'";   // String ''
+    protected const CSS_VAR = "var\((([^()]|(?R))*)\)";
 
     /**
      * https://www.w3.org/TR/css-values-3/#custom-idents
@@ -1226,31 +1227,26 @@ class Style
      * This function receives the whole content of the var() function, which
      * can also include a fallback value.
      */
-    private function parse_var(string $variable) {
+    private function parse_var($matches) {
+        $variable = is_array($matches) ? $matches[1] : $matches;
+
         // Split property name and an optional fallback value.
         [$custom_prop, $fallback] = explode(',', $variable, 2) + [null, null];
         $fallback = trim($fallback);
 
-        // Recursively try to resolve the property value through all parents.
-        $value = $this->_props[$custom_prop] ?? (
-            isset($this->parent_style)
-                ? $this->parent_style->parse_var($variable)
-                : null
-        );
+        // Try to retrieve the custom property value, or use the fallback value
+        // if the value could not be resolved. Suppress 'undefined array key'
+        // errors from undefined properties.
+        $value = @$this->computed($custom_prop) ?? $fallback;
 
-        // If the resolved value is a variable, resolve that too.
-        if (is_string($value) && substr($value, 0, 4) === 'var(') {
-            $var = substr(trim($value), 4, -1);
-            $value = $this->parse_var($var);
-        }
+        // If the resolved value also has vars in it, resolve again.
+        $pattern = self::CSS_VAR;
+        $value = preg_replace_callback(
+            "/$pattern/",
+            [$this, "parse_var"],
+            $value);
 
-        // If the resolved fallback is a variable, resolve that too.
-        if (is_string($fallback) && substr($fallback, 0, 4) === 'var(') {
-            $var = substr(trim($fallback), 4, -1);
-            $fallback = $this->parse_var($var);
-        }
-
-        return $value ?: $fallback;
+        return $value ?: null;
     }
 
     /**
@@ -1281,6 +1277,20 @@ class Style
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
                     $this->_props_used[$prop] = null;
+                }
+            }
+
+            // Iterate over the parent properties and inherit all the custom
+            // properties that are not defined on the own element.
+            foreach ($parent->_props as $parent_prop => $parent_val) {
+                if (substr($parent_prop, 0, 2) === "--"
+                    && !isset($this->_props[$parent_prop])
+                ) {
+                    $parent_val = $parent->computed($parent_prop);
+
+                    $this->_props[$parent_prop] = $parent_val;
+                    $this->_props_computed[$parent_prop] = $parent_val;
+                    $this->_props_used[$parent_prop] = null;
                 }
             }
         }
@@ -1390,23 +1400,21 @@ class Style
      */
     public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
-        // Store CSS custom property as-is and leave.
-        if (substr($prop, 0, 2) === "--") {
-            $this->_props[$prop] = trim($val);
-            return;
-        }
+        // Skip some checks for CSS custom properties.
+        if (substr($prop, 0, 2) !== "--") {
 
-        $prop = str_replace("-", "_", $prop);
+            $prop = str_replace("-", "_", $prop);
 
-        // Legacy property aliases
-        if (isset(self::$_props_alias[$prop])) {
-            $prop = self::$_props_alias[$prop];
-        }
+            // Legacy property aliases
+            if (isset(self::$_props_alias[$prop])) {
+                $prop = self::$_props_alias[$prop];
+            }
 
-        if (!isset(self::$_defaults[$prop])) {
-            global $_dompdf_warnings;
-            $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
-            return;
+            if (!isset(self::$_defaults[$prop])) {
+                global $_dompdf_warnings;
+                $_dompdf_warnings[] = "'$prop' is not a recognized CSS property.";
+                return;
+            }
         }
 
         // Trim declarations unconditionally, but only lower-case for comparison
@@ -1483,9 +1491,10 @@ class Style
             // because the required custom property might not have been set yet,
             // or need to be derived from a parent. Let the compute() method
             // resolve this when the value is needed. Just set the property now.
-            if (is_string($val) && substr($val, 0, 4) === 'var(') {
+            if (is_string($val) && strpos($val, 'var(') !== false) {
                 $this->_props[$prop] = $val;
-                return;
+                self::$_dependent_props[$prop] = true;
+                //return;
             }
 
             $computed = $this->compute_prop($prop, $val);
@@ -1509,6 +1518,13 @@ class Style
                     }
                 }
 
+                // If this property is depending on another value, clear the
+                // computed value so that it can be used later.
+                if (self::$_dependent_props[$prop]) {
+                    unset($this->_props_computed[$prop]);
+                    unset($this->_props_used[$prop]);
+                }
+
                 $this->clear_cache($prop);
             }
         }
@@ -1529,7 +1545,7 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop])) {
+        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == "--") {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1558,7 +1574,7 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop])) {
+        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == "--") {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1625,7 +1641,7 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop])) {
+        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == "--") {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1682,11 +1698,12 @@ class Style
             return $val;
         }
 
-        // Resolve CSS custom property value.
-        if (substr($val, 0, 4) === 'var(') {
-            $var = substr(trim($val), 4, -1);
-            return $this->parse_var($var);
-        }
+        // Resolve the CSS custom property value(s).
+        $pattern = self::CSS_VAR;
+        $val = preg_replace_callback(
+            "/$pattern/",
+            [$this, "parse_var"],
+            $val);
 
         $method = "_compute_$prop";
 

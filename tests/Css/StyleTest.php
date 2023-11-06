@@ -1139,48 +1139,84 @@ class StyleTest extends TestCase
 
     public static function varValueProvider(): array {
         return [
-            // Expected value, value to set, [fallback value]
-            'standard' => ["Helvetica", "Helvetica"],
-            // Test values with a comma.
-            // Todo: These appear not to work as they resolve the first font only.
-            // 'comma_value' => ["Helvetica, Courier", "Helvetica, Courier"],
-            // Ensure that the fallback is skipped when value is set.
-            'valid_value' => ["Helvetica", "Helvetica", "Courier"],
-            // Assert that the fallback property is used for empty values.
-            'empty_value' => ["Helvetica", null, "Helvetica"],
-            // Test fallback values with a comma.
-            // Todo: These appear not to work as they resolve the first font only.
-            // 'comma_fallback' => ["Helvetica, Courier", null, "Helvetica, Courier"],
-            // Assert that variable fallback properties work as well.
-            'var_fallback' => ["ZapfDingbats", null, "var(--fallback-property)"],
-            // Test custom property values.
-            'var_value1' => ["Symbol", "var(--cool-font)", "Helvetica"],
-            'var_value2' => ["Symbol", "var(--cool-font)", "var(--fallback-property)"],
-            // Test invalid property value.
-            'invalid_value' => ["Helvetica", "var(--undefined)", "Helvetica"],
+            'simple' => [[
+                "font_family" => "var(--font-family)",
+                "--font-family" => "Helvetica",
+            ], "font_family", "Helvetica"],
+
+            'simple_valid_value' => [[
+                "font_family" => "var(--font-family, Courier)",
+                "--font-family" => "Helvetica"
+            ], "font_family", "Helvetica"],
+
+            'simple_empty_value' => [[
+                "font_family" => "var(--font-family, Courier)",
+                "--font-family" => ""
+            ], "font_family", "Courier"],
+
+            'simple_invalid_value' => [[
+                "font_family" => "var(--invalid-prop, Courier)",
+                "--font-family" => ""
+            ], "font_family", "Courier"],
+
+            'var_value' => [[
+                "border" => "2px solid var(--bg)",
+                "--bg" => "#ff0000FF",
+            ], "border", "2px solid #ff0000FF"],
+
+            'multi_var_value' => [[
+                "border" => "2px var(--style) var(--bg)",
+                "--style" => "dotted",
+                "--bg" => "#ff0000FF",
+            ], "border", "2px dotted #ff0000FF"],
+
+            'referenced_var' => [[
+                "border" => "var(--border-specification)",
+                "--border-specification" => "2px solid var(--bg)",
+                "--bg" => "#ff0000FF",
+            ], "border", "2px solid #ff0000FF"],
+
+            'fallback_var_valid_property' => [[
+                "background_color" => "var(--bg, var(--fallback))",
+                "--bg" => "#ffffffFF",
+                "--fallback" => "#000000FF",
+            ], "background_color", "#ffffffFF"],
+
+            'fallback_var_undefined_property' => [[
+                "background_color" => "var(--undefined, var(--fallback))",
+                "--fallback" => "#000000FF",
+            ], "background_color", "#000000FF"],
+
+            'fallback_var_double_undefined_property' => [[
+                "background_color" => "var(--undefined, var(--undefined, #eeeeeeFF))",
+            ], "background_color", "#eeeeeeFF"],
         ];
     }
 
     /**
      * @dataProvider varValueProvider
      */
-    public function testVar($expected, $set_value, $fallback_value = null): void
+    public function testVar(array $properties, $lookup_property, $expected): void
     {
         $dompdf = new Dompdf();
         $sheet = new Stylesheet($dompdf);
         $style = new Style($sheet);
 
-        // Set the variable value.
-        $style->set_prop("--font-family", $set_value);
-        // Construct the var() input.
-        $var = "--font-family" . ($fallback_value ? ", $fallback_value" : "");
-        // Set the var as value of a real property.
-        $style->set_prop("font_family", "var($var)");
-        // Set some other custom properties for various tests.
-        $style->set_prop("--cool-font", "Symbol");
-        $style->set_prop("--fallback-property", "ZapfDingbats");
+        // Set all properties and values.
+        foreach ($properties as $property => $value) {
+            $style->set_prop($property, $value);
+        }
+
+        // Use __get to get the computed value.
+        $resolved_value = $style->$lookup_property;
+
+        // Only compare the hex value from color arrays.
+        if (is_array($resolved_value) && array_key_exists("hex", $resolved_value)) {
+            $resolved_value = $resolved_value["hex"];
+        }
+
         // Assert the parsed result.
-        $this->assertStringContainsString($expected, $style->font_family);
+        $this->assertStringContainsString($expected, $resolved_value);
     }
 
     public static function inheritedVarValueProvider(): array {
@@ -1230,7 +1266,7 @@ class StyleTest extends TestCase
                 --color-property: #ffffffff;
                 --fallback-property: #ff00ffff;
                 background-color: var(--undefined-property, var(--fallback-property));
-                color: var(--color-property, var(--fallback-property);
+                color: var(--color-property, var(--fallback-property));
             }
         </style>
     </head>
