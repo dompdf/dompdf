@@ -1231,7 +1231,7 @@ class Style
         $variable = is_array($matches) ? $matches[1] : $matches;
 
         // Split property name and an optional fallback value.
-        [$custom_prop, $fallback] = explode(',', $variable, 2) + [null, null];
+        [$custom_prop, $fallback] = explode(',', $variable, 2) + ['', ''];
         $fallback = trim($fallback);
 
         // Try to retrieve the custom property value, or use the fallback value
@@ -1269,28 +1269,18 @@ class Style
         if ($parent) {
             // For properties that inherit by default: When the cascade did
             // not result in a value, inherit the parent value. Inheritance
-            // is handled via the specific sub-properties for shorthands
+            // is handled via the specific sub-properties for shorthands. Custom
+            // properties (variables) are selected by the -- prefix.
             foreach ($parent->_props as $prop => $val) {
-                if (!isset($this->_props[$prop]) && isset(self::$_inherited[$prop])) {
+                if (!isset($this->_props[$prop]) && (
+                    isset(self::$_inherited[$prop])
+                    || substr($prop, 0, 2) === "--"
+                )) {
                     $parent_val = $parent->computed($prop);
 
                     $this->_props[$prop] = $parent_val;
                     $this->_props_computed[$prop] = $parent_val;
                     $this->_props_used[$prop] = null;
-                }
-            }
-
-            // Iterate over the parent properties and inherit all the custom
-            // properties that are not defined on the own element.
-            foreach ($parent->_props as $parent_prop => $parent_val) {
-                if (substr($parent_prop, 0, 2) === "--"
-                    && !isset($this->_props[$parent_prop])
-                ) {
-                    $parent_val = $parent->computed($parent_prop);
-
-                    $this->_props[$parent_prop] = $parent_val;
-                    $this->_props_computed[$parent_prop] = $parent_val;
-                    $this->_props_used[$parent_prop] = null;
                 }
             }
         }
@@ -1493,8 +1483,7 @@ class Style
             // resolve this when the value is needed. Just set the property now.
             if (is_string($val) && strpos($val, 'var(') !== false) {
                 $this->_props[$prop] = $val;
-                self::$_dependent_props[$prop] = true;
-                //return;
+                return;
             }
 
             $computed = $this->compute_prop($prop, $val);
