@@ -1137,6 +1137,12 @@ class Frame
         $child->_prev_sibling = null;
         $child->_parent = null;
 
+        // Force an update to the cached decorator parent
+        $decorator = $child->get_decorator();
+        if ($decorator !== null) {
+            $decorator->get_parent(false);
+        }
+
         return $child;
     }
 

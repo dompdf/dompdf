@@ -534,7 +534,56 @@ HTML
                         "B1 0 1 1.0"
                     ]
                 ]
-            ]
+            ],
+
+            // Involving page breaks
+            // Check that generated content is handled correctly after a page
+            // break if font mapping forces a text-frame split
+            "font mapping with page break" => [
+                <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 300pt 200pt;
+    margin: 0;
+}
+
+html {
+    font-family: Helvetica, "DejaVu Sans";
+}
+
+div {
+    height: 60pt;
+    padding: 20pt;
+    counter-increment: div;
+}
+
+div::before {
+    content: "Box ∉ " counter(div);
+}
+</style>
+</head>
+<body>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+</body>
+</html>
+HTML
+,
+                [
+                    "div" => [
+                        "Box ∉ 1",
+                        "Box ∉ 2",
+                        "Box ∉ 3",
+                        "Box ∉ 4"
+                    ]
+                ]
+            ],
         ];
     }
 
