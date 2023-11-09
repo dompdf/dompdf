@@ -1614,7 +1614,9 @@ EOL;
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
-        if ($DEBUGCSS) print '[_parse_properties';
+        if ($DEBUGCSS) {
+            print '[_parse_properties';
+        }
 
         // Split on non-escaped semicolons which are not followed by a single
         // closing parenthesis, to support semicolons as part of `url()`.
@@ -1624,28 +1626,14 @@ EOL;
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
 
         foreach ($properties as $prop) {
-            // If the $prop contains an url, the regex may be wrong
-            // @todo: fix the regex so that it works every time
-            /*if (strpos($prop, "url(") === false) {
-              if (preg_match("/([a-z-]+)\s*:\s*[^:]+$/i", $prop, $m))
-                $prop = $m[0];
-            }*/
-
-            //A css property can have " ! important" appended (whitespace optional)
-            //strip this off to decode core of the property correctly.
-
-            /* Instead of short code, prefer the typical case with fast code
-          $important = preg_match("/(.*?)!\s*important/",$prop,$match);
-            if ( $important ) {
-              $prop = $match[1];
-            }
+            // Instead of short code with `preg_match`, prefer the typical case
+            // with fast code
             $prop = trim($prop);
-            */
-            if ($DEBUGCSS) print '(';
+            if ($prop === "") {
+                continue;
+            }
 
             $important = false;
-            $prop = trim($prop);
-
             if (substr($prop, -9) === 'important') {
                 $prop_tmp = rtrim(substr($prop, 0, -9));
 
@@ -1655,25 +1643,32 @@ EOL;
                 }
             }
 
-            if ($prop === "") {
-                if ($DEBUGCSS) print 'empty)';
-                continue;
-            }
-
-            $i = mb_strpos($prop, ":");
+            $i = strpos($prop, ":");
             if ($i === false) {
-                if ($DEBUGCSS) print 'novalue' . $prop . ')';
+                if ($DEBUGCSS) {
+                    print "(novalue $prop)";
+                }
                 continue;
             }
 
-            $prop_name = rtrim(mb_strtolower(mb_substr($prop, 0, $i)));
-            $value = ltrim(mb_substr($prop, $i + 1));
+            $prop_name = rtrim(substr($prop, 0, $i));
+            $value = ltrim(substr($prop, $i + 1));
 
-            if ($DEBUGCSS) print $prop_name . ':=' . $value . ($important ? '!IMPORTANT' : '') . ')';
+            // Regular (non-custom) properties are case-insensitive
+            if (strncmp($prop_name, "--", 2) !== 0) {
+                $prop_name = strtolower($prop_name);
+            }
+
+            if ($DEBUGCSS) {
+                print "($prop_name:=$value" . ($important ? " !IMPORTANT" : "") . ")";
+            }
 
             $style->set_prop($prop_name, $value, $important, false);
         }
-        if ($DEBUGCSS) print '_parse_properties]';
+
+        if ($DEBUGCSS) {
+            print '_parse_properties]';
+        }
 
         return $style;
     }
