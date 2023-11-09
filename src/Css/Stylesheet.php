@@ -1612,14 +1612,15 @@ EOL;
      */
     private function _parse_properties($str)
     {
-        $properties = preg_split("/;(?=(?:[^\(]*\([^\)]*\))*(?![^\)]*\)))/", $str);
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
-        if ($DEBUGCSS) {
-            print '[_parse_properties';
-        }
+        if ($DEBUGCSS) print '[_parse_properties';
 
-        // Create the style
+        // Split on non-escaped semicolons which are not followed by a single
+        // closing parenthesis, to support semicolons as part of `url()`.
+        // As a consequence, semicolons and closing parentheses should be
+        // escaped if used in a string
+        $properties = preg_split("/(?<!\\\\); (?! [^(]* (?<!\\\\)\) )/x", $str);
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
 
         foreach ($properties as $prop) {

@@ -2227,12 +2227,12 @@ class Style
     protected function parse_string(string $string): string
     {
         // Strip string quotes and escapes
-        $string = preg_replace('/^[\"\']|[\"\']$/', "", $string);
-        $string = str_replace(["\\\n", '\\"', "\\'"], ["", '"', "'"], $string);
+        $string = preg_replace('/^["\']|["\']$/', "", $string);
+        $string = preg_replace("/\\\\([^0-9a-fA-F])/", "\\1", $string);
 
-        // Convert escaped hex characters into ascii characters (e.g. \A => newline)
+        // Convert escaped hex characters (e.g. \A => newline)
         return preg_replace_callback(
-            "/\\\\([0-9a-fA-F]{0,6})/",
+            "/\\\\([0-9a-fA-F]{1,6})/",
             function ($matches) { return Helpers::unichr(hexdec($matches[1])); },
             $string
         ) ?? "";
