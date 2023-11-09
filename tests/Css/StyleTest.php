@@ -826,6 +826,7 @@ class StyleTest extends TestCase
             ['"string"', [new StringPart("string")]],
             ["'string'", [new StringPart("string")]],
             ["\"'s't\\\"r'\"", [new StringPart("'s't\"r'")]],
+            ['"\(\A\5F\;_\A\)"', [new StringPart("(\n_;_\n)")]],
             ["'attr(title)'", [new StringPart("attr(title)")]],
             ['"url(\'image.png\')"', [new StringPart("url('image.png')")]],
 
