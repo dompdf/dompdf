@@ -839,6 +839,7 @@ class StyleTest extends TestCase
             ["url('image.png')", [new Url("image.png")]],
             ["url(\"'image.PNG'\")", [new Url("'image.PNG'")]],
             ["url(\"image(1).PNG\")", [new Url("image(1).PNG")]],
+            ["url(image\(1\).PNG)", [new Url("image(1).PNG")]],
             ["url(\"image\\\"1\\\".PNG\")", [new Url("image\"1\".PNG")]],
 
             // Counter/Counters
@@ -846,6 +847,7 @@ class StyleTest extends TestCase
             ["counter(UPPER, UPPER-roman)", [new Counter("UPPER", "upper-roman")]],
             ["counters(c, '')", [new Counters("c", "", "decimal")]],
             ["counters(c, '', decimal)", [new Counters("c", "", "decimal")]],
+            ["counters(c, ')', decimal)", [new Counters("c", ")", "decimal")]],
             ["counters(UPPER, 'UPPER', lower-ROMAN)", [new Counters("UPPER", "UPPER", "lower-roman")]],
 
             // Quotes
