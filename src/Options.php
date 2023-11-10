@@ -359,7 +359,7 @@ class Options
                 $this->setFontCache($value);
             } elseif ($key === 'chroot') {
                 $this->setChroot($value);
-            } elseif ($key === 'allowedProtocols') {
+            } elseif ($key === 'allowedProtocols' || $key === 'allowed_protocols') {
                 $this->setAllowedProtocols($value);
             } elseif ($key === 'logOutputFile' || $key === 'log_output_file') {
                 $this->setLogOutputFile($value);
@@ -426,7 +426,7 @@ class Options
             return $this->getFontCache();
         } elseif ($key === 'chroot') {
             return $this->getChroot();
-        } elseif ($key === 'allowedProtocols') {
+        } elseif ($key === 'allowedProtocols' || $key === 'allowed_protocols') {
             return $this->getAllowedProtocols();
         } elseif ($key === 'logOutputFile' || $key === 'log_output_file') {
             return $this->getLogOutputFile();
