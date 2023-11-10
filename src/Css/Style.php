@@ -184,8 +184,8 @@ class Style
     protected const CSS_INTEGER = "[+-]?\d+";
     protected const CSS_NUMBER = "[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?";
     protected const CSS_STRING = "" .
-        '"(?:[^"]|\\\\["])*(?<!\\\\)"|' . // String ""
-        "'(?:[^']|\\\\['])*(?<!\\\\)'";   // String ''
+        '"(?>(?:\\\\["]|[^"])*)(?<!\\\\)"|' . // String ""
+        "'(?>(?:\\\\[']|[^'])*)(?<!\\\\)'";   // String ''
 
     /**
      * https://www.w3.org/TR/css-values-3/#custom-idents
@@ -1037,7 +1037,7 @@ class Style
         }
 
         $number = self::CSS_NUMBER;
-        $pattern = "/^($number)(.*)?$/";
+        $pattern = "/^($number)([a-zA-Z%]*)?$/";
 
         if (!preg_match($pattern, $l, $matches)) {
             return null;
@@ -2252,17 +2252,19 @@ class Style
         $number = self::CSS_NUMBER;
 
         $pattern = "/\n" .
-            "\s* ($string)                                                                   |\n" . // String
-            "\s* ($ident \\((?<FN_QUOTE>[\'\"]?)(.*?)(?(FN_QUOTE)(?<!\\\\)\g{FN_QUOTE})\\))  |\n" . // Function
-            "\s* ($ident)                                                                    |\n" . // Keyword
-            "\s* (\#[0-9a-fA-F]*)                                                            |\n" . // Hex value
-            "\s* ($number [a-zA-Z%]*)                                                        |\n" . // Number (+ unit/percentage)
-            "\s* ([\/,;])                                                                    \n" . // Delimiter
-            "/isSx";
+            "\s* (?<string>$string)                                        |\n" . // String
+            "\s* (url \( (?> (\\\\[\"'()] | [^\"'()])* ) (?<!\\\\)\) )     |\n" . // URL without quotes
+            "\s* ($ident (\( ((?> \g<string> | [^\"'()]+ ) | (?-2))* \)) ) |\n" . // Function (with balanced parentheses)
+            "\s* ($ident)                                                  |\n" . // Keyword
+            "\s* (\#[0-9a-fA-F]*)                                          |\n" . // Hex value
+            "\s* ($number [a-zA-Z%]*)                                      |\n" . // Number (+ unit/percentage)
+            "\s* ([\/,;])                                                   \n" . // Delimiter
+            "/iSx";
 
         if (!preg_match_all($pattern, $value, $matches)) {
             return [];
         }
+
         return array_map("trim", $matches[0]);
     }
 
