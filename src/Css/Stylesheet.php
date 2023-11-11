@@ -115,7 +115,7 @@ class Stylesheet
     /**
      * Array of currently defined styles
      *
-     * @var Style[][]
+     * @var array<string, Style[]>
      */
     private $_styles;
 
@@ -274,6 +274,16 @@ class Stylesheet
     function get_base_path()
     {
         return $this->_base_path;
+    }
+
+    /**
+     * Get all registered styles as an associative array, indexed by selector.
+     *
+     * @return array<string, Style[]>
+     */
+    public function get_styles(): array
+    {
+        return $this->_styles;
     }
 
     /**
