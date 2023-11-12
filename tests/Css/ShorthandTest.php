@@ -25,7 +25,11 @@ class ShorthandTest extends TestCase
             ["10% 5pt 25%", "10%", "5pt", "25%", "5pt"],
             ["5mm 4mm 3mm 2mm", "5mm", "4mm", "3mm", "2mm"],
             // Exponential notation
-            ["1e2% 50e-1pt 2.5e+1%", "1e2%", "50e-1pt", "2.5e+1%", "50e-1pt"]
+            ["1e2% 50e-1pt 2.5e+1%", "1e2%", "50e-1pt", "2.5e+1%", "50e-1pt"],
+
+            // Calc
+            ["calc(50% - 10pt) 1%", "calc(50% - 10pt)", "1%", "calc(50% - 10pt)", "1%"],
+            ["calc( (5 * 1pt) + 0pt ) 5pt CALC((0pt + 5pt))5pt", "calc( (5 * 1pt) + 0pt )", "5pt", "CALC((0pt + 5pt))", "5pt"]
         ];
     }
 
@@ -110,6 +114,9 @@ class ShorthandTest extends TestCase
             ["medium 1.2rem", "medium", "1.2rem", "medium", "1.2rem"],
             ["thick 5pt 12pc", "thick", "5pt", "12pc", "5pt"],
             ["5mm 4mm 3mm 2mm", "5mm", "4mm", "3mm", "2mm"],
+
+            // Calc
+            ["calc(1pc - 12pt)medium", "calc(1pc - 12pt)", "medium", "calc(1pc - 12pt)", "medium"]
         ];
     }
 
@@ -172,7 +179,7 @@ class ShorthandTest extends TestCase
         $this->borderTypeShorthandTest("color", $value, $top, $right, $bottom, $left);
     }
 
-    public static function borderShorthandProvider(): array
+    public static function borderOutlineShorthandProvider(): array
     {
         return [
             ["transparent", "medium", "none", "transparent"],
@@ -181,11 +188,31 @@ class ShorthandTest extends TestCase
             ["solid 5pt", "5pt", "solid", "currentcolor"],
             ["1pt solid red", "1pt", "solid", "red"],
             ["rgb(0, 0, 0) double 1rem", "1rem", "double", "rgb(0, 0, 0)"],
-            ["thin rgb(0 255 0 / 0.2) solid", "thin", "solid", "rgb(0 255 0 / 0.2)"]
+            ["thin rgb(0 255 0 / 0.2) solid", "thin", "solid", "rgb(0 255 0 / 0.2)"],
+
+            // Calc
+            ["dotted calc((5pt + 1em)/2) #FF0000", "calc((5pt + 1em)/2)", "dotted", "#ff0000"],
+            ["calc( 3pt - 1px ) outset", "calc( 3pt - 1px )", "outset", "currentcolor"],
+        ];
+    }
+
+    public static function borderShorthandProvider(): array
+    {
+        return [
+            ["blue 1mm hidden", "1mm", "hidden", "blue"]
+        ];
+    }
+
+    public static function outlineShorthandProvider(): array
+    {
+        return [
+            ["auto 5pt", "5pt", "auto", "currentcolor"],
+            ["thin #000000 auto", "thin", "auto", "#000000"]
         ];
     }
 
     /**
+     * @dataProvider borderOutlineShorthandProvider
      * @dataProvider borderShorthandProvider
      */
     public function testBorderShorthand(
@@ -206,20 +233,8 @@ class ShorthandTest extends TestCase
         }
     }
 
-    public static function outlineShorthandProvider(): array
-    {
-        return [
-            ["transparent", "medium", "none", "transparent"],
-            ["currentcolor 1pc", "1pc", "none", "currentcolor"],
-            ["thick inset", "thick", "inset", "currentcolor"],
-            ["auto 5pt", "5pt", "auto", "currentcolor"],
-            ["1pt solid red", "1pt", "solid", "red"],
-            ["rgb(0, 0, 0) double 1rem", "1rem", "double", "rgb(0, 0, 0)"],
-            ["thin rgb(0 255 0 / 0.2) auto", "thin", "auto", "rgb(0 255 0 / 0.2)"]
-        ];
-    }
-
     /**
+     * @dataProvider borderOutlineShorthandProvider
      * @dataProvider outlineShorthandProvider
      */
     public function testOutlineShorthand(
@@ -243,6 +258,9 @@ class ShorthandTest extends TestCase
             ["1rem 2rem", "1rem", "2rem", "1rem", "2rem"],
             ["10% 5pt 15%", "10%", "5pt", "15%", "5pt"],
             ["5mm 4mm 3mm 2mm", "5mm", "4mm", "3mm", "2mm"],
+
+            // Calc
+            ["calc(50% - 10pt) 1%", "calc(50% - 10pt)", "1%", "calc(50% - 10pt)", "1%"],
         ];
     }
 
@@ -276,7 +294,11 @@ class ShorthandTest extends TestCase
             ["url( \"$imagePath\" )", "url( \"$imagePath\" )"],
             ["rgba( 5, 5, 5, 1 )", "none", [0.0, 0.0], ["auto", "auto"], "repeat", "scroll", "rgba( 5, 5, 5, 1 )"],
             ["url(non-existing.png) top center no-repeat red fixed", "url(non-existing.png)", "top center", ["auto", "auto"], "no-repeat", "fixed", "red"],
-            ["url($imagePath) LEFT/200PT 30% RGB( 123 16 69/0.8 )no-REPEAT", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"]
+            ["url($imagePath) LEFT/200PT 30% RGB( 123 16 69/0.8 )no-REPEAT", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"],
+            ["url($imagePath) 10pt 10pt/200PT 30%", "url($imagePath)", "10pt 10pt", "200pt 30%"],
+
+            // Calc for position and size
+            ["url($imagePath) calc(100% - 20pt)/ calc(10% + 20pt)CALC(100%/3)", "url($imagePath)", "calc(100% - 20pt)", "calc(10% + 20pt) calc(100%/3)"],
         ];
     }
 
@@ -312,7 +334,10 @@ class ShorthandTest extends TestCase
             ["700   normal  ITALIC    15.5PT /2.1 'Courier',sans-serif", "italic", "normal", "700", "15.5pt", "2.1", "'courier',sans-serif"],
             ["normal normal small-caps 100.01% serif, sans-serif", "normal", "small-caps", 400, "100.01%", "normal", "serif,sans-serif"],
             ["normal normal normal xx-small/normal monospace", "normal", "normal", 400, "xx-small", "normal", "monospace"],
-            ["1 0 serif", "normal", "normal", "1", "0", "normal", "serif"]
+            ["1 0 serif", "normal", "normal", "1", "0", "normal", "serif"],
+
+            // TODO: Calc for font size and line height
+            // ["italic 700 calc(1rem + 0.5pt)/calc(10/3) sans-serif", "italic", "normal", "700", "calc(1rem + 0.5pt)", "calc(10/3)", "sans-serif"],
         ];
     }
 
