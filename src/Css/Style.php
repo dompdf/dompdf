@@ -2328,7 +2328,7 @@ class Style
 
         // Negative non-`calc` values are invalid
         if ($computed === null
-            || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+            || ($computed < 0 && !preg_match("/^-?[_a-zA-Z]/", $val))
         ) {
             return null;
         }
@@ -2366,7 +2366,7 @@ class Style
 
         // Negative non-`calc` values are invalid
         if ($computed === null
-            || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+            || ($computed < 0 && !preg_match("/^-?[_a-zA-Z]/", $val))
         ) {
             return null;
         }
@@ -2810,7 +2810,7 @@ class Style
 
                 // Negative non-`calc` values are invalid
                 if ($computed === null
-                    || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+                    || ($computed < 0 && !preg_match("/^-?[_a-zA-Z]/", $val))
                 ) {
                     return null;
                 }
@@ -3051,7 +3051,7 @@ class Style
 
         // Negative non-`calc` values are invalid
         if ($computed === null
-            || ($computed < 0 && strncmp($val, "calc(", 5) !== 0)
+            || ($computed < 0 && !preg_match("/^-?[_a-zA-Z]/", $val))
         ) {
             return null;
         }
