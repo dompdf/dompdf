@@ -2580,7 +2580,7 @@ class Style
     protected function _compute_background_position(string $val)
     {
         $val = strtolower($val);
-        $parts = preg_split("/\s+/", $val);
+        $parts = $this->parse_property_value($val);
         $count = \count($parts);
         $x = null;
         $y = null;
@@ -2691,7 +2691,7 @@ class Style
             return $val;
         }
 
-        $parts = preg_split("/\s+/", $val);
+        $parts = $this->parse_property_value($val);
 
         if (\count($parts) > 2) {
             return null;

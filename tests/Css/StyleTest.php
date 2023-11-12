@@ -250,6 +250,10 @@ class StyleTest extends TestCase
             ["23% 50pt", ["23%", 50.0]],
             ["50pt 23%", [50.0, "23%"]],
 
+            // Calc values
+            ["calc(-75% + 100pt)", ["calc(-75% + 100pt)", "50%"]],
+            ["calc(33% * 3 + 1%) calc(20pt + 30pt)", ["calc(33% * 3 + 1%)", 50.0]],
+
             // Case and whitespace variations
             ["LEFT", [0.0, "50%"]],
             ["TOP    Right", ["100%", 0.0]],
@@ -281,6 +285,52 @@ class StyleTest extends TestCase
 
         $style->set_prop("background_position", $value);
         $this->assertSame($expected, $style->background_position);
+    }
+    public static function backgroundSizeProvider(): array
+    {
+        return [
+            // Keywords
+            ["cover", "cover"],
+            ["contain", "contain"],
+
+            // One value
+            ["100%", ["100%", "auto"]],
+            ["200pt", [200.0, "auto"]],
+
+            // Two values
+            ["100% auto", ["100%", "auto"]],
+            ["200pt auto", [200.0, "auto"]],
+            ["auto 100%", ["auto", "100%"]],
+            ["auto 200pt", ["auto", 200.0]],
+            ["10% 200pt", ["10%", 200.0]],
+
+            // Calc values
+            ["calc(-75% + 100pt) auto", ["calc(-75% + 100pt)", "auto"]],
+            ["calc(33% * 3 + 1%) calc(20pt + 30pt)", ["calc(33% * 3 + 1%)", 50.0]],
+
+            // Case and whitespace variations
+            ["CoveR", "cover"],
+            ["AUTO    23PT", ["auto", 23.0]],
+            ["CALC(20PT*3)23PT", [60.0, 23.0]],
+
+            // Invalid values
+            ["none", ["auto", "auto"]],
+            ["auto", ["auto", "auto"]],
+            ["cover contain", ["auto", "auto"]]
+        ];
+    }
+
+    /**
+     * @dataProvider backgroundSizeProvider
+     */
+    public function testBackgroundSize(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("background_size", $value);
+        $this->assertSame($expected, $style->background_size);
     }
 
     public static function fontWeightProvider(): array
