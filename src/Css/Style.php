@@ -188,36 +188,36 @@ class Style
         "'(?>(?:\\\\[']|[^'])*)(?<!\\\\)'";   // String ''
 
     /**
-     * https://www.w3.org/TR/css-values-4/#calc-syntax
+     * @link https://www.w3.org/TR/css-values-4/#calc-syntax
      */
     protected const CSS_MATH_FUNCTIONS = [
         // Basic Arithmetic
-        "calc",
+        "calc" => true,
         // Comparison Functions
-        "min",
-        "max",
-        "clamp",
+        "min" => true,
+        "max" => true,
+        "clamp" => true,
         // Stepped Value Functions
-        "round",                          // Not fully supported yet!!!
-        "mod",
-        "rem",
+        // "round" => true,                          // Not supported
+        // "mod" => true,                            // Not supported
+        // "rem" => true,                            // Not supported
         // Trigonometric Functions
-        "sin",
-        "cos",
-        "tan",
-        "asin",
-        "acos",
-        "atan",
-        "atan2",
+        "sin" => true,
+        "cos" => true,
+        "tan" => true,
+        "asin" => true,
+        "acos" => true,
+        "atan" => true,
+        "atan2" => true,
         // Exponential Functions
-        "pow",
-        "sqrt",
-        "hypot",
-        "log",
-        "exp",
+        "pow" => true,
+        "sqrt" => true,
+        "hypot" => true,
+        "log" => true,
+        "exp" => true,
         // Sign-Related Functions
-        "abs",
-        "sign"
+        "abs" => true,
+        "sign" => true
     ];
 
     /**
@@ -1176,16 +1176,16 @@ class Style
         foreach ($parts as $part) {
             if ($part === '(') {
                 $opStack[] = $part;
-            } elseif (in_array(strtolower($part), self::CSS_MATH_FUNCTIONS)) {
+            } elseif (\array_key_exists(strtolower($part), self::CSS_MATH_FUNCTIONS)) {
                 $opStack[] = strtolower($part);
             } elseif ($part === ')') {
-                while (\count($opStack) > 0 && end($opStack) !== '(' && !in_array(end($opStack), self::CSS_MATH_FUNCTIONS)) {
+                while (\count($opStack) > 0 && end($opStack) !== '(' && !\array_key_exists(end($opStack), self::CSS_MATH_FUNCTIONS)) {
                     $queue[] = array_pop($opStack);
                 }
                 if (end($opStack) === '(') {
                     array_pop($opStack);
                 }
-                if (in_array(end($opStack), self::CSS_MATH_FUNCTIONS)) {
+                if (\count($opStack) > 0 && \array_key_exists(end($opStack), self::CSS_MATH_FUNCTIONS)) {
                     $queue[] = array_pop($opStack);
                 }
             } elseif (\array_key_exists($part, $precedence)) {
@@ -1223,7 +1223,7 @@ class Style
         $stack = [];
 
         foreach ($rpn as $part) {
-            if (\in_array($part, self::CSS_MATH_FUNCTIONS, true)) {
+            if (\array_key_exists($part, self::CSS_MATH_FUNCTIONS)) {
                 $argv = array_pop($stack);
                 if (!is_array($argv)) {
                     $argv = [$argv];
@@ -1267,30 +1267,10 @@ class Style
                     case 'min':
                         $stack[] = min($argv);
                         break;
-                    case 'mod':
-                        if ($argc !== 2) {
-                            return null;
-                        }
-                        $stack[] = $argv[0] % $argv[1];
-                        break;
-                    case 'rem':
-                        if ($argc !== 2) {
-                            return null;
-                        }
-                        $stack[] = fmod($argv[0], $argv[1]);
-                        break;
-                    case 'round':
-                        if ($argc === 2) {
-                            $stack[] = round($argv[0], $argv[1], PHP_ROUND_HALF_UP);
-                        // <rounding-strategy> not supported yet
-                        // } elseif ($argc === 3) {
-                        //    // 'nearest', 'up', 'down', 'to-zero'
-                        //    return null;
-                        } else {
-                            return null;
-                        }
-                        break;
                     case 'calc':
+                        if ($argc !== 1) {
+                            return null;
+                        }
                         $stack[] = $argv[0];
                         break;
                     case 'clamp':
