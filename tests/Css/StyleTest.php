@@ -111,6 +111,28 @@ class StyleTest extends TestCase
             ["clamp(20, 15, 10)", null, 20.0],             // clamp min > max
             ["clamp(20, 25, 10)", null, 20.0],             // clamp min > max
 
+            // Stepped Value Functions
+            ["round(up, 100%, 10%)", 100, 0.0],            // Not supported
+            ["round(30%, 0%)", 100, 0.0],
+            ["round(4%, 9%)", 100, 0.0],
+            ["round(6%, 9%)", 100, 9.0],
+            ["round(13.5%, 9%)", 100, 18.0],               // Default when exactly between (upper)
+            ["round(15%, 9)", 100, 18.0],
+            ["round(5.4, 1)", null, 5.0],
+            ["round(5.5, 1)", null, 6.0],                  // Default when exactly between (upper)
+            ["round(0.54, 0.1)", null, 0.5],
+            ["round(0.56, 0.1)", null, 0.6],
+            ["mod(30, 0)", null, 0.0],
+            ["mod(18, 5)", null, 3.0],
+            ["mod(-18, 5)", null, 2.0],
+            ["mod(18, -5)", null, -2.0],
+            ["mod(-18, -5)", null, -3.0],
+            ["rem(30, 0)", null, 0.0],
+            ["rem(18, 5)", null, 3.0],
+            ["rem(-18, 5)", null, -3.0],
+            ["rem(18, -5)", null, 3.0],
+            ["rem(-18, -5)", null, -3.0],
+
             // Trigonometric Functions
             ["sin(0)", null, 0.0],                         // sin function
             ["sin(1)", null, 0.8415, 4],                   // sin function
