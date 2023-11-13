@@ -198,9 +198,9 @@ class Style
         "max" => true,
         "clamp" => true,
         // Stepped Value Functions
-        // "round" => true,                          // Not supported
-        // "mod" => true,                            // Not supported
-        // "rem" => true,                            // Not supported
+        "round" => true,                          // Not fully supported
+        "mod" => true,
+        "rem" => true,
         // Trigonometric Functions
         "sin" => true,
         "cos" => true,
@@ -1266,6 +1266,31 @@ class Style
                         break;
                     case 'min':
                         $stack[] = min($argv);
+                        break;
+                    case 'mod':
+                        if ($argc !== 2 || $argv[1] === 0.0) {
+                            return null;
+                        }
+                        if ($argv[1] > 0) {
+                            // calc(A - sign(B)*round(down, A*sign(B), B))
+                            $stack[] = $argv[0] - (floor($argv[0] / $argv[1]) * $argv[1]);
+                        } else {
+                            // calc(A - sign(B)*round(up, A*sign(B), B))
+                            $stack[] = $argv[0] - (ceil($argv[0] * -1 / $argv[1]) * $argv[1] * -1) ;
+                        }
+                        break;
+                    case 'rem':
+                        if ($argc !== 2 || $argv[1] === 0.0) {
+                            return null;
+                        }
+                        // calc(A - round(to-zero, A, B))
+                        $stack[] = $argv[0] - (intval($argv[0] / $argv[1]) * $argv[1]);
+                        break;
+                    case 'round':
+                        if ($argc !== 2 || $argv[1] === 0.0) {
+                            return null;
+                        }
+                        $stack[] = round($argv[0] / $argv[1]) * $argv[1];
                         break;
                     case 'calc':
                         if ($argc !== 1) {
