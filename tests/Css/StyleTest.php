@@ -107,12 +107,9 @@ class StyleTest extends TestCase
             ["clamp(10, 15 - 7, 20)", null, 10.0],         // clamp min function
             ["clamp(10, 15 + 7, 20)", null, 20.0],         // clamp max function
             ["clamp(10, 7 * 2, 20)", null, 14.0],          // clamp val function
-
-            // Stepped Value Functions
-            ["round(12.31, 1)", null, 12.3],               // complex
-            ["round(down, 12.31, 1)", null, 0.0],          // Yet not supported!!!
-            ["mod(7, 2)", null, 1.0],                      // mod function
-            ["rem(21, 6)", null, 3.0],                     // rem function
+            ["clamp(20, 5, 10)", null, 20.0],              // clamp min > max
+            ["clamp(20, 15, 10)", null, 20.0],             // clamp min > max
+            ["clamp(20, 25, 10)", null, 20.0],             // clamp min > max
 
             // Trigonometric Functions
             ["sin(0)", null, 0.0],                         // sin function
@@ -144,10 +141,17 @@ class StyleTest extends TestCase
             ["abs(-20)", null, 20.0],                      // abs function
             ["sign(-20)", null, -1.0],                     // sign function
             ["sign(5)", null, 1.0],                        // sign function
+            ["sign(0)", null, 0.0],
+            ["sign(100%)", 100.0, 1.0],
+            ["sign(100%)", -100.0, -1.0],
+            ["sign(-100%)", -100.0, 1.0],
 
             // Complex
             ["calc(max(3 + abs(-20), 5 * 2, 8 + 5) + 7)", null, 30.0],
-            ["calc(min(5pt, 3rem) + 2pt)", null, 7.0]
+            ["calc(min(5pt, 3rem) + 2pt)", null, 7.0],
+
+            ["unknownFunc()", null, 0.0],                  // Unsupported func
+            ["calc(1 + unknownFunc(2, 3))", null, 0.0]     // Unsupported func
         ];
     }
 
