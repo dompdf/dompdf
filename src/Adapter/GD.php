@@ -804,10 +804,11 @@ class GD implements Canvas
             return true;
         }
 
-        $char_code = Helpers::uniord($char, "UTF-8");
-        $char_map = $this->getCharMap($font);
+        $font = $this->get_ttf_file($font);
+        $charMap = $this->getCharMap($font);
+        $charCode = Helpers::uniord($char, "UTF-8");
 
-        return \array_key_exists($char_code, $char_map);
+        return \array_key_exists($charCode, $charMap);
     }
 
     public function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)
