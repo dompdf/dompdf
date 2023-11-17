@@ -1162,19 +1162,43 @@ class StyleTest extends TestCase
             'var_value' => [[
                 "border" => "2px solid var(--bg)",
                 "--bg" => "#ff0000FF",
-            ], "border", "2px solid #ff0000FF"],
+            ], "border_top_color", "#ff0000FF"],
 
-            'multi_var_value' => [[
+            'var_value_twice' => [[
+                "border" => "2px solid var(--bg)",
+                "--bg" => "#ff0000FF",
+                "--bg" => "#0000ffFF",
+            ], "border_top_color", "#0000ffFF"],
+
+            'multi_var_value_color' => [[
                 "border" => "2px var(--style) var(--bg)",
                 "--style" => "dotted",
                 "--bg" => "#ff0000FF",
-            ], "border", "2px dotted #ff0000FF"],
+            ], "border_top_color", "#ff0000FF"],
+
+            'multi_var_value_style' => [[
+                "border" => "2px var(--style) var(--bg)",
+                "--style" => "dotted",
+                "--bg" => "#ff0000FF",
+            ], "border_top_style", "dotted"],
+
+            'shorthand_override' => [[
+                "border" => "2px solid var(--bg)",
+                "border-color" => "#0000ffff",
+                "--bg" => "#ff0000FF",
+            ], "border_top_color", "#0000ffFF"],
+
+            'specific_override' => [[
+                "border-color" => "#0000ffff",
+                "border" => "2px solid var(--bg)",
+                "--bg" => "#ff0000FF",
+            ], "border_top_color", "#ff0000FF"],
 
             'referenced_var' => [[
                 "border" => "var(--border-specification)",
                 "--border-specification" => "2px solid var(--bg)",
                 "--bg" => "#ff0000FF",
-            ], "border", "2px solid #ff0000FF"],
+            ], "border_top_color", "#ff0000FF"],
 
             'fallback_var_valid_property' => [[
                 "background_color" => "var(--bg, var(--fallback))",
@@ -1190,6 +1214,21 @@ class StyleTest extends TestCase
             'fallback_var_double_undefined_property' => [[
                 "background_color" => "var(--undefined, var(--undefined, #eeeeeeFF))",
             ], "background_color", "#eeeeeeFF"],
+
+            'recursion' => [[
+                "color" => "var(--one)",
+                "--one" => "var(--one)"
+            ], "color", "#000000FF"],
+
+            'recursion_with_fallback' => [[
+                "color" => "var(--one)",
+                "--one" => "var(--one, #00ff00ff)"
+            ], "color", "#00ff00FF"],
+
+            'recursion_with_recursive fallback' => [[
+                "color" => "var(--one)",
+                "--one" => "var(--one, var(--one))"
+            ], "color", "#000000FF"],
         ];
     }
 
@@ -1209,6 +1248,56 @@ class StyleTest extends TestCase
 
         // Use __get to get the computed value.
         $resolved_value = $style->$lookup_property;
+
+        // Only compare the hex value from color arrays.
+        if (is_array($resolved_value) && array_key_exists("hex", $resolved_value)) {
+            $resolved_value = $resolved_value["hex"];
+        }
+
+        // Assert the parsed result.
+        $this->assertStringContainsString($expected, $resolved_value);
+    }
+
+    public static function mergedVarValueProvider(): array {
+        return [
+            'simple' => [[
+                [
+                    "color" => "var(--color)",
+                    "--color" => "#ff0000FF"
+                ],
+                [
+                    "--color" => "#0000ffFF"
+                ],
+            ], "color", "#0000ffFF"],
+        ];
+    }
+
+    /**
+     * @dataProvider mergedVarValueProvider
+     */
+    public function testMergeVar(array $styleDefs, $lookup_property, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $styles = [
+            new Style($sheet),
+            new Style($sheet)
+        ];
+
+        // Set all properties and values.
+        foreach ($styleDefs as $index => $def) {
+            foreach ($def as $prop => $value) {
+                $styles[$index]->set_prop($prop, $value);
+            }
+        }
+
+        $resolved_style = new Style($sheet);
+        foreach ($styles as $style) {
+            $resolved_style->merge($style);
+        }
+
+        // Use __get to get the computed value.
+        $resolved_value = $resolved_style->$lookup_property;
 
         // Only compare the hex value from color arrays.
         if (is_array($resolved_value) && array_key_exists("hex", $resolved_value)) {
@@ -1299,7 +1388,7 @@ class StyleTest extends TestCase
         $dompdf->loadHtml($html);
         $dompdf->render();
 
-        // Todo: Ideally have the style associated with the div id or something. 
+        // Todo: Ideally have the style associated with the div id or something.
         $this->assertEquals($hexval, $styles[$index]['hex']);
     }
 }
