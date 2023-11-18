@@ -847,7 +847,7 @@ class Style
             // CSS3
             $d["opacity"] = 1.0;
             $d["background_size"] = ["auto", "auto"];
-            $d["transform"] = "none";
+            $d["transform"] = [];
             $d["transform_origin"] = ["50%", "50%", 0.0];
 
             // for @font-face
@@ -2311,6 +2311,18 @@ class Style
      * @param string $val
      * @return float|null
      */
+    protected function compute_number(string $val): ?float
+    {
+        $number = self::CSS_NUMBER;
+        return preg_match("/^$number$/", $val)
+            ? (float) $val
+            : null;
+    }
+
+    /**
+     * @param string $val
+     * @return float|null
+     */
     protected function compute_length(string $val): ?float
     {
         return strpos($val, "%") === false
@@ -2419,6 +2431,38 @@ class Style
     {
         $val = strtolower($val);
         return \in_array($val, self::BORDER_STYLES, true) ? $val : null;
+    }
+
+    /**
+     * @param string $val
+     * @return float|null
+     *
+     * @link https://www.w3.org/TR/css3-values/#angles
+     */
+    protected function compute_angle_or_zero(string $val): ?float
+    {
+        $number = self::CSS_NUMBER;
+        $pattern = "/^($number)(deg|grad|rad|turn)?$/i";
+
+        if (!preg_match($pattern, $val, $matches)) {
+            return null;
+        }
+
+        $v = (float) $matches[1];
+        $unit = strtolower($matches[2] ?? "");
+
+        switch ($unit) {
+            case "deg":
+                return $v;
+            case "grad":
+                return $v * 0.9;
+            case "rad":
+                return rad2deg($v);
+            case "turn":
+                return $v * 360;
+            default:
+                return $v === 0.0 ? $v : null;
+        }
     }
 
     /**
@@ -3958,127 +4002,157 @@ class Style
     }
 
     /**
-     * @param string $computed
-     * @return array
-     *
      * @link https://www.w3.org/TR/css-transforms-1/#transform-property
      */
-    protected function _get_transform($computed)
+    protected function _compute_transform(string $val)
     {
-        //TODO: should be handled in setter (lengths set to absolute)
+        $val = strtolower($val);
 
-        $number = "\s*([^,\s]+)\s*";
-        $tr_value = "\s*([^,\s]+)\s*";
-        $angle = "\s*([^,\s]+(?:deg|rad)?)\s*";
-
-        if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $computed, $parts, PREG_SET_ORDER)) {
+        if ($val === "none") {
             return [];
         }
 
-        $functions = [
-            //"matrix"     => "\($number,$number,$number,$number,$number,$number\)",
-
-            "translate" => "\($tr_value(?:,$tr_value)?\)",
-            "translateX" => "\($tr_value\)",
-            "translateY" => "\($tr_value\)",
-
-            "scale" => "\($number(?:,$number)?\)",
-            "scaleX" => "\($number\)",
-            "scaleY" => "\($number\)",
-
-            "rotate" => "\($angle\)",
-
-            "skew" => "\($angle(?:,$angle)?\)",
-            "skewX" => "\($angle\)",
-            "skewY" => "\($angle\)",
-        ];
-
+        $parts = $this->parse_property_value($val);
         $transforms = [];
 
+        if ($parts === []) {
+            return null;
+        }
+
         foreach ($parts as $part) {
-            $t = $part[0];
+            if (!preg_match("/^([a-z]+)\((.+)\)$/s", $part, $matches)) {
+                return null;
+            }
 
-            foreach ($functions as $name => $pattern) {
-                if (preg_match("/$name\s*$pattern/i", $t, $matches)) {
-                    $values = \array_slice($matches, 1);
+            $name = $matches[1];
+            $arguments = trim($matches[2]);
+            $values = $this->parse_property_value($arguments);
+            $values = array_values(array_filter($values, function ($v) {
+                return $v !== ",";
+            }));
+            $count = \count($values);
 
-                    switch ($name) {
-                        // <angle> units
-                        case "rotate":
-                        case "skew":
-                        case "skewX":
-                        case "skewY":
+            if ($count === 0) {
+                return null;
+            }
 
-                            foreach ($values as $i => $value) {
-                                if (strpos($value, "rad")) {
-                                    $values[$i] = rad2deg((float) $value);
-                                } else {
-                                    $values[$i] = (float) $value;
-                                }
-                            }
+            switch ($name) {
+                // case "matrix":
+                //     if ($count !== 6) {
+                //         return null;
+                //     }
 
-                            switch ($name) {
-                                case "skew":
-                                    if (!isset($values[1])) {
-                                        $values[1] = 0;
-                                    }
-                                    break;
-                                case "skewX":
-                                    $name = "skew";
-                                    $values = [$values[0], 0];
-                                    break;
-                                case "skewY":
-                                    $name = "skew";
-                                    $values = [0, $values[0]];
-                                    break;
-                            }
-                            break;
+                //     $values = array_map([$this, "compute_number"], $values);
+                //     break;
 
-                        // <translation-value> units
-                        case "translate":
-                            $values[0] = $this->length_in_pt($values[0], (float)$this->length_in_pt($this->width));
-
-                            if (isset($values[1])) {
-                                $values[1] = $this->length_in_pt($values[1], (float)$this->length_in_pt($this->height));
-                            } else {
-                                $values[1] = 0;
-                            }
-                            break;
-
-                        case "translateX":
-                            $name = "translate";
-                            $values = [$this->length_in_pt($values[0], (float)$this->length_in_pt($this->width)), 0];
-                            break;
-
-                        case "translateY":
-                            $name = "translate";
-                            $values = [0, $this->length_in_pt($values[0], (float)$this->length_in_pt($this->height))];
-                            break;
-
-                        // <number> units
-                        case "scale":
-                            if (!isset($values[1])) {
-                                $values[1] = $values[0];
-                            }
-                            break;
-
-                        case "scaleX":
-                            $name = "scale";
-                            $values = [$values[0], 1.0];
-                            break;
-
-                        case "scaleY":
-                            $name = "scale";
-                            $values = [1.0, $values[0]];
-                            break;
+                // <length-percentage> units
+                case "translate":
+                    if ($count > 2) {
+                        return null;
                     }
 
-                    $transforms[] = [
-                        $name,
-                        $values,
+                    $values = [
+                        $this->compute_length_percentage($values[0]),
+                        isset($values[1]) ? $this->compute_length_percentage($values[1]) : 0.0
                     ];
+                    break;
+
+                case "translatex":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "translate";
+                    $values = [$this->compute_length_percentage($values[0]), 0.0];
+                    break;
+
+                case "translatey":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "translate";
+                    $values = [0.0, $this->compute_length_percentage($values[0])];
+                    break;
+
+                // <number> units
+                case "scale":
+                    if ($count > 2) {
+                        return null;
+                    }
+
+                    $v0 = $this->compute_number($values[0]);
+                    $v1 = isset($values[1]) ? $this->compute_number($values[1]) : $v0;
+                    $values = [$v0, $v1];
+                    break;
+
+                case "scalex":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "scale";
+                    $values = [$this->compute_number($values[0]), 1.0];
+                    break;
+
+                case "scaley":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "scale";
+                    $values = [1.0, $this->compute_number($values[0])];
+                    break;
+
+                // <angle> units
+                case "rotate":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $values = [$this->compute_angle_or_zero($values[0])];
+                    break;
+
+                case "skew":
+                    if ($count > 2) {
+                        return null;
+                    }
+
+                    $values = [
+                        $this->compute_angle_or_zero($values[0]),
+                        isset($values[1]) ? $this->compute_angle_or_zero($values[1]) : 0.0
+                    ];
+                    break;
+
+                case "skewx":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "skew";
+                    $values = [$this->compute_angle_or_zero($values[0]), 0.0];
+                    break;
+
+                case "skewy":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "skew";
+                    $values = [0.0, $this->compute_angle_or_zero($values[0])];
+                    break;
+
+                default:
+                    return null;
+            }
+
+            foreach ($values as $v) {
+                if ($v === null) {
+                    return null;
                 }
             }
+
+            $transforms[] = [$name, $values];
         }
 
         return $transforms;

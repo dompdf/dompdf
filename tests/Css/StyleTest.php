@@ -1092,6 +1092,74 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->size);
     }
 
+    public static function transformProvider(): array
+    {
+        $initialInvalid = [["translate", 0.0, 0.0]];
+
+        return [
+            // Keywords
+            ["none", []],
+
+            // Translate
+            ["translate(10pt)", [["translate", [10.0, 0.0]]]],
+            ["translate(10pt, 5pt)", [["translate", [10.0, 5.0]]]],
+            ["translate(100%, -50%)", [["translate", ["100%", "-50%"]]]],
+            ["translateX(10pt)", [["translate", [10.0, 0.0]]]],
+            ["translateY(10pt)", [["translate", [0.0, 10.0]]]],
+
+            // Scale
+            ["scale(2.5)", [["scale", [2.5, 2.5]]]],
+            ["scale(5, 1)", [["scale", [5.0, 1.0]]]],
+            ["scale(-5, 0)", [["scale", [-5.0, 0.0]]]],
+            ["scaleX(5)", [["scale", [5.0, 1.0]]]],
+            ["scaleY(5)", [["scale", [1.0, 5.0]]]],
+
+            // Rotate
+            ["rotate(0.0)", [["rotate", [0.0]]]],
+            ["rotate(0deg)", [["rotate", [0.0]]]],
+            ["rotate(360deg)", [["rotate", [360.0]]]],
+            ["rotate(-45deg)", [["rotate", [-45.0]]]],
+            ["rotate(-200grad)", [["rotate", [-180.0]]]],
+            ["rotate(0rad)", [["rotate", [0.0]]]],
+            ["rotate(0.25turn)", [["rotate", [90.0]]]],
+
+            // Skew
+            ["skew(45deg)", [["skew", [45.0, 0.0]]]],
+            ["skew(45deg, 45deg)", [["skew", [45.0, 45.0]]]],
+            ["skewX(45deg)", [["skew", [45.0, 0.0]]]],
+            ["skewY(45deg)", [["skew", [0.0, 45.0]]]],
+
+            // Transform list and calc values
+            ["translateX(10pt) translateX(-10pt)", [["translate", [10.0, 0.0]], ["translate", [-10.0, 0.0]]]],
+            ["scale(2.5) translate(calc(100% - 100pt), 100pt) rotate(-90deg)", [["scale", [2.5, 2.5]], ["translate", ["calc(100% - 100pt)", 100.0]], ["rotate", [-90.0]]]],
+
+            // Case and whitespace variations
+            ["translatex(10pt)", [["translate", [10.0, 0.0]]]],
+            ["SCALE(2.5)TRANSLATEy(CALc(-10pt))", [["scale", [2.5, 2.5]], ["translate", [0.0, -10.0]]]],
+
+            // Invalid values
+            ["auto", $initialInvalid, $initialInvalid],
+            ["translate( )", $initialInvalid, $initialInvalid],
+            ["scale(1, 1, 1)", $initialInvalid, $initialInvalid],
+            ["rotate(20deg, 30deg) ", $initialInvalid, $initialInvalid],
+            ["rotate(20deg) skewY(45deg, 90deg)", $initialInvalid, $initialInvalid],
+        ];
+    }
+
+    /**
+     * @dataProvider transformProvider
+     */
+    public function testTransform(string $value, $expected, array $initial = []): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->transform = $initial;
+        $style->set_prop("transform", $value);
+        $this->assertSame($expected, $style->transform);
+    }
+
     public static function transformOriginProvider(): array
     {
         return [
