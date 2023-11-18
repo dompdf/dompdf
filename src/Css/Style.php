@@ -3569,9 +3569,10 @@ class Style
     protected function _compute_border_spacing(string $val)
     {
         $val = strtolower($val);
-        $parts = preg_split("/\s+/", $val);
+        $parts = $this->parse_property_value($val);
+        $count = \count($parts);
 
-        if (\count($parts) > 2) {
+        if ($count === 0 || $count > 2) {
             return null;
         }
 
