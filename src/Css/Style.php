@@ -161,7 +161,7 @@ use Dompdf\Helpers;
  * @property string               $text_transform
  * @property float|string         $top                         Length in pt, a percentage value, or `auto`
  * @property array                $transform                   List of transforms
- * @property array                $transform_origin
+ * @property array                $transform_origin            Triplet of `[x, y, z]`, each value being a length in pt, or a percentage value for x and y
  * @property string               $unicode_bidi
  * @property string               $unicode_range
  * @property string               $vertical_align
@@ -848,7 +848,7 @@ class Style
             $d["opacity"] = 1.0;
             $d["background_size"] = ["auto", "auto"];
             $d["transform"] = "none";
-            $d["transform_origin"] = "50% 50%";
+            $d["transform_origin"] = ["50%", "50%", 0.0];
 
             // for @font-face
             $d["src"] = "";
@@ -2422,6 +2422,72 @@ class Style
     }
 
     /**
+     * Common computation logic for `background-position` and `transform-origin`.
+     *
+     * @param string $v1
+     * @param string $v2
+     *
+     * @return (float|string|null)[]
+     */
+    protected function computeBackgroundPositionTransformOrigin(string $v1, string $v2): array
+    {
+        $x = null;
+        $y = null;
+
+        switch ($v1) {
+            case "left":
+                $x = 0.0;
+                break;
+            case "right":
+                $x = "100%";
+                break;
+            case "top":
+                $y = 0.0;
+                break;
+            case "bottom":
+                $y = "100%";
+                break;
+            case "center":
+                if ($v2 === "left" || $v2 === "right") {
+                    $y = "50%";
+                } else {
+                    $x = "50%";
+                }
+                break;
+            default:
+                $x = $this->compute_length_percentage($v1);
+                break;
+        }
+
+        switch ($v2) {
+            case "left":
+                $x = 0.0;
+                break;
+            case "right":
+                $x = "100%";
+                break;
+            case "top":
+                $y = 0.0;
+                break;
+            case "bottom":
+                $y = "100%";
+                break;
+            case "center":
+                if ($v1 === "top" || $v1 === "bottom") {
+                    $x = "50%";
+                } else {
+                    $y = "50%";
+                }
+                break;
+            default:
+                $y = $this->compute_length_percentage($v2);
+                break;
+        }
+
+        return [$x, $y];
+    }
+
+    /**
      * @link https://www.w3.org/TR/css-lists-3/#typedef-counter-name
      */
     protected function isValidCounterName(string $name): bool
@@ -2582,89 +2648,14 @@ class Style
         $val = strtolower($val);
         $parts = $this->parse_property_value($val);
         $count = \count($parts);
-        $x = null;
-        $y = null;
 
-        if ($count === 1) {
-            switch ($parts[0]) {
-                case "left":
-                    $x = 0.0;
-                    $y = "50%";
-                    break;
-                case "right":
-                    $x = "100%";
-                    $y = "50%";
-                    break;
-                case "top":
-                    $x = "50%";
-                    $y = 0.0;
-                    break;
-                case "bottom":
-                    $x = "50%";
-                    $y = "100%";
-                    break;
-                case "center":
-                    $x = "50%";
-                    $y = "50%";
-                    break;
-                default:
-                    $x = $this->compute_length_percentage($parts[0]);
-                    $y = "50%";
-                    break;
-            }
-        } elseif ($count === 2) {
-            switch ($parts[0]) {
-                case "left":
-                    $x = 0.0;
-                    break;
-                case "right":
-                    $x = "100%";
-                    break;
-                case "top":
-                    $y = 0.0;
-                    break;
-                case "bottom":
-                    $y = "100%";
-                    break;
-                case "center":
-                    if ($parts[1] === "left" || $parts[1] === "right") {
-                        $y = "50%";
-                    } else {
-                        $x = "50%";
-                    }
-                    break;
-                default:
-                    $x = $this->compute_length_percentage($parts[0]);
-                    break;
-            }
-
-            switch ($parts[1]) {
-                case "left":
-                    $x = 0.0;
-                    break;
-                case "right":
-                    $x = "100%";
-                    break;
-                case "top":
-                    $y = 0.0;
-                    break;
-                case "bottom":
-                    $y = "100%";
-                    break;
-                case "center":
-                    if ($parts[0] === "top" || $parts[0] === "bottom") {
-                        $x = "50%";
-                    } else {
-                        $y = "50%";
-                    }
-                    break;
-                default:
-                    $y = $this->compute_length_percentage($parts[1]);
-                    break;
-            }
-        } else {
+        if ($count === 0 || $count > 2) {
             return null;
         }
+
+        $v1 = $parts[0];
+        $v2 = $parts[1] ?? "center";
+        [$x, $y] = $this->computeBackgroundPositionTransformOrigin($v1, $v2);
 
         if ($x === null || $y === null) {
             return null;
@@ -2692,8 +2683,9 @@ class Style
         }
 
         $parts = $this->parse_property_value($val);
+        $count = \count($parts);
 
-        if (\count($parts) > 2) {
+        if ($count === 0 || $count > 2) {
             return null;
         }
 
@@ -3325,7 +3317,7 @@ class Style
      * @param string   $value  `width || style || color`
      * @param string[] $styles The list of border styles to accept.
      *
-     * @return array Array of `[width, style, color]`, or `null` if the declaration is invalid.
+     * @return string[]|null Array of `[width, style, color]`, or `null` if the declaration is invalid.
      */
     protected function parse_border_side(string $value, array $styles = self::BORDER_STYLES): ?array
     {
@@ -4093,32 +4085,28 @@ class Style
     }
 
     /**
-     * @param string $computed
-     * @return array
-     *
      * @link https://www.w3.org/TR/css-transforms-1/#transform-origin-property
      */
-    protected function _get_transform_origin($computed)
+    protected function _compute_transform_origin(string $val)
     {
-        //TODO: should be handled in setter
+        $val = strtolower($val);
+        $parts = $this->parse_property_value($val);
+        $count = \count($parts);
 
-        $values = preg_split("/\s+/", $computed);
-
-        $values = array_map(function ($value) {
-            if (\in_array($value, ["top", "left"], true)) {
-                return 0;
-            } elseif (\in_array($value, ["bottom", "right"], true)) {
-                return "100%";
-            } else {
-                return $value;
-            }
-        }, $values);
-
-        if (!isset($values[1])) {
-            $values[1] = $values[0];
+        if ($count === 0 || $count > 3) {
+            return null;
         }
 
-        return $values;
+        $v1 = $parts[0];
+        $v2 = $parts[1] ?? "center";
+        [$x, $y] = $this->computeBackgroundPositionTransformOrigin($v1, $v2);
+        $z = $count === 3 ? $this->compute_length($parts[2]) : 0.0;
+
+        if ($x === null || $y === null || $z === null) {
+            return null;
+        }
+
+        return [$x, $y, $z];
     }
 
     /**
