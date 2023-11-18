@@ -260,6 +260,7 @@ class StyleTest extends TestCase
             ["-23PT     BoTTom", [-23.0, "100%"]],
 
             // Invalid values
+            ["", [0.0, 0.0]],
             ["none", [0.0, 0.0]],
             ["auto", [0.0, 0.0]],
             ["left left", [0.0, 0.0]],
@@ -315,6 +316,7 @@ class StyleTest extends TestCase
             ["CALC(20PT*3)23PT", [60.0, 23.0]],
 
             // Invalid values
+            ["", ["auto", "auto"]],
             ["none", ["auto", "auto"]],
             ["auto", ["auto", "auto"]],
             ["cover contain", ["auto", "auto"]]
@@ -1088,6 +1090,92 @@ class StyleTest extends TestCase
 
         $style->set_prop("size", $value);
         $this->assertSame($expected, $style->size);
+    }
+
+    public static function transformOriginProvider(): array
+    {
+        return [
+            // One value
+            ["left", [0.0, "50%", 0.0]],
+            ["right", ["100%", "50%", 0.0]],
+            ["top", ["50%", 0.0, 0.0]],
+            ["bottom", ["50%", "100%", 0.0]],
+            ["center", ["50%", "50%", 0.0]],
+            ["20pt", [20.0, "50%", 0.0]],
+            ["-10pt", [-10.0, "50%", 0.0]],
+            ["23%", ["23%", "50%", 0.0]],
+            ["-75%", ["-75%", "50%", 0.0]],
+
+            // Two values
+            ["left top", [0.0, 0.0, 0.0]],
+            ["top left", [0.0, 0.0, 0.0]],
+            ["left bottom", [0.0, "100%", 0.0]],
+            ["bottom left", [0.0, "100%", 0.0]],
+            ["left center", [0.0, "50%", 0.0]],
+            ["center left", [0.0, "50%", 0.0]],
+            ["right top", ["100%", 0.0, 0.0]],
+            ["top right", ["100%", 0.0, 0.0]],
+            ["right bottom", ["100%", "100%", 0.0]],
+            ["bottom right", ["100%", "100%", 0.0]],
+            ["right center", ["100%", "50%", 0.0]],
+            ["center right", ["100%", "50%", 0.0]],
+            ["bottom center", ["50%", "100%", 0.0]],
+            ["center bottom", ["50%", "100%", 0.0]],
+            ["top center", ["50%", 0.0, 0.0]],
+            ["center top", ["50%", 0.0, 0.0]],
+            ["center center", ["50%", "50%", 0.0]],
+            ["left 23%", [0.0, "23%", 0.0]],
+            ["right 23%", ["100%", "23%", 0.0]],
+            ["center 23%", ["50%", "23%", 0.0]],
+            ["23% top", ["23%", 0.0, 0.0]],
+            ["23% bottom", ["23%", "100%", 0.0]],
+            ["23% center", ["23%", "50%", 0.0]],
+            ["23% 50pt", ["23%", 50.0, 0.0]],
+            ["50pt 23%", [50.0, "23%", 0.0]],
+
+            // Three values
+            ["left top 20pt", [0.0, 0.0, 20.0]],
+            ["center bottom 0", ["50%", "100%", 0.0]],
+            ["center center -50pt", ["50%", "50%", -50.0]],
+            ["-50pt -23% -50pt", [-50.0, "-23%", -50.0]],
+
+            // Calc values
+            ["calc(-75% + 100pt)", ["calc(-75% + 100pt)", "50%", 0.0]],
+            ["calc(33% * 3 + 1%) calc(20pt + 30pt) calc( 99pt/3 )", ["calc(33% * 3 + 1%)", 50.0, 33.0]],
+
+            // Case and whitespace variations
+            ["LEFT", [0.0, "50%", 0.0]],
+            ["TOP    Right", ["100%", 0.0, 0.0]],
+            ["-23PT     BoTTom", [-23.0, "100%", 0.0]],
+
+            // Invalid values
+            ["", ["50%", "50%", 0.0]],
+            ["none", ["50%", "50%", 0.0]],
+            ["auto", ["50%", "50%", 0.0]],
+            ["left left", ["50%", "50%", 0.0]],
+            ["left right", ["50%", "50%", 0.0]],
+            ["bottom top", ["50%", "50%", 0.0]],
+            ["center center center", ["50%", "50%", 0.0]],
+            ["1pt 2pt 3pt 4pt", ["50%", "50%", 0.0]],
+            ["23% left", ["50%", "50%", 0.0]],
+            ["23% right", ["50%", "50%", 0.0]],
+            ["top 23%", ["50%", "50%", 0.0]],
+            ["bottom 23%", ["50%", "50%", 0.0]],
+            ["-50pt -23% -23%", ["50%", "50%", 0.0]] // Percentage for z not allowed
+        ];
+    }
+
+    /**
+     * @dataProvider transformOriginProvider
+     */
+    public function testTransformOrigin(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("transform_origin", $value);
+        $this->assertSame($expected, $style->transform_origin);
     }
 
     public static function opacityProvider(): array

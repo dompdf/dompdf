@@ -77,18 +77,18 @@ class Renderer extends AbstractRenderer
         // Starts the CSS transformation
         if ($hasTransform) {
             $this->_canvas->save();
-            list($x, $y) = $frame->get_padding_box();
-            $origin = $style->transform_origin;
+            [$x, $y] = $frame->get_padding_box();
+            [$originX, $originY] = $style->transform_origin;
 
             foreach ($transformList as $transform) {
-                list($function, $values) = $transform;
+                [$function, $values] = $transform;
                 if ($function === "matrix") {
                     $function = "transform";
                 }
 
                 $values = array_map("floatval", $values);
-                $values[] = $x + (float)$style->length_in_pt($origin[0], (float)$style->length_in_pt($style->width));
-                $values[] = $y + (float)$style->length_in_pt($origin[1], (float)$style->length_in_pt($style->height));
+                $values[] = $x + (float)$style->length_in_pt($originX, (float)$style->length_in_pt($style->width));
+                $values[] = $y + (float)$style->length_in_pt($originY, (float)$style->length_in_pt($style->height));
 
                 call_user_func_array([$this->_canvas, $function], $values);
             }
