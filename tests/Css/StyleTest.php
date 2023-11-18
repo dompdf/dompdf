@@ -286,6 +286,7 @@ class StyleTest extends TestCase
         $style->set_prop("background_position", $value);
         $this->assertSame($expected, $style->background_position);
     }
+
     public static function backgroundSizeProvider(): array
     {
         return [
@@ -721,6 +722,45 @@ class StyleTest extends TestCase
         $this->testLengthProperty("border_top_right_radius", $value, $fontSize, $expected, ["border_top_right_radius" => $initial]);
         $this->testLengthProperty("border_bottom_right_radius", $value, $fontSize, $expected, ["border_bottom_right_radius" => $initial]);
         $this->testLengthProperty("border_bottom_left_radius", $value, $fontSize, $expected, ["border_bottom_left_radius" => $initial]);
+    }
+
+    public static function borderSpacingProvider(): array
+    {
+        return [
+            // One value
+            ["0", [0.0, 0.0]],
+            ["10pt", [10.0, 10.0]],
+
+            // Two values
+            ["0 0", [0.0, 0.0]],
+            ["20pt 50pt", [20.0, 50.0]],
+
+            // Calc values
+            ["20pt calc(20pt + 30pt)", [20.0, 50.0]],
+
+            // Case and whitespace variations
+            ["CALC(20PT*3)23PT", [60.0, 23.0]],
+
+            // Invalid values
+            ["", [0.0, 0.0]],
+            ["none", [0.0, 0.0]],
+            ["auto", [0.0, 0.0]],
+            ["100% 10pt", [0.0, 0.0]],
+            ["30pt -10pt", [0.0, 0.0]]
+        ];
+    }
+
+    /**
+     * @dataProvider borderSpacingProvider
+     */
+    public function testBorderSpacing(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("border_spacing", $value);
+        $this->assertSame($expected, $style->border_spacing);
     }
 
     public static function counterIncrementProvider(): array
