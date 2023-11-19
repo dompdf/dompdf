@@ -116,12 +116,18 @@ class StyleTest extends TestCase
             ["round(30%, 0%)", 100, 0.0],
             ["round(4%, 9%)", 100, 0.0],
             ["round(6%, 9%)", 100, 9.0],
-            ["round(13.5%, 9%)", 100, 18.0],               // Default when exactly between (upper)
+            ["round(13.5%, 9%)", 100, 18.0],               // Default when exactly between (nearest)
             ["round(15%, 9)", 100, 18.0],
             ["round(5.4, 1)", null, 5.0],
-            ["round(5.5, 1)", null, 6.0],                  // Default when exactly between (upper)
-            ["round(0.54, 0.1)", null, 0.5],
-            ["round(0.56, 0.1)", null, 0.6],
+            ["round(5.5, 1)", null, 6.0],                  // Default when exactly between (nearest)
+            ["round(5.6, 1)", null, 6.0],
+            ["round(-5.4, 1)", null, -5.0],
+            ["round(-5.5, 1)", null, -5.0],                // Default when exactly between (nearest)
+            ["round(-5.6, 1)", null, -6.0],
+            ["round(-5.5, -1)", null, -5.0],               // Default when exactly between (nearest)
+            ["round(5.5, -1)", null, 6.0],                 // Default when exactly between (nearest)
+            ["round(0.54, 0.1)", null, 0.5, 4],
+            ["round(0.56, 0.1)", null, 0.6, 4],
             ["mod(30, 0)", null, 0.0],
             ["mod(18, 5)", null, 3.0],
             ["mod(-18, 5)", null, 2.0],
