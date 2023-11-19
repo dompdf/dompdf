@@ -1272,25 +1272,26 @@ class Style
                             return null;
                         }
                         if ($argv[1] > 0) {
-                            // calc(A - sign(B)*round(down, A*sign(B), B))
-                            $stack[] = $argv[0] - (floor($argv[0] / $argv[1]) * $argv[1]);
+                            $stack[] = $argv[0] - floor($argv[0] / $argv[1]) * $argv[1];
                         } else {
-                            // calc(A - sign(B)*round(up, A*sign(B), B))
-                            $stack[] = $argv[0] - (ceil($argv[0] * -1 / $argv[1]) * $argv[1] * -1) ;
+                            $stack[] = $argv[0] - ceil($argv[0] * -1 / $argv[1]) * $argv[1] * -1 ;
                         }
                         break;
                     case 'rem':
                         if ($argc !== 2 || $argv[1] === 0.0) {
                             return null;
                         }
-                        // calc(A - round(to-zero, A, B))
                         $stack[] = $argv[0] - (intval($argv[0] / $argv[1]) * $argv[1]);
                         break;
                     case 'round':
                         if ($argc !== 2 || $argv[1] === 0.0) {
                             return null;
                         }
-                        $stack[] = round($argv[0] / $argv[1]) * $argv[1];
+                        if ($argv[0] >= 0) {
+                            $stack[] = round($argv[0] / $argv[1], 0, PHP_ROUND_HALF_UP) * $argv[1];
+                        } else {
+                            $stack[] = round($argv[0] / $argv[1], 0, PHP_ROUND_HALF_DOWN) * $argv[1];
+                        }
                         break;
                     case 'calc':
                         if ($argc !== 1) {
