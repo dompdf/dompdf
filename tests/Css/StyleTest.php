@@ -1269,6 +1269,25 @@ class StyleTest extends TestCase
                     "--color" => "#0000ffFF"
                 ],
             ], "color", "#0000ffFF"],
+            'important_ref' => [[
+                [
+                    "color" => "var(--color) !important",
+                    "--color" => "#ff0000FF"
+                ],
+                [
+                    "color" => "000000FF",
+                    "--color" => "#0000ffFF"
+                ],
+            ], "color", "#0000ffFF"],
+            'important_var' => [[
+                [
+                    "color" => "var(--color)",
+                    "--color" => "#ff0000FF !important"
+                ],
+                [
+                    "--color" => "#0000ffFF"
+                ],
+            ], "color", "#ff0000FF"],
         ];
     }
 
@@ -1287,7 +1306,16 @@ class StyleTest extends TestCase
         // Set all properties and values.
         foreach ($styleDefs as $index => $def) {
             foreach ($def as $prop => $value) {
-                $styles[$index]->set_prop($prop, $value);
+                $important = false;
+                if (substr($value, -9) === 'important') {
+                    $value_tmp = rtrim(substr($value, 0, -9));
+    
+                    if (substr($value_tmp, -1) === '!') {
+                        $value = rtrim(substr($value_tmp, 0, -1));
+                        $important = true;
+                    }
+                }
+                $styles[$index]->set_prop($prop, $value, $important);
             }
         }
 

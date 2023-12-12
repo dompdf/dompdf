@@ -663,7 +663,7 @@ class Style
     protected $non_final_used = [];
 
     /**
-     * Used to track CSS property assignment entry/exit. Used to watch
+     * Used to track CSS property assignment entry/exit in order to watch
      * for circular dependencies.
      *
      * @var array<int, string>
@@ -671,8 +671,8 @@ class Style
     protected $_prop_stack = [];
 
     /**
-     * Used to track CSS variable resolution entry/exit. Used to watch
-     * for circular dependencies
+     * Used to track CSS variable resolution entry/exit in order to watch
+     * for circular dependencies.
      *
      * @var array<int, string>
      */
@@ -1380,6 +1380,14 @@ class Style
                 $this->_props_specified[$prop] = true;
             }
         }
+
+        // re-evalutate CSS variables
+        foreach (array_keys($this->_props) as $prop) {
+            if (substr($prop, 0, 2) !== "--") {
+                continue;
+            }
+            $this->set_prop($prop, $this->_props[$prop], isset($this->_important_props[$prop]));
+        }
     }
 
     /**
@@ -1538,11 +1546,11 @@ class Style
 
             // https://www.w3.org/TR/css-cascade-3/#inherit-initial
             if ($val === "unset") {
-                $val = isset(self::$_inherited[$prop]) ? "inherit" : "initial";
+                $val = isset(self::$_inherited[$prop]) || substr($prop, 0, 2) === "--" ? "inherit" : "initial";
             }
 
             // https://www.w3.org/TR/css-cascade-3/#valdef-all-initial
-            if ($val === "initial") {
+            if ($val === "initial" && substr($prop, 0, 2) !== "--") {
                 $val = self::$_defaults[$prop];
             }
 
@@ -1571,11 +1579,11 @@ class Style
                 }, ARRAY_FILTER_USE_KEY); // copy existing props filtered by those set explicitly before parsing vars
                 foreach ($specified_props as $specified_prop => $specified_value) {
                     if (substr($specified_prop, 0, 2) !== "--" || strpos($specified_value, "var($prop") !== false) {
-                        $this->set_prop($specified_prop, $specified_value, \in_array($specified_prop, $this->_important_props, true), true);
+                        $this->set_prop($specified_prop, $specified_value, isset($this->_important_props[$specified_prop]), true);
                         if (isset(self::$_props_shorthand[$specified_prop])) {
                             foreach (self::$_props_shorthand[$specified_prop] as $sub_prop) {
                                 if (\array_key_exists($sub_prop, $specified_props)) {
-                                    $this->set_prop($sub_prop, $specified_props[$sub_prop], \in_array($sub_prop, $this->_important_props, true), true);
+                                    $this->set_prop($sub_prop, $specified_props[$sub_prop], isset($this->_important_props[$sub_prop]), true);
                                 }
                             }
                         }
@@ -1592,13 +1600,6 @@ class Style
                         unset($this->_props_computed[$dependent]);
                         unset($this->_props_used[$dependent]);
                     }
-                }
-
-                // If this property is depending on another value, clear the
-                // computed value so that it can be used later.
-                if (!empty(self::$_dependent_props[$prop])) {
-                    unset($this->_props_computed[$prop]);
-                    unset($this->_props_used[$prop]);
                 }
 
                 $this->clear_cache($prop);
