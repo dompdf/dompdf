@@ -53,9 +53,6 @@ class Text extends AbstractFrameDecorator
 
     // Accessor methods
 
-    /**
-     * @return float
-     */
     public function get_text_spacing(): float
     {
         return $this->text_spacing;
@@ -95,8 +92,6 @@ class Text extends AbstractFrameDecorator
      * start at the top and bottom of the content area, not the
      * 'line-height'. But only the 'line-height' is used to calculate the
      * height of the line box.
-     *
-     * @return float
      */
     public function get_margin_height(): float
     {
@@ -118,9 +113,6 @@ class Text extends AbstractFrameDecorator
         return $pb;
     }
 
-    /**
-     * @param float $spacing
-     */
     public function set_text_spacing(float $spacing): void
     {
         $this->text_spacing = $spacing;
@@ -129,8 +121,6 @@ class Text extends AbstractFrameDecorator
 
     /**
      * Recalculate the text width
-     *
-     * @return float
      */
     public function recalculate_width(): float
     {
@@ -155,8 +145,6 @@ class Text extends AbstractFrameDecorator
      *
      * @param int  $offset
      * @param bool $split_parent Whether to split parent inline frames.
-     *
-     * @return Text|null
      */
     public function split_text(int $offset, bool $split_parent = true): ?self
     {

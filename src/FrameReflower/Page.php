@@ -51,7 +51,7 @@ class Page extends AbstractFrameReflower
         $page_styles = $style->get_stylesheet()->get_page_styles();
 
         // http://www.w3.org/TR/CSS21/page.html#page-selectors
-        if (count($page_styles) > 1) {
+        if (\count($page_styles) > 1) {
             $odd = $page_number % 2 == 1;
             $first = $page_number == 1;
 
@@ -124,7 +124,7 @@ class Page extends AbstractFrameReflower
                         $fixed_children[] = $onechild->deep_copy();
                     }
                 }
-                $fixed_children = array_reverse($fixed_children);
+                $fixed_children = \array_reverse($fixed_children);
             }
 
             $child->set_containing_block($content_x, $content_y, $content_width, $content_height);

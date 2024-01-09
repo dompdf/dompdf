@@ -10,7 +10,6 @@ namespace Dompdf\FrameReflower;
 use Dompdf\Exception;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
-use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\Helpers;
 
 /**
@@ -29,9 +28,6 @@ class TableCell extends Block
         parent::__construct($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
     public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var TableCellFrameDecorator */
@@ -119,12 +115,12 @@ class TableCell extends Block
         // Determine our height
         $style_height = (float) $style->length_in_pt($style->height, $h);
         $content_height = $this->_calculate_content_height();
-        $height = max($style_height, $content_height);
+        $height = \max($style_height, $content_height);
 
         $frame->set_content_height($content_height);
 
         // Let the cellmap know our height
-        $cell_height = $height / count($cells["rows"]);
+        $cell_height = $height / \count($cells["rows"]);
 
         if ($style_height <= $height) {
             $cell_height += $top_space + $bottom_space;
@@ -159,7 +155,7 @@ class TableCell extends Block
         // minimum defined by the content
         if ($fixed_width) {
             $width = (float) $style->length_in_pt($width, 0);
-            $min = max($width, $min);
+            $min = \max($width, $min);
             $max = $min;
         }
 

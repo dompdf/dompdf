@@ -14,9 +14,6 @@ use Dompdf\Frame;
  */
 class TableRow extends Block
 {
-    /**
-     * @param Frame $frame
-     */
     public function render(Frame $frame)
     {
         $style = $frame->get_style();

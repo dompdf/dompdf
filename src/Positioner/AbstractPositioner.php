@@ -18,17 +18,8 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
  */
 abstract class AbstractPositioner
 {
-    /**
-     * @param AbstractFrameDecorator $frame
-     */
     abstract public function position(AbstractFrameDecorator $frame): void;
 
-    /**
-     * @param AbstractFrameDecorator $frame
-     * @param float                  $offset_x
-     * @param float                  $offset_y
-     * @param bool                   $ignore_self
-     */
     public function move(
         AbstractFrameDecorator $frame,
         float $offset_x,

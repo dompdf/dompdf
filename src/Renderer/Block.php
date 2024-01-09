@@ -17,9 +17,6 @@ use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
  */
 class Block extends AbstractRenderer
 {
-    /**
-     * @param Frame $frame
-     */
     public function render(Frame $frame)
     {
         $style = $frame->get_style();

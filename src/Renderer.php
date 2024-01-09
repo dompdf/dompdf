@@ -61,12 +61,12 @@ class Renderer extends AbstractRenderer
 
         if ($_dompdf_debug) {
             echo $frame;
-            flush();
+            \flush();
         }
 
         $style = $frame->get_style();
 
-        if (in_array($style->visibility, ["hidden", "collapse"], true)) {
+        if (\in_array($style->visibility, ["hidden", "collapse"], true)) {
             return;
         }
 
@@ -96,7 +96,7 @@ class Renderer extends AbstractRenderer
                 $values[] = $x + $style->length_in_pt($originX, $w);
                 $values[] = $y + $style->length_in_pt($originY, $h);
 
-                call_user_func_array([$this->_canvas, $function], $values);
+                \call_user_func_array([$this->_canvas, $function], $values);
             }
         }
 
@@ -200,7 +200,7 @@ class Renderer extends AbstractRenderer
             $stack[$z_index][] = $child;
         }
 
-        ksort($stack);
+        \ksort($stack);
 
         foreach ($stack as $by_index) {
             foreach ($by_index as $child) {

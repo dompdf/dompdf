@@ -157,14 +157,14 @@ class CPDF implements Canvas
 
     public function __construct($paper = "letter", string $orientation = "portrait", ?Dompdf $dompdf = null)
     {
-        if (is_array($paper)) {
-            $size = array_map("floatval", $paper);
+        if (\is_array($paper)) {
+            $size = \array_map("floatval", $paper);
         } else {
-            $paper = strtolower($paper);
+            $paper = \strtolower($paper);
             $size = self::$PAPER_SIZES[$paper] ?? self::$PAPER_SIZES["letter"];
         }
 
-        if (strtolower($orientation) === "landscape") {
+        if (\strtolower($orientation) === "landscape") {
             [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 
@@ -181,8 +181,8 @@ class CPDF implements Canvas
             $this->_dompdf->getOptions()->getTempDir()
         );
 
-        $this->_pdf->addInfo("Producer", sprintf("%s + CPDF", $this->_dompdf->version));
-        $time = substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'';
+        $this->_pdf->addInfo("Producer", \sprintf("%s + CPDF", $this->_dompdf->version));
+        $time = \substr_replace(\date('YmdHisO'), '\'', -2, 0) . '\'';
         $this->_pdf->addInfo("CreationDate", "D:$time");
         $this->_pdf->addInfo("ModDate", "D:$time");
 
@@ -434,8 +434,8 @@ class CPDF implements Canvas
 
     public function set_default_view($view, $options = [])
     {
-        array_unshift($options, $view);
-        call_user_func_array([$this->_pdf, "openHere"], $options);
+        \array_unshift($options, $view);
+        \call_user_func_array([$this->_pdf, "openHere"], $options);
     }
 
     /**
@@ -500,7 +500,7 @@ class CPDF implements Canvas
     public function clipping_polygon(array $points): void
     {
         // Adjust y values
-        for ($i = 1; $i < count($points); $i += 2) {
+        for ($i = 1; $i < \count($points); $i += 2) {
             $points[$i] = $this->y($points[$i]);
         }
 
@@ -557,7 +557,7 @@ class CPDF implements Canvas
         }
 
         // Adjust y values
-        for ($i = 1; $i < count($points); $i += 2) {
+        for ($i = 1; $i < \count($points); $i += 2) {
             $points[$i] = $this->y($points[$i]);
         }
 
@@ -594,38 +594,38 @@ class CPDF implements Canvas
     {
         $filename = Cache::getTempImage($image_url);
 
-        if ($filename !== null && file_exists($filename)) {
+        if ($filename !== null && \file_exists($filename)) {
             return $filename;
         }
 
         $func_name = "imagecreatefrom$type";
 
-        set_error_handler([Helpers::class, "record_warnings"]);
+        \set_error_handler([Helpers::class, "record_warnings"]);
 
-        if (method_exists(Helpers::class, $func_name)) {
+        if (\method_exists(Helpers::class, $func_name)) {
             $func_name = [Helpers::class, $func_name];
-        } elseif (!function_exists($func_name)) {
+        } elseif (!\function_exists($func_name)) {
             throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
         }
 
         try {
-            $im = call_user_func($func_name, $image_url);
+            $im = \call_user_func($func_name, $image_url);
 
             if ($im) {
-                imageinterlace($im, false);
+                \imageinterlace($im, false);
 
                 $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-                $tmp_name = @tempnam($tmp_dir, "{$type}_dompdf_img_");
-                @unlink($tmp_name);
+                $tmp_name = @\tempnam($tmp_dir, "{$type}_dompdf_img_");
+                @\unlink($tmp_name);
                 $filename = "$tmp_name.png";
 
-                imagepng($im, $filename);
-                imagedestroy($im);
+                \imagepng($im, $filename);
+                \imagedestroy($im);
             } else {
                 $filename = null;
             }
         } finally {
-            restore_error_handler();
+            \restore_error_handler();
         }
 
         if ($filename !== null) {
@@ -709,7 +709,7 @@ class CPDF implements Canvas
         $ft = \Dompdf\Cpdf::ACROFORM_FIELD_CHOICE;
         $ff = \Dompdf\Cpdf::ACROFORM_FIELD_CHOICE_COMBO;
 
-        $id = $pdf->addFormField($ft, rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
+        $id = $pdf->addFormField($ft, \rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
         $pdf->setFormFieldOpt($id, $opts);
     }
 
@@ -726,7 +726,7 @@ class CPDF implements Canvas
         $ft = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT;
         $ff = \Dompdf\Cpdf::ACROFORM_FIELD_TEXT_MULTILINE;
 
-        $pdf->addFormField($ft, rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
+        $pdf->addFormField($ft, \rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
     }
 
     public function input($x, $y, $w, $h, $type, $font, $size, $color = [0, 0, 0])
@@ -755,7 +755,7 @@ class CPDF implements Canvas
                 break;
         }
 
-        $pdf->addFormField($ft, rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
+        $pdf->addFormField($ft, \rand(), $x, $this->y($y) - $h, $x + $w, $this->y($y), $ff, $size, $color);
     }
 
     public function text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0)
@@ -788,9 +788,9 @@ class CPDF implements Canvas
     {
         $y = $this->y($y) - $height;
 
-        if (strpos($url, '#') === 0) {
+        if (\strpos($url, '#') === 0) {
             // Local link
-            $name = substr($url, 1);
+            $name = \substr($url, 1);
             if ($name) {
                 $this->_pdf->addInternalLink($name, $x, $y, $x + $width, $y + $height);
             }
@@ -910,7 +910,7 @@ class CPDF implements Canvas
      */
     public function page_script($callback): void
     {
-        if (is_string($callback)) {
+        if (\is_string($callback)) {
             $this->processPageScript(function (
                 int $PAGE_NUM,
                 int $PAGE_COUNT,
@@ -928,7 +928,7 @@ class CPDF implements Canvas
     public function page_text($x, $y, $text, $font, $size, $color = [0, 0, 0], $word_space = 0.0, $char_space = 0.0, $angle = 0.0)
     {
         $this->processPageScript(function (int $pageNumber, int $pageCount) use ($x, $y, $text, $font, $size, $color, $word_space, $char_space, $angle) {
-            $text = str_replace(
+            $text = \str_replace(
                 ["{PAGE_NUM}", "{PAGE_COUNT}"],
                 [$pageNumber, $pageCount],
                 $text
@@ -974,7 +974,7 @@ class CPDF implements Canvas
 
     public function stream($filename = "document.pdf", $options = [])
     {
-        if (headers_sent()) {
+        if (\headers_sent()) {
             die("Unable to stream pdf: headers already sent");
         }
 
@@ -986,18 +986,18 @@ class CPDF implements Canvas
         }
 
         $debug = !$options['compress'];
-        $tmp = ltrim($this->_pdf->output($debug));
+        $tmp = \ltrim($this->_pdf->output($debug));
 
-        header("Cache-Control: private");
-        header("Content-Type: application/pdf");
-        header("Content-Length: " . mb_strlen($tmp, "8bit"));
+        \header("Cache-Control: private");
+        \header("Content-Type: application/pdf");
+        \header("Content-Length: " . \mb_strlen($tmp, "8bit"));
 
-        $filename = str_replace(["\n", "'"], "", basename($filename, ".pdf")) . ".pdf";
+        $filename = \str_replace(["\n", "'"], "", \basename($filename, ".pdf")) . ".pdf";
         $attachment = $options["Attachment"] ? "attachment" : "inline";
-        header(Helpers::buildContentDispositionHeader($attachment, $filename));
+        \header(Helpers::buildContentDispositionHeader($attachment, $filename));
 
         echo $tmp;
-        flush();
+        \flush();
     }
 
     public function output($options = [])

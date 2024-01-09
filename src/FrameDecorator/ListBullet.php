@@ -50,8 +50,6 @@ class ListBullet extends AbstractFrameDecorator
 
     /**
      * Get the width of the bullet symbol.
-     *
-     * @return float
      */
     public function get_width(): float
     {
@@ -66,8 +64,6 @@ class ListBullet extends AbstractFrameDecorator
 
     /**
      * Get the height of the bullet symbol.
-     *
-     * @return float
      */
     public function get_height(): float
     {

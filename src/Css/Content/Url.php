@@ -22,6 +22,6 @@ final class Url extends ContentPart
 
     public function __toString(): string
     {
-        return "url(\"" . str_replace("\"", "\\\"", $this->url) . "\")";
+        return "url(\"" . \str_replace("\"", "\\\"", $this->url) . "\")";
     }
 }

@@ -116,7 +116,7 @@ class LineBox
     {
         $floating_frames = $root->get_floating_frames();
 
-        if (count($floating_frames) == 0) {
+        if (\count($floating_frames) == 0) {
             return $floating_frames;
         }
 
@@ -237,17 +237,11 @@ class LineBox
         }
     }
 
-    /**
-     * @return float
-     */
     public function get_width(): float
     {
         return $this->left + $this->w + $this->right;
     }
 
-    /**
-     * @return Block
-     */
     public function get_block_frame(): Block
     {
         return $this->_block_frame;
@@ -261,9 +255,6 @@ class LineBox
         return $this->_frames;
     }
 
-    /**
-     * @return bool
-     */
     public function is_empty(): bool
     {
         return $this->_frames === [];
@@ -289,7 +280,7 @@ class LineBox
      */
     public function remove_frames(int $index): void
     {
-        $lastIndex = count($this->_frames) - 1;
+        $lastIndex = \count($this->_frames) - 1;
 
         if ($index < 0 || $index > $lastIndex) {
             return;
@@ -302,14 +293,14 @@ class LineBox
         }
 
         // Reset array indices
-        $this->_frames = array_values($this->_frames);
+        $this->_frames = \array_values($this->_frames);
 
         // Recalculate the height of the line
         $h = 0.0;
         $this->inline = false;
 
         foreach ($this->_frames as $f) {
-            $h = max($h, $f->get_margin_height());
+            $h = \max($h, $f->get_margin_height());
 
             if ($f->get_positioner() instanceof InlinePositioner) {
                 $this->inline = true;
@@ -363,7 +354,7 @@ class LineBox
      */
     public function trim_trailing_ws(): void
     {
-        $lastIndex = count($this->_frames) - 1;
+        $lastIndex = \count($this->_frames) - 1;
 
         if ($lastIndex < 0) {
             return;
@@ -380,8 +371,6 @@ class LineBox
 
     /**
      * Recalculate LineBox width based on the contained frames total width.
-     *
-     * @return float
      */
     public function recalculate_width(): float
     {
@@ -401,7 +390,7 @@ class LineBox
         foreach ($props as $prop) {
             $s .= "$prop: " . $this->$prop . "\n";
         }
-        $s .= count($this->_frames) . " frames\n";
+        $s .= \count($this->_frames) . " frames\n";
 
         return $s;
     }

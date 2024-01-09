@@ -15,9 +15,6 @@ use Dompdf\FrameReflower\Block;
  */
 class Fixed extends Absolute
 {
-    /**
-     * @param AbstractFrameDecorator $frame
-     */
     public function position(AbstractFrameDecorator $frame): void
     {
         if ($frame->get_reflower() instanceof Block) {

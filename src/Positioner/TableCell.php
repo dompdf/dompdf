@@ -18,9 +18,6 @@ use Dompdf\FrameDecorator\Table;
  */
 class TableCell extends AbstractPositioner
 {
-    /**
-     * @param AbstractFrameDecorator $frame
-     */
     public function position(AbstractFrameDecorator $frame): void
     {
         $table = Table::find_parent_table($frame);

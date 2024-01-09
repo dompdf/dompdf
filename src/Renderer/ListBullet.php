@@ -66,19 +66,12 @@ class ListBullet extends AbstractRenderer
         }
 
         if ($uppercase) {
-            $text = strtoupper($text);
+            $text = \strtoupper($text);
         }
 
         return $cache[$type] = "$text.";
     }
 
-    /**
-     * @param int      $n
-     * @param string   $type
-     * @param int|null $pad
-     *
-     * @return string
-     */
     private function make_counter(int $n, string $type, ?int $pad = null): string
     {
         $text = "";
@@ -88,7 +81,7 @@ class ListBullet extends AbstractRenderer
             case "decimal":
             case "decimal-leading-zero":
                 if ($pad) {
-                    $text = str_pad($n, $pad, "0", STR_PAD_LEFT);
+                    $text = \str_pad($n, $pad, "0", \STR_PAD_LEFT);
                 } else {
                     $text = $n;
                 }
@@ -96,16 +89,16 @@ class ListBullet extends AbstractRenderer
 
             case "upper-alpha":
             case "upper-latin":
-                $text = chr((($n - 1) % 26) + ord('A'));
+                $text = \chr((($n - 1) % 26) + \ord('A'));
                 break;
 
             case "lower-alpha":
             case "lower-latin":
-                $text = chr((($n - 1) % 26) + ord('a'));
+                $text = \chr((($n - 1) % 26) + \ord('a'));
                 break;
 
             case "upper-roman":
-                $text = strtoupper(Helpers::dec2roman($n));
+                $text = \strtoupper(Helpers::dec2roman($n));
                 break;
 
             case "lower-roman":
@@ -183,7 +176,7 @@ class ListBullet extends AbstractRenderer
                 case "upper-roman":
                     $pad = null;
                     if ($bullet_style === "decimal-leading-zero") {
-                        $pad = strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
+                        $pad = \strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
                     }
 
                     $node = $frame->get_node();

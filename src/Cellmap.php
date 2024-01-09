@@ -161,9 +161,6 @@ class Cellmap
         return $this->_columns_locked;
     }
 
-    /**
-     * @param bool $fixed
-     */
     public function set_layout_fixed(bool $fixed)
     {
         $this->_fixed_layout = $fixed;
@@ -497,9 +494,9 @@ class Cellmap
         $rows = $this->_frames[$key]["rows"];
 
         $first_col = $columns[0];
-        $last_col = $columns[count($columns) - 1];
+        $last_col = $columns[\count($columns) - 1];
         $first_row = $rows[0];
-        $last_row = $rows[count($rows) - 1];
+        $last_row = $rows[\count($rows) - 1];
 
         $max_top = null;
         $max_bottom = null;
@@ -546,7 +543,7 @@ class Cellmap
         // Recursively add the frames within the table, its row groups and rows
         if ($frame === $this->_table
             || $display === "table-row"
-            || in_array($display, TableFrameDecorator::ROW_GROUPS, true)
+            || \in_array($display, TableFrameDecorator::ROW_GROUPS, true)
         ) {
             $start_row = $this->__row;
 
@@ -562,8 +559,8 @@ class Cellmap
             $key = $frame->get_id();
 
             // Row groups always span across the entire table
-            $this->_frames[$key]["columns"] = range(0, max(0, $this->_num_cols - 1));
-            $this->_frames[$key]["rows"] = range($start_row, max(0, $this->__row - 1));
+            $this->_frames[$key]["columns"] = \range(0, \max(0, $this->_num_cols - 1));
+            $this->_frames[$key]["rows"] = \range($start_row, \max(0, $this->__row - 1));
             $this->_frames[$key]["frame"] = $frame;
 
             if ($collapse) {
@@ -617,8 +614,8 @@ class Cellmap
         $bp = $style->get_border_properties();
 
         // Determine where this cell is going
-        $colspan = max((int) $node->getAttribute("colspan"), 1);
-        $rowspan = max((int) $node->getAttribute("rowspan"), 1);
+        $colspan = \max((int) $node->getAttribute("colspan"), 1);
+        $rowspan = \max((int) $node->getAttribute("rowspan"), 1);
 
         // Find the next available column (fix by Ciro Mondueri)
         $ac = $this->__col;
@@ -724,7 +721,7 @@ class Cellmap
             }
 
             $node = $frame->get_node();
-            $colspan = max((int) $node->getAttribute("colspan"), 1);
+            $colspan = \max((int) $node->getAttribute("colspan"), 1);
             $first_col = $frame_info["columns"][0];
 
             // Resolve the frame's width
@@ -739,7 +736,7 @@ class Cellmap
             $val = null;
             if (Helpers::is_percent($width) && $colspan === 1) {
                 $var = "percent";
-                $val = (float)rtrim($width, "% ");
+                $val = (float)\rtrim($width, "% ");
             } elseif ($width !== "auto" && $colspan === 1) {
                 $var = "absolute";
                 $val = $frame_min;
@@ -836,9 +833,9 @@ class Cellmap
                     unset($this->_cells[$r][$c]);
 
                     // has multiple rows?
-                    if (isset($this->_frames[$id]) && count($this->_frames[$id]["rows"]) > 1) {
+                    if (isset($this->_frames[$id]) && \count($this->_frames[$id]["rows"]) > 1) {
                         // remove just the desired row, but leave the frame
-                        if (($row_key = array_search($r, $this->_frames[$id]["rows"])) !== false) {
+                        if (($row_key = \array_search($r, $this->_frames[$id]["rows"])) !== false) {
                             unset($this->_frames[$id]["rows"][$row_key]);
                         }
                         continue;
@@ -896,7 +893,7 @@ class Cellmap
             $last_index++;
         }
 
-        $this->_frames[$g_key]["rows"] = range($first_index, $last_index);
+        $this->_frames[$g_key]["rows"] = \range($first_index, $last_index);
     }
 
     public function assign_x_positions(): void
@@ -909,7 +906,7 @@ class Cellmap
         }
 
         $x = $this->_columns[0]["x"];
-        foreach (array_keys($this->_columns) as $j) {
+        foreach (\array_keys($this->_columns) as $j) {
             $this->_columns[$j]["x"] = $x;
             $x += $this->_columns[$j]["used-width"];
         }
@@ -993,10 +990,10 @@ class Cellmap
 
         $str .= Helpers::pre_r($arr, true);
 
-        if (php_sapi_name() == "cli") {
-            $str = strip_tags(str_replace(
+        if (\php_sapi_name() == "cli") {
+            $str = \strip_tags(\str_replace(
                 ["<br/>", "<b>", "</b>"],
-                ["\n", chr(27) . "[01;33m", chr(27) . "[0m"],
+                ["\n", \chr(27) . "[01;33m", \chr(27) . "[0m"],
                 $str
             ));
         }

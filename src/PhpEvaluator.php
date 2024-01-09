@@ -52,9 +52,6 @@ class PhpEvaluator
         eval($code);
     }
 
-    /**
-     * @param Frame $frame
-     */
     public function render(Frame $frame)
     {
         $this->evaluate($frame->get_node()->nodeValue);

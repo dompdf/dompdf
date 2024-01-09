@@ -56,25 +56,16 @@ class FrameListIterator implements Iterator
         $this->num = 0;
     }
 
-    /**
-     * @return bool
-     */
     public function valid(): bool
     {
         return $this->cur !== null;
     }
 
-    /**
-     * @return int
-     */
     public function key(): int
     {
         return $this->num;
     }
 
-    /**
-     * @return Frame|null
-     */
     public function current(): ?Frame
     {
         return $this->cur;

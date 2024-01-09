@@ -241,20 +241,18 @@ abstract class AbstractFrameReflower
      *
      * @param float $l1
      * @param float $l2
-     *
-     * @return float
      */
     private function get_collapsed_margin_length(float $l1, float $l2): float
     {
         if ($l1 < 0 && $l2 < 0) {
-            return min($l1, $l2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
+            return \min($l1, $l2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
         }
 
         if ($l1 < 0 || $l2 < 0) {
             return $l1 + $l2; // x + y = x - abs(y), if y < 0
         }
 
-        return max($l1, $l2);
+        return \max($l1, $l2);
     }
 
     /**
@@ -292,9 +290,6 @@ abstract class AbstractFrameReflower
         }
     }
 
-    /**
-     * @param Block|null $block
-     */
     abstract public function reflow(Block $block = null);
 
     /**
@@ -304,8 +299,6 @@ abstract class AbstractFrameReflower
      * width is not defined.
      *
      * @param float|null $cbw Width of the containing block.
-     *
-     * @return float
      */
     protected function resolve_min_width(?float $cbw): float
     {
@@ -324,8 +317,6 @@ abstract class AbstractFrameReflower
      * width is not defined.
      *
      * @param float|null $cbw Width of the containing block.
-     *
-     * @return float
      */
     protected function resolve_max_width(?float $cbw): float
     {
@@ -333,8 +324,8 @@ abstract class AbstractFrameReflower
         $max_width = $style->max_width;
 
         return $max_width !== "none"
-            ? $style->length_in_pt($max_width, $cbw ?? INF)
-            : INF;
+            ? $style->length_in_pt($max_width, $cbw ?? \INF)
+            : \INF;
     }
 
     /**
@@ -344,8 +335,6 @@ abstract class AbstractFrameReflower
      * height is not defined.
      *
      * @param float|null $cbh Height of the containing block.
-     *
-     * @return float
      */
     protected function resolve_min_height(?float $cbh): float
     {
@@ -364,8 +353,6 @@ abstract class AbstractFrameReflower
      * height is not defined.
      *
      * @param float|null $cbh Height of the containing block.
-     *
-     * @return float
      */
     protected function resolve_max_height(?float $cbh): float
     {
@@ -373,8 +360,8 @@ abstract class AbstractFrameReflower
         $max_height = $style->max_height;
 
         return $max_height !== "none"
-            ? $style->length_in_pt($style->max_height, $cbh ?? INF)
-            : INF;
+            ? $style->length_in_pt($style->max_height, $cbh ?? \INF)
+            : \INF;
     }
 
     /**
@@ -385,7 +372,7 @@ abstract class AbstractFrameReflower
      */
     public function get_min_max_child_width(): array
     {
-        if (!is_null($this->_min_max_child_cache)) {
+        if (!\is_null($this->_min_max_child_cache)) {
             return $this->_min_max_child_cache;
         }
 
@@ -403,7 +390,7 @@ abstract class AbstractFrameReflower
                 $child->get_reflower()->_set_content();
                 $minmax = $child->get_min_max_width();
 
-                if (in_array($child->get_style()->white_space, ["pre", "nowrap"], true)) {
+                if (\in_array($child->get_style()->white_space, ["pre", "nowrap"], true)) {
                     $inline_min += $minmax["min"];
                 } else {
                     $low[] = $minmax["min"];
@@ -429,8 +416,8 @@ abstract class AbstractFrameReflower
             }
         }
 
-        $min = count($low) ? max($low) : 0;
-        $max = count($high) ? max($high) : 0;
+        $min = \count($low) ? \max($low) : 0;
+        $max = \count($high) ? \max($high) : 0;
 
         return $this->_min_max_child_cache = [$min, $max];
     }
@@ -458,7 +445,7 @@ abstract class AbstractFrameReflower
      */
     public function get_min_max_width(): array
     {
-        if (!is_null($this->_min_max_cache)) {
+        if (!\is_null($this->_min_max_cache)) {
             return $this->_min_max_cache;
         }
 
@@ -529,10 +516,10 @@ abstract class AbstractFrameReflower
                 $p = $frame->lookup_counter_frame($val->name, true);
                 $tmp = [];
                 while ($p) {
-                    array_unshift($tmp, $p->counter_value($val->name, $val->style));
+                    \array_unshift($tmp, $p->counter_value($val->name, $val->style));
                     $p = $p->lookup_counter_frame($val->name);
                 }
-                $text .= implode($val->string, $tmp);
+                $text .= \implode($val->string, $tmp);
             }
         }
 

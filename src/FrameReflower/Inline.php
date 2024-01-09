@@ -72,9 +72,6 @@ class Inline extends AbstractFrameReflower
         $block->add_frame_to_line($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
     public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var InlineFrameDecorator */

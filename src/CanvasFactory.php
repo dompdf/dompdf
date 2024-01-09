@@ -34,17 +34,17 @@ class CanvasFactory
      */
     public static function get_instance(Dompdf $dompdf, $paper, string $orientation, ?string $class = null)
     {
-        $backend = strtolower($dompdf->getOptions()->getPdfBackend());
+        $backend = \strtolower($dompdf->getOptions()->getPdfBackend());
 
-        if (isset($class) && class_exists($class, false)) {
+        if (isset($class) && \class_exists($class, false)) {
             $class .= "_Adapter";
         } else {
             if (($backend === "auto" || $backend === "pdflib") &&
-                class_exists("PDFLib", false)
+                \class_exists("PDFLib", false)
             ) {
                 $class = "Dompdf\\Adapter\\PDFLib";
             } else {
-                if ($backend === "gd" && extension_loaded('gd')) {
+                if ($backend === "gd" && \extension_loaded('gd')) {
                     $class = "Dompdf\\Adapter\\GD";
                 } else {
                     $class = "Dompdf\\Adapter\\CPDF";

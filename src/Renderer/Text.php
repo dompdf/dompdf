@@ -126,7 +126,7 @@ class Text extends AbstractRenderer
         }
 
         while (isset($stack[0])) {
-            $f = array_pop($stack);
+            $f = \array_pop($stack);
 
             if (($text_deco = $f->get_style()->text_decoration) === "none") {
                 continue;

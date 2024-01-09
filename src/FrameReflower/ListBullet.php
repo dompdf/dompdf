@@ -26,9 +26,6 @@ class ListBullet extends AbstractFrameReflower
         parent::__construct($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
     public function reflow(BlockFrameDecorator $block = null)
     {
         if ($block === null) {

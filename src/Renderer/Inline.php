@@ -114,7 +114,7 @@ class Inline extends AbstractRenderer
             }
 
             $w += $child_w;
-            $h = max($h, $child_h);
+            $h = \max($h, $child_h);
         }
 
         return [$w, $h];

@@ -37,9 +37,6 @@ class JavascriptEmbedder
         $this->_dompdf->getCanvas()->javascript($script);
     }
 
-    /**
-     * @param Frame $frame
-     */
     public function render(Frame $frame)
     {
         if (!$this->_dompdf->getOptions()->getIsJavascriptEnabled()) {

@@ -124,7 +124,6 @@ class FrameTree implements IteratorAggregate
      * Returns a post-order iterator for all frames in the tree
      *
      * @deprecated Iterate the tree directly instead
-     * @return FrameTreeIterator
      */
     public function get_frames(): FrameTreeIterator
     {
@@ -133,8 +132,6 @@ class FrameTree implements IteratorAggregate
 
     /**
      * Returns a post-order iterator for all frames in the tree
-     *
-     * @return FrameTreeIterator
      */
     public function getIterator(): FrameTreeIterator
     {
@@ -147,11 +144,11 @@ class FrameTree implements IteratorAggregate
     public function build_tree()
     {
         $html = $this->_dom->getElementsByTagName("html")->item(0);
-        if (is_null($html)) {
+        if (\is_null($html)) {
             $html = $this->_dom->firstChild;
         }
 
-        if (is_null($html)) {
+        if (\is_null($html)) {
             throw new Exception("Requested HTML document contains no data.");
         }
 
@@ -223,7 +220,7 @@ class FrameTree implements IteratorAggregate
                 $this->_remove_node($node, $children, $index + 1);
             }
         }
-        array_splice($children, $index, 1);
+        \array_splice($children, $index, 1);
     }
 
     /**
@@ -256,12 +253,12 @@ class FrameTree implements IteratorAggregate
         }
         $index = 0;
         // INFO: We don't advance $index if a node is removed to avoid skipping nodes
-        while ($index < count($children)) {
+        while ($index < \count($children)) {
             $child = $children[$index];
-            $nodeName = strtolower($child->nodeName);
+            $nodeName = \strtolower($child->nodeName);
 
             // Skip non-displaying nodes
-            if (in_array($nodeName, self::$HIDDEN_TAGS)) {
+            if (\in_array($nodeName, self::$HIDDEN_TAGS)) {
                 if ($nodeName !== "head" && $nodeName !== "style") {
                     $this->_remove_node($node, $children, $index);
                 } else {
@@ -280,7 +277,7 @@ class FrameTree implements IteratorAggregate
                 continue;
             }
 
-            if (is_object($child)) {
+            if (\is_object($child)) {
                 $frame->append_child($this->_build_tree_r($child), false);
             }
             $index++;

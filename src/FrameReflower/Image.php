@@ -27,9 +27,6 @@ class Image extends AbstractFrameReflower
         parent::__construct($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
     public function reflow(BlockFrameDecorator $block = null)
     {
         $this->determine_absolute_containing_block();
@@ -121,8 +118,8 @@ class Image extends AbstractFrameReflower
 
             // Resolve min/max constraints according to the constraint-violation
             // table in https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
-            $max_width = max($min_width, $max_width);
-            $max_height = max($min_height, $max_height);
+            $max_width = \max($min_width, $max_width);
+            $max_height = \max($min_height, $max_height);
 
             if (($w > $max_width && $h <= $max_height)
                 || ($w > $max_width && $h > $max_height && $max_width / $w <= $max_height / $h)

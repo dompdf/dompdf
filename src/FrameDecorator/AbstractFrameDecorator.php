@@ -210,8 +210,6 @@ abstract class AbstractFrameDecorator extends Frame
      *
      * @param string $node_name
      * @param string $display
-     *
-     * @return AbstractFrameDecorator
      */
     public function create_anonymous_child(string $node_name, string $display): AbstractFrameDecorator
     {
@@ -601,9 +599,6 @@ abstract class AbstractFrameDecorator extends Frame
         return $this->_reflower;
     }
 
-    /**
-     * @param Frame $root
-     */
     public function set_root(Frame $root)
     {
         $this->_root = $root;
@@ -684,7 +679,7 @@ abstract class AbstractFrameDecorator extends Frame
      */
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
-        if (is_null($child)) {
+        if (\is_null($child)) {
             $this->get_parent()->split($this, $page_break, $forced);
             return;
         }
@@ -761,9 +756,6 @@ abstract class AbstractFrameDecorator extends Frame
         $split->_counters = $this->_counters;
     }
 
-    /**
-     * @param array $counters
-     */
     public function reset_counters(array $counters): void
     {
         foreach ($counters as $id => $value) {
@@ -771,18 +763,11 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
-    /**
-     * @param string $id
-     * @param int    $value
-     */
     public function reset_counter(string $id = self::DEFAULT_COUNTER, int $value = 0): void
     {
         $this->get_parent()->_counters[$id] = $value;
     }
 
-    /**
-     * @param array $counters
-     */
     public function decrement_counters(array $counters): void
     {
         foreach ($counters as $id => $increment) {
@@ -790,9 +775,6 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
-    /**
-     * @param array $counters
-     */
     public function increment_counters(array $counters): void
     {
         foreach ($counters as $id => $increment) {
@@ -800,10 +782,6 @@ abstract class AbstractFrameDecorator extends Frame
         }
     }
 
-    /**
-     * @param string $id
-     * @param int    $increment
-     */
     public function increment_counter(string $id = self::DEFAULT_COUNTER, int $increment = 1): void
     {
         $counter_frame = $this->lookup_counter_frame($id, true);
@@ -813,8 +791,6 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @param string $id
      * @param bool   $auto_reset Instantiate a new counter if none with the given name is in scope.
-     *
-     * @return AbstractFrameDecorator|null
      */
     public function lookup_counter_frame(
         string $id = self::DEFAULT_COUNTER,
@@ -856,21 +832,21 @@ abstract class AbstractFrameDecorator extends Frame
                 return $value;
 
             case "decimal-leading-zero":
-                return str_pad($value, 2, "0", STR_PAD_LEFT);
+                return \str_pad($value, 2, "0", \STR_PAD_LEFT);
 
             case "lower-roman":
                 return Helpers::dec2roman($value);
 
             case "upper-roman":
-                return strtoupper(Helpers::dec2roman($value));
+                return \strtoupper(Helpers::dec2roman($value));
 
             case "lower-latin":
             case "lower-alpha":
-                return chr((($value - 1) % 26) + ord('a'));
+                return \chr((($value - 1) % 26) + \ord('a'));
 
             case "upper-latin":
             case "upper-alpha":
-                return chr((($value - 1) % 26) + ord('A'));
+                return \chr((($value - 1) % 26) + \ord('A'));
 
             case "lower-greek":
                 return Helpers::unichr($value + 944);
@@ -885,19 +861,11 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_positioner->position($this);
     }
 
-    /**
-     * @param float $offset_x
-     * @param float $offset_y
-     * @param bool  $ignore_self
-     */
     final public function move(float $offset_x, float $offset_y, bool $ignore_self = false): void
     {
         $this->_positioner->move($this, $offset_x, $offset_y, $ignore_self);
     }
 
-    /**
-     * @param Block|null $block
-     */
     final public function reflow(Block $block = null)
     {
         // Uncomment this to see the frames before they're laid out, instead of
@@ -906,9 +874,6 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_reflower->reflow($block);
     }
 
-    /**
-     * @return array
-     */
     final public function get_min_max_width(): array
     {
         return $this->_reflower->get_min_max_width();

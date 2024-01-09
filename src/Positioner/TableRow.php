@@ -16,9 +16,6 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
  */
 class TableRow extends AbstractPositioner
 {
-    /**
-     * @param AbstractFrameDecorator $frame
-     */
     public function position(AbstractFrameDecorator $frame): void
     {
         $cb = $frame->get_containing_block();

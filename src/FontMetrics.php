@@ -7,7 +7,6 @@
 
 namespace Dompdf;
 
-use Dompdf\Css\Style;
 use FontLib\Font;
 
 /**
@@ -96,7 +95,7 @@ class FontMetrics
      */
     public function saveFontFamilies()
     {
-        file_put_contents($this->getUserFontsFilePath(), json_encode($this->userFonts, JSON_PRETTY_PRINT));
+        \file_put_contents($this->getUserFontsFilePath(), \json_encode($this->userFonts, \JSON_PRETTY_PRINT));
     }
 
     /**
@@ -115,10 +114,10 @@ class FontMetrics
     public function loadFontFamilies()
     {
         $file = $this->options->getRootDir() . "/lib/fonts/installed-fonts.dist.json";
-        $this->bundledFonts = json_decode(file_get_contents($file), true);
+        $this->bundledFonts = \json_decode(\file_get_contents($file), true);
 
-        if (is_readable($this->getUserFontsFilePath())) {
-            $this->userFonts = json_decode(file_get_contents($this->getUserFontsFilePath()), true);
+        if (\is_readable($this->getUserFontsFilePath())) {
+            $this->userFonts = \json_decode(\file_get_contents($this->getUserFontsFilePath()), true);
         } else {
             $this->loadFontFamiliesLegacy();
         }
@@ -127,18 +126,18 @@ class FontMetrics
     private function loadFontFamiliesLegacy()
     {
         $legacyCacheFile = $this->options->getFontDir() . '/dompdf_font_family_cache.php';
-        if (is_readable($legacyCacheFile)) {
+        if (\is_readable($legacyCacheFile)) {
             $fontDir = $this->options->getFontDir();
             $rootDir = $this->options->getRootDir();
 
             $cacheDataClosure = require $legacyCacheFile;
-            $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
-            if (is_array($cacheData)) {
+            $cacheData = \is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
+            if (\is_array($cacheData)) {
                 foreach ($cacheData as $family => $variants) {
-                    if (!isset($this->bundledFonts[$family]) && is_array($variants)) {
+                    if (!isset($this->bundledFonts[$family]) && \is_array($variants)) {
                         foreach ($variants as $variant => $variantPath) {
-                            $variantName = basename($variantPath);
-                            $variantDir = dirname($variantPath);
+                            $variantName = \basename($variantPath);
+                            $variantDir = \dirname($variantPath);
                             if ($variantDir == $fontDir) {
                                 $this->userFonts[$family][$variant] = $variantName;
                             } else {
@@ -172,7 +171,7 @@ class FontMetrics
      */
     public function registerFont($style, $remoteFile, $context = null)
     {
-        $fontname = mb_strtolower($style["family"]);
+        $fontname = \mb_strtolower($style["family"]);
         $families = $this->getFontFamilies();
 
         $entry = [];
@@ -182,20 +181,20 @@ class FontMetrics
 
         $styleString = $this->getType("{$style['weight']} {$style['style']}");
 
-        $remoteHash = md5($remoteFile);
+        $remoteHash = \md5($remoteFile);
 
         $prefix = $fontname . "_" . $styleString;
-        $prefix = trim($prefix, "-");
-        if (function_exists('iconv')) {
-            $prefix = @iconv('utf-8', 'us-ascii//TRANSLIT', $prefix);
+        $prefix = \trim($prefix, "-");
+        if (\function_exists('iconv')) {
+            $prefix = @\iconv('utf-8', 'us-ascii//TRANSLIT', $prefix);
         }
-        $prefix_encoding = mb_detect_encoding($prefix, mb_detect_order(), true);
-        $substchar = mb_substitute_character();
-        mb_substitute_character(0x005F);
-        $prefix = mb_convert_encoding($prefix, "ISO-8859-1", $prefix_encoding);
-        mb_substitute_character($substchar);
-        $prefix = preg_replace("[\W]", "_", $prefix);
-        $prefix = preg_replace("/[^-_\w]+/", "", $prefix);
+        $prefix_encoding = \mb_detect_encoding($prefix, \mb_detect_order(), true);
+        $substchar = \mb_substitute_character();
+        \mb_substitute_character(0x005F);
+        $prefix = \mb_convert_encoding($prefix, "ISO-8859-1", $prefix_encoding);
+        \mb_substitute_character($substchar);
+        $prefix = \preg_replace("[\W]", "_", $prefix);
+        $prefix = \preg_replace("/[^-_\w]+/", "", $prefix);
 
         $localFile = $prefix . "_" . $remoteHash;
         $localFilePath = $this->getOptions()->getFontDir() . "/" . $localFile;
@@ -210,15 +209,15 @@ class FontMetrics
         // Download the remote file
         [$protocol] = Helpers::explode_url($remoteFile);
         $allowed_protocols = $this->options->getAllowedProtocols();
-        if (!array_key_exists($protocol, $allowed_protocols)) {
-            Helpers::record_warnings(E_USER_WARNING, "Permission denied on $remoteFile. The communication protocol is not supported.", __FILE__, __LINE__);
+        if (!\array_key_exists($protocol, $allowed_protocols)) {
+            Helpers::record_warnings(\E_USER_WARNING, "Permission denied on $remoteFile. The communication protocol is not supported.", __FILE__, __LINE__);
             return false;
         }
 
         foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
             [$result, $message] = $rule($remoteFile);
             if ($result !== true) {
-                Helpers::record_warnings(E_USER_WARNING, "Error loading $remoteFile: $message", __FILE__, __LINE__);
+                Helpers::record_warnings(\E_USER_WARNING, "Error loading $remoteFile: $message", __FILE__, __LINE__);
                 return false;
             }
         }
@@ -228,13 +227,13 @@ class FontMetrics
             return false;
         }
 
-        $localTempFile = @tempnam($this->options->get("tempDir"), "dompdf-font-");
-        file_put_contents($localTempFile, $remoteFileContent);
+        $localTempFile = @\tempnam($this->options->get("tempDir"), "dompdf-font-");
+        \file_put_contents($localTempFile, $remoteFileContent);
 
         $font = Font::load($localTempFile);
 
         if (!$font) {
-            unlink($localTempFile);
+            \unlink($localTempFile);
             return false;
         }
 
@@ -242,9 +241,9 @@ class FontMetrics
         $font->saveAdobeFontMetrics("$localFilePath.ufm");
         $font->close();
 
-        unlink($localTempFile);
+        \unlink($localTempFile);
 
-        if (!file_exists("$localFilePath.ufm")) {
+        if (!\file_exists("$localFilePath.ufm")) {
             return false;
         }
 
@@ -257,10 +256,10 @@ class FontMetrics
         }
 
         // Save the changes
-        file_put_contents($localFilePath.$fontExtension, $remoteFileContent);
+        \file_put_contents($localFilePath.$fontExtension, $remoteFileContent);
 
-        if (!file_exists($localFilePath.$fontExtension)) {
-            unlink("$localFilePath.ufm");
+        if (!\file_exists($localFilePath.$fontExtension)) {
+            \unlink("$localFilePath.ufm");
             return false;
         }
 
@@ -292,8 +291,6 @@ class FontMetrics
      * @param float  $size        The font size, in points
      * @param float  $wordSpacing Word spacing, if any
      * @param float  $charSpacing Char spacing, if any
-     *
-     * @return float
      */
     public function getTextWidth(string $text, $font, float $size, float $wordSpacing = 0.0, float $charSpacing = 0.0): float
     {
@@ -309,7 +306,7 @@ class FontMetrics
 
         // Text-size calculations depend on the canvas used. Make sure to not
         // return wrong values when switching canvas backends
-        $canvasClass = get_class($this->canvas);
+        $canvasClass = \get_class($this->canvas);
         $key = "$canvasClass/$font/$size/$wordSpacing/$charSpacing";
 
         if ($useCache && isset($cache[$key][$text])) {
@@ -339,7 +336,6 @@ class FontMetrics
      * @param string $subtype         The font subtype (italic, bold, etc.)
      * @param int    $count           The number of matches to return
      * @param bool   $returnSubstring Should the actual matched text be returned
-     * @return array
      */
     public function mapTextToFonts(string $text, array $fontFamilies, string $subtype = "normal", int $count = -1, bool $returnSubstring = false): array
     {
@@ -353,16 +349,16 @@ class FontMetrics
             }
         }
 
-        if (function_exists("mb_str_split")) {
-            $char_array = mb_str_split($text, 1, "UTF-8");
+        if (\function_exists("mb_str_split")) {
+            $char_array = \mb_str_split($text, 1, "UTF-8");
         } else {
-            $char_array = preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY);
+            $char_array = \preg_split("//u", $text, -1, \PREG_SPLIT_NO_EMPTY);
         }
         $start_index = 0;
         $char_index = -1;
         while (isset($char_array[++$char_index])) {
             $char = $char_array[$char_index];
-            if (preg_match('/[\x00-\x1F\x7F]/u', $char)) {
+            if (\preg_match('/[\x00-\x1F\x7F]/u', $char)) {
                 //non-printable, moving on
                 continue;
             }
@@ -380,7 +376,7 @@ class FontMetrics
 
             if ($mapped_font !== $char_mapping[$start_index]["font"]) {
                 $char_mapping[$start_index]["length"] = $char_index - $start_index;
-                if ($count > 0 && count($char_mapping) === $count) {
+                if ($count > 0 && \count($char_mapping) === $count) {
                     break;
                 }
                 $start_index = $char_index;
@@ -391,7 +387,7 @@ class FontMetrics
         if ($returnSubstring) {
             // build the string for each mapping
             foreach ($char_mapping as $start_index => &$info) {
-                $info["text"] = mb_substr($text, $start_index, $info["length"]);
+                $info["text"] = \mb_substr($text, $start_index, $info["length"]);
             }
         }
 
@@ -414,8 +410,6 @@ class FontMetrics
      *
      * @param string $font The font file to use
      * @param float  $size The font size, in points
-     *
-     * @return float
      */
     public function getFontHeight($font, float $size): float
     {
@@ -427,8 +421,6 @@ class FontMetrics
      *
      * @param string $font The font file to use
      * @param float  $size The font size, in points
-     *
-     * @return float
      */
     public function getFontBaseline($font, float $size): float
     {
@@ -474,11 +466,11 @@ class FontMetrics
          * Only on checking the fallback font, check various subtypes on same font.
          */
 
-        $subtype = strtolower($subtypeRaw);
+        $subtype = \strtolower($subtypeRaw);
 
         $families = $this->getFontFamilies();
         if ($familyRaw) {
-            $family = str_replace(["'", '"'], "", strtolower($familyRaw));
+            $family = \str_replace(["'", '"'], "", \strtolower($familyRaw));
 
             if (isset($families[$family][$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $families[$family][$subtype];
@@ -487,7 +479,7 @@ class FontMetrics
             return null;
         }
 
-        $fallback_families = [strtolower($this->options->getDefaultFont()), "serif"];
+        $fallback_families = [\strtolower($this->options->getDefaultFont()), "serif"];
         foreach ($fallback_families as $family) {
             if (isset($families[$family][$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $families[$family][$subtype];
@@ -500,7 +492,7 @@ class FontMetrics
             $family = $families[$family];
 
             foreach ($family as $sub => $font) {
-                if (strpos($subtype, $sub) !== false) {
+                if (\strpos($subtype, $sub) !== false) {
                     return $cache[$familyRaw][$subtypeRaw] = $font;
                 }
             }
@@ -539,7 +531,7 @@ class FontMetrics
      */
     public function getFamily($family)
     {
-        $family = str_replace(["'", '"'], "", mb_strtolower($family));
+        $family = \str_replace(["'", '"'], "", \mb_strtolower($family));
         $families = $this->getFontFamilies();
 
         if (isset($families[$family])) {
@@ -565,9 +557,9 @@ class FontMetrics
      */
     public function getType($type)
     {
-        if (preg_match('/bold/i', $type)) {
+        if (\preg_match('/bold/i', $type)) {
             $weight = 700;
-        } elseif (preg_match('/([1-9]00)/', $type, $match)) {
+        } elseif (\preg_match('/([1-9]00)/', $type, $match)) {
             $weight = (int)$match[0];
         } else {
             $weight = 400;
@@ -575,7 +567,7 @@ class FontMetrics
         $weight = $weight === 400 ? 'normal' : $weight;
         $weight = $weight === 700 ? 'bold' : $weight;
 
-        $style = preg_match('/italic|oblique/i', $type) ? 'italic' : null;
+        $style = \preg_match('/italic|oblique/i', $type) ? 'italic' : null;
 
         if ($weight === 'normal' && $style !== null) {
             return $style;
@@ -616,19 +608,19 @@ class FontMetrics
     public function setFontFamilies()
     {
         $fontFamilies = [];
-        if (isset($this->bundledFonts) && is_array($this->bundledFonts)) {
+        if (isset($this->bundledFonts) && \is_array($this->bundledFonts)) {
             foreach ($this->bundledFonts as $family => $variants) {
                 if (!isset($fontFamilies[$family])) {
-                    $fontFamilies[$family] = array_map(function ($variant) {
+                    $fontFamilies[$family] = \array_map(function ($variant) {
                         return $this->getOptions()->getRootDir() . '/lib/fonts/' . $variant;
                     }, $variants);
                 }
             }
         }
-        if (isset($this->userFonts) && is_array($this->userFonts)) {
+        if (isset($this->userFonts) && \is_array($this->userFonts)) {
             foreach ($this->userFonts as $family => $variants) {
-                $fontFamilies[$family] = array_map(function ($variant) {
-                    $variantName = basename($variant);
+                $fontFamilies[$family] = \array_map(function ($variant) {
+                    $variantName = \basename($variant);
                     if ($variantName === $variant) {
                         return $this->getOptions()->getFontDir() . '/' . $variant;
                     }
@@ -655,7 +647,7 @@ class FontMetrics
      */
     public function setFontFamily($fontname, $entry)
     {
-        $this->userFonts[mb_strtolower($fontname)] = $entry;
+        $this->userFonts[\mb_strtolower($fontname)] = $entry;
         $this->saveFontFamilies();
         unset($this->fontFamilies);
     }

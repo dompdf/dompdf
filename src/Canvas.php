@@ -371,8 +371,6 @@ interface Canvas
      *
      * @param string $font The font file to use
      * @param string $char The character to check
-     *
-     * @return bool
      */
     public function font_supports_char(string $font, string $char): bool;
 

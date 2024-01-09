@@ -92,16 +92,16 @@ class Table extends AbstractFrameDecorator
      */
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
-        if (is_null($child)) {
+        if (\is_null($child)) {
             parent::split($child, $page_break, $forced);
             return;
         }
 
         // If $child is a header or if it is the first non-header row, do
         // not duplicate headers, simply move the table to the next page.
-        if (count($this->_headers)
-            && !in_array($child, $this->_headers, true)
-            && !in_array($child->get_prev_sibling(), $this->_headers, true)
+        if (\count($this->_headers)
+            && !\in_array($child, $this->_headers, true)
+            && !\in_array($child->get_prev_sibling(), $this->_headers, true)
         ) {
             $first_header = null;
 
@@ -110,7 +110,7 @@ class Table extends AbstractFrameDecorator
 
                 $new_header = $header->deep_copy();
 
-                if (is_null($first_header)) {
+                if (\is_null($first_header)) {
                     $first_header = $new_header;
                 }
 
@@ -119,7 +119,7 @@ class Table extends AbstractFrameDecorator
 
             parent::split($first_header, $page_break, $forced);
 
-        } elseif (in_array($child->get_style()->display, self::ROW_GROUPS, true)) {
+        } elseif (\in_array($child->get_style()->display, self::ROW_GROUPS, true)) {
 
             // Individual rows should have already been handled
             parent::split($child, $page_break, $forced);
@@ -183,8 +183,6 @@ class Table extends AbstractFrameDecorator
      * space, except if white space is to be preserved.
      *
      * @param AbstractFrameDecorator $frame
-     *
-     * @return bool
      */
     private function isEmptyTextNode(AbstractFrameDecorator $frame): bool
     {
@@ -193,12 +191,12 @@ class Table extends AbstractFrameDecorator
         $wsPattern = '/^[^\S\xA0\x{202F}\x{2007}]*$/u';
         $validChildOrNull = function ($frame) {
             return $frame === null
-                || in_array($frame->get_style()->display, self::VALID_CHILDREN, true);
+                || \in_array($frame->get_style()->display, self::VALID_CHILDREN, true);
         };
 
         return $frame instanceof Text
             && !$frame->is_pre()
-            && preg_match($wsPattern, $frame->get_text())
+            && \preg_match($wsPattern, $frame->get_text())
             && $validChildOrNull($frame->get_prev_sibling())
             && $validChildOrNull($frame->get_next_sibling());
     }
@@ -213,13 +211,13 @@ class Table extends AbstractFrameDecorator
     public function normalize(): void
     {
         $column_caption = ["table-column-group", "table-column", "table-caption"];
-        $children = iterator_to_array($this->get_children());
+        $children = \iterator_to_array($this->get_children());
         $tbody = null;
 
         foreach ($children as $child) {
             $display = $child->get_style()->display;
 
-            if (in_array($display, self::ROW_GROUPS, true)) {
+            if (\in_array($display, self::ROW_GROUPS, true)) {
                 // Reset anonymous tbody
                 $tbody = null;
 
@@ -232,7 +230,7 @@ class Table extends AbstractFrameDecorator
                 continue;
             }
 
-            if (in_array($display, $column_caption, true)) {
+            if (\in_array($display, $column_caption, true)) {
                 continue;
             }
 
@@ -260,7 +258,7 @@ class Table extends AbstractFrameDecorator
         foreach ($this->get_children() as $child) {
             $display = $child->get_style()->display;
 
-            if (in_array($display, self::ROW_GROUPS, true)) {
+            if (\in_array($display, self::ROW_GROUPS, true)) {
                 $this->normalizeRowGroup($child);
             }
         }
@@ -268,7 +266,7 @@ class Table extends AbstractFrameDecorator
 
     private function normalizeRowGroup(AbstractFrameDecorator $frame): void
     {
-        $children = iterator_to_array($frame->get_children());
+        $children = \iterator_to_array($frame->get_children());
         $tr = null;
 
         foreach ($children as $child) {
@@ -308,7 +306,7 @@ class Table extends AbstractFrameDecorator
 
     private function normalizeRow(AbstractFrameDecorator $frame): void
     {
-        $children = iterator_to_array($frame->get_children());
+        $children = \iterator_to_array($frame->get_children());
         $td = null;
 
         foreach ($children as $child) {

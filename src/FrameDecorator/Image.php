@@ -89,7 +89,6 @@ class Image extends AbstractFrameDecorator
      * Resample the given pixel length according to dpi.
      *
      * @param float|int $length
-     * @return float
      */
     public function resample($length): float
     {
