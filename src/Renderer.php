@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 use Dompdf\Renderer\AbstractRenderer;
@@ -25,7 +26,6 @@ use Dompdf\Renderer\Text;
  */
 class Renderer extends AbstractRenderer
 {
-
     /**
      * Array of renderers for specific frame types
      *
@@ -43,7 +43,7 @@ class Renderer extends AbstractRenderer
     /**
      * Advance the canvas to the next page
      */
-    function new_page()
+    public function new_page()
     {
         $this->_canvas->new_page();
     }

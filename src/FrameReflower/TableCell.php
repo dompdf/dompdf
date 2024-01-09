@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Exception;
@@ -23,7 +24,7 @@ class TableCell extends Block
      * TableCell constructor.
      * @param BlockFrameDecorator $frame
      */
-    function __construct(BlockFrameDecorator $frame)
+    public function __construct(BlockFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -31,7 +32,7 @@ class TableCell extends Block
     /**
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var TableCellFrameDecorator */
         $frame = $this->_frame;
@@ -60,24 +61,32 @@ class TableCell extends Block
         //FIXME?
         $h = $frame->get_containing_block("h");
 
-        $left_space = (float)$style->length_in_pt([$style->margin_left,
+        $left_space = (float)$style->length_in_pt(
+            [$style->margin_left,
                 $style->padding_left,
                 $style->border_left_width],
-            $w);
+            $w
+        );
 
-        $right_space = (float)$style->length_in_pt([$style->padding_right,
+        $right_space = (float)$style->length_in_pt(
+            [$style->padding_right,
                 $style->margin_right,
                 $style->border_right_width],
-            $w);
+            $w
+        );
 
-        $top_space = (float)$style->length_in_pt([$style->margin_top,
+        $top_space = (float)$style->length_in_pt(
+            [$style->margin_top,
                 $style->padding_top,
                 $style->border_top_width],
-            $h);
-        $bottom_space = (float)$style->length_in_pt([$style->margin_bottom,
+            $h
+        );
+        $bottom_space = (float)$style->length_in_pt(
+            [$style->margin_bottom,
                 $style->padding_bottom,
                 $style->border_bottom_width],
-            $h);
+            $h
+        );
 
         $cb_w = $w - $left_space - $right_space;
         $style->set_used("width", $cb_w);

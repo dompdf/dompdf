@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Frame;
@@ -17,7 +18,6 @@ use Dompdf\FrameDecorator\Page as PageFrameDecorator;
  */
 class Page extends AbstractFrameReflower
 {
-
     /**
      * Cache of the callbacks array
      *
@@ -36,7 +36,7 @@ class Page extends AbstractFrameReflower
      * Page constructor.
      * @param PageFrameDecorator $frame
      */
-    function __construct(PageFrameDecorator $frame)
+    public function __construct(PageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -45,7 +45,7 @@ class Page extends AbstractFrameReflower
      * @param PageFrameDecorator $frame
      * @param int $page_number
      */
-    function apply_page_style(Frame $frame, $page_number)
+    public function apply_page_style(Frame $frame, $page_number)
     {
         $style = $frame->get_style();
         $page_styles = $style->get_stylesheet()->get_page_styles();
@@ -91,7 +91,7 @@ class Page extends AbstractFrameReflower
      *
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var PageFrameDecorator $frame */
         $frame = $this->_frame;

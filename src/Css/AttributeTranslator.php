@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Css;
 
 use Dompdf\Frame;
@@ -16,7 +17,7 @@ use Dompdf\Helpers;
  */
 class AttributeTranslator
 {
-    static $_style_attr = "_html_style_attribute";
+    public static $_style_attr = "_html_style_attribute";
 
     // Munged data originally from
     // http://www.w3.org/TR/REC-html40/index/attributes.html
@@ -208,7 +209,7 @@ class AttributeTranslator
     /**
      * @param Frame $frame
      */
-    static function translate_attributes(Frame $frame)
+    public static function translate_attributes(Frame $frame)
     {
         $node = $frame->get_node();
         $tag = $node->nodeName;
@@ -270,7 +271,7 @@ class AttributeTranslator
      * @param \DOMElement $node
      * @param string $new_style
      */
-    static function append_style(\DOMElement $node, $new_style)
+    public static function append_style(\DOMElement $node, $new_style)
     {
         $style = rtrim($node->getAttribute(self::$_style_attr), ";");
         $style .= $new_style;
@@ -503,7 +504,7 @@ class AttributeTranslator
             $width = "100%";
         }
 
-        $remainder = 100 - (double)rtrim($width, "% ");
+        $remainder = 100 - (float)rtrim($width, "% ");
 
         switch ($value) {
             case "left":
@@ -533,10 +534,12 @@ class AttributeTranslator
      */
     protected static function _set_input_width(\DOMElement $node, $value)
     {
-        if (empty($value)) { return null; }
+        if (empty($value)) {
+            return null;
+        }
 
         if ($node->hasAttribute("type") && in_array(strtolower($node->getAttribute("type")), ["text","password"])) {
-            return sprintf("width: %Fem", (((int)$value * .65)+2));
+            return sprintf("width: %Fem", (((int)$value * .65) + 2));
         } else {
             return sprintf("width: %upx;", (int)$value);
         }

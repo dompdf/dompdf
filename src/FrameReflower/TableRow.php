@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
@@ -22,7 +23,7 @@ class TableRow extends AbstractFrameReflower
      * TableRow constructor.
      * @param TableRowFrameDecorator $frame
      */
-    function __construct(TableRowFrameDecorator $frame)
+    public function __construct(TableRowFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -30,7 +31,7 @@ class TableRow extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var TableRowFrameDecorator */
         $frame = $this->_frame;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests\Css;
 
 use Dompdf\Css\Color;

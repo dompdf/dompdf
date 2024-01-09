@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -33,7 +34,7 @@ class Text extends AbstractFrameDecorator
      * @param Dompdf $dompdf
      * @throws Exception
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         if (!$frame->is_text_node()) {
             throw new Exception("Text_Decorator can only be applied to #text nodes.");
@@ -43,7 +44,7 @@ class Text extends AbstractFrameDecorator
         $this->text_spacing = 0.0;
     }
 
-    function reset()
+    public function reset()
     {
         parent::reset();
         $this->text_spacing = 0.0;
@@ -63,21 +64,21 @@ class Text extends AbstractFrameDecorator
     /**
      * @return string
      */
-    function get_text()
+    public function get_text()
     {
         // FIXME: this should be in a child class (and is incorrect)
-//    if ( $this->_frame->get_style()->content !== "normal" ) {
-//      $this->_frame->get_node()->data = $this->_frame->get_style()->content;
-//      $this->_frame->get_style()->content = "normal";
-//    }
+        //    if ( $this->_frame->get_style()->content !== "normal" ) {
+        //      $this->_frame->get_node()->data = $this->_frame->get_style()->content;
+        //      $this->_frame->get_style()->content = "normal";
+        //    }
 
-//      Helpers::pre_r("---");
-//      $style = $this->_frame->get_style();
-//      var_dump($text = $this->_frame->get_node()->data);
-//      var_dump($asc = utf8_decode($text));
-//      for ($i = 0; $i < strlen($asc); $i++)
-//        Helpers::pre_r("$i: " . $asc[$i] . " - " . ord($asc[$i]));
-//      Helpers::pre_r("width: " . $this->_dompdf->getFontMetrics()->getTextWidth($text, $style->font_family, $style->font_size));
+        //      Helpers::pre_r("---");
+        //      $style = $this->_frame->get_style();
+        //      var_dump($text = $this->_frame->get_node()->data);
+        //      var_dump($asc = utf8_decode($text));
+        //      for ($i = 0; $i < strlen($asc); $i++)
+        //        Helpers::pre_r("$i: " . $asc[$i] . " - " . ord($asc[$i]));
+        //      Helpers::pre_r("width: " . $this->_dompdf->getFontMetrics()->getTextWidth($text, $style->font_family, $style->font_size));
 
         return $this->_frame->get_node()->data;
     }
@@ -157,7 +158,7 @@ class Text extends AbstractFrameDecorator
      *
      * @return Text|null
      */
-    function split_text(int $offset, bool $split_parent = true): ?self
+    public function split_text(int $offset, bool $split_parent = true): ?self
     {
         if ($offset === 0) {
             return null;
@@ -202,7 +203,7 @@ class Text extends AbstractFrameDecorator
      * @param int $offset
      * @param int $count
      */
-    function delete_text($offset, $count)
+    public function delete_text($offset, $count)
     {
         $this->_frame->get_node()->deleteData($offset, $count);
     }
@@ -210,7 +211,7 @@ class Text extends AbstractFrameDecorator
     /**
      * @param string $text
      */
-    function set_text($text)
+    public function set_text($text)
     {
         $this->_frame->get_node()->data = $text;
     }
@@ -219,7 +220,7 @@ class Text extends AbstractFrameDecorator
      * Determines the optimal font that applies to the frame and splits
      * the frame where the optimal font changes.
      */
-    function apply_font_mapping(): void
+    public function apply_font_mapping(): void
     {
         if ($this->mapped_font !== null) {
             return;

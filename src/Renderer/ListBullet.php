@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Helpers;
@@ -24,7 +25,7 @@ class ListBullet extends AbstractRenderer
      * @return mixed|string
      * @deprecated
      */
-    static function get_counter_chars($type)
+    public static function get_counter_chars($type)
     {
         static $cache = [];
 
@@ -44,6 +45,7 @@ class ListBullet extends AbstractRenderer
             case "upper-alpha":
             case "upper-latin":
                 $uppercase = true;
+                // no break
             case "lower-alpha":
             case "lower-latin":
                 $text = "abcdefghijklmnopqrstuvwxyz";
@@ -51,6 +53,7 @@ class ListBullet extends AbstractRenderer
 
             case "upper-roman":
                 $uppercase = true;
+                // no break
             case "lower-roman":
                 $text = "ivxlcdm";
                 break;
@@ -120,7 +123,7 @@ class ListBullet extends AbstractRenderer
     /**
      * @param ListBulletFrameDecorator $frame
      */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         $li = $frame->get_parent();
         $style = $frame->get_style();
@@ -200,9 +203,16 @@ class ListBullet extends AbstractRenderer
                     // Correct for static frame width applied by positioner
                     $x += $frame->get_width() - $text_width;
 
-                    $this->_canvas->text($x, $y, $text,
-                        $font_family, $font_size,
-                        $style->color, $word_spacing, $letter_spacing);
+                    $this->_canvas->text(
+                        $x,
+                        $y,
+                        $text,
+                        $font_family,
+                        $font_size,
+                        $style->color,
+                        $word_spacing,
+                        $letter_spacing
+                    );
                     break;
 
                 case "none":

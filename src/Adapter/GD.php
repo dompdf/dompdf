@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
@@ -125,7 +126,7 @@ class GD implements Canvas
      *
      * @var float
      */
-    const FONT_SCALE = 0.75;
+    public const FONT_SCALE = 0.75;
 
     /**
      * @param string|float[] $paper       The paper size to use as either a standard paper size (see {@link CPDF::$PAPER_SIZES}) or
@@ -756,7 +757,7 @@ class GD implements Canvas
                         }
                         break;
 
-                    // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
+                        // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
                     case 'U': // Found in UFM files
                         $bits = explode(';', trim($row));
                         $dtmp = ['G' => null, 'N' => null, 'U' => null, 'WX' => null];
@@ -841,7 +842,7 @@ class GD implements Canvas
             $font = "";
         }
 
-        if ( stripos($font, ".ttf") === false ) {
+        if (stripos($font, ".ttf") === false) {
             $font .= ".ttf";
         }
 
@@ -953,8 +954,12 @@ class GD implements Canvas
             die("Unable to stream image: headers already sent");
         }
 
-        if (!isset($options["type"])) $options["type"] = "png";
-        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+        if (!isset($options["type"])) {
+            $options["type"] = "png";
+        }
+        if (!isset($options["Attachment"])) {
+            $options["Attachment"] = true;
+        }
         $type = strtolower($options["type"]);
 
         switch ($type) {
@@ -1005,8 +1010,12 @@ class GD implements Canvas
      */
     protected function _output($options = [])
     {
-        if (!isset($options["type"])) $options["type"] = "png";
-        if (!isset($options["page"])) $options["page"] = 1;
+        if (!isset($options["type"])) {
+            $options["type"] = "png";
+        }
+        if (!isset($options["page"])) {
+            $options["page"] = 1;
+        }
         $type = strtolower($options["type"]);
 
         if (isset($this->_imgs[$options["page"] - 1])) {
@@ -1020,9 +1029,18 @@ class GD implements Canvas
             $dst_w = round($this->_actual_width / $this->_aa_factor);
             $dst_h = round($this->_actual_height / $this->_aa_factor);
             $dst = imagecreatetruecolor($dst_w, $dst_h);
-            imagecopyresampled($dst, $img, 0, 0, 0, 0,
-                $dst_w, $dst_h,
-                $this->_actual_width, $this->_actual_height);
+            imagecopyresampled(
+                $dst,
+                $img,
+                0,
+                0,
+                0,
+                0,
+                $dst_w,
+                $dst_h,
+                $this->_actual_width,
+                $this->_actual_height
+            );
         } else {
             $dst = $img;
         }

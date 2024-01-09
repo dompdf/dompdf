@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
@@ -30,7 +31,6 @@ use Dompdf\Image\Cache;
  */
 class PDFLib implements Canvas
 {
-
     /**
      * Dimensions of paper sizes in points
      *
@@ -43,7 +43,7 @@ class PDFLib implements Canvas
      *
      * @var bool
      */
-    static $IN_MEMORY = true;
+    public static $IN_MEMORY = true;
 
     /**
      * Saves the major version of PDFLib for compatibility requests
@@ -261,7 +261,7 @@ class PDFLib implements Canvas
         $this->_objs = [];
     }
 
-    function get_dompdf()
+    public function get_dompdf()
     {
         return $this->_dompdf;
     }
@@ -929,7 +929,7 @@ class PDFLib implements Canvas
         if ($rTL > 0) {
             $path = $this->_pdf->add_path_point($path, 0, 0 - $rTL + $h, "elliptical", "radius=$rTL clockwise=false");
         }
-        $this->_pdf->draw_path($path, $x1, $this->_height-$y1-$h, "clip=true");
+        $this->_pdf->draw_path($path, $x1, $this->_height - $y1 - $h, "clip=true");
     }
 
     public function clipping_polygon(array $points): void
@@ -960,7 +960,7 @@ class PDFLib implements Canvas
         $this->_pdf->save();
     }
 
-    function restore()
+    public function restore()
     {
         $this->_pdf->restore();
     }
@@ -1066,7 +1066,7 @@ class PDFLib implements Canvas
         if ($filename !== null && file_exists($filename)) {
             return $filename;
         }
- 
+
         $func_name = "imagecreatefrom$type";
 
         set_error_handler([Helpers::class, "record_warnings"]);
@@ -1134,10 +1134,13 @@ class PDFLib implements Canvas
                         $this->image($img, $x, $y, $w, $h, $resolution);
                         return;
                     }
+                    // no break
                 case "bmp":
-                /** @noinspection PhpMissingBreakStatementInspection */
+                    /** @noinspection PhpMissingBreakStatementInspection */
+                    // no break
                 case "jpeg":
-                /** @noinspection PhpMissingBreakStatementInspection */
+                    /** @noinspection PhpMissingBreakStatementInspection */
+                    // no break
                 case "png":
                     $image_load_response = $this->_pdf->load_image($img_type, $img, "");
                     break;
@@ -1208,8 +1211,14 @@ class PDFLib implements Canvas
             // Local link
             $name = substr($url, 1);
             if ($name) {
-                $this->_pdf->create_annotation($x, $y, $x + $width, $y + $height, 'Link',
-                    "contents={$url} destname=" . substr($url, 1) . " linewidth=0");
+                $this->_pdf->create_annotation(
+                    $x,
+                    $y,
+                    $x + $width,
+                    $y + $height,
+                    'Link',
+                    "contents={$url} destname=" . substr($url, 1) . " linewidth=0"
+                );
             }
         } else {
             //TODO: PDFLib::create_action does not permit non-HTTP links for URI actions

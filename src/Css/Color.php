@@ -5,13 +5,14 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Css;
 
 use Dompdf\Helpers;
 
 class Color
 {
-    static $cssColorNames = [
+    public static $cssColorNames = [
         "aliceblue" => "F0F8FF",
         "antiquewhite" => "FAEBD7",
         "aqua" => "00FFFF",
@@ -165,7 +166,7 @@ class Color
      * @param array|string|null $color
      * @return array|string|null
      */
-    static function parse($color)
+    public static function parse($color)
     {
         if ($color === null) {
             return null;
@@ -206,7 +207,7 @@ class Color
             // #rgba format
             if ($length === 5) {
                 if (ctype_xdigit($color[4])) {
-                    $alpha = round(hexdec($color[4] . $color[4])/255, 2);
+                    $alpha = round(hexdec($color[4] . $color[4]) / 255, 2);
                 }
                 return $cache[$color] = self::getArray($color[1] . $color[1] . $color[2] . $color[2] . $color[3] . $color[3], $alpha);
             }
@@ -215,11 +216,11 @@ class Color
             if ($length === 7) {
                 return $cache[$color] = self::getArray(mb_substr($color, 1, 6));
             }
-            
+
             // #rrggbbaa format
             if ($length === 9) {
                 if (ctype_xdigit(mb_substr($color, 7, 2))) {
-                    $alpha = round(hexdec(mb_substr($color, 7, 2))/255, 2);
+                    $alpha = round(hexdec(mb_substr($color, 7, 2)) / 255, 2);
                 }
                 return $cache[$color] = self::getArray(mb_substr($color, 1, 6), $alpha);
             }
@@ -307,7 +308,7 @@ class Color
      * @param float $alpha
      * @return array
      */
-    static function getArray($color, $alpha = 1.0)
+    public static function getArray($color, $alpha = 1.0)
     {
         $c = [null, null, null, null, "alpha" => $alpha, "hex" => null];
 

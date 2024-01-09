@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests\FrameReflower;
 
 use Dompdf\Css\Style;

@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -64,7 +65,7 @@ class Page extends AbstractFrameDecorator
      * @param Frame $frame the frame to decorate
      * @param Dompdf $dompdf
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
         $this->_page_full = false;
@@ -77,7 +78,7 @@ class Page extends AbstractFrameDecorator
      *
      * @param Renderer $renderer the renderer to use
      */
-    function set_renderer($renderer)
+    public function set_renderer($renderer)
     {
         $this->_renderer = $renderer;
     }
@@ -87,7 +88,7 @@ class Page extends AbstractFrameDecorator
      *
      * @return Renderer
      */
-    function get_renderer()
+    public function get_renderer()
     {
         return $this->_renderer;
     }
@@ -110,7 +111,7 @@ class Page extends AbstractFrameDecorator
      *
      * @return bool
      */
-    function is_full()
+    public function is_full()
     {
         return $this->_page_full;
     }
@@ -118,7 +119,7 @@ class Page extends AbstractFrameDecorator
     /**
      * Start a new page by resetting the full flag.
      */
-    function next_page()
+    public function next_page()
     {
         $this->_floating_frames = [];
         $this->_renderer->new_page();
@@ -128,7 +129,7 @@ class Page extends AbstractFrameDecorator
     /**
      * Indicate to the page that a table is currently being reflowed.
      */
-    function table_reflow_start()
+    public function table_reflow_start()
     {
         $this->_in_table++;
     }
@@ -136,7 +137,7 @@ class Page extends AbstractFrameDecorator
     /**
      * Indicate to the page that table reflow is finished.
      */
-    function table_reflow_end()
+    public function table_reflow_end()
     {
         $this->_in_table--;
     }
@@ -146,7 +147,7 @@ class Page extends AbstractFrameDecorator
      *
      * @return bool
      */
-    function in_nested_table()
+    public function in_nested_table()
     {
         return $this->_in_table > 1;
     }
@@ -162,7 +163,7 @@ class Page extends AbstractFrameDecorator
      *
      * @return bool true if a page break occurred
      */
-    function check_forced_page_break(Frame $frame)
+    public function check_forced_page_break(Frame $frame)
     {
         // Skip check if page is already split and for the body
         if ($this->_page_full || $frame->get_node()->nodeName === "body") {
@@ -444,7 +445,7 @@ class Page extends AbstractFrameDecorator
 
                 return true;
 
-            // Table-rows
+                // Table-rows
             } else {
                 if ($display === "table-row") {
 
@@ -496,7 +497,7 @@ class Page extends AbstractFrameDecorator
                     if ($table === null) {
                         throw new Exception("Parent table not found for table row");
                     }
-            
+
                     $p = $table;
                     while ($p) {
                         if ($p->get_style()->page_break_inside === "avoid") {
@@ -535,7 +536,7 @@ class Page extends AbstractFrameDecorator
      *
      * @return bool
      */
-    function check_page_break(Frame $frame)
+    public function check_page_break(Frame $frame)
     {
         if ($this->_page_full || $frame->_already_pushed
             // Never check for breaks on empty text nodes
@@ -548,7 +549,9 @@ class Page extends AbstractFrameDecorator
         do {
             $display = $p->get_style()->display;
             if ($display == "table-row") {
-                if ($p->_already_pushed) { return false; }
+                if ($p->_already_pushed) {
+                    return false;
+                }
             }
         } while ($p = $p->get_parent());
 
@@ -704,7 +707,7 @@ class Page extends AbstractFrameDecorator
      *
      * @param Frame $frame
      */
-    function add_floating_frame(Frame $frame)
+    public function add_floating_frame(Frame $frame)
     {
         array_unshift($this->_floating_frames, $frame);
     }
@@ -712,7 +715,7 @@ class Page extends AbstractFrameDecorator
     /**
      * @return Frame[]
      */
-    function get_floating_frames()
+    public function get_floating_frames()
     {
         return $this->_floating_frames;
     }

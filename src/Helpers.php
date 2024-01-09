@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 class Helpers
@@ -91,8 +92,8 @@ class Helpers
             $url = substr($url, 7);
             $protocol = "file://";
         } elseif (strpos($url_lc, "phar://") === 0) {
-            $res = substr($url, strpos($url_lc, ".phar")+5);
-            $url = substr($url, 7, strpos($url_lc, ".phar")-2);
+            $res = substr($url, strpos($url_lc, ".phar") + 5);
+            $url = substr($url, 7, strpos($url_lc, ".phar") - 2);
             $protocol = "phar://";
         }
 
@@ -144,16 +145,17 @@ class Helpers
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
         $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
         $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
         $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
-        
+
         // partially reproduced from https://stackoverflow.com/a/1243431/264628
         /* replace '//' or '/./' or '/foo/../' with '/' */
         $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
-        for ($n=1; $n>0; $path=preg_replace($re, '/', $path, -1, $n)) {}
+        for ($n = 1; $n > 0; $path = preg_replace($re, '/', $path, -1, $n)) {
+        }
 
         $ret = "$scheme$user$pass$host$port$path$query$fragment";
 
@@ -223,15 +225,19 @@ class Helpers
             /** @noinspection PhpMissingBreakStatementInspection */
             case 4:
                 $ret .= $thou[$num[3]];
-            /** @noinspection PhpMissingBreakStatementInspection */
+                /** @noinspection PhpMissingBreakStatementInspection */
+                // no break
             case 3:
                 $ret .= $hund[$num[2]];
-            /** @noinspection PhpMissingBreakStatementInspection */
+                /** @noinspection PhpMissingBreakStatementInspection */
+                // no break
             case 2:
                 $ret .= $tens[$num[1]];
-            /** @noinspection PhpMissingBreakStatementInspection */
+                /** @noinspection PhpMissingBreakStatementInspection */
+                // no break
             case 1:
                 $ret .= $ones[$num[0]];
+                // no break
             default:
                 break;
         }
@@ -307,17 +313,18 @@ class Helpers
      * @param string $uri The URI to encode
      * @return string The original URL with special characters encoded
      */
-    public static function encodeURI($uri) {
+    public static function encodeURI($uri)
+    {
         $unescaped = [
-            '%2D'=>'-','%5F'=>'_','%2E'=>'.','%21'=>'!', '%7E'=>'~',
-            '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')'
+            '%2D' => '-','%5F' => '_','%2E' => '.','%21' => '!', '%7E' => '~',
+            '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')'
         ];
         $reserved = [
-            '%3B'=>';','%2C'=>',','%2F'=>'/','%3F'=>'?','%3A'=>':',
-            '%40'=>'@','%26'=>'&','%3D'=>'=','%2B'=>'+','%24'=>'$'
+            '%3B' => ';','%2C' => ',','%2F' => '/','%3F' => '?','%3A' => ':',
+            '%40' => '@','%26' => '&','%3D' => '=','%2B' => '+','%24' => '$'
         ];
         $score = [
-            '%23'=>'#'
+            '%23' => '#'
         ];
         return preg_replace(
             '/%25([a-fA-F0-9]{2,2})/',
@@ -469,7 +476,7 @@ class Helpers
         $res = "";
 
         $arr = parse_url($url);
-        if ( isset($arr["scheme"]) ) {
+        if (isset($arr["scheme"])) {
             $arr["scheme"] = mb_strtolower($arr["scheme"]);
         }
 
@@ -527,8 +534,8 @@ class Helpers
             }
 
             if ($protocol === "phar://") {
-                $res = substr($url, stripos($url, ".phar")+5);
-                $url = substr($url, 7, stripos($url, ".phar")-2);
+                $res = substr($url, stripos($url, ".phar") + 5);
+                $url = substr($url, 7, stripos($url, ".phar") - 2);
             }
 
             $file = basename($url);

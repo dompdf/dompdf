@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Frame;
 
 use DOMDocument;
@@ -219,7 +220,7 @@ class FrameTree implements IteratorAggregate
         if (isset($previousChild, $nextChild)) {
             if ($previousChild->nodeName === "#text" && $nextChild->nodeName === "#text") {
                 $previousChild->nodeValue .= $nextChild->nodeValue;
-                $this->_remove_node($node, $children, $index+1);
+                $this->_remove_node($node, $children, $index + 1);
             }
         }
         array_splice($children, $index, 1);

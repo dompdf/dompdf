@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Positioner;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
@@ -15,11 +16,10 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
  */
 class NullPositioner extends AbstractPositioner
 {
-
     /**
      * @param AbstractFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame): void
+    public function position(AbstractFrameDecorator $frame): void
     {
         return;
     }

@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -45,7 +46,7 @@ class Block extends AbstractFrameDecorator
      * @param Frame $frame
      * @param Dompdf $dompdf
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
 
@@ -54,7 +55,7 @@ class Block extends AbstractFrameDecorator
         $this->dangling_markers = [];
     }
 
-    function reset()
+    public function reset()
     {
         parent::reset();
 
@@ -66,7 +67,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @return LineBox
      */
-    function get_current_line_box()
+    public function get_current_line_box()
     {
         return $this->_line_boxes[$this->_cl];
     }
@@ -74,7 +75,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @return int
      */
-    function get_current_line_number()
+    public function get_current_line_number()
     {
         return $this->_cl;
     }
@@ -82,7 +83,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @return LineBox[]
      */
-    function get_line_boxes()
+    public function get_line_boxes()
     {
         return $this->_line_boxes;
     }
@@ -91,7 +92,7 @@ class Block extends AbstractFrameDecorator
      * @param int $line_number
      * @return int
      */
-    function set_current_line_number($line_number)
+    public function set_current_line_number($line_number)
     {
         $line_boxes_count = count($this->_line_boxes);
         $cl = max(min($line_number, $line_boxes_count), 0);
@@ -101,7 +102,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @param int $i
      */
-    function clear_line($i)
+    public function clear_line($i)
     {
         if (isset($this->_line_boxes[$i])) {
             unset($this->_line_boxes[$i]);

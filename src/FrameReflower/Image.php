@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Helpers;
@@ -17,12 +18,11 @@ use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
  */
 class Image extends AbstractFrameReflower
 {
-
     /**
      * Image constructor.
      * @param ImageFrameDecorator $frame
      */
-    function __construct(ImageFrameDecorator $frame)
+    public function __construct(ImageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -30,7 +30,7 @@ class Image extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         $this->determine_absolute_containing_block();
 

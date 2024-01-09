@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Css;
 
 use Dompdf\Adapter\CPDF;
@@ -743,7 +744,7 @@ class Style
         if (!isset(self::$_defaults)) {
 
             // Shorthand
-            $d =& self::$_defaults;
+            $d = & self::$_defaults;
 
             // All CSS 2.1 properties, and their default values
             // Some properties are specified with their computed value for
@@ -1084,22 +1085,14 @@ class Style
             // Legacy support for unitless values, not covered by spec. Might
             // want to restrict this to unitless `0` in the future
             $value = $v;
-        }
-
-        elseif ($unit === "%") {
+        } elseif ($unit === "%") {
             $value = $v / 100 * $ref_size;
-        }
-
-        elseif ($unit === "px") {
+        } elseif ($unit === "px") {
             $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
             $value = ($v * 72) / $dpi;
-        }
-
-        elseif ($unit === "pt") {
+        } elseif ($unit === "pt") {
             $value = $v;
-        }
-
-        elseif ($unit === "rem") {
+        } elseif ($unit === "rem") {
             $tree = $this->_stylesheet->get_dompdf()->getTree();
             $root_style = $tree !== null ? $tree->get_root()->get_style() : null;
             $root_font_size = $root_style === null || $root_style === $this
@@ -1113,34 +1106,20 @@ class Style
             if ($root_style === null) {
                 return $value;
             }
-        }
-
-        elseif ($unit === "em") {
+        } elseif ($unit === "em") {
             $value = $v * $font_size;
-        }
-
-        elseif ($unit === "cm") {
+        } elseif ($unit === "cm") {
             $value = $v * 72 / 2.54;
-        }
-
-        elseif ($unit === "mm") {
+        } elseif ($unit === "mm") {
             $value = $v * 72 / 25.4;
-        }
-
-        elseif ($unit === "ex") {
+        } elseif ($unit === "ex") {
             // FIXME: em:ex ratio?
             $value = $v * $font_size / 2;
-        }
-
-        elseif ($unit === "in") {
+        } elseif ($unit === "in") {
             $value = $v * 72;
-        }
-
-        elseif ($unit === "pc") {
+        } elseif ($unit === "pc") {
             $value = $v * 12;
-        }
-
-        else {
+        } else {
             // Invalid or unsupported declaration
             $value = null;
         }
@@ -2755,14 +2734,14 @@ class Style
             switch ($val) {
                 case "inline":
                 case "inline-block":
-                // case "table-row-group":
-                // case "table-header-group":
-                // case "table-footer-group":
-                // case "table-row":
-                // case "table-cell":
-                // case "table-column-group":
-                // case "table-column":
-                // case "table-caption":
+                    // case "table-row-group":
+                    // case "table-header-group":
+                    // case "table-footer-group":
+                    // case "table-row":
+                    // case "table-cell":
+                    // case "table-column-group":
+                    // case "table-column":
+                    // case "table-caption":
                     return "block";
                 case "inline-table":
                     return "table";
@@ -3035,6 +3014,7 @@ class Style
                     return $w;
                 }
 
+                // no break
             case "lighter":
                 // https://www.w3.org/TR/css-fonts-4/#relative-weights
                 $w = isset($this->parent_style)
@@ -3051,6 +3031,7 @@ class Style
                     return 700;
                 }
 
+                // no break
             default:
                 $number = self::CSS_NUMBER;
                 $weight = preg_match("/^$number$/", $val)
@@ -3985,16 +3966,16 @@ class Style
 
             // Keywords
             if ($lower === "open-quote") {
-                $parts[] = new OpenQuote;
+                $parts[] = new OpenQuote();
                 continue;
             } elseif ($lower === "close-quote") {
-                $parts[] = new CloseQuote;
+                $parts[] = new CloseQuote();
                 continue;
             } elseif ($lower === "no-open-quote") {
-                $parts[] = new NoOpenQuote;
+                $parts[] = new NoOpenQuote();
                 continue;
             } elseif ($lower === "no-close-quote") {
-                $parts[] = new NoCloseQuote;
+                $parts[] = new NoCloseQuote();
                 continue;
             }
 
@@ -4067,9 +4048,7 @@ class Style
             elseif ($function === "url") {
                 $url = $this->parse_string($arguments);
                 $parts[] = new Url($url);
-            }
-
-            else {
+            } else {
                 return null;
             }
         }
@@ -4213,7 +4192,7 @@ class Style
                     $values = [0.0, $this->compute_length_percentage($values[0])];
                     break;
 
-                // <number> units
+                    // <number> units
                 case "scale":
                     if ($count > 2) {
                         return null;
@@ -4242,7 +4221,7 @@ class Style
                     $values = [1.0, $this->compute_number($values[0])];
                     break;
 
-                // <angle> units
+                    // <angle> units
                 case "rotate":
                     if ($count > 1) {
                         return null;
@@ -4438,8 +4417,10 @@ class Style
             ? $this->parent_style->font_size
             : self::$default_font_size;
 
-        return print_r(array_merge(["parent_font_size" => $parent_font_size],
-            $this->_props), true);
+        return print_r(array_merge(
+            ["parent_font_size" => $parent_font_size],
+            $this->_props
+        ), true);
     }
 
     /*DEBUGCSS*/

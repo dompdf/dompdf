@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Adapter\CPDF;
@@ -17,7 +18,7 @@ use Dompdf\Frame;
 class Text extends AbstractRenderer
 {
     /** Thickness of underline. Screen: 0.08, print: better less, e.g. 0.04 */
-    const DECO_THICKNESS = 0.02;
+    public const DECO_THICKNESS = 0.02;
 
     //Tweaking if $base and $descent are not accurate.
     //Check method_exists( $this->_canvas, "get_cpdf" )
@@ -26,21 +27,21 @@ class Text extends AbstractRenderer
     //  But $size and $size-$height seem to be accurate enough
 
     /** Relative to bottom of text, as fraction of height */
-    const UNDERLINE_OFFSET = 0.0;
+    public const UNDERLINE_OFFSET = 0.0;
 
     /** Relative to top of text */
-    const OVERLINE_OFFSET = 0.0;
+    public const OVERLINE_OFFSET = 0.0;
 
     /** Relative to centre of text. */
-    const LINETHROUGH_OFFSET = 0.0;
+    public const LINETHROUGH_OFFSET = 0.0;
 
     /** How far to extend lines past either end, in pt */
-    const DECO_EXTENSION = 0.0;
+    public const DECO_EXTENSION = 0.0;
 
     /**
      * @param \Dompdf\FrameDecorator\Text $frame
      */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         $style = $frame->get_style();
         $text = $frame->get_text();
@@ -72,9 +73,16 @@ class Text extends AbstractRenderer
           $text
         );*/
 
-        $this->_canvas->text($x, $y, $text,
-            $font, $size,
-            $style->color, $word_spacing, $letter_spacing);
+        $this->_canvas->text(
+            $x,
+            $y,
+            $text,
+            $font,
+            $size,
+            $style->color,
+            $word_spacing,
+            $letter_spacing
+        );
 
         $line = $frame->get_containing_line();
 

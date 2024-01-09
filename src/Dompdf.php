@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 use DOMDocument;
@@ -621,7 +622,7 @@ class Dompdf
                     }
                     break;
 
-                // load <style> tags
+                    // load <style> tags
                 case "style":
                     // Accept all <style> tags by default (note this is contrary to W3C
                     // HTML 4.0 spec:
@@ -860,7 +861,11 @@ class Dompdf
             "<span style='color: #900' title='Time'>%10.2f ms</span>" .
             "<span  title='Quirksmode'>  " .
             ($this->quirksmode ? "<span style='color: #d00'> ON</span>" : "<span style='color: #0d0'>OFF</span>") .
-            "</span><br />", $frames, $memory, $time);
+            "</span><br />",
+            $frames,
+            $memory,
+            $time
+        );
 
         $out .= ob_get_contents();
         ob_clean();
@@ -1501,7 +1506,7 @@ class Dompdf
      * @throws Exception
      * @return mixed
      */
-    function __get($prop)
+    public function __get($prop)
     {
         switch ($prop) {
             case 'version':

@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Exception;
@@ -20,7 +21,7 @@ class TableCell extends Block
     /**
      * @param Frame $frame
      */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         $style = $frame->get_style();
         $node = $frame->get_node();
@@ -120,7 +121,7 @@ class TableCell extends Block
                 if ($bp["bottom"]["width"] <= 0) {
                     continue;
                 }
-                
+
                 $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],

@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests\LayoutTest;
 
 use Dompdf\Dompdf;
@@ -195,7 +196,8 @@ HTML
             ]
         ]);
 
-        $dompdf->loadHtml(<<<HTML
+        $dompdf->loadHtml(
+            <<<HTML
     <!DOCTYPE html>
     <head>
     <meta charset="UTF-8">

@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 use Dompdf\Css\Style;
@@ -22,8 +23,8 @@ use Dompdf\Frame\FrameListIterator;
  */
 class Frame
 {
-    const WS_TEXT = 1;
-    const WS_SPACE = 2;
+    public const WS_TEXT = 1;
+    public const WS_SPACE = 2;
 
     /**
      * The DOMElement or DOMText object this frame represents
@@ -171,18 +172,18 @@ class Frame
             "h" => null,
         ];
 
-        $this->_containing_block[0] =& $this->_containing_block["x"];
-        $this->_containing_block[1] =& $this->_containing_block["y"];
-        $this->_containing_block[2] =& $this->_containing_block["w"];
-        $this->_containing_block[3] =& $this->_containing_block["h"];
+        $this->_containing_block[0] = & $this->_containing_block["x"];
+        $this->_containing_block[1] = & $this->_containing_block["y"];
+        $this->_containing_block[2] = & $this->_containing_block["w"];
+        $this->_containing_block[3] = & $this->_containing_block["h"];
 
         $this->_position = [
             "x" => null,
             "y" => null,
         ];
 
-        $this->_position[0] =& $this->_position["x"];
-        $this->_position[1] =& $this->_position["y"];
+        $this->_position[0] = & $this->_position["x"];
+        $this->_position[1] = & $this->_position["y"];
 
         $this->_opacity = 1.0;
         $this->_decorator = null;
@@ -462,7 +463,8 @@ class Frame
                         $style->margin_bottom,
                         $style->padding_top,
                         $style->padding_bottom
-                    ], $this->_containing_block["w"]
+                    ],
+                    $this->_containing_block["w"]
                 )
             ],
             $this->_containing_block["h"]
@@ -498,7 +500,8 @@ class Frame
                     $style->margin_top,
                     $style->border_top_width,
                     $style->padding_top
-                ], $cb["w"]
+                ],
+                $cb["w"]
             );
 
         $w = (float)$style->length_in_pt($style->width, $cb["w"]);
@@ -543,22 +546,22 @@ class Frame
             );
 
         $w = (float)$style->length_in_pt(
-                [
+            [
                     $style->padding_left,
                     $style->width,
                     $style->padding_right
                 ],
-                $cb["w"]
-            );
+            $cb["w"]
+        );
 
         $h = (float)$style->length_in_pt(
-                [
+            [
                     $style->padding_top,
                     $style->padding_bottom,
                     $style->length_in_pt($style->height, $cb["h"])
                 ],
-                $cb["w"]
-            );
+            $cb["w"]
+        );
 
         return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
@@ -1155,9 +1158,9 @@ class Frame
     public function __toString()
     {
         // Skip empty text frames
-//     if ( $this->is_text_node() &&
-//          preg_replace("/\s/", "", $this->_node->data) === "" )
-//       return "";
+        //     if ( $this->is_text_node() &&
+        //          preg_replace("/\s/", "", $this->_node->data) === "" )
+        //       return "";
 
 
         $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
@@ -1228,9 +1231,11 @@ class Frame
 
         $str .= "\n";
         if (php_sapi_name() === "cli") {
-            $str = strip_tags(str_replace(["<br/>", "<b>", "</b>"],
+            $str = strip_tags(str_replace(
+                ["<br/>", "<b>", "</b>"],
                 ["\n", "", ""],
-                $str));
+                $str
+            ));
         }
 
         return $str;

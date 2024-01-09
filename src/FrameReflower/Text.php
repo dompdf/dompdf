@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Exception;
@@ -23,7 +24,7 @@ class Text extends AbstractFrameReflower
     /**
      * PHP string representation of HTML entity <shy>
      */
-    const SOFT_HYPHEN = "\xC2\xAD";
+    public const SOFT_HYPHEN = "\xC2\xAD";
 
     /**
      * The regex splits on everything that's a separator (^\S double negative),
@@ -381,7 +382,7 @@ class Text extends AbstractFrameReflower
      * @param BlockFrameDecorator|null $block
      * @throws Exception
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         $frame = $this->_frame;
         $page = $frame->get_root();

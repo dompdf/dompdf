@@ -6,6 +6,7 @@
  */
 
 // FIXME: Need to sanity check inputs to this class
+
 namespace Dompdf\Adapter;
 
 use Dompdf\Canvas;
@@ -33,13 +34,12 @@ use FontLib\Exception\FontNotFoundException;
  */
 class CPDF implements Canvas
 {
-
     /**
      * Dimensions of paper sizes in points
      *
      * @var array
      */
-    static $PAPER_SIZES = [
+    public static $PAPER_SIZES = [
         "4a0" => [0.0, 0.0, 4767.87, 6740.79],
         "2a0" => [0.0, 0.0, 3370.39, 4767.87],
         "a0" => [0.0, 0.0, 2383.94, 3370.39],
@@ -454,8 +454,12 @@ class CPDF implements Canvas
         $this->_set_stroke_color($color);
         $this->_set_line_style($width, $cap, "", $style);
 
-        $this->_pdf->line($x1, $this->y($y1),
-            $x2, $this->y($y2));
+        $this->_pdf->line(
+            $x1,
+            $this->y($y1),
+            $x2,
+            $this->y($y2)
+        );
         $this->_set_line_transparency("Normal", $this->_current_opacity);
     }
 
@@ -593,7 +597,7 @@ class CPDF implements Canvas
         if ($filename !== null && file_exists($filename)) {
             return $filename;
         }
- 
+
         $func_name = "imagecreatefrom$type";
 
         set_error_handler([Helpers::class, "record_warnings"]);
@@ -650,32 +654,45 @@ class CPDF implements Canvas
                 break;
 
             case "webp":
-            /** @noinspection PhpMissingBreakStatementInspection */
+                /** @noinspection PhpMissingBreakStatementInspection */
+                // no break
             case "gif":
-            /** @noinspection PhpMissingBreakStatementInspection */
+                /** @noinspection PhpMissingBreakStatementInspection */
+                // no break
             case "bmp":
-                if ($debug_png) print "!!!{$type}!!!";
+                if ($debug_png) {
+                    print "!!!{$type}!!!";
+                }
                 $img = $this->_convert_to_png($img, $type);
                 if ($img === null) {
-                    if ($debug_png) print '!!!conversion to PDF failed!!!';
+                    if ($debug_png) {
+                        print '!!!conversion to PDF failed!!!';
+                    }
                     $this->image(Cache::$broken_image, $x, $y, $w, $h, $resolution);
                     break;
                 }
 
+                // no break
             case "png":
-                if ($debug_png) print '!!!png!!!';
+                if ($debug_png) {
+                    print '!!!png!!!';
+                }
 
                 $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
             case "svg":
-                if ($debug_png) print '!!!SVG!!!';
+                if ($debug_png) {
+                    print '!!!SVG!!!';
+                }
 
                 $this->_pdf->addSvgFromFile($img, $x, $this->y($y) - $h, $w, $h);
                 break;
 
             default:
-                if ($debug_png) print '!!!unknown!!!';
+                if ($debug_png) {
+                    print '!!!unknown!!!';
+                }
         }
     }
 
@@ -961,8 +978,12 @@ class CPDF implements Canvas
             die("Unable to stream pdf: headers already sent");
         }
 
-        if (!isset($options["compress"])) $options["compress"] = true;
-        if (!isset($options["Attachment"])) $options["Attachment"] = true;
+        if (!isset($options["compress"])) {
+            $options["compress"] = true;
+        }
+        if (!isset($options["Attachment"])) {
+            $options["Attachment"] = true;
+        }
 
         $debug = !$options['compress'];
         $tmp = ltrim($this->_pdf->output($debug));
@@ -981,7 +1002,9 @@ class CPDF implements Canvas
 
     public function output($options = [])
     {
-        if (!isset($options["compress"])) $options["compress"] = true;
+        if (!isset($options["compress"])) {
+            $options["compress"] = true;
+        }
 
         $debug = !$options['compress'];
 

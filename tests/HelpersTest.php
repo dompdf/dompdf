@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests;
 
 use Dompdf\Helpers;
@@ -13,7 +14,7 @@ class HelpersTest extends TestCase
             ["https://example.com?a[]=1&b%5B%5D=1&c=d+e&f=g h&i=j%2Bk%26l", "https://example.com?a%5B%5D=1&b%5B%5D=1&c=d+e&f=g%20h&i=j%2Bk%26l"],
         ];
     }
-    
+
     /**
      * @dataProvider uriEncodingProvider
      */
@@ -119,7 +120,7 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         $this->assertSame($expected, Helpers::lengthEqual(-$b, -$a));
     }
 
-    
+
     public function testCustomProtocolParsing(): void
     {
         $uri = "mock://path/to/resource";

@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Css\Content;
 
 abstract class ContentPart

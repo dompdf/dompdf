@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
@@ -22,7 +23,7 @@ use Dompdf\Helpers;
 class Block extends AbstractFrameReflower
 {
     // Minimum line width to justify, as fraction of available width
-    const MIN_JUSTIFY_WIDTH = 0.80;
+    public const MIN_JUSTIFY_WIDTH = 0.80;
 
     /**
      * Frame for this reflower
@@ -31,7 +32,7 @@ class Block extends AbstractFrameReflower
      */
     protected $_frame;
 
-    function __construct(BlockFrameDecorator $frame)
+    public function __construct(BlockFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -556,7 +557,7 @@ class Block extends AbstractFrameReflower
      * Align inline children vertically.
      * Aligns each child vertically after each line is reflowed
      */
-    function vertical_align()
+    public function vertical_align()
     {
         $fontMetrics = $this->get_dompdf()->getFontMetrics();
 
@@ -589,7 +590,7 @@ class Block extends AbstractFrameReflower
                     foreach ($line->get_frames() as $other) {
                         if ($other !== $frame
                             && !($other->is_text_node() && $other->get_node()->nodeValue === "")
-                         ) {
+                        ) {
                             $skip = false;
                             break;
                         }
@@ -687,7 +688,7 @@ class Block extends AbstractFrameReflower
     /**
      * @param AbstractFrameDecorator $child
      */
-    function process_clear(AbstractFrameDecorator $child)
+    public function process_clear(AbstractFrameDecorator $child)
     {
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
@@ -723,7 +724,7 @@ class Block extends AbstractFrameReflower
      * @param float $cb_x
      * @param float $cb_w
      */
-    function process_float(AbstractFrameDecorator $child, $cb_x, $cb_w)
+    public function process_float(AbstractFrameDecorator $child, $cb_x, $cb_w)
     {
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
@@ -778,7 +779,7 @@ class Block extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
 
         // Check if a page break is forced

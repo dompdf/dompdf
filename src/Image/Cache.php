@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Image;
 
 use Dompdf\Options;
@@ -47,7 +48,7 @@ class Cache
     public static $broken_image = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0'?%3E%3Csvg width='64' height='64' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Crect stroke='%23666666' id='svg_1' height='60.499994' width='60.166667' y='1.666669' x='1.999998' stroke-width='1.5' fill='none'/%3E%3Cline stroke-linecap='null' stroke-linejoin='null' id='svg_3' y2='59.333253' x2='59.749916' y1='4.333415' x1='4.250079' stroke-width='1.5' stroke='%23999999' fill='none'/%3E%3Cline stroke-linecap='null' stroke-linejoin='null' id='svg_4' y2='59.999665' x2='4.062838' y1='3.750342' x1='60.062164' stroke-width='1.5' stroke='%23999999' fill='none'/%3E%3C/g%3E%3C/svg%3E";
 
     public static $error_message = "Image not found or type unknown";
-    
+
     /**
      * Resolve and fetch an image for use.
      *
@@ -60,13 +61,13 @@ class Cache
      * @return array            An array with three elements: The local path to the image, the image
      *                          extension, and an error message if the image could not be cached
      */
-    static function resolve_url($url, $protocol, $host, $base_path, Options $options)
+    public static function resolve_url($url, $protocol, $host, $base_path, Options $options)
     {
         $tempfile = null;
         $resolved_url = null;
         $type = null;
         $message = null;
-        
+
         try {
             $full_url = Helpers::build_url($protocol, $host, $base_path, $url);
 
@@ -77,7 +78,7 @@ class Cache
             $parsed_url = Helpers::explode_url($full_url);
             $protocol = strtolower($parsed_url["protocol"]);
             $is_data_uri = strpos($protocol, "data:") === 0;
-            
+
             if (!$is_data_uri) {
                 $allowed_protocols = $options->getAllowedProtocols();
                 if (!array_key_exists($protocol, $allowed_protocols)) {
@@ -158,7 +159,7 @@ class Cache
                                 if (empty($inner_full_url)) {
                                     continue;
                                 }
-                                
+
                                 self::detectCircularRef($full_url, $inner_full_url);
                                 self::$svgRefs[$full_url][] = $inner_full_url;
                                 [$resolved_url, $type, $message] = self::resolve_url($url, $parsed_url["protocol"], $parsed_url["host"], $parsed_url["path"], $options);
@@ -170,7 +171,7 @@ class Cache
                     },
                     false
                 );
-        
+
                 if (($fp = fopen($resolved_url, "r")) !== false) {
                     while ($line = fread($fp, 8192)) {
                         xml_parse($parser, $line, false);
@@ -194,7 +195,7 @@ class Cache
         return [$resolved_url, $type, $message];
     }
 
-    static function detectCircularRef(string $src, string $target)
+    public static function detectCircularRef(string $src, string $target)
     {
         if (!\array_key_exists($target, self::$svgRefs)) {
             return;
@@ -214,7 +215,7 @@ class Cache
      * @param string $tempPath The path of the temp file to register.
      * @param string $key      An optional key to register the temp file at.
      */
-    static function addTempImage(string $filePath, string $tempPath, string $key = "default"): void
+    public static function addTempImage(string $filePath, string $tempPath, string $key = "default"): void
     {
         if (!isset(self::$tempImages[$filePath])) {
             self::$tempImages[$filePath] = [];
@@ -229,7 +230,7 @@ class Cache
      * @param string $filePath The path of the original image.
      * @param string $key      The key the temp file is registered at.
      */
-    static function getTempImage(string $filePath, string $key = "default"): ?string
+    public static function getTempImage(string $filePath, string $key = "default"): ?string
     {
         return self::$tempImages[$filePath][$key] ?? null;
     }
@@ -238,7 +239,7 @@ class Cache
      * Unlink all cached images (i.e. temporary images either downloaded
      * or converted) except for the bundled "broken image"
      */
-    static function clear(bool $debugPng = false)
+    public static function clear(bool $debugPng = false)
     {
         foreach (self::$_cache as $file) {
             if ($file === self::$broken_image) {
@@ -271,14 +272,14 @@ class Cache
         self::$svgRefs = [];
     }
 
-    static function detect_type($file, $context = null)
+    public static function detect_type($file, $context = null)
     {
         list(, , $type) = Helpers::dompdf_getimagesize($file, $context);
 
         return $type;
     }
 
-    static function is_broken($url)
+    public static function is_broken($url)
     {
         return $url === self::$broken_image;
     }

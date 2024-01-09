@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use DOMElement;
@@ -22,7 +23,6 @@ use Dompdf\Image\Cache;
  */
 abstract class AbstractRenderer
 {
-
     /**
      * Rendering backend
      *
@@ -42,7 +42,7 @@ abstract class AbstractRenderer
      *
      * @param Dompdf $dompdf The current dompdf instance
      */
-    function __construct(Dompdf $dompdf)
+    public function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
         $this->_canvas = $dompdf->getCanvas();
@@ -55,7 +55,7 @@ abstract class AbstractRenderer
      *
      * @param Frame $frame The frame to render
      */
-    abstract function render(Frame $frame);
+    abstract public function render(Frame $frame);
 
     /**
      * @param Frame   $frame

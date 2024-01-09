@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 use Dompdf\Css\Style;
@@ -30,7 +31,7 @@ class FontMetrics
      * This is typically done only from command line with load_font.php on converting
      * ttf fonts to ufm with php-font-lib.
      */
-    const USER_FONTS_FILE = "installed-fonts.json";
+    public const USER_FONTS_FILE = "installed-fonts.json";
 
 
     /**
@@ -129,7 +130,7 @@ class FontMetrics
         if (is_readable($legacyCacheFile)) {
             $fontDir = $this->options->getFontDir();
             $rootDir = $this->options->getRootDir();
-    
+
             $cacheDataClosure = require $legacyCacheFile;
             $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
             if (is_array($cacheData)) {
@@ -243,7 +244,7 @@ class FontMetrics
 
         unlink($localTempFile);
 
-        if ( !file_exists("$localFilePath.ufm") ) {
+        if (!file_exists("$localFilePath.ufm")) {
             return false;
         }
 
@@ -258,7 +259,7 @@ class FontMetrics
         // Save the changes
         file_put_contents($localFilePath.$fontExtension, $remoteFileContent);
 
-        if ( !file_exists($localFilePath.$fontExtension) ) {
+        if (!file_exists($localFilePath.$fontExtension)) {
             unlink("$localFilePath.ufm");
             return false;
         }
@@ -491,19 +492,19 @@ class FontMetrics
             if (isset($families[$family][$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $families[$family][$subtype];
             }
-    
+
             if (!isset($families[$family])) {
                 continue;
             }
-    
+
             $family = $families[$family];
-    
+
             foreach ($family as $sub => $font) {
                 if (strpos($subtype, $sub) !== false) {
                     return $cache[$familyRaw][$subtypeRaw] = $font;
                 }
             }
-    
+
             if ($subtype !== "normal") {
                 foreach ($family as $sub => $font) {
                     if ($sub !== "normal") {
@@ -511,14 +512,14 @@ class FontMetrics
                     }
                 }
             }
-    
+
             $subtype = "normal";
-    
+
             if (isset($family[$subtype])) {
                 return $cache[$familyRaw][$subtypeRaw] = $family[$subtype];
             }
         }
-        
+
         return null;
     }
 
