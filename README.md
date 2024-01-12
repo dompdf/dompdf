@@ -57,9 +57,9 @@ Note that some required dependencies may have further dependencies
 
 ### Recommendations
 
- * OPcache (OPcache, XCache, APC, etc.): improves performance
  * GD (for image processing)
- * IMagick or GMagick extension: improves image processing performance
+   * Additionally, the IMagick or GMagick extension improves image processing performance for certain image types
+ * OPcache (OPcache, XCache, APC, etc.): improves performance
 
 Visit the wiki for more information:
 https://github.com/dompdf/dompdf/wiki/Requirements
