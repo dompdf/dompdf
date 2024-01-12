@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Frame;
 
 use Iterator;
@@ -48,33 +49,24 @@ class FrameTreeIterator implements Iterator
         $this->_num = 0;
     }
 
-    /**
-     * @return bool
-     */
     public function valid(): bool
     {
-        return count($this->_stack) > 0;
+        return \count($this->_stack) > 0;
     }
 
-    /**
-     * @return int
-     */
     public function key(): int
     {
         return $this->_num;
     }
 
-    /**
-     * @return Frame
-     */
     public function current(): Frame
     {
-        return end($this->_stack);
+        return \end($this->_stack);
     }
 
     public function next(): void
     {
-        $b = array_pop($this->_stack);
+        $b = \array_pop($this->_stack);
         $this->_num++;
 
         // Push all children onto the stack in reverse order

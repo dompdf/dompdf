@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Helpers;
@@ -24,7 +25,7 @@ class ListBullet extends AbstractRenderer
      * @return mixed|string
      * @deprecated
      */
-    static function get_counter_chars($type)
+    public static function get_counter_chars($type)
     {
         static $cache = [];
 
@@ -44,6 +45,7 @@ class ListBullet extends AbstractRenderer
             case "upper-alpha":
             case "upper-latin":
                 $uppercase = true;
+                // no break
             case "lower-alpha":
             case "lower-latin":
                 $text = "abcdefghijklmnopqrstuvwxyz";
@@ -51,6 +53,7 @@ class ListBullet extends AbstractRenderer
 
             case "upper-roman":
                 $uppercase = true;
+                // no break
             case "lower-roman":
                 $text = "ivxlcdm";
                 break;
@@ -63,19 +66,12 @@ class ListBullet extends AbstractRenderer
         }
 
         if ($uppercase) {
-            $text = strtoupper($text);
+            $text = \strtoupper($text);
         }
 
         return $cache[$type] = "$text.";
     }
 
-    /**
-     * @param int      $n
-     * @param string   $type
-     * @param int|null $pad
-     *
-     * @return string
-     */
     private function make_counter(int $n, string $type, ?int $pad = null): string
     {
         $text = "";
@@ -85,7 +81,7 @@ class ListBullet extends AbstractRenderer
             case "decimal":
             case "decimal-leading-zero":
                 if ($pad) {
-                    $text = str_pad($n, $pad, "0", STR_PAD_LEFT);
+                    $text = \str_pad($n, $pad, "0", \STR_PAD_LEFT);
                 } else {
                     $text = $n;
                 }
@@ -93,16 +89,16 @@ class ListBullet extends AbstractRenderer
 
             case "upper-alpha":
             case "upper-latin":
-                $text = chr((($n - 1) % 26) + ord('A'));
+                $text = \chr((($n - 1) % 26) + \ord('A'));
                 break;
 
             case "lower-alpha":
             case "lower-latin":
-                $text = chr((($n - 1) % 26) + ord('a'));
+                $text = \chr((($n - 1) % 26) + \ord('a'));
                 break;
 
             case "upper-roman":
-                $text = strtoupper(Helpers::dec2roman($n));
+                $text = \strtoupper(Helpers::dec2roman($n));
                 break;
 
             case "lower-roman":
@@ -120,7 +116,7 @@ class ListBullet extends AbstractRenderer
     /**
      * @param ListBulletFrameDecorator $frame
      */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         $li = $frame->get_parent();
         $style = $frame->get_style();
@@ -180,7 +176,7 @@ class ListBullet extends AbstractRenderer
                 case "upper-roman":
                     $pad = null;
                     if ($bullet_style === "decimal-leading-zero") {
-                        $pad = strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
+                        $pad = \strlen($li->get_parent()->get_node()->getAttribute("dompdf-children-count"));
                     }
 
                     $node = $frame->get_node();
@@ -200,9 +196,16 @@ class ListBullet extends AbstractRenderer
                     // Correct for static frame width applied by positioner
                     $x += $frame->get_width() - $text_width;
 
-                    $this->_canvas->text($x, $y, $text,
-                        $font_family, $font_size,
-                        $style->color, $word_spacing, $letter_spacing);
+                    $this->_canvas->text(
+                        $x,
+                        $y,
+                        $text,
+                        $font_family,
+                        $font_size,
+                        $style->color,
+                        $word_spacing,
+                        $letter_spacing
+                    );
                     break;
 
                 case "none":

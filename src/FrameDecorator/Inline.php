@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -17,13 +18,12 @@ use Dompdf\Exception;
  */
 class Inline extends AbstractFrameDecorator
 {
-
     /**
      * Inline constructor.
      * @param Frame $frame
      * @param Dompdf $dompdf
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }
@@ -38,8 +38,6 @@ class Inline extends AbstractFrameDecorator
      * start at the top and bottom of the content area, not the
      * 'line-height'. But only the 'line-height' is used to calculate the
      * height of the line box.
-     *
-     * @return float
      */
     public function get_margin_height(): float
     {
@@ -53,7 +51,7 @@ class Inline extends AbstractFrameDecorator
 
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
-        if (is_null($child)) {
+        if (\is_null($child)) {
             $this->get_parent()->split($this, $page_break, $forced);
             return;
         }

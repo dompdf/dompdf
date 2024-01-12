@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Positioner;
 
 use Dompdf\Exception;
@@ -17,11 +18,7 @@ use Dompdf\FrameDecorator\Table;
  */
 class TableCell extends AbstractPositioner
 {
-
-    /**
-     * @param AbstractFrameDecorator $frame
-     */
-    function position(AbstractFrameDecorator $frame): void
+    public function position(AbstractFrameDecorator $frame): void
     {
         $table = Table::find_parent_table($frame);
         if ($table === null) {

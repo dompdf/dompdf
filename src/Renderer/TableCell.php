@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Exception;
@@ -17,15 +18,12 @@ use Dompdf\FrameDecorator\Table;
  */
 class TableCell extends Block
 {
-    /**
-     * @param Frame $frame
-     */
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         $style = $frame->get_style();
         $node = $frame->get_node();
 
-        if (trim($node->nodeValue) === "" && $style->empty_cells === "hide") {
+        if (\trim($node->nodeValue) === "" && $style->empty_cells === "hide") {
             return;
         }
 
@@ -46,7 +44,7 @@ class TableCell extends Block
 
             $cells = $table->get_cellmap()->get_spanned_cells($frame);
 
-            if (is_null($cells)) {
+            if (\is_null($cells)) {
                 return;
             }
 
@@ -67,10 +65,6 @@ class TableCell extends Block
         $this->debugBlockLayout($frame, "red", false);
     }
 
-    /**
-     * @param Frame $frame
-     * @param Table $table
-     */
     protected function _render_collapsed_border(Frame $frame, Table $table): void
     {
         $cellmap = $table->get_cellmap();
@@ -87,7 +81,7 @@ class TableCell extends Block
         // Determine if this cell borders on the bottom of the table.  If so,
         // then we draw its bottom border.  Otherwise the next row down will
         // draw its top border instead.
-        if (in_array($num_rows - 1, $cells["rows"])) {
+        if (\in_array($num_rows - 1, $cells["rows"])) {
             $draw_bottom = true;
             $bottom_row = $cellmap->get_row($num_rows - 1);
         } else {
@@ -120,7 +114,7 @@ class TableCell extends Block
                 if ($bp["bottom"]["width"] <= 0) {
                     continue;
                 }
-                
+
                 $widths = [
                     (float)$bp["top"]["width"],
                     (float)$bp["right"]["width"],
@@ -138,7 +132,7 @@ class TableCell extends Block
         $j = $cells["columns"][0];
         $left_col = $cellmap->get_column($j);
 
-        if (in_array($num_cols - 1, $cells["columns"])) {
+        if (\in_array($num_cols - 1, $cells["columns"])) {
             $draw_right = true;
             $right_col = $cellmap->get_column($num_cols - 1);
         } else {

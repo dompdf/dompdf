@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Css;
 
 use Dompdf\Frame;
@@ -16,7 +17,7 @@ use Dompdf\Helpers;
  */
 class AttributeTranslator
 {
-    static $_style_attr = "_html_style_attribute";
+    public static $_style_attr = "_html_style_attribute";
 
     // Munged data originally from
     // http://www.w3.org/TR/REC-html40/index/attributes.html
@@ -205,10 +206,7 @@ class AttributeTranslator
         11 => "60pt",
     ];
 
-    /**
-     * @param Frame $frame
-     */
-    static function translate_attributes(Frame $frame)
+    public static function translate_attributes(Frame $frame)
     {
         $node = $frame->get_node();
         $tag = $node->nodeName;
@@ -219,7 +217,7 @@ class AttributeTranslator
 
         $valid_attrs = self::$__ATTRIBUTE_LOOKUP[$tag];
         $attrs = $node->attributes;
-        $style = rtrim($node->getAttribute(self::$_style_attr), "; ");
+        $style = \rtrim($node->getAttribute(self::$_style_attr), "; ");
         if ($style != "") {
             $style .= ";";
         }
@@ -234,7 +232,7 @@ class AttributeTranslator
             $target = $valid_attrs[$attr];
 
             // Look up $value in $target, if $target is an array:
-            if (is_array($target)) {
+            if (\is_array($target)) {
                 if (isset($target[$value])) {
                     $style .= " " . self::_resolve_target($node, $target[$value], $value);
                 }
@@ -244,8 +242,8 @@ class AttributeTranslator
             }
         }
 
-        if (!is_null($style)) {
-            $style = ltrim($style);
+        if (!\is_null($style)) {
+            $style = \ltrim($style);
             $node->setAttribute(self::$_style_attr, $style);
         }
     }
@@ -263,18 +261,18 @@ class AttributeTranslator
             return self::$target($node, $value);
         }
 
-        return $value ? sprintf($target, $value) : "";
+        return $value ? \sprintf($target, $value) : "";
     }
 
     /**
      * @param \DOMElement $node
      * @param string $new_style
      */
-    static function append_style(\DOMElement $node, $new_style)
+    public static function append_style(\DOMElement $node, $new_style)
     {
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
+        $style = \rtrim($node->getAttribute(self::$_style_attr), ";");
         $style .= $new_style;
-        $style = ltrim($style, ";");
+        $style = \ltrim($style, ";");
         $node->setAttribute(self::$_style_attr, $style);
     }
 
@@ -314,7 +312,7 @@ class AttributeTranslator
      */
     protected static function _get_valid_color($value)
     {
-        if (preg_match('/^#?([0-9A-F]{6})$/i', $value, $matches)) {
+        if (\preg_match('/^#?([0-9A-F]{6})$/i', $value, $matches)) {
             $value = "#$matches[1]";
         }
 
@@ -349,14 +347,14 @@ class AttributeTranslator
 
     protected static function _set_px_width(\DOMElement $node, string $value): string
     {
-        $v = trim($value);
+        $v = \trim($value);
 
         if (Helpers::is_percent($v)) {
-            return sprintf("width: %s;", $v);
+            return \sprintf("width: %s;", $v);
         }
 
-        if (is_numeric(mb_substr($v, 0, 1))) {
-            return sprintf("width: %spx;", (float) $v);
+        if (\is_numeric(\mb_substr($v, 0, 1))) {
+            return \sprintf("width: %spx;", (float) $v);
         }
 
         return "";
@@ -364,14 +362,14 @@ class AttributeTranslator
 
     protected static function _set_px_height(\DOMElement $node, string $value): string
     {
-        $v = trim($value);
+        $v = \trim($value);
 
         if (Helpers::is_percent($v)) {
-            return sprintf("height: %s;", $v);
+            return \sprintf("height: %s;", $v);
         }
 
-        if (is_numeric(mb_substr($v, 0, 1))) {
-            return sprintf("height: %spx;", (float) $v);
+        if (\is_numeric(\mb_substr($v, 0, 1))) {
+            return \sprintf("height: %spx;", (float) $v);
         }
 
         return "";
@@ -413,7 +411,7 @@ class AttributeTranslator
      */
     protected static function _set_table_cellspacing(\DOMElement $node, $value)
     {
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
+        $style = \rtrim($node->getAttribute(self::$_style_attr), ";");
 
         if ($value == 0) {
             $style .= "; border-collapse: collapse;";
@@ -421,7 +419,7 @@ class AttributeTranslator
             $style .= "; border-spacing: {$value}px; border-collapse: separate;";
         }
 
-        return ltrim($style, ";");
+        return \ltrim($style, ";");
     }
 
     /**
@@ -468,10 +466,10 @@ class AttributeTranslator
             $cell->setAttribute(self::$_style_attr, $style);
         }
 
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
+        $style = \rtrim($node->getAttribute(self::$_style_attr), ";");
         $style .= "; border-collapse: collapse; ";
 
-        return ltrim($style, "; ");
+        return \ltrim($style, "; ");
     }
 
     /**
@@ -482,10 +480,10 @@ class AttributeTranslator
      */
     protected static function _set_hr_size(\DOMElement $node, $value)
     {
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
-        $style .= "; border-width: " . max(0, $value - 2) . "; ";
+        $style = \rtrim($node->getAttribute(self::$_style_attr), ";");
+        $style .= "; border-width: " . \max(0, $value - 2) . "; ";
 
-        return ltrim($style, "; ");
+        return \ltrim($style, "; ");
     }
 
     /**
@@ -496,14 +494,14 @@ class AttributeTranslator
      */
     protected static function _set_hr_align(\DOMElement $node, $value)
     {
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
+        $style = \rtrim($node->getAttribute(self::$_style_attr), ";");
         $width = $node->getAttribute("width");
 
         if ($width == "") {
             $width = "100%";
         }
 
-        $remainder = 100 - (double)rtrim($width, "% ");
+        $remainder = 100 - (float)\rtrim($width, "% ");
 
         switch ($value) {
             case "left":
@@ -522,7 +520,7 @@ class AttributeTranslator
                 return null;
         }
 
-        return ltrim($style, "; ");
+        return \ltrim($style, "; ");
     }
 
     /**
@@ -533,12 +531,14 @@ class AttributeTranslator
      */
     protected static function _set_input_width(\DOMElement $node, $value)
     {
-        if (empty($value)) { return null; }
+        if (empty($value)) {
+            return null;
+        }
 
-        if ($node->hasAttribute("type") && in_array(strtolower($node->getAttribute("type")), ["text","password"])) {
-            return sprintf("width: %Fem", (((int)$value * .65)+2));
+        if ($node->hasAttribute("type") && \in_array(\strtolower($node->getAttribute("type")), ["text","password"])) {
+            return \sprintf("width: %Fem", (((int)$value * .65) + 2));
         } else {
-            return sprintf("width: %upx;", (int)$value);
+            return \sprintf("width: %upx;", (int)$value);
         }
     }
 
@@ -647,12 +647,12 @@ class AttributeTranslator
             $style .= "; font-size: $value;";
         }
 
-        return ltrim($style, "; ");
+        return \ltrim($style, "; ");
     }
 
     protected static function _set_list_style_type(\DOMElement $node, string $value): string
     {
-        $v = trim($value);
+        $v = \trim($value);
 
         switch ($v) {
             case "1":

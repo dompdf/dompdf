@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -18,14 +19,13 @@ use Dompdf\Frame;
  */
 class TableRowGroup extends AbstractFrameDecorator
 {
-
     /**
      * Class constructor
      *
      * @param Frame $frame   Frame to decorate
      * @param Dompdf $dompdf Current dompdf instance
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }
@@ -36,7 +36,7 @@ class TableRowGroup extends AbstractFrameDecorator
      */
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
-        if (is_null($child)) {
+        if (\is_null($child)) {
             parent::split($child, $page_break, $forced);
             return;
         }

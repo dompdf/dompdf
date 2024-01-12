@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
@@ -22,7 +23,7 @@ use Dompdf\Helpers;
 class Block extends AbstractFrameReflower
 {
     // Minimum line width to justify, as fraction of available width
-    const MIN_JUSTIFY_WIDTH = 0.80;
+    public const MIN_JUSTIFY_WIDTH = 0.80;
 
     /**
      * Frame for this reflower
@@ -31,7 +32,7 @@ class Block extends AbstractFrameReflower
      */
     protected $_frame;
 
-    function __construct(BlockFrameDecorator $frame)
+    public function __construct(BlockFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -105,19 +106,19 @@ class Block extends AbstractFrameReflower
                     // shrink-to-fit width
                     $left = $inflow_x;
                     [$min, $max] = $this->get_min_max_child_width();
-                    $width = min(max($min, $diff - $left), $max);
+                    $width = \min(\max($min, $diff - $left), $max);
                     $right = $diff - $left - $width;
                 } elseif ($width === "auto" && $left === "auto") {
                     // rule 1
                     // shrink-to-fit width
                     [$min, $max] = $this->get_min_max_child_width();
-                    $width = min(max($min, $diff), $max);
+                    $width = \min(\max($min, $diff), $max);
                     $left = $diff - $width;
                 } elseif ($width === "auto" && $right === "auto") {
                     // rule 3
                     // shrink-to-fit width
                     [$min, $max] = $this->get_min_max_child_width();
-                    $width = min(max($min, $diff), $max);
+                    $width = \min(\max($min, $diff), $max);
                     $right = $diff - $width;
                 } elseif ($left === "auto" && $right === "auto") {
                     // rule 2
@@ -128,7 +129,7 @@ class Block extends AbstractFrameReflower
                     $left = $diff;
                 } elseif ($width === "auto") {
                     // rule 5
-                    $width = max($diff, 0);
+                    $width = \max($diff, 0);
                 } else {
                     // $right === "auto"
                     // rule 6
@@ -163,7 +164,7 @@ class Block extends AbstractFrameReflower
 
             if ($width === "auto") {
                 [$min, $max] = $this->get_min_max_child_width();
-                $width = min(max($min, $diff), $max);
+                $width = \min(\max($min, $diff), $max);
             }
             if ($lm === "auto") {
                 $lm = 0;
@@ -270,15 +271,13 @@ class Block extends AbstractFrameReflower
      * Determine the unrestricted height of content within the block
      * not by adding each line's height, but by getting the last line's position.
      * This because lines could have been pushed lower by a clearing element.
-     *
-     * @return float
      */
     protected function _calculate_content_height(): float
     {
         $height = 0.0;
         $lines = $this->_frame->get_line_boxes();
-        if (count($lines) > 0) {
-            $last_line = end($lines);
+        if (\count($lines) > 0) {
+            $last_line = \end($lines);
             $content_box = $this->_frame->get_content_box();
             $height = $last_line->y + $last_line->h - $content_box["y"];
         }
@@ -365,7 +364,7 @@ class Block extends AbstractFrameReflower
                     $top = $diff;
                 } elseif ($height === "auto") {
                     // rule 5
-                    $height = max($diff, 0);
+                    $height = \max($diff, 0);
                 } else {
                     // $bottom === "auto"
                     // rule 6
@@ -474,7 +473,7 @@ class Block extends AbstractFrameReflower
                 // has been split, in which case the actual last line is part of
                 // the split-off frame
                 $lines = $this->_frame->get_line_boxes();
-                $last_line_index = $this->_frame->is_split ? null : count($lines) - 1;
+                $last_line_index = $this->_frame->is_split ? null : \count($lines) - 1;
 
                 foreach ($lines as $i => $line) {
                     if (!$line->inline) {
@@ -516,7 +515,7 @@ class Block extends AbstractFrameReflower
                     foreach ($frames as $frame) {
                         if ($frame instanceof TextFrameDecorator) {
                             $text = $frame->get_text();
-                            $spaces = mb_substr_count($text, " ");
+                            $spaces = \mb_substr_count($text, " ");
 
                             $frame->move($dx, 0);
                             $frame->set_text_spacing($spacing);
@@ -556,7 +555,7 @@ class Block extends AbstractFrameReflower
      * Align inline children vertically.
      * Aligns each child vertically after each line is reflowed
      */
-    function vertical_align()
+    public function vertical_align()
     {
         $fontMetrics = $this->get_dompdf()->getFontMetrics();
 
@@ -589,7 +588,7 @@ class Block extends AbstractFrameReflower
                     foreach ($line->get_frames() as $other) {
                         if ($other !== $frame
                             && !($other->is_text_node() && $other->get_node()->nodeValue === "")
-                         ) {
+                        ) {
                             $skip = false;
                             break;
                         }
@@ -603,7 +602,7 @@ class Block extends AbstractFrameReflower
                     $imageHeightDiff = $height * 0.8 - $marginHeight;
 
                     $align = $frame->get_style()->vertical_align;
-                    if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
+                    if (\in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
                         switch ($align) {
                             case "middle":
                                 $y_offset = $imageHeightDiff / 2;
@@ -644,7 +643,7 @@ class Block extends AbstractFrameReflower
                     } else {
                         $align = $parent->get_style()->vertical_align;
                     }
-                    if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
+                    if (\in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
                         switch ($align) {
                             case "middle":
                                 $y_offset = ($height * 0.8 - $baseline) / 2;
@@ -684,10 +683,7 @@ class Block extends AbstractFrameReflower
         }
     }
 
-    /**
-     * @param AbstractFrameDecorator $child
-     */
-    function process_clear(AbstractFrameDecorator $child)
+    public function process_clear(AbstractFrameDecorator $child)
     {
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
@@ -723,7 +719,7 @@ class Block extends AbstractFrameReflower
      * @param float $cb_x
      * @param float $cb_w
      */
-    function process_float(AbstractFrameDecorator $child, $cb_x, $cb_w)
+    public function process_float(AbstractFrameDecorator $child, $cb_x, $cb_w)
     {
         $child_style = $child->get_style();
         $root = $this->_frame->get_root();
@@ -735,7 +731,7 @@ class Block extends AbstractFrameReflower
             // Remove next frame's beginning whitespace
             $next = $child->get_next_sibling();
             if ($next && $next instanceof TextFrameDecorator) {
-                $next->set_text(ltrim($next->get_text()));
+                $next->set_text(\ltrim($next->get_text()));
             }
 
             $line_box = $this->_frame->get_current_line_box();
@@ -778,7 +774,7 @@ class Block extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
 
         // Check if a page break is forced

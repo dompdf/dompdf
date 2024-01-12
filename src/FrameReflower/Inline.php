@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
@@ -21,7 +22,7 @@ class Inline extends AbstractFrameReflower
      * Inline constructor.
      * @param InlineFrameDecorator $frame
      */
-    function __construct(InlineFrameDecorator $frame)
+    public function __construct(InlineFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
@@ -71,10 +72,7 @@ class Inline extends AbstractFrameReflower
         $block->add_frame_to_line($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var InlineFrameDecorator */
         $frame = $this->_frame;

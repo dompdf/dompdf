@@ -1,4 +1,5 @@
 <?php
+
 use Dompdf\Tests\OutputTest\Dataset;
 use Dompdf\Tests\OutputTest\OutputTest;
 

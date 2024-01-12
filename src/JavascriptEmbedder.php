@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 /**
@@ -13,7 +14,6 @@ namespace Dompdf;
  */
 class JavascriptEmbedder
 {
-
     /**
      * @var Dompdf
      */
@@ -37,9 +37,6 @@ class JavascriptEmbedder
         $this->_dompdf->getCanvas()->javascript($script);
     }
 
-    /**
-     * @param Frame $frame
-     */
     public function render(Frame $frame)
     {
         if (!$this->_dompdf->getOptions()->getIsJavascriptEnabled()) {

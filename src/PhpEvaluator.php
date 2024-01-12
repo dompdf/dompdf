@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 /**
@@ -13,7 +14,6 @@ namespace Dompdf;
  */
 class PhpEvaluator
 {
-
     /**
      * @var Canvas
      */
@@ -52,9 +52,6 @@ class PhpEvaluator
         eval($code);
     }
 
-    /**
-     * @param Frame $frame
-     */
     public function render(Frame $frame)
     {
         $this->evaluate($frame->get_node()->nodeValue);

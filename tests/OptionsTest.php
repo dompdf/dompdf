@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests;
 
 use Dompdf\Options;
@@ -111,7 +112,7 @@ class OptionsTest extends TestCase
         [$validation_result] = $allowedProtocols["http://"]["rules"][0]("http://example.com/");
         $this->assertFalse($validation_result);
 
-        
+
         $mock_protocol = [
             "mock://" => [
                 "rules" => [

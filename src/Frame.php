@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 use Dompdf\Css\Style;
@@ -22,8 +23,8 @@ use Dompdf\Frame\FrameListIterator;
  */
 class Frame
 {
-    const WS_TEXT = 1;
-    const WS_SPACE = 2;
+    public const WS_TEXT = 1;
+    public const WS_SPACE = 2;
 
     /**
      * The DOMElement or DOMText object this frame represents
@@ -171,18 +172,18 @@ class Frame
             "h" => null,
         ];
 
-        $this->_containing_block[0] =& $this->_containing_block["x"];
-        $this->_containing_block[1] =& $this->_containing_block["y"];
-        $this->_containing_block[2] =& $this->_containing_block["w"];
-        $this->_containing_block[3] =& $this->_containing_block["h"];
+        $this->_containing_block[0] = & $this->_containing_block["x"];
+        $this->_containing_block[1] = & $this->_containing_block["y"];
+        $this->_containing_block[2] = & $this->_containing_block["w"];
+        $this->_containing_block[3] = & $this->_containing_block["h"];
 
         $this->_position = [
             "x" => null,
             "y" => null,
         ];
 
-        $this->_position[0] =& $this->_position["x"];
-        $this->_position[1] =& $this->_position["y"];
+        $this->_position[0] = & $this->_position["x"];
+        $this->_position[1] = & $this->_position["y"];
 
         $this->_opacity = 1.0;
         $this->_decorator = null;
@@ -203,7 +204,7 @@ class Frame
             $node = $this->_node;
 
             if ($node->nodeName === "#text" && !empty($node->nodeValue)) {
-                $node->nodeValue = preg_replace("/[ \t\r\n\f]+/u", " ", trim($node->nodeValue));
+                $node->nodeValue = \preg_replace("/[ \t\r\n\f]+/u", " ", \trim($node->nodeValue));
                 self::$_ws_state = self::WS_TEXT;
             }
         }
@@ -216,7 +217,7 @@ class Frame
     {
         $whitespace = $this->get_style()->white_space;
 
-        return in_array($whitespace, ["pre", "pre-wrap", "pre-line"]);
+        return \in_array($whitespace, ["pre", "pre-wrap", "pre-line"]);
     }
 
     /**
@@ -235,7 +236,7 @@ class Frame
         }
 
         if ($this->is_text_node()) {
-            return trim($node->nodeValue) !== "";
+            return \trim($node->nodeValue) !== "";
         }
 
         return true;
@@ -376,9 +377,6 @@ class Frame
         return $this->_next_sibling;
     }
 
-    /**
-     * @return FrameListIterator
-     */
     public function get_children(): FrameListIterator
     {
         return new FrameListIterator($this);
@@ -423,8 +421,6 @@ class Frame
     /**
      * Return the width of the margin box of the frame, in pt.  Meaningless
      * unless the width has been calculated properly.
-     *
-     * @return float
      */
     public function get_margin_width(): float
     {
@@ -444,8 +440,6 @@ class Frame
     /**
      * Return the height of the margin box of the frame, in pt.  Meaningless
      * unless the height has been calculated properly.
-     *
-     * @return float
      */
     public function get_margin_height(): float
     {
@@ -462,7 +456,8 @@ class Frame
                         $style->margin_bottom,
                         $style->padding_top,
                         $style->padding_bottom
-                    ], $this->_containing_block["w"]
+                    ],
+                    $this->_containing_block["w"]
                 )
             ],
             $this->_containing_block["h"]
@@ -498,7 +493,8 @@ class Frame
                     $style->margin_top,
                     $style->border_top_width,
                     $style->padding_top
-                ], $cb["w"]
+                ],
+                $cb["w"]
             );
 
         $w = (float)$style->length_in_pt($style->width, $cb["w"]);
@@ -543,22 +539,22 @@ class Frame
             );
 
         $w = (float)$style->length_in_pt(
-                [
+            [
                     $style->padding_left,
                     $style->width,
                     $style->padding_right
                 ],
-                $cb["w"]
-            );
+            $cb["w"]
+        );
 
         $h = (float)$style->length_in_pt(
-                [
+            [
                     $style->padding_top,
                     $style->padding_bottom,
                     $style->length_in_pt($style->height, $cb["h"])
                 ],
-                $cb["w"]
-            );
+            $cb["w"]
+        );
 
         return [0 => $x, "x" => $x,
             1 => $y, "y" => $y,
@@ -611,11 +607,6 @@ class Frame
             3 => $h, "h" => $h];
     }
 
-    /**
-     * @param float|null $opacity
-     *
-     * @return float
-     */
     public function get_opacity(?float $opacity = null): float
     {
         if ($opacity !== null) {
@@ -646,23 +637,17 @@ class Frame
         // We can only set attributes of DOMElement objects (nodeType == 1).
         // Since these are the only objects that we can assign CSS rules to,
         // this shortcoming is okay.
-        if ($this->_node->nodeType == XML_ELEMENT_NODE) {
+        if ($this->_node->nodeType == \XML_ELEMENT_NODE) {
             $this->_node->setAttribute("frame_id", $id);
         }
     }
 
-    /**
-     * @param Style $style
-     */
     public function set_style(Style $style): void
     {
         // $style->set_frame($this);
         $this->_style = $style;
     }
 
-    /**
-     * @param FrameDecorator\AbstractFrameDecorator $decorator
-     */
     public function set_decorator(FrameDecorator\AbstractFrameDecorator $decorator)
     {
         $this->_decorator = $decorator;
@@ -676,25 +661,25 @@ class Frame
      */
     public function set_containing_block($x = null, $y = null, $w = null, $h = null)
     {
-        if (is_array($x)) {
+        if (\is_array($x)) {
             foreach ($x as $key => $val) {
                 $$key = $val;
             }
         }
 
-        if (is_numeric($x)) {
+        if (\is_numeric($x)) {
             $this->_containing_block["x"] = $x;
         }
 
-        if (is_numeric($y)) {
+        if (\is_numeric($y)) {
             $this->_containing_block["y"] = $y;
         }
 
-        if (is_numeric($w)) {
+        if (\is_numeric($w)) {
             $this->_containing_block["w"] = $w;
         }
 
-        if (is_numeric($h)) {
+        if (\is_numeric($h)) {
             $this->_containing_block["h"] = $h;
         }
     }
@@ -705,22 +690,19 @@ class Frame
      */
     public function set_position($x = null, $y = null)
     {
-        if (is_array($x)) {
+        if (\is_array($x)) {
             list($x, $y) = [$x["x"], $x["y"]];
         }
 
-        if (is_numeric($x)) {
+        if (\is_numeric($x)) {
             $this->_position["x"] = $x;
         }
 
-        if (is_numeric($y)) {
+        if (\is_numeric($y)) {
             $this->_position["y"] = $y;
         }
     }
 
-    /**
-     * @param float $opacity
-     */
     public function set_opacity(float $opacity): void
     {
         $parent = $this->get_parent();
@@ -728,9 +710,6 @@ class Frame
         $this->_opacity = $base_opacity * $opacity;
     }
 
-    /**
-     * @param LineBox $line
-     */
     public function set_containing_line(LineBox $line)
     {
         $this->_containing_line = $line;
@@ -745,7 +724,7 @@ class Frame
     {
         $style = $this->_style;
 
-        return in_array(
+        return \in_array(
             "auto",
             [
                 $style->height,
@@ -770,7 +749,7 @@ class Frame
     {
         $style = $this->_style;
 
-        return in_array(
+        return \in_array(
             "auto",
             [
                 $style->width,
@@ -788,8 +767,6 @@ class Frame
 
     /**
      * Tells if the frame is a text node
-     *
-     * @return bool
      */
     public function is_text_node(): bool
     {
@@ -800,9 +777,6 @@ class Frame
         return $this->_is_cache["text_node"] = ($this->get_node()->nodeName === "#text");
     }
 
-    /**
-     * @return bool
-     */
     public function is_positioned(): bool
     {
         if (isset($this->_is_cache["positioned"])) {
@@ -811,12 +785,9 @@ class Frame
 
         $position = $this->get_style()->position;
 
-        return $this->_is_cache["positioned"] = in_array($position, Style::POSITIONED_TYPES, true);
+        return $this->_is_cache["positioned"] = \in_array($position, Style::POSITIONED_TYPES, true);
     }
 
-    /**
-     * @return bool
-     */
     public function is_absolute(): bool
     {
         if (isset($this->_is_cache["absolute"])) {
@@ -828,8 +799,6 @@ class Frame
 
     /**
      * Whether the frame is a block container.
-     *
-     * @return bool
      */
     public function is_block(): bool
     {
@@ -837,13 +806,11 @@ class Frame
             return $this->_is_cache["block"];
         }
 
-        return $this->_is_cache["block"] = in_array($this->get_style()->display, Style::BLOCK_TYPES, true);
+        return $this->_is_cache["block"] = \in_array($this->get_style()->display, Style::BLOCK_TYPES, true);
     }
 
     /**
      * Whether the frame has a block-level display type.
-     *
-     * @return bool
      */
     public function is_block_level(): bool
     {
@@ -853,13 +820,11 @@ class Frame
 
         $display = $this->get_style()->display;
 
-        return $this->_is_cache["block_level"] = in_array($display, Style::BLOCK_LEVEL_TYPES, true);
+        return $this->_is_cache["block_level"] = \in_array($display, Style::BLOCK_LEVEL_TYPES, true);
     }
 
     /**
      * Whether the frame has an inline-level display type.
-     *
-     * @return bool
      */
     public function is_inline_level(): bool
     {
@@ -869,12 +834,9 @@ class Frame
 
         $display = $this->get_style()->display;
 
-        return $this->_is_cache["inline_level"] = in_array($display, Style::INLINE_LEVEL_TYPES, true);
+        return $this->_is_cache["inline_level"] = \in_array($display, Style::INLINE_LEVEL_TYPES, true);
     }
 
-    /**
-     * @return bool
-     */
     public function is_in_flow(): bool
     {
         if (isset($this->_is_cache["in_flow"])) {
@@ -884,9 +846,6 @@ class Frame
         return $this->_is_cache["in_flow"] = $this->get_style()->is_in_flow();
     }
 
-    /**
-     * @return bool
-     */
     public function is_pre(): bool
     {
         if (isset($this->_is_cache["pre"])) {
@@ -895,12 +854,9 @@ class Frame
 
         $white_space = $this->get_style()->white_space;
 
-        return $this->_is_cache["pre"] = in_array($white_space, ["pre", "pre-wrap"], true);
+        return $this->_is_cache["pre"] = \in_array($white_space, ["pre", "pre-wrap"], true);
     }
 
-    /**
-     * @return bool
-     */
     public function is_table(): bool
     {
         if (isset($this->_is_cache["table"])) {
@@ -909,7 +865,7 @@ class Frame
 
         $display = $this->get_style()->display;
 
-        return $this->_is_cache["table"] = in_array($display, Style::TABLE_TYPES, true);
+        return $this->_is_cache["table"] = \in_array($display, Style::TABLE_TYPES, true);
     }
 
 
@@ -1004,7 +960,7 @@ class Frame
             return;
         }
 
-        if (is_null($ref)) {
+        if (\is_null($ref)) {
             $this->append_child($new_child, $update_node);
 
             return;
@@ -1057,7 +1013,7 @@ class Frame
             return;
         }
 
-        if (is_null($ref)) {
+        if (\is_null($ref)) {
             $this->prepend_child($new_child, $update_node);
 
             return;
@@ -1155,45 +1111,45 @@ class Frame
     public function __toString()
     {
         // Skip empty text frames
-//     if ( $this->is_text_node() &&
-//          preg_replace("/\s/", "", $this->_node->data) === "" )
-//       return "";
+        //     if ( $this->is_text_node() &&
+        //          preg_replace("/\s/", "", $this->_node->data) === "" )
+        //       return "";
 
 
         $str = "<b>" . $this->_node->nodeName . ":</b><br/>";
         //$str .= spl_object_hash($this->_node) . "<br/>";
         $str .= "Id: " . $this->get_id() . "<br/>";
-        $str .= "Class: " . get_class($this) . "<br/>";
+        $str .= "Class: " . \get_class($this) . "<br/>";
 
         if ($this->is_text_node()) {
-            $tmp = htmlspecialchars($this->_node->nodeValue);
-            $str .= "<pre>'" . mb_substr($tmp, 0, 70) .
-                (mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";
+            $tmp = \htmlspecialchars($this->_node->nodeValue);
+            $str .= "<pre>'" . \mb_substr($tmp, 0, 70) .
+                (\mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";
         } elseif ($css_class = $this->_node->getAttribute("class")) {
             $str .= "CSS class: '$css_class'<br/>";
         }
 
         if ($this->_parent) {
             $str .= "\nParent:" . $this->_parent->_node->nodeName .
-                " (" . spl_object_hash($this->_parent->_node) . ") " .
+                " (" . \spl_object_hash($this->_parent->_node) . ") " .
                 "<br/>";
         }
 
         if ($this->_prev_sibling) {
             $str .= "Prev: " . $this->_prev_sibling->_node->nodeName .
-                " (" . spl_object_hash($this->_prev_sibling->_node) . ") " .
+                " (" . \spl_object_hash($this->_prev_sibling->_node) . ") " .
                 "<br/>";
         }
 
         if ($this->_next_sibling) {
             $str .= "Next: " . $this->_next_sibling->_node->nodeName .
-                " (" . spl_object_hash($this->_next_sibling->_node) . ") " .
+                " (" . \spl_object_hash($this->_next_sibling->_node) . ") " .
                 "<br/>";
         }
 
         $d = $this->get_decorator();
         while ($d && $d != $d->get_decorator()) {
-            $str .= "Decorator: " . get_class($d) . "<br/>";
+            $str .= "Decorator: " . \get_class($d) . "<br/>";
             $d = $d->get_decorator();
         }
 
@@ -1210,9 +1166,9 @@ class Frame
                 foreach ($line->get_frames() as $frame) {
                     if ($frame instanceof FrameDecorator\Text) {
                         $str .= "\ntext: ";
-                        $str .= "'" . htmlspecialchars($frame->get_text()) . "'";
+                        $str .= "'" . \htmlspecialchars($frame->get_text()) . "'";
                     } else {
-                        $str .= "\nBlock: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")";
+                        $str .= "\nBlock: " . $frame->get_node()->nodeName . " (" . \spl_object_hash($frame->get_node()) . ")";
                     }
                 }
 
@@ -1227,10 +1183,12 @@ class Frame
         }
 
         $str .= "\n";
-        if (php_sapi_name() === "cli") {
-            $str = strip_tags(str_replace(["<br/>", "<b>", "</b>"],
+        if (\php_sapi_name() === "cli") {
+            $str = \strip_tags(\str_replace(
+                ["<br/>", "<b>", "</b>"],
                 ["\n", "", ""],
-                $str));
+                $str
+            ));
         }
 
         return $str;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests\Css;
 
 use Dompdf\Css\Content\Attr;
@@ -1028,10 +1029,10 @@ class StyleTest extends TestCase
             ["counters(UPPER, 'UPPER', lower-ROMAN)", [new Counters("UPPER", "UPPER", "lower-roman")]],
 
             // Quotes
-            ["open-quote", [new OpenQuote]],
-            ["close-quote", [new CloseQuote]],
-            ["no-open-quote", [new NoOpenQuote]],
-            ["no-close-quote", [new NoCloseQuote]],
+            ["open-quote", [new OpenQuote()]],
+            ["close-quote", [new CloseQuote()]],
+            ["no-open-quote", [new NoOpenQuote()]],
+            ["no-close-quote", [new NoCloseQuote()]],
 
             // Case and whitespace variations
             ["Normal", "normal"],
@@ -1040,8 +1041,8 @@ class StyleTest extends TestCase
             ["URL( \n\t \"'image.PNG ' \"  )", [new Url("'image.PNG ' ")]],
             ["COUNTER(  UPPER  ,  UPPER-roman  )", [new Counter("UPPER", "upper-roman")]],
             ["COUNTERS(  UPPER  ,  ' \"UPPER\"'  , lower-ROMAN  )", [new Counters("UPPER", " \"UPPER\"", "lower-roman")]],
-            ["OPEN-QUOTE", [new OpenQuote]],
-            ["No-Close-Quote", [new NoCloseQuote]],
+            ["OPEN-QUOTE", [new OpenQuote()]],
+            ["No-Close-Quote", [new NoCloseQuote()]],
 
             // Content lists
             [
@@ -1058,7 +1059,7 @@ class StyleTest extends TestCase
             ],
             [
                 '"url(\' \')"open-quote url(" ")close-quote',
-                [new StringPart("url(' ')"), new OpenQuote, new Url(" "), new CloseQuote]
+                [new StringPart("url(' ')"), new OpenQuote(), new Url(" "), new CloseQuote()]
             ],
 
             // Invalid values
@@ -1412,7 +1413,7 @@ class StyleTest extends TestCase
 
         $style->set_prop("overflow_wrap", "break-word");
         $style->set_prop("word_break", "break-word");
-        
+
         $this->assertSame("normal", $style->word_break);
         $this->assertSame("anywhere", $style->overflow_wrap);
     }

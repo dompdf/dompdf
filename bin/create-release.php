@@ -109,4 +109,3 @@ class Release
 
 $release = new Release();
 $release->create();
-

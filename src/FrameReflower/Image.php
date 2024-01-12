@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Helpers;
@@ -17,20 +18,16 @@ use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
  */
 class Image extends AbstractFrameReflower
 {
-
     /**
      * Image constructor.
      * @param ImageFrameDecorator $frame
      */
-    function __construct(ImageFrameDecorator $frame)
+    public function __construct(ImageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         $this->determine_absolute_containing_block();
 
@@ -121,8 +118,8 @@ class Image extends AbstractFrameReflower
 
             // Resolve min/max constraints according to the constraint-violation
             // table in https://www.w3.org/TR/CSS21/visudet.html#min-max-widths
-            $max_width = max($min_width, $max_width);
-            $max_height = max($min_height, $max_height);
+            $max_width = \max($min_width, $max_width);
+            $max_height = \max($min_height, $max_height);
 
             if (($w > $max_width && $h <= $max_height)
                 || ($w > $max_width && $h > $max_height && $max_width / $w <= $max_height / $h)

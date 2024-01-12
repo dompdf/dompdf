@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use Dompdf\Frame;
@@ -15,7 +16,7 @@ use Dompdf\Frame;
  */
 class Inline extends AbstractRenderer
 {
-    function render(Frame $frame)
+    public function render(Frame $frame)
     {
         // Get the first in-flow child
         $child = $frame->get_first_child();
@@ -106,14 +107,14 @@ class Inline extends AbstractRenderer
                 if ($auto_width) {
                     $child_w = $child_w2;
                 }
-    
+
                 if ($auto_height) {
                     $child_h = $child_h2;
                 }
             }
 
             $w += $child_w;
-            $h = max($h, $child_h);
+            $h = \max($h, $child_h);
         }
 
         return [$w, $h];

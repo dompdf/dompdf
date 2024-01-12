@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
@@ -16,20 +17,16 @@ use Dompdf\FrameDecorator\ListBullet as ListBulletFrameDecorator;
  */
 class ListBullet extends AbstractFrameReflower
 {
-
     /**
      * ListBullet constructor.
      * @param ListBulletFrameDecorator $frame
      */
-    function __construct(ListBulletFrameDecorator $frame)
+    public function __construct(ListBulletFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         if ($block === null) {
             return;

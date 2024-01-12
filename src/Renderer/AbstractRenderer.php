@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Renderer;
 
 use DOMElement;
@@ -22,7 +23,6 @@ use Dompdf\Image\Cache;
  */
 abstract class AbstractRenderer
 {
-
     /**
      * Rendering backend
      *
@@ -42,7 +42,7 @@ abstract class AbstractRenderer
      *
      * @param Dompdf $dompdf The current dompdf instance
      */
-    function __construct(Dompdf $dompdf)
+    public function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
         $this->_canvas = $dompdf->getCanvas();
@@ -55,7 +55,7 @@ abstract class AbstractRenderer
      *
      * @param Frame $frame The frame to render
      */
-    abstract function render(Frame $frame);
+    abstract public function render(Frame $frame);
 
     /**
      * @param Frame   $frame
@@ -222,7 +222,7 @@ abstract class AbstractRenderer
         $h += $width * 2;
 
         $method = "_border_" . $outline_style;
-        $widths = array_fill(0, 4, $width);
+        $widths = \array_fill(0, 4, $width);
         $sides = ["top", "right", "left", "bottom"];
 
         foreach ($sides as $side) {
@@ -281,7 +281,7 @@ abstract class AbstractRenderer
      */
     protected function _background_image(string $url, float $x, float $y, float $width, float $height, Style $style): void
     {
-        if (!function_exists("imagecreatetruecolor")) {
+        if (!\function_exists("imagecreatetruecolor")) {
             throw new \Exception("The PHP GD extension is required, but is not installed.");
         }
 
@@ -333,8 +333,8 @@ abstract class AbstractRenderer
 
         //Increase background resolution and dependent box size according to image resolution to be placed in
         //Then image can be copied in without resize
-        $bg_width = round((float)($width * $dpi) / 72);
-        $bg_height = round((float)($height * $dpi) / 72);
+        $bg_width = \round((float)($width * $dpi) / 72);
+        $bg_height = \round((float)($height * $dpi) / 72);
 
         list($img_w, $img_h) = $this->_resize_background_image(
             $img_w,
@@ -360,7 +360,7 @@ abstract class AbstractRenderer
             $bg_x = (float)($style->length_in_pt($bg_x) * $dpi) / 72;
         }
 
-        $bg_x = round($bg_x + (float)$style->length_in_pt($style->border_left_width) * $dpi / 72);
+        $bg_x = \round($bg_x + (float)$style->length_in_pt($style->border_left_width) * $dpi / 72);
 
         if (Helpers::is_percent($bg_y)) {
             // The point $bg_y % from the left edge of the image is placed
@@ -374,7 +374,7 @@ abstract class AbstractRenderer
             $bg_y = (float)($style->length_in_pt($bg_y) * $dpi) / 72;
         }
 
-        $bg_y = round($bg_y + (float)$style->length_in_pt($style->border_top_width) * $dpi / 72);
+        $bg_y = \round($bg_y + (float)$style->length_in_pt($style->border_top_width) * $dpi / 72);
 
         //clip background to the image area on partial repeat. Nothing to do if img off area
         //On repeat, normalize start position to the tile at immediate left/top or 0/0 of area
@@ -458,13 +458,13 @@ abstract class AbstractRenderer
         // This is not dependent of background color of box! .'_'.(is_array($bg_color) ? $bg_color["hex"] : $bg_color)
         // Note: Here, bg_* are the start values, not end values after going through the tile loops!
 
-        $key = implode("_", [$bg_width, $bg_height, $img_w, $img_h, $bg_x, $bg_y, $repeat]);
+        $key = \implode("_", [$bg_width, $bg_height, $img_w, $img_h, $bg_x, $bg_y, $repeat]);
         // FIXME: This will fail when a file with that exact name exists in the
         // same directory, included in the document as regular image
         $cpdfKey = $img . "_" . $key;
         $tmpFile = Cache::getTempImage($img, $key);
         $cached = ($this->_canvas instanceof CPDF && $this->_canvas->get_cpdf()->image_iscached($cpdfKey))
-            || ($tmpFile !== null && file_exists($tmpFile));
+            || ($tmpFile !== null && \file_exists($tmpFile));
 
         if (!$cached) {
             // img: image url string
@@ -478,27 +478,27 @@ abstract class AbstractRenderer
             // $src: GD object of original image
 
             // Create a new image to fit over the background rectangle
-            $bg = imagecreatetruecolor($bg_width, $bg_height);
+            $bg = \imagecreatetruecolor($bg_width, $bg_height);
             $cpdfFromGd = true;
 
-            switch (strtolower($type)) {
+            switch (\strtolower($type)) {
                 case "png":
                     $cpdfFromGd = false;
-                    imagesavealpha($bg, true);
-                    imagealphablending($bg, false);
-                    $src = @imagecreatefrompng($img);
+                    \imagesavealpha($bg, true);
+                    \imagealphablending($bg, false);
+                    $src = @\imagecreatefrompng($img);
                     break;
 
                 case "jpeg":
-                    $src = @imagecreatefromjpeg($img);
+                    $src = @\imagecreatefromjpeg($img);
                     break;
 
                 case "webp":
-                    $src = @imagecreatefromwebp($img);
+                    $src = @\imagecreatefromwebp($img);
                     break;
 
                 case "gif":
-                    $src = @imagecreatefromgif($img);
+                    $src = @\imagecreatefromgif($img);
                     break;
 
                 case "bmp":
@@ -514,8 +514,8 @@ abstract class AbstractRenderer
             }
 
             if ($img_w != $org_img_w || $img_h != $org_img_h) {
-                $newSrc = imagescale($src, $img_w, $img_h);
-                imagedestroy($src);
+                $newSrc = \imagescale($src, $img_w, $img_h);
+                \imagedestroy($src);
                 $src = $newSrc;
             }
 
@@ -528,14 +528,14 @@ abstract class AbstractRenderer
             //Transparent image: The image controls the transparency and lets shine through whatever background.
             //However on transparent image preset the composed image with the transparency color,
             //to keep the transparency when copying over the non transparent parts of the tiles.
-            $ti = imagecolortransparent($src);
-            $palletsize = imagecolorstotal($src);
+            $ti = \imagecolortransparent($src);
+            $palletsize = \imagecolorstotal($src);
 
             if ($ti >= 0 && $ti < $palletsize) {
-                $tc = imagecolorsforindex($src, $ti);
-                $ti = imagecolorallocate($bg, $tc['red'], $tc['green'], $tc['blue']);
-                imagefill($bg, 0, 0, $ti);
-                imagecolortransparent($bg, $ti);
+                $tc = \imagecolorsforindex($src, $ti);
+                $ti = \imagecolorallocate($bg, $tc['red'], $tc['green'], $tc['blue']);
+                \imagefill($bg, 0, 0, $ti);
+                \imagecolortransparent($bg, $ti);
             }
 
             //This has only an effect for the non repeatable dimension.
@@ -564,7 +564,7 @@ abstract class AbstractRenderer
             // Copy regions from the source image to the background
             if ($repeat === "no-repeat") {
                 // Simply place the image on the background
-                imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);
+                \imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);
 
             } elseif ($repeat === "repeat-x") {
                 for ($bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w) {
@@ -577,7 +577,7 @@ abstract class AbstractRenderer
                         $src_x = 0;
                         $w = $img_w;
                     }
-                    imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);
+                    \imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);
                 }
             } elseif ($repeat === "repeat-y") {
 
@@ -591,7 +591,7 @@ abstract class AbstractRenderer
                         $src_y = 0;
                         $h = $img_h;
                     }
-                    imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $h);
+                    \imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $h);
                 }
             } elseif ($repeat === "repeat") {
                 for ($bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h) {
@@ -615,25 +615,25 @@ abstract class AbstractRenderer
                             $src_y = 0;
                             $h = $img_h;
                         }
-                        imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $h);
+                        \imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $h);
                     }
                 }
             } else {
                 print 'Unknown repeat!';
             }
 
-            imagedestroy($src);
+            \imagedestroy($src);
 
             if ($cpdfFromGd && $this->_canvas instanceof CPDF) {
                 // Skip writing temp file as the GD object is added directly
             } else {
                 $tmpDir = $this->_dompdf->getOptions()->getTempDir();
-                $tmpName = @tempnam($tmpDir, "bg_dompdf_img_");
-                @unlink($tmpName);
+                $tmpName = @\tempnam($tmpDir, "bg_dompdf_img_");
+                @\unlink($tmpName);
                 $tmpFile = "$tmpName.png";
 
-                imagepng($bg, $tmpFile);
-                imagedestroy($bg);
+                \imagepng($bg, $tmpFile);
+                \imagedestroy($bg);
 
                 Cache::addTempImage($img, $tmpFile, $key);
             }
@@ -655,7 +655,7 @@ abstract class AbstractRenderer
             $this->_canvas->get_cpdf()->addImagePng($bg, $cpdfKey, $x, $this->_canvas->get_height() - $y - $height, $width, $height);
 
             if (isset($bg)) {
-                imagedestroy($bg);
+                \imagedestroy($bg);
             }
         } else {
             $this->_canvas->image($tmpFile, $x, $y, $width, $height);
@@ -683,16 +683,16 @@ abstract class AbstractRenderer
         int $dpi
     ): array {
         // We got two some specific numbers and/or auto definitions
-        if (is_array($bg_resize)) {
+        if (\is_array($bg_resize)) {
             $is_auto_width = $bg_resize[0] === 'auto';
             if ($is_auto_width) {
                 $new_img_width = $img_width;
             } else {
                 $new_img_width = $bg_resize[0];
                 if (Helpers::is_percent($new_img_width)) {
-                    $new_img_width = round(($container_width / 100) * (float)$new_img_width);
+                    $new_img_width = \round(($container_width / 100) * (float)$new_img_width);
                 } else {
-                    $new_img_width = round($new_img_width * $dpi / 72);
+                    $new_img_width = \round($new_img_width * $dpi / 72);
                 }
             }
 
@@ -702,18 +702,18 @@ abstract class AbstractRenderer
             } else {
                 $new_img_height = $bg_resize[1];
                 if (Helpers::is_percent($new_img_height)) {
-                    $new_img_height = round(($container_height / 100) * (float)$new_img_height);
+                    $new_img_height = \round(($container_height / 100) * (float)$new_img_height);
                 } else {
-                    $new_img_height = round($new_img_height * $dpi / 72);
+                    $new_img_height = \round($new_img_height * $dpi / 72);
                 }
             }
 
             // if one of both was set to auto the other one needs to scale proportionally
             if ($is_auto_width !== $is_auto_height) {
                 if ($is_auto_height) {
-                    $new_img_height = round($new_img_width * ($img_height / $img_width));
+                    $new_img_height = \round($new_img_width * ($img_height / $img_width));
                 } else {
-                    $new_img_width = round($new_img_height * ($img_width / $img_height));
+                    $new_img_width = \round($new_img_height * ($img_width / $img_height));
                 }
             }
         } else {
@@ -727,10 +727,10 @@ abstract class AbstractRenderer
                     ($bg_resize === 'contain' && $container_ratio < $img_ratio)
                 ) {
                     $new_img_height = $container_height;
-                    $new_img_width = round($container_height / $img_ratio);
+                    $new_img_width = \round($container_height / $img_ratio);
                 } else {
                     $new_img_width = $container_width;
-                    $new_img_height = round($container_width * $img_ratio);
+                    $new_img_height = \round($container_width * $img_ratio);
                 }
             } else {
                 $new_img_width = $img_width;
@@ -923,11 +923,11 @@ abstract class AbstractRenderer
      */
     protected function _tint($c)
     {
-        if (!is_numeric($c)) {
+        if (!\is_numeric($c)) {
             return $c;
         }
 
-        return min(1, $c + 0.16);
+        return \min(1, $c + 0.16);
     }
 
     /**
@@ -936,11 +936,11 @@ abstract class AbstractRenderer
      */
     protected function _shade($c)
     {
-        if (!is_numeric($c)) {
+        if (!\is_numeric($c)) {
             return $c;
         }
 
-        return max(0, $c - 0.33);
+        return \max(0, $c - 0.33);
     }
 
     /**
@@ -959,13 +959,13 @@ abstract class AbstractRenderer
         switch ($side) {
             case "top":
             case "left":
-                $shade = array_map([$this, "_shade"], $color);
+                $shade = \array_map([$this, "_shade"], $color);
                 $this->_border_solid($x, $y, $length, $shade, $widths, $side, $corner_style, $r1, $r2);
                 break;
 
             case "bottom":
             case "right":
-                $tint = array_map([$this, "_tint"], $color);
+                $tint = \array_map([$this, "_tint"], $color);
                 $this->_border_solid($x, $y, $length, $tint, $widths, $side, $corner_style, $r1, $r2);
                 break;
 
@@ -990,13 +990,13 @@ abstract class AbstractRenderer
         switch ($side) {
             case "top":
             case "left":
-                $tint = array_map([$this, "_tint"], $color);
+                $tint = \array_map([$this, "_tint"], $color);
                 $this->_border_solid($x, $y, $length, $tint, $widths, $side, $corner_style, $r1, $r2);
                 break;
 
             case "bottom":
             case "right":
-                $shade = array_map([$this, "_shade"], $color);
+                $shade = \array_map([$this, "_shade"], $color);
                 $this->_border_solid($x, $y, $length, $shade, $widths, $side, $corner_style, $r1, $r2);
                 break;
 
@@ -1015,8 +1015,6 @@ abstract class AbstractRenderer
      * @param string $style
      * @param float  $width
      * @param float  $length
-     *
-     * @return array
      */
     protected function dashPattern(string $style, float $width, float $length): array
     {
@@ -1027,7 +1025,7 @@ abstract class AbstractRenderer
                 $s = $w;
             } else {
                 // Scale dashes and gaps
-                $r = round($length / $w);
+                $r = \round($length / $w);
                 $r = $r % 2 === 0 ? $r + 1 : $r;
                 $s = $length / $r;
             }
@@ -1047,7 +1045,7 @@ abstract class AbstractRenderer
             } else {
                 // Only scale gaps
                 $l = $length - $width;
-                $r = max(round($l / $w), 1);
+                $r = \max(\round($l / $w), 1);
                 $s = $l / $r;
             }
 
@@ -1084,8 +1082,8 @@ abstract class AbstractRenderer
 
         // Determine arc border radius for corner arcs
         $halfWidth = $width / 2;
-        $ar1 = max($r1 - $halfWidth, 0);
-        $ar2 = max($r2 - $halfWidth, 0);
+        $ar1 = \max($r1 - $halfWidth, 0);
+        $ar2 = \max($r2 - $halfWidth, 0);
 
         // Small angle adjustments to prevent the background from shining through
         $adj1 = $ar1 / 80;
@@ -1098,10 +1096,10 @@ abstract class AbstractRenderer
         $dl = $cap === "round" ? $halfWidth : 0;
 
         if ($cap === "round" && $ar1 > 0) {
-            $adj1 -= rad2deg(asin($halfWidth / $ar1));
+            $adj1 -= \rad2deg(\asin($halfWidth / $ar1));
         }
         if ($cap === "round" && $ar2 > 0) {
-            $adj2 -= rad2deg(asin($halfWidth / $ar2));
+            $adj2 -= \rad2deg(\asin($halfWidth / $ar2));
         }
 
         switch ($side) {
@@ -1112,8 +1110,8 @@ abstract class AbstractRenderer
                         $x, $y - 1, // Extend outwards to avoid gaps
                         $x + $length, $y - 1, // Extend outwards to avoid gaps
                         $x + $length, $y,
-                        $x + $length - max($right, $r2), $y + max($width, $r2),
-                        $x + max($left, $r1), $y + max($width, $r1)
+                        $x + $length - \max($right, $r2), $y + \max($width, $r2),
+                        $x + \max($left, $r1), $y + \max($width, $r1)
                     ];
                     $this->_canvas->clipping_polygon($points);
                 }
@@ -1140,8 +1138,8 @@ abstract class AbstractRenderer
                         $x, $y + 1, // Extend outwards to avoid gaps
                         $x + $length, $y + 1, // Extend outwards to avoid gaps
                         $x + $length, $y,
-                        $x + $length - max($right, $r2), $y - max($width, $r2),
-                        $x + max($left, $r1), $y - max($width, $r1)
+                        $x + $length - \max($right, $r2), $y - \max($width, $r2),
+                        $x + \max($left, $r1), $y - \max($width, $r1)
                     ];
                     $this->_canvas->clipping_polygon($points);
                 }
@@ -1168,8 +1166,8 @@ abstract class AbstractRenderer
                         $x - 1, $y, // Extend outwards to avoid gaps
                         $x - 1, $y + $length, // Extend outwards to avoid gaps
                         $x, $y + $length,
-                        $x + max($width, $r2), $y + $length - max($bottom, $r2),
-                        $x + max($width, $r1), $y + max($top, $r1)
+                        $x + \max($width, $r2), $y + $length - \max($bottom, $r2),
+                        $x + \max($width, $r1), $y + \max($top, $r1)
                     ];
                     $this->_canvas->clipping_polygon($points);
                 }
@@ -1196,8 +1194,8 @@ abstract class AbstractRenderer
                         $x + 1, $y, // Extend outwards to avoid gaps
                         $x + 1, $y + $length, // Extend outwards to avoid gaps
                         $x, $y + $length,
-                        $x - max($width, $r2), $y + $length - max($bottom, $r2),
-                        $x - max($width, $r1), $y + max($top, $r1)
+                        $x - \max($width, $r2), $y + $length - \max($bottom, $r2),
+                        $x - \max($width, $r1), $y + \max($top, $r1)
                     ];
                     $this->_canvas->clipping_polygon($points);
                 }
@@ -1223,9 +1221,6 @@ abstract class AbstractRenderer
         }
     }
 
-    /**
-     * @param float $opacity
-     */
     protected function _set_opacity(float $opacity): void
     {
         if ($opacity >= 0.0 && $opacity <= 1.0) {

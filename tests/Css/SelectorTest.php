@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests\Css;
 
 use DOMDocument;
@@ -13,7 +14,7 @@ class SelectorTest extends TestCase
 {
     private function stylesheet()
     {
-        return new class(new Dompdf()) extends Stylesheet {
+        return new class (new Dompdf()) extends Stylesheet {
             public function specificity(string $selector, int $origin = self::ORIG_AUTHOR): int
             {
                 return parent::specificity($selector, $origin);

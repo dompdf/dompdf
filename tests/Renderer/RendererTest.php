@@ -14,7 +14,7 @@ class RendererTest extends TestCase
     /** @var \ReflectionMethod */
     private $resizeBackgroundImageMethod;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $dompdf = new Dompdf();
         $this->renderer = new Renderer($dompdf);
@@ -88,7 +88,8 @@ class RendererTest extends TestCase
         ];
     }
 
-    protected static function getMethod($name) {
+    protected static function getMethod($name)
+    {
         $class = new \ReflectionClass(Renderer::class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);

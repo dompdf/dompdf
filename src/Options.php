@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 class Options
@@ -311,17 +312,17 @@ class Options
      */
     public function __construct(array $attributes = null)
     {
-        $rootDir = realpath(__DIR__ . "/../");
+        $rootDir = \realpath(__DIR__ . "/../");
         $this->setChroot(array($rootDir));
         $this->setRootDir($rootDir);
-        $this->setTempDir(sys_get_temp_dir());
+        $this->setTempDir(\sys_get_temp_dir());
         $this->setFontDir($rootDir . "/lib/fonts");
         $this->setFontCache($this->getFontDir());
 
         $ver = "";
-        $versionFile = realpath(__DIR__ . '/../VERSION');
-        if (($version = file_get_contents($versionFile)) !== false) {
-            $version = trim($version);
+        $versionFile = \realpath(__DIR__ . '/../VERSION');
+        if (($version = \file_get_contents($versionFile)) !== false) {
+            $version = \trim($version);
             if ($version !== '$Format:<%h>$') {
                 $ver = "/$version";
             }
@@ -347,7 +348,7 @@ class Options
      */
     public function set($attributes, $value = null)
     {
-        if (!is_array($attributes)) {
+        if (!\is_array($attributes)) {
             $attributes = [$attributes => $value];
         }
         foreach ($attributes as $key => $value) {
@@ -520,9 +521,9 @@ class Options
      */
     public function setChroot($chroot, $delimiter = ',')
     {
-        if (is_string($chroot)) {
-            $this->chroot = explode($delimiter, $chroot);
-        } elseif (is_array($chroot)) {
+        if (\is_string($chroot)) {
+            $this->chroot = \explode($delimiter, $chroot);
+        } elseif (\is_array($chroot)) {
             $this->chroot = $chroot;
         }
         return $this;
@@ -547,12 +548,12 @@ class Options
     {
         $protocols = [];
         foreach ($allowedProtocols as $protocol => $config) {
-            if (is_string($protocol)) {
+            if (\is_string($protocol)) {
                 $protocols[$protocol] = [];
-                if (is_array($config)) {
+                if (\is_array($config)) {
                     $protocols[$protocol] = $config;
                 }
-            } elseif (is_string($config)) {
+            } elseif (\is_string($config)) {
                 $protocols[$config] = [];
             }
         }
@@ -572,7 +573,7 @@ class Options
      */
     public function addAllowedProtocol(string $protocol, callable ...$rules)
     {
-        $protocol = strtolower($protocol);
+        $protocol = \strtolower($protocol);
         if (empty($rules)) {
             $rules = [];
             switch ($protocol) {
@@ -598,7 +599,7 @@ class Options
     public function getChroot()
     {
         $chroot = [];
-        if (is_array($this->chroot)) {
+        if (\is_array($this->chroot)) {
             $chroot = $this->chroot;
         }
         return $chroot;
@@ -754,7 +755,7 @@ class Options
      */
     public function setDefaultFont($defaultFont)
     {
-        if (!($defaultFont === null || trim($defaultFont) === "")) {
+        if (!($defaultFont === null || \trim($defaultFont) === "")) {
             $this->defaultFont = $defaultFont;
         } else {
             $this->defaultFont = "serif";
@@ -816,9 +817,6 @@ class Options
         return $this->defaultPaperSize;
     }
 
-    /**
-     * @return string
-     */
     public function getDefaultPaperOrientation(): string
     {
         return $this->defaultPaperOrientation;
@@ -1091,7 +1089,7 @@ class Options
      */
     public function setHttpContext($httpContext)
     {
-        $this->httpContext = is_array($httpContext) ? stream_context_create($httpContext) : $httpContext;
+        $this->httpContext = \is_array($httpContext) ? \stream_context_create($httpContext) : $httpContext;
         return $this;
     }
 
@@ -1107,18 +1105,18 @@ class Options
 
     public function validateLocalUri(string $uri)
     {
-        if ($uri === null || strlen($uri) === 0) {
+        if ($uri === null || \strlen($uri) === 0) {
             return [false, "The URI must not be empty."];
         }
 
-        $realfile = realpath(str_replace("file://", "", $uri));
+        $realfile = \realpath(\str_replace("file://", "", $uri));
 
         $dirs = $this->chroot;
         $dirs[] = $this->rootDir;
         $chrootValid = false;
         foreach ($dirs as $chrootPath) {
-            $chrootPath = realpath($chrootPath);
-            if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
+            $chrootPath = \realpath($chrootPath);
+            if ($chrootPath !== false && \strpos($realfile, $chrootPath) === 0) {
                 $chrootValid = true;
                 break;
             }
@@ -1136,17 +1134,17 @@ class Options
 
     public function validatePharUri(string $uri)
     {
-        if ($uri === null || strlen($uri) === 0) {
+        if ($uri === null || \strlen($uri) === 0) {
             return [false, "The URI must not be empty."];
         }
 
-        $file = substr(substr($uri, 0, strpos($uri, ".phar") + 5), 7);
+        $file = \substr(\substr($uri, 0, \strpos($uri, ".phar") + 5), 7);
         return $this->validateLocalUri($file);
     }
 
     public function validateRemoteUri(string $uri)
     {
-        if ($uri === null || strlen($uri) === 0) {
+        if ($uri === null || \strlen($uri) === 0) {
             return [false, "The URI must not be empty."];
         }
 

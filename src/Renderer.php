@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf;
 
 use Dompdf\Renderer\AbstractRenderer;
@@ -25,7 +26,6 @@ use Dompdf\Renderer\Text;
  */
 class Renderer extends AbstractRenderer
 {
-
     /**
      * Array of renderers for specific frame types
      *
@@ -43,7 +43,7 @@ class Renderer extends AbstractRenderer
     /**
      * Advance the canvas to the next page
      */
-    function new_page()
+    public function new_page()
     {
         $this->_canvas->new_page();
     }
@@ -61,12 +61,12 @@ class Renderer extends AbstractRenderer
 
         if ($_dompdf_debug) {
             echo $frame;
-            flush();
+            \flush();
         }
 
         $style = $frame->get_style();
 
-        if (in_array($style->visibility, ["hidden", "collapse"], true)) {
+        if (\in_array($style->visibility, ["hidden", "collapse"], true)) {
             return;
         }
 
@@ -96,7 +96,7 @@ class Renderer extends AbstractRenderer
                 $values[] = $x + $style->length_in_pt($originX, $w);
                 $values[] = $y + $style->length_in_pt($originY, $h);
 
-                call_user_func_array([$this->_canvas, $function], $values);
+                \call_user_func_array([$this->_canvas, $function], $values);
             }
         }
 
@@ -200,7 +200,7 @@ class Renderer extends AbstractRenderer
             $stack[$z_index][] = $child;
         }
 
-        ksort($stack);
+        \ksort($stack);
 
         foreach ($stack as $by_index) {
             foreach ($by_index as $child) {

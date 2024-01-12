@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
@@ -45,7 +46,7 @@ class Block extends AbstractFrameDecorator
      * @param Frame $frame
      * @param Dompdf $dompdf
      */
-    function __construct(Frame $frame, Dompdf $dompdf)
+    public function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
 
@@ -54,7 +55,7 @@ class Block extends AbstractFrameDecorator
         $this->dangling_markers = [];
     }
 
-    function reset()
+    public function reset()
     {
         parent::reset();
 
@@ -66,7 +67,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @return LineBox
      */
-    function get_current_line_box()
+    public function get_current_line_box()
     {
         return $this->_line_boxes[$this->_cl];
     }
@@ -74,7 +75,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @return int
      */
-    function get_current_line_number()
+    public function get_current_line_number()
     {
         return $this->_cl;
     }
@@ -82,7 +83,7 @@ class Block extends AbstractFrameDecorator
     /**
      * @return LineBox[]
      */
-    function get_line_boxes()
+    public function get_line_boxes()
     {
         return $this->_line_boxes;
     }
@@ -91,27 +92,23 @@ class Block extends AbstractFrameDecorator
      * @param int $line_number
      * @return int
      */
-    function set_current_line_number($line_number)
+    public function set_current_line_number($line_number)
     {
-        $line_boxes_count = count($this->_line_boxes);
-        $cl = max(min($line_number, $line_boxes_count), 0);
+        $line_boxes_count = \count($this->_line_boxes);
+        $cl = \max(\min($line_number, $line_boxes_count), 0);
         return ($this->_cl = $cl);
     }
 
     /**
      * @param int $i
      */
-    function clear_line($i)
+    public function clear_line($i)
     {
         if (isset($this->_line_boxes[$i])) {
             unset($this->_line_boxes[$i]);
         }
     }
 
-    /**
-     * @param Frame $frame
-     * @return LineBox|null
-     */
     public function add_frame_to_line(Frame $frame): ?LineBox
     {
         $current_line = $this->_line_boxes[$this->_cl];
@@ -194,22 +191,15 @@ class Block extends AbstractFrameDecorator
         }
 
         // Reset array indices
-        $this->_line_boxes = array_values($this->_line_boxes);
-        $this->_cl = count($this->_line_boxes) - 1;
+        $this->_line_boxes = \array_values($this->_line_boxes);
+        $this->_cl = \count($this->_line_boxes) - 1;
     }
 
-    /**
-     * @param float $w
-     */
     public function increase_line_width(float $w): void
     {
         $this->_line_boxes[$this->_cl]->w += $w;
     }
 
-    /**
-     * @param float $val
-     * @param Frame $frame
-     */
     public function maximize_line_height(float $val, Frame $frame): void
     {
         if ($val > $this->_line_boxes[$this->_cl]->h) {
@@ -218,9 +208,6 @@ class Block extends AbstractFrameDecorator
         }
     }
 
-    /**
-     * @param bool $br
-     */
     public function add_line(bool $br = false): void
     {
         $line = $this->_line_boxes[$this->_cl];
@@ -233,9 +220,6 @@ class Block extends AbstractFrameDecorator
         $this->_line_boxes[++$this->_cl] = $new_line;
     }
 
-    /**
-     * @param ListBullet $marker
-     */
     public function add_dangling_marker(ListBullet $marker): void
     {
         $this->dangling_markers[] = $marker;

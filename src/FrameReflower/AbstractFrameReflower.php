@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Css\Content\Attr;
@@ -30,7 +31,6 @@ use Dompdf\FrameDecorator\Block;
  */
 abstract class AbstractFrameReflower
 {
-
     /**
      * Frame for this reflower
      *
@@ -56,7 +56,7 @@ abstract class AbstractFrameReflower
      * AbstractFrameReflower constructor.
      * @param AbstractFrameDecorator $frame
      */
-    function __construct(AbstractFrameDecorator $frame)
+    public function __construct(AbstractFrameDecorator $frame)
     {
         $this->_frame = $frame;
         $this->_min_max_child_cache = null;
@@ -66,7 +66,7 @@ abstract class AbstractFrameReflower
     /**
      * @return Dompdf
      */
-    function get_dompdf()
+    public function get_dompdf()
     {
         return $this->_frame->get_dompdf();
     }
@@ -112,6 +112,7 @@ abstract class AbstractFrameReflower
                     $frame->set_containing_block($parent_padding_box["x"], $parent_padding_box["y"], $parent_padding_box["w"], $containing_block_height);
                     break;
                 }
+                // no break
             case "fixed":
                 $initial_cb = $frame->get_root()->get_first_child()->get_containing_block();
                 $frame->set_containing_block($initial_cb["x"], $initial_cb["y"], $initial_cb["w"], $initial_cb["h"]);
@@ -156,7 +157,7 @@ abstract class AbstractFrameReflower
 
         // Collapse vertical margins:
         $n = $frame->get_next_sibling();
-        if ( $n && !($n->is_block_level() && $n->is_in_flow()) ) {
+        if ($n && !($n->is_block_level() && $n->is_in_flow())) {
             while ($n = $n->get_next_sibling()) {
                 if ($n->is_block_level() && $n->is_in_flow()) {
                     break;
@@ -181,7 +182,7 @@ abstract class AbstractFrameReflower
         // Collapse our first child's margin, if there is no border or padding
         if ($style->border_top_width == 0 && $style->length_in_pt($style->padding_top) == 0) {
             $f = $this->_frame->get_first_child();
-            if ( $f && !($f->is_block_level() && $f->is_in_flow()) ) {
+            if ($f && !($f->is_block_level() && $f->is_in_flow())) {
                 while ($f = $f->get_next_sibling()) {
                     if ($f->is_block_level() && $f->is_in_flow()) {
                         break;
@@ -208,7 +209,7 @@ abstract class AbstractFrameReflower
         // Collapse our last child's margin, if there is no border or padding
         if ($style->border_bottom_width == 0 && $style->length_in_pt($style->padding_bottom) == 0) {
             $l = $this->_frame->get_last_child();
-            if ( $l && !($l->is_block_level() && $l->is_in_flow()) ) {
+            if ($l && !($l->is_block_level() && $l->is_in_flow())) {
                 while ($l = $l->get_prev_sibling()) {
                     if ($l->is_block_level() && $l->is_in_flow()) {
                         break;
@@ -240,20 +241,18 @@ abstract class AbstractFrameReflower
      *
      * @param float $l1
      * @param float $l2
-     *
-     * @return float
      */
     private function get_collapsed_margin_length(float $l1, float $l2): float
     {
         if ($l1 < 0 && $l2 < 0) {
-            return min($l1, $l2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
+            return \min($l1, $l2); // min(x, y) = - max(abs(x), abs(y)), if x < 0 && y < 0
         }
-        
+
         if ($l1 < 0 || $l2 < 0) {
             return $l1 + $l2; // x + y = x - abs(y), if y < 0
         }
-        
-        return max($l1, $l2);
+
+        return \max($l1, $l2);
     }
 
     /**
@@ -291,10 +290,7 @@ abstract class AbstractFrameReflower
         }
     }
 
-    /**
-     * @param Block|null $block
-     */
-    abstract function reflow(Block $block = null);
+    abstract public function reflow(Block $block = null);
 
     /**
      * Resolve the `min-width` property.
@@ -303,8 +299,6 @@ abstract class AbstractFrameReflower
      * width is not defined.
      *
      * @param float|null $cbw Width of the containing block.
-     *
-     * @return float
      */
     protected function resolve_min_width(?float $cbw): float
     {
@@ -323,8 +317,6 @@ abstract class AbstractFrameReflower
      * width is not defined.
      *
      * @param float|null $cbw Width of the containing block.
-     *
-     * @return float
      */
     protected function resolve_max_width(?float $cbw): float
     {
@@ -332,8 +324,8 @@ abstract class AbstractFrameReflower
         $max_width = $style->max_width;
 
         return $max_width !== "none"
-            ? $style->length_in_pt($max_width, $cbw ?? INF)
-            : INF;
+            ? $style->length_in_pt($max_width, $cbw ?? \INF)
+            : \INF;
     }
 
     /**
@@ -343,8 +335,6 @@ abstract class AbstractFrameReflower
      * height is not defined.
      *
      * @param float|null $cbh Height of the containing block.
-     *
-     * @return float
      */
     protected function resolve_min_height(?float $cbh): float
     {
@@ -363,8 +353,6 @@ abstract class AbstractFrameReflower
      * height is not defined.
      *
      * @param float|null $cbh Height of the containing block.
-     *
-     * @return float
      */
     protected function resolve_max_height(?float $cbh): float
     {
@@ -372,8 +360,8 @@ abstract class AbstractFrameReflower
         $max_height = $style->max_height;
 
         return $max_height !== "none"
-            ? $style->length_in_pt($style->max_height, $cbh ?? INF)
-            : INF;
+            ? $style->length_in_pt($style->max_height, $cbh ?? \INF)
+            : \INF;
     }
 
     /**
@@ -384,7 +372,7 @@ abstract class AbstractFrameReflower
      */
     public function get_min_max_child_width(): array
     {
-        if (!is_null($this->_min_max_child_cache)) {
+        if (!\is_null($this->_min_max_child_cache)) {
             return $this->_min_max_child_cache;
         }
 
@@ -402,7 +390,7 @@ abstract class AbstractFrameReflower
                 $child->get_reflower()->_set_content();
                 $minmax = $child->get_min_max_width();
 
-                if (in_array($child->get_style()->white_space, ["pre", "nowrap"], true)) {
+                if (\in_array($child->get_style()->white_space, ["pre", "nowrap"], true)) {
                     $inline_min += $minmax["min"];
                 } else {
                     $low[] = $minmax["min"];
@@ -428,8 +416,8 @@ abstract class AbstractFrameReflower
             }
         }
 
-        $min = count($low) ? max($low) : 0;
-        $max = count($high) ? max($high) : 0;
+        $min = \count($low) ? \max($low) : 0;
+        $max = \count($high) ? \max($high) : 0;
 
         return $this->_min_max_child_cache = [$min, $max];
     }
@@ -457,7 +445,7 @@ abstract class AbstractFrameReflower
      */
     public function get_min_max_width(): array
     {
-        if (!is_null($this->_min_max_cache)) {
+        if (!\is_null($this->_min_max_cache)) {
             return $this->_min_max_cache;
         }
 
@@ -505,47 +493,33 @@ abstract class AbstractFrameReflower
         foreach ($content as $val) {
             if ($val instanceof StringPart) {
                 $text .= $val->string;
-            }
-
-            elseif ($val instanceof OpenQuote) {
+            } elseif ($val instanceof OpenQuote) {
                 // FIXME: Take quotation depth into account
                 if ($quotes !== "none" && isset($quotes[0][0])) {
                     $text .= $quotes[0][0];
                 }
-            }
-
-            elseif ($val instanceof CloseQuote) {
+            } elseif ($val instanceof CloseQuote) {
                 // FIXME: Take quotation depth into account
                 if ($quotes !== "none" && isset($quotes[0][1])) {
                     $text .= $quotes[0][1];
                 }
-            }
-            
-            elseif ($val instanceof NoOpenQuote) {
+            } elseif ($val instanceof NoOpenQuote) {
                 // FIXME: Increment quotation depth
-            }
-
-            elseif ($val instanceof NoCloseQuote) {
+            } elseif ($val instanceof NoCloseQuote) {
                 // FIXME: Decrement quotation depth
-            }
-
-            elseif ($val instanceof Attr) {
+            } elseif ($val instanceof Attr) {
                 $text .= $frame->get_parent()->get_node()->getAttribute($val->attribute);
-            }
-
-            elseif ($val instanceof Counter) {
+            } elseif ($val instanceof Counter) {
                 $p = $frame->lookup_counter_frame($val->name, true);
                 $text .= $p->counter_value($val->name, $val->style);
-            }
-
-            elseif ($val instanceof Counters) {
+            } elseif ($val instanceof Counters) {
                 $p = $frame->lookup_counter_frame($val->name, true);
                 $tmp = [];
                 while ($p) {
-                    array_unshift($tmp, $p->counter_value($val->name, $val->style));
+                    \array_unshift($tmp, $p->counter_value($val->name, $val->style));
                     $p = $p->lookup_counter_frame($val->name);
                 }
-                $text .= implode($val->string, $tmp);
+                $text .= \implode($val->string, $tmp);
             }
         }
 

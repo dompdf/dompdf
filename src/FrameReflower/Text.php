@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Exception;
@@ -23,7 +24,7 @@ class Text extends AbstractFrameReflower
     /**
      * PHP string representation of HTML entity <shy>
      */
-    const SOFT_HYPHEN = "\xC2\xAD";
+    public const SOFT_HYPHEN = "\xC2\xAD";
 
     /**
      * The regex splits on everything that's a separator (^\S double negative),
@@ -80,7 +81,6 @@ class Text extends AbstractFrameReflower
      * * http://www.w3.org/TR/CSS21/text.html#propdef-white-space
      *
      * @param string $text
-     * @return string
      */
     protected function pre_process_text(string $text): string
     {
@@ -92,10 +92,10 @@ class Text extends AbstractFrameReflower
                 $text = Helpers::mb_ucwords($text);
                 break;
             case "uppercase":
-                $text = mb_convert_case($text, MB_CASE_UPPER);
+                $text = \mb_convert_case($text, \MB_CASE_UPPER);
                 break;
             case "lowercase":
-                $text = mb_convert_case($text, MB_CASE_LOWER);
+                $text = \mb_convert_case($text, \MB_CASE_LOWER);
                 break;
             default:
                 break;
@@ -106,12 +106,12 @@ class Text extends AbstractFrameReflower
             default:
             case "normal":
             case "nowrap":
-                $text = preg_replace(self::$_whitespace_pattern, " ", $text) ?? "";
+                $text = \preg_replace(self::$_whitespace_pattern, " ", $text) ?? "";
                 break;
 
             case "pre-line":
                 // Collapse white space except for line breaks
-                $text = preg_replace('/([^\S\xA0\x{202F}\x{2007}\n]+)/u', " ", $text) ?? "";
+                $text = \preg_replace('/([^\S\xA0\x{202F}\x{2007}\n]+)/u', " ", $text) ?? "";
                 break;
 
             case "pre":
@@ -147,7 +147,7 @@ class Text extends AbstractFrameReflower
         $available_width = $line_width - $current_line_width;
 
         // Determine the frame width including margin, padding & border
-        $visible_text = preg_replace('/\xAD/u', "", $text);
+        $visible_text = \preg_replace('/\xAD/u', "", $text);
         $text_width = $fontMetrics->getTextWidth($visible_text, $font, $size, $word_spacing, $letter_spacing);
         $mbp_width = (float) $style->length_in_pt([
             $style->margin_left,
@@ -172,8 +172,8 @@ class Text extends AbstractFrameReflower
         }
 
         // Split the text into words
-        $words = preg_split(self::$_wordbreak_pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $wc = count($words);
+        $words = \preg_split(self::$_wordbreak_pattern, $text, -1, \PREG_SPLIT_DELIM_CAPTURE);
+        $wc = \count($words);
 
         // Determine the split point
         $width = 0.0;
@@ -230,10 +230,10 @@ class Text extends AbstractFrameReflower
 
             if ($break_word) {
                 $s = "";
-                $len = mb_strlen($word);
+                $len = \mb_strlen($word);
 
                 for ($j = 0; $j < $len; $j++) {
-                    $c = mb_substr($word, $j, 1);
+                    $c = \mb_substr($word, $j, 1);
                     $w = $fontMetrics->getTextWidth($s . $c, $font, $size, $word_spacing, $letter_spacing);
 
                     if (Helpers::lengthGreater($w, $available_width)) {
@@ -250,7 +250,7 @@ class Text extends AbstractFrameReflower
             }
         }
 
-        $offset = mb_strlen($str);
+        $offset = \mb_strlen($str);
         return $offset;
     }
 
@@ -260,7 +260,7 @@ class Text extends AbstractFrameReflower
      */
     protected function newline_break(string $text)
     {
-        if (($i = mb_strpos($text, "\n")) === false) {
+        if (($i = \mb_strpos($text, "\n")) === false) {
             return false;
         }
 
@@ -281,7 +281,7 @@ class Text extends AbstractFrameReflower
 
         // Trim leading white space if this is the first text on the line
         if ($current_line->is_empty() && !$frame->is_pre()) {
-            $text = ltrim($text, " ");
+            $text = \ltrim($text, " ");
         }
 
         if ($text === "") {
@@ -308,7 +308,7 @@ class Text extends AbstractFrameReflower
             case "pre-wrap":
                 $hard_split = $this->newline_break($text);
                 $first_line = $hard_split !== false
-                    ? mb_substr($text, 0, $hard_split)
+                    ? \mb_substr($text, 0, $hard_split)
                     : $text;
                 $soft_split = $this->line_break($first_line, $block, $nowrap);
 
@@ -325,7 +325,7 @@ class Text extends AbstractFrameReflower
             // increments
             if ($current_line->h === 0.0) {
                 // Line height might be 0
-                $h = max($frame->get_margin_height(), 1.0);
+                $h = \max($frame->get_margin_height(), 1.0);
                 $block->maximize_line_height($h, $frame);
             }
 
@@ -351,7 +351,7 @@ class Text extends AbstractFrameReflower
         }
 
         // Final split point is determined
-        if ($split !== false && $split < mb_strlen($text)) {
+        if ($split !== false && $split < \mb_strlen($text)) {
             // Split the line
             $frame->set_text($text);
             $frame->split_text($split, true);
@@ -359,15 +359,15 @@ class Text extends AbstractFrameReflower
 
             // Remove inner soft hyphens
             $t = $frame->get_text();
-            $shyPosition = mb_strpos($t, self::SOFT_HYPHEN);
-            if (false !== $shyPosition && $shyPosition < mb_strlen($t) - 1) {
-                $t = str_replace(self::SOFT_HYPHEN, "", mb_substr($t, 0, -1)) . mb_substr($t, -1);
+            $shyPosition = \mb_strpos($t, self::SOFT_HYPHEN);
+            if (false !== $shyPosition && $shyPosition < \mb_strlen($t) - 1) {
+                $t = \str_replace(self::SOFT_HYPHEN, "", \mb_substr($t, 0, -1)) . \mb_substr($t, -1);
                 $frame->set_text($t);
             }
         } else {
             // No split required
             // Remove soft hyphens
-            $text = str_replace(self::SOFT_HYPHEN, "", $text);
+            $text = \str_replace(self::SOFT_HYPHEN, "", $text);
             $frame->set_text($text);
         }
 
@@ -381,7 +381,7 @@ class Text extends AbstractFrameReflower
      * @param BlockFrameDecorator|null $block
      * @throws Exception
      */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         $frame = $this->_frame;
         $page = $frame->get_root();
@@ -426,13 +426,13 @@ class Text extends AbstractFrameReflower
         }
 
         $line = $block->add_frame_to_line($frame);
-        $trimmed = trim($text);
+        $trimmed = \trim($text);
 
         // Split the text into words (used to determine spacing between
         // words on justified lines)
         if ($trimmed !== "") {
-            $words = preg_split(self::$_whitespace_pattern, $trimmed);
-            $line->wc += count($words);
+            $words = \preg_split(self::$_whitespace_pattern, $trimmed);
+            $line->wc += \count($words);
         }
 
         if ($add_line) {
@@ -447,13 +447,13 @@ class Text extends AbstractFrameReflower
     {
         $frame = $this->_frame;
         $text = $frame->get_text();
-        $trailing = mb_substr($text, -1);
+        $trailing = \mb_substr($text, -1);
 
         // White space is always collapsed to the standard space character
         // currently, so only handle that for now
         if ($trailing === " ") {
             $this->trailingWs = $trailing;
-            $frame->set_text(mb_substr($text, 0, -1));
+            $frame->set_text(\mb_substr($text, 0, -1));
             $frame->recalculate_width();
         }
     }
@@ -502,7 +502,7 @@ class Text extends AbstractFrameReflower
             }
 
             if (!$child->get_prev_sibling()) {
-                $text = ltrim($text, " ");
+                $text = \ltrim($text, " ");
             }
 
             // Determine whether the frame is at the end of its parent block.
@@ -515,12 +515,12 @@ class Text extends AbstractFrameReflower
             }
 
             if (!$child->get_next_sibling()) {
-                $text = rtrim($text, " ");
+                $text = \rtrim($text, " ");
             }
         }
 
         // Strip soft hyphens for max-line-width calculations
-        $visible_text = preg_replace('/\xAD/u', "", $text);
+        $visible_text = \preg_replace('/\xAD/u', "", $text);
 
         // Determine minimum text width
         switch ($style->white_space) {
@@ -534,30 +534,30 @@ class Text extends AbstractFrameReflower
                 // the latter case.
                 // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
                 if ($style->overflow_wrap === "anywhere") {
-                    $char = mb_substr($visible_text, 0, 1);
+                    $char = \mb_substr($visible_text, 0, 1);
                     $min = $fontMetrics->getTextWidth($char, $font, $size, $word_spacing, $letter_spacing);
                 } else {
                     // Find the longest word
-                    $words = preg_split(self::$_wordbreak_pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-                    $lengths = array_map(function ($chunk) use ($fontMetrics, $font, $size, $word_spacing, $letter_spacing) {
+                    $words = \preg_split(self::$_wordbreak_pattern, $text, -1, \PREG_SPLIT_DELIM_CAPTURE);
+                    $lengths = \array_map(function ($chunk) use ($fontMetrics, $font, $size, $word_spacing, $letter_spacing) {
                         // Allow trailing white space to overflow. As in actual
                         // layout above, only handle a single space for now
                         $sep = $chunk[1] ?? "";
                         $word = $sep === " " ? $chunk[0] : $chunk[0] . $sep;
                         return $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $letter_spacing);
-                    }, array_chunk($words, 2));
-                    $min = max($lengths);
+                    }, \array_chunk($words, 2));
+                    $min = \max($lengths);
                 }
                 break;
 
             case "pre":
                 // Find the longest line
-                $lines = array_flip(preg_split("/\R/u", $visible_text));
-                array_walk($lines, function (&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $letter_spacing) {
+                $lines = \array_flip(\preg_split("/\R/u", $visible_text));
+                \array_walk($lines, function (&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $letter_spacing) {
                     $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $letter_spacing);
                 });
-                arsort($lines);
-                $min = reset($lines);
+                \arsort($lines);
+                $min = \reset($lines);
                 break;
 
             case "nowrap":
@@ -575,12 +575,12 @@ class Text extends AbstractFrameReflower
             case "pre-line":
             case "pre-wrap":
                 // Find the longest line
-                $lines = array_flip(preg_split("/\R/u", $visible_text));
-                array_walk($lines, function (&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $letter_spacing) {
+                $lines = \array_flip(\preg_split("/\R/u", $visible_text));
+                \array_walk($lines, function (&$chunked_text_width, $chunked_text) use ($fontMetrics, $font, $size, $word_spacing, $letter_spacing) {
                     $chunked_text_width = $fontMetrics->getTextWidth($chunked_text, $font, $size, $word_spacing, $letter_spacing);
                 });
-                arsort($lines);
-                $max = reset($lines);
+                \arsort($lines);
+                $max = \reset($lines);
                 break;
 
             case "pre":

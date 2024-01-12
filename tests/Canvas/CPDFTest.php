@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests\Canvas;
 
 use Dompdf\Adapter\CPDF;

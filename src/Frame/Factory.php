@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Frame;
 
 use Dompdf\Dompdf;
@@ -27,7 +28,6 @@ use DOMXPath;
  */
 class Factory
 {
-
     /**
      * Array of positioners for specific frame types
      *
@@ -40,8 +40,6 @@ class Factory
      *
      * @param Frame  $root   The frame to decorate
      * @param Dompdf $dompdf The dompdf instance
-     *
-     * @return PageFrameDecorator
      */
     public static function decorate_root(Frame $root, Dompdf $dompdf): PageFrameDecorator
     {
@@ -219,8 +217,8 @@ class Factory
                     $parent_node->setAttribute("dompdf-children-count", $count);
                 }
 
-                if (is_numeric($node->getAttribute("value"))) {
-                    $index = intval($node->getAttribute("value"));
+                if (\is_numeric($node->getAttribute("value"))) {
+                    $index = \intval($node->getAttribute("value"));
                 } else {
                     if (!$parent_node->hasAttribute("dompdf-counter")) {
                         $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start") : 1);
@@ -248,8 +246,6 @@ class Factory
      * Creates Positioners
      *
      * @param string $type Type of positioner to use
-     *
-     * @return AbstractPositioner
      */
     protected static function getPositionerInstance(string $type): AbstractPositioner
     {

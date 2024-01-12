@@ -4,6 +4,7 @@
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\FrameReflower;
 
 use Dompdf\Exception;
@@ -18,20 +19,16 @@ use Dompdf\FrameDecorator\TableRowGroup as TableRowGroupFrameDecorator;
  */
 class TableRowGroup extends AbstractFrameReflower
 {
-
     /**
      * TableRowGroup constructor.
      * @param TableRowGroupFrameDecorator $frame
      */
-    function __construct(TableRowGroupFrameDecorator $frame)
+    public function __construct(TableRowGroupFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
-    /**
-     * @param BlockFrameDecorator|null $block
-     */
-    function reflow(BlockFrameDecorator $block = null)
+    public function reflow(BlockFrameDecorator $block = null)
     {
         /** @var TableRowGroupFrameDecorator */
         $frame = $this->_frame;

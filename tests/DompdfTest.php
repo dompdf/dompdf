@@ -1,4 +1,5 @@
 <?php
+
 namespace Dompdf\Tests;
 
 use DOMDocument;
