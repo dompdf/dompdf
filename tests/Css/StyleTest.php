@@ -82,10 +82,11 @@ class StyleTest extends TestCase
             ["100%", null, 12.0],
             ["50%", 360, 180.0],
 
+            // Basic Arithmetic
             ["calc(100%)", null, 12.0],
             ["calc(50% - 1pt)", 200, 99.0],
             ["calc(100)", null, 100.0],
-            ["calc(100% / 3)", 100, 33.333333333333336],
+            ["calc(100% / 3)", 100, 33.3333, 4],
             ["calc(  100pt    +   50pt  )", null, 150.0],  // extra whitespace
             ["calc( (100pt + 50pt) / 3)", null, 50.0],     // parentheses
             ["calc(50pt*2)", null, 100.0],                 // * do not require whitespace
@@ -99,20 +100,104 @@ class StyleTest extends TestCase
             ["calc((50% + 10) 1pt)", 100, 0.0],            // invalid - missing op
             ["calc(50% -1pt)", 100, 0.0],                  // invalid - missing op
             ["calc((50% + 10) + 2pt))", 100, 0.0],         // invalid - extra bracket
-            ["calc(100pt / 0)", null, 0.0]                 // invalid - division by zero
+            ["calc(100pt / 0)", null, 0.0],                // invalid - division by zero
+
+            // Comparison Functions
+            ["min(-20, 5 * 2, 8)", null, -20.0],           // min function
+            ["max(-20, 5 * 2, 8)", null, 10.0],            // max function
+            ["clamp(10, 15 - 7, 20)", null, 10.0],         // clamp min function
+            ["clamp(10, 15 + 7, 20)", null, 20.0],         // clamp max function
+            ["clamp(10, 7 * 2, 20)", null, 14.0],          // clamp val function
+            ["clamp(20, 5, 10)", null, 20.0],              // clamp min > max
+            ["clamp(20, 15, 10)", null, 20.0],             // clamp min > max
+            ["clamp(20, 25, 10)", null, 20.0],             // clamp min > max
+
+            // Stepped Value Functions
+            ["round(up, 100%, 10%)", 100, 0.0],            // Not supported
+            ["round(30%, 0%)", 100, 0.0],
+            ["round(4%, 9%)", 100, 0.0],
+            ["round(6%, 9%)", 100, 9.0],
+            ["round(13.5%, 9%)", 100, 18.0],               // Default when exactly between (nearest)
+            ["round(15%, 9)", 100, 18.0],
+            ["round(5.4, 1)", null, 5.0],
+            ["round(5.5, 1)", null, 6.0],                  // Default when exactly between (nearest)
+            ["round(5.6, 1)", null, 6.0],
+            ["round(-5.4, 1)", null, -5.0],
+            ["round(-5.5, 1)", null, -5.0],                // Default when exactly between (nearest)
+            ["round(-5.6, 1)", null, -6.0],
+            ["round(-5.5, -1)", null, -5.0],               // Default when exactly between (nearest)
+            ["round(5.5, -1)", null, 6.0],                 // Default when exactly between (nearest)
+            ["round(0.54, 0.1)", null, 0.5, 4],
+            ["round(0.56, 0.1)", null, 0.6, 4],
+            ["mod(30, 0)", null, 0.0],
+            ["mod(18, 5)", null, 3.0],
+            ["mod(-18, 5)", null, 2.0],
+            ["mod(18, -5)", null, -2.0],
+            ["mod(-18, -5)", null, -3.0],
+            ["rem(30, 0)", null, 0.0],
+            ["rem(18, 5)", null, 3.0],
+            ["rem(-18, 5)", null, -3.0],
+            ["rem(18, -5)", null, 3.0],
+            ["rem(-18, -5)", null, -3.0],
+
+            // Trigonometric Functions
+            ["sin(0)", null, 0.0],                         // sin function
+            ["sin(1)", null, 0.8415, 4],                   // sin function
+            ["cos(0)", null, 1.0],                         // cos function
+            ["cos(1)", null, 0.5403, 4],                   // cos function
+            ["tan(0)", null, 0.0],                         // tan function
+            ["tan(1)", null, 1.5574, 4],                   // tan function
+            ["asin(0)", null, 0.0],                        // asin function
+            ["asin(-0.2)", null, -0.2014, 4],              // asin function
+            ["acos(1)", null, 0.0],                        // acos function
+            ["acos(-0.2)", null, 1.7722, 4],               // acos function
+            ["atan(0)", null, 0.0],                        // atan function
+            ["atan(1)", null, 0.7854, 4],                  // atan function
+            ["atan2(0, 0)", null, 0.0],                    // atan2 function
+            ["atan2(3, 2)", null, 0.9828, 4],              // atan2 function
+
+            // Exponential Functions
+            ["pow(5, 2)", null, 25.0],                     // pow function
+            ["sqrt(25)", null, 5.0],                       // sqrt function
+            ["hypot(3,4)", null, 5.0],                     // hypot function
+            ["log(1)", null, 0.0],                         // log function
+            ["log(10)", null, 2.3026, 4],                  // log function
+            ["log(8, 2)", null, 3.0],                      // log function
+            ["log(625, 5)", null, 4.0],                    // log function
+            ["exp(0)", null, 1.0],                         // exp function
+
+            // Sign-Related Functions
+            ["abs(-20)", null, 20.0],                      // abs function
+            ["sign(-20)", null, -1.0],                     // sign function
+            ["sign(5)", null, 1.0],                        // sign function
+            ["sign(0)", null, 0.0],
+            ["sign(100%)", 100.0, 1.0],
+            ["sign(100%)", -100.0, -1.0],
+            ["sign(-100%)", -100.0, 1.0],
+
+            // Complex
+            ["calc(max(3 + abs(-20), 5 * 2, 8 + 5) + 7)", null, 30.0],
+            ["calc(min(5pt, 3rem) + 2pt)", null, 7.0],
+
+            ["unknownFunc()", null, 0.0],                  // Unsupported func
+            ["calc(1 + unknownFunc(2, 3))", null, 0.0]     // Unsupported func
         ];
     }
 
     /**
      * @dataProvider lengthInPtProvider
      */
-    public function testLengthInPt(string $length, ?float $ref_size, $expected): void
+    public function testLengthInPt(string $length, ?float $ref_size, $expected, ?int $precision = null): void
     {
         $dompdf = new Dompdf();
         $sheet = new Stylesheet($dompdf);
         $s = new Style($sheet);
 
         $result = $s->length_in_pt($length, $ref_size);
+        if ($precision !== null) {
+            $result = round($result, $precision);
+        }
+
         $this->assertSame($expected, $result);
     }
 
@@ -261,6 +346,7 @@ class StyleTest extends TestCase
             ["-23PT     BoTTom", [-23.0, "100%"]],
 
             // Invalid values
+            ["", [0.0, 0.0]],
             ["none", [0.0, 0.0]],
             ["auto", [0.0, 0.0]],
             ["left left", [0.0, 0.0]],
@@ -287,6 +373,7 @@ class StyleTest extends TestCase
         $style->set_prop("background_position", $value);
         $this->assertSame($expected, $style->background_position);
     }
+
     public static function backgroundSizeProvider(): array
     {
         return [
@@ -315,6 +402,7 @@ class StyleTest extends TestCase
             ["CALC(20PT*3)23PT", [60.0, 23.0]],
 
             // Invalid values
+            ["", ["auto", "auto"]],
             ["none", ["auto", "auto"]],
             ["auto", ["auto", "auto"]],
             ["cover contain", ["auto", "auto"]]
@@ -724,6 +812,45 @@ class StyleTest extends TestCase
         $this->testLengthProperty("border_bottom_left_radius", $value, $fontSize, $expected, ["border_bottom_left_radius" => $initial]);
     }
 
+    public static function borderSpacingProvider(): array
+    {
+        return [
+            // One value
+            ["0", [0.0, 0.0]],
+            ["10pt", [10.0, 10.0]],
+
+            // Two values
+            ["0 0", [0.0, 0.0]],
+            ["20pt 50pt", [20.0, 50.0]],
+
+            // Calc values
+            ["20pt calc(20pt + 30pt)", [20.0, 50.0]],
+
+            // Case and whitespace variations
+            ["CALC(20PT*3)23PT", [60.0, 23.0]],
+
+            // Invalid values
+            ["", [0.0, 0.0]],
+            ["none", [0.0, 0.0]],
+            ["auto", [0.0, 0.0]],
+            ["100% 10pt", [0.0, 0.0]],
+            ["30pt -10pt", [0.0, 0.0]]
+        ];
+    }
+
+    /**
+     * @dataProvider borderSpacingProvider
+     */
+    public function testBorderSpacing(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("border_spacing", $value);
+        $this->assertSame($expected, $style->border_spacing);
+    }
+
     public static function counterIncrementProvider(): array
     {
         return [
@@ -1049,6 +1176,160 @@ class StyleTest extends TestCase
 
         $style->set_prop("size", $value);
         $this->assertSame($expected, $style->size);
+    }
+
+    public static function transformProvider(): array
+    {
+        $initialInvalid = [["translate", 0.0, 0.0]];
+
+        return [
+            // Keywords
+            ["none", []],
+
+            // Translate
+            ["translate(10pt)", [["translate", [10.0, 0.0]]]],
+            ["translate(10pt, 5pt)", [["translate", [10.0, 5.0]]]],
+            ["translate(100%, -50%)", [["translate", ["100%", "-50%"]]]],
+            ["translateX(10pt)", [["translate", [10.0, 0.0]]]],
+            ["translateY(10pt)", [["translate", [0.0, 10.0]]]],
+
+            // Scale
+            ["scale(2.5)", [["scale", [2.5, 2.5]]]],
+            ["scale(5, 1)", [["scale", [5.0, 1.0]]]],
+            ["scale(-5, 0)", [["scale", [-5.0, 0.0]]]],
+            ["scaleX(5)", [["scale", [5.0, 1.0]]]],
+            ["scaleY(5)", [["scale", [1.0, 5.0]]]],
+
+            // Rotate
+            ["rotate(0.0)", [["rotate", [0.0]]]],
+            ["rotate(0deg)", [["rotate", [0.0]]]],
+            ["rotate(360deg)", [["rotate", [360.0]]]],
+            ["rotate(-45deg)", [["rotate", [-45.0]]]],
+            ["rotate(-200grad)", [["rotate", [-180.0]]]],
+            ["rotate(0rad)", [["rotate", [0.0]]]],
+            ["rotate(0.25turn)", [["rotate", [90.0]]]],
+
+            // Skew
+            ["skew(45deg)", [["skew", [45.0, 0.0]]]],
+            ["skew(45deg, 45deg)", [["skew", [45.0, 45.0]]]],
+            ["skewX(45deg)", [["skew", [45.0, 0.0]]]],
+            ["skewY(45deg)", [["skew", [0.0, 45.0]]]],
+
+            // Transform list and calc values
+            ["translateX(10pt) translateX(-10pt)", [["translate", [10.0, 0.0]], ["translate", [-10.0, 0.0]]]],
+            ["scale(2.5) translate(calc(100% - 100pt), 100pt) rotate(-90deg)", [["scale", [2.5, 2.5]], ["translate", ["calc(100% - 100pt)", 100.0]], ["rotate", [-90.0]]]],
+
+            // Case and whitespace variations
+            ["translatex(10pt)", [["translate", [10.0, 0.0]]]],
+            ["SCALE(2.5)TRANSLATEy(CALc(-10pt))", [["scale", [2.5, 2.5]], ["translate", [0.0, -10.0]]]],
+
+            // Invalid values
+            ["auto", $initialInvalid, $initialInvalid],
+            ["translate( )", $initialInvalid, $initialInvalid],
+            ["scale(1, 1, 1)", $initialInvalid, $initialInvalid],
+            ["rotate(20deg, 30deg) ", $initialInvalid, $initialInvalid],
+            ["rotate(20deg) skewY(45deg, 90deg)", $initialInvalid, $initialInvalid],
+        ];
+    }
+
+    /**
+     * @dataProvider transformProvider
+     */
+    public function testTransform(string $value, $expected, array $initial = []): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->transform = $initial;
+        $style->set_prop("transform", $value);
+        $this->assertSame($expected, $style->transform);
+    }
+
+    public static function transformOriginProvider(): array
+    {
+        return [
+            // One value
+            ["left", [0.0, "50%", 0.0]],
+            ["right", ["100%", "50%", 0.0]],
+            ["top", ["50%", 0.0, 0.0]],
+            ["bottom", ["50%", "100%", 0.0]],
+            ["center", ["50%", "50%", 0.0]],
+            ["20pt", [20.0, "50%", 0.0]],
+            ["-10pt", [-10.0, "50%", 0.0]],
+            ["23%", ["23%", "50%", 0.0]],
+            ["-75%", ["-75%", "50%", 0.0]],
+
+            // Two values
+            ["left top", [0.0, 0.0, 0.0]],
+            ["top left", [0.0, 0.0, 0.0]],
+            ["left bottom", [0.0, "100%", 0.0]],
+            ["bottom left", [0.0, "100%", 0.0]],
+            ["left center", [0.0, "50%", 0.0]],
+            ["center left", [0.0, "50%", 0.0]],
+            ["right top", ["100%", 0.0, 0.0]],
+            ["top right", ["100%", 0.0, 0.0]],
+            ["right bottom", ["100%", "100%", 0.0]],
+            ["bottom right", ["100%", "100%", 0.0]],
+            ["right center", ["100%", "50%", 0.0]],
+            ["center right", ["100%", "50%", 0.0]],
+            ["bottom center", ["50%", "100%", 0.0]],
+            ["center bottom", ["50%", "100%", 0.0]],
+            ["top center", ["50%", 0.0, 0.0]],
+            ["center top", ["50%", 0.0, 0.0]],
+            ["center center", ["50%", "50%", 0.0]],
+            ["left 23%", [0.0, "23%", 0.0]],
+            ["right 23%", ["100%", "23%", 0.0]],
+            ["center 23%", ["50%", "23%", 0.0]],
+            ["23% top", ["23%", 0.0, 0.0]],
+            ["23% bottom", ["23%", "100%", 0.0]],
+            ["23% center", ["23%", "50%", 0.0]],
+            ["23% 50pt", ["23%", 50.0, 0.0]],
+            ["50pt 23%", [50.0, "23%", 0.0]],
+
+            // Three values
+            ["left top 20pt", [0.0, 0.0, 20.0]],
+            ["center bottom 0", ["50%", "100%", 0.0]],
+            ["center center -50pt", ["50%", "50%", -50.0]],
+            ["-50pt -23% -50pt", [-50.0, "-23%", -50.0]],
+
+            // Calc values
+            ["calc(-75% + 100pt)", ["calc(-75% + 100pt)", "50%", 0.0]],
+            ["calc(33% * 3 + 1%) calc(20pt + 30pt) calc( 99pt/3 )", ["calc(33% * 3 + 1%)", 50.0, 33.0]],
+
+            // Case and whitespace variations
+            ["LEFT", [0.0, "50%", 0.0]],
+            ["TOP    Right", ["100%", 0.0, 0.0]],
+            ["-23PT     BoTTom", [-23.0, "100%", 0.0]],
+
+            // Invalid values
+            ["", ["50%", "50%", 0.0]],
+            ["none", ["50%", "50%", 0.0]],
+            ["auto", ["50%", "50%", 0.0]],
+            ["left left", ["50%", "50%", 0.0]],
+            ["left right", ["50%", "50%", 0.0]],
+            ["bottom top", ["50%", "50%", 0.0]],
+            ["center center center", ["50%", "50%", 0.0]],
+            ["1pt 2pt 3pt 4pt", ["50%", "50%", 0.0]],
+            ["23% left", ["50%", "50%", 0.0]],
+            ["23% right", ["50%", "50%", 0.0]],
+            ["top 23%", ["50%", "50%", 0.0]],
+            ["bottom 23%", ["50%", "50%", 0.0]],
+            ["-50pt -23% -23%", ["50%", "50%", 0.0]] // Percentage for z not allowed
+        ];
+    }
+
+    /**
+     * @dataProvider transformOriginProvider
+     */
+    public function testTransformOrigin(string $value, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+
+        $style->set_prop("transform_origin", $value);
+        $this->assertSame($expected, $style->transform_origin);
     }
 
     public static function opacityProvider(): array

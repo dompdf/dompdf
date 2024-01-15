@@ -161,7 +161,7 @@ use Dompdf\Helpers;
  * @property string               $text_transform
  * @property float|string         $top                         Length in pt, a percentage value, or `auto`
  * @property array                $transform                   List of transforms
- * @property array                $transform_origin
+ * @property array                $transform_origin            Triplet of `[x, y, z]`, each value being a length in pt, or a percentage value for x and y
  * @property string               $unicode_bidi
  * @property string               $unicode_range
  * @property string               $vertical_align
@@ -187,6 +187,39 @@ class Style
         '"(?>(?:\\\\["]|[^"])*)(?<!\\\\)"|' . // String ""
         "'(?>(?:\\\\[']|[^'])*)(?<!\\\\)'";   // String ''
     protected const CSS_VAR = "var\((([^()]|(?R))*)\)";
+
+    /**
+     * @link https://www.w3.org/TR/css-values-4/#calc-syntax
+     */
+    protected const CSS_MATH_FUNCTIONS = [
+        // Basic Arithmetic
+        "calc" => true,
+        // Comparison Functions
+        "min" => true,
+        "max" => true,
+        "clamp" => true,
+        // Stepped Value Functions
+        "round" => true,                          // Not fully supported
+        "mod" => true,
+        "rem" => true,
+        // Trigonometric Functions
+        "sin" => true,
+        "cos" => true,
+        "tan" => true,
+        "asin" => true,
+        "acos" => true,
+        "atan" => true,
+        "atan2" => true,
+        // Exponential Functions
+        "pow" => true,
+        "sqrt" => true,
+        "hypot" => true,
+        "log" => true,
+        "exp" => true,
+        // Sign-Related Functions
+        "abs" => true,
+        "sign" => true
+    ];
 
     /**
      * https://www.w3.org/TR/css-values-3/#custom-idents
@@ -872,8 +905,8 @@ class Style
             // CSS3
             $d["opacity"] = 1.0;
             $d["background_size"] = ["auto", "auto"];
-            $d["transform"] = "none";
-            $d["transform_origin"] = "50% 50%";
+            $d["transform"] = [];
+            $d["transform_origin"] = ["50%", "50%", 0.0];
 
             // for @font-face
             $d["src"] = "";
@@ -1050,11 +1083,6 @@ class Style
 
         $font_size = $font_size ?? $this->__get("font_size");
 
-        $calcPattern = "/^calc\((.*)?\)$/i";
-        if (preg_match($calcPattern, $l, $calcMatches)) {
-            return $this->evaluate_func_calc($this->parse_calc($calcMatches[1]), $ref_size, $font_size);
-        }
-
         $key = "$l/$ref_size/$font_size";
 
         if (\array_key_exists($key, $cache)) {
@@ -1065,6 +1093,12 @@ class Style
         $pattern = "/^($number)([a-zA-Z%]*)?$/";
 
         if (!preg_match($pattern, $l, $matches)) {
+            $ident = self::CSS_IDENTIFIER;
+            $pattern = "/^($ident)\(.*\)$/i";
+            if (preg_match($pattern, $l)) {
+                $value = $this->evaluate_func($this->parse_func($l), $ref_size, $font_size);
+                return $cache[$key] = $value;
+            }
             return null;
         }
 
@@ -1144,20 +1178,20 @@ class Style
      * @param string $expr infix expression
      * @return array
      */
-    private function parse_calc(string $expr): array
+    private function parse_func(string $expr): array
     {
         if (substr_count($expr, '(') !== substr_count($expr, ')')) {
             return [];
         }
 
-        $expr = str_replace(['(', ')', '*', '/'], [' ( ', ' ) ', ' * ', ' / '], $expr);
+        $expr = str_replace(['(', ')', '*', '/', ','], [' ( ', ' ) ', ' * ', ' / ', ' , '], $expr);
         $expr = trim(preg_replace('/\s+/', ' ', $expr));
 
         if ($expr === '') {
             return [];
         }
 
-        $precedence = ['*' => 3, '/' => 3, '+' => 2, '-' => 2];
+        $precedence = ['*' => 3, '/' => 3, '+' => 2, '-' => 2, ',' => 1];
 
         $opStack = [];
         $queue = [];
@@ -1167,12 +1201,17 @@ class Style
         foreach ($parts as $part) {
             if ($part === '(') {
                 $opStack[] = $part;
+            } elseif (\array_key_exists(strtolower($part), self::CSS_MATH_FUNCTIONS)) {
+                $opStack[] = strtolower($part);
             } elseif ($part === ')') {
-                while (\count($opStack) > 0 && end($opStack) !== '(') {
+                while (\count($opStack) > 0 && end($opStack) !== '(' && !\array_key_exists(end($opStack), self::CSS_MATH_FUNCTIONS)) {
                     $queue[] = array_pop($opStack);
                 }
                 if (end($opStack) === '(') {
                     array_pop($opStack);
+                }
+                if (\count($opStack) > 0 && \array_key_exists(end($opStack), self::CSS_MATH_FUNCTIONS)) {
+                    $queue[] = array_pop($opStack);
                 }
             } elseif (\array_key_exists($part, $precedence)) {
                 while (\count($opStack) > 0 && end($opStack) !== '(' && $precedence[end($opStack)] >= $precedence[$part]) {
@@ -1198,18 +1237,109 @@ class Style
      * @param float|null $font_size
      * @return float|null
      */
-    private function evaluate_func_calc(array $rpn, float $ref_size = 0, ?float $font_size = null): ?float
+    private function evaluate_func(array $rpn, float $ref_size = 0, ?float $font_size = null): ?float
     {
         if (\count($rpn) === 0) {
             return null;
         }
 
-        $ops = ['*', '/', '+', '-'];
+        $ops = ['*', '/', '+', '-', ','];
 
         $stack = [];
 
         foreach ($rpn as $part) {
-            if (\in_array($part, $ops, true)) {
+            if (\array_key_exists($part, self::CSS_MATH_FUNCTIONS)) {
+                $argv = array_pop($stack);
+                if (!is_array($argv)) {
+                    $argv = [$argv];
+                }
+                $argc = \count($argv);
+                switch ($part) {
+                    case 'abs':
+                    case 'acos':
+                    case 'asin':
+                    case 'atan':
+                    case 'cos':
+                    case 'exp':
+                    case 'sin':
+                    case 'sqrt':
+                    case 'tan':
+                        if ($argc !== 1) {
+                            return null;
+                        }
+                        $stack[] = call_user_func_array($part, $argv);
+                        break;
+                    case 'atan2':
+                    case 'hypot':
+                    case 'pow':
+                        if ($argc !== 2) {
+                            return null;
+                        }
+                        $stack[] = call_user_func_array($part, $argv);
+                        break;
+                    case 'log':
+                        if ($argc === 1) {
+                            $stack[] = log($argv[0]);
+                        } elseif ($argc === 2) {
+                            $stack[] = log($argv[0], $argv[1]);
+                        } else {
+                            return null;
+                        }
+                        break;
+                    case 'max':
+                        $stack[] = max($argv);
+                        break;
+                    case 'min':
+                        $stack[] = min($argv);
+                        break;
+                    case 'mod':
+                        if ($argc !== 2 || $argv[1] === 0.0) {
+                            return null;
+                        }
+                        if ($argv[1] > 0) {
+                            $stack[] = $argv[0] - floor($argv[0] / $argv[1]) * $argv[1];
+                        } else {
+                            $stack[] = $argv[0] - ceil($argv[0] * -1 / $argv[1]) * $argv[1] * -1 ;
+                        }
+                        break;
+                    case 'rem':
+                        if ($argc !== 2 || $argv[1] === 0.0) {
+                            return null;
+                        }
+                        $stack[] = $argv[0] - (intval($argv[0] / $argv[1]) * $argv[1]);
+                        break;
+                    case 'round':
+                        if ($argc !== 2 || $argv[1] === 0.0) {
+                            return null;
+                        }
+                        if ($argv[0] >= 0) {
+                            $stack[] = round($argv[0] / $argv[1], 0, PHP_ROUND_HALF_UP) * $argv[1];
+                        } else {
+                            $stack[] = round($argv[0] / $argv[1], 0, PHP_ROUND_HALF_DOWN) * $argv[1];
+                        }
+                        break;
+                    case 'calc':
+                        if ($argc !== 1) {
+                            return null;
+                        }
+                        $stack[] = $argv[0];
+                        break;
+                    case 'clamp':
+                        if ($argc !== 3) {
+                            return null;
+                        }
+                        $stack[] = max($argv[0], min($argv[1], $argv[2]));
+                        break;
+                    case 'sign':
+                        if ($argc !== 1) {
+                            return null;
+                        }
+                        $stack[] = $argv[0] == 0 ? 0.0 : ($argv[0] / abs($argv[0]));
+                        break;
+                    default:
+                        return null;
+                }
+            } elseif (\in_array($part, $ops, true)) {
                 $rightValue = array_pop($stack);
                 $leftValue = array_pop($stack);
                 switch ($part) {
@@ -1227,6 +1357,14 @@ class Style
                         break;
                     case '-':
                         $stack[] = $leftValue - $rightValue;
+                        break;
+                    case ',':
+                        if (is_array($leftValue)) {
+                            $leftValue[] = $rightValue;
+                            $stack[] = $leftValue;
+                        } else {
+                            $stack[] = [$leftValue, $rightValue];
+                        }
                         break;
                 }
             } else {
@@ -2469,6 +2607,18 @@ class Style
      * @param string $val
      * @return float|null
      */
+    protected function compute_number(string $val): ?float
+    {
+        $number = self::CSS_NUMBER;
+        return preg_match("/^$number$/", $val)
+            ? (float) $val
+            : null;
+    }
+
+    /**
+     * @param string $val
+     * @return float|null
+     */
     protected function compute_length(string $val): ?float
     {
         return strpos($val, "%") === false
@@ -2577,6 +2727,104 @@ class Style
     {
         $val = strtolower($val);
         return \in_array($val, self::BORDER_STYLES, true) ? $val : null;
+    }
+
+    /**
+     * @param string $val
+     * @return float|null
+     *
+     * @link https://www.w3.org/TR/css3-values/#angles
+     */
+    protected function compute_angle_or_zero(string $val): ?float
+    {
+        $number = self::CSS_NUMBER;
+        $pattern = "/^($number)(deg|grad|rad|turn)?$/i";
+
+        if (!preg_match($pattern, $val, $matches)) {
+            return null;
+        }
+
+        $v = (float) $matches[1];
+        $unit = strtolower($matches[2] ?? "");
+
+        switch ($unit) {
+            case "deg":
+                return $v;
+            case "grad":
+                return $v * 0.9;
+            case "rad":
+                return rad2deg($v);
+            case "turn":
+                return $v * 360;
+            default:
+                return $v === 0.0 ? $v : null;
+        }
+    }
+
+    /**
+     * Common computation logic for `background-position` and `transform-origin`.
+     *
+     * @param string $v1
+     * @param string $v2
+     *
+     * @return (float|string|null)[]
+     */
+    protected function computeBackgroundPositionTransformOrigin(string $v1, string $v2): array
+    {
+        $x = null;
+        $y = null;
+
+        switch ($v1) {
+            case "left":
+                $x = 0.0;
+                break;
+            case "right":
+                $x = "100%";
+                break;
+            case "top":
+                $y = 0.0;
+                break;
+            case "bottom":
+                $y = "100%";
+                break;
+            case "center":
+                if ($v2 === "left" || $v2 === "right") {
+                    $y = "50%";
+                } else {
+                    $x = "50%";
+                }
+                break;
+            default:
+                $x = $this->compute_length_percentage($v1);
+                break;
+        }
+
+        switch ($v2) {
+            case "left":
+                $x = 0.0;
+                break;
+            case "right":
+                $x = "100%";
+                break;
+            case "top":
+                $y = 0.0;
+                break;
+            case "bottom":
+                $y = "100%";
+                break;
+            case "center":
+                if ($v1 === "top" || $v1 === "bottom") {
+                    $x = "50%";
+                } else {
+                    $y = "50%";
+                }
+                break;
+            default:
+                $y = $this->compute_length_percentage($v2);
+                break;
+        }
+
+        return [$x, $y];
     }
 
     /**
@@ -2740,89 +2988,14 @@ class Style
         $val = strtolower($val);
         $parts = $this->parse_property_value($val);
         $count = \count($parts);
-        $x = null;
-        $y = null;
 
-        if ($count === 1) {
-            switch ($parts[0]) {
-                case "left":
-                    $x = 0.0;
-                    $y = "50%";
-                    break;
-                case "right":
-                    $x = "100%";
-                    $y = "50%";
-                    break;
-                case "top":
-                    $x = "50%";
-                    $y = 0.0;
-                    break;
-                case "bottom":
-                    $x = "50%";
-                    $y = "100%";
-                    break;
-                case "center":
-                    $x = "50%";
-                    $y = "50%";
-                    break;
-                default:
-                    $x = $this->compute_length_percentage($parts[0]);
-                    $y = "50%";
-                    break;
-            }
-        } elseif ($count === 2) {
-            switch ($parts[0]) {
-                case "left":
-                    $x = 0.0;
-                    break;
-                case "right":
-                    $x = "100%";
-                    break;
-                case "top":
-                    $y = 0.0;
-                    break;
-                case "bottom":
-                    $y = "100%";
-                    break;
-                case "center":
-                    if ($parts[1] === "left" || $parts[1] === "right") {
-                        $y = "50%";
-                    } else {
-                        $x = "50%";
-                    }
-                    break;
-                default:
-                    $x = $this->compute_length_percentage($parts[0]);
-                    break;
-            }
-
-            switch ($parts[1]) {
-                case "left":
-                    $x = 0.0;
-                    break;
-                case "right":
-                    $x = "100%";
-                    break;
-                case "top":
-                    $y = 0.0;
-                    break;
-                case "bottom":
-                    $y = "100%";
-                    break;
-                case "center":
-                    if ($parts[0] === "top" || $parts[0] === "bottom") {
-                        $x = "50%";
-                    } else {
-                        $y = "50%";
-                    }
-                    break;
-                default:
-                    $y = $this->compute_length_percentage($parts[1]);
-                    break;
-            }
-        } else {
+        if ($count === 0 || $count > 2) {
             return null;
         }
+
+        $v1 = $parts[0];
+        $v2 = $parts[1] ?? "center";
+        [$x, $y] = $this->computeBackgroundPositionTransformOrigin($v1, $v2);
 
         if ($x === null || $y === null) {
             return null;
@@ -2850,8 +3023,9 @@ class Style
         }
 
         $parts = $this->parse_property_value($val);
+        $count = \count($parts);
 
-        if (\count($parts) > 2) {
+        if ($count === 0 || $count > 2) {
             return null;
         }
 
@@ -3483,7 +3657,7 @@ class Style
      * @param string   $value  `width || style || color`
      * @param string[] $styles The list of border styles to accept.
      *
-     * @return array Array of `[width, style, color]`, or `null` if the declaration is invalid.
+     * @return string[]|null Array of `[width, style, color]`, or `null` if the declaration is invalid.
      */
     protected function parse_border_side(string $value, array $styles = self::BORDER_STYLES): ?array
     {
@@ -3727,9 +3901,10 @@ class Style
     protected function _compute_border_spacing(string $val)
     {
         $val = strtolower($val);
-        $parts = preg_split("/\s+/", $val);
+        $parts = $this->parse_property_value($val);
+        $count = \count($parts);
 
-        if (\count($parts) > 2) {
+        if ($count === 0 || $count > 2) {
             return null;
         }
 
@@ -4123,159 +4298,185 @@ class Style
     }
 
     /**
-     * @param string $computed
-     * @return array
-     *
      * @link https://www.w3.org/TR/css-transforms-1/#transform-property
      */
-    protected function _get_transform($computed)
+    protected function _compute_transform(string $val)
     {
-        //TODO: should be handled in setter (lengths set to absolute)
+        $val = strtolower($val);
 
-        $number = "\s*([^,\s]+)\s*";
-        $tr_value = "\s*([^,\s]+)\s*";
-        $angle = "\s*([^,\s]+(?:deg|rad)?)\s*";
-
-        if (!preg_match_all("/[a-z]+\([^\)]+\)/i", $computed, $parts, PREG_SET_ORDER)) {
+        if ($val === "none") {
             return [];
         }
 
-        $functions = [
-            //"matrix"     => "\($number,$number,$number,$number,$number,$number\)",
-
-            "translate" => "\($tr_value(?:,$tr_value)?\)",
-            "translateX" => "\($tr_value\)",
-            "translateY" => "\($tr_value\)",
-
-            "scale" => "\($number(?:,$number)?\)",
-            "scaleX" => "\($number\)",
-            "scaleY" => "\($number\)",
-
-            "rotate" => "\($angle\)",
-
-            "skew" => "\($angle(?:,$angle)?\)",
-            "skewX" => "\($angle\)",
-            "skewY" => "\($angle\)",
-        ];
-
+        $parts = $this->parse_property_value($val);
         $transforms = [];
 
+        if ($parts === []) {
+            return null;
+        }
+
         foreach ($parts as $part) {
-            $t = $part[0];
+            if (!preg_match("/^([a-z]+)\((.+)\)$/s", $part, $matches)) {
+                return null;
+            }
 
-            foreach ($functions as $name => $pattern) {
-                if (preg_match("/$name\s*$pattern/i", $t, $matches)) {
-                    $values = \array_slice($matches, 1);
+            $name = $matches[1];
+            $arguments = trim($matches[2]);
+            $values = $this->parse_property_value($arguments);
+            $values = array_values(array_filter($values, function ($v) {
+                return $v !== ",";
+            }));
+            $count = \count($values);
 
-                    switch ($name) {
-                        // <angle> units
-                        case "rotate":
-                        case "skew":
-                        case "skewX":
-                        case "skewY":
+            if ($count === 0) {
+                return null;
+            }
 
-                            foreach ($values as $i => $value) {
-                                if (strpos($value, "rad")) {
-                                    $values[$i] = rad2deg((float) $value);
-                                } else {
-                                    $values[$i] = (float) $value;
-                                }
-                            }
+            switch ($name) {
+                // case "matrix":
+                //     if ($count !== 6) {
+                //         return null;
+                //     }
 
-                            switch ($name) {
-                                case "skew":
-                                    if (!isset($values[1])) {
-                                        $values[1] = 0;
-                                    }
-                                    break;
-                                case "skewX":
-                                    $name = "skew";
-                                    $values = [$values[0], 0];
-                                    break;
-                                case "skewY":
-                                    $name = "skew";
-                                    $values = [0, $values[0]];
-                                    break;
-                            }
-                            break;
+                //     $values = array_map([$this, "compute_number"], $values);
+                //     break;
 
-                        // <translation-value> units
-                        case "translate":
-                            $values[0] = $this->length_in_pt($values[0], (float)$this->length_in_pt($this->width));
-
-                            if (isset($values[1])) {
-                                $values[1] = $this->length_in_pt($values[1], (float)$this->length_in_pt($this->height));
-                            } else {
-                                $values[1] = 0;
-                            }
-                            break;
-
-                        case "translateX":
-                            $name = "translate";
-                            $values = [$this->length_in_pt($values[0], (float)$this->length_in_pt($this->width)), 0];
-                            break;
-
-                        case "translateY":
-                            $name = "translate";
-                            $values = [0, $this->length_in_pt($values[0], (float)$this->length_in_pt($this->height))];
-                            break;
-
-                        // <number> units
-                        case "scale":
-                            if (!isset($values[1])) {
-                                $values[1] = $values[0];
-                            }
-                            break;
-
-                        case "scaleX":
-                            $name = "scale";
-                            $values = [$values[0], 1.0];
-                            break;
-
-                        case "scaleY":
-                            $name = "scale";
-                            $values = [1.0, $values[0]];
-                            break;
+                // <length-percentage> units
+                case "translate":
+                    if ($count > 2) {
+                        return null;
                     }
 
-                    $transforms[] = [
-                        $name,
-                        $values,
+                    $values = [
+                        $this->compute_length_percentage($values[0]),
+                        isset($values[1]) ? $this->compute_length_percentage($values[1]) : 0.0
                     ];
+                    break;
+
+                case "translatex":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "translate";
+                    $values = [$this->compute_length_percentage($values[0]), 0.0];
+                    break;
+
+                case "translatey":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "translate";
+                    $values = [0.0, $this->compute_length_percentage($values[0])];
+                    break;
+
+                // <number> units
+                case "scale":
+                    if ($count > 2) {
+                        return null;
+                    }
+
+                    $v0 = $this->compute_number($values[0]);
+                    $v1 = isset($values[1]) ? $this->compute_number($values[1]) : $v0;
+                    $values = [$v0, $v1];
+                    break;
+
+                case "scalex":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "scale";
+                    $values = [$this->compute_number($values[0]), 1.0];
+                    break;
+
+                case "scaley":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "scale";
+                    $values = [1.0, $this->compute_number($values[0])];
+                    break;
+
+                // <angle> units
+                case "rotate":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $values = [$this->compute_angle_or_zero($values[0])];
+                    break;
+
+                case "skew":
+                    if ($count > 2) {
+                        return null;
+                    }
+
+                    $values = [
+                        $this->compute_angle_or_zero($values[0]),
+                        isset($values[1]) ? $this->compute_angle_or_zero($values[1]) : 0.0
+                    ];
+                    break;
+
+                case "skewx":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "skew";
+                    $values = [$this->compute_angle_or_zero($values[0]), 0.0];
+                    break;
+
+                case "skewy":
+                    if ($count > 1) {
+                        return null;
+                    }
+
+                    $name = "skew";
+                    $values = [0.0, $this->compute_angle_or_zero($values[0])];
+                    break;
+
+                default:
+                    return null;
+            }
+
+            foreach ($values as $v) {
+                if ($v === null) {
+                    return null;
                 }
             }
+
+            $transforms[] = [$name, $values];
         }
 
         return $transforms;
     }
 
     /**
-     * @param string $computed
-     * @return array
-     *
      * @link https://www.w3.org/TR/css-transforms-1/#transform-origin-property
      */
-    protected function _get_transform_origin($computed)
+    protected function _compute_transform_origin(string $val)
     {
-        //TODO: should be handled in setter
+        $val = strtolower($val);
+        $parts = $this->parse_property_value($val);
+        $count = \count($parts);
 
-        $values = preg_split("/\s+/", $computed);
-
-        $values = array_map(function ($value) {
-            if (\in_array($value, ["top", "left"], true)) {
-                return 0;
-            } elseif (\in_array($value, ["bottom", "right"], true)) {
-                return "100%";
-            } else {
-                return $value;
-            }
-        }, $values);
-
-        if (!isset($values[1])) {
-            $values[1] = $values[0];
+        if ($count === 0 || $count > 3) {
+            return null;
         }
 
-        return $values;
+        $v1 = $parts[0];
+        $v2 = $parts[1] ?? "center";
+        [$x, $y] = $this->computeBackgroundPositionTransformOrigin($v1, $v2);
+        $z = $count === 3 ? $this->compute_length($parts[2]) : 0.0;
+
+        if ($x === null || $y === null || $z === null) {
+            return null;
+        }
+
+        return [$x, $y, $z];
     }
 
     /**
