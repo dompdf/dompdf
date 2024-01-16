@@ -1586,7 +1586,7 @@ class Style
     public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
         // Skip some checks for CSS custom properties.
-        if (!(\strpos($prop, '--') === 0)) {
+        if (!$this->is_custom_property($prop)) {
 
             $prop = str_replace("-", "_", $prop);
 
