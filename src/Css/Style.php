@@ -1012,6 +1012,11 @@ class Style
         return $this->_stylesheet;
     }
 
+  public function is_custom_property(string $prop): bool
+  {
+      return \substr($prop, 0, 2) === "--";
+  }
+
     public function is_absolute(): bool
     {
         $position = $this->__get("position");
@@ -1443,12 +1448,12 @@ class Style
                     !isset($this->_props[$prop])
                     && (
                         isset(self::$_inherited[$prop])
-                        || substr($prop, 0, 2) === "--"
+                        || $this->is_custom_property($prop)
                     )
                 ) {
                     $parent_val = $parent->computed($prop);
 
-                    if (substr($prop, 0, 2) === "--") {
+                    if ($this->is_custom_property($prop)) {
                         $this->set_prop($prop, $parent_val);
                     } else {
                         $this->_props[$prop] = $parent_val;
@@ -1460,7 +1465,7 @@ class Style
         }
 
         foreach ($this->_props as $prop => $val) {
-            if ($val === "inherit" && substr($prop, 0, 2) !== "--") {
+            if ($val === "inherit" && !$this->is_custom_property($prop)) {
                 if ($parent && isset($parent->_props[$prop])) {
                     $parent_val = $parent->computed($prop);
 
@@ -1496,7 +1501,7 @@ class Style
                 $this->_important_props[$prop] = true;
             }
 
-            if (substr($prop, 0, 2) === "--") {
+            if ($this->is_custom_property($prop)) {
                 $this->set_prop($prop, $val, $important);
             } else {
                 $this->_props[$prop] = $val;
@@ -1521,7 +1526,7 @@ class Style
 
         // re-evalutate CSS variables
         foreach (array_keys($this->_props) as $prop) {
-            if (substr($prop, 0, 2) !== "--") {
+            if (!$this->is_custom_property($prop)) {
                 continue;
             }
             $this->set_prop($prop, $this->_props[$prop], isset($this->_important_props[$prop]));
@@ -1581,7 +1586,7 @@ class Style
     public function set_prop(string $prop, $val, bool $important = false, bool $clear_dependencies = true): void
     {
         // Skip some checks for CSS custom properties.
-        if (substr($prop, 0, 2) !== "--") {
+        if (!(\strpos($prop, '--') === 0)) {
 
             $prop = str_replace("-", "_", $prop);
 
@@ -1684,17 +1689,17 @@ class Style
 
             // https://www.w3.org/TR/css-cascade-3/#inherit-initial
             if ($val === "unset") {
-                $val = isset(self::$_inherited[$prop]) || substr($prop, 0, 2) === "--" ? "inherit" : "initial";
+                $val = isset(self::$_inherited[$prop]) || $this->is_custom_property($prop) ? "inherit" : "initial";
             }
 
             // https://www.w3.org/TR/css-cascade-3/#valdef-all-initial
-            if ($val === "initial" && substr($prop, 0, 2) !== "--") {
+            if ($val === "initial" && !$this->is_custom_property($prop)) {
                 $val = self::$_defaults[$prop];
             }
 
             // Always set the specified value for properties that use CSS variables
             // so that an invalid initial value does not prevent re-computation later.
-            if (\is_string($val) && strpos($val, 'var(') !== false) {
+            if (\is_string($val) && \preg_match("/". self::CSS_VAR . "/", $val)) {
                 $this->_props[$prop] = $val;
             }
 
@@ -1710,13 +1715,13 @@ class Style
             $this->_props_used[$prop] = null;
 
             //TODO: this should be a directed dependency map
-            if (substr($prop, 0, 2) === "--" && !\in_array($prop, $this->_prop_stack, true)) {
+            if ($this->is_custom_property($prop) && !\in_array($prop, $this->_prop_stack, true)) {
                 array_push($this->_prop_stack, $prop);
                 $specified_props = array_filter($this->_props, function($key) {
                     return \array_key_exists($key, $this->_props_specified);
                 }, ARRAY_FILTER_USE_KEY); // copy existing props filtered by those set explicitly before parsing vars
                 foreach ($specified_props as $specified_prop => $specified_value) {
-                    if (substr($specified_prop, 0, 2) !== "--" || strpos($specified_value, "var($prop") !== false) {
+                    if (!$this->is_custom_property($specified_prop) || strpos($specified_value, "var($prop") !== false) {
                         $this->set_prop($specified_prop, $specified_value, isset($this->_important_props[$specified_prop]), true);
                         if (isset(self::$_props_shorthand[$specified_prop])) {
                             foreach (self::$_props_shorthand[$specified_prop] as $sub_prop) {
@@ -1760,7 +1765,7 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == "--") {
+        if (!isset(self::$_defaults[$prop]) && !$this->is_custom_property($prop)) {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1789,7 +1794,7 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == "--") {
+        if (!isset(self::$_defaults[$prop]) && !$this->is_custom_property($prop)) {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1856,7 +1861,7 @@ class Style
             $prop = self::$_props_alias[$prop];
         }
 
-        if (!isset(self::$_defaults[$prop]) && !substr($prop, 0, 2) == "--") {
+        if (!isset(self::$_defaults[$prop]) && !$this->is_custom_property($prop)) {
             throw new Exception("'$prop' is not a recognized CSS property.");
         }
 
@@ -1945,14 +1950,14 @@ class Style
     protected function computed(string $prop)
     {
         if (!\array_key_exists($prop, $this->_props_computed)) {
-            if (!\array_key_exists($prop, $this->_props) && substr($prop, 0, 2) === "--") {
+            if (!\array_key_exists($prop, $this->_props) && $this->is_custom_property($prop)) {
                 return null;
             }
             $val = $this->_props[$prop] ?? self::$_defaults[$prop];
             $computed = $this->compute_prop($prop, $val);
 
             if ($computed === null) {
-                if (substr($prop, 0, 2) === "--") {
+                if ($this->is_custom_property($prop)) {
                     return null;
                 }
                 $computed = $this->compute_prop($prop, self::$_defaults[$prop]);
