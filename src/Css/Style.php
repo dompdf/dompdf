@@ -1012,10 +1012,10 @@ class Style
         return $this->_stylesheet;
     }
 
-  public function is_custom_property(string $prop): bool
-  {
-      return \substr($prop, 0, 2) === "--";
-  }
+    public function is_custom_property(string $prop): bool
+    {
+        return \substr($prop, 0, 2) === "--";
+    }
 
     public function is_absolute(): bool
     {
