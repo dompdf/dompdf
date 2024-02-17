@@ -1190,7 +1190,7 @@ class Options
             return [false, "Remote file requested, but remote file download is disabled."];
         }
 
-        if (is_array($this->allowedRemoteHosts)) {
+        if (is_array($this->allowedRemoteHosts) && count($this->allowedRemoteHosts) > 0) {
             $host = parse_url($uri, PHP_URL_HOST);
 
             if (!in_array($host, $this->allowedRemoteHosts, true)) {
