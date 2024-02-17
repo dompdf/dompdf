@@ -1053,6 +1053,15 @@ class Options
      */
     public function setAllowedRemoteHosts($allowedRemoteHosts)
     {
+        if (is_array($allowedRemoteHosts)) {
+            // Set hosts to lowercase
+            foreach ($allowedRemoteHosts as &$host) {
+                $host = mb_strtolower($host);
+            }
+
+            unset($host);
+        }
+
         $this->allowedRemoteHosts = $allowedRemoteHosts;
         return $this;
     }
@@ -1192,6 +1201,7 @@ class Options
 
         if (is_array($this->allowedRemoteHosts) && count($this->allowedRemoteHosts) > 0) {
             $host = parse_url($uri, PHP_URL_HOST);
+            $host = mb_strtolower($host);
 
             if (!in_array($host, $this->allowedRemoteHosts, true)) {
                 return [false, "Remote host is not in allowed list: " . $host];
