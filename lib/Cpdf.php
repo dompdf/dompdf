@@ -77,6 +77,11 @@ class Cpdf
     public $signatureMaxLen = 5000;
 
     /**
+     * @var bool Is PDF/A compliance mode enabled
+     */
+    public $pdfa = false;
+
+    /**
      * @var array Array carrying information about the fonts that the system currently knows about
      * Used to ensure that a font is not loaded twice, among other things
      */
@@ -630,6 +635,36 @@ class Cpdf
 
                 break;
 
+            case 'outputIntents':
+                $this->numObj++;
+
+                $o['info']['outputIntents'] = [
+                    'iccProfileName' => $options['iccProfileName'],
+                    'destOutputProfile' => $this->numObj,
+                ];
+
+                $this->o_contents($this->numObj, 'new');
+                $this->objects[$this->numObj]['c'] = $options['iccProfileData'];
+                $this->o_contents($this->numObj, 'add', [
+                    'N' => $options['colorComponentsCount'],
+                ]);
+
+                break;
+
+            case 'metadata':
+                $this->numObj++;
+
+                $o['info']['metadata'] = $this->numObj;
+
+                $this->o_contents($this->numObj, 'new');
+                $this->objects[$this->numObj]['c'] = $options;
+                $this->o_contents($this->numObj, 'add', [
+                    'Type' => '/Metadata',
+                    'Subtype' => '/XML',
+                ]);
+
+                break;
+
             case 'out':
                 $res = "\n$id 0 obj\n<< /Type /Catalog";
 
@@ -657,6 +692,16 @@ class Cpdf
 
                         case 'acroform':
                             $res .= "\n/AcroForm $v 0 R";
+                            break;
+
+                        case 'metadata':
+                            $res .= "\n/Metadata $v 0 R";
+                            break;
+
+                        case 'outputIntents':
+                            $res .= "\n/OutputIntents [<< /Type /OutputIntent /S /GTS_PDFA1 ";
+                            $res .= "/OutputConditionIdentifier (" . $v['iccProfileName'] . ") /Info (" . $v['iccProfileName'] . ") ";
+                            $res .= "/DestOutputProfile " . $v['destOutputProfile'] . " 0 R >>]";
                             break;
                     }
                 }
@@ -2031,6 +2076,48 @@ EOT;
                     }
                 }
 
+                // PDF/A does not allow inheriting Resources, we must explicitly define them on each page
+                if ($this->pdfa) {
+                    $pagesInfo = $this->objects[$this->currentNode]['info'];
+
+                    if ((isset($pagesInfo['fonts']) && count($pagesInfo['fonts'])) ||
+                        isset($pagesInfo['procset']) ||
+                        (isset($pagesInfo['extGStates']) && count($pagesInfo['extGStates']))
+                    ) {
+                        $res .= "\n/Resources <<";
+    
+                        if (isset($pagesInfo['procset'])) {
+                            $res .= "\n/ProcSet " . $pagesInfo['procset'] . " 0 R";
+                        }
+    
+                        if (isset($pagesInfo['fonts']) && count($pagesInfo['fonts'])) {
+                            $res .= "\n/Font << ";
+                            foreach ($pagesInfo['fonts'] as $finfo) {
+                                $res .= "\n/F" . $finfo['fontNum'] . " " . $finfo['objNum'] . " 0 R";
+                            }
+                            $res .= "\n>>";
+                        }
+    
+                        if (isset($pagesInfo['xObjects']) && count($pagesInfo['xObjects'])) {
+                            $res .= "\n/XObject << ";
+                            foreach ($pagesInfo['xObjects'] as $finfo) {
+                                $res .= "\n/" . $finfo['label'] . " " . $finfo['objNum'] . " 0 R";
+                            }
+                            $res .= "\n>>";
+                        }
+    
+                        if (isset($pagesInfo['extGStates']) && count($pagesInfo['extGStates'])) {
+                            $res .= "\n/ExtGState << ";
+                            foreach ($pagesInfo['extGStates'] as $gstate) {
+                                $res .= "\n/GS" . $gstate['stateNum'] . " " . $gstate['objNum'] . " 0 R";
+                            }
+                            $res .= "\n>>";
+                        }
+    
+                        $res .= "\n>>";
+                    }
+                }
+
                 $res .= "\n>>\nendobj";
 
                 return $res;
@@ -2976,6 +3063,135 @@ EOT;
     }
 
     /**
+     * Enable PDF/A compliance mode
+     */
+    public function enablePdfACompliance()
+    {
+        $this->pdfa = true;
+
+        $this->o_catalog($this->catalogId, 'outputIntents', [
+            'iccProfileData' => file_get_contents(__DIR__ . '/res/sRGB2014.icc'),
+            'iccProfileName' => 'sRGB2014.icc',
+            'colorComponentsCount' => '3',
+        ]);
+    }
+
+    /**
+     * Generate the Metadata XMP XML for PDF/A
+     *
+     * @return string
+     */
+    function getXmpMetadata()
+    {
+        $md = <<<EOT
+<?xpacket begin="ï»¿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">
+<pdfaid:part>3</pdfaid:part>
+<pdfaid:conformance>B</pdfaid:conformance>
+</rdf:Description>
+
+<rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
+EOT;
+
+        $info = $this->objects[$this->infoObject]["info"];
+
+        if (isset($info['Title'])) {
+            $md .= "\n<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">";
+            $md .= htmlspecialchars($info['Title'], ENT_XML1, 'UTF-8');
+            $md .= "</rdf:li></rdf:Alt></dc:title>";
+        }
+
+        if (isset($info['Author'])) {
+            $md .= "\n<dc:creator><rdf:Seq><rdf:li>";
+            $md .= htmlspecialchars($info['Author'], ENT_XML1, 'UTF-8');
+            $md .= "</rdf:li></rdf:Seq></dc:creator>";
+        }
+
+        if (isset($info['Subject'])) {
+            $md .= "\n<dc:description><rdf:Alt><rdf:li xml:lang=\"x-default\">";
+            $md .= htmlspecialchars($info['Subject'], ENT_XML1, 'UTF-8');
+            $md .= "</rdf:li></rdf:Alt></dc:description>";
+        }
+
+        $md .= "\n</rdf:Description>";
+        $md .= "\n<rdf:Description xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\" rdf:about=\"\">";
+
+        if (isset($info['Producer'])) {
+            $md .= "\n<pdf:Producer>";
+            $md .= htmlspecialchars($info['Producer'], ENT_XML1, 'UTF-8');
+            $md .= "</pdf:Producer>";
+        }
+
+        if (isset($info['Keywords'])) {
+            $md .= "\n<pdf:Keywords>";
+            $md .= htmlspecialchars($info['Keywords'], ENT_XML1, 'UTF-8');
+            $md .= "</pdf:Keywords>";
+        }
+
+        $md .= "\n</rdf:Description>";
+        $md .= "\n<rdf:Description xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" rdf:about=\"\">";
+
+        if (isset($info['Creator'])) {
+            $md .= "\n<xmp:CreatorTool>";
+            $md .= htmlspecialchars($info['Creator'], ENT_XML1, 'UTF-8');
+            $md .= "</xmp:CreatorTool>";
+        }
+
+        if (isset($info['CreationDate']) && $date = $this->parsePdfDate($info['CreationDate'])) {
+            $md .= "\n<xmp:CreateDate>";
+            $md .= $date->format("Y-m-d\TH:i:sP");
+            $md .= "</xmp:CreateDate>";
+        }
+
+        if (isset($info['ModDate']) && $date = $this->parsePdfDate($info['ModDate'])) {
+            $md .= "\n<xmp:ModifyDate>";
+            $md .= $date->format("Y-m-d\TH:i:sP");
+            $md .= "</xmp:ModifyDate>";
+        }
+
+        $md .= "\n</rdf:Description>\n</rdf:RDF>\n</x:xmpmeta>\n<?xpacket end=\"w\"?>";
+
+        return $md;
+    }
+
+    /**
+     * Parse a PDF formated date
+     *
+     * @param $string
+     * @return \DateTime|false
+     */
+    function parsePdfDate($date)
+    {
+        $formats = [
+            "Y",
+            "Ym",
+            "Ymd",
+            "YmdH",
+            "YmdHi",
+            "YmdHis",
+            "YmdHisO",
+        ];
+
+        $date = substr($date, 2);
+        $date = str_replace("'", "", $date);
+
+        if ($i = strpos($date, "Z")) {
+            $date = substr($date, 0, $i + 1);
+        }
+
+        foreach ($formats as $format) {
+            $parsedDate = \DateTime::createFromFormat($format, $date, new \DateTimeZone("UTC"));
+
+            if ($parsedDate) return $parsedDate;
+        }
+
+        return false;
+    }
+
+    /**
      * ARC4 functions
      * A series of function to implement ARC4 encoding in PHP
      */
@@ -3184,6 +3400,10 @@ EOT;
             $this->o_indirect_references($this->indirectReferenceId, 'add', ['JavaScript' => $js_id]);
         }
 
+        if ($this->pdfa) {
+            $this->o_catalog($this->catalogId, 'metadata', $this->getXmpMetadata());
+        }
+
         if ($this->fileIdentifier === '') {
             $tmp = implode('', $this->objects[$this->infoObject]['info']);
             $this->fileIdentifier = md5('DOMPDF' . __FILE__ . $tmp . microtime() . mt_rand());
@@ -3198,6 +3418,12 @@ EOT;
 
         $xref = [];
         $content = '%PDF-' . self::PDF_VERSION;
+
+        if ($this->pdfa) {
+            // Force binary mode with 4 random bytes above 127
+            $content .= "\n%" . chr(rand(128, 256)) . chr(rand(128, 256)) . chr(rand(128, 256)) . chr(rand(128, 256));
+        }
+
         $pos = mb_strlen($content, '8bit');
 
         // pre-process o_font objects before output of all objects
