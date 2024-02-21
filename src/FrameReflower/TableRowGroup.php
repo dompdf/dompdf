@@ -36,6 +36,8 @@ class TableRowGroup extends AbstractFrameReflower
         /** @var TableRowGroupFrameDecorator */
         $frame = $this->_frame;
         $page = $frame->get_root();
+        $parent = $frame->get_parent();
+        $dompdf_generated = $parent->get_frame()->get_node()->nodeName === "dompdf_generated";
 
         // Counters and generated content
         $this->_set_content();
@@ -53,6 +55,10 @@ class TableRowGroup extends AbstractFrameReflower
             if ($page->is_full()) {
                 break;
             }
+        }
+
+        if ($page->is_full() && $dompdf_generated && $frame->get_parent() === null) {
+            return;
         }
 
         $table = TableFrameDecorator::find_parent_table($frame);
