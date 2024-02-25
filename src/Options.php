@@ -199,6 +199,20 @@ class Options
     private $isRemoteEnabled = false;
 
     /**
+     * List of allowed remote hosts
+     *
+     * Each value of the array must be a valid hostname.
+     *
+     * This will be used to filter which resources can be loaded in combination with
+     * isRemoteEnabled. If isRemoteEnabled is FALSE, then this will have no effect.
+     *
+     * Leave to NULL to allow any remote host.
+     *
+     * @var array|null
+     */
+    private $allowedRemoteHosts = null;
+
+    /**
      * Enable inline JavaScript
      *
      * If this setting is set to true then DOMPDF will automatically insert
@@ -379,6 +393,8 @@ class Options
                 $this->setIsPhpEnabled($value);
             } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
                 $this->setIsRemoteEnabled($value);
+            } elseif ($key === 'allowedRemoteHosts' || $key === 'allowed_remote_hosts') {
+                $this->setAllowedRemoteHosts($value);
             } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
                 $this->setIsJavascriptEnabled($value);
             } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
@@ -446,6 +462,8 @@ class Options
             return $this->getIsPhpEnabled();
         } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
             return $this->getIsRemoteEnabled();
+        } elseif ($key === 'allowedRemoteHosts' || $key === 'allowed_remote_hosts') {
+            return $this->getAllowedProtocols();
         } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
             return $this->getIsJavascriptEnabled();
         } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
@@ -1030,6 +1048,33 @@ class Options
     }
 
     /**
+     * @param array|null $allowedRemoteHosts
+     * @return $this
+     */
+    public function setAllowedRemoteHosts($allowedRemoteHosts)
+    {
+        if (is_array($allowedRemoteHosts)) {
+            // Set hosts to lowercase
+            foreach ($allowedRemoteHosts as &$host) {
+                $host = mb_strtolower($host);
+            }
+
+            unset($host);
+        }
+
+        $this->allowedRemoteHosts = $allowedRemoteHosts;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getAllowedRemoteHosts()
+    {
+        return $this->allowedRemoteHosts;
+    }
+
+    /**
      * @param string $logOutputFile
      * @return $this
      */
@@ -1152,6 +1197,15 @@ class Options
 
         if (!$this->isRemoteEnabled) {
             return [false, "Remote file requested, but remote file download is disabled."];
+        }
+
+        if (is_array($this->allowedRemoteHosts) && count($this->allowedRemoteHosts) > 0) {
+            $host = parse_url($uri, PHP_URL_HOST);
+            $host = mb_strtolower($host);
+
+            if (!in_array($host, $this->allowedRemoteHosts, true)) {
+                return [false, "Remote host is not in allowed list: " . $host];
+            }
         }
 
         return [true, null];
