@@ -866,6 +866,9 @@ class Options
      */
     public function setFontCache($fontCache)
     {
+        if (!is_dir($fontCache) && !mkdir($fontCache)) {
+            trigger_error("Unable to create fontCache - a valid value should be specified.", E_USER_WARNING);
+        }
         $this->fontCache = $fontCache;
         return $this;
     }
@@ -884,6 +887,9 @@ class Options
      */
     public function setFontDir($fontDir)
     {
+        if (!is_dir($fontDir) && !mkdir($fontDir)) {
+            trigger_error("Unable to create fontDir - a valid value should be specified.", E_USER_WARNING);
+        }
         $this->fontDir = $fontDir;
         return $this;
     }
@@ -1098,6 +1104,9 @@ class Options
      */
     public function setTempDir($tempDir)
     {
+        if (!is_dir($tempDir) && !mkdir($tempDir)) {
+            trigger_error("Unable to create tempDir - a valid value should be specified.", E_USER_WARNING);
+        }
         $this->tempDir = $tempDir;
         return $this;
     }
