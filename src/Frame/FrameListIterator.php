@@ -1,9 +1,11 @@
 <?php
+
 /**
  * @package dompdf
  * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
+
 namespace Dompdf\Frame;
 
 use Iterator;
@@ -64,17 +66,17 @@ class FrameListIterator implements Iterator
     }
 
     /**
-     * @return int
+     * @return mixed
      */
-    public function key(): int
+    public function key(): mixed
     {
         return $this->num;
     }
 
     /**
-     * @return Frame|null
+     * @return mixed
      */
-    public function current(): ?Frame
+    public function current(): mixed
     {
         return $this->cur;
     }
