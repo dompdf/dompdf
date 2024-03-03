@@ -64,17 +64,17 @@ class FrameListIterator implements Iterator
     }
 
     /**
-     * @return int
+     * @return mixed
      */
-    public function key(): int
+    public function key(): mixed
     {
         return $this->num;
     }
 
     /**
-     * @return Frame|null
+     * @return mixed
      */
-    public function current(): ?Frame
+    public function current(): mixed
     {
         return $this->cur;
     }
