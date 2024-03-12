@@ -3540,7 +3540,7 @@ EOT;
             $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
         }
 
-        if (!isset($this->fonts[$fontName])) {
+        if (!isset($this->fonts[$fontName]) && $fontName !== '' ) {
             $this->addMessage("selectFont: selecting - $fontName - $encoding, $set");
 
             // load the file
