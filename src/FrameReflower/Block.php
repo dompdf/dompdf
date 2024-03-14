@@ -553,6 +553,140 @@ class Block extends AbstractFrameReflower
     }
 
     /**
+     * Adjust the justification of last line.
+     * https://www.w3.org/TR/css-text-3/#text-align-last-property
+     */
+    protected function _text_align_last()
+    {
+        $style = $this->_frame->get_style();
+        $w = $this->_frame->get_containing_block("w");
+        $width = (float)$style->length_in_pt($style->width, $w);
+        $text_indent = (float)$style->length_in_pt($style->text_indent, $w);
+
+        switch ($style->text_align_last) {
+            default:
+            case "left":
+                foreach ($this->_frame->get_line_boxes() as $line) {
+                    if (!$line->inline) {
+                        continue;
+                    }
+
+                    $line->trim_trailing_ws();
+
+                    if ($line->left) {
+                        foreach ($line->frames_to_align() as $frame) {
+                            $frame->move($line->left, 0);
+                        }
+                    }
+                }
+                break;
+
+            case "right":
+                foreach ($this->_frame->get_line_boxes() as $i => $line) {
+                    if (!$line->inline) {
+                        continue;
+                    }
+
+                    $line->trim_trailing_ws();
+
+                    $indent = $i === 0 ? $text_indent : 0;
+                    $dx = $width - $line->w - $line->right - $indent;
+
+                    foreach ($line->frames_to_align() as $frame) {
+                        $frame->move($dx, 0);
+                    }
+                }
+                break;
+
+            case "justify":
+                // We justify all lines except the last one, unless the frame
+                // has been split, in which case the actual last line is part of
+                // the split-off frame
+                $lines = $this->_frame->get_line_boxes();
+                $last_line_index = $this->_frame->is_split ? null : count($lines) - 1;
+
+                foreach ($lines as $i => $line) {
+                    $frames = $line->get_frames();
+
+                    if ($line->br || $i !== $last_line_index) {
+                        
+                        continue;
+                    }
+
+                    if (!$line->inline) {
+                        continue;
+                    }
+
+                    $line->trim_trailing_ws();
+
+                    if ($line->left) {
+                        foreach ($line->frames_to_align() as $frame) {
+                            $frame->move($line->left, 0);
+                        }
+                    }
+
+                    $frames = $line->get_frames();
+                    $other_frame_count = 0;
+
+                    foreach ($frames as $frame) {
+                        if (!($frame instanceof TextFrameDecorator)) {
+                            $other_frame_count++;
+                        }
+                    }
+
+                    $word_count = $line->wc + $other_frame_count;
+
+                    // Set the spacing for each child
+                    if ($word_count > 1) {
+                        $indent = $i === 0 ? $text_indent : 0;
+                        $spacing = ($width - $line->get_width() - $indent) / ($word_count - 1);
+                    } else {
+                        $spacing = 0;
+                    }
+
+                    $dx = 0;
+                    foreach ($frames as $frame) {
+                        if ($frame instanceof TextFrameDecorator) {
+                            $text = $frame->get_text();
+                            $spaces = mb_substr_count($text, " ");
+
+                            $frame->move($dx, 0);
+                            $frame->set_text_spacing($spacing);
+
+                            $dx += $spaces * $spacing;
+                        } else {
+                            $frame->move($dx, 0);
+                        }
+
+                    }
+
+
+                    // The line (should) now occupy the entire width
+                    $line->w = $width;
+                }
+                break;
+
+            case "center":
+            case "centre":
+                foreach ($this->_frame->get_line_boxes() as $i => $line) {
+                    if (!$line->inline) {
+                        continue;
+                    }
+
+                    $line->trim_trailing_ws();
+
+                    $indent = $i === 0 ? $text_indent : 0;
+                    $dx = ($width + $line->left - $line->w - $line->right - $indent) / 2;
+
+                    foreach ($line->frames_to_align() as $frame) {
+                        $frame->move($dx, 0);
+                    }
+                }
+                break;
+        }
+    }
+
+    /**
      * Align inline children vertically.
      * Aligns each child vertically after each line is reflowed
      */
@@ -902,6 +1036,7 @@ class Block extends AbstractFrameReflower
         }
 
         $this->_text_align();
+        $this->_text_align_last();
         $this->vertical_align();
 
         // Handle relative positioning

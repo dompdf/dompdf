@@ -547,7 +547,8 @@ class Style
         "white_space" => true,
         "widows" => true,
         "word_break" => true,
-        "word_spacing" => true
+        "word_spacing" => true,
+        "text_align_last" => true
     ];
 
     /**
@@ -914,6 +915,9 @@ class Style
 
             // vendor-prefixed properties
             $d["_dompdf_keep"] = "";
+
+            //add css text align last property
+            $d["text_align_last"] = "";
 
             // Compute dependent props from dependency map
             foreach (self::$_dependency_map as $props) {
