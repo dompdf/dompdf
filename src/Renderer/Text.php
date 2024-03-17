@@ -71,25 +71,25 @@ class Text extends AbstractRenderer
           array($this->_canvas->get_page_number()),
           $text
         );*/
-        if ( strtolower( $style -> direction ) == 'rtl' && preg_match( "/\p{Hebrew}/u", $text ) ){
+        if ( strtolower($style -> direction) == 'rtl' && preg_match("/\p{Hebrew}/u", $text) ) {
 
             preg_match_all('/./us', $text, $ar);
         
             // reverse the whole line
-            $text = join('',array_reverse($ar[0]));
+            $text = join('', array_reverse($ar[0]));
         
             // flip english back to ltr
-            $words = explode( ' ', $text );
-            foreach( $words as $i => $word ):
-                if( !preg_match( "/\p{Hebrew}/u", $word ) ):
-                    $words[$i] = implode( '', array_reverse( str_split( $word ) ) );
+            $words = explode(' ', $text);
+            foreach ( $words as $i => $word ) :
+                if (!preg_match("/\p{Hebrew}/u", $word)) :
+                    $words[$i] = implode('', array_reverse(str_split($word)));
                 endif;
-                if( $word === "–"){
+                if ($word === "–") {
                     $words[$i] = "-";
                 }
             endforeach;
         
-            $text = implode( ' ', $words );
+            $text = implode(' ', $words);
         }
         
         $this->_canvas->text($x, $y, $text,
