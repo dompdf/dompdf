@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Com\Tecnick\Unicode\Bidi;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
@@ -371,6 +372,11 @@ class Text extends AbstractFrameReflower
             $frame->set_text($text);
         }
 
+        if ($style->direction === 'rtl') {
+            $text = $frame->get_text();
+            $frame->set_text($this->bidi_transform($text));
+        }
+
         // Set our new width
         $frame->recalculate_width();
 
@@ -623,5 +629,21 @@ class Text extends AbstractFrameReflower
     public function getFontMetrics()
     {
         return $this->fontMetrics;
+    }
+
+    protected function bidi_transform(string $text): string
+    {
+        // match (multiple) whitespace chars or one non whitespace char at start and end
+        $matched = preg_match('/^(\s+|[^\s]).*(\s+|[^\s])$/', $text, $keepWhitespace);
+
+        $bidi = new Bidi($text, null, null, false, true);
+        $text = $bidi->getString();
+
+        if ($matched) {
+            $text = (ctype_space($keepWhitespace[1]) ? $keepWhitespace[1] : '') . ltrim($text);
+            $text = rtrim($text) . (ctype_space($keepWhitespace[2]) ? $keepWhitespace[2] : '');
+        }
+
+        return $text;
     }
 }

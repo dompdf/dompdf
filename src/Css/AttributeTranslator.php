@@ -60,6 +60,7 @@ class AttributeTranslator
             ],
             'rules' => '_set_table_rules',
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
         'hr' => [
             'align' => '_set_hr_align', // Need to grab width to set 'left' & 'right' correctly
@@ -69,6 +70,7 @@ class AttributeTranslator
         ],
         'div' => [
             'align' => 'text-align: %s;',
+            'dir' => 'direction: %s;'
         ],
         'h1' => [
             'align' => 'text-align: %s;',
@@ -94,6 +96,7 @@ class AttributeTranslator
         ],
         'p' => [
             'align' => 'text-align: %s;',
+            'dir' => 'direction: %s;'
         ],
 //    'col' => array(
 //      'align'  => '',
@@ -114,6 +117,7 @@ class AttributeTranslator
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
         'tfoot' => [
             'align' => '_set_table_row_align',
@@ -126,6 +130,7 @@ class AttributeTranslator
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
         'thead' => [
             'align' => '_set_table_row_align',
@@ -141,6 +146,7 @@ class AttributeTranslator
             'bgcolor' => '_set_background_color',
             'link' => '_set_body_link',
             'text' => '_set_color',
+            'dir' => 'direction: %s;'
         ],
         'br' => [
             'clear' => 'clear: %s;',
@@ -179,6 +185,7 @@ class AttributeTranslator
         ],
         'pre' => [
             'width' => 'width: %s;',
+            'dir' => 'direction: %s;'
         ],
     ];
 

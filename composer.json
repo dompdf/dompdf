@@ -29,7 +29,8 @@
         "ext-mbstring": "*",
         "masterminds/html5": "^2.0",
         "dompdf/php-font-lib": "^1.0.0",
-        "dompdf/php-svg-lib": "^1.0.0"
+        "dompdf/php-svg-lib": "^1.0.0",
+        "tecnickcom/tc-lib-unicode": "~1.4.33"
     },
     "require-dev": {
         "ext-gd": "*",
