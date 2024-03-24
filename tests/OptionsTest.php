@@ -133,4 +133,17 @@ class OptionsTest extends TestCase
         [$validation_result] = $allowedProtocols["mock://"]["rules"][0]("mock://example.com/");
         $this->assertTrue($validation_result);
     }
+
+    public function testArtifactPathValidation()
+    {
+        $options = new Options();
+
+        $log_path = $options->getLogOutputFile();
+        $options->setLogOutputFile("phar://test.phar/log.html");
+        $this->assertEquals($log_path, $options->getLogOutputFile());
+
+        $log_path = sys_get_temp_dir() . "/log.html";
+        $options->setLogOutputFile($log_path);
+        $this->assertEquals($log_path, $options->getLogOutputFile());
+    }
 }
