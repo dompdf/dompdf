@@ -1465,18 +1465,26 @@ class Style
         }
 
         foreach ($this->_props as $prop => $val) {
-            if ($val === "inherit" && !$this->is_custom_property($prop)) {
+            if ($val === "inherit") {
                 if ($parent && isset($parent->_props[$prop])) {
                     $parent_val = $parent->computed($prop);
 
-                    $this->_props[$prop] = $parent_val;
-                    $this->_props_computed[$prop] = $parent_val;
-                    $this->_props_used[$prop] = null;
+                    if ($this->is_custom_property($prop)) {
+                        $this->set_prop($prop, $parent_val);
+                    } else {
+                        $this->_props[$prop] = $parent_val;
+                        $this->_props_computed[$prop] = $parent_val;
+                        $this->_props_used[$prop] = null;
+                    }
                 } else {
-                    // Parent prop not set, use default
-                    $this->_props[$prop] = self::$_defaults[$prop];
-                    unset($this->_props_computed[$prop]);
-                    unset($this->_props_used[$prop]);
+                    if ($this->is_custom_property($prop)) {
+                        $this->set_prop($prop, "unset");
+                    } else {
+                        // Parent prop not set, use default
+                        $this->_props[$prop] = self::$_defaults[$prop];
+                        unset($this->_props_computed[$prop]);
+                        unset($this->_props_used[$prop]);
+                    }
                 }
             }
         }
@@ -1699,7 +1707,7 @@ class Style
 
             // Always set the specified value for properties that use CSS variables
             // so that an invalid initial value does not prevent re-computation later.
-            if (\is_string($val) && \preg_match("/". self::CSS_VAR . "/", $val)) {
+            if (\is_string($val) && \preg_match("/" . self::CSS_VAR . "/", $val)) {
                 $this->_props[$prop] = $val;
             }
 
@@ -1909,7 +1917,7 @@ class Style
         // During style merge, the parent style is not available yet, so
         // temporarily use the initial value for `inherit` properties. The
         // keyword is properly resolved during inheritance
-        if ($val === "inherit") {
+        if ($val === "inherit" && !$this->is_custom_property($prop)) {
             $val = self::$_defaults[$prop];
         }
 

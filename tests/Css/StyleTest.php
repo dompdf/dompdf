@@ -1550,6 +1550,7 @@ class StyleTest extends TestCase
                     "--color" => "#0000ffFF"
                 ],
             ], "color", "#0000ffFF"],
+
             'important_ref' => [[
                 [
                     "color" => "var(--color) !important",
@@ -1560,6 +1561,7 @@ class StyleTest extends TestCase
                     "--color" => "#0000ffFF"
                 ],
             ], "color", "#0000ffFF"],
+
             'important_var' => [[
                 [
                     "color" => "var(--color)",
@@ -1619,52 +1621,61 @@ class StyleTest extends TestCase
 
     public static function inheritedVarValueProvider(): array {
         return [
-            'green' => [0, '#00ff00FF'],
-            'red' => [1, '#ff0000FF'],
-            'yellow' => [2, '#ffff00FF'],
-            'blue' => [3, '#0000ffFF'],
-            'purple' => [4, '#ff00ffFF'],
+            'outer' => ['outer', '#0000ffFF'],
+            'middle1' => ['middle1', '#00ff00FF'],
+            'middle2' => ['middle2', '#ffff00FF'],
+            'inner' => ['inner', '#ff0000FF'],
+            'fallback' => ['fallback', '#ff00ffFF'],
+            'undefined' => ['undefined', 'transparent'],
+            'undefined-inherit' => ['undefined-inherit', 'transparent'],
+            'inherit' => ['inherit', '#ffffffFF'],
+            'invalid-inherit' => ['invalid-inherit', 'transparent'],
         ];
     }
 
     /**
      * @dataProvider inheritedVarValueProvider
      */
-    public function testInheritedVar($index, $hexval): void
+    public function testInheritedVar($id, $hexval): void
     {
         $html = '<!DOCTYPE html>
 <html>
     <head>
         <style>
-            #inner {
+            :root {
+                --custom-color: #ffffff;
+                --custom-size: 1em;
+            }
+            div {
                 background-color: var(--custom-color);
             }
             #middle1 {
                 background-color: var(--custom-color, turquoise);
             }
-            div {
-                height: 4em;
-                width: 4em;
-            }
             #outer {
-                height: 16em;
-                width: 16em;
                 --custom-color: #00ff00ff;
                 background-color: #0000ffff;
             }
             #middle2 {
                 --custom-color: #ff0000ff;
                 background-color: #ffff00ff;
-                height: 9em;
-                width: 9em;
             }
-            #other {
-                width: 16em;
-                height: 16em;
-                --color-property: #ffffffff;
+            #inherit {
+                --custom-color: inherit;
+            }
+            #invalid-inherit {
+                background-color: var(--custom-size);
+            }
+            #fallback {
                 --fallback-property: #ff00ffff;
                 background-color: var(--undefined-property, var(--fallback-property));
-                color: var(--color-property, var(--fallback-property));
+            }
+            #undefined {
+                background-color: var(--undefined-property);
+            }
+            #undefined-inherit {
+                --inherited-property: inherit;
+                background-color: var(--inherited-property);
             }
         </style>
     </head>
@@ -1675,7 +1686,11 @@ class StyleTest extends TestCase
                 <div id="inner"></div>
             </div>
         </div>
-        <div id="other">TEXT</div>
+        <div id="fallback"></div>
+        <div id="inherit"></div>
+        <div id="undefined"></div>
+        <div id="undefined-inherit"></div>
+        <div id="invalid-inherit"></div>
     </body>
 </html>';
 
@@ -1686,10 +1701,11 @@ class StyleTest extends TestCase
         $dompdf->setCallbacks(['test' => [
             'event' => 'end_frame',
             'f' => function (Frame $frame) use (&$styles) {
-
                 $node = $frame->get_node();
                 if ($node->nodeName === 'div') {
-                    $styles[] = $frame->get_style()->background_color;
+                    $htmlid = $node->hasAttributes() && ($id = $node->attributes->getNamedItem("id")) !== null ? $id->nodeValue : $frame->get_id();
+                    $background_color = $frame->get_style()->background_color;
+                    $styles[$htmlid] = is_array($background_color) ? $background_color['hex'] : $background_color;
                 }
             }
         ]]);
@@ -1698,6 +1714,6 @@ class StyleTest extends TestCase
         $dompdf->render();
 
         // Todo: Ideally have the style associated with the div id or something.
-        $this->assertEquals($hexval, $styles[$index]['hex']);
+        $this->assertEquals($hexval, $styles[$id]);
     }
 }
