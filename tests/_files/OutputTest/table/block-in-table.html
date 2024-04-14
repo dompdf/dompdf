@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The table cell should completely enclose the box">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    padding: 5pt;
+    border: 1pt solid black;
+}
+
+.block {
+    width: 100pt;
+    height: 100pt;
+    background-color: lightblue;
+}
+</style>
+</head>
+
+<body>
+    <table>
+        <tr><td><div class="block"></div></td></tr>
+    </table>
+</body>
+
+</html>

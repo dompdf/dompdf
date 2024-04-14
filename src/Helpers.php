@@ -319,7 +319,11 @@ class Helpers
         $score = [
             '%23'=>'#'
         ];
-        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved, $unescaped, $score));
+        return preg_replace(
+            '/%25([a-fA-F0-9]{2,2})/',
+            '%$1',
+            strtr(rawurlencode($uri), array_merge($reserved, $unescaped, $score))
+        );
     }
 
     /**
@@ -590,24 +594,115 @@ class Helpers
     }
 
     /**
-     * @param $c
-     * @return bool|string
+     * Get Unicode code point of character
+     *
+     * Shim for use on systems running PHP < 7.2
+     *
+     * @param string $c
+     * @param string $encoding
+     * @return int|false
      */
-    public static function unichr($c)
+    public static function uniord(string $c, string $encoding = null)
     {
+        if (function_exists("mb_ord")) {
+            if (PHP_VERSION_ID < 80000 && $encoding === null) {
+                // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
+                $encoding = "UTF-8";
+            }
+            return mb_ord($c, $encoding);
+        }
+
+        if ($encoding != "UTF-8" && $encoding !== null) {
+            $c = mb_convert_encoding($c, "UTF-8", $encoding);
+        }
+
+        $length = mb_strlen(mb_substr($c, 0, 1), '8bit');
+        $ord = false;
+        $bytes = [];
+        $numbytes = 1;
+        for ($i = 0; $i < $length; $i++) {
+            $o = ord($c[$i]); // get one string character at time
+            if (count($bytes) === 0) { // get starting octect
+                if ($o <= 0x7F) {
+                    $ord = $o;
+                    $numbytes = 1;
+                } elseif (($o >> 0x05) === 0x06) { // 2 bytes character (0x06 = 110 BIN)
+                    $bytes[] = ($o - 0xC0) << 0x06;
+                    $numbytes = 2;
+                } elseif (($o >> 0x04) === 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
+                    $bytes[] = ($o - 0xE0) << 0x0C;
+                    $numbytes = 3;
+                } elseif (($o >> 0x03) === 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
+                    $bytes[] = ($o - 0xF0) << 0x12;
+                    $numbytes = 4;
+                } else {
+                    $ord = false;
+                    break;
+                }
+            } elseif (($o >> 0x06) === 0x02) { // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
+                $bytes[] = $o - 0x80;
+                if (count($bytes) === $numbytes) {
+                    // compose UTF-8 bytes to a single unicode value
+                    $o = $bytes[0];
+                    for ($j = 1; $j < $numbytes; $j++) {
+                        $o += ($bytes[$j] << (($numbytes - $j - 1) * 0x06));
+                    }
+                    if ((($o >= 0xD800) and ($o <= 0xDFFF)) or ($o >= 0x10FFFF)) {
+                        // The definition of UTF-8 prohibits encoding character numbers between
+                        // U+D800 and U+DFFF, which are reserved for use with the UTF-16
+                        // encoding form (as surrogate pairs) and do not directly represent
+                        // characters.
+                        return false;
+                    } else {
+                        $ord = $o; // add char to array
+                    }
+                    // reset data for next char
+                    $bytes = [];
+                    $numbytes = 1;
+                }
+            } else {
+                $ord = false;
+                break;
+            }
+        }
+
+        return $ord;
+    }
+
+    /**
+     * Return character by Unicode code point value
+     *
+     * Shim for use on systems running PHP < 7.2
+     *
+     * @param int    $c
+     * @param string $encoding
+     * @return string|false
+     */
+    public static function unichr(int $c, string $encoding = null)
+    {
+        if (function_exists("mb_chr")) {
+            if (PHP_VERSION_ID < 80000 && $encoding === null) {
+                // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
+                $encoding = "UTF-8";
+            }
+            return mb_chr($c, $encoding);
+        }
+
+        $chr = false;
         if ($c <= 0x7F) {
-            return chr($c);
+            $chr = chr($c);
         } elseif ($c <= 0x7FF) {
-            return chr(0xC0 | $c >> 6) . chr(0x80 | $c & 0x3F);
+            $chr = chr(0xC0 | $c >> 6) . chr(0x80 | $c & 0x3F);
         } elseif ($c <= 0xFFFF) {
-            return chr(0xE0 | $c >> 12) . chr(0x80 | $c >> 6 & 0x3F)
+            $chr = chr(0xE0 | $c >> 12) . chr(0x80 | $c >> 6 & 0x3F)
             . chr(0x80 | $c & 0x3F);
         } elseif ($c <= 0x10FFFF) {
-            return chr(0xF0 | $c >> 18) . chr(0x80 | $c >> 12 & 0x3F)
+            $chr = chr(0xF0 | $c >> 18) . chr(0x80 | $c >> 12 & 0x3F)
             . chr(0x80 | $c >> 6 & 0x3F)
             . chr(0x80 | $c & 0x3F);
         }
-        return false;
+
+        return $chr;
     }
 
     /**
@@ -709,11 +804,15 @@ class Helpers
      * http://www.programmierer-forum.de/function-imagecreatefrombmp-welche-variante-laeuft-t143137.htm
      * Modified by Fabien Menager to support RGB555 BMP format
      */
-    public static function imagecreatefrombmp($filename, $context = null)
+    public static function imagecreatefrombmp($filename)
     {
         if (!function_exists("imagecreatetruecolor")) {
             trigger_error("The PHP GD extension is required, but is not installed.", E_ERROR);
             return false;
+        }
+
+        if (function_exists("imagecreatefrombmp") && ($im = imagecreatefrombmp($filename)) !== false) {
+            return $im;
         }
 
         // version 1.00

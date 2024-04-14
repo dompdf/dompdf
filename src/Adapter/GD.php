@@ -630,11 +630,10 @@ class GD implements Canvas
         }
 
         $func_name = "imagecreatefrom$img_type";
-        if (!function_exists($func_name)) {
-            if (!method_exists(Helpers::class, $func_name)) {
-                throw new \Exception("Function $func_name() not found.  Cannot convert $img_type image: $img.  Please install the image PHP extension.");
-            }
+        if (method_exists(Helpers::class, $func_name)) {
             $func_name = [Helpers::class, $func_name];
+        } elseif (!function_exists($func_name)) {
+            throw new \Exception("Function $func_name() not found.  Cannot convert $img_type image: $img.  Please install the image PHP extension.");
         }
         $src = @call_user_func($func_name, $img);
 
@@ -702,6 +701,127 @@ class GD implements Canvas
     public function set_default_view($view, $options = [])
     {
         // N/A
+    }
+
+    private function getCharMap(string $font)
+    {
+        static $unicodeCharMapTables = [];
+
+        if (isset($unicodeCharMapTables[$font])) {
+            return $unicodeCharMapTables[$font];
+        }
+
+        $metrics_name = "$font.ufm";
+        if (!file_exists($metrics_name)) {
+            $metrics_name = "$font.afm";
+        }
+        if (!file_exists($metrics_name)) {
+            return $unicodeCharMapTables[$font] = [];
+        }
+
+        $cache_name = "$metrics_name.json";
+        if (file_exists($cache_name)) {
+            $cached_font_info = json_decode(file_get_contents($cache_name), true);
+            $char_map = $cached_font_info['C'];
+            return $unicodeCharMapTables[$font] = $char_map;
+        }
+
+        $char_map = [];
+        $file = file("$metrics_name");
+        foreach ($file as $rowA) {
+            $row = trim($rowA);
+            $pos = strpos($row, ' ');
+
+            if ($pos) {
+                // then there must be some keyword
+                $key = substr($row, 0, $pos);
+                switch ($key) {
+                    case 'C': // Found in AFM files
+                        $bits = explode(';', trim($row));
+                        $dtmp = ['C' => null, 'N' => null, 'WX' => null, 'B' => []];
+
+                        foreach ($bits as $bit) {
+                            $bits2 = explode(' ', trim($bit));
+                            if (mb_strlen($bits2[0], '8bit') == 0) {
+                                continue;
+                            }
+
+                            if (count($bits2) > 2) {
+                                $dtmp[$bits2[0]] = [];
+                                for ($i = 1; $i < count($bits2); $i++) {
+                                    $dtmp[$bits2[0]][] = $bits2[$i];
+                                }
+                            } else {
+                                if (count($bits2) == 2) {
+                                    $dtmp[$bits2[0]] = $bits2[1];
+                                }
+                            }
+                        }
+
+                        $c = (int)$dtmp['C'];
+                        $n = $dtmp['N'];
+                        $width = floatval($dtmp['WX']);
+
+                        if ($c >= 0) {
+                            $char_map[$c] = $width;
+                        } elseif (isset($n)) {
+                            $char_map[$n] = $width;
+                        }
+                        break;
+
+                    // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
+                    case 'U': // Found in UFM files
+                        $bits = explode(';', trim($row));
+                        $dtmp = ['G' => null, 'N' => null, 'U' => null, 'WX' => null];
+
+                        foreach ($bits as $bit) {
+                            $bits2 = explode(' ', trim($bit));
+                            if (mb_strlen($bits2[0], '8bit') === 0) {
+                                continue;
+                            }
+
+                            if (count($bits2) > 2) {
+                                $dtmp[$bits2[0]] = [];
+                                for ($i = 1; $i < count($bits2); $i++) {
+                                    $dtmp[$bits2[0]][] = $bits2[$i];
+                                }
+                            } else {
+                                if (count($bits2) == 2) {
+                                    $dtmp[$bits2[0]] = $bits2[1];
+                                }
+                            }
+                        }
+
+                        $c = (int)$dtmp['U'];
+                        $n = $dtmp['N'];
+                        $glyph = $dtmp['G'];
+                        $width = floatval($dtmp['WX']);
+
+                        if ($c >= 0) {
+                            $char_map[$c] = $width;
+                        } elseif (isset($n)) {
+                            $char_map[$n] = $width;
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        return $unicodeCharMapTables[$font] = $char_map;
+    }
+
+    public function font_supports_char(string $font, string $char): bool
+    {
+        if ($char === "") {
+            return true;
+        }
+
+        $font = $this->get_ttf_file($font);
+        $charMap = $this->getCharMap($font);
+        $charCode = Helpers::uniord($char, "UTF-8");
+
+        return \array_key_exists($charCode, $charMap);
     }
 
     public function get_text_width($text, $font, $size, $word_spacing = 0.0, $char_spacing = 0.0)

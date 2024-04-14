@@ -325,9 +325,8 @@ li {
 
 /* 2 deep unordered lists use a circle */
 :matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul {
+:matches(ul, ol, dir, menu) menu,
+:matches(ul, ol, dir, menu) dir {
   list-style-type: circle;
 }
 
@@ -349,25 +348,28 @@ input, button, select {
   font-family: sans-serif;
 }
 
-input[type=text],
-input[type=password],
-select {
-  width: 12em;
-}
-
-input[type=text],
-input[type=password],
-input[type=button],
-input[type=submit],
-input[type=reset],
-input[type=file],
-button,
-textarea,
-select {
+input, button, textarea, select {
   background: #FFF;
   border: 1px solid #999;
   padding: 2px;
   margin: 2px;
+}
+
+input, select {
+  width: 12em;
+}
+
+input[type=hidden] {
+  display: none !important;
+}
+
+input[type=checkbox],
+input[type=radio],
+input[type=image] {
+  width: auto;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 input[type=button],
@@ -375,6 +377,7 @@ input[type=submit],
 input[type=reset],
 input[type=file],
 button {
+  width: auto;
   background: #CCC;
   text-align: center;
 }
@@ -383,11 +386,12 @@ input[type=file] {
   width: 8em;
 }
 
-input[type=text]::before,
-input[type=button]::before,
-input[type=submit]::before,
-input[type=reset]::before {
+input::before {
   content: attr(value);
+}
+
+input[type=image][alt]::before {
+  content: attr(alt);
 }
 
 input[type=file]::before {
@@ -398,6 +402,10 @@ input[type=password][value]::before {
   font-family: "DejaVu Sans" !important;
   content: "\2022\2022\2022\2022\2022\2022\2022\2022";
   line-height: 1em;
+}
+
+input[type=password][value=""]::before {
+  content: none;
 }
 
 input[type=checkbox],
@@ -430,12 +438,12 @@ textarea {
   overflow: hidden;
   font-family: monospace;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 select {
-  position: relative!important;
-  overflow: hidden!important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 select::after {

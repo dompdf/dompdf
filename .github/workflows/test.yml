@@ -3,6 +3,7 @@ name: "Run unit tests"
 on:
   - push
   - pull_request
+  - workflow_dispatch
 
 env:
   COMPOSER_MEMORY_LIMIT: -1
@@ -14,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 12
       matrix:
-        php: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+        php: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3']
         package-release: [dist]
         extensions: ['gd']
         include:
@@ -26,7 +27,7 @@ jobs:
             extensions: 'imagick'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -39,8 +40,23 @@ jobs:
         with:
           dependency-versions: ${{ matrix.package-release }}
 
+      - name: Install Ghostscript
+        run: |
+          sudo apt-get update
+          sudo apt --fix-broken install
+          sudo apt-get install ghostscript
+          sudo apt --fix-broken install
+
       - name: Run unit tests
         run: vendor/bin/phpunit
+
+      - name: Upload failed tests
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: failed-output-tests
+          path: /home/runner/work/dompdf/dompdf/tmp/failed-output-tests
+          if-no-files-found: ignore
 
       - name: Run code sniffer
         run: vendor/bin/phpcs --standard=phpcs.xml src tests lib

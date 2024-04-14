@@ -805,36 +805,33 @@ abstract class AbstractFrameDecorator extends Frame
      */
     public function increment_counter(string $id = self::DEFAULT_COUNTER, int $increment = 1): void
     {
-        $counter_frame = $this->lookup_counter_frame($id);
-
-        if ($counter_frame) {
-            if (!isset($counter_frame->_counters[$id])) {
-                $counter_frame->_counters[$id] = 0;
-            }
-
-            $counter_frame->_counters[$id] += $increment;
-        }
+        $counter_frame = $this->lookup_counter_frame($id, true);
+        $counter_frame->_counters[$id] += $increment;
     }
 
     /**
      * @param string $id
+     * @param bool   $auto_reset Instantiate a new counter if none with the given name is in scope.
+     *
      * @return AbstractFrameDecorator|null
      */
-    function lookup_counter_frame($id = self::DEFAULT_COUNTER)
-    {
+    public function lookup_counter_frame(
+        string $id = self::DEFAULT_COUNTER,
+        bool $auto_reset = false
+    ): ?AbstractFrameDecorator {
         $f = $this->get_parent();
 
         while ($f) {
             if (isset($f->_counters[$id])) {
                 return $f;
             }
-            $fp = $f->get_parent();
+            $f = $f->get_parent();
+        }
 
-            if (!$fp) {
-                return $f;
-            }
-
-            $f = $fp;
+        if ($auto_reset) {
+            $f = $this->get_parent();
+            $f->_counters[$id] = 0;
+            return $f;
         }
 
         return null;
@@ -843,19 +840,14 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * @param string $id
      * @param string $type
-     * @return bool|string
+     *
+     * @return string
      *
      * TODO: What version is the best : this one or the one in ListBullet ?
      */
-    function counter_value(string $id = self::DEFAULT_COUNTER, string $type = "decimal")
+    public function counter_value(string $id = self::DEFAULT_COUNTER, string $type = "decimal"): string
     {
-        $type = mb_strtolower($type);
-
-        if (!isset($this->_counters[$id])) {
-            $this->_counters[$id] = 0;
-        }
-
-        $value = $this->_counters[$id];
+        $value = $this->_counters[$id] ?? 0;
 
         switch ($type) {
             default:
@@ -869,7 +861,7 @@ abstract class AbstractFrameDecorator extends Frame
                 return Helpers::dec2roman($value);
 
             case "upper-roman":
-                return mb_strtoupper(Helpers::dec2roman($value));
+                return strtoupper(Helpers::dec2roman($value));
 
             case "lower-latin":
             case "lower-alpha":

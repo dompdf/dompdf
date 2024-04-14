@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 500pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 12pt;
+    line-height: 14pt;
+}
+
+table {
+    border: 0.5pt solid black;
+    border-collapse: separate;
+    border-spacing: 10pt 2pt;
+}
+
+.collapse {
+    border-collapse: collapse;
+}
+
+td {
+    padding: 2pt;
+    border: 0.5pt solid black;
+}
+
+.break {
+    page-break-before: always;
+}
+
+hr {
+    margin: 8pt 0;
+    border-width: thin 0 0 0;
+    border-style: solid;
+    border-color: rgb(0, 0, 0, 0.25);
+}
+</style>
+</head>
+
+<body>
+
+    <table style="margin-left: auto; margin-right: 0;">
+        <tr><td>Table 1.1</td><td>Cell</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="margin-left: 0; margin-right: auto;">
+        <tr><td>Table 1.2</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="margin-left: auto; margin-right: auto;">
+        <tr><td>Table 1.3</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="margin-left: auto; margin-right: 20pt;">
+        <tr><td>Table 1.4</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="width: 50%; margin-left: auto; margin-right: 20pt;">
+        <tr><td>Table 1.5</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="margin-left: 20pt; margin-right: 20pt;">
+        <tr><td>Table 1.6</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="width: 100%; margin-left: auto; margin-right: auto;">
+        <tr><td>Table 1.7</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="min-width: 100%; margin-left: 20pt; margin-right: 0;">
+        <tr><td>Table 1.8</td></tr>
+    </table>
+
+    <hr>
+
+    <table style="min-width: 100%; margin-left: auto; margin-right: 20pt;">
+        <tr><td>Table 1.9</td></tr>
+    </table>
+
+
+
+    <table class="collapse break" style="margin-left: auto; margin-right: 0;">
+        <tr><td>Table 2.1</td><td>Cell</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="margin-left: 0; margin-right: auto;">
+        <tr><td>Table 2.2</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="margin-left: auto; margin-right: auto;">
+        <tr><td>Table 2.3</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="margin-left: auto; margin-right: 20pt;">
+        <tr><td>Table 2.4</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="width: 50%; margin-left: auto; margin-right: 20pt;">
+        <tr><td>Table 2.5</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="margin-left: 20pt; margin-right: 20pt;">
+        <tr><td>Table 2.6</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="width: 100%; margin-left: auto; margin-right: auto;">
+        <tr><td>Table 2.7</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="min-width: 100%; margin-left: 20pt; margin-right: 0;">
+        <tr><td>Table 2.8</td></tr>
+    </table>
+
+    <hr>
+
+    <table class="collapse" style="min-width: 100%; margin-left: auto; margin-right: 20pt;">
+        <tr><td>Table 2.9</td></tr>
+    </table>
+
+</body>
+
+</html>

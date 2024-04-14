@@ -9,32 +9,32 @@ namespace Dompdf\Renderer;
 use Dompdf\Frame;
 
 /**
- * Renders block frames
- *
  * @package dompdf
  */
 class TableRowGroup extends Block
 {
-
     /**
      * @param Frame $frame
      */
     function render(Frame $frame)
     {
         $style = $frame->get_style();
+        $node = $frame->get_node();
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         $border_box = $frame->get_border_box();
 
-        $this->_render_border($frame, $border_box);
+        // FIXME: Render background onto the area consisting of all spanned
+        // cells. In the separated border model, the border-spacing area should
+        // be left out. Currently, the background is inherited by the table
+        // cells instead, which does not handle transparent backgrounds and
+        // background images correctly.
+        // See https://www.w3.org/TR/CSS21/tables.html#table-layers
+
         $this->_render_outline($frame, $border_box);
 
-        $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
-        }
-
-        $this->debugBlockLayout($frame, "red");
+        $this->addNamedDest($node);
+        $this->addHyperlink($node, $border_box);
     }
 }

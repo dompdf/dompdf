@@ -134,14 +134,13 @@ class Inline extends AbstractFrameReflower
             return;
         }
 
-        // Add our margin, padding & border to the first and last children
+        // Add margin, padding & border width to the first and last children,
+        // so they are accounted for during text layout
         if (($f = $frame->get_first_child()) && $f instanceof TextFrameDecorator) {
             $f_style = $f->get_style();
             $f_style->margin_left = $style->margin_left;
             $f_style->padding_left = $style->padding_left;
             $f_style->border_left_width = $style->border_left_width;
-            $f_style->border_left_style = $style->border_left_style;
-            $f_style->border_left_color = $style->border_left_color;
         }
 
         if (($l = $frame->get_last_child()) && $l instanceof TextFrameDecorator) {
@@ -149,9 +148,9 @@ class Inline extends AbstractFrameReflower
             $l_style->margin_right = $style->margin_right;
             $l_style->padding_right = $style->padding_right;
             $l_style->border_right_width = $style->border_right_width;
-            $l_style->border_right_style = $style->border_right_style;
-            $l_style->border_right_color = $style->border_right_color;
         }
+
+        $frame->position();
 
         $cb = $frame->get_containing_block();
 
@@ -168,13 +167,17 @@ class Inline extends AbstractFrameReflower
             }
         }
 
-        if (!$frame->get_first_child()) {
-            return;
+        // Assume the position of the first in-flow child, otherwise use the
+        // fallback position that was set before child reflow
+        $child = $frame->get_first_child();
+        while ($child && !$child->is_in_flow()) {
+            $child = $child->get_next_sibling();
         }
 
-        // Assume the position of the first child
-        [$x, $y] = $frame->get_first_child()->get_position();
-        $frame->set_position($x, $y);
+        if ($child) {
+            [$x, $y] = $child->get_position();
+            $frame->set_position($x, $y);
+        }
 
         // Handle relative positioning
         foreach ($frame->get_children() as $child) {

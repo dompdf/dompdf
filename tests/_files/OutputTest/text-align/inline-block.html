@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The text should be right aligned, except for the text in the first
+    red box, which should be justified. Vertical alignment of the words 'laboris
+    nisi' is off currently">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 18pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+p {
+    margin: 0;
+    text-align: right;
+}
+
+span {
+    display: inline-block;
+    border: solid red;
+    text-align: justify;
+}
+</style>
+</head>
+
+<body>
+    <p>Lorem ipsum <span>dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
+    incidunt ut labore et dolore magna aliqua.</span> Ut enim ad minim veniam, quis
+    nostrud exercitation ullamco <span>laboris nisi</span> ut aliquid ex ea commodi
+    consequat. Quis aute iure <span>reprehenderit in voluptate velit esse cillum</span> dolore eu
+    fugiat nulla pariatur.</p>
+</body>
+
+</html>

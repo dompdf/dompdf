@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="Trailing white space after inline element should not result in a
+    line break">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 14pt;
+    line-height: 16pt;
+}
+
+body {
+    outline: thin solid rgb(0, 0, 0, 0.25);
+}
+
+p {
+    margin: 0 0 16pt;
+}
+</style>
+</head>
+
+<body>
+    <p>
+        Loremipsumdolorsitametconsecteturadipisicielitsed
+        <br>Loremipsum
+    </p>
+    <p>
+        <span>Loremipsumdolorsitametconsecteturadipisicielitsed</span>
+        <br>Loremipsum
+    </p>
+    <p>
+        <span>Loremipsumdolorsitametconsecteturadipisicielitsed
+        </span><br>Loremipsum
+    </p>
+</body>
+
+</html>

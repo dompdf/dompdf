@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 400pt;
+    margin: 50pt;
+}
+
+html {
+    font-family: sans-serif;
+    font-size: 12pt;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table + table {
+    margin-top: 10pt;
+}
+
+td {
+    padding: 2pt;
+}
+
+.title {
+    font-style: italic;
+}
+
+.t1 tr {
+    border: solid red;
+}
+
+.t1 td {
+    border: thin solid;
+}
+
+.t2 tbody {
+    border: thick double;
+}
+
+.t2 td {
+    border: thick solid;
+}
+
+.t3 tbody {
+    border: hidden;
+}
+
+.t3 td {
+    border: solid;
+}
+
+.t4 tbody {
+    border: solid;
+}
+
+.t4 td {
+    border: hidden;
+}
+</style>
+</head>
+
+<body>
+<table class="t1">
+    <tr>
+        <td class="title">Red row borders</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+</table>
+
+<table class="t2">
+    <tr>
+        <td class="title">Double outer borders</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+</table>
+
+<table class="t3">
+    <tr>
+        <td class="title">Hidden outer borders</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+</table>
+
+<table class="t4">
+    <tr>
+        <td class="title">Hidden borders</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+    <tr>
+        <td>Lorem ipsum amet</td>
+        <td>dolor sit</td>
+        <td>amet</td>
+    </tr>
+</table>
+</body>
+
+</html>

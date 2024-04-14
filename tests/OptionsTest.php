@@ -32,6 +32,7 @@ class OptionsTest extends TestCase
         $this->assertTrue($option->getDebugLayoutBlocks());
         $this->assertTrue($option->getDebugLayoutInline());
         $this->assertTrue($option->getDebugLayoutPaddingBox());
+        $this->assertNull($option->getAllowedRemoteHosts());
 
         $option = new Options(['tempDir' => 'test1']);
         $this->assertEquals('test1', $option->getTempDir());
@@ -53,6 +54,7 @@ class OptionsTest extends TestCase
             'fontHeightRatio' => 1.2,
             'isPhpEnabled' => true,
             'isRemoteEnabled' => true,
+            'allowedRemoteHosts' => ['w3.org'],
             'isJavascriptEnabled' => false,
             'isHtml5ParserEnabled' => true,
             'isFontSubsettingEnabled' => false,
@@ -89,6 +91,7 @@ class OptionsTest extends TestCase
         $this->assertFalse($option->getDebugLayoutInline());
         $this->assertFalse($option->getDebugLayoutPaddingBox());
         $this->assertIsResource($option->getHttpContext());
+        $this->assertIsArray($option->getAllowedRemoteHosts());
 
         $option->setChroot(['test11']);
         $this->assertEquals(['test11'], $option->getChroot());
@@ -134,6 +137,32 @@ class OptionsTest extends TestCase
         $this->assertTrue($validation_result);
     }
 
+    public function testAllowedRemoteHosts()
+    {
+        $options = new Options(['isRemoteEnabled' => true]);
+        $options->setAllowedRemoteHosts(['en.wikipedia.org']);
+        $options->setAllowedProtocols(["http://"]);
+        $allowedRemoteHosts = $options->getAllowedRemoteHosts();
+        $this->assertIsArray($allowedRemoteHosts);
+        $this->assertEquals(1, count($allowedRemoteHosts));
+        $this->assertContains("en.wikipedia.org", $allowedRemoteHosts);
+
+        $allowedProtocols = $options->getAllowedProtocols();
+        $this->assertIsArray($allowedProtocols);
+        $this->assertEquals(1, count($allowedProtocols));
+        $this->assertArrayHasKey("http://", $allowedProtocols);
+        $this->assertIsArray($allowedProtocols["http://"]);
+        $this->assertArrayHasKey("rules", $allowedProtocols["http://"]);
+        $this->assertIsArray($allowedProtocols["http://"]["rules"]);
+        $this->assertEquals(1, count($allowedProtocols["http://"]["rules"]));
+        $this->assertEquals([$options, "validateRemoteUri"], $allowedProtocols["http://"]["rules"][0]);
+
+        [$validation_result] = $allowedProtocols["http://"]["rules"][0]("http://example.com/");
+        $this->assertFalse($validation_result);
+        [$validation_result] = $allowedProtocols["http://"]["rules"][0]("http://en.wikipedia.org/");
+        $this->assertTrue($validation_result);
+    }
+  
     public function testArtifactPathValidation()
     {
         $options = new Options();
