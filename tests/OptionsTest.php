@@ -174,5 +174,9 @@ class OptionsTest extends TestCase
         $log_path = sys_get_temp_dir() . "/log.html";
         $options->setLogOutputFile($log_path);
         $this->assertEquals($log_path, $options->getLogOutputFile());
+
+        $log_path = null;
+        $options->setLogOutputFile($log_path);
+        $this->assertEquals($log_path, $options->getLogOutputFile());
     }
 }
