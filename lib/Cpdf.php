@@ -3073,7 +3073,7 @@ EOT;
 
         $this->o_catalog($this->catalogId, 'outputIntents', [
             'iccProfileData' => file_get_contents($iccProfilePath),
-            'iccProfileName' => 'sRGB2014.icc',
+            'iccProfileName' => basename($iccProfilePath),
             'colorComponentsCount' => '3',
         ]);
     }
