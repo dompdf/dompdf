@@ -3069,8 +3069,10 @@ EOT;
     {
         $this->pdfa = true;
 
+        $iccProfilePath = __DIR__ . '/res/sRGB2014.icc';
+
         $this->o_catalog($this->catalogId, 'outputIntents', [
-            'iccProfileData' => file_get_contents(__DIR__ . '/res/sRGB2014.icc'),
+            'iccProfileData' => file_get_contents($iccProfilePath),
             'iccProfileName' => 'sRGB2014.icc',
             'colorComponentsCount' => '3',
         ]);
