@@ -66,4 +66,75 @@ class CPDFTest extends TestCase
         $output = $canvas->output();
         $this->assertNotSame("", $output);
     }
+
+    public static function fontSupportsCharProvider(): array
+    {
+        return [
+            // Core fonts
+            // ASCII and ISO-8859-1
+            ["Helvetica", "A", true],
+            ["Helvetica", "{", true],
+            ["Helvetica", "Æ", true],
+            ["Helvetica", "÷", true],
+
+            // Part of Windows-1252, but not ISO-8859-1
+            ["Helvetica", "€", true],
+            ["Helvetica", "‚", true],
+            ["Helvetica", "ƒ", true],
+            ["Helvetica", "„", true],
+            ["Helvetica", "…", true],
+            ["Helvetica", "†", true],
+            ["Helvetica", "‡", true],
+            ["Helvetica", "ˆ", true],
+            ["Helvetica", "‰", true],
+            ["Helvetica", "Š", true],
+            ["Helvetica", "‹", true],
+            ["Helvetica", "Œ", true],
+            ["Helvetica", "Ž", true],
+            ["Helvetica", "‘", true],
+            ["Helvetica", "’", true],
+            ["Helvetica", "“", true],
+            ["Helvetica", "”", true],
+            ["Helvetica", "•", true],
+            ["Helvetica", "–", true],
+            ["Helvetica", "—", true],
+            ["Helvetica", "˜", true],
+            ["Helvetica", "™", true],
+            ["Helvetica", "š", true],
+            ["Helvetica", "›", true],
+            ["Helvetica", "œ", true],
+            ["Helvetica", "ž", true],
+            ["Helvetica", "Ÿ", true],
+            ["Helvetica", "ÿ", true],
+
+            // Unicode outside Windows-1252
+            ["Helvetica", "Ā", false],
+            ["Helvetica", "↦", false],
+            ["Helvetica", "∉", false],
+            ["Helvetica", "能", false],
+
+            // DejaVu
+            ["DejaVu Sans", "A", true],
+            ["DejaVu Sans", "{", true],
+            ["DejaVu Sans", "Æ", true],
+            ["DejaVu Sans", "÷", true],
+            ["DejaVu Sans", "Œ", true],
+            ["DejaVu Sans", "—", true],
+            ["DejaVu Sans", "↦", true],
+            ["DejaVu Sans", "∉", true],
+            ["DejaVu Sans", "能", false],
+        ];
+    }
+
+    /**
+     * @dataProvider fontSupportsCharProvider
+     */
+    public function testFontSupportsChar(string $font, string $char, bool $expected): void
+    {
+        $dompdf = new Dompdf();
+        $canvas = new CPDF("letter", "portrait", $dompdf);
+        $fontFile = $dompdf->getFontMetrics()->getFont($font);
+
+        $this->assertSame($expected, $canvas->font_supports_char($fontFile, $char));
+    }
 }

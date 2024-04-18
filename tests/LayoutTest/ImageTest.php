@@ -9,7 +9,7 @@ use Dompdf\Tests\TestCase;
 
 class ImageTest extends TestCase
 {
-    public function imageDimensionsProvider(): array
+    public static function imageDimensionsProvider(): array
     {
         $filepath = "../_files/jamaica.jpg";
         $dpiFactor = 72 / 96;

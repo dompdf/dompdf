@@ -602,11 +602,10 @@ class CPDF implements Canvas
 
         set_error_handler([Helpers::class, "record_warnings"]);
 
-        if (!function_exists($func_name)) {
-            if (!method_exists(Helpers::class, $func_name)) {
-                throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
-            }
+        if (method_exists(Helpers::class, $func_name)) {
             $func_name = [Helpers::class, $func_name];
+        } elseif (!function_exists($func_name)) {
+            throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
         }
 
         try {
@@ -688,7 +687,6 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $font .= ".afm";
         $pdf->selectFont($font);
 
         if (!isset($pdf->acroFormId)) {
@@ -706,7 +704,6 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $font .= ".afm";
         $pdf->selectFont($font);
 
         if (!isset($pdf->acroFormId)) {
@@ -723,7 +720,6 @@ class CPDF implements Canvas
     {
         $pdf = $this->_pdf;
 
-        $font .= ".afm";
         $pdf->selectFont($font);
 
         if (!isset($pdf->acroFormId)) {
@@ -756,7 +752,7 @@ class CPDF implements Canvas
         $this->_set_fill_color($color);
 
         $is_font_subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
-        $pdf->selectFont($font . '.afm', '', true, $is_font_subsetting);
+        $pdf->selectFont($font, '', true, $is_font_subsetting);
 
         $pdf->addText($x, $this->y($y) - $pdf->getFontHeight($size), $size, $text, $angle, $word_space, $char_space);
 
@@ -790,37 +786,64 @@ class CPDF implements Canvas
         }
     }
 
-    public function font_supports_text(string $font, string $text): bool
+    public function font_supports_char(string $font, string $char): bool
     {
-        if ($text === "") {
+        if ($char === "") {
             return true;
         }
 
-        $is_font_subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
-        $this->_pdf->selectFont($font, '', false, $is_font_subsetting);
-        if (!array_key_exists($font, $this->_pdf->fonts)) {
+        $subsetting = $this->_dompdf->getOptions()->getIsFontSubsettingEnabled();
+        $this->_pdf->selectFont($font, '', false, $subsetting);
+        if (!\array_key_exists($font, $this->_pdf->fonts)) {
             return false;
         }
-        $font_info = $this->_pdf->fonts[$font];
+        $fontInfo = $this->_pdf->fonts[$font];
+        $charCode = Helpers::uniord($char, "UTF-8");
 
-        if (function_exists("mb_str_split")) {
-            $chars = array_unique(mb_str_split($text, 1, "UTF-8"), SORT_STRING);
-        } else {
-            $chars = array_unique(preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY), SORT_STRING);
-        }
-        $char_codes = array_map(
-            function($char) {
-                return Helpers::uniord($char, "UTF-8");
-            },
-            $chars
-        );
+        if (!$fontInfo["isUnicode"]) {
+            // The core fonts use Windows ANSI encoding. The char map uses the
+            // position of the character in the encoding's mapping table in this
+            // case, not the Unicode code point, which is different for the
+            // characters outside ISO-8859-1 (positions 0x80-0x9F)
+            // https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1252.TXT
+            $mapping = [
+                0x20AC => 0x80,
+                0x201A => 0x82,
+                0x0192 => 0x83,
+                0x201E => 0x84,
+                0x2026 => 0x85,
+                0x2020 => 0x86,
+                0x2021 => 0x87,
+                0x02C6 => 0x88,
+                0x2030 => 0x89,
+                0x0160 => 0x8A,
+                0x2039 => 0x8B,
+                0x0152 => 0x8C,
+                0x017D => 0x8E,
+                0x2018 => 0x91,
+                0x2019 => 0x92,
+                0x201C => 0x93,
+                0x201D => 0x94,
+                0x2022 => 0x95,
+                0x2013 => 0x96,
+                0x2014 => 0x97,
+                0x02DC => 0x98,
+                0x2122 => 0x99,
+                0x0161 => 0x9A,
+                0x203A => 0x9B,
+                0x0153 => 0x9C,
+                0x017E => 0x9E,
+                0x0178 => 0x9F
+            ];
 
-        foreach ($char_codes as $char_code) {
-            if (!array_key_exists($char_code, $font_info['C'])) {
+            $charCode = $mapping[$charCode] ?? $charCode;
+
+            if ($charCode > 0xFF) {
                 return false;
             }
         }
-        return true;
+
+        return \array_key_exists($charCode, $fontInfo["C"]);
     }
 
     /**

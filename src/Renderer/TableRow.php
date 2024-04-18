@@ -11,7 +11,7 @@ use Dompdf\Frame;
 /**
  * @package dompdf
  */
-class TableRowGroup extends Block
+class TableRow extends Block
 {
     /**
      * @param Frame $frame

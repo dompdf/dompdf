@@ -8,7 +8,6 @@ namespace Dompdf\FrameReflower;
 
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
-use Dompdf\Frame;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
@@ -129,7 +128,7 @@ class Text extends AbstractFrameReflower
      * @param BlockFrameDecorator $block
      * @param bool                $nowrap
      *
-     * @return bool|int
+     * @return int|false
      */
     protected function line_break(string $text, BlockFrameDecorator $block, bool $nowrap = false)
     {
@@ -164,8 +163,12 @@ class Text extends AbstractFrameReflower
             return false;
         }
 
+        $force_first = $current_line->left == 0
+            && $current_line->right == 0
+            && $current_line->is_empty();
+
         if ($nowrap) {
-            return $current_line_width == 0 ? false : 0;
+            return $force_first ? false : 0;
         }
 
         // Split the text into words
@@ -189,7 +192,7 @@ class Text extends AbstractFrameReflower
             $word_width = $fontMetrics->getTextWidth($word, $font, $size, $word_spacing, $letter_spacing);
             $used_width = $width + $word_width + $mbp_width;
 
-            if (Helpers::lengthGreater($used_width, $available_width)) {
+            if ($used_width > 0 && Helpers::lengthGreater($used_width, $available_width)) {
                 // If the previous split happened by soft hyphen, we have to
                 // append its width again because the last hyphen of a line
                 // won't be removed
@@ -216,7 +219,7 @@ class Text extends AbstractFrameReflower
 
         // The first word has overflowed. Force it onto the line, or as many
         // characters as fit if breaking words is allowed
-        if ($current_line_width == 0 && $width === 0.0) {
+        if ($force_first && $width === 0.0) {
             if ($sep === " ") {
                 $word .= $sep;
             }
@@ -227,8 +230,9 @@ class Text extends AbstractFrameReflower
 
             if ($break_word) {
                 $s = "";
+                $len = mb_strlen($word);
 
-                for ($j = 0; $j < mb_strlen($word); $j++) {
+                for ($j = 0; $j < $len; $j++) {
                     $c = mb_substr($word, $j, 1);
                     $w = $fontMetrics->getTextWidth($s . $c, $font, $size, $word_spacing, $letter_spacing);
 
@@ -252,7 +256,7 @@ class Text extends AbstractFrameReflower
 
     /**
      * @param string $text
-     * @return bool|int
+     * @return int|false
      */
     protected function newline_break(string $text)
     {
@@ -276,7 +280,7 @@ class Text extends AbstractFrameReflower
         $text = $frame->get_text();
 
         // Trim leading white space if this is the first text on the line
-        if ($current_line->w === 0.0 && !$frame->is_pre()) {
+        if ($current_line->is_empty() && !$frame->is_pre()) {
             $text = ltrim($text, " ");
         }
 
@@ -350,7 +354,7 @@ class Text extends AbstractFrameReflower
         if ($split !== false && $split < mb_strlen($text)) {
             // Split the line
             $frame->set_text($text);
-            $frame->split_text($split);
+            $frame->split_text($split, true);
             $add_line = true;
 
             // Remove inner soft hyphens
@@ -388,7 +392,6 @@ class Text extends AbstractFrameReflower
         }
 
         $style = $frame->get_style();
-        $font_metrics = $this->getFontMetrics();
 
         // Handle text transform and white space
         $frame->set_text($this->pre_process_text($frame->get_text()));

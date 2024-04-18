@@ -6,7 +6,7 @@ use Dompdf\Tests\TestCase;
 
 class ColorTest extends TestCase
 {
-    public function validColorProvider(): array
+    public static function validColorProvider(): array
     {
         return [
             // Color names

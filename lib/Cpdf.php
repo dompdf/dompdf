@@ -3551,7 +3551,7 @@ EOT;
 
         $cache_name = "$metrics_name.json";
         $this->addMessage("metrics: $metrics_name, cache: $cache_name");
-        
+
         if (file_exists($fontcache . '/' . $cache_name)) {
             $this->addMessage("openFont: json metrics file exists $fontcache/$cache_name");
             $cached_font_info = json_decode(file_get_contents($fontcache . '/' . $cache_name), true);
@@ -3921,6 +3921,8 @@ EOT;
     }
 
     /**
+     * sets the color for fill operations
+     *
      * @param string $fillRule
      */
     function setFillRule($fillRule)
@@ -5944,8 +5946,10 @@ EOT;
                 }
             }
 
-            $imagick = new \Imagick($file);
-            $imagick->setFormat('png');
+            $imagick = new \Imagick();
+            $imagick->setRegistry('temporary-path', $this->tmp);
+            $imagick->setFormat('PNG');
+            $imagick->readImage($file);
 
             // Get opacity channel (negative of alpha channel)
             if ($imagick->getImageAlphaChannel()) {
@@ -5955,7 +5959,14 @@ EOT;
                 if (\Imagick::getVersion()['versionNumber'] < 1800) {
                     $alpha_channel->negateImage(true);
                 }
-                $alpha_channel->writeImage($tempfile_alpha);
+
+                try {
+                    $alpha_channel->writeImage($tempfile_alpha);
+                } catch (\ImagickException $th) {
+                    // Backwards compatible retry attempt in case the IMagick policy is still configured in lowercase
+                    $alpha_channel->setFormat('png');
+                    $alpha_channel->writeImage($tempfile_alpha);
+                }
 
                 // Cast to 8bit+palette
                 $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
@@ -5968,6 +5979,7 @@ EOT;
 
             // Make opaque image
             $color_channels = new \Imagick();
+            $color_channels->setRegistry('temporary-path', $this->tmp);
             $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
             $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYRED, 0, 0);
             $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYGREEN, 0, 0);
@@ -6125,8 +6137,7 @@ EOT;
     }
 
     /**
-     * add a PNG image into the document, from a file
-     * this should work with remote files
+     * add an SVG image into the document from a file
      *
      * @param $file
      * @param $x

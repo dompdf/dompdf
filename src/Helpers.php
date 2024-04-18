@@ -319,7 +319,11 @@ class Helpers
         $score = [
             '%23'=>'#'
         ];
-        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved, $unescaped, $score));
+        return preg_replace(
+            '/%25([a-fA-F0-9]{2,2})/',
+            '%$1',
+            strtr(rawurlencode($uri), array_merge($reserved, $unescaped, $score))
+        );
     }
 
     /**
@@ -601,19 +605,18 @@ class Helpers
     public static function uniord(string $c, string $encoding = null)
     {
         if (function_exists("mb_ord")) {
-            if (version_compare(PHP_VERSION, '8.0.0', '<') && $encoding === null) {
+            if (PHP_VERSION_ID < 80000 && $encoding === null) {
                 // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
                 $encoding = "UTF-8";
             }
-            $ord = mb_ord($c, $encoding);
-            return $ord;
+            return mb_ord($c, $encoding);
         }
 
-        if ($encoding != "UTF-8") {
-            $c = mb_convert_encoding($c, $encoding);
+        if ($encoding != "UTF-8" && $encoding !== null) {
+            $c = mb_convert_encoding($c, "UTF-8", $encoding);
         }
 
-        $length = mb_strlen($c, '8bit');
+        $length = mb_strlen(mb_substr($c, 0, 1), '8bit');
         $ord = false;
         $bytes = [];
         $numbytes = 1;
@@ -678,12 +681,11 @@ class Helpers
     public static function unichr(int $c, string $encoding = null)
     {
         if (function_exists("mb_chr")) {
-            if (version_compare(PHP_VERSION, '8.0.0', '<') && $encoding === null) {
+            if (PHP_VERSION_ID < 80000 && $encoding === null) {
                 // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
                 $encoding = "UTF-8";
             }
-            $chr = mb_chr($c, $encoding);
-            return $chr;
+            return mb_chr($c, $encoding);
         }
 
         $chr = false;
@@ -802,11 +804,15 @@ class Helpers
      * http://www.programmierer-forum.de/function-imagecreatefrombmp-welche-variante-laeuft-t143137.htm
      * Modified by Fabien Menager to support RGB555 BMP format
      */
-    public static function imagecreatefrombmp($filename, $context = null)
+    public static function imagecreatefrombmp($filename)
     {
         if (!function_exists("imagecreatetruecolor")) {
             trigger_error("The PHP GD extension is required, but is not installed.", E_ERROR);
             return false;
+        }
+
+        if (function_exists("imagecreatefrombmp") && ($im = imagecreatefrombmp($filename)) !== false) {
+            return $im;
         }
 
         // version 1.00

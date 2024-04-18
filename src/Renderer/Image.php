@@ -23,6 +23,7 @@ class Image extends Block
     function render(Frame $frame)
     {
         $style = $frame->get_style();
+        $node = $frame->get_node();
         $border_box = $frame->get_border_box();
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
@@ -36,11 +37,8 @@ class Image extends Block
         [$x, $y, $w, $h] = $content_box;
 
         $src = $frame->get_image_url();
-        $alt = null;
 
-        if (Cache::is_broken($src) &&
-            $alt = $frame->get_node()->getAttribute("alt")
-        ) {
+        if (Cache::is_broken($src) && ($alt = $node->getAttribute("alt")) !== "") {
             $font = $style->font_family;
             $size = $style->font_size;
             $word_spacing = $style->word_spacing;
@@ -69,22 +67,7 @@ class Image extends Block
             }
         }
 
-        if ($msg = $frame->get_image_msg()) {
-            $parts = preg_split("/\s*\n\s*/", $msg);
-            $font = $style->font_family;
-            $height = 10;
-            $_y = $alt ? $y + $h - count($parts) * $height : $y;
-
-            foreach ($parts as $i => $_part) {
-                $this->_canvas->text($x, $_y + $i * $height, $_part, $font, $height * 0.8, [0.5, 0.5, 0.5]);
-            }
-        }
-
-        $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
-        }
-
+        $this->addNamedDest($node);
         $this->debugBlockLayout($frame, "blue");
     }
 }

@@ -6,6 +6,23 @@ use Dompdf\Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
+    public static function uriEncodingProvider(): array
+    {
+        return [
+            ["https://example.com/test.html", "https://example.com/test.html"],
+            ["https://example.com?a[]=1&b%5B%5D=1&c=d+e&f=g h&i=j%2Bk%26l", "https://example.com?a%5B%5D=1&b%5B%5D=1&c=d+e&f=g%20h&i=j%2Bk%26l"],
+        ];
+    }
+    
+    /**
+     * @dataProvider uriEncodingProvider
+     */
+    public function testUriEncoding(string $uri, string $expected): void
+    {
+        $encodedUri = Helpers::encodeURI($uri);
+        $this->assertEquals($expected, $encodedUri);
+    }
+
     public function testParseDataUriBase64Image(): void
     {
         $imageParts = [
@@ -21,7 +38,7 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         );
     }
 
-    public function dec2RomanProvider(): array
+    public static function dec2RomanProvider(): array
     {
         return [
             [-5, "-5"],
@@ -43,7 +60,7 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         $this->assertSame($expected, $roman);
     }
 
-    public function lengthEqualProvider(): array
+    public static function lengthEqualProvider(): array
     {
         // Adapted from
         // https://floating-point-gui.de/errors/NearlyEqualsTest.java

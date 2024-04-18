@@ -22,6 +22,7 @@ class ListBullet extends AbstractRenderer
     /**
      * @param $type
      * @return mixed|string
+     * @deprecated
      */
     static function get_counter_chars($type)
     {
@@ -69,17 +70,15 @@ class ListBullet extends AbstractRenderer
     }
 
     /**
-     * @param int $n
-     * @param string $type
+     * @param int      $n
+     * @param string   $type
      * @param int|null $pad
      *
      * @return string
      */
-    private function make_counter($n, $type, $pad = null)
+    private function make_counter(int $n, string $type, ?int $pad = null): string
     {
-        $n = intval($n);
         $text = "";
-        $uppercase = false;
 
         switch ($type) {
             default:
@@ -94,14 +93,18 @@ class ListBullet extends AbstractRenderer
 
             case "upper-alpha":
             case "upper-latin":
-                $uppercase = true;
+                $text = chr((($n - 1) % 26) + ord('A'));
+                break;
+
             case "lower-alpha":
             case "lower-latin":
                 $text = chr((($n - 1) % 26) + ord('a'));
                 break;
 
             case "upper-roman":
-                $uppercase = true;
+                $text = strtoupper(Helpers::dec2roman($n));
+                break;
+
             case "lower-roman":
                 $text = Helpers::dec2roman($n);
                 break;
@@ -109,10 +112,6 @@ class ListBullet extends AbstractRenderer
             case "lower-greek":
                 $text = Helpers::unichr($n + 944);
                 break;
-        }
-
-        if ($uppercase) {
-            $text = strtoupper($text);
         }
 
         return "$text.";
@@ -190,12 +189,8 @@ class ListBullet extends AbstractRenderer
                         return;
                     }
 
-                    $index = $node->getAttribute("dompdf-counter");
+                    $index = (int) $node->getAttribute("dompdf-counter");
                     $text = $this->make_counter($index, $bullet_style, $pad);
-
-                    if (trim($text) === "") {
-                        return;
-                    }
 
                     $word_spacing = $style->word_spacing;
                     $letter_spacing = $style->letter_spacing;
@@ -208,15 +203,11 @@ class ListBullet extends AbstractRenderer
                     $this->_canvas->text($x, $y, $text,
                         $font_family, $font_size,
                         $style->color, $word_spacing, $letter_spacing);
+                    break;
 
                 case "none":
                     break;
             }
-        }
-
-        $id = $frame->get_node()->getAttribute("id");
-        if (strlen($id) > 0) {
-            $this->_canvas->add_named_dest($id);
         }
     }
 }

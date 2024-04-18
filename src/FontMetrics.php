@@ -130,9 +130,6 @@ class FontMetrics
             $fontDir = $this->options->getFontDir();
             $rootDir = $this->options->getRootDir();
     
-            if (!defined("DOMPDF_DIR")) { define("DOMPDF_DIR", $rootDir); }
-            if (!defined("DOMPDF_FONT_DIR")) { define("DOMPDF_FONT_DIR", $fontDir); }
-    
             $cacheDataClosure = require $legacyCacheFile;
             $cacheData = is_array($cacheDataClosure) ? $cacheDataClosure : $cacheDataClosure($fontDir, $rootDir);
             if (is_array($cacheData)) {
@@ -370,7 +367,7 @@ class FontMetrics
             }
             $mapped_font = null;
             foreach ($fonts as $font) {
-                if ($this->canvas->font_supports_text($font, $char)) {
+                if ($this->canvas->font_supports_char($font, $char)) {
                     $mapped_font = $font;
                     break;
                 }

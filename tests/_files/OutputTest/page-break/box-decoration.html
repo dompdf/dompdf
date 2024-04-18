@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="description"
-    content="The box decoration should be sliced. The box should extend to the
-    bottom on the first page, but it currently does not">
+    content="The box decoration should be sliced, except for the outline. The
+    box should extend to the bottom on the first page, but it currently does not">
 <style>
 @page {
     size: 400pt 300pt;
@@ -25,7 +25,8 @@ body {
 div {
     margin: 20pt;
     padding: 10pt;
-    border: solid red;
+    outline: 2pt solid red;
+    border: 4pt solid rgb(255, 0, 0, 0.25);
     border-radius: 14pt;
     background-color: rgb(255, 0, 0, 0.1);
 }

@@ -166,7 +166,7 @@ class Block extends AbstractFrameDecorator
         $i = $this->_cl;
         $j = null;
 
-        while ($i > 0) {
+        while ($i >= 0) {
             $line = $this->_line_boxes[$i];
             foreach ($line->get_frames() as $index => $f) {
                 if ($frame === $f) {
