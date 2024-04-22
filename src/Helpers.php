@@ -121,7 +121,7 @@ class Helpers
 
             if ($url[0] == '/' && !empty($chrootDirs)) {
                 foreach ($chrootDirs as $dir) {
-                    $ret = realpath($dir) . '/' . $url;
+                    $ret = realpath($dir) . $url;
                     $ret = preg_replace('/\?(.*)$/', "", $ret);
 
                     if ($filepath = realpath($ret)) {
