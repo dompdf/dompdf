@@ -59,7 +59,7 @@ class Helpers
      * Vice versa, on using the local file system path of a file, make sure that the slash
      * is appended (o.k. also for Windows)
      */
-    public static function build_url($protocol, $host, $base_path, $url)
+    public static function build_url($protocol, $host, $base_path, $url, $chrootDirs = [])
     {
         $protocol = mb_strtolower($protocol);
         if (empty($protocol)) {
@@ -113,13 +113,26 @@ class Helpers
             $ret = preg_replace('/\?(.*)$/', "", $ret);
 
             $filepath = realpath($ret);
-            if ($filepath === false) {
-                return null;
+            if ($filepath !== false) {
+                $ret = "$protocol$filepath$res";
+
+                return $ret;
             }
 
-            $ret = "$protocol$filepath$res";
+            if ($url[0] == '/' && !empty($chrootDirs)) {
+                foreach ($chrootDirs as $dir) {
+                    $ret = realpath($dir) . '/' . $url;
+                    $ret = preg_replace('/\?(.*)$/', "", $ret);
 
-            return $ret;
+                    if ($filepath = realpath($ret)) {
+                        $ret = "$protocol$filepath$res";
+
+                        return $ret;
+                    }
+                }
+            }
+
+            return null;
         }
 
         $ret = $protocol;
