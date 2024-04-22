@@ -1458,7 +1458,8 @@ EOL;
                 $this->_protocol,
                 $this->_base_host,
                 $this->_base_path,
-                $url
+                $url,
+                $this->_dompdf->getOptions()->getChroot()
             );
             if ($path === null) {
                 $path = "none";
@@ -1787,7 +1788,7 @@ EOL;
     {
         $options = $this->_dompdf->getOptions();
         $rootDir = realpath($options->getRootDir());
-        return Helpers::build_url("file://", "", $rootDir, $rootDir . self::DEFAULT_STYLESHEET);
+        return Helpers::build_url("file://", "", $rootDir, $rootDir . self::DEFAULT_STYLESHEET, $options->getChroot());
     }
 
     /**
