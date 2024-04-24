@@ -1149,6 +1149,9 @@ class Options
 
     public function validateArtifactPath(?string $path, string $option)
     {
+        if ($path === null) {
+            return true;
+        }
         $parsed_uri = parse_url($path);
         if ($parsed_uri === false || (array_key_exists("scheme", $parsed_uri) && strtolower($parsed_uri["scheme"]) === "phar")) {
             return false;
