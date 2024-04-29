@@ -28,8 +28,8 @@
         "ext-dom": "*",
         "ext-mbstring": "*",
         "masterminds/html5": "^2.0",
-        "phenx/php-font-lib": ">=0.5.4 <1.0.0",
-        "phenx/php-svg-lib": ">=0.5.2 <1.0.0"
+        "dompdf/php-font-lib": "^1.0.0",
+        "dompdf/php-svg-lib": "^1.0.0"
     },
     "require-dev": {
         "ext-gd": "*",
