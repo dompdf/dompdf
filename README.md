@@ -153,6 +153,8 @@ For details see the [autoloader in the utils project](https://github.com/dompdf/
 ## Framework Integration
 
 * For Symfony: [nucleos/dompdf-bundle](https://github.com/nucleos/NucleosDompdfBundle)
+* For Laravel: [barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf)
+* For Redaxo: [PdfOut](https://github.com/FriendsOfREDAXO/pdfout)
 
 ## Quick Start
 
