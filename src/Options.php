@@ -206,6 +206,20 @@ class Options
     private $isRemoteEnabled = false;
 
     /**
+     * Enable PDF/A-3 compliance mode
+     *
+     * ==== EXPERIMENTAL ====
+     * This feature is currently only supported with the CPDF backend and will
+     * have no effect if used with any other.
+     *
+     * Currently this mode only takes care of adding the necessary metadata, output intents, etc.
+     * It does not enforce font embedding, it's up to you to embed the fonts you plan on using.
+     *
+     * @var bool
+     */
+    private $isPdfAEnabled = false;
+
+    /**
      * List of allowed remote hosts
      *
      * Each value of the array must be a valid hostname.
@@ -404,6 +418,8 @@ class Options
                 $this->setIsPhpEnabled($value);
             } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
                 $this->setIsRemoteEnabled($value);
+            } elseif ($key === 'isPdfAEnabled' || $key === 'is_pdf_a_enabled' || $key === 'enable_pdf_a') {
+                $this->setIsPdfAEnabled($value);
             } elseif ($key === 'allowedRemoteHosts' || $key === 'allowed_remote_hosts') {
                 $this->setAllowedRemoteHosts($value);
             } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
@@ -475,6 +491,8 @@ class Options
             return $this->getIsPhpEnabled();
         } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
             return $this->getIsRemoteEnabled();
+        } elseif ($key === 'isPdfAEnabled' || $key === 'is_pdf_a_enabled' || $key === 'enable_pdf_a') {
+            $this->getIsPdfAEnabled();
         } elseif ($key === 'allowedRemoteHosts' || $key === 'allowed_remote_hosts') {
             return $this->getAllowedProtocols();
         } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
@@ -1080,6 +1098,32 @@ class Options
     public function isRemoteEnabled()
     {
         return $this->getIsRemoteEnabled();
+    }
+
+    /**
+     * @param boolean $isRemoteEnabled
+     * @return $this
+     */
+    public function setIsPdfAEnabled($isPdfAEnabled)
+    {
+        $this->isPdfAEnabled = $isPdfAEnabled;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getIsPdfAEnabled()
+    {
+        return $this->isPdfAEnabled;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isPdfAEnabled()
+    {
+        return $this->getIsPdfAEnabled();
     }
 
     /**
