@@ -219,6 +219,31 @@ class Renderer extends AbstractRenderer
 
         // Check for end frame callback
         $this->_check_callbacks("end_frame", $frame);
+
+        // Check for render progress callback
+        $this->_check_callbacks("render_progress", $frame);
+    }
+
+
+    protected function _calculate_render_progress(Frame $frame, array &$renderProgressData): array
+    {
+        if (!$renderProgressData){
+            return [
+                'framesRendered' => 0,
+                'framesToRender' => 0,
+                'percentage' => 0,
+            ];
+        }
+
+        if ($renderProgressData['framesRendered'] <= $renderProgressData['framesToRender']) {
+            $renderProgressData['framesRendered']++;
+        }
+        if ($renderProgressData['framesToRender'] === 0) {
+            return $renderProgressData;
+        }
+        $renderProgressData['percentage'] = round($renderProgressData['framesRendered'] / $renderProgressData['framesToRender'] * 100, 2);
+
+        return $renderProgressData;
     }
 
     /**
@@ -239,6 +264,15 @@ class Renderer extends AbstractRenderer
             $canvas = $this->_canvas;
             $fontMetrics = $this->_dompdf->getFontMetrics();
 
+            if ($event === "render_progress") {
+                foreach ($fs as $f) {
+                    $result = $f();
+                    $progressData = $this->_calculate_render_progress($frame, $result['data']);
+                    $result['f']($progressData['percentage'], $progressData['framesRendered'], $progressData['framesToRender'], $frame, $canvas, $fontMetrics);
+                }
+                return;
+            }
+            
             foreach ($fs as $f) {
                 $f($frame, $canvas, $fontMetrics);
             }
