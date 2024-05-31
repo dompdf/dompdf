@@ -563,10 +563,15 @@ class Block extends AbstractFrameReflower
         $width = (float)$style->length_in_pt($style->width, $w);
         $text_indent = (float)$style->length_in_pt($style->text_indent, $w);
 
+        $lines = $this->_frame->get_line_boxes();
+
+        //last line
+        $last_line_index = $this->_frame->is_split ? null : count($lines) - 1;
+
         switch ($style->text_align_last) {
-            default:
             case "left":
-                foreach ($this->_frame->get_line_boxes() as $line) {
+                foreach ($lines as $line) {
+
                     if (!$line->inline) {
                         continue;
                     }
@@ -582,8 +587,14 @@ class Block extends AbstractFrameReflower
                 break;
 
             case "right":
-                foreach ($this->_frame->get_line_boxes() as $i => $line) {
+                foreach ($lines as $i => $line) {
+
                     if (!$line->inline) {
+                        continue;
+                    }
+
+                    if ($line->br || $i !== $last_line_index) {
+                        
                         continue;
                     }
 
@@ -602,20 +613,19 @@ class Block extends AbstractFrameReflower
                 // We justify all lines except the last one, unless the frame
                 // has been split, in which case the actual last line is part of
                 // the split-off frame
-                $lines = $this->_frame->get_line_boxes();
-                $last_line_index = $this->_frame->is_split ? null : count($lines) - 1;
 
                 foreach ($lines as $i => $line) {
+
                     $frames = $line->get_frames();
+                    if (!$line->inline) {
+                        continue;
+                    }
 
                     if ($line->br || $i !== $last_line_index) {
                         
                         continue;
                     }
 
-                    if (!$line->inline) {
-                        continue;
-                    }
 
                     $line->trim_trailing_ws();
 
@@ -668,10 +678,17 @@ class Block extends AbstractFrameReflower
 
             case "center":
             case "centre":
-                foreach ($this->_frame->get_line_boxes() as $i => $line) {
+                foreach ($lines as $i => $line) {
+
                     if (!$line->inline) {
                         continue;
                     }
+
+                    if ($line->br || $i !== $last_line_index) {
+                        
+                        continue;
+                    }
+
 
                     $line->trim_trailing_ws();
 
