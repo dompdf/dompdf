@@ -169,6 +169,18 @@ class Page extends AbstractFrameDecorator
             return false;
         }
 
+        // If the frame is fixed-position or has a fixed-position parent
+        // ignore the forced page break
+        if ($frame->get_style()->is_absolute()) {
+            return false;
+        }
+        $p = $frame;
+        while ($p = $p->get_parent()) {
+            if ($p->get_style()->position === "fixed") {
+                return false;
+            }
+        }
+
         $page_breaks = ["always", "left", "right"];
         $style = $frame->get_style();
 
@@ -194,7 +206,7 @@ class Page extends AbstractFrameDecorator
             $prev = $prev->get_prev_sibling();
         }
 
-        if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "table-row")) {
+        if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "table-row") && !$prev->get_style()->is_absolute()) {
             if (in_array($prev->get_style()->page_break_after, $page_breaks, true)) {
                 // Prevent cascading splits
                 $frame->split(null, true, true);
