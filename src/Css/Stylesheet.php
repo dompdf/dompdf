@@ -1224,8 +1224,6 @@ class Stylesheet
      * Called by {@link Stylesheet::parse_css()}
      *
      * @param string $str
-     *
-     * @throws Exception
      */
     private function _parse_css($str)
     {
@@ -1283,8 +1281,10 @@ class Stylesheet
             /isx
 EOL;
 
-        if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
-            throw new Exception("Error parsing css file: preg_match_all() failed.");
+        if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) == false) {
+            global $_dompdf_warnings;
+            $_dompdf_warnings[] = "Unable to parse CSS that starts with: " . substr($str, 0, 100);
+            return;
         }
 
         $media_query_regex = "/{$pattern_media_query}/isx";
