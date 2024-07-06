@@ -78,6 +78,7 @@ class Options
     * @var array
     */
     private $allowedProtocols = [
+        "data://" => ["rules" => []],
         "file://" => ["rules" => []],
         "http://" => ["rules" => []],
         "https://" => ["rules" => []]
@@ -354,7 +355,7 @@ class Options
             ]
         ]);
 
-        $this->setAllowedProtocols(["file://", "http://", "https://"]);
+        $this->setAllowedProtocols(["data://", "file://", "http://", "https://"]);
 
         $this->setArtifactPathValidation([$this, "validateArtifactPath"]);
 
@@ -607,6 +608,8 @@ class Options
         if (empty($rules)) {
             $rules = [];
             switch ($protocol) {
+                case "data://":
+                    break;
                 case "file://":
                     $rules[] = [$this, "validateLocalUri"];
                     break;
