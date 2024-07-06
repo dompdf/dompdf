@@ -1652,17 +1652,36 @@ EOL;
             print '[_parse_properties';
         }
 
-        // Split on non-escaped semicolons which are not part of an unquoted
-        // `url()` declaration. Semicolons in strings are not detected here, and
-        // as a consequence, should be escaped if used in a string
-        $urlEnd = "(?> (\\\\[\"'()] | [^\"'()])* ) (?<!\\\\)\)";
-        $properties = preg_split("/(?<!\\\\); (?! $urlEnd )/x", $str);
+        $delims = ['"' => '"', "'" => "'", '(' => ')'];
+        $delim = null;
+        $len = strlen($str);
+        $properties = [];
+        $char = null;
+        $prev = null;
+        for ($pos = 0; $pos < $len; $pos++) {
+            $prev = $char;
+            $char = $str[$pos];
+            if ($delim !== null) {
+                if ($char === $delims[$delim] && $prev !== '\\') {
+                    $delim = null;
+                }
+                continue;
+            }
+            if (isset($delims[$char]) && $prev !== '\\') {
+                $delim = $char;
+                continue;
+            }
+            if ($char === ';' && $prev !== '\\') {
+                $properties[] = substr($str, 0, $pos);
+                $str = substr($str, $pos+1);
+                $pos = 0;
+                $len = strlen($str);
+            }
+        }
+        $properties[] = $str;
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
-
         foreach ($properties as $prop) {
-            // Instead of short code with `preg_match`, prefer the typical case
-            // with fast code
-            $prop = trim($prop);
+            $prop = str_replace("\\;", ";", trim($prop));
             if ($prop === "") {
                 continue;
             }
