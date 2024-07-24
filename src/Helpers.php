@@ -999,12 +999,12 @@ class Helpers
         $headers = null;
         [$protocol] = Helpers::explode_url($uri);
         $is_local_path = in_array(strtolower($protocol), ["", "file://", "phar://"], true);
-        $can_use_curl = in_array(strtolower($protocol), ["http://", "https://"], true);
+        $can_use_curl = in_array(strtolower($protocol), ["http://", "https://"], true) && function_exists('curl_exec');
 
         set_error_handler([self::class, 'record_warnings']);
 
         try {
-            if ($is_local_path || ini_get('allow_url_fopen') || !$can_use_curl) {
+            if ($is_local_path || ini_get('allow_url_fopen') && !$can_use_curl) {
                 if ($is_local_path === false) {
                     $uri = Helpers::encodeURI($uri);
                 }
@@ -1020,7 +1020,7 @@ class Helpers
                     $headers = $http_response_header;
                 }
 
-            } elseif ($can_use_curl && function_exists('curl_exec')) {
+            } elseif ($can_use_curl) {
                 $curl = curl_init($uri);
 
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
