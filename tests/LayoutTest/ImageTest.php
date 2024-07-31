@@ -171,6 +171,7 @@ HTML
     /**
      * @dataProvider imageDimensionsProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('imageDimensionsProvider')]
     public function testImageDimensions(
         string $body,
         float $expectedWidth,

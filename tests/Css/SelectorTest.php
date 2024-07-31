@@ -748,6 +748,7 @@ class SelectorTest extends TestCase
     /**
      * @dataProvider selectorMatchesProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('selectorMatchesProvider')]
     public function testSelectorMatches(
         string $selector,
         string $body,
@@ -806,6 +807,7 @@ class SelectorTest extends TestCase
     /**
      * @dataProvider selectorInvalidProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('selectorInvalidProvider')]
     public function testSelectorInvalid(string $selector): void
     {
         $sheet = $this->stylesheet();

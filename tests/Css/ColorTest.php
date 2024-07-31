@@ -42,6 +42,7 @@ class ColorTest extends TestCase
     /**
      * @dataProvider validColorProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('validColorProvider')]
     public function testParseColor(string $value, array $expected): void
     {
         $color = Color::parse($value);

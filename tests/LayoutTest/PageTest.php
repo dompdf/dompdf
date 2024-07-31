@@ -82,6 +82,7 @@ HTML
     /**
      * @dataProvider pageBreakProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('pageBreakProvider')]
     public function testPageBreak(
         string $html,
         int $pageCount,
