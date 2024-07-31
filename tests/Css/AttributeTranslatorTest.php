@@ -80,6 +80,7 @@ HTML
      *
      * @dataProvider attributeToStyleTranslationProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('attributeToStyleTranslationProvider')]
     public function testAttributeToStyleTranslation(
         string $body,
         array $expectedStyles

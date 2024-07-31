@@ -594,6 +594,7 @@ HTML
      *
      * @dataProvider countersProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('countersProvider')]
     public function testCounters(
         string $html,
         array $expectedContent

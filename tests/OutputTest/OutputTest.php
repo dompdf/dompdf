@@ -68,6 +68,7 @@ final class OutputTest extends TestCase
     /**
      * @dataProvider outputTestProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('outputTestProvider')]
     public function testOutputMatchesReferenceRendering(Dataset $dataset): void
     {
         $document = $dataset->render();
@@ -166,7 +167,7 @@ final class OutputTest extends TestCase
             $height1 = $image1->getImageHeight();
             $width2 = $image2->getImageWidth();
             $height2 = $image2->getImageHeight();
-    
+
             if ($width1 !== $width2 || $height1 !== $height2) {
                 return false;
             }
@@ -180,7 +181,7 @@ final class OutputTest extends TestCase
             $height = imagesy($image1);
             $width2 = imagesx($image2);
             $height2 = imagesy($image2);
-    
+
             if ($width !== $width2 || $height !== $height2) {
                 return false;
             }
@@ -189,13 +190,13 @@ final class OutputTest extends TestCase
                 for ($y = 0; $y < $height; $y++) {
                     $color1 = imagecolorat($image1, $x, $y);
                     $color2 = imagecolorat($image2, $x, $y);
-    
+
                     if ($color1 !== $color2) {
                         return false;
                     }
                 }
             }
-    
+
             return true;
         }
     }

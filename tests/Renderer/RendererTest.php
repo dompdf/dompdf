@@ -24,6 +24,7 @@ class RendererTest extends TestCase
     /**
      * @dataProvider resizeBackgroundImageProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('resizeBackgroundImageProvider')]
     public function testResizeBackgroundImage(
         $img_width,
         $img_height,

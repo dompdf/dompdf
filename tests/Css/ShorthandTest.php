@@ -36,6 +36,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider marginPaddingShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('marginPaddingShorthandProvider')]
     public function testInsetShorthand(
         string $value,
         string $top,
@@ -55,6 +56,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider marginPaddingShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('marginPaddingShorthandProvider')]
     public function testMarginShorthand(
         string $value,
         string $top,
@@ -74,6 +76,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider marginPaddingShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('marginPaddingShorthandProvider')]
     public function testPaddingShorthand(
         string $value,
         string $top,
@@ -123,6 +126,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider borderWidthShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderWidthShorthandProvider')]
     public function testBorderWidthShorthand(
         string $value,
         string $top,
@@ -146,6 +150,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider borderStyleShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderStyleShorthandProvider')]
     public function testBorderStyleShorthand(
         string $value,
         string $top,
@@ -169,6 +174,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider borderColorShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderColorShorthandProvider')]
     public function testBorderColorShorthand(
         string $value,
         string $top,
@@ -215,6 +221,8 @@ class ShorthandTest extends TestCase
      * @dataProvider borderOutlineShorthandProvider
      * @dataProvider borderShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderOutlineShorthandProvider')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderShorthandProvider')]
     public function testBorderShorthand(
         string $value,
         string $expectedWidth,
@@ -237,6 +245,8 @@ class ShorthandTest extends TestCase
      * @dataProvider borderOutlineShorthandProvider
      * @dataProvider outlineShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderOutlineShorthandProvider')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('outlineShorthandProvider')]
     public function testOutlineShorthand(
         string $value,
         string $expectedWidth,
@@ -267,6 +277,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider borderRadiusShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('borderRadiusShorthandProvider')]
     public function testBorderRadiusShorthand(
         string $value,
         string $tl,
@@ -305,6 +316,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider backgroundShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('backgroundShorthandProvider')]
     public function testBackgroundShorthand(
         string $value,
         string $image,
@@ -344,6 +356,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider fontShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('fontShorthandProvider')]
     public function testFontShorthand(
         string $value,
         string $fontStyle,
@@ -387,6 +400,7 @@ class ShorthandTest extends TestCase
     /**
      * @dataProvider listStyleShorthandProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('listStyleShorthandProvider')]
     public function testListStyleShorthand(
         string $value,
         string $type,
