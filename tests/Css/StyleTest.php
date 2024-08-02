@@ -248,6 +248,7 @@ class StyleTest extends TestCase
      * @dataProvider cssImageNoBaseHrefProvider
      * @group regression
      */
+    #[\PHPUnit\Framework\Attributes\Group('regression')]
     #[\PHPUnit\Framework\Attributes\DataProvider('cssImageBasicProvider')]
     #[\PHPUnit\Framework\Attributes\DataProvider('cssImageNoBaseHrefProvider')]
     public function testCssImageNoBaseHref(string $value, $expected): void
@@ -266,6 +267,7 @@ class StyleTest extends TestCase
      * @dataProvider cssImageWithBaseHrefProvider
      * @group regression
      */
+    #[\PHPUnit\Framework\Attributes\Group('regression')]
     #[\PHPUnit\Framework\Attributes\DataProvider('cssImageBasicProvider')]
     #[\PHPUnit\Framework\Attributes\DataProvider('cssImageWithBaseHrefProvider')]
     public function testCssImageWithBaseHref(string $value, $expected): void
@@ -287,6 +289,7 @@ class StyleTest extends TestCase
      * @dataProvider cssImageWithStylesheetBaseHrefProvider
      * @group regression
      */
+    #[\PHPUnit\Framework\Attributes\Group('regression')]
     #[\PHPUnit\Framework\Attributes\DataProvider('cssImageBasicProvider')]
     #[\PHPUnit\Framework\Attributes\DataProvider('cssImageWithStylesheetBaseHrefProvider')]
     public function testCssImageWithStylesheetBaseHref(string $value, $expected): void
