@@ -3530,17 +3530,17 @@ EOT;
      * @throws FontNotFoundException
      */
     function selectFont($fontName, $encoding = '', $set = true, $isSubsetting = true)
-    {
+    {   
+        $fontName = (string) $fontName;
+        $ext = substr("$fontName", -4);
+        if ($ext === '.afm' || $ext === '.ufm') {
+            $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
+        }
         if ($fontName === null || $fontName === '') {
             return $this->currentFontNum;
         }
 
-        $ext = substr($fontName, -4);
-        if ($ext === '.afm' || $ext === '.ufm') {
-            $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
-        }
-
-        if ($fontName && !isset($this->fonts[$fontName]) ) {
+        if (!isset($this->fonts[$fontName])) {
             $this->addMessage("selectFont: selecting - $fontName - $encoding, $set");
 
             // load the file
