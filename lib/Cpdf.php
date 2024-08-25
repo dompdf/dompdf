@@ -3536,7 +3536,7 @@ EOT;
         if ($ext === '.afm' || $ext === '.ufm') {
             $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
         }
-        if ($fontName === null || $fontName === '') {
+        if ($fontName === '') {
             return $this->currentFontNum;
         }
 
