@@ -3532,7 +3532,7 @@ EOT;
     function selectFont($fontName, $encoding = '', $set = true, $isSubsetting = true)
     {   
         $fontName = (string) $fontName;
-        $ext = substr("$fontName", -4);
+        $ext = substr($fontName, -4);
         if ($ext === '.afm' || $ext === '.ufm') {
             $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
         }
