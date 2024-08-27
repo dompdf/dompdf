@@ -129,6 +129,7 @@ class CPDFTest extends TestCase
     /**
      * @dataProvider fontSupportsCharProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('fontSupportsCharProvider')]
     public function testFontSupportsChar(string $font, string $char, bool $expected): void
     {
         $dompdf = new Dompdf();
