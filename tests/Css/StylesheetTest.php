@@ -74,4 +74,28 @@ CSS
 
         $this->assertSame($expected, $actual);
     }
+
+    /**
+     * Confirms that data URIs are parsed internally as blob URIs
+     * and that the output value is the original data URI.
+     */
+    public function testDataUriHandling(): void
+    {
+        $basePath = realpath(__DIR__ . "/..");
+        $imagePath = "$basePath/_files/jamaica.jpg";
+        $imageEncoded = base64_encode(file_get_contents($imagePath));
+        $dataUri = "data:image/jpeg;base64," . $imageEncoded;
+        $css = "div { background-color: #000; background-image: url(\"$dataUri\"); }";
+
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $sheet->load_css($css);
+
+        $styles = $sheet->get_styles();
+
+        $this->assertArrayHasKey("div", $styles);
+        $this->assertSame("#000", $styles["div"][0]->get_specified("background_color"));
+        $this->assertSame("blob://", substr($sheet->resolve_url($styles["div"][0]->get_specified("background_image")), 0, 7));
+        $this->assertSame($dataUri, $styles["div"][0]->background_image);
+    }
 }

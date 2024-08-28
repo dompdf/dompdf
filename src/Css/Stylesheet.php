@@ -120,6 +120,13 @@ class Stylesheet
     private $_styles;
 
     /**
+     * Array of embedded files (dataURIs) found in the parsed CSS
+     *
+     * @var array<string>
+     */
+    private $_blobs;
+
+    /**
      * Base protocol of the document being parsed
      * Used to handle relative urls.
      *
@@ -995,7 +1002,7 @@ class Stylesheet
                         $single = count($content) === 1 ? $content[0] : null;
 
                         if ($single instanceof Url) {
-                            $src = $this->resolve_url("url($single->url)");
+                            $src = $this->resolve_url("url($single->url)", true);
                             $new_node = $node->ownerDocument->createElement("img_generated");
                             $new_node->setAttribute("src", $src);
                         } else {
@@ -1224,8 +1231,6 @@ class Stylesheet
      * Called by {@link Stylesheet::parse_css()}
      *
      * @param string $str
-     *
-     * @throws Exception
      */
     private function _parse_css($str)
     {
@@ -1283,8 +1288,23 @@ class Stylesheet
             /isx
 EOL;
 
-        if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false) {
-            throw new Exception("Error parsing css file: preg_match_all() failed.");
+        // replace data URIs with blob URIs
+        while (($start = strpos($css, "data:")) !== false) {
+            $len = null;
+            if (preg_match("/['\"\)]/", $css, $matches, PREG_OFFSET_CAPTURE, $start)) {
+                $len = $matches[0][1] - $start;
+            }
+            $data_uri = substr($css, $start, $len);
+            $data_uri_hash = md5($data_uri);
+            $this->_blobs[$data_uri_hash] = $data_uri;
+            $css = substr($css, 0, $start) . "blob://" . $data_uri_hash . ($len > 0 ? substr($css, $start + $len) : "");
+        }
+
+        $matches = [];
+        if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false || count($matches) === 0) {
+            global $_dompdf_warnings;
+            $_dompdf_warnings[] = "Unable to parse CSS that starts with: " . substr($str, 0, 100);
+            return;
         }
 
         $media_query_regex = "/{$pattern_media_query}/isx";
@@ -1406,10 +1426,11 @@ EOL;
      * Resolve the given `url()` declaration to an absolute URL.
      *
      * @param string|null $val The declaration to resolve in the context of the stylesheet.
-     * @return string The resolved URL, or `none`, if the value is `none`,
-     *         invalid, or points to a non-existent local file.
+     * @param bool|null   $resolve_blobs Indicates whether or not to resolve blob URLs to their final value.
+     * @return string     The resolved URL, or `none`, if the value is `none`,
+     *                    invalid, or points to a non-existent local file.
      */
-    public function resolve_url($val): string
+    public function resolve_url($val, $resolve_blobs = false): string
     {
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
@@ -1429,6 +1450,9 @@ EOL;
                 default:
                     $url = str_replace(["\\(", "\\)"], ["(", ")"], $url);
                     break;
+            }
+            if ($resolve_blobs === true && strpos($url, "blob://") !== false) {
+                $url = $this->_blobs[substr($url, 7)];
             }
             $path = Helpers::build_url(
                 $this->_protocol,
@@ -1463,7 +1487,7 @@ EOL;
         if (mb_strpos($url, "url(") === false) {
             $url = "url($url)";
         }
-        if (($url = $this->resolve_url($url)) === "none") {
+        if (($url = $this->resolve_url($url, true)) === "none") {
             return;
         }
 
@@ -1577,16 +1601,16 @@ EOL;
 
         $valid_sources = [];
         foreach ($sources as $source) {
-            $url_value = $source["CSS_URL_FN_VALUE"] ?? "";
+            $urlfn = $source["CSS_URL_FN"] ?? "";
             $format = strtolower($source["CSS_STRING_VALUE"] ?? $source["FORMAT_VALUE"] ?? "truetype");
 
-            if ($url_value !== "" && $format === "truetype") {
-                $url = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $url_value);
-                if ($url === null) {
+            if ($urlfn !== "" && $format === "truetype") {
+                $url = $this->resolve_url($urlfn, true);
+                if ($url === "none") {
                     continue;
                 }
                 $source_info = [
-                    "uri" => $url_value,
+                    "uri" => $urlfn,
                     "format" => $format,
                     "path" => $url,
                 ];
@@ -1628,17 +1652,36 @@ EOL;
             print '[_parse_properties';
         }
 
-        // Split on non-escaped semicolons which are not part of an unquoted
-        // `url()` declaration. Semicolons in strings are not detected here, and
-        // as a consequence, should be escaped if used in a string
-        $urlEnd = "(?> (\\\\[\"'()] | [^\"'()])* ) (?<!\\\\)\)";
-        $properties = preg_split("/(?<!\\\\); (?! $urlEnd )/x", $str);
+        $delims = ['"' => '"', "'" => "'", '(' => ')'];
+        $delim = null;
+        $len = strlen($str);
+        $properties = [];
+        $char = null;
+        $prev = null;
+        for ($pos = 0; $pos < $len; $pos++) {
+            $prev = $char;
+            $char = $str[$pos];
+            if ($delim !== null) {
+                if ($char === $delims[$delim] && $prev !== '\\') {
+                    $delim = null;
+                }
+                continue;
+            }
+            if (isset($delims[$char]) && $prev !== '\\') {
+                $delim = $char;
+                continue;
+            }
+            if ($char === ';' && $prev !== '\\') {
+                $properties[] = substr($str, 0, $pos);
+                $str = substr($str, $pos+1);
+                $pos = 0;
+                $len = strlen($str);
+            }
+        }
+        $properties[] = $str;
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
-
         foreach ($properties as $prop) {
-            // Instead of short code with `preg_match`, prefer the typical case
-            // with fast code
-            $prop = trim($prop);
+            $prop = str_replace("\\;", ";", trim($prop));
             if ($prop === "") {
                 continue;
             }
