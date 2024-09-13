@@ -284,16 +284,18 @@ class Dompdf
      */
     private function setPhpConfig()
     {
-        if (sprintf('%.1f', 1.0) !== '1.0') {
-            $this->systemLocale = setlocale(LC_NUMERIC, "0");
-            setlocale(LC_NUMERIC, "C");
+        if (function_exists('ini_get') && function_exists('ini_set')) {
+            if (sprintf('%.1f', 1.0) !== '1.0') {
+                $this->systemLocale = setlocale(LC_NUMERIC, "0");
+                setlocale(LC_NUMERIC, "C");
+            }
+
+            $this->pcreJit = @ini_get('pcre.jit');
+            @ini_set('pcre.jit', '0');
+
+            $this->mbstringEncoding = mb_internal_encoding();
+            mb_internal_encoding('UTF-8');
         }
-
-        $this->pcreJit = @ini_get('pcre.jit');
-        @ini_set('pcre.jit', '0');
-
-        $this->mbstringEncoding = mb_internal_encoding();
-        mb_internal_encoding('UTF-8');
     }
 
     /**
@@ -301,19 +303,21 @@ class Dompdf
      */
     private function restorePhpConfig()
     {
-        if ($this->systemLocale !== null) {
-            setlocale(LC_NUMERIC, $this->systemLocale);
-            $this->systemLocale = null;
-        }
+        if (function_exists('ini_get') && function_exists('ini_set')) {
+            if ($this->systemLocale !== null) {
+                setlocale(LC_NUMERIC, $this->systemLocale);
+                $this->systemLocale = null;
+            }
 
-        if ($this->pcreJit !== null) {
-            @ini_set('pcre.jit', $this->pcreJit);
-            $this->pcreJit = null;
-        }
+            if ($this->pcreJit !== null) {
+                @ini_set('pcre.jit', $this->pcreJit);
+                $this->pcreJit = null;
+            }
 
-        if ($this->mbstringEncoding !== null) {
-            mb_internal_encoding($this->mbstringEncoding);
-            $this->mbstringEncoding = null;
+            if ($this->mbstringEncoding !== null) {
+                mb_internal_encoding($this->mbstringEncoding);
+                $this->mbstringEncoding = null;
+            }
         }
     }
 
