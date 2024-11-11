@@ -998,6 +998,35 @@ class CPDF implements Canvas
         return $this->_pdf->messages;
     }
 
+    /**
+     * $hiddenDigitalSignature : array(
+     *   'cert' => <cert>,
+     *   'pkey' => <privkey|[<privkey>,<password>]>,
+     *   'metadata' => ['name' => <name>, 'location' => <location>, 'reason' => <reason>, 'contactinfo' => <contactinfo>],
+     *   'extracerts' => [<cert>,...],
+     *   'ocsps' => [<ocsp>,...]
+     * )
+     *
+     * example:
+     *   openssl_pkcs12_read(<pfx-file-content>, $hiddenDigitalSignature, <password>))
+     *
+     *   $hiddenDigitalSignature['metadata'] = [
+     *     'name' => 'DomPDF', 'location' => '', 'reason' => '', 'contactinfo' => ''
+     *   ];
+     *
+     *   // can add Online Certificate Status Protocol (OCSP) for Long-Term Validation (LTV)
+     *   $hiddenDigitalSignature['ocsps'] = [<ocsp-response.der>...]
+     *
+     *   $dompdf = new Dompdf();
+     *   $dompdf->loadHtml('hello world');
+     *   $dompdf->setPaper('A4', 'landscape');
+     *   $dompdf->render();
+     *   $dompdf->getCanvas()->addHiddenSignature($hiddenDigitalSignature);
+     *   $dompdf->output();
+     *
+     * @param array $hiddenDigitalSignature
+     * @return void
+     */
     function addHiddenSignature($hiddenDigitalSignature)
     {
         if (!isset($this->_pdf->acroFormId)) {

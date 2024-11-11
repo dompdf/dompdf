@@ -4500,8 +4500,7 @@ EOT;
 
     /**
      * Document Security Store
-     *
-     * @param $elements
+     * @param $data array('cert' => <cert>, 'extracerts' => [<cert>,...], 'ocsps' => [<ocsp>,...])
      * @return void
      */
     public function addDSS($data = []) {
@@ -4509,14 +4508,14 @@ EOT;
         $this->o_dss($dssId, 'new');
 
         if (isset($data['cert'])) {
-            foreach($this->cert2der($data['cert']) as $cert) {
+            foreach ($this->cert2der($data['cert']) as $cert) {
                 $this->o_dss($dssId, 'cert', ['value' => $cert]);
             }
         }
 
         if (isset($data['extracerts'])) {
             foreach ($data['extracerts'] as $item) {
-                foreach($this->cert2der($item) as $cert) {
+                foreach ($this->cert2der($item) as $cert) {
                     $this->o_dss($dssId, 'cert', ['value' => $cert]);
                 }
             }
@@ -6640,7 +6639,7 @@ EOT;
     {
         if (count($this->extraProcess) > 0) {
             foreach ($this->extraProcess as $processInfo) {
-               switch ($processInfo['type']) {
+                switch ($processInfo['type']) {
                     case 'object':
                         $tmp = 'o_' . $this->objects[$processInfo['id']]['t'];
                         $this->{$tmp}($processInfo['id'], $event, $options);
