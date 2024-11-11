@@ -74,7 +74,7 @@ class Cpdf
     /**
      * @var int
      */
-    public $signatureMaxLen = 5000;
+    public $signatureMaxLen = 10000;
 
     /**
      * @var array Array carrying information about the fonts that the system currently knows about
@@ -364,7 +364,7 @@ class Cpdf
     /**
      * @var array
      */
-    protected $byteRange = array();
+    protected $extraProcess = [];
 
     /**
      * @var array The list of the core fonts
@@ -610,6 +610,13 @@ class Cpdf
                 $this->catalogId = $id;
                 break;
 
+            case 'setextensionlevel':
+                if ($o['info']['extensionlevel'] ?? 0 < intval($options)) {
+                    $o['info']['extensionlevel'] = intval($options);
+                }
+                break;
+
+            case 'dss':
             case 'acroform':
             case 'outlines':
             case 'pages':
@@ -653,6 +660,14 @@ class Cpdf
 
                         case 'names':
                             $res .= "\n/Names $v 0 R";
+                            break;
+
+                        case 'extensionlevel':
+                            $res .= "\n/Extensions<</ADBE<</BaseVersion/" . self:: PDF_VERSION . "/ExtensionLevel $v>>>>";
+                            break;
+
+                        case 'dss':
+                            $res .= "\n/DSS $v 0 R";
                             break;
 
                         case 'acroform':
@@ -2476,6 +2491,57 @@ EOT;
     }
 
     /**
+     * Document Security Store
+     *
+     * @param $id
+     * @param $action
+     * @param $options
+     * @return null
+     */
+    protected function o_dss($id, $action, $options = '')
+    {
+        switch ($action) {
+            case "new":
+                $this->o_catalog($this->catalogId, 'dss', $id);
+                $this->objects[$id] = array('t' => 'dss', 'info' => []);
+                break;
+            case 'cert':
+                $numObj = ++$this->numObj;
+                $this->o_contents($this->numObj, 'new');
+                $this->objects[$this->numObj]['c'] = $options['value'];
+                $this->objects[$id]['info']['certs'][] = $numObj;
+                break;
+            case 'ocsp':
+                $numObj = ++$this->numObj;
+                $this->o_contents($this->numObj, 'new');
+                $this->objects[$this->numObj]['c'] = $options['value'];
+                $this->objects[$id]['info']['ocsps'][] = $numObj;
+                break;
+            case "out":
+                $res = "\n$id 0 obj\n<<\n";
+                if (array_key_exists('certs', $this->objects[$id]['info'])) {
+                    $res .= "/Certs [ ";
+                    foreach ($this->objects[$id]['info']['certs'] as $v) {
+                        $res .= "$v 0 R ";
+                    }
+                    $res .= "]\n";
+                }
+                if (array_key_exists('ocsps', $this->objects[$id]['info'])) {
+                    $res .= "/OCSPs [ ";
+                    foreach ($this->objects[$id]['info']['ocsps'] as $v) {
+                        $res .= "$v 0 R ";
+                    }
+                    $res .= "]\n";
+                }
+                $res .= ">>\nendobj";
+
+                return $res;
+        }
+
+        return null;
+    }
+
+    /**
      * @param $id
      * @param $action
      * @param string $options
@@ -2641,11 +2707,11 @@ EOT;
 
         switch ($action) {
             case "new":
-                $this->objects[$id] = array('t' => 'sig', 'info' => $options);
-                $this->byteRange[$id] = ['t' => 'sig'];
+                $this->objects[$id] = ['t' => 'sig', 'info' => $options];
+                $this->addExtraProcess(['type' => 'object', 'id' => $id]);
                 break;
 
-            case 'byterange':
+            case "afterout":
                 $o = &$this->objects[$id];
                 $content =& $options['content'];
                 $content_len = strlen($content);
@@ -3239,12 +3305,7 @@ EOT;
 
         $content .= ">>\nstartxref\n$pos\n%%EOF\n";
 
-        if (count($this->byteRange) > 0) {
-            foreach ($this->byteRange as $k => $v) {
-                $tmp = 'o_' . $v['t'];
-                $this->$tmp($k, 'byterange', ['content' => &$content]);
-            }
-        }
+        $this->doExtraProcesses('afterout', ['content' => &$content]);
 
         return $content;
     }
@@ -4416,6 +4477,56 @@ EOT;
           'NeedAppearances' => $needAppearances ? 'true' : 'false',
           'SigFlags' => $sigFlags
         ]);
+    }
+
+    /**
+     * If the cert Base64 encoded then convert into der else return the raw data
+     * If PAM contains fullchain/chain list than split it parts
+     * @param $certificate PEM, DER
+     * @return array
+     */
+    private function cert2der($certificate) {
+        $certificates = [];
+        if (preg_match_all('/(-+BEGIN CERTIFICATE-+)(.*?)(-+END CERTIFICATE-+)/ms', $certificate, $matches)) {
+            foreach ($matches[2] as $match) {
+                $certificates[] = base64_decode(str_replace(["\r", "\n"], '', $match));
+            }
+        } else {
+            $certificates[] = $certificate;
+        }
+
+        return $certificates;
+    }
+
+    /**
+     * Document Security Store
+     *
+     * @param $elements
+     * @return void
+     */
+    public function addDSS($data = []) {
+        $dssId = ++$this->numObj;
+        $this->o_dss($dssId, 'new');
+
+        if (isset($data['cert'])) {
+            foreach($this->cert2der($data['cert']) as $cert) {
+                $this->o_dss($dssId, 'cert', ['value' => $cert]);
+            }
+        }
+
+        if (isset($data['extracerts'])) {
+            foreach ($data['extracerts'] as $item) {
+                foreach($this->cert2der($item) as $cert) {
+                    $this->o_dss($dssId, 'cert', ['value' => $cert]);
+                }
+            }
+        }
+
+        if (isset($data['ocsps'])) {
+            foreach ($data['ocsps'] as $ocsp) {
+                $this->o_dss($dssId, 'ocsp', ['value' => $ocsp]);
+            }
+        }
     }
 
     /**
@@ -6518,5 +6629,29 @@ EOT;
                 }
                 break;
         }
+    }
+
+    protected function addExtraProcess($processInfo = [])
+    {
+        $this->extraProcess[] = $processInfo;
+    }
+
+    protected function doExtraProcesses($event, $options)
+    {
+        if (count($this->extraProcess) > 0) {
+            foreach ($this->extraProcess as $processInfo) {
+               switch ($processInfo['type']) {
+                    case 'object':
+                        $tmp = 'o_' . $this->objects[$processInfo['id']]['t'];
+                        $this->{$tmp}($processInfo['id'], $event, $options);
+                        break;
+                }
+            }
+        }
+    }
+
+    public function setExtensionLevel($level)
+    {
+        $this->o_catalog($this->catalogId, 'setextensionlevel', $level);
     }
 }

@@ -997,4 +997,26 @@ class CPDF implements Canvas
     {
         return $this->_pdf->messages;
     }
+
+    function addHiddenSignature($hiddenDigitalSignature)
+    {
+        if (!isset($this->_pdf->acroFormId)) {
+            $this->_pdf->addForm(\Dompdf\Cpdf::ACROFORM_SIG_SIGNATURESEXISTS | \Dompdf\Cpdf::ACROFORM_SIG_APPENDONLY);
+        }
+        $this->_pdf->setExtensionLevel(5);
+        $fieldSigId = $this->_pdf->addFormField(\Dompdf\Cpdf::ACROFORM_FIELD_SIG, 'Signature1', 0, 0, 0, 0);
+        $signatureId = $this->_pdf->addSignature(
+            $hiddenDigitalSignature['cert'],
+            is_array($hiddenDigitalSignature['pkey']) ? $hiddenDigitalSignature['pkey'][0] : $hiddenDigitalSignature['pkey'],
+            is_array($hiddenDigitalSignature['pkey']) ? $hiddenDigitalSignature['pkey'][1] : '',
+            $hiddenDigitalSignature['metadata']['name'],
+            $hiddenDigitalSignature['metadata']['location'],
+            $hiddenDigitalSignature['metadata']['reason'],
+            $hiddenDigitalSignature['metadata']['contactinfo']);
+        $this->_pdf->setFormFieldRefValue($fieldSigId, $signatureId);
+
+        if (isset($hiddenDigitalSignature['extracerts']) || isset($hiddenDigitalSignature['ocsps'])) {
+            $this->_pdf->addDSS($hiddenDigitalSignature);
+        }
+    }
 }
