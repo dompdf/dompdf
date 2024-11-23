@@ -71,7 +71,7 @@ class Options
     * Protocol whitelist
     *
     * Protocols and PHP wrappers allowed in URIs, and the validation rules
-    * that determine if a resouce may be loaded. Full support is not guaranteed
+    * that determine if a resource may be loaded. Full support is not guaranteed
     * for the protocols/wrappers specified
     * by this array.
     *
@@ -93,7 +93,7 @@ class Options
     /**
      * @var string
      */
-    private $logOutputFile;
+    private $logOutputFile = '';
 
     /**
      * Styles targeted to this media type are applied to the document.
@@ -330,7 +330,7 @@ class Options
     /**
      * @param array $attributes
      */
-    public function __construct(array $attributes = null)
+    public function __construct(?array $attributes = null)
     {
         $rootDir = realpath(__DIR__ . "/../");
         $this->setChroot(array($rootDir));

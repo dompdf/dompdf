@@ -74,7 +74,7 @@ class Inline extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    function reflow(?BlockFrameDecorator $block = null)
     {
         /** @var InlineFrameDecorator */
         $frame = $this->_frame;
