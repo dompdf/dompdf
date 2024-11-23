@@ -296,7 +296,7 @@ class Table extends AbstractFrameReflower
     /**
      * @param BlockFrameDecorator|null $block
      */
-    function reflow(BlockFrameDecorator $block = null)
+    function reflow(?BlockFrameDecorator $block = null)
     {
         /** @var TableFrameDecorator */
         $frame = $this->_frame;

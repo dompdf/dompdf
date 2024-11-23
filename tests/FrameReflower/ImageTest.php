@@ -125,7 +125,7 @@ class ImageTest extends TestCase
 
     private function getImageMock(
         array $styleProperties,
-        ImageFrameDecorator $parentFrame = null,
+        ?ImageFrameDecorator $parentFrame = null,
         array $containingBlock = [0, 0, 400, 400]
     ): ImageFrameDecorator {
         $style = new Style(new Stylesheet(new Dompdf()));

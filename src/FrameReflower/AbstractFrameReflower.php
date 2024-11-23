@@ -294,7 +294,7 @@ abstract class AbstractFrameReflower
     /**
      * @param Block|null $block
      */
-    abstract function reflow(Block $block = null);
+    abstract function reflow(?Block $block = null);
 
     /**
      * Resolve the `min-width` property.
