@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 12
       matrix:
-        php: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3']
+        php: ['7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
         package-release: [dist]
         extensions: ['gd']
         include:
@@ -36,7 +36,7 @@ jobs:
           extensions: exif,json,mbstring,dom,${{ matrix.extensions }}
 
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
         with:
           dependency-versions: ${{ matrix.package-release }}
 
@@ -52,7 +52,7 @@ jobs:
 
       - name: Upload failed tests
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: failed-output-tests
           path: /home/runner/work/dompdf/dompdf/tmp/failed-output-tests
