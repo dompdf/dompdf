@@ -2206,7 +2206,7 @@ class Style
      */
     protected function _get_background_image($computed): string
     {
-        return $this->_stylesheet->resolve_url($computed);
+        return $this->_stylesheet->resolve_url($computed, true);
     }
 
     /**
@@ -2504,7 +2504,7 @@ class Style
      */
     protected function _get_list_style_image($computed): string
     {
-        return $this->_stylesheet->resolve_url($computed);
+        return $this->_stylesheet->resolve_url($computed, true);
     }
 
     /**
