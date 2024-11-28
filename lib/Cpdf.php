@@ -6239,15 +6239,21 @@ EOT;
         // attempt to add a jpeg image straight from a file, using no GD commands
         // note that this function is unable to operate on a remote file.
 
-        if (!file_exists($img)) {
-            return;
+        if(substr($img, 0, 5) == 'data:') {
+            $filename = 'data-'.hash('md4',$img);
+        }
+        else {
+            if (!file_exists($img)) {
+                return;
+            }
+            $filename = $img;
         }
 
-        if ($this->image_iscached($img)) {
+        if ($this->image_iscached($filename)) {
             $data = null;
-            $imageWidth = $this->imagelist[$img]['w'];
-            $imageHeight = $this->imagelist[$img]['h'];
-            $channels = $this->imagelist[$img]['c'];
+            $imageWidth = $this->imagelist[$filename]['w'];
+            $imageHeight = $this->imagelist[$filename]['h'];
+            $channels = $this->imagelist[$filename]['c'];
         } else {
             $tmp = getimagesize($img);
             $imageWidth = $tmp[0];
@@ -6274,7 +6280,7 @@ EOT;
             $h = $w * $imageHeight / $imageWidth;
         }
 
-        $this->addJpegImage_common($data, $img, $imageWidth, $imageHeight, $x, $y, $w, $h, $channels);
+        $this->addJpegImage_common($data, $filename, $imageWidth, $imageHeight, $x, $y, $w, $h, $channels);
     }
 
     /**
