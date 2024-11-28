@@ -1434,7 +1434,8 @@ EOL;
                 $this->_protocol,
                 $this->_base_host,
                 $this->_base_path,
-                $url
+                $url,
+                $this->_dompdf->getOptions()->getChroot()
             );
             if ($path === null) {
                 $path = "none";
@@ -1581,7 +1582,7 @@ EOL;
             $format = strtolower($source["CSS_STRING_VALUE"] ?? $source["FORMAT_VALUE"] ?? "truetype");
 
             if ($url_value !== "" && $format === "truetype") {
-                $url = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $url_value);
+                $url = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $url_value, $this->_dompdf->getOptions()->getChroot());
                 if ($url === null) {
                     continue;
                 }
@@ -1744,7 +1745,7 @@ EOL;
     {
         $options = $this->_dompdf->getOptions();
         $rootDir = realpath($options->getRootDir());
-        return Helpers::build_url("file://", "", $rootDir, $rootDir . self::DEFAULT_STYLESHEET);
+        return Helpers::build_url("file://", "", $rootDir, $rootDir . self::DEFAULT_STYLESHEET, $options->getChroot());
     }
 
     /**
