@@ -49,6 +49,7 @@ CSS
      *
      * @dataProvider parseCssProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('parseCssProvider')]
     public function testParseCss(string $css, array $expected): void
     {
         $dompdf = new Dompdf();

@@ -160,6 +160,7 @@ class DompdfTest extends TestCase
     /**
      * @dataProvider loadHtmlProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('loadHtmlProvider')]
     public function testLoadHtml(
         string $html,
         ?string $encoding,
@@ -194,6 +195,7 @@ class DompdfTest extends TestCase
     /**
      * @dataProvider callbacksProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('callbacksProvider')]
     public function testCallbacks(string $event, int $numCalls): void
     {
         $called = 0;
@@ -257,6 +259,7 @@ class DompdfTest extends TestCase
      *
      * @dataProvider customCanvasProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('customCanvasProvider')]
     public function testCustomCanvas(
         $size,
         string $orientation,
