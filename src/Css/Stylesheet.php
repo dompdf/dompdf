@@ -361,37 +361,34 @@ class Stylesheet
         if (isset($this->_loaded_files[$file])) {
             return;
         }
-
         $this->_loaded_files[$file] = true;
+
+        $parsed_url = Helpers::explode_url($file);
+        $protocol = $parsed_url["protocol"];
+
+        if ($file !== $this->getDefaultStylesheet()) {
+            $options = $this->_dompdf->getOptions();
+            $allowed_protocols = $options->getAllowedProtocols();
+            if (!array_key_exists($protocol, $allowed_protocols)) {
+                Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The communication protocol is not supported.", __FILE__, __LINE__);
+                return;
+            }
+            foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+                [$result, $message] = $rule($file);
+                if (!$result) {
+                    Helpers::record_warnings(E_USER_WARNING, "Error loading $file: $message", __FILE__, __LINE__);
+                    return;
+                }
+            }
+        }
 
         if (strpos($file, "data:") === 0) {
             $parsed = Helpers::parse_data_uri($file);
             $css = $parsed["data"];
         } else {
-            $options = $this->_dompdf->getOptions();
-
-            $parsed_url = Helpers::explode_url($file);
-            $protocol = $parsed_url["protocol"];
-
-            if ($file !== $this->getDefaultStylesheet()) {
-                $allowed_protocols = $options->getAllowedProtocols();
-                if (!array_key_exists($protocol, $allowed_protocols)) {
-                    Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The communication protocol is not supported.", __FILE__, __LINE__);
-                    return;
-                }
-                foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
-                    [$result, $message] = $rule($file);
-                    if (!$result) {
-                        Helpers::record_warnings(E_USER_WARNING, "Error loading $file: $message", __FILE__, __LINE__);
-                        return;
-                    }
-                }
-            }
-
             [$css, $http_response_header] = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
-
             if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
                     if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
