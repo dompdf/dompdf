@@ -9,6 +9,19 @@ use Dompdf\Tests\TestCase;
 
 class CPDFTest extends TestCase
 {
+    public function testImage(): void
+    {
+        $basePath = realpath(__DIR__ . "/..");
+        $imagePath = "$basePath/_files/red-dot.png";
+
+        $dompdf = new Dompdf();
+        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas->new_page();
+        $canvas->image($imagePath, 0, 0, 5, 5);
+        $output = $canvas->output();
+        $this->assertNotSame("", $output);
+    }
+
     public function testPageScript(): void
     {
         global $called;
