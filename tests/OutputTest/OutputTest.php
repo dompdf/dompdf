@@ -66,6 +66,7 @@ final class OutputTest extends TestCase
     }
 
     /**
+     * @group OutputTest
      * @dataProvider outputTestProvider
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('outputTestProvider')]
