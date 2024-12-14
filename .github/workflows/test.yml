@@ -12,6 +12,7 @@ jobs:
   test:
     name: "Build"
     runs-on: ubuntu-latest
+
     strategy:
       max-parallel: 12
       matrix:
@@ -19,12 +20,31 @@ jobs:
         package-release: [dist]
         extensions: ['gd']
         include:
-          - php: '8.1'
+          - php: '7.1'
             package-release: 'dist'
             extensions: 'gmagick'
-          - php: '8.2'
+          - php: '7.1'
             package-release: 'dist'
             extensions: 'imagick'
+          - php: '7.4'
+            package-release: 'dist'
+            extensions: 'gmagick'
+          - php: '7.4'
+            package-release: 'dist'
+            extensions: 'imagick'
+          - php: '8.0'
+            package-release: 'dist'
+            extensions: 'gmagick'
+          - php: '8.0'
+            package-release: 'dist'
+            extensions: 'imagick'
+          - php: '8.4'
+            package-release: 'dist'
+            extensions: 'gmagick'
+          - php: '8.4'
+            package-release: 'dist'
+            extensions: 'imagick'
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

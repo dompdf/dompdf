@@ -1,7 +1,6 @@
 .DS_Store
 composer.phar
 composer.lock
-phpunit.xml
 vendor
 build
 tmp
