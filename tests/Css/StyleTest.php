@@ -501,7 +501,7 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->font_weight);
     }
 
-    private function testLengthProperty(
+    private function validateLengthProperty(
         string $prop,
         string $value,
         float $fontSize,
@@ -597,7 +597,7 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("width", $value, $fontSize, $expected, ["width" => $initial]);
+        $this->validateLengthProperty("width", $value, $fontSize, $expected, ["width" => $initial]);
     }
 
     /**
@@ -608,7 +608,7 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("height", $value, $fontSize, $expected, ["height" => $initial]);
+        $this->validateLengthProperty("height", $value, $fontSize, $expected, ["height" => $initial]);
     }
 
     public static function minWidthHeightProvider(): array
@@ -637,7 +637,7 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testMinWidth(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("min_width", $value, $fontSize, $expected, ["min_width" => $initial]);
+        $this->validateLengthProperty("min_width", $value, $fontSize, $expected, ["min_width" => $initial]);
     }
 
     /**
@@ -648,7 +648,7 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testMinHeight(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("min_height", $value, $fontSize, $expected, ["min_height" => $initial]);
+        $this->validateLengthProperty("min_height", $value, $fontSize, $expected, ["min_height" => $initial]);
     }
 
     public static function maxWidthHeightProvider(): array
@@ -677,7 +677,7 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testMaxWidth(string $value, float $fontSize, $expected, $initial = "none"): void
     {
-        $this->testLengthProperty("max_width", $value, $fontSize, $expected, ["max_width" => $initial]);
+        $this->validateLengthProperty("max_width", $value, $fontSize, $expected, ["max_width" => $initial]);
     }
 
     /**
@@ -688,7 +688,7 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testMaxHeight(string $value, float $fontSize, $expected, $initial = "none"): void
     {
-        $this->testLengthProperty("max_height", $value, $fontSize, $expected, ["max_height" => $initial]);
+        $this->validateLengthProperty("max_height", $value, $fontSize, $expected, ["max_height" => $initial]);
     }
 
     /**
@@ -699,10 +699,10 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentageProvider')]
     public function testBoxInset(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("top", $value, $fontSize, $expected, ["top" => $initial]);
-        $this->testLengthProperty("right", $value, $fontSize, $expected, ["right" => $initial]);
-        $this->testLengthProperty("bottom", $value, $fontSize, $expected, ["bottom" => $initial]);
-        $this->testLengthProperty("left", $value, $fontSize, $expected, ["left" => $initial]);
+        $this->validateLengthProperty("top", $value, $fontSize, $expected, ["top" => $initial]);
+        $this->validateLengthProperty("right", $value, $fontSize, $expected, ["right" => $initial]);
+        $this->validateLengthProperty("bottom", $value, $fontSize, $expected, ["bottom" => $initial]);
+        $this->validateLengthProperty("left", $value, $fontSize, $expected, ["left" => $initial]);
     }
 
     public static function marginProvider(): array
@@ -731,10 +731,10 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentageProvider')]
     public function testMargin(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("margin_top", $value, $fontSize, $expected, ["margin_top" => $initial]);
-        $this->testLengthProperty("margin_right", $value, $fontSize, $expected, ["margin_right" => $initial]);
-        $this->testLengthProperty("margin_bottom", $value, $fontSize, $expected, ["margin_bottom" => $initial]);
-        $this->testLengthProperty("margin_left", $value, $fontSize, $expected, ["margin_left" => $initial]);
+        $this->validateLengthProperty("margin_top", $value, $fontSize, $expected, ["margin_top" => $initial]);
+        $this->validateLengthProperty("margin_right", $value, $fontSize, $expected, ["margin_right" => $initial]);
+        $this->validateLengthProperty("margin_bottom", $value, $fontSize, $expected, ["margin_bottom" => $initial]);
+        $this->validateLengthProperty("margin_left", $value, $fontSize, $expected, ["margin_left" => $initial]);
     }
 
     public static function paddingProvider(): array
@@ -756,10 +756,10 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testPadding(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("padding_top", $value, $fontSize, $expected, ["padding_top" => $initial]);
-        $this->testLengthProperty("padding_right", $value, $fontSize, $expected, ["padding_right" => $initial]);
-        $this->testLengthProperty("padding_bottom", $value, $fontSize, $expected, ["padding_bottom" => $initial]);
-        $this->testLengthProperty("padding_left", $value, $fontSize, $expected, ["padding_left" => $initial]);
+        $this->validateLengthProperty("padding_top", $value, $fontSize, $expected, ["padding_top" => $initial]);
+        $this->validateLengthProperty("padding_right", $value, $fontSize, $expected, ["padding_right" => $initial]);
+        $this->validateLengthProperty("padding_bottom", $value, $fontSize, $expected, ["padding_bottom" => $initial]);
+        $this->validateLengthProperty("padding_left", $value, $fontSize, $expected, ["padding_left" => $initial]);
     }
 
     public static function lineWidthProvider(): array
@@ -818,8 +818,8 @@ class StyleTest extends TestCase
                 "{$prop}_style" => "none"
             ];
 
-            $this->testLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleSolid, $initialPropsSolid);
-            $this->testLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleNone, $initialPropsNone);
+            $this->validateLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleSolid, $initialPropsSolid);
+            $this->validateLengthProperty("{$prop}_width", $value, $fontSize, $expectedStyleNone, $initialPropsNone);
         }
     }
 
@@ -840,10 +840,10 @@ class StyleTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('lengthPercentagePositiveProvider')]
     public function testBorderRadius(string $value, float $fontSize, $expected, $initial = "auto"): void
     {
-        $this->testLengthProperty("border_top_left_radius", $value, $fontSize, $expected, ["border_top_left_radius" => $initial]);
-        $this->testLengthProperty("border_top_right_radius", $value, $fontSize, $expected, ["border_top_right_radius" => $initial]);
-        $this->testLengthProperty("border_bottom_right_radius", $value, $fontSize, $expected, ["border_bottom_right_radius" => $initial]);
-        $this->testLengthProperty("border_bottom_left_radius", $value, $fontSize, $expected, ["border_bottom_left_radius" => $initial]);
+        $this->validateLengthProperty("border_top_left_radius", $value, $fontSize, $expected, ["border_top_left_radius" => $initial]);
+        $this->validateLengthProperty("border_top_right_radius", $value, $fontSize, $expected, ["border_top_right_radius" => $initial]);
+        $this->validateLengthProperty("border_bottom_right_radius", $value, $fontSize, $expected, ["border_bottom_right_radius" => $initial]);
+        $this->validateLengthProperty("border_bottom_left_radius", $value, $fontSize, $expected, ["border_bottom_left_radius" => $initial]);
     }
 
     public static function borderSpacingProvider(): array
