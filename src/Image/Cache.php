@@ -77,17 +77,15 @@ class Cache
             $parsed_url = Helpers::explode_url($full_url);
             $protocol = strtolower($parsed_url["protocol"]);
             $is_data_uri = strpos($protocol, "data:") === 0;
-            
-            if (!$is_data_uri) {
-                $allowed_protocols = $options->getAllowedProtocols();
-                if (!array_key_exists($protocol, $allowed_protocols)) {
-                    throw new ImageException("Permission denied on $url. The communication protocol is not supported.", E_WARNING);
-                }
-                foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
-                    [$result, $message] = $rule($full_url);
-                    if (!$result) {
-                        throw new ImageException("Error loading $url: $message", E_WARNING);
-                    }
+
+            $allowed_protocols = $options->getAllowedProtocols();
+            if (!array_key_exists($protocol, $allowed_protocols)) {
+                throw new ImageException("Permission denied on $url. The communication protocol is not supported.", E_WARNING);
+            }
+            foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+                [$result, $message] = $rule($full_url);
+                if (!$result) {
+                    throw new ImageException("Error loading $url: $message", E_WARNING);
                 }
             }
 
