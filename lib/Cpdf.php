@@ -6249,7 +6249,10 @@ EOT;
             $imageHeight = $this->imagelist[$img]['h'];
             $channels = $this->imagelist[$img]['c'];
         } else {
-            $tmp = getimagesize($img);
+            $tmp = @getimagesize($img);
+            if ($tmp === false) {
+                return;
+            }
             $imageWidth = $tmp[0];
             $imageHeight = $tmp[1];
 
