@@ -636,18 +636,21 @@ class Cpdf
                 break;
 
             case 'outputIntents':
+                if (!isset($o['info']['outputIntents'])) {
+                    $o['info']['outputIntents'] = [];
+                }
+
                 $this->numObj++;
-
-                $o['info']['outputIntents'] = [
-                    'iccProfileName' => $options['iccProfileName'],
-                    'destOutputProfile' => $this->numObj,
-                ];
-
                 $this->o_contents($this->numObj, 'new');
                 $this->objects[$this->numObj]['c'] = $options['iccProfileData'];
                 $this->o_contents($this->numObj, 'add', [
                     'N' => $options['colorComponentsCount'],
                 ]);
+
+                $o['info']['outputIntents'][] = [
+                    'iccProfileName' => $options['iccProfileName'],
+                    'destOutputProfile' => $this->numObj,
+                ];
 
                 break;
 
@@ -699,9 +702,13 @@ class Cpdf
                             break;
 
                         case 'outputIntents':
-                            $res .= "\n/OutputIntents [<< /Type /OutputIntent /S /GTS_PDFA1 ";
-                            $res .= "/OutputConditionIdentifier (" . $v['iccProfileName'] . ") /Info (" . $v['iccProfileName'] . ") ";
-                            $res .= "/DestOutputProfile " . $v['destOutputProfile'] . " 0 R >>]";
+                            $res .= "\n/OutputIntents [";
+                            foreach ($v as $intent) {
+                                $res .= "\n<< /Type /OutputIntent /S /GTS_PDFA1 ";
+                                $res .= "/OutputConditionIdentifier (" . $intent['iccProfileName'] . ") /Info (" . $intent['iccProfileName'] . ") ";
+                                $res .= "/DestOutputProfile " . $intent['destOutputProfile'] . " 0 R >>";
+                            }
+                            $res .= "]";
                             break;
                     }
                 }
@@ -1797,7 +1804,7 @@ EOT;
                 $this->objects[$id] = [
                     't'    => 'info',
                     'info' => [
-                        'Producer'      => 'CPDF (dompdf)',
+                        'Producer'     => 'CPDF (dompdf)',
                         'CreationDate' => $date
                     ]
                 ];
@@ -1955,6 +1962,7 @@ EOT;
                         $res .= "\n/Subtype /Link";
                         break;
                 }
+                $res .= "\n/F 28";
                 $res .= "\n/A " . $o['info']['actionId'] . " 0 R";
                 $res .= "\n/Border [0 0 0]";
                 $res .= "\n/H /I";
@@ -2927,13 +2935,13 @@ EOT;
                 }
                 break;
             case 'out':
-                $res = "\n$id 0 obj << ";
+                $res = "\n$id 0 obj\n<< ";
 
                 foreach ($this->objects[$id]['info'] as $referenceObjName => $referenceObjId) {
                     $res .= "/$referenceObjName $referenceObjId 0 R ";
                 }
 
-                $res .= ">> endobj";
+                $res .= ">>\nendobj";
                 return $res;
         }
 
@@ -2958,7 +2966,7 @@ EOT;
                 $info = &$this->objects[$id]['info'];
                 $res = '';
                 if (count($info) > 0) {
-                    $res = "\n$id 0 obj << /Names [ ";
+                    $res = "\n$id 0 obj\n<< /Names [ ";
 
                     if ($this->encrypted) {
                         $this->encryptInit($id);
@@ -2974,7 +2982,7 @@ EOT;
                         $res .= "($filename) " . $entry['dict_reference'] . " 0 R ";
                     }
 
-                    $res .= "] >> endobj";
+                    $res .= "] >>\nendobj";
                 }
                 return $res;
         }
@@ -3007,10 +3015,10 @@ EOT;
                 $filename = $this->filterText($filename, false, false);
                 $description = $this->filterText($description, false, false);
 
-                $res = "\n$id 0 obj <</Type /Filespec /EF";
+                $res = "\n$id 0 obj\n<</Type /Filespec /EF";
                 $res .= " <</F " . $info['embedded_reference'] . " 0 R >>";
                 $res .= " /F ($filename) /UF ($filename) /Desc ($description)";
-                $res .= " >> endobj";
+                $res .= " >>\nendobj";
                 return $res;
         }
 
@@ -3052,7 +3060,7 @@ EOT;
                 }
                 $file_size_compressed = mb_strlen($file_content_compressed, '8bit');
 
-                $res = "\n$id 0 obj <</Params <</Size $file_size_uncompressed /CheckSum ($checksum) >>" .
+                $res = "\n$id 0 obj\n<</Params <</Size $file_size_uncompressed /CheckSum ($checksum) >>" .
                     " /Type/EmbeddedFile /Filter/FlateDecode" .
                     " /Length $file_size_compressed >> stream\n$file_content_compressed\nendstream\nendobj";
 
@@ -3070,7 +3078,6 @@ EOT;
         $this->pdfa = true;
 
         $iccProfilePath = __DIR__ . '/res/sRGB2014.icc';
-
         $this->o_catalog($this->catalogId, 'outputIntents', [
             'iccProfileData' => file_get_contents($iccProfilePath),
             'iccProfileName' => basename($iccProfilePath),
@@ -3086,7 +3093,7 @@ EOT;
     function getXmpMetadata()
     {
         $md = <<<EOT
-<?xpacket begin="ï»¿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<?xpacket begin="\xEF\xBB\xBF" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
@@ -3160,7 +3167,7 @@ EOT;
     }
 
     /**
-     * Parse a PDF formated date
+     * Parse a PDF formatted date
      *
      * @param $string
      * @return \DateTime|false
@@ -3423,7 +3430,7 @@ EOT;
 
         if ($this->pdfa) {
             // Force binary mode with 4 random bytes above 127
-            $content .= "\n%" . chr(rand(128, 256)) . chr(rand(128, 256)) . chr(rand(128, 256)) . chr(rand(128, 256));
+            $content .= "\n%" . chr(rand(128, 255)) . chr(rand(128, 255)) . chr(rand(128, 255)) . chr(rand(128, 255));
         }
 
         $pos = mb_strlen($content, '8bit');
