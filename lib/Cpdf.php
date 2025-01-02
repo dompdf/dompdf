@@ -1205,7 +1205,10 @@ class Cpdf
 
             if (isset($font['MissingWidth'])) {
                 $missing_width = $font['MissingWidth'];
+            } elseif (isset($font['IsFixedPitch']) && strtolower($font['IsFixedPitch']) === "true" && isset($font['C'][32])) {
+                $missing_width = $font['C'][32];
             }
+
             if (isset($font['StdVW'])) {
                 $stemV = $font['StdVW'];
             } else {
@@ -1303,7 +1306,7 @@ class Cpdf
             $flags += pow(2, 5); // assume non-sybolic
             $list = [
                 'Ascent'       => 'Ascender',
-                'CapHeight'    => 'Ascender', //FIXME: php-font-lib is not grabbing this value, so we'll fake it and use the Ascender value // 'CapHeight'
+                'CapHeight'    => 'CapHeight',
                 'MissingWidth' => 'MissingWidth',
                 'Descent'      => 'Descender',
                 'FontBBox'     => 'FontBBox',
@@ -1319,6 +1322,9 @@ class Cpdf
                 if (isset($font[$v])) {
                     $fdopt[$k] = $font[$v];
                 }
+            }
+            if (!isset($fdopt['CapHeight']) && isset($fdopt['Ascender'])) {
+                $fdopt['CapHeight'] = $fdopt['Ascender'];
             }
 
             if ($isPfbFont) {
