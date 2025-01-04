@@ -113,7 +113,16 @@ abstract class AbstractFrameReflower
                     break;
                 }
             case "fixed":
-                $initial_cb = $frame->get_root()->get_first_child()->get_containing_block();
+                $root = $frame->get_root();
+                $parent = $frame->get_parent();
+                do {
+                    $parents_parent = $parent->get_parent();
+                    if ($parents_parent == $root) {
+                        break;
+                    }
+                    $parent = $parents_parent;
+                } while ($parent);
+                $initial_cb = $parent->get_containing_block();
                 $frame->set_containing_block($initial_cb["x"], $initial_cb["y"], $initial_cb["w"], $initial_cb["h"]);
                 break;
             default:
