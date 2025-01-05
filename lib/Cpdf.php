@@ -91,7 +91,7 @@ class Cpdf
      * @var string The default font metrics file to use if no other font has been loaded.
      * The path to the directory containing the font metrics should be included
      */
-    public $defaultFont = './fonts/Helvetica.afm';
+    public $defaultFont = __DIR__ . '/fonts/Helvetica.afm';
 
     /**
      * @string A record of the current font
