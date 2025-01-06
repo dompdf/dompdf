@@ -716,6 +716,7 @@ class Dompdf
     {
         $this->setPhpConfig();
 
+
         $logOutputFile = $this->options->getLogOutputFile();
         if ($logOutputFile) {
             if (!file_exists($logOutputFile) && is_writable(dirname($logOutputFile))) {
@@ -727,6 +728,12 @@ class Dompdf
                 ob_start();
             }
         }
+
+        $renderProgressData = [
+            'framesToRender' => 0,
+            'framesRendered' => 0,
+            'percentage' => 0,
+        ];
 
         $this->processHtml();
 
@@ -768,6 +775,7 @@ class Dompdf
         $root_frame = $this->tree->get_root();
         $root = Factory::decorate_root($root_frame, $this);
         foreach ($this->tree as $frame) {
+            $renderProgressData['framesToRender']++;
             if ($frame === $root_frame) {
                 continue;
             }
@@ -803,6 +811,23 @@ class Dompdf
 
         $root->set_containing_block(0, 0, $canvas->get_width(), $canvas->get_height());
         $root->set_renderer(new Renderer($this));
+
+
+        // Inject on render_progress callbacks the current render progress data:
+        if (isset($this->callbacks["render_progress"])) {
+            $fs = $this->callbacks["render_progress"];
+            $fsWithRenderProgressData = [];
+            foreach ($fs as $f) {
+                $fsWithRenderProgressData[] = function() use (&$renderProgressData, $f){
+                    return [
+                        'f' => $f,
+                        'data' => &$renderProgressData,
+                    ];
+                };
+            }
+            $this->callbacks["render_progress"] = $fsWithRenderProgressData;
+        }
+
 
         // This is where the magic happens:
         $root->reflow();
@@ -1427,6 +1452,7 @@ class Dompdf
      * * `begin_page_render`: called before a page is rendered
      * * `end_page_render`: called after page rendering is complete
      * * `end_document`: called for every page after rendering is complete
+     * * `render_progress`: called per frame render, returns progress percentage
      *
      * The function `f` receives three arguments `Frame $frame`, `Canvas $canvas`,
      * and `FontMetrics $fontMetrics` for all events but `end_document`. For
