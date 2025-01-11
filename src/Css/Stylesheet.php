@@ -503,6 +503,7 @@ class Stylesheet
 
             // Eat characters up to the next delimiter
             $tok = "";
+            $escape = false;
             $in_attr = false;
             $in_func = false;
 
@@ -510,7 +511,13 @@ class Stylesheet
                 $c = $selector[$i];
                 $c_prev = $selector[$i - 1];
 
-                if (!$in_func && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
+                if ($c_prev === "\\" && !$escape) {
+                    $escape = true;
+                } elseif ($escape === true) {
+                    $escape = false;
+                }
+
+                if (!$escape && !$in_func && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
                     break;
                 }
 
@@ -523,15 +530,17 @@ class Stylesheet
 
                 $tok .= $selector[$i++];
 
-                if ($in_attr && $c === "]") {
+                if (!$escape && $in_attr && $c === "]") {
                     $in_attr = false;
                     break;
                 }
-                if ($in_func && $c === ")") {
+                if (!$escape && $in_func && $c === ")") {
                     $in_func = false;
                     break;
                 }
             }
+            $tok = $this->parse_string($tok);
+    
 
             switch ($s) {
 
@@ -1679,7 +1688,7 @@ EOL;
         $properties[] = $str;
         $style = new Style($this, Stylesheet::ORIG_AUTHOR);
         foreach ($properties as $prop) {
-            $prop = str_replace("\\;", ";", trim($prop));
+            $prop = trim($prop);
             if ($prop === "") {
                 continue;
             }
@@ -1776,6 +1785,28 @@ EOL;
         if ($DEBUGCSS) {
             print "_parse_sections]\n";
         }
+    }
+
+    /**
+     * Parses a CSS string containing quotes and escaped hex characters.
+     * https://www.w3.org/TR/CSS21/syndata.html#characters
+     *
+     * @param string $string The string to parse.
+     *
+     * @return string
+     */
+    public function parse_string(string $string): string
+    {
+        // Strip string quotes and escapes
+        $string = preg_replace('/^["\']|["\']$/', "", $string);
+        $string = preg_replace("/\\\\([^0-9a-fA-F])/", "\\1", $string);
+
+        // Convert escaped hex characters (e.g. \A => newline)
+        return preg_replace_callback(
+            "/\\\\([0-9a-fA-F]{1,6})\s?/",
+            function ($matches) { return Helpers::unichr(hexdec($matches[1])); },
+            $string
+        ) ?? "";
     }
 
     /**
