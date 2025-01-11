@@ -2530,27 +2530,6 @@ class Style
     /*==============================*/
 
     /**
-     * Parses a CSS string containing quotes and escaped hex characters.
-     *
-     * @param string $string The string to parse.
-     *
-     * @return string
-     */
-    protected function parse_string(string $string): string
-    {
-        // Strip string quotes and escapes
-        $string = preg_replace('/^["\']|["\']$/', "", $string);
-        $string = preg_replace("/\\\\([^0-9a-fA-F])/", "\\1", $string);
-
-        // Convert escaped hex characters (e.g. \A => newline)
-        return preg_replace_callback(
-            "/\\\\([0-9a-fA-F]{1,6})/",
-            function ($matches) { return Helpers::unichr(hexdec($matches[1])); },
-            $string
-        ) ?? "";
-    }
-
-    /**
      * Parse a property value into its components.
      *
      * @param string $value
@@ -4119,7 +4098,7 @@ class Style
                 return null;
             }
 
-            $quotes[] = $this->parse_string($value);
+            $quotes[] = $this->_stylesheet->parse_string($value);
         }
 
         if ($quotes === [] || \count($quotes) % 2 !== 0) {
@@ -4151,7 +4130,7 @@ class Style
         foreach ($components as $value) {
             // String
             if (strncmp($value, '"', 1) === 0 || strncmp($value, "'", 1) === 0) {
-                $parts[] = new StringPart($this->parse_string($value));
+                $parts[] = new StringPart($this->_stylesheet->parse_string($value));
                 continue;
             }
 
@@ -4225,7 +4204,7 @@ class Style
                 }
 
                 $name = $matches[1];
-                $string = $this->parse_string($matches[2]);
+                $string = $this->_stylesheet->parse_string($matches[2]);
                 $type = isset($matches[3]) ? strtolower($matches[3]) : "decimal";
 
                 if (!$this->isValidCounterName($name)
@@ -4239,7 +4218,7 @@ class Style
 
             // url()
             elseif ($function === "url") {
-                $url = $this->parse_string($arguments);
+                $url = $this->_stylesheet->parse_string($arguments);
                 $parts[] = new Url($url);
             }
 

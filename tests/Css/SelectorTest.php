@@ -742,6 +742,12 @@ class SelectorTest extends TestCase
                 '[title*=""]',
                 '<body><div title="multiple tokens"></div><div title=""></div></body>'
             ],
+
+            // escaped selector characteres
+            "escaped classname characters" => [
+                '.w-\[var\(--sidebar-width\)\]',
+                '<body><div class="w-\[var\(--sidebar-width\)\]"></div></body>'
+            ]
         ];
     }
 
@@ -792,9 +798,6 @@ class SelectorTest extends TestCase
     public static function selectorInvalidProvider(): array
     {
         return [
-            // Valid but unsupported selector syntax
-            [".w-\[var\(--sidebar-width\)\]"],
-
             // Invalid selectors
             [":unknown"],
             ["p:unknown"],
