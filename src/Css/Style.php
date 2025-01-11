@@ -1347,6 +1347,9 @@ class Style
             } elseif (\in_array($part, $ops, true)) {
                 $rightValue = array_pop($stack);
                 $leftValue = array_pop($stack);
+                if ($rightValue === null || $leftValue === null) {
+                    return null;
+                }
                 switch ($part) {
                     case '*':
                         $stack[] = $leftValue * $rightValue;

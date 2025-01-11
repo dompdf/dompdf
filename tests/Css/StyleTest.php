@@ -202,6 +202,37 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
+    public static function widthProvider(): array
+    {
+        return [
+            [[ "width" => "100pt" ], 1000.0, 100.0],
+            [[ "width" => "calc(100% + 100%)", "font-size: 12pt;" ], 1000.0, 2000.0],
+            [[ "width" => "calc(100% + var(--expand-by))", "--expand-by" => "100pt"], 1000.0, 1100.0],
+            [[ "width" => "calc(100% + var(--invalid))"], 1000.0, "auto"]
+        ];
+    }
+    
+    /**
+     * @dataProvider widthProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('widthProvider')]
+    public function testSetWidth(array $properties, ?float $ref_size, $expected, ?int $precision = null): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $s = new Style($sheet);
+
+        foreach ($properties as $prop => $value) {
+            $s->set_prop($prop, $value);
+        }
+        $result = $s->length_in_pt($s->width, $ref_size);
+        if ($precision !== null) {
+            $result = round($result, $precision);
+        }
+
+        $this->assertSame($expected, $result);
+    }
+
     public static function cssImageBasicProvider(): array
     {
         return [
