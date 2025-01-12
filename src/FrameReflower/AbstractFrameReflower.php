@@ -498,14 +498,14 @@ abstract class AbstractFrameReflower
      *
      * @return string The resulting string
      */
-    protected function resolve_content(): string
+    protected function resolve_content(): ?string
     {
         $frame = $this->_frame;
         $style = $frame->get_style();
         $content = $style->content;
 
         if ($content === "normal" || $content === "none") {
-            return "";
+            return null;
         }
 
         $quotes = $style->quotes;
@@ -586,7 +586,7 @@ abstract class AbstractFrameReflower
         if ($frame->get_node()->nodeName === "dompdf_generated") {
             $content = $this->resolve_content();
 
-            if ($content !== "") {
+            if ($content !== null) {
                 $node = $frame->get_node()->ownerDocument->createTextNode($content);
 
                 $new_style = $style->get_stylesheet()->create_style();

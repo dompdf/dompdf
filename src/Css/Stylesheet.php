@@ -62,6 +62,13 @@ class Stylesheet
     const PATTERN_CSS_STRING = '(?<CSS_STRING>(?<CSS_STRING_QUOTE>[\'"])(?<CSS_STRING_VALUE>.*?)(?<!\\\\)\g{CSS_STRING_QUOTE})';
 
     /**
+     * RegEx pattern representing the CSS var() function
+     *
+     * @var string
+     */
+    const PATTERN_CSS_VAR_FN = "var\((([^()]|(?R))*)\)";
+
+    /**
      * RegEx pattern representing the CSS url() function
      *
      * @var string
@@ -1001,7 +1008,12 @@ class Stylesheet
                         // https://www.w3.org/TR/CSS21/generate.html#content
                         // https://www.w3.org/TR/CSS21/generate.html#undisplayed-counters
                         if ($content === "normal" || $content === "none") {
-                            continue;
+                            $specified = $style->get_specified("content");
+                            if (!\preg_match("/". self::PATTERN_CSS_VAR_FN . "/", $specified)) {
+                                continue;
+                            } else {
+                                $content = [];
+                            }
                         }
 
                         // https://www.w3.org/TR/css-content-3/#content-property
