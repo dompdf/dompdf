@@ -1099,6 +1099,7 @@ class Cpdf
      * @param array $object_info
      * @return array|false
      * @throws FontNotFoundException
+     * @throws Exception
      */
     private function processFont(int $fontObjId, array $object_info)
     {
@@ -1117,7 +1118,9 @@ class Cpdf
 
         $this->addMessage('selectFont: checking for - ' . $fbfile);
 
-        if (!$fileSuffix) {
+        if ($this->pdfa && !file_exists($fbfile)) {
+            throw new \Exception("A fully embeddable font must be used when generating a document in PDF/A mode");
+        } elseif (!$fileSuffix) {
             $this->addMessage(
                 'selectFont: pfb or ttf file not found, ok if this is one of the 14 standard fonts'
             );
@@ -2280,6 +2283,7 @@ EOT;
      * @param $action
      * @param string $options
      * @return null|string
+     * @throws Exception
      */
     protected function o_image($id, $action, $options = '')
     {
@@ -2317,6 +2321,9 @@ EOT;
                     }
 
                     if ($info['ColorSpace'] === '/DeviceCMYK') {
+                        if ($this->pdfa) {
+                            throw new \Exception("CMYK images are not supported when generating a document in PDF/A mode");
+                        }
                         $info['Decode'] = '[1 0 1 0 1 0 1 0]';
                     }
 
@@ -3913,6 +3920,7 @@ EOT;
      *
      * @param array $color
      * @param bool  $force
+     * @throws Exception
      */
     function setColor($color, $force = false)
     {
@@ -3923,6 +3931,9 @@ EOT;
         }
 
         if (isset($new_color[3])) {
+            if ($this->pdfa) {
+                throw new \Exception("CMYK colors are not supported when generating a document in PDF/A mode");
+            }
             $this->currentColor = $new_color;
             $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F k", $this->currentColor));
         } else {
@@ -3952,6 +3963,7 @@ EOT;
      *
      * @param array $color
      * @param bool  $force
+     * @throws Exception
      */
     function setStrokeColor($color, $force = false)
     {
@@ -3962,6 +3974,9 @@ EOT;
         }
 
         if (isset($new_color[3])) {
+            if ($this->pdfa) {
+                throw new \Exception("CMYK colors are not supported when generating a document in PDF/A mode");
+            }
             $this->currentStrokeColor = $new_color;
             $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F K", $this->currentStrokeColor));
         } else {
