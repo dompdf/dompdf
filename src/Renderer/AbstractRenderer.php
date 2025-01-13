@@ -1270,7 +1270,8 @@ abstract class AbstractRenderer
                 $dompdf->getProtocol(),
                 $dompdf->getBaseHost(),
                 $dompdf->getBasePath(),
-                $href
+                $href,
+                $dompdf->getOptions()->getChroot()
             ) ?? $href;
             $this->_canvas->add_link($href, $x, $y, $w, $h);
         }

@@ -43,23 +43,20 @@ class Helpers
     }
 
     /**
-     * builds a full url given a protocol, hostname, base path and url
+     * Builds a full url given a protocol, hostname, base path and URL.
+     *
+     * When the URL provided is a local file reference from the root of the filesystem
+     * (i.e., beginning with a "/") and the file does not resolve to a valid path,
+     * the path is validated against the chroot paths (if provided).
      *
      * @param string $protocol
      * @param string $host
      * @param string $base_path
      * @param string $url
+     * @param array  $chrootDirs array of strings representing the chroot paths
      * @return string
-     *
-     * Initially the trailing slash of $base_path was optional, and conditionally appended.
-     * However on dynamically created sites, where the page is given as url parameter,
-     * the base path might not end with an url.
-     * Therefore do not append a slash, and **require** the $base_url to ending in a slash
-     * when needed.
-     * Vice versa, on using the local file system path of a file, make sure that the slash
-     * is appended (o.k. also for Windows)
      */
-    public static function build_url($protocol, $host, $base_path, $url)
+    public static function build_url($protocol, $host, $base_path, $url, $chrootDirs = [])
     {
         $protocol = mb_strtolower($protocol);
         if (empty($protocol)) {
@@ -113,13 +110,26 @@ class Helpers
             $ret = preg_replace('/\?(.*)$/', "", $ret);
 
             $filepath = realpath($ret);
-            if ($filepath === false) {
-                return null;
+            if ($filepath !== false) {
+                $ret = "$protocol$filepath$res";
+
+                return $ret;
             }
 
-            $ret = "$protocol$filepath$res";
+            if ($url[0] == '/' && !empty($chrootDirs)) {
+                foreach ($chrootDirs as $dir) {
+                    $ret = realpath($dir) . $url;
+                    $ret = preg_replace('/\?(.*)$/', "", $ret);
 
-            return $ret;
+                    if ($filepath = realpath($ret)) {
+                        $ret = "$protocol$filepath$res";
+
+                        return $ret;
+                    }
+                }
+            }
+
+            return null;
         }
 
         $ret = $protocol;

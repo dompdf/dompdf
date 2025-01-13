@@ -68,7 +68,7 @@ class Cache
         $message = null;
         
         try {
-            $full_url = Helpers::build_url($protocol, $host, $base_path, $url);
+            $full_url = Helpers::build_url($protocol, $host, $base_path, $url, $options->getChroot());
 
             if ($full_url === null) {
                 throw new ImageException("Unable to parse image URL $url.", E_WARNING);
@@ -152,7 +152,7 @@ class Cache
                                     continue;
                                 }
 
-                                $inner_full_url = Helpers::build_url($parsed_url["protocol"], $parsed_url["host"], $parsed_url["path"], $url);
+                                $inner_full_url = Helpers::build_url($parsed_url["protocol"], $parsed_url["host"], $parsed_url["path"], $url, $options->getChroot());
                                 if (empty($inner_full_url)) {
                                     continue;
                                 }
