@@ -6239,10 +6239,9 @@ EOT;
         // attempt to add a jpeg image straight from a file, using no GD commands
         // note that this function is unable to operate on a remote file.
 
-        if(substr($img, 0, 5) == 'data:') {
-            $filename = 'data-'.hash('md4',$img);
-        }
-        else {
+        if (substr($img, 0, 5) == 'data:') {
+            $filename = 'data-' . hash('md4', $img);
+        } else {
             if (!file_exists($img)) {
                 return;
             }
