@@ -3049,35 +3049,43 @@ EOT;
             case 'out':
                 $info = &$this->objects[$id]['info'];
 
-                if ($this->compressionReady) {
-                    $filepath = $info['filepath'];
-                    $checksum = md5_file($filepath);
-                    $f = fopen($filepath, "rb");
-
-                    $file_content_compressed = '';
+                $file_content = file_get_contents($info['filepath']);
+                $created = "D:". substr_replace(date('YmdHisO', filectime($info['filepath'])), '\'', -2, 0) . '\'';
+                $modified = "D:". substr_replace(date('YmdHisO', filemtime($info['filepath'])), '\'', -2, 0) . '\'';
+                $file_size = mb_strlen($file_content, '8bit');
+                $checksum = md5($file_content);
+                if ($this->compressionReady && $this->options['compression']) {
+                    $blocks = str_split($file_content, 8192);
+                    $file_content = '';
                     $deflateContext = deflate_init(ZLIB_ENCODING_DEFLATE, ['level' => 6]);
-                    while (($block = fread($f, 8192))) {
-                        $file_content_compressed .= deflate_add($deflateContext, $block, ZLIB_NO_FLUSH);
+                    foreach ($blocks as $block) {
+                        $file_content .= deflate_add($deflateContext, $block, ZLIB_NO_FLUSH);
                     }
-                    $file_content_compressed .= deflate_add($deflateContext, '', ZLIB_FINISH);
-                    $file_size_uncompressed = ftell($f);
-                    fclose($f);
+                    $file_content .= deflate_add($deflateContext, '', ZLIB_FINISH);
+                    $file_content_size = mb_strlen($file_content, '8bit');
                 } else {
-                    $file_content = file_get_contents($info['filepath']);
-                    $file_size_uncompressed = mb_strlen($file_content, '8bit');
-                    $checksum = md5($file_content);
+                    $file_content_size = $file_size;
                 }
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
+                    $file_content = $this->ARC4($file_content);
+                    $file_content_size = mb_strlen($file_content, '8bit');
                     $checksum = $this->filterText($this->ARC4($checksum), false, false);
-                    $file_content_compressed = $this->ARC4($file_content_compressed);
+                    $creation = $this->filterText($this->ARC4($creation), false, false);
+                    $modified = $this->filterText($this->ARC4($modified), false, false);
                 }
-                $file_size_compressed = mb_strlen($file_content_compressed, '8bit');
 
-                $res = "\n$id 0 obj\n<</Params <</Size $file_size_uncompressed /CheckSum ($checksum) >>" .
-                    " /Type/EmbeddedFile /Filter/FlateDecode" .
-                    " /Length $file_size_compressed >> stream\n$file_content_compressed\nendstream\nendobj";
+                $res = "\n$id 0 obj\n<</Type /EmbeddedFile";
+                if (!empty($info['mimeType'])) {
+                    $res .= " /Subtype /" . $this->filterName($info['mimeType']);
+                }
+                if ($this->compressionReady && $this->options['compression']) {
+                    $res .= " /Filter/FlateDecode";
+                }
+                $res .= " /Length $file_content_size" .
+                    "\n /Params <</Size $file_size /CheckSum ($checksum) /CreationDate ({$created}) /ModDate ({$modified}) >>" .
+                " >>\nstream\n$file_content\nendstream\nendobj";
 
                 return $res;
         }
@@ -5761,17 +5769,19 @@ EOT;
      * @param string $filepath path to the file to store inside the PDF
      * @param string $embeddedFilename the filename displayed in the list of embedded files
      * @param string $description a description in the list of embedded files
+     * @param string $mimeType the mime type of the file
      */
-    public function addEmbeddedFile(string $filepath, string $embeddedFilename, string $description): void
+    public function addEmbeddedFile(string $filepath, string $embeddedFilename, string $description, string $mimeType = "application/octet-stream"): void
     {
-        $this->numObj++;
+        $efDictId = ++$this->numObj;
         $this->o_embedded_file_dictionary(
-            $this->numObj,
+            $efDictId,
             'new',
             [
                 'filepath' => $filepath,
                 'filename' => $embeddedFilename,
-                'description' => $description
+                'description' => $description,
+                'mimeType' => $mimeType
             ]
         );
     }
