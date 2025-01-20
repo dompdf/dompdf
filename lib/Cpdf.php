@@ -5079,6 +5079,38 @@ EOT;
     }
 
     /**
+     * Filter a PDF name for inclusion in the PDF document.
+     * Escapes (per section 3.2.4) characters whose codes
+     * are outside the range 33 (!) to 126 (~).
+     *
+     * @param $text
+     * @return string
+     */
+    function filterName($text)
+    {
+        $name = '';
+        $char_array = [];
+        $delimeters = ['(', ')', '<', '>', '[', ']', '{', '}', '/', '%'];
+        if (function_exists("mb_str_split")) {
+            $char_array = mb_str_split($text, 1, "UTF-8");
+        } else {
+            $char_array = preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY);
+        }
+        $start_index = 0;
+        $char_index = -1;
+        while (isset($char_array[++$char_index])) {
+            $char = $char_array[$char_index];
+            $dec = ord($char);
+            if ($dec >= 33 && $dec <= 126 && !in_array($char, $delimeters, true)) {
+                $name .= $char;
+            } else {
+                $name .= '#' . strtoupper(dechex($dec));
+            }
+        }
+        return $name;
+    }
+
+    /**
      * filter the text, this is applied to all text just before being inserted into the pdf document
      * it escapes the various things that need to be escaped, and so on
      *
