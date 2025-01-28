@@ -1404,7 +1404,7 @@ class Cpdf
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
-                    $ordering = $this->ARC4($ordering);
+                    $ordering = $this->filterText($this->ARC4($ordering), false, false);
                     $registry = $this->filterText($this->ARC4($registry), false, false);
                 }
 
@@ -1673,8 +1673,8 @@ EOT;
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
-                    $ordering = $this->ARC4($ordering);
-                    $registry = $this->ARC4($registry);
+                    $ordering = $this->filterText($this->ARC4($ordering), false, false);
+                    $registry = $this->filterText($this->ARC4($registry), false, false);
                 }
 
 
@@ -2816,7 +2816,7 @@ EOT;
 
                 $date = "D:" . substr_replace(date('YmdHisO'), '\'', -2, 0) . '\'';
                 if ($encrypted) {
-                    $date = $this->ARC4($date);
+                    $date = $this->filterText($this->ARC4($date), false, false);
                 }
 
                 $res .= "/M ($date)\n";
@@ -2992,6 +2992,8 @@ EOT;
                             $filename = $entry['filename'];
                         }
 
+                        $filename = $this->filterText($filename, false, false);
+
                         $res .= "($filename) " . $entry['dict_reference'] . " 0 R ";
                     }
 
@@ -3068,7 +3070,7 @@ EOT;
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
-                    $checksum = $this->ARC4($checksum);
+                    $checksum = $this->filterText($this->ARC4($checksum), false, false);
                     $file_content_compressed = $this->ARC4($file_content_compressed);
                 }
                 $file_size_compressed = mb_strlen($file_content_compressed, '8bit');
