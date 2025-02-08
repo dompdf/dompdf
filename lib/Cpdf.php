@@ -298,6 +298,11 @@ class Cpdf
     public $encryptionKey = '';
 
     /**
+     * @var string The additional XMP RDF data to be added
+     */
+    public $additionalXmpRdf = '';
+
+    /**
      * @var array Array which forms a stack to keep track of nested callback functions
      */
     public $callback = [];
@@ -2102,11 +2107,11 @@ EOT;
                         (isset($pagesInfo['extGStates']) && count($pagesInfo['extGStates']))
                     ) {
                         $res .= "\n/Resources <<";
-    
+
                         if (isset($pagesInfo['procset'])) {
                             $res .= "\n/ProcSet " . $pagesInfo['procset'] . " 0 R";
                         }
-    
+
                         if (isset($pagesInfo['fonts']) && count($pagesInfo['fonts'])) {
                             $res .= "\n/Font << ";
                             foreach ($pagesInfo['fonts'] as $finfo) {
@@ -2114,7 +2119,7 @@ EOT;
                             }
                             $res .= "\n>>";
                         }
-    
+
                         if (isset($pagesInfo['xObjects']) && count($pagesInfo['xObjects'])) {
                             $res .= "\n/XObject << ";
                             foreach ($pagesInfo['xObjects'] as $finfo) {
@@ -2122,7 +2127,7 @@ EOT;
                             }
                             $res .= "\n>>";
                         }
-    
+
                         if (isset($pagesInfo['extGStates']) && count($pagesInfo['extGStates'])) {
                             $res .= "\n/ExtGState << ";
                             foreach ($pagesInfo['extGStates'] as $gstate) {
@@ -2130,7 +2135,7 @@ EOT;
                             }
                             $res .= "\n>>";
                         }
-    
+
                         $res .= "\n>>";
                     }
                 }
@@ -3098,6 +3103,11 @@ EOT;
         ]);
     }
 
+    public function setAdditionalXmpRdf(string $xmlRDFContents): void
+    {
+        $this->additionalXmpRdf = $xmlRDFContents;
+    }
+
     /**
      * Generate the Metadata XMP XML for PDF/A
      *
@@ -3174,7 +3184,9 @@ EOT;
             $md .= "</xmp:ModifyDate>";
         }
 
-        $md .= "\n</rdf:Description>\n</rdf:RDF>\n</x:xmpmeta>\n<?xpacket end=\"w\"?>";
+        $md .= "\n</rdf:Description>";
+        $md .= $this->additionalXmpRdf;
+        $md .= "\n</rdf:RDF>\n</x:xmpmeta>\n<?xpacket end=\"w\"?>";
 
         return $md;
     }
@@ -3182,7 +3194,7 @@ EOT;
     /**
      * Parse a PDF formatted date
      *
-     * @param $string
+     * @param string $date
      * @return \DateTime|false
      */
     function parsePdfDate($date)
