@@ -162,29 +162,30 @@ class CPDFTest extends TestCase
         $canvas->get_cpdf()->addInfo('ModDate', 'aa20250208195048Z');
         $canvas->get_cpdf()->addInfo('Producer', 'Dompdf Tests');
 
-        $data = <<<'XML'
-        <?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-        <x:xmpmeta xmlns:x="adobe:ns:meta/">
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        $data = implode("\n", [
+            '<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>',
+            '<x:xmpmeta xmlns:x="adobe:ns:meta/">',
+            '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">',
+            '',
+            '<rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">',
+            '<pdfaid:part>3</pdfaid:part>',
+            '<pdfaid:conformance>B</pdfaid:conformance>',
+            '</rdf:Description>',
+            '',
+            '<rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">',
+            '</rdf:Description>',
+            '<rdf:Description xmlns:pdf="http://ns.adobe.com/pdf/1.3/" rdf:about="">',
+            '<pdf:Producer>Dompdf Tests</pdf:Producer>',
+            '</rdf:Description>',
+            '<rdf:Description xmlns:xmp="http://ns.adobe.com/xap/1.0/" rdf:about="">',
+            '<xmp:CreateDate>2025-02-08T19:50:48+00:00</xmp:CreateDate>',
+            '<xmp:ModifyDate>2025-02-08T19:50:48+00:00</xmp:ModifyDate>',
+            '</rdf:Description>',
+            '</rdf:RDF>',
+            '</x:xmpmeta>',
+            '<?xpacket end="w"?>',
+        ]);
 
-        <rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">
-        <pdfaid:part>3</pdfaid:part>
-        <pdfaid:conformance>B</pdfaid:conformance>
-        </rdf:Description>
-
-        <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
-        </rdf:Description>
-        <rdf:Description xmlns:pdf="http://ns.adobe.com/pdf/1.3/" rdf:about="">
-        <pdf:Producer>Dompdf Tests</pdf:Producer>
-        </rdf:Description>
-        <rdf:Description xmlns:xmp="http://ns.adobe.com/xap/1.0/" rdf:about="">
-        <xmp:CreateDate>2025-02-08T19:50:48+00:00</xmp:CreateDate>
-        <xmp:ModifyDate>2025-02-08T19:50:48+00:00</xmp:ModifyDate>
-        </rdf:Description>
-        </rdf:RDF>
-        </x:xmpmeta>
-        <?xpacket end="w"?>
-        XML;
         $this->assertSame($data, $canvas->get_cpdf()->getXmpMetadata());
     }
 
@@ -196,46 +197,48 @@ class CPDFTest extends TestCase
         $canvas->get_cpdf()->addInfo('CreationDate', 'aa20250208195048');
         $canvas->get_cpdf()->addInfo('ModDate', 'aa20250208195048Z');
         $canvas->get_cpdf()->addInfo('Producer', 'Dompdf Tests');
-        $additionalXmpRdf = <<<'XML'
+        $additionalXmpRdf = implode("\n", [
+            '',
+            '<rdf:Description rdf:about="" xmlns:zf="urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#">',
+            '  <zf:DocumentType>INVOICE</zf:DocumentType>',
+            '  <zf:DocumentFileName>ZUGFeRD-invoice.xml</zf:DocumentFileName>',
+            '  <zf:Version>1.0</zf:Version>',
+            '  <zf:ConformanceLevel>BASIC</zf:ConformanceLevel>',
+            '</rdf:Description>',
+        ]);
 
-        <rdf:Description rdf:about="" xmlns:zf="urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#">
-          <zf:DocumentType>INVOICE</zf:DocumentType>
-          <zf:DocumentFileName>ZUGFeRD-invoice.xml</zf:DocumentFileName>
-          <zf:Version>1.0</zf:Version>
-          <zf:ConformanceLevel>BASIC</zf:ConformanceLevel>
-        </rdf:Description>
-        XML;
         $canvas->get_cpdf()->setAdditionalXmpRdf($additionalXmpRdf);
 
-        $data = <<<'XML'
-        <?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-        <x:xmpmeta xmlns:x="adobe:ns:meta/">
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        $data = implode("\n", [
+            '<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>',
+            '<x:xmpmeta xmlns:x="adobe:ns:meta/">',
+            '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">',
+            '',
+            '<rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">',
+            '<pdfaid:part>3</pdfaid:part>',
+            '<pdfaid:conformance>B</pdfaid:conformance>',
+            '</rdf:Description>',
+            '',
+            '<rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">',
+            '</rdf:Description>',
+            '<rdf:Description xmlns:pdf="http://ns.adobe.com/pdf/1.3/" rdf:about="">',
+            '<pdf:Producer>Dompdf Tests</pdf:Producer>',
+            '</rdf:Description>',
+            '<rdf:Description xmlns:xmp="http://ns.adobe.com/xap/1.0/" rdf:about="">',
+            '<xmp:CreateDate>2025-02-08T19:50:48+00:00</xmp:CreateDate>',
+            '<xmp:ModifyDate>2025-02-08T19:50:48+00:00</xmp:ModifyDate>',
+            '</rdf:Description>',
+            '<rdf:Description rdf:about="" xmlns:zf="urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#">',
+            '  <zf:DocumentType>INVOICE</zf:DocumentType>',
+            '  <zf:DocumentFileName>ZUGFeRD-invoice.xml</zf:DocumentFileName>',
+            '  <zf:Version>1.0</zf:Version>',
+            '  <zf:ConformanceLevel>BASIC</zf:ConformanceLevel>',
+            '</rdf:Description>',
+            '</rdf:RDF>',
+            '</x:xmpmeta>',
+            '<?xpacket end="w"?>',
+        ]);
 
-        <rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">
-        <pdfaid:part>3</pdfaid:part>
-        <pdfaid:conformance>B</pdfaid:conformance>
-        </rdf:Description>
-
-        <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
-        </rdf:Description>
-        <rdf:Description xmlns:pdf="http://ns.adobe.com/pdf/1.3/" rdf:about="">
-        <pdf:Producer>Dompdf Tests</pdf:Producer>
-        </rdf:Description>
-        <rdf:Description xmlns:xmp="http://ns.adobe.com/xap/1.0/" rdf:about="">
-        <xmp:CreateDate>2025-02-08T19:50:48+00:00</xmp:CreateDate>
-        <xmp:ModifyDate>2025-02-08T19:50:48+00:00</xmp:ModifyDate>
-        </rdf:Description>
-        <rdf:Description rdf:about="" xmlns:zf="urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#">
-          <zf:DocumentType>INVOICE</zf:DocumentType>
-          <zf:DocumentFileName>ZUGFeRD-invoice.xml</zf:DocumentFileName>
-          <zf:Version>1.0</zf:Version>
-          <zf:ConformanceLevel>BASIC</zf:ConformanceLevel>
-        </rdf:Description>
-        </rdf:RDF>
-        </x:xmpmeta>
-        <?xpacket end="w"?>
-        XML;
         $this->assertSame($data, $canvas->get_cpdf()->getXmpMetadata());
     }
 }
