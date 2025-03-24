@@ -1988,7 +1988,7 @@ EOT;
                         $res .= "\n/Subtype /Link";
                         break;
                 }
-                $res .= "\n/F 28";
+                $res .= "\n/F 4";
                 $res .= "\n/A " . $o['info']['actionId'] . " 0 R";
                 $res .= "\n/Border [0 0 0]";
                 $res .= "\n/H /I";
