@@ -115,6 +115,16 @@ class Page extends AbstractFrameDecorator
         return $this->_page_full;
     }
 
+  /**
+   * Sets the page's _page_full property.
+   *
+   * @param bool $full
+   */
+    function set_full(bool $full)
+    {
+      $this->_page_full = $full;
+    }
+
     /**
      * Start a new page by resetting the full flag.
      */
