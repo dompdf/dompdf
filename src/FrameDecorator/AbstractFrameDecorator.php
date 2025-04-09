@@ -184,9 +184,9 @@ abstract class AbstractFrameDecorator extends Frame
     /**
      * Marks the current element as full and no longer accepting frames.
      */
-    function mark_full(): void
+    function set_full(bool $full): void
     {
-        $this->_is_full = true;
+        $this->_is_full = $full;
     }
 
     /**
