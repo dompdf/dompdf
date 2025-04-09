@@ -315,13 +315,6 @@ class Page extends AbstractFrameDecorator
         // Block Frames (1):
         if ($frame->is_block_level() || $display === "-dompdf-image") {
 
-            // Avoid breaks within table-cells
-            if ($this->_in_table > ($display === "table" ? 1 : 0)) {
-                Helpers::dompdf_debug("page-break", "In table: " . $this->_in_table);
-
-                return false;
-            }
-
             // Rule A
             if ($frame->get_style()->page_break_before === "avoid") {
                 Helpers::dompdf_debug("page-break", "before: avoid");
@@ -384,13 +377,6 @@ class Page extends AbstractFrameDecorator
         } // Inline frames (2):
         else {
             if ($frame->is_inline_level()) {
-
-                // Avoid breaks within table-cells
-                if ($this->_in_table) {
-                    Helpers::dompdf_debug("page-break", "In table: " . $this->_in_table);
-
-                    return false;
-                }
 
                 // Rule C
                 $block_parent = $frame->find_block_parent();
