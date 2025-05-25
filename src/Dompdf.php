@@ -289,8 +289,10 @@ class Dompdf
             setlocale(LC_NUMERIC, "C");
         }
 
-        $this->pcreJit = @ini_get('pcre.jit');
-        @ini_set('pcre.jit', '0');
+        if (function_exists('ini_get') && function_exists('ini_set')) {
+            $this->pcreJit = @ini_get('pcre.jit');
+            @ini_set('pcre.jit', '0');
+        }
 
         $this->mbstringEncoding = mb_internal_encoding();
         mb_internal_encoding('UTF-8');
@@ -306,9 +308,11 @@ class Dompdf
             $this->systemLocale = null;
         }
 
-        if ($this->pcreJit !== null) {
-            @ini_set('pcre.jit', $this->pcreJit);
-            $this->pcreJit = null;
+        if (function_exists('ini_get') && function_exists('ini_set')) {
+            if ($this->pcreJit !== null) {
+                @ini_set('pcre.jit', $this->pcreJit);
+                $this->pcreJit = null;
+            }
         }
 
         if ($this->mbstringEncoding !== null) {
