@@ -135,7 +135,7 @@ class Page extends AbstractFrameReflower
             //Insert a copy of each node which have a fixed position
             if ($current_page >= 1) {
                 foreach ($fixed_children as $fixed_child) {
-                    $child->insert_child_before($fixed_child->deep_copy(), $child->get_first_child());
+                    $child->prepend_child($fixed_child->deep_copy());
                 }
             }
 
