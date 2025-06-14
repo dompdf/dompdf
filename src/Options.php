@@ -398,7 +398,7 @@ class Options
                 $this->setIsPhpEnabled($value);
             } elseif ($methodForMatch === 'isRemoteEnabled' || $methodForMatch === 'enableRemote') {
                 $this->setIsRemoteEnabled($value);
-            } elseif ($key === 'isPdfAEnabled' || $key === 'enablePdfA') {
+            } elseif ($methodForMatch === 'isPdfAEnabled' || $methodForMatch === 'enablePdfA') {
                 $this->setIsPdfAEnabled($value);
             } elseif ($methodForMatch === 'isJavascriptEnabled' || $methodForMatch === 'enableJavascript') {
                 $this->setIsJavascriptEnabled($value);
@@ -427,7 +427,7 @@ class Options
             return $this->getIsPhpEnabled();
         } elseif ($methodForMatch === 'isRemoteEnabled' || $methodForMatch === 'enableRemote') {
             return $this->getIsRemoteEnabled();
-        } elseif ($key === 'isPdfAEnabled' || $key === 'enablePdfA') {
+        } elseif ($methodForMatch === 'isPdfAEnabled' || $methodForMatch === 'enablePdfA') {
             $this->getIsPdfAEnabled();
         } elseif ($methodForMatch === 'isJavascriptEnabled' || $methodForMatch === 'enableJavascript') {
             return $this->getIsJavascriptEnabled();
