@@ -428,7 +428,7 @@ class Options
         } elseif ($methodForMatch === 'isRemoteEnabled' || $methodForMatch === 'enableRemote') {
             return $this->getIsRemoteEnabled();
         } elseif ($methodForMatch === 'isPdfAEnabled' || $methodForMatch === 'enablePdfA') {
-            $this->getIsPdfAEnabled();
+            return $this->getIsPdfAEnabled();
         } elseif ($methodForMatch === 'isJavascriptEnabled' || $methodForMatch === 'enableJavascript') {
             return $this->getIsJavascriptEnabled();
         } elseif ($methodForMatch === 'isHtml5ParserEnabled' || $methodForMatch === 'enableHtml5Parser') {
