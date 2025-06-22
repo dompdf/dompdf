@@ -228,7 +228,7 @@ Files accessed through the local file system have the following requirement:
      $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
      ```
      Watch https://github.com/dompdf/dompdf/issues/320 for progress
- * Does not support CSS flexbox.
+ * Does not support CSS flexbox: Watch https://github.com/dompdf/dompdf/issues/971 for progress
  * Does not support CSS Grid.
  * A single Dompdf instance should not be used to render more than one HTML document
    because persisted parsing and rendering artifacts can impact future renders.
