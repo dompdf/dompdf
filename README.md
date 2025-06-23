@@ -225,7 +225,7 @@ Files accessed through the local file system have the following requirement:
  * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet: See https://github.com/dompdf/dompdf/issues/320
    Workaround: Either link to an external SVG file, or use a DataURI like this:
      ```php
-     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
+     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '">';
      ```
  * Does not support CSS flexbox: See https://github.com/dompdf/dompdf/issues/971
  * Does not support CSS Grid: See https://github.com/dompdf/dompdf/issues/2988
