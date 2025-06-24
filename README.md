@@ -222,7 +222,7 @@ Files accessed through the local file system have the following requirement:
 
  * Table cells are not pageable, meaning a table row must fit on a single page: See https://github.com/dompdf/dompdf/issues/98
  * Elements are rendered on the active page when they are parsed.
- * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet: See https://github.com/dompdf/dompdf/issues/320
+ * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet: See https://github.com/dompdf/dompdf/issues/320  
    Workaround: Either link to an external SVG file, or use a DataURI like this:
      ```php
      $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '">';
