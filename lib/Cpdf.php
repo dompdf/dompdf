@@ -1348,8 +1348,8 @@ class Cpdf
                     $fdopt[$k] = $font[$v];
                 }
             }
-            if (!isset($fdopt['CapHeight']) && isset($fdopt['Ascender'])) {
-                $fdopt['CapHeight'] = $fdopt['Ascender'];
+            if (!isset($fdopt['CapHeight']) && isset($fdopt['Ascent'])) {
+                $fdopt['CapHeight'] = $fdopt['Ascent'];
             }
 
             if ($isPfbFont) {
