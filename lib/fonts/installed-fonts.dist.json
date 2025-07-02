@@ -76,5 +76,41 @@
         "bold_italic": "DejaVuSerif-BoldItalic",
         "italic": "DejaVuSerif-Italic",
         "normal": "DejaVuSerif"
+    },
+    "arial": {
+        "bold": "Arial_Bold",
+        "bold_italic": "Arial_Bold_Italic",
+        "italic": "Arial_Italic",
+        "normal": "Arial"
+    },
+    "courier new": {
+        "bold": "Courier_New_Bold",
+        "bold_italic": "Courier_New_Bold_Italic",
+        "italic": "Courier_New_Italic",
+        "normal": "Courier_New"
+    },
+    "georgia": {
+        "bold": "Georgia_Bold",
+        "bold_italic": "Georgia_Bold_Italic",
+        "italic": "Georgia_Italic",
+        "normal": "Georgia"
+    },
+    "times new roman": {
+        "bold": "Times_New_Roman_Bold",
+        "bold_italic": "Times_New_Roman_Bold_Italic",
+        "italic": "Times_New_Roman_Italic",
+        "normal": "Times_New_Roman"
+    },
+    "trebuchet ms": {
+        "bold": "Trebuchet_MS_Bold",
+        "bold_italic": "Trebuchet_MS_Bold_Italic",
+        "italic": "Trebuchet_MS_Italic",
+        "normal": "Trebuchet_MS"
+    },
+    "verdana": {
+        "bold": "Verdana-Bold",
+        "bold_italic": "Verdana-BoldItalic",
+        "italic": "Verdana-Italic",
+        "normal": "Verdana"
     }
 }
