@@ -478,13 +478,6 @@ class Page extends AbstractFrameDecorator
                         return false;
                     }
 
-                    // Avoid breaking before the first row of a table
-                    if (!$prev) {
-                        Helpers::dompdf_debug("page-break", "table: first-row");
-
-                        return false;
-                    }
-
                     // Rule B (table row)
                     // Check if the page_break_inside property is not 'avoid'
                     // for the parent table or any of its ancestors
