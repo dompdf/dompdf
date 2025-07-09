@@ -298,6 +298,11 @@ class Cpdf
     public $encryptionKey = '';
 
     /**
+     * @var string The additional XMP RDF data to be added
+     */
+    public $additionalXmpRdf = '';
+
+    /**
      * @var array Array which forms a stack to keep track of nested callback functions
      */
     public $callback = [];
@@ -654,6 +659,15 @@ class Cpdf
 
                 break;
 
+            case 'associatedFiles':
+                if (!isset($o['info']['associatedFiles'])) {
+                    $o['info']['associatedFiles'] = [];
+                }
+                if (!empty($options)) {
+                    $o['info']['associatedFiles'][] = $options;
+                }
+                break;
+
             case 'metadata':
                 $this->numObj++;
 
@@ -704,11 +718,19 @@ class Cpdf
                         case 'outputIntents':
                             $res .= "\n/OutputIntents [";
                             foreach ($v as $intent) {
-                                $res .= "\n<< /Type /OutputIntent /S /GTS_PDFA1 ";
+                                $res .= "\n << /Type /OutputIntent /S /GTS_PDFA1 ";
                                 $res .= "/OutputConditionIdentifier (" . $intent['iccProfileName'] . ") /Info (" . $intent['iccProfileName'] . ") ";
                                 $res .= "/DestOutputProfile " . $intent['destOutputProfile'] . " 0 R >>";
                             }
-                            $res .= "]";
+                            $res .= "\n]";
+                            break;
+
+                        case 'associatedFiles':
+                            $res .= "\n/AF [";
+                            foreach ($v as $ref) {
+                                $res .= "\n $ref";
+                            }
+                            $res .= "\n]";
                             break;
                     }
                 }
@@ -1971,7 +1993,7 @@ EOT;
                         $res .= "\n/Subtype /Link";
                         break;
                 }
-                $res .= "\n/F 28";
+                $res .= "\n/F 4";
                 $res .= "\n/A " . $o['info']['actionId'] . " 0 R";
                 $res .= "\n/Border [0 0 0]";
                 $res .= "\n/H /I";
@@ -2102,11 +2124,11 @@ EOT;
                         (isset($pagesInfo['extGStates']) && count($pagesInfo['extGStates']))
                     ) {
                         $res .= "\n/Resources <<";
-    
+
                         if (isset($pagesInfo['procset'])) {
                             $res .= "\n/ProcSet " . $pagesInfo['procset'] . " 0 R";
                         }
-    
+
                         if (isset($pagesInfo['fonts']) && count($pagesInfo['fonts'])) {
                             $res .= "\n/Font << ";
                             foreach ($pagesInfo['fonts'] as $finfo) {
@@ -2114,7 +2136,7 @@ EOT;
                             }
                             $res .= "\n>>";
                         }
-    
+
                         if (isset($pagesInfo['xObjects']) && count($pagesInfo['xObjects'])) {
                             $res .= "\n/XObject << ";
                             foreach ($pagesInfo['xObjects'] as $finfo) {
@@ -2122,7 +2144,7 @@ EOT;
                             }
                             $res .= "\n>>";
                         }
-    
+
                         if (isset($pagesInfo['extGStates']) && count($pagesInfo['extGStates'])) {
                             $res .= "\n/ExtGState << ";
                             foreach ($pagesInfo['extGStates'] as $gstate) {
@@ -2130,7 +2152,7 @@ EOT;
                             }
                             $res .= "\n>>";
                         }
-    
+
                         $res .= "\n>>";
                     }
                 }
@@ -3016,6 +3038,10 @@ EOT;
                 $options['dict_reference'] = $id;
                 $this->o_names($this->embeddedFilesId, 'add', $options);
                 break;
+            case 'afRelationship':
+                $info = &$this->objects[$id]['info'];
+                $info["afRelationship"] = $options;
+                break;
             case 'out':
                 $info = &$this->objects[$id]['info'];
                 $filename = $this->utf8toUtf16BE($info['filename']);
@@ -3030,9 +3056,12 @@ EOT;
                 $filename = $this->filterText($filename, false, false);
                 $description = $this->filterText($description, false, false);
 
-                $res = "\n$id 0 obj\n<</Type /Filespec /EF";
-                $res .= " <</F " . $info['embedded_reference'] . " 0 R >>";
-                $res .= " /F ($filename) /UF ($filename) /Desc ($description)";
+                $res = "\n$id 0 obj\n<</Type /Filespec";
+                $res .= "\n /F ($filename) /UF ($filename) /Desc ($description)";
+                if (isset($info['afRelationship'])) {
+                    $res .= "\n /AFRelationship /{$this->filterName($info['afRelationship'])}";
+                }
+                $res .= "\n /EF <</F " . $info['embedded_reference'] . " 0 R >>";
                 $res .= " >>\nendobj";
                 return $res;
         }
@@ -3049,35 +3078,43 @@ EOT;
             case 'out':
                 $info = &$this->objects[$id]['info'];
 
-                if ($this->compressionReady) {
-                    $filepath = $info['filepath'];
-                    $checksum = md5_file($filepath);
-                    $f = fopen($filepath, "rb");
-
-                    $file_content_compressed = '';
+                $file_content = file_get_contents($info['filepath']);
+                $created = "D:". substr_replace(date('YmdHisO', filectime($info['filepath'])), '\'', -2, 0) . '\'';
+                $modified = "D:". substr_replace(date('YmdHisO', filemtime($info['filepath'])), '\'', -2, 0) . '\'';
+                $file_size = mb_strlen($file_content, '8bit');
+                $checksum = md5($file_content);
+                if ($this->compressionReady && $this->options['compression']) {
+                    $blocks = str_split($file_content, 8192);
+                    $file_content = '';
                     $deflateContext = deflate_init(ZLIB_ENCODING_DEFLATE, ['level' => 6]);
-                    while (($block = fread($f, 8192))) {
-                        $file_content_compressed .= deflate_add($deflateContext, $block, ZLIB_NO_FLUSH);
+                    foreach ($blocks as $block) {
+                        $file_content .= deflate_add($deflateContext, $block, ZLIB_NO_FLUSH);
                     }
-                    $file_content_compressed .= deflate_add($deflateContext, '', ZLIB_FINISH);
-                    $file_size_uncompressed = ftell($f);
-                    fclose($f);
+                    $file_content .= deflate_add($deflateContext, '', ZLIB_FINISH);
+                    $file_content_size = mb_strlen($file_content, '8bit');
                 } else {
-                    $file_content = file_get_contents($info['filepath']);
-                    $file_size_uncompressed = mb_strlen($file_content, '8bit');
-                    $checksum = md5($file_content);
+                    $file_content_size = $file_size;
                 }
 
                 if ($this->encrypted) {
                     $this->encryptInit($id);
+                    $file_content = $this->ARC4($file_content);
+                    $file_content_size = mb_strlen($file_content, '8bit');
                     $checksum = $this->filterText($this->ARC4($checksum), false, false);
-                    $file_content_compressed = $this->ARC4($file_content_compressed);
+                    $creation = $this->filterText($this->ARC4($creation), false, false);
+                    $modified = $this->filterText($this->ARC4($modified), false, false);
                 }
-                $file_size_compressed = mb_strlen($file_content_compressed, '8bit');
 
-                $res = "\n$id 0 obj\n<</Params <</Size $file_size_uncompressed /CheckSum ($checksum) >>" .
-                    " /Type/EmbeddedFile /Filter/FlateDecode" .
-                    " /Length $file_size_compressed >> stream\n$file_content_compressed\nendstream\nendobj";
+                $res = "\n$id 0 obj\n<</Type /EmbeddedFile";
+                if (!empty($info['mimeType'])) {
+                    $res .= " /Subtype /" . $this->filterName($info['mimeType']);
+                }
+                if ($this->compressionReady && $this->options['compression']) {
+                    $res .= " /Filter/FlateDecode";
+                }
+                $res .= " /Length $file_content_size" .
+                    "\n /Params <</Size $file_size /CheckSum ($checksum) /CreationDate ({$created}) /ModDate ({$modified}) >>" .
+                " >>\nstream\n$file_content\nendstream\nendobj";
 
                 return $res;
         }
@@ -3098,6 +3135,11 @@ EOT;
             'iccProfileName' => basename($iccProfilePath),
             'colorComponentsCount' => '3',
         ]);
+    }
+
+    public function setAdditionalXmpRdf(string $xmlRDFContents): void
+    {
+        $this->additionalXmpRdf = $xmlRDFContents;
     }
 
     /**
@@ -3176,7 +3218,9 @@ EOT;
             $md .= "</xmp:ModifyDate>";
         }
 
-        $md .= "\n</rdf:Description>\n</rdf:RDF>\n</x:xmpmeta>\n<?xpacket end=\"w\"?>";
+        $md .= "\n</rdf:Description>";
+        $md .= $this->additionalXmpRdf;
+        $md .= "\n</rdf:RDF>\n</x:xmpmeta>\n<?xpacket end=\"w\"?>";
 
         return $md;
     }
@@ -3184,7 +3228,7 @@ EOT;
     /**
      * Parse a PDF formatted date
      *
-     * @param $string
+     * @param string $date
      * @return \DateTime|false
      */
     function parsePdfDate($date)
@@ -5079,6 +5123,38 @@ EOT;
     }
 
     /**
+     * Filter a PDF name for inclusion in the PDF document.
+     * Escapes (per section 3.2.4) characters whose codes
+     * are outside the range 33 (!) to 126 (~).
+     *
+     * @param $text
+     * @return string
+     */
+    function filterName($text)
+    {
+        $name = '';
+        $char_array = [];
+        $delimeters = ['(', ')', '<', '>', '[', ']', '{', '}', '/', '%'];
+        if (function_exists("mb_str_split")) {
+            $char_array = mb_str_split($text, 1, "UTF-8");
+        } else {
+            $char_array = preg_split("//u", $text, -1, PREG_SPLIT_NO_EMPTY);
+        }
+        $start_index = 0;
+        $char_index = -1;
+        while (isset($char_array[++$char_index])) {
+            $char = $char_array[$char_index];
+            $dec = ord($char);
+            if ($dec >= 33 && $dec <= 126 && !in_array($char, $delimeters, true)) {
+                $name .= $char;
+            } else {
+                $name .= '#' . strtoupper(dechex($dec));
+            }
+        }
+        return $name;
+    }
+
+    /**
      * filter the text, this is applied to all text just before being inserted into the pdf document
      * it escapes the various things that need to be escaped, and so on
      *
@@ -5729,19 +5805,46 @@ EOT;
      * @param string $filepath path to the file to store inside the PDF
      * @param string $embeddedFilename the filename displayed in the list of embedded files
      * @param string $description a description in the list of embedded files
+     * @param string $mimeType the mime type of the file
+     * @param array $relatedTo relationship of the embedded file to other PDF objects; the key is the object ID generated by Cpdf when the related object was added to the document and the value is a string (constrained list) naming the relationship type.
+     * @phpstan-param array<int,'Source'|'Data'|'Alternative'|'EncryptedPayload'|'FormData'|'Schema'|'Unspecified'> $relatedTo
      */
-    public function addEmbeddedFile(string $filepath, string $embeddedFilename, string $description): void
+    public function addEmbeddedFile(string $filepath, string $embeddedFilename, string $description, string $mimeType = "application/octet-stream", array $relatedTo = []): void
     {
-        $this->numObj++;
+        $efDictId = ++$this->numObj;
         $this->o_embedded_file_dictionary(
-            $this->numObj,
+            $efDictId,
             'new',
             [
                 'filepath' => $filepath,
                 'filename' => $embeddedFilename,
-                'description' => $description
+                'description' => $description,
+                'mimeType' => $mimeType
             ]
         );
+
+        if ($relatedTo !== []) {
+            foreach ($relatedTo as $objId => $relationship) {
+                $this->associateFile($efDictId, $objId, $relationship);
+            }
+        }
+    }
+
+    /**
+     * Associated an embedded file with an existing PDF object.
+     *
+     * @param int    $fileId       The PDF object ID of the file dictionary
+     * @param int    $objectId     The PDF object ID of the object the file is related to
+     * @param string $relationship The relationship type, valid values are defined in section 7.11.3 of ISO-32000-2
+     * @phpstan-param 'Source'|'Data'|'Alternative'|'EncryptedPayload'|'FormData'|'Schema'|'Unspecified' $relationship
+     */
+    public function associateFile(int $fileId, int $objectId, ?string $relationship = "Unspecified"): void
+    {
+        $relationship = $relationship ?? "Unspecified";
+        $obj = $this->objects[$objectId];
+        $type = 'o_' . $obj['t'];
+        $this->$type($objectId, "associatedFiles", "$fileId 0 R");
+        $this->o_embedded_file_dictionary($fileId, "afRelationship", $relationship);
     }
 
     /**

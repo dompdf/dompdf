@@ -220,16 +220,15 @@ Files accessed through the local file system have the following requirement:
 
 ## Limitations (Known Issues)
 
- * Table cells are not pageable, meaning a table row must fit on a single page.
+ * Table cells are not pageable, meaning a table row must fit on a single page: See https://github.com/dompdf/dompdf/issues/98
  * Elements are rendered on the active page when they are parsed.
- * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet, you need to
-   either link to an external SVG file, or use a DataURI like this:
+ * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet: See https://github.com/dompdf/dompdf/issues/320  
+   Workaround: Either link to an external SVG file, or use a DataURI like this:
      ```php
-     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '" ...>';
+     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '">';
      ```
-     Watch https://github.com/dompdf/dompdf/issues/320 for progress
- * Does not support CSS flexbox.
- * Does not support CSS Grid.
+ * Does not support CSS flexbox: See https://github.com/dompdf/dompdf/issues/971
+ * Does not support CSS Grid: See https://github.com/dompdf/dompdf/issues/2988
  * A single Dompdf instance should not be used to render more than one HTML document
    because persisted parsing and rendering artifacts can impact future renders.
 ---
