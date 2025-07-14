@@ -62,8 +62,7 @@ class TableRow extends AbstractFrameReflower
                 // processed in case  their content can fit on the current page.
                 if ($frame->_split_child_cell) {
                     $page->set_full(false);
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -74,7 +73,7 @@ class TableRow extends AbstractFrameReflower
             // Given the page was temporarily set to not full above, set it to full
             // again.
             $page->set_full(true);
-            $frame->split(null, true, false );
+            $frame->split(null, true, false);
         }
 
         if ($page->is_full()) {

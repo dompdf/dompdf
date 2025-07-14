@@ -115,14 +115,14 @@ class Page extends AbstractFrameDecorator
         return $this->_page_full;
     }
 
-  /**
-   * Sets the page's _page_full property.
-   *
-   * @param bool $full
-   */
-    function set_full(bool $full)
+    /**
+     * Sets the page's _page_full property.
+     *
+     * @param bool $full
+     */
+    public function set_full(bool $full): void
     {
-      $this->_page_full = $full;
+        $this->_page_full = $full;
     }
 
     /**
@@ -555,7 +555,7 @@ class Page extends AbstractFrameDecorator
                     if ($table === null) {
                         throw new Exception("Parent table not found for table row");
                     }
-            
+
                     $p = $table;
                     while ($p) {
                         if ($p->get_style()->page_break_inside === "avoid") {
