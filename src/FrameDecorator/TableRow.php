@@ -108,13 +108,6 @@ class TableRow extends AbstractFrameDecorator
 
         $this->get_parent()->insert_child_after($split, $this);
 
-        if (!$forced) {
-            // Reset top margin in case of an unforced page break
-            // https://www.w3.org/TR/CSS21/page.html#allowed-page-breaks
-            $child->get_style()->margin_top = 0.0;
-        }
-
-
         $this->get_parent()->split($split, $page_break, $forced);
 
         // Preserve the current counter values. This must be done after the
