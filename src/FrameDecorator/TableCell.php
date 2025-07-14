@@ -196,4 +196,23 @@ class TableCell extends BlockFrameDecorator
             }
         }
     }
+
+    /**
+     * Locate the parent table row group of this table cell.
+     *
+     * @return TableRowGroup|null
+     *   The parent Table Row Group or null if this table cell
+     *   does not have a table row group parent.
+     */
+    public function find_parent_table_row_group(): ?TableRowGroup
+    {
+        $parent = $this->get_parent();
+        while (null !== $parent) {
+            if (in_array($parent->get_style()->display, Table::ROW_GROUPS, true)) {
+                break;
+            }
+            $parent = $parent->get_parent();
+        }
+        return $parent;
+    }
 }
