@@ -49,6 +49,13 @@ class Page extends AbstractFrameDecorator
      */
     protected $_floating_frames = [];
 
+    /**
+     * Collected frames of pageable elements pushed to the next frame
+     *
+     * @var array
+     */
+    public $_dangling_frames = [];
+
     //........................................................................
 
     /**
@@ -293,7 +300,8 @@ class Page extends AbstractFrameDecorator
     protected function _page_break_allowed(Frame $frame)
     {
         Helpers::dompdf_debug("page-break", "_page_break_allowed(" . $frame->get_node()->nodeName . ")");
-        $display = $frame->get_style()->display;
+        $style = $frame->get_style();
+        $display = $style->display;
 
         // Block Frames (1):
         if ($frame->is_block_level() || $display === "-dompdf-image") {
@@ -306,7 +314,7 @@ class Page extends AbstractFrameDecorator
             }
 
             // Rule A
-            if ($frame->get_style()->page_break_before === "avoid") {
+            if ($style->page_break_before === "avoid") {
                 Helpers::dompdf_debug("page-break", "before: avoid");
 
                 return false;
@@ -535,10 +543,10 @@ class Page extends AbstractFrameDecorator
             }
         } while ($p = $p->get_parent());
 
-        // If the frame is absolute or fixed it shouldn't break
+        // If the frame is fixed it shouldn't break
         $p = $frame;
         do {
-            if ($p->is_absolute()) {
+            if ($p->is_absolute() && $p->get_style()->position === "fixed") {
                 return false;
             }
         } while ($p = $p->get_parent());
