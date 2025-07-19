@@ -29,13 +29,6 @@ class Page extends AbstractFrameDecorator
     protected $bottom_page_edge;
 
     /**
-     * Flag indicating page is full.
-     *
-     * @var bool
-     */
-    protected $_page_full;
-
-    /**
      * Number of tables currently being reflowed
      *
      * @var int
@@ -67,7 +60,7 @@ class Page extends AbstractFrameDecorator
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
-        $this->_page_full = false;
+        $this->_is_full = false;
         $this->_in_table = 0;
         $this->bottom_page_edge = null;
     }
@@ -106,23 +99,13 @@ class Page extends AbstractFrameDecorator
     }
 
     /**
-     * Returns true if the page is full and is no longer accepting frames.
-     *
-     * @return bool
-     */
-    function is_full()
-    {
-        return $this->_page_full;
-    }
-
-    /**
      * Start a new page by resetting the full flag.
      */
     function next_page()
     {
         $this->_floating_frames = [];
         $this->_renderer->new_page();
-        $this->_page_full = false;
+        $this->_is_full = false;
     }
 
     /**
@@ -164,8 +147,8 @@ class Page extends AbstractFrameDecorator
      */
     function check_forced_page_break(Frame $frame)
     {
-        // Skip check if page is already split and for the body
-        if ($this->_page_full || $frame->get_node()->nodeName === "body") {
+        // Skip check if pageable context is already full, or if this is the body element
+        if ($frame->find_pageable_context()->is_full() || $frame->get_node()->nodeName === "body") {
             return false;
         }
 
@@ -178,7 +161,7 @@ class Page extends AbstractFrameDecorator
             // Prevent cascading splits
             $frame->split(null, true, true);
             $style->page_break_before = "auto";
-            $this->_page_full = true;
+            $frame->find_pageable_context()->mark_full();
             $frame->_already_pushed = true;
 
             return true;
@@ -199,7 +182,7 @@ class Page extends AbstractFrameDecorator
                 // Prevent cascading splits
                 $frame->split(null, true, true);
                 $prev->get_style()->page_break_after = "auto";
-                $this->_page_full = true;
+                $frame->find_pageable_context()->mark_full();
                 $frame->_already_pushed = true;
 
                 return true;
@@ -218,7 +201,7 @@ class Page extends AbstractFrameDecorator
             ) {
                 $frame->split(null, true, true);
                 $prev_last_child->get_style()->page_break_after = "auto";
-                $this->_page_full = true;
+                $frame->find_pageable_context()->mark_full();
                 $frame->_already_pushed = true;
 
                 return true;
@@ -537,7 +520,7 @@ class Page extends AbstractFrameDecorator
      */
     function check_page_break(Frame $frame)
     {
-        if ($this->_page_full || $frame->_already_pushed
+        if ($frame->find_pageable_context()->is_full() || $frame->_already_pushed
             // Never check for breaks on empty text nodes
             || ($frame->is_text_node() && $frame->get_node()->nodeValue === "")
         ) {
@@ -604,7 +587,7 @@ class Page extends AbstractFrameDecorator
             } elseif ($this->_page_break_allowed($iter)) {
                 Helpers::dompdf_debug("page-break", "break allowed, splitting.");
                 $iter->split(null, true);
-                $this->_page_full = true;
+                $iter->find_pageable_context()->mark_full();
                 $this->_in_table = $in_table;
                 $iter->_already_pushed = true;
                 $frame->_already_pushed = true;
@@ -686,7 +669,7 @@ class Page extends AbstractFrameDecorator
             $frame->split(null, true);
         }
 
-        $this->_page_full = true;
+        $frame->find_pageable_context()->mark_full();
         $frame->_already_pushed = true;
 
         return true;
