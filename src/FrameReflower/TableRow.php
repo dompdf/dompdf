@@ -40,7 +40,7 @@ class TableRow extends AbstractFrameReflower
         $page->check_forced_page_break($frame);
 
         // Bail if the page is full
-        if ($page->is_full()) {
+        if ($frame->find_pageable_context()->is_full()) {
             return;
         }
 
@@ -55,12 +55,12 @@ class TableRow extends AbstractFrameReflower
             $child->set_containing_block($cb);
             $child->reflow();
 
-            if ($page->is_full()) {
+            if ($frame->find_pageable_context()->is_full()) {
                 break;
             }
         }
 
-        if ($page->is_full()) {
+        if ($frame->find_pageable_context()->is_full()) {
             return;
         }
 
