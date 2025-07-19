@@ -43,9 +43,17 @@ class Page extends AbstractFrameDecorator
     protected $_renderer;
 
     /**
+     * Collected frames of pageable non-flow elements pushed
+     * to the next page.
+     *
+     * @var Frame[]
+     */
+    protected $_dangling_frames = [];
+
+    /**
      * This page's floating frames
      *
-     * @var array
+     * @var Frame[]
      */
     protected $_floating_frames = [];
 
@@ -103,6 +111,7 @@ class Page extends AbstractFrameDecorator
      */
     function next_page()
     {
+        $this->_dangling_frames = [];
         $this->_floating_frames = [];
         $this->_renderer->new_page();
         $this->_is_full = false;
@@ -305,7 +314,8 @@ class Page extends AbstractFrameDecorator
     protected function _page_break_allowed(Frame $frame)
     {
         Helpers::dompdf_debug("page-break", "_page_break_allowed(" . $frame->get_node()->nodeName . ")");
-        $display = $frame->get_style()->display;
+        $style = $frame->get_style();
+        $display = $style->display;
 
         // Block Frames (1):
         if ($frame->is_block_level() || $display === "-dompdf-image") {
@@ -318,7 +328,7 @@ class Page extends AbstractFrameDecorator
             }
 
             // Rule A
-            if ($frame->get_style()->page_break_before === "avoid") {
+            if ($style->page_break_before === "avoid") {
                 Helpers::dompdf_debug("page-break", "before: avoid");
 
                 return false;
@@ -532,7 +542,12 @@ class Page extends AbstractFrameDecorator
      */
     function check_page_break(Frame $frame)
     {
-        if ($frame->find_pageable_context()->is_full() || $frame->_already_pushed
+        if (
+            $frame->find_pageable_context()->is_full() || $frame->_already_pushed
+            
+            // Never check for breaks on absolutely positioned nodes
+            || $frame->is_absolute()
+            
             // Never check for breaks on empty text nodes
             || ($frame->is_text_node() && $frame->get_node()->nodeValue === "")
         ) {
@@ -547,10 +562,10 @@ class Page extends AbstractFrameDecorator
             }
         } while ($p = $p->get_parent());
 
-        // If the frame is absolute or fixed it shouldn't break
+        // If the frame or a parent is fixed it shouldn't break
         $p = $frame;
         do {
-            if ($p->is_absolute()) {
+            if ($p->is_absolute() && $p->get_style()->position === "fixed") {
                 return false;
             }
         } while ($p = $p->get_parent());
@@ -692,6 +707,24 @@ class Page extends AbstractFrameDecorator
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
         // Do nothing
+    }
+
+    /**
+     * Add a floating frame
+     *
+     * @param Frame $frame
+     */
+    function add_dangling_frame(Frame $frame)
+    {
+        array_unshift($this->_dangling_frames, $frame);
+    }
+
+    /**
+     * @return Frame[]
+     */
+    function get_dangling_frames()
+    {
+        return $this->_dangling_frames;
     }
 
     /**

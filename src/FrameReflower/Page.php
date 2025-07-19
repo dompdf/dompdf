@@ -150,6 +150,24 @@ class Page extends AbstractFrameReflower
             // Check for end render callback
             $this->_check_callbacks("end_page_render", $child);
 
+            // If we completed page rendering without having to create a new page then handle floating frames when no other content was present
+            $dangling_frames = $frame->get_dangling_frames();
+            if (count($dangling_frames) > 0) {
+                if ($next_child) {
+                    while ($dangling_frame = array_shift($dangling_frames)) {
+                        $dangling_frame->reset();
+                        $next_child->get_frame()->prepend_child($dangling_frame->get_frame());
+                    }
+                } else {
+                    $dangling_frame = $first_child = array_pop($dangling_frames);
+                    do {
+                        $child->get_frame()->append_child($dangling_frame->get_frame());
+                    } while ($dangling_frame = array_pop($dangling_frames));
+                    $child->split($first_child, false, false);
+                    $next_child = $child->get_next_sibling();
+                }
+            }
+
             if ($next_child) {
                 $frame->next_page();
             }

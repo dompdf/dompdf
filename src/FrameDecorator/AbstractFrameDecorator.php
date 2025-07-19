@@ -728,7 +728,20 @@ abstract class AbstractFrameDecorator extends Frame
             return $this->_pageable_context;
         }
 
-        return $this->_pageable_context = $this->_root;
+        $p = $this->get_parent();
+        while ($p) {
+            if (!$p->is_in_flow()) {
+                break;
+            }
+
+            $p = $p->get_parent();
+        }
+
+        if (!$p) {
+            $p = $this->_root;
+        }
+
+        return $this->_pageable_context = $p;
     }
 
     /**
@@ -787,8 +800,6 @@ abstract class AbstractFrameDecorator extends Frame
         $split->is_split_off = true;
         $split->_already_pushed = true;
 
-        $this->get_parent()->insert_child_after($split, $this);
-
         if ($this instanceof Block) {
             // Remove the frames that will be moved to the new split node from
             // the line boxes
@@ -815,11 +826,18 @@ abstract class AbstractFrameDecorator extends Frame
             $split->append_child($frame);
         }
 
-        $this->get_parent()->split($split, $page_break, $forced);
+        // Save the split from non-flow elements for the next page,
+        // otherwise break at the current position
+        if (!$this->is_in_flow() && $this->get_style()->position !== "fixed") {
+            $this->get_root()->add_dangling_frame($split);
+        } else {
+            $this->get_parent()->insert_child_after($split, $this);
+            $this->get_parent()->split($split, $page_break, $forced);
 
-        // Preserve the current counter values. This must be done after the
-        // parent split, as counters get reset on frame reset
-        $split->_counters = $this->_counters;
+            // Preserve the current counter values. This must be done after the
+            // parent split, as counters get reset on frame reset
+            $split->_counters = $this->_counters;
+        }
     }
 
     /**
