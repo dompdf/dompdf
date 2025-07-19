@@ -85,6 +85,20 @@ abstract class AbstractFrameDecorator extends Frame
     private $_positioned_parent;
 
     /**
+     * First column parent (position: absolute | fixed, display: table-cell, float: left | right)
+     *
+     * @var AbstractFrameDecorator
+     */
+    private $_pageable_context;
+
+    /**
+     * Flag indicating this element can no longer accept content for the current page.
+     *
+     * @var bool
+     */
+    protected $_is_full;
+
+    /**
      * Cache for the get_parent while loop results
      *
      * @var Frame
@@ -123,6 +137,8 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_frame = $frame;
         $this->_root = null;
         $this->_dompdf = $dompdf;
+        $this->_pageable_context = null;
+        $this->_is_full = false;
         $frame->set_decorator($this);
     }
 
@@ -151,6 +167,26 @@ abstract class AbstractFrameDecorator extends Frame
 
         $this->_reflower = null;
         unset($this->_reflower);
+    }
+
+    /**
+     * Returns true if the element is full and is no longer accepting frames.
+     */
+    function is_full(): bool
+    {
+        $pageable_context = $this->find_pageable_context();
+        if ($pageable_context !== null && $pageable_context->is_full()) {
+            return true;
+        }
+        return $this->_is_full;
+    }
+
+    /**
+     * Marks the current element as full and no longer accepting frames.
+     */
+    function mark_full(): void
+    {
+        $this->_is_full = true;
     }
 
     /**
@@ -250,6 +286,8 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_cached_parent = null;
         $this->_block_parent = null;
         $this->_positioned_parent = null;
+        $this->_pageable_context = null;
+        $this->_is_full = false;
 
         // Reset all children
         foreach ($this->get_children() as $child) {
@@ -677,6 +715,20 @@ abstract class AbstractFrameDecorator extends Frame
         }
 
         return $this->_positioned_parent = $p;
+    }
+
+    /**
+     * @return AbstractFrameDecorator
+     *
+     * position: | absolute | fixed, display: table-cell, float: left | right
+     */
+    function find_pageable_context()
+    {
+        if (isset($this->_pageable_context)) {
+            return $this->_pageable_context;
+        }
+
+        return $this->_pageable_context = $this->_root;
     }
 
     /**

@@ -102,7 +102,7 @@ class TableCell extends Block
             $child->reflow($frame);
             $this->process_float($child, $content_x, $cb_w);
 
-            if ($page->is_full()) {
+            if ($frame->find_pageable_context()->is_full()) {
                 break;
             }
         }
