@@ -9,6 +9,7 @@ namespace Dompdf;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
+use Dompdf\FrameDecorator\TableRow as TableRowFrameDecorator;
 
 /**
  * Maps table cells to the table grid.
@@ -323,6 +324,29 @@ class Cellmap
         $key = $frame->get_id();
 
         return isset($this->_frames[$key]);
+    }
+
+    /**
+     * @param Frame $frame
+     *
+     * @return array
+     */
+    public function get_frames_in_row(Frame $frame)
+    {
+        if (!($frame instanceof TableRowFrameDecorator)) {
+            throw new Exception("Frame is not a row.");
+        }
+
+        //FIXME: this is probably not right
+        $row_key = $frame->get_id();
+
+        if (!isset($this->_frames[$row_key])) {
+            return null;
+        }
+
+        $ret = [];
+        $row_id = $this->_frames[$row_key]["rows"][0];
+        return $this->_cells[$row_id];
     }
 
     /**
