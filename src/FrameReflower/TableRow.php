@@ -54,10 +54,6 @@ class TableRow extends AbstractFrameReflower
         foreach ($frame->get_children() as $child) {
             $child->set_containing_block($cb);
             $child->reflow();
-
-            if ($frame->find_pageable_context()->is_full()) {
-                break;
-            }
         }
 
         if ($frame->find_pageable_context()->is_full()) {
@@ -74,6 +70,14 @@ class TableRow extends AbstractFrameReflower
         $style->set_used("height", $cellmap->get_frame_height($frame));
 
         $frame->set_position($cellmap->get_frame_position($frame));
+        
+        // split the row if one of the contained cells was split
+        foreach ($cellmap->get_frames_in_row($frame) as $child) {
+            if ($child->is_split) {
+                $frame->split($child, true, false);
+                break;
+            }
+        }
     }
 
     /**

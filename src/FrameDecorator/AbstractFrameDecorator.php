@@ -730,7 +730,7 @@ abstract class AbstractFrameDecorator extends Frame
 
         $p = $this->get_parent();
         while ($p) {
-            if (!$p->is_in_flow()) {
+            if (!$p->is_in_flow() || $p instanceof TableCell) {
                 break;
             }
 
