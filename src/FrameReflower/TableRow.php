@@ -74,6 +74,25 @@ class TableRow extends AbstractFrameReflower
         $style->set_used("height", $cellmap->get_frame_height($frame));
 
         $frame->set_position($cellmap->get_frame_position($frame));
+        
+        // split the row if one of the contained cells was split
+        foreach ($cellmap->get_frames_in_row($frame) as $child) {
+            if ($child->_split_frame !== null) {
+                // ...unless the child is rowspanned into the next row, then we wait
+                if ($next_row = $frame->get_next_sibling()) {
+                    $next_row_cells = $cellmap->get_frames_in_row($next_row);
+                    if (in_array($child, $next_row_cells)) {
+                        continue;
+                    }
+                }
+
+                $frame->split($child, true, false);
+                // Preserve the current counter values. This must be done after the
+                // parent split, as counters get reset on frame reset
+
+                break;
+            }
+        }
     }
 
     /**

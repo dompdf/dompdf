@@ -39,6 +39,7 @@ class TableCell extends Block
         if ($table === null) {
             throw new Exception("Parent table not found for table cell");
         }
+        $frame->_split_frame = null;
 
         // Counters and generated content
         $this->_set_content();
@@ -102,7 +103,7 @@ class TableCell extends Block
             $child->reflow($frame);
             $this->process_float($child, $content_x, $cb_w);
 
-            if ($frame->find_pageable_context()->is_full()) {
+            if ($frame->is_full()) {
                 break;
             }
         }
