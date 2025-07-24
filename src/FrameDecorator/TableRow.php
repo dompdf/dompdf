@@ -23,7 +23,7 @@ class TableRow extends AbstractFrameDecorator
      *
      * @var bool
      */
-    public $_split_child_cell = FALSE;
+    public $_split_child_cell = false;
 
     /**
      * TableRow constructor.
