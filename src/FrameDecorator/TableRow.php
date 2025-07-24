@@ -114,4 +114,27 @@ class TableRow extends AbstractFrameDecorator
         // parent split, as counters get reset on frame reset
         $split->_counters = $this->_counters;
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * The page break logic should not follow the last child of a Table Row
+     * (i.e. a table cell) to check for an allowable page break.
+     *
+     * This situation would only occur if a table cell (or its contents) within
+     * a following row does not fit on a page and a page break is not allowed
+     * within that table cell or before its parent table row or before the
+     * current table row.
+     *
+     * The table cells of a preceding row would have already gone through
+     * the reflow process. The table cell & row split functionality can
+     * currently only handle splitting within table cells & rows that are
+     * being reflowed.
+     */
+    public function checkPageBreakBeforeLastChild(): bool
+    {
+        return false;
+    }
+
+
 }

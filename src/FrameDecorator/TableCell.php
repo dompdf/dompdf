@@ -215,4 +215,22 @@ class TableCell extends BlockFrameDecorator
         }
         return $parent;
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * The page break logic should not follow previous siblings of a Table
+     * Cell (i.e. preceding table cells in the same row) to check for an
+     * allowable page break.
+     *
+     * These cells have already gone through the reflow process. The table
+     * cell & row split functionality can currently only handle splitting
+     * within table cells & rows that are in reflow.
+     */
+    public function checkPageBreakBeforePreviousSibling(): bool
+    {
+        return false;
+    }
+
+
 }

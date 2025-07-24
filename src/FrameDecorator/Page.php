@@ -671,7 +671,9 @@ class Page extends AbstractFrameDecorator
                 return true;
             }
 
-            if (!$flg && $next = $iter->get_last_child()) {
+            $next = null;
+
+            if (!$flg && $iter->checkPageBreakBeforeLastChild() && $next = $iter->get_last_child()) {
                 Helpers::dompdf_debug("page-break", "following last child.");
 
                 if ($next->is_table()) {
@@ -688,7 +690,9 @@ class Page extends AbstractFrameDecorator
                 break;
             }
 
-            $next = $iter->get_prev_sibling();
+            if ($iter->checkPageBreakBeforePreviousSibling()) {
+                $next = $iter->get_prev_sibling();
+            }
             // Skip empty text nodes
             while ($next && $next->is_text_node() && $next->get_node()->nodeValue === "") {
                 $next = $next->get_prev_sibling();
