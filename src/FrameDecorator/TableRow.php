@@ -99,6 +99,7 @@ class TableRow extends AbstractFrameDecorator
         $split->_already_pushed = true;
 
         // Copy all child table cells to the cloned row.
+        $row_info = $cellmap->get_spanned_cells($this);
         foreach ($row_cells as $row_cell) {
             // if the child was not split because it fully rendered
             // add a dummy frame and split at that point
@@ -118,6 +119,16 @@ class TableRow extends AbstractFrameDecorator
                 $split_frame = $row_cell->get_split_frame();
             }
             $split_frame->reset();
+
+            // update the rowspan in the frame
+            $cell_info = $cellmap->get_spanned_cells($row_cell);
+            $rowspan = $used_rowspan = max((int) $split_frame->get_node()->getAttribute("rowspan"), 1);
+            if ($rowspan > 1) {
+                $used_rowspan = $row_info["rows"][0] - $cell_info["rows"][0];
+                $row_cell->get_node()->setAttribute("rowspan", max($used_rowspan, 1));
+                $split_frame->get_node()->setAttribute("rowspan", max($rowspan - $used_rowspan, 1));
+            }
+
             $split->append_child($split_frame);
         }
 
