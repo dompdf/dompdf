@@ -1627,9 +1627,6 @@ EOT;
                             break;
                     }
                 }
-
-                // pass values down to cid to gid map
-                $this->o_fontGIDtoCIDMap($o['info']['cidToGidMap'], 'add', $options);
                 break;
 
             case 'out':
