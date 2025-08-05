@@ -171,7 +171,7 @@ class FontMetrics
      */
     public function registerFont($style, $remoteFile, $context = null)
     {
-        $fontname = mb_strtolower($style["family"]);
+        $fontname = mb_strtolower($style["family"], "UTF-8");
         $families = $this->getFontFamilies();
 
         $entry = [];
@@ -390,7 +390,7 @@ class FontMetrics
         if ($returnSubstring) {
             // build the string for each mapping
             foreach ($char_mapping as $start_index => &$info) {
-                $info["text"] = mb_substr($text, $start_index, $info["length"]);
+                $info["text"] = mb_substr($text, $start_index, $info["length"], "UTF-8");
             }
         }
 
@@ -538,7 +538,7 @@ class FontMetrics
      */
     public function getFamily($family)
     {
-        $family = str_replace(["'", '"'], "", mb_strtolower($family));
+        $family = str_replace(["'", '"'], "", mb_strtolower($family, "UTF-8"));
         $families = $this->getFontFamilies();
 
         if (isset($families[$family])) {
@@ -654,7 +654,7 @@ class FontMetrics
      */
     public function setFontFamily($fontname, $entry)
     {
-        $this->userFonts[mb_strtolower($fontname)] = $entry;
+        $this->userFonts[mb_strtolower($fontname, "UTF-8")] = $entry;
         $this->saveFontFamilies();
         unset($this->fontFamilies);
     }
