@@ -500,7 +500,7 @@ class Stylesheet
         }
 
         $name = "*";
-        $len = mb_strlen($selector);
+        $len = mb_strlen($selector, "UTF-8");
         $i = 0;
 
         while ($i < $len) {
@@ -647,7 +647,7 @@ class Stylesheet
                             $last = true;
                         case "nth-child":
                             $p = $i + 1;
-                            $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+                            $nth = trim(mb_substr($selector, $p, mb_strpos($selector, ")", $i, "UTF-8") - $p, "UTF-8"));
                             $position = $last
                                 ? "(count(following-sibling::*) + 1)"
                                 : "(count(preceding-sibling::*) + 1)";
@@ -678,7 +678,7 @@ class Stylesheet
                             $last = true;
                         case "nth-of-type":
                             $p = $i + 1;
-                            $nth = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+                            $nth = trim(mb_substr($selector, $p, mb_strpos($selector, ")", $i, "UTF-8") - $p, "UTF-8"));
                             $position = $last
                                 ? "(count(following-sibling::$name) + 1)"
                                 : "(count(preceding-sibling::$name) + 1)";
@@ -695,7 +695,7 @@ class Stylesheet
                         // TODO: bit of a hack attempt at matches support, currently only matches against elements
                         case "matches":
                             $p = $i + 1;
-                            $matchList = trim(mb_substr($selector, $p, strpos($selector, ")", $i) - $p));
+                            $matchList = trim(mb_substr($selector, $p, mb_strpos($selector, ")", $i, "UTF-8") - $p, "UTF-8"));
 
                             // Tag names are case-insensitive
                             $elements = array_map("trim", explode(",", strtolower($matchList)));
@@ -772,7 +772,7 @@ class Stylesheet
                     }
 
                     $attr_delimiters = ["=", "]", "~", "|", "$", "^", "*"];
-                    $tok_len = mb_strlen($tok);
+                    $tok_len = mb_strlen($tok, "UTF-8");
                     $j = 0;
 
                     $attr = "";
@@ -1536,7 +1536,7 @@ EOL;
         $path = $this->_base_path;
 
         $media_query_regex = "/" . self::PATTERN_MEDIA_QUERY . "/isx";
-        $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($import_media_query ?? "")));
+        $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($import_media_query ?? ""), "UTF-8"));
         if (count($media_queries) === 0) {
             $this->load_css_file($url, $this->_current_origin);
         } else {
@@ -1782,14 +1782,14 @@ EOL;
         $sections = explode("}", $str);
         if ($DEBUGCSS) print '[_parse_sections';
         foreach ($sections as $sect) {
-            $i = mb_strpos($sect, "{");
+            $i = mb_strpos($sect, "{", 0, "UTF-8");
             if ($i === false) { continue; }
 
             if ($DEBUGCSS) print '[section';
 
-            $selector_str = preg_replace($patterns, $replacements, mb_substr($sect, 0, $i));
+            $selector_str = preg_replace($patterns, $replacements, mb_substr($sect, 0, $i, "UTF-8"));
             $selectors = preg_split("/,(?![^\(]*\))/", $selector_str, 0, PREG_SPLIT_NO_EMPTY);
-            $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1)));
+            $style = $this->_parse_properties(trim(mb_substr($sect, $i + 1, null, "UTF-8")));
 
             // Assign it to the selected elements
             foreach ($selectors as $selector) {
