@@ -980,7 +980,9 @@ class Dompdf
      */
     public function set_option($key, $value)
     {
-        $this->options->set($key, $value);
+        $new_options = clone $this->options;
+        $new_options->set($key, $value);
+        $this->setOptions($new_options);
         return $this;
     }
 
@@ -991,7 +993,9 @@ class Dompdf
      */
     public function set_options(array $options)
     {
-        $this->options->set($options);
+        $new_options = clone $this->options;
+        $new_options->set($options);
+        $this->setOptions($new_options);
         return $this;
     }
 
@@ -1016,6 +1020,9 @@ class Dompdf
     {
         $this->paperSize = $size;
         $this->paperOrientation = $orientation;
+        if ($this->paperSize !== $size || $this->paperOrientation !== $orientation) {
+            $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+        }
         return $this;
     }
 
@@ -1374,10 +1381,19 @@ class Dompdf
         }
 
         $this->options = $options;
+
         $fontMetrics = $this->fontMetrics;
         if (isset($fontMetrics)) {
             $fontMetrics->setOptions($options);
         }
+
+        if (isset($this->canvas)) {
+            $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+            if (isset($fontMetrics)) {
+                $this->fontMetrics = new FontMetrics($this->canvas, $this->options);
+            }
+        }
+
         return $this;
     }
 
