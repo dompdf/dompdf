@@ -971,7 +971,6 @@ class CPDF implements Canvas
         $debug = !$options['compress'];
         $tmp = ltrim($this->_pdf->output($debug));
 
-        header("Cache-Control: private");
         header("Content-Type: application/pdf");
         header("Content-Length: " . mb_strlen($tmp, "8bit"));
 

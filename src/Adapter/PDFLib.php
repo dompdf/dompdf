@@ -1409,7 +1409,6 @@ class PDFLib implements Canvas
             $size = filesize($this->_file);
         }
 
-        header("Cache-Control: private");
         header("Content-Type: application/pdf");
         header("Content-Length: " . $size);
 
