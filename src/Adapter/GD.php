@@ -983,7 +983,6 @@ class GD implements Canvas
                 break;
         }
 
-        header("Cache-Control: private");
         header("Content-Type: $contentType");
 
         $filename = str_replace(["\n", "'"], "", basename($filename, ".$type")) . $extension;
