@@ -580,6 +580,7 @@ class Style
             "border_top_right_radius",
             "border_bottom_right_radius",
             "border_bottom_left_radius",
+            "inset",
             "letter_spacing",
             "line_height",
             "margin_top",
