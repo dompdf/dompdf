@@ -392,20 +392,23 @@ class Options
         foreach ($attributes as $key => $value) {
             $methodForMatch = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
             $methodForCall = "set" . ucfirst($methodForMatch);
+
+            if ($methodForMatch === 'enablePhp') {
+                $methodForCall = "setIsPhpEnabled";
+            } elseif ($methodForMatch === 'enableRemote') {
+                $methodForCall = "setIsRemoteEnabled";
+            } elseif ($methodForMatch === 'enablePdfA') {
+                $methodForCall = "setIsPdfAEnabled";
+            } elseif ($methodForMatch === 'enableJavascript') {
+                $methodForCall = "setIsJavascriptEnabled";
+            } elseif ($methodForMatch === 'enableHtml5Parser') {
+                $methodForCall = "setIsHtml5ParserEnabled";
+            } elseif ($methodForMatch === 'enableFontSubsetting') {
+                $methodForCall = "setIsFontSubsettingEnabled";
+            }
+
             if (method_exists($this, $methodForCall)) {
                 $this->{$methodForCall}($value);
-            } elseif ($methodForMatch === 'isPhpEnabled' || $methodForMatch === 'enablePhp') {
-                $this->setIsPhpEnabled($value);
-            } elseif ($methodForMatch === 'isRemoteEnabled' || $methodForMatch === 'enableRemote') {
-                $this->setIsRemoteEnabled($value);
-            } elseif ($methodForMatch === 'isPdfAEnabled' || $methodForMatch === 'enablePdfA') {
-                $this->setIsPdfAEnabled($value);
-            } elseif ($methodForMatch === 'isJavascriptEnabled' || $methodForMatch === 'enableJavascript') {
-                $this->setIsJavascriptEnabled($value);
-            } elseif ($methodForMatch === 'isHtml5ParserEnabled' || $methodForMatch === 'enableHtml5Parser') {
-                $this->setIsHtml5ParserEnabled($value);
-            } elseif ($methodForMatch === 'isFontSubsettingEnabled' || $methodForMatch === 'enableFontSubsetting') {
-                $this->setIsFontSubsettingEnabled($value);
             }
         }
 
@@ -421,20 +424,22 @@ class Options
         $methodForMatch = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
         $methodForCall = "get" . ucfirst($methodForMatch);
         
+        if ($methodForMatch === 'enablePhp') {
+            $methodForCall = "getIsPhpEnabled";
+        } elseif ($methodForMatch === 'enableRemote') {
+            $methodForCall = "getIsRemoteEnabled";
+        } elseif ($methodForMatch === 'enablePdfA') {
+            $methodForCall = "getIsPdfAEnabled";
+        } elseif ($methodForMatch === 'enableJavascript') {
+            $methodForCall = "getIsJavascriptEnabled";
+        } elseif ($methodForMatch === 'enableHtml5Parser') {
+            $methodForCall = "getIsHtml5ParserEnabled";
+        } elseif ($methodForMatch === 'enableFontSubsetting') {
+            $methodForCall = "getIsFontSubsettingEnabled";
+        }
+
         if (method_exists($this, $methodForCall)) {
             return $this->{$methodForCall}();
-        } elseif ($methodForMatch === 'isPhpEnabled' || $methodForMatch === 'enablePhp') {
-            return $this->getIsPhpEnabled();
-        } elseif ($methodForMatch === 'isRemoteEnabled' || $methodForMatch === 'enableRemote') {
-            return $this->getIsRemoteEnabled();
-        } elseif ($methodForMatch === 'isPdfAEnabled' || $methodForMatch === 'enablePdfA') {
-            return $this->getIsPdfAEnabled();
-        } elseif ($methodForMatch === 'isJavascriptEnabled' || $methodForMatch === 'enableJavascript') {
-            return $this->getIsJavascriptEnabled();
-        } elseif ($methodForMatch === 'isHtml5ParserEnabled' || $methodForMatch === 'enableHtml5Parser') {
-            return $this->getIsHtml5ParserEnabled();
-        } elseif ($methodForMatch === 'isFontSubsettingEnabled' || $methodForMatch === 'enableFontSubsetting') {
-            return $this->getIsFontSubsettingEnabled();
         }
         
         return null;
