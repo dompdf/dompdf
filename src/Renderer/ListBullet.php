@@ -93,12 +93,12 @@ class ListBullet extends AbstractRenderer
 
             case "upper-alpha":
             case "upper-latin":
-                $text = chr((($n - 1) % 26) + ord('A'));
+                $text = strtoupper(Helpers::dec2base26($n));
                 break;
 
             case "lower-alpha":
             case "lower-latin":
-                $text = chr((($n - 1) % 26) + ord('a'));
+                $text = Helpers::dec2base26($n);
                 break;
 
             case "upper-roman":
