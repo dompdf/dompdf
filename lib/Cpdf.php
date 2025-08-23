@@ -1837,17 +1837,6 @@ EOT;
                     ]
                 ];
                 break;
-            case 'Title':
-            case 'Author':
-            case 'Subject':
-            case 'Keywords':
-            case 'Creator':
-            case 'Producer':
-            case 'CreationDate':
-            case 'ModDate':
-            case 'Trapped':
-                $this->objects[$id]['info'][$action] = $options;
-                break;
 
             case 'out':
                 $encrypted = $this->encrypted;
@@ -1876,6 +1865,22 @@ EOT;
                 $res .= ">>\nendobj";
 
                 return $res;
+
+            case 'Title':
+            case 'Author':
+            case 'Subject':
+            case 'Keywords':
+            case 'Creator':
+            case 'Producer':
+            case 'CreationDate':
+            case 'ModDate':
+            case 'Trapped':
+            default:
+                $val = "$options";
+                if (strlen($val) > 0) {
+                    $this->objects[$id]['info'][$action] = $val;
+                    break;
+                }
         }
 
         return null;
