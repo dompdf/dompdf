@@ -28,6 +28,14 @@ class Text extends AbstractFrameDecorator
     protected $mapped_font;
 
     /**
+     * Saves trailing whitespace trimmed after a line break, so it can be
+     * restored when needed.
+     *
+     * @var string|null
+     */
+    protected $trailingWs = null;
+
+    /**
      * Text constructor.
      * @param Frame $frame
      * @param Dompdf $dompdf
@@ -43,11 +51,37 @@ class Text extends AbstractFrameDecorator
         $this->text_spacing = 0.0;
     }
 
+    /**
+     * Trim trailing white space from the frame text.
+     */
+    public function trim_trailing_ws(): void
+    {
+        $frame = $this->_frame;
+        $text = $this->get_text();
+        $trailing = mb_substr($text, -1, null, "UTF-8");
+
+        // White space is always collapsed to the standard space character
+        // currently, so only handle that for now
+        if ($trailing === " ") {
+            $this->trailingWs = $trailing;
+            $this->set_text(mb_substr($text, 0, -1, "UTF-8"));
+            $this->recalculate_width();
+        }
+    }
+
     function reset()
     {
         parent::reset();
         $this->text_spacing = 0.0;
         $this->mapped_font = null;
+
+        // Restore trimmed trailing white space, as the frame will go through
+        // another reflow and line breaks might be different after a split
+        if ($this->trailingWs !== null) {
+            $text = $this->get_text();
+            $this->set_text($text . $this->trailingWs);
+            $this->trailingWs = null;
+        }
     }
 
     // Accessor methods
