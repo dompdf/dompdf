@@ -1250,7 +1250,7 @@ class Stylesheet
      *
      * @param string $str
      */
-    private function _parse_css($str)
+    private function _parse_css($str, $media_queries = [])
     {
         $str = trim($str);
 
@@ -1292,13 +1292,9 @@ class Stylesheet
                         )
                         (?<CSS_ATIMPORT_MEDIA_QUERY>.*?)
                     );)
-                    (?(CSS_ATMEDIA)\s*(?<CSS_ATMEDIA_RULE>[^{]*){(?<CSS_ATMEDIA_BODY> (?:(?>[^{}]+) (?<CSS_ATMEDIA_BODY_BRACKET>{)?
-                        (?(CSS_ATMEDIA_BODY_BRACKET) (?>[^}]*) }) \s*)+?
-                    )})
+                    (?(CSS_ATMEDIA)\s*(?<CSS_ATMEDIA_RULE>[^{]*){(?<CSS_ATMEDIA_BODY> (?:[^{}]*|(?R) \s*)+? )})
                     (?(CSS_ATPAGE)\s*(?<CSS_ATPAGE_RULE>[^{]*){(?<CSS_ATPAGE_BODY>.*?)})
-                    (?(CSS_AT)\s*([^{;]*)(;|{(?<CSS_AT_BODY> (?:(?>[^{}]+) (?<CSS_AT_BODY_BRACKET>{)?
-                        (?(CSS_AT_BODY_BRACKET) (?>[^}]*) }) \s*)+?
-                    )}))
+                    (?(CSS_AT)\s*([^{;]*)(;|{(?<CSS_AT_BODY> (?:[^{}]*|(?R) \s*)+? )}))
                 )
                 
                 # Branch to match regular rules (not preceded by '@')
@@ -1339,11 +1335,11 @@ EOL;
                         break;
 
                     case "media":
-                        $mq = [];
-                        $media_queries = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($match["CSS_ATMEDIA_RULE"])));
-                        foreach ($media_queries as $media_query) {
+                        $parsed_media_queries = [];
+                        $media_query_rules = preg_split("/\s*(,|\Wor\W)\s*/", mb_strtolower(trim($match["CSS_ATMEDIA_RULE"])));
+                        foreach ($media_query_rules as $media_query_rule) {
                             $media_query_matches = [];
-                            if (preg_match_all($media_query_regex, $media_query, $media_query_matches, PREG_SET_ORDER) === false) {
+                            if (preg_match_all($media_query_regex, $media_query_rule, $media_query_matches, PREG_SET_ORDER) === false) {
                                 continue;
                             }
 
@@ -1366,10 +1362,20 @@ EOL;
                                 $mq_grouping[] = [$media_query_feature, $media_query_value, $media_query_operator];
                             }
                             if (count($mq_grouping) > 0) {
-                                $mq[] = $mq_grouping;
+                                $parsed_media_queries[] = $mq_grouping;
                             }
                         }
-                        $this->_parse_sections($match["CSS_ATMEDIA_BODY"], $mq);
+                        $sub_media_queries = [];
+                        if (count($media_queries) > 0) {
+                            foreach ($media_queries as $media_query) {
+                                foreach ($parsed_media_queries as $parsed_media_query) {
+                                    $sub_media_queries[] = array_merge($media_query, $parsed_media_query);
+                                }
+                            }
+                        } else {
+                            $sub_media_queries = $parsed_media_queries;
+                        }
+                        $this->_parse_css($match["CSS_ATMEDIA_BODY"], $sub_media_queries);
                         break;
 
                     case "page":
@@ -1435,7 +1441,7 @@ EOL;
             }
 
             if ($match["CSS_RULESET"] !== "") {
-                $this->_parse_sections($match["CSS_RULESET"]);
+                $this->_parse_sections($match["CSS_RULESET"], $media_queries);
             }
         }
     }
