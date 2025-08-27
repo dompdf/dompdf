@@ -1305,7 +1305,21 @@ EOL;
         // replace data URIs with blob URIs
         while (($start = strpos($css, "data:")) !== false) {
             $len = null;
-            if (preg_match("/['\"\)]/", $css, $matches, PREG_OFFSET_CAPTURE, $start)) {
+            $prev = $css[$start - 1];
+            $pattern = "/(?<!\\\\)['\")]/";
+            switch ($prev) {
+                case "'":
+                    $pattern = "/(?<!\\\\)'/";
+                case "\"":
+                    $pattern = "/(?<!\\\\)\"/";
+                    break;
+                case "(":
+                    $pattern = "/(?<!\\\\)\\)/";
+                    break;
+                default:
+                    continue (2);
+            }
+            if (preg_match($pattern, $css, $matches, PREG_OFFSET_CAPTURE, $start)) {
                 $len = $matches[0][1] - $start;
             }
             $data_uri = substr($css, $start, $len);
