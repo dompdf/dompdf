@@ -580,6 +580,7 @@ class Style
             "border_top_right_radius",
             "border_bottom_right_radius",
             "border_bottom_left_radius",
+            "inset",
             "letter_spacing",
             "line_height",
             "margin_top",
@@ -1087,8 +1088,9 @@ class Style
         static $cache = [];
 
         $font_size = $font_size ?? $this->__get("font_size");
+        $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
 
-        $key = "$l/$ref_size/$font_size";
+        $key = "$l/$dpi/$ref_size/$font_size";
 
         if (\array_key_exists($key, $cache)) {
             return $cache[$key];
@@ -1121,7 +1123,6 @@ class Style
         }
 
         elseif ($unit === "px") {
-            $dpi = $this->_stylesheet->get_dompdf()->getOptions()->getDpi();
             $value = ($v * 72) / $dpi;
         }
 
