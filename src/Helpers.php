@@ -1020,6 +1020,7 @@ class Helpers
 
         try {
             if ($is_local_path || ini_get('allow_url_fopen') && !$can_use_curl) {
+                $http_response_header = null;
                 if ($is_local_path === false) {
                     $uri = Helpers::encodeURI($uri);
                 }
@@ -1031,7 +1032,9 @@ class Helpers
                 if ($result !== false) {
                     $content = $result;
                 }
-                if (isset($http_response_header)) {
+                if (version_compare(PHP_VERSION, "8.4.0", ">=")) {
+                    $headers = \http_get_last_response_headers();
+                } elseif (isset($http_response_header)) {
                     $headers = $http_response_header;
                 }
 
@@ -1101,7 +1104,10 @@ class Helpers
                             break;
                     }
                 }
-                curl_close($curl);
+
+                if (PHP_MAJOR_VERSION < 8) {
+                    curl_close($curl);
+                }
             }
         } finally {
             restore_error_handler();
