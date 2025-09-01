@@ -253,8 +253,14 @@ class PDFLib implements Canvas
         } else {
             $tmp_dir = $options->getTempDir();
             $tmp_name = @tempnam($tmp_dir, "libdompdf_pdf_");
-            @unlink($tmp_name);
-            $this->_file = "$tmp_name.pdf";
+            if ($tmp_name === false) {
+                Helpers::record_warnings("Unable to create temporary file in $tmp_dir.");
+                $tmp_name = "";
+            } else {
+                @unlink($tmp_name);
+                $tmp_name = "$tmp_name.pdf";
+            }
+            $this->_file = $tmp_name;
             $this->_pdf->begin_document($this->_file, $doc_options);
         }
 
@@ -1080,37 +1086,34 @@ class PDFLib implements Canvas
  
         $func_name = "imagecreatefrom$type";
 
-        set_error_handler([Helpers::class, "record_warnings"]);
-
         if (method_exists(Helpers::class, $func_name)) {
             $func_name = [Helpers::class, $func_name];
         } elseif (!function_exists($func_name)) {
-            throw new Exception("Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.");
+            Helpers::record_warnings(E_USER_WARNING, "Function $func_name() not found.  Cannot convert $type image: $image_url.  Please install the image PHP extension.", __FILE__, __LINE__);
+            return null;
         }
 
-        try {
-            $im = call_user_func($func_name, $image_url);
+        $im = call_user_func($func_name, $image_url);
 
-            if ($im) {
-                imageinterlace($im, false);
-
-                $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
-                $tmp_name = @tempnam($tmp_dir, "{$type}_dompdf_img_");
-                @unlink($tmp_name);
-                $filename = "$tmp_name.png";
-
-                imagepng($im, $filename);
-                imagedestroy($im);
-            } else {
-                $filename = null;
-            }
-        } finally {
-            restore_error_handler();
+        if (!$im) {
+            return null;
         }
 
-        if ($filename !== null) {
-            Cache::addTempImage($image_url, $filename);
+        imageinterlace($im, false);
+
+        $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
+        $tmp_name = @tempnam($tmp_dir, "{$type}_dompdf_img_");
+        if ($tmp_name === false) {
+            Helpers::record_warnings(E_USER_WARNING, "Unable to create temporary file in $tmp_dir for image conversion.", __FILE__, __LINE__);
+            return null;
         }
+        @unlink($tmp_name);
+        $filename = "$tmp_name.png";
+
+        imagepng($im, $filename);
+        imagedestroy($im);
+
+        Cache::addTempImage($image_url, $filename);
 
         return $filename;
     }

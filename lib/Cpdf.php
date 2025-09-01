@@ -1245,69 +1245,73 @@ class Cpdf
             // load the pfb file, and put that into an object too.
             // note that pdf supports only binary format type 1 font files, though there is a
             // simple utility to convert them from pfa to pfb.
-            if (!$font['isSubsetting']) {
-                $data = file_get_contents($fbfile);
-            } else {
-                $adobeFontName = $this->getFontSubsettingTag($font) . '+' . $adobeFontName;
-                $this->stringSubsets[$fontFileName][] = 32; // Force space if not in yet
-
-                $subset = $this->stringSubsets[$fontFileName];
-                sort($subset);
-
-                // Load font
-                $font_obj = Font::load($fbfile);
-                $font_obj->parse();
-
-                // Define subset
-                $font_obj->setSubset($subset);
-                $font_obj->reduce();
-
-                // Write new font
+            $data = null;
+            if ($font['isSubsetting'] === true) {
                 $tmp_name = @tempnam($this->tmp, "cpdf_subset_");
-                $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
-                $font_obj->encode(["OS/2"]);
-                $font_obj->close();
+                if ($tmp_name === false) {
+                    $this->addMessage('processFont: could not create temporary file for subsetting');
+                } else {
+                    $adobeFontName = $this->getFontSubsettingTag($font) . '+' . $adobeFontName;
+                    $this->stringSubsets[$fontFileName][] = 32; // Force space if not in yet
 
-                // Parse the new font to get cid2gid and widths
-                $font_obj = Font::load($tmp_name);
+                    $subset = $this->stringSubsets[$fontFileName];
+                    sort($subset);
 
-                // Find Unicode char map table
-                $subtable = null;
-                foreach ($font_obj->getData("cmap", "subtables") as $_subtable) {
-                    if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
-                        $subtable = $_subtable;
-                        break;
+                    // Load font
+                    $font_obj = Font::load($fbfile);
+                    $font_obj->parse();
+
+                    // Define subset
+                    $font_obj->setSubset($subset);
+                    $font_obj->reduce();
+
+                    // Write new font
+                    $font_obj->open($tmp_name, BinaryStream::modeReadWrite);
+                    $font_obj->encode(["OS/2"]);
+                    $font_obj->close();
+
+                    // Parse the new font to get cid2gid and widths
+                    $font_obj = Font::load($tmp_name);
+
+                    // Find Unicode char map table
+                    $subtable = null;
+                    foreach ($font_obj->getData("cmap", "subtables") as $_subtable) {
+                        if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
+                            $subtable = $_subtable;
+                            break;
+                        }
                     }
-                }
 
-                if ($subtable) {
-                    $glyphIndexArray = $subtable["glyphIndexArray"];
-                    $hmtx = $font_obj->getData("hmtx");
+                    if ($subtable) {
+                        $glyphIndexArray = $subtable["glyphIndexArray"];
+                        $hmtx = $font_obj->getData("hmtx");
 
-                    unset($glyphIndexArray[0xFFFF]);
+                        unset($glyphIndexArray[0xFFFF]);
 
-                    $cidtogid = str_pad('', max(array_keys($glyphIndexArray)) * 2 + 1, "\x00");
-                    $font['CIDWidths'] = [];
-                    foreach ($glyphIndexArray as $cid => $gid) {
-                        if ($cid >= 0 && $cid < 0xFFFF && $gid) {
-                            $cidtogid[$cid * 2] = chr($gid >> 8);
-                            $cidtogid[$cid * 2 + 1] = chr($gid & 0xFF);
+                        $cidtogid = str_pad('', max(array_keys($glyphIndexArray)) * 2 + 1, "\x00");
+                        $font['CIDWidths'] = [];
+                        foreach ($glyphIndexArray as $cid => $gid) {
+                            if ($cid >= 0 && $cid < 0xFFFF && $gid) {
+                                $cidtogid[$cid * 2] = chr($gid >> 8);
+                                $cidtogid[$cid * 2 + 1] = chr($gid & 0xFF);
+                            }
+
+                            $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
+                            $font['CIDWidths'][$cid] = $width;
                         }
 
-                        $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
-                        $font['CIDWidths'][$cid] = $width;
+                        $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
+                        $font['CIDtoGID_Compressed'] = true;
+
+                        $data = file_get_contents($tmp_name);
                     }
 
-                    $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
-                    $font['CIDtoGID_Compressed'] = true;
-
-                    $data = file_get_contents($tmp_name);
-                } else {
-                    $data = file_get_contents($fbfile);
+                    $font_obj->close();
+                    unlink($tmp_name);
                 }
-
-                $font_obj->close();
-                unlink($tmp_name);
+            }
+            if (!$data) {
+                $data = file_get_contents($fbfile);
             }
 
             // create the font descriptor
@@ -6014,11 +6018,18 @@ EOT;
 
         // create temp alpha file
         $tempfile_alpha = @tempnam($this->tmp, "cpdf_img_");
-        @unlink($tempfile_alpha);
-        $tempfile_alpha = "$tempfile_alpha.png";
 
         // create temp plain file
         $tempfile_plain = @tempnam($this->tmp, "cpdf_img_");
+
+        if ($tempfile_alpha === false || $tempfile_plain === false) {
+            $this->addMessage('addImagePngAlpha: unable to create temporary file for PNG alpha transparency processing');
+            $this->addImagePng($img, $file, $x, $y, $w, $h, false, null);
+            return;
+        }
+
+        @unlink($tempfile_alpha);
+        $tempfile_alpha = "$tempfile_alpha.png";
         @unlink($tempfile_plain);
         $tempfile_plain = "$tempfile_plain.png";
 

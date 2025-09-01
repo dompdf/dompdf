@@ -224,10 +224,15 @@ class FontMetrics
 
         [$remoteFileContent, $http_response_header] = @Helpers::getFileContent($remoteFile, $context);
         if ($remoteFileContent === null) {
+            Helpers::record_warnings(E_USER_WARNING, "Unable to retrieve font file from $remoteFile", __FILE__, __LINE__);
             return false;
         }
 
         $localTempFile = @tempnam($this->options->get("tempDir"), "dompdf-font-");
+        if ($localTempFile === false) {
+            Helpers::record_warnings(E_USER_WARNING, "Skipping font registration for [$fontname]. Unable to create temporary file in directory [{$this->options->get("tempDir")}].", __FILE__, __LINE__);
+            return false;
+        }
         file_put_contents($localTempFile, $remoteFileContent);
 
         $font = Font::load($localTempFile);
