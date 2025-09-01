@@ -3425,10 +3425,13 @@ EOT;
         }
 
         // implement encryption on the document
+        if (!isset($userPass)) {
+            $userPass = "";
+        }
         if ($this->arc4_objnum == 0) {
             // then the block does not exist already, add it.
             $this->numObj++;
-            if (mb_strlen($ownerPass) == 0) {
+            if (!isset($ownerPass) || mb_strlen($ownerPass) === 0) {
                 $ownerPass = $userPass;
             }
 
@@ -3609,7 +3612,7 @@ EOT;
 
         $this->addMessage("openFont: $font - $name");
 
-        if (!$this->isUnicode || in_array(mb_strtolower(basename($name)), self::$coreFonts)) {
+        if (!$this->isUnicode || in_array(mb_strtolower(basename($name), "UTF-8"), self::$coreFonts)) {
             $metrics_name = "$name.afm";
         } else {
             $metrics_name = "$name.ufm";
@@ -3828,7 +3831,7 @@ EOT;
         $fontName = (string) $fontName;
         $ext = substr($fontName, -4);
         if ($ext === '.afm' || $ext === '.ufm') {
-            $fontName = substr($fontName, 0, mb_strlen($fontName) - 4);
+            $fontName = mb_substr($fontName, 0, mb_strlen($fontName, "UTF-8") - 4, "UTF-8");
         }
         if ($fontName === '') {
             return $this->currentFontNum;
@@ -5322,7 +5325,7 @@ EOT;
      */
     function toUpper($matches)
     {
-        return mb_strtoupper($matches[0]);
+        return mb_strtoupper($matches[0], 'UTF-8');
     }
 
     function concatMatches($matches)
@@ -5343,7 +5346,7 @@ EOT;
      */
     function registerText($font, $text)
     {
-        if (!$this->isUnicode || in_array(mb_strtolower(basename($font)), self::$coreFonts)) {
+        if (!$this->isUnicode || in_array(mb_strtolower(basename($font), "UTF-8"), self::$coreFonts)) {
             return;
         }
 
@@ -5426,11 +5429,8 @@ EOT;
             $this->addContent(sprintf(" %.3F Tc", $charSpaceAdjust));
         }
 
-        $len = mb_strlen($text);
-        $start = 0;
-
-        if ($start < $len) {
-            $part = $text; // OAR - Don't need this anymore, given that $start always equals zero.  substr($text, $start);
+        if (strlen($text) > 0) {
+            $part = $text;
             $place_text = $this->filterText($part, false);
             // modify unicode text so that extra word spacing is manually implemented (bug #)
             if ($this->fonts[$this->currentFont]['isUnicode'] && $wordSpaceAdjust != 0) {
@@ -6817,7 +6817,7 @@ EOT;
 
             // the user is trying to set a font family
             // note that this can also be used to set the base ones to something else
-            if (mb_strlen($family)) {
+            if (isset($family) && mb_strlen($family)) {
                 $this->fontFamilies[$family] = $options;
             }
         }

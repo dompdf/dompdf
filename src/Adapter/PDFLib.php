@@ -1267,7 +1267,7 @@ class PDFLib implements Canvas
         $delta = $word_spacing * $num_spaces;
 
         if ($letter_spacing) {
-            $num_chars = mb_strlen($text);
+            $num_chars = mb_strlen($text, "UTF-8");
             $delta += $num_chars * $letter_spacing;
         }
 

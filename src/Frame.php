@@ -1167,8 +1167,8 @@ class Frame
 
         if ($this->is_text_node()) {
             $tmp = htmlspecialchars($this->_node->nodeValue);
-            $str .= "<pre>'" . mb_substr($tmp, 0, 70) .
-                (mb_strlen($tmp) > 70 ? "..." : "") . "'</pre>";
+            $str .= "<pre>'" . mb_substr($tmp, 0, 70, "UTF-8") .
+                (mb_strlen($tmp, "UTF-8") > 70 ? "..." : "") . "'</pre>";
         } elseif ($css_class = $this->_node->getAttribute("class")) {
             $str .= "CSS class: '$css_class'<br/>";
         }
