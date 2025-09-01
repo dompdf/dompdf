@@ -5,6 +5,7 @@ vendor
 build
 tmp
 .idea
+.vscode
 .project
 .phpunit.result.cache
 lib/fonts/*.afm.json
