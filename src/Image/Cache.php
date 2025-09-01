@@ -62,6 +62,7 @@ class Cache
      */
     static function resolve_url($url, $protocol, $host, $base_path, Options $options)
     {
+        $full_url = null;
         $tempfile = null;
         $resolved_url = null;
         $type = null;
@@ -176,7 +177,9 @@ class Cache
                     fclose($fp);
                     xml_parse($parser, "", true);
                 }
-                xml_parser_free($parser);
+                if (PHP_MAJOR_VERSION < 8) {
+                    xml_parser_free($parser);
+                }
             }
         } catch (ImageException $e) {
             if ($tempfile) {
@@ -186,7 +189,9 @@ class Cache
             list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $options->getHttpContext());
             $message = self::$error_message;
             Helpers::record_warnings($e->getCode(), $e->getMessage() . " \n $url", $e->getFile(), $e->getLine());
-            self::$_cache[$full_url] = $resolved_url;
+            if ($full_url !== null) {
+                self::$_cache[$full_url] = $resolved_url;
+            }
         }
 
         return [$resolved_url, $type, $message];

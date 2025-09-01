@@ -6050,7 +6050,9 @@ EOT;
             // Cast to 8bit+palette
             $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
             imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
-            imagedestroy($imgalpha_);
+            if (PHP_MAJOR_VERSION < 8) {
+                imagedestroy($imgalpha_);
+            }
             imagepng($imgalpha, $tempfile_alpha);
 
             // Make opaque image
@@ -6105,7 +6107,9 @@ EOT;
                 // Cast to 8bit+palette
                 $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
                 imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
-                imagedestroy($imgalpha_);
+                if (PHP_MAJOR_VERSION < 8) {
+                    imagedestroy($imgalpha_);
+                }
                 imagepng($imgalpha, $tempfile_alpha);
             } else {
                 $tempfile_alpha = null;
@@ -6159,7 +6163,9 @@ EOT;
             // extract image without alpha channel
             $imgplain = imagecreatetruecolor($wpx, $hpx);
             imagecopy($imgplain, $img, 0, 0, 0, 0, $wpx, $hpx);
-            imagedestroy($img);
+            if (PHP_MAJOR_VERSION < 8) {
+                imagedestroy($img);
+            }
 
             imagepng($imgalpha, $tempfile_alpha);
             imagepng($imgplain, $tempfile_plain);
@@ -6170,13 +6176,17 @@ EOT;
         // embed mask image
         if ($tempfile_alpha) {
             $this->addImagePng($imgalpha, $tempfile_alpha, $x, $y, $w, $h, true);
-            imagedestroy($imgalpha);
+            if (PHP_MAJOR_VERSION < 8) {
+                imagedestroy($imgalpha);
+            }
             $this->imageCache[] = $tempfile_alpha;
         }
 
         // embed image, masked with previously embedded mask
         $this->addImagePng($imgplain, $tempfile_plain, $x, $y, $w, $h, false, ($tempfile_alpha !== null));
-        imagedestroy($imgplain);
+        if (PHP_MAJOR_VERSION < 8) {
+            imagedestroy($imgplain);
+        }
         $this->imageCache[] = $tempfile_plain;
     }
 
@@ -6261,11 +6271,13 @@ EOT;
             }
 
             imagecopy($img, $imgtmp, 0, 0, 0, 0, $sx, $sy);
-            imagedestroy($imgtmp);
+            if (PHP_MAJOR_VERSION < 8) {
+                imagedestroy($imgtmp);
+            }
         }
         $this->addImagePng($img, $file, $x, $y, $w, $h);
 
-        if ($img) {
+        if ($img && PHP_MAJOR_VERSION < 8) {
             imagedestroy($img);
         }
     }
