@@ -250,6 +250,36 @@ class Helpers
     }
 
     /**
+     * Converts decimal numbers to base26 (hexavigesimal)
+     * represented in lower case letters.
+     *
+     * @param int|string $num
+     *
+     * @throws Exception
+     * @return string
+     */
+    public static function dec2base26($num): string
+    {
+        if (!is_numeric($num)) {
+            throw new Exception("dec2base26() requires a numeric argument.");
+        }
+
+        $num = intval($num);
+
+        if ($num <= 0) {
+            return (string) $num;
+        }
+
+        $ret = '';
+        while ($num > 0) {
+            $remainder = ($num - 1) % 26;
+            $ret = chr(97 + $remainder) . $ret;
+            $num = intval(($num - 1) / 26);
+        }
+        return $ret;
+    }
+
+    /**
      * Restrict a length to the given range.
      *
      * If min > max, the result is min.
