@@ -92,7 +92,9 @@ class RendererTest extends TestCase
     protected static function getMethod($name) {
         $class = new \ReflectionClass(Renderer::class);
         $method = $class->getMethod($name);
-        $method->setAccessible(true);
+        if (version_compare(PHP_VERSION, "8.1.0", "<")) {
+            $method->setAccessible(true);
+        }
         return $method;
     }
 }

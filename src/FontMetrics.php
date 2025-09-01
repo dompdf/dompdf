@@ -461,6 +461,13 @@ class FontMetrics
     {
         static $cache = [];
 
+        if (!$familyRaw) {
+            $familyRaw = $this->options->getDefaultFont();
+        }
+        if (!$subtypeRaw) {
+            $subtypeRaw = "normal";
+        }
+
         if (isset($cache[$familyRaw][$subtypeRaw])) {
             return $cache[$familyRaw][$subtypeRaw];
         }

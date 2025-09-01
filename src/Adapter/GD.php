@@ -1054,7 +1054,7 @@ class GD implements Canvas
                 break;
         }
 
-        if ($this->_aa_factor != 1) {
+        if ($this->_aa_factor != 1 && PHP_MAJOR_VERSION < 8) {
             imagedestroy($dst);
         }
     }
