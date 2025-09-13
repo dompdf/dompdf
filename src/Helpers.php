@@ -807,7 +807,7 @@ class Helpers
             return $cache[$filename];
         }
 
-        [$width, $height, $type] = getimagesize($filename);
+        [$width, $height, $type] = @getimagesize($filename);
 
         // Custom types
         $types = [
