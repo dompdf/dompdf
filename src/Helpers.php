@@ -632,10 +632,10 @@ class Helpers
         global $_dompdf_show_warnings;
 
         if ($_dompdf_show_warnings) {
-            echo $errstr . "\n";
+            echo "$errfile [$errline] :: $errstr\n";
         }
 
-        $_dompdf_warnings[] = $errstr;
+        $_dompdf_warnings[] = "$errfile [$errline] :: $errstr";
     }
 
     /**
@@ -856,7 +856,7 @@ class Helpers
             return false;
         }
 
-        if (function_exists("imagecreatefrombmp") && ($im = imagecreatefrombmp($filename)) !== false) {
+        if (function_exists("imagecreatefrombmp") && ($im = @imagecreatefrombmp($filename)) !== false) {
             return $im;
         }
 
@@ -1046,8 +1046,6 @@ class Helpers
         $is_local_path = in_array(strtolower($protocol), ["", "file://", "phar://"], true);
         $can_use_curl = in_array(strtolower($protocol), ["http://", "https://"], true) && function_exists('curl_exec');
 
-        set_error_handler([self::class, 'record_warnings']);
-
         try {
             if ($is_local_path || ini_get('allow_url_fopen') && !$can_use_curl) {
                 if ($is_local_path === false) {
@@ -1133,8 +1131,8 @@ class Helpers
                 }
                 curl_close($curl);
             }
-        } finally {
-            restore_error_handler();
+        } catch (Exception $ex) {
+            Helpers::record_warnings(E_USER_ERROR, $ex->getMessage(), __FILE__, __LINE__);
         }
 
         return [$content, $headers];

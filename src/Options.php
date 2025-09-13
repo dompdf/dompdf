@@ -388,7 +388,13 @@ class Options
         if (!is_array($attributes)) {
             $attributes = [$attributes => $value];
         }
-
+        // move artifact path validation to the top
+        uksort($attributes, function ($a, $b) {
+            if ($a == $b) {
+                return 0;
+            }
+            return in_array($a, ['artifactPathValidation'], true) ? -1 : 1;
+        });
         foreach ($attributes as $key => $value) {
             $methodForMatch = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
             $methodForCall = "set" . ucfirst($methodForMatch);
