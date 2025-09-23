@@ -465,6 +465,33 @@ class StyleTest extends TestCase
         $this->assertSame($expected, $style->background_size);
     }
 
+    public static function fontProvider(): array
+    {
+        return [
+            ["sans-serif", "normal", "normal", "/lib/fonts/Helvetica"],
+            ["sans-serif", "normal", 400, "/lib/fonts/Helvetica"],
+            ["sans-serif", "italic", "normal", "/lib/fonts/Helvetica-Oblique"],
+            ["sans-serif", "normal", "bold", "/lib/fonts/Helvetica-Bold"],
+            ["sans-serif", "normal", 700, "/lib/fonts/Helvetica-Bold"],
+            ["sans-serif", "italic", "bold", "/lib/fonts/Helvetica-BoldOblique"],
+            ["sans-serif", "normal", 750, "/lib/fonts/Helvetica"],
+            [null, "normal", "normal", "/lib/fonts/Times-Roman"]
+        ];
+    }
+
+    /**
+     * @dataProvider fontProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('fontProvider')]
+    public function testFont($fontFamily, $fontStyle, $fontWeight, $expected): void
+    {
+        $dompdf = new Dompdf();
+        $sheet = new Stylesheet($dompdf);
+        $style = new Style($sheet);
+        $style->set_prop("font", "$fontStyle $fontWeight 12pt $fontFamily");
+        $this->assertSame(realpath($dompdf->getOptions()->getRootDir()) . $expected, $style->font_family);
+    }
+
     public static function fontWeightProvider(): array
     {
         return [
