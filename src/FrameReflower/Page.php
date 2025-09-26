@@ -130,13 +130,13 @@ class Page extends AbstractFrameReflower
 
             $child->set_containing_block($content_x, $content_y, $content_width, $content_height);
 
-            // Check for begin reflow callback
-            $this->_check_callbacks("begin_page_reflow", $child);
-
             //Insert a copy of each node which have a fixed position
             foreach ($fixed_children as $fixed_child) {
                 $child->prepend_child($fixed_child->deep_copy());
             }
+
+            // Check for begin reflow callback
+            $this->_check_callbacks("begin_page_reflow", $child);
 
             $child->reflow();
             $next_child = $child->get_next_sibling();
