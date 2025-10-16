@@ -1002,4 +1002,55 @@ class CPDF implements Canvas
     {
         return $this->_pdf->messages;
     }
+
+    /**
+     * $hiddenDigitalSignature : array(
+     *   'cert' => <cert>,
+     *   'pkey' => <privkey|[<privkey>,<password>]>,
+     *   'metadata' => ['name' => <name>, 'location' => <location>, 'reason' => <reason>, 'contactinfo' => <contactinfo>],
+     *   'extracerts' => [<cert>,...],
+     *   'ocsps' => [<ocsp>,...]
+     * )
+     *
+     * example:
+     *   openssl_pkcs12_read(<pfx-file-content>, $hiddenDigitalSignature, <password>))
+     *
+     *   $hiddenDigitalSignature['metadata'] = [
+     *     'name' => 'DomPDF', 'location' => '', 'reason' => '', 'contactinfo' => ''
+     *   ];
+     *
+     *   // can add Online Certificate Status Protocol (OCSP) for Long-Term Validation (LTV)
+     *   $hiddenDigitalSignature['ocsps'] = [<ocsp-response.der>...]
+     *
+     *   $dompdf = new Dompdf();
+     *   $dompdf->loadHtml('hello world');
+     *   $dompdf->setPaper('A4', 'landscape');
+     *   $dompdf->render();
+     *   $dompdf->getCanvas()->addHiddenSignature($hiddenDigitalSignature);
+     *   $dompdf->output();
+     *
+     * @param array $hiddenDigitalSignature
+     * @return void
+     */
+    function addHiddenSignature($hiddenDigitalSignature)
+    {
+        if (!isset($this->_pdf->acroFormId)) {
+            $this->_pdf->addForm(\Dompdf\Cpdf::ACROFORM_SIG_SIGNATURESEXISTS | \Dompdf\Cpdf::ACROFORM_SIG_APPENDONLY);
+        }
+        $this->_pdf->setExtensionLevel(5);
+        $fieldSigId = $this->_pdf->addFormField(\Dompdf\Cpdf::ACROFORM_FIELD_SIG, 'Signature1', 0, 0, 0, 0);
+        $signatureId = $this->_pdf->addSignature(
+            $hiddenDigitalSignature['cert'],
+            is_array($hiddenDigitalSignature['pkey']) ? $hiddenDigitalSignature['pkey'][0] : $hiddenDigitalSignature['pkey'],
+            is_array($hiddenDigitalSignature['pkey']) ? $hiddenDigitalSignature['pkey'][1] : '',
+            $hiddenDigitalSignature['metadata']['name'],
+            $hiddenDigitalSignature['metadata']['location'],
+            $hiddenDigitalSignature['metadata']['reason'],
+            $hiddenDigitalSignature['metadata']['contactinfo']);
+        $this->_pdf->setFormFieldRefValue($fieldSigId, $signatureId);
+
+        if (isset($hiddenDigitalSignature['extracerts']) || isset($hiddenDigitalSignature['ocsps'])) {
+            $this->_pdf->addDSS($hiddenDigitalSignature);
+        }
+    }
 }
