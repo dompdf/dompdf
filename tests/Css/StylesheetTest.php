@@ -39,7 +39,20 @@ CSS
                         "background_image" => "url(image;\(12\).png)"
                     ]]
                 ]
-            ]
+            ],
+            "malformed data URI" => [
+                <<<CSS
+div {
+    background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==&quote;);
+}
+CSS
+,
+                [
+                    "div" => [[
+                        "background_image" => 'url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==&quote;)'
+                    ]]
+                ]
+            ],
         ];
     }
 
