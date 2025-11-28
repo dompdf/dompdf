@@ -1402,7 +1402,7 @@ class Dompdf
         if (isset($this->canvas)) {
             $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
             if (isset($fontMetrics)) {
-                $this->fontMetrics = new FontMetrics($this->canvas, $this->options);
+                $this->fontMetrics->setCanvas($this->canvas)->setOptions($options);
             }
         }
 
