@@ -497,6 +497,15 @@ abstract class AbstractRenderer
                     $src = @imagecreatefromwebp($img);
                     break;
 
+                case "avif":
+                    // Conditional while targeting PHP < 8.1 where function may not exist
+                    if (function_exists('imagecreatefromavif')) {
+                        $src = @imagecreatefromavif($img);
+                    } else {
+                        $src = null;
+                    }
+                    break;
+
                 case "gif":
                     $src = @imagecreatefromgif($img);
                     break;

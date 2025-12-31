@@ -1131,6 +1131,7 @@ class PDFLib implements Canvas
 
         if (!isset($this->_imgs[$img])) {
             switch (strtolower($img_type)) {
+                case "avif":
                 case "webp":
                     $img = $this->_convert_to_png($img, $img_type);
                     if ($img === null) {
