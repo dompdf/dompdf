@@ -4832,6 +4832,15 @@ EOT;
     }
 
     /**
+     * uses the previously drawn path for clipping, all the elements added after this will be clipped
+     */
+    function clip()
+    {
+        $this->addContent("\nW n");
+        $this->save();
+    }
+
+    /**
      * ends the last clipping shape
      */
     function clippingEnd()
