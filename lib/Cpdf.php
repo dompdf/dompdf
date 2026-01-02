@@ -4832,6 +4832,25 @@ EOT;
     }
 
     /**
+     * saves the graphics state prior to manually drawing shapes to be used for clipping
+     *
+     * after drawing a shape use the clip() function to use the shape for clipping,
+     * and then use clippingEnd() to end the clipping region and restore the graphics state
+     */
+    function clippingStart()
+    {
+        $this->save();
+    }
+
+    /**
+     * uses the previously drawn path for clipping, all the elements added after this will be clipped
+     */
+    function clip()
+    {
+        $this->addContent("\nW n");
+    }
+
+    /**
      * ends the last clipping shape
      */
     function clippingEnd()
