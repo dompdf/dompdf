@@ -3758,7 +3758,7 @@ EOT;
 
                             $c = (int)$dtmp['U'];
                             $n = $dtmp['N'];
-                            $glyph = $dtmp['G'];
+                            $glyph = (int)$dtmp['G'];
                             $width = floatval($dtmp['WX']);
 
                             if ($c >= 0) {
@@ -3810,7 +3810,7 @@ EOT;
         }
 
         if (!isset($this->fonts[$font])) {
-            $this->addMessage("openFont: no font file found for $font. Do you need to run load_font.php?");
+            $this->addMessage("openFont: no font file found for $font.");
         }
     }
 
