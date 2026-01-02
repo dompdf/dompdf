@@ -1185,10 +1185,10 @@ class Cpdf
             }
 
             // also need to adjust the widths for the differences array
-            if (isset($object['differences'])) {
-                foreach ($object['differences'] as $charNum => $charName) {
+            if (isset($object_info['differences'])) {
+                foreach ($object_info['differences'] as $charNum => $charName) {
                     if ($charNum > $lastChar) {
-                        if (!$object['isUnicode']) {
+                        if (!$object_info['isUnicode']) {
                             // With Unicode, widths array isn't used
                             for ($i = $lastChar + 1; $i <= $charNum; $i++) {
                                 $widths[] = 0;
@@ -6375,7 +6375,6 @@ EOT;
                             $info['filterMethod'] = ord($data[$p + 19]);
                             $info['interlaceMethod'] = ord($data[$p + 20]);
 
-                            //print_r($info);
                             $haveHeader = 1;
                             if ($info['compressionMethod'] != 0) {
                                 $error = 1;
@@ -6549,14 +6548,12 @@ EOT;
                 return;
             }
 
-            //print_r($info);
             // so this image is ok... add it in.
             $this->numImages++;
             $im = $this->numImages;
             $label = "I$im";
             $this->numObj++;
 
-            //  $this->o_image($this->numObj,'new',array('label' => $label,'data' => $idata,'iw' => $w,'ih' => $h,'type' => 'png','ic' => $info['width']));
             $options = [
                 'label'            => $label,
                 'data'             => $idata,
