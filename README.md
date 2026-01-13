@@ -1,239 +1,275 @@
-Dompdf
-======
+from fpdf import FPDF
 
-[![Build Status](https://github.com/dompdf/dompdf/actions/workflows/test.yml/badge.svg)](https://github.com/dompdf/dompdf/actions/workflows/test.yml)
-[![PHP Versions Supported](https://poser.pugx.org/dompdf/dompdf/require/php)](https://packagist.org/packages/dompdf/dompdf)
-[![Latest Release](https://poser.pugx.org/dompdf/dompdf/v)](https://packagist.org/packages/dompdf/dompdf)
-[![Total Downloads](https://poser.pugx.org/dompdf/dompdf/downloads)](https://packagist.org/packages/dompdf/dompdf)
-[![License](https://poser.pugx.org/dompdf/dompdf/license)](https://packagist.org/packages/dompdf/dompdf)
- 
-**Dompdf is an HTML to PDF converter**
+class PDF(FPDF):
+    def header(self):
+        # Tidak menggunakan header di cover (halaman 1)
+        if self.page_no() > 1:
+            self.set_font('Arial', 'I', 8)
+            self.cell(0, 10, 'Proposal Franchise "MASTER TUKANG" - 2026', 0, 1, 'R')
+            self.ln(5)
 
-At its heart, dompdf is (mostly) a [CSS 2.1](http://www.w3.org/TR/CSS2/) compliant
-HTML layout and rendering engine written in PHP. It is a style-driven renderer:
-it will download and read external stylesheets, inline style tags, and the style
-attributes of individual HTML elements. It also supports most presentational
-HTML attributes.
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Halaman {self.page_no()}', 0, 0, 'C')
 
-*This document applies to the latest stable code which may not reflect the current 
-release. For released code please
-[navigate to the appropriate tag](https://github.com/dompdf/dompdf/tags).*
+    def chapter_title(self, title):
+        self.set_font('Arial', 'B', 14)
+        self.set_fill_color(230, 230, 230) # Abu-abu muda
+        self.cell(0, 10, title, 0, 1, 'L', 1)
+        self.ln(4)
 
-----
+    def chapter_body(self, body):
+        self.set_font('Arial', '', 11)
+        self.multi_cell(0, 6, body)
+        self.ln()
 
-**Check out the [demo](http://eclecticgeek.com/dompdf/debug.php) and ask any
-question on [StackOverflow](https://stackoverflow.com/questions/tagged/dompdf) or
-in [Discussions](https://github.com/dompdf/dompdf/discussions).**
+def create_pdf():
+    pdf = PDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
 
-Follow us on [![Twitter](http://twitter-badges.s3.amazonaws.com/twitter-a.png)](http://www.twitter.com/dompdf).
+    # --- HALAMAN 1: COVER ---
+    pdf.add_page()
+    pdf.set_line_width(1)
+    pdf.rect(10, 10, 190, 277) # Border halaman
+    
+    pdf.ln(40)
+    pdf.set_font('Arial', 'B', 24)
+    pdf.cell(0, 10, 'PROPOSAL PENAWARAN', 0, 1, 'C')
+    pdf.cell(0, 10, 'KERJASAMA (FRANCHISE)', 0, 1, 'C')
+    
+    pdf.ln(20)
+    pdf.set_font('Arial', 'B', 40)
+    pdf.set_text_color(200, 50, 0) # Warna aksen oranye bata
+    pdf.cell(0, 20, 'MASTER TUKANG', 0, 1, 'C')
+    
+    pdf.ln(10)
+    pdf.set_font('Arial', 'I', 14)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 10, '"Solusi Bangunan, Renovasi, & Perbaikan Terpercaya"', 0, 1, 'C')
+    
+    pdf.ln(30)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, '[ TEMPAT LOGO ANDA DISINI ]', 1, 1, 'C') # Placeholder logo
+    
+    pdf.ln(30)
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(0, 10, 'EST. 2025', 0, 1, 'C')
+    
+    pdf.ln(10)
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, 'Bangun Bisnis Jasa Konstruksi Modern di Kota Anda', 0, 1, 'C')
 
----
+    # --- HALAMAN 2: TENTANG KAMI ---
+    pdf.add_page()
+    pdf.chapter_title('01. TENTANG KAMI')
+    text_about = (
+        "Halo Sahabat Master Tukang,\n\n"
+        "Berawal dari keresahan masyarakat akan sulitnya mencari tenaga tukang yang profesional, jujur, "
+        "dan transparan dalam harga, MASTER TUKANG hadir sebagai solusi. Sejak awal berdiri, kami memulai "
+        "layanan ini dengan misi sederhana: mengubah citra 'tukang bangunan' menjadi tenaga ahli yang rapi "
+        "dan terpercaya.\n\n"
+        "Melalui riset dan pengembangan sistem yang matang, kami berhasil menemukan formula manajemen jasa "
+        "konstruksi skala ritel yang efektif. Dengan dukungan Standard Operating Procedure (SOP) yang ketat, "
+        "kami tidak hanya memperbaiki bangunan, tapi juga membangun kepercayaan pelanggan.\n\n"
+        "Kini, Master Tukang siap melebarkan sayap ke seluruh Indonesia melalui sistem kemitraan (Franchise). "
+        "Kami mengundang Anda untuk menjadi bagian dari revolusi industri jasa pertukangan modern ini.\n\n"
+        "VISI KAMI:\n"
+        "Menjadi penyedia jasa pertukangan dan konstruksi nomor 1 di Indonesia yang berbasis teknologi dan pelayanan prima."
+    )
+    pdf.chapter_body(text_about)
 
+    # --- HALAMAN 3: KEUNGGULAN ---
+    pdf.add_page()
+    pdf.chapter_title('02. KENAPA HARUS FRANCHISE DENGAN KAMI?')
+    text_adv = (
+        "1. PASAR ABADI & LUAS\n"
+        "Setiap bangunan pasti membutuhkan perawatan. Pasar renovasi tidak mengenal musim.\n\n"
+        "2. MINIM RESIKO BAHAN BAKU\n"
+        "Berbeda dengan F&B, bisnis jasa tidak memiliki resiko bahan baku basi atau kadaluarsa.\n\n"
+        "3. INVESTASI TERJANGKAU\n"
+        "Pilihan paket investasi yang fleksibel mulai dari skala mobile hingga kantor fisik.\n\n"
+        "4. HIGH MARGIN\n"
+        "Keuntungan jasa servis yang besar (Gross Margin jasa bisa mencapai 60-80%).\n\n"
+        "5. SISTEM TERPUSAT\n"
+        "Dukungan aplikasi/sistem admin untuk pencatatan order dan keuangan yang transparan.\n\n"
+        "6. PELATIHAN & SOP\n"
+        "Kami melatih tukang Anda menjadi tenaga profesional dengan standar kerja tinggi."
+    )
+    pdf.chapter_body(text_adv)
 
+    # --- HALAMAN 4: LAYANAN ---
+    pdf.chapter_title('03. PRODUK & LAYANAN (SERVICES)')
+    text_services = (
+        "Master Tukang menawarkan solusi One Stop Solution untuk segala masalah bangunan:\n\n"
+        "- Master Sipil: Renovasi rumah, pengecatan dinding, perbaikan atap bocor, pemasangan keramik.\n"
+        "- Master Kelistrikan (ME): Instalasi listrik baru, perbaikan korsleting, pemasangan lampu hias.\n"
+        "- Master Plumbing: Perbaikan saluran air mampet, instalasi pipa air, pasang toren & pompa.\n"
+        "- Master Las: Pembuatan pagar, kanopi, teralis, dan railing tangga.\n"
+        "- Master Cool: Cuci AC, bongkar pasang AC, dan perbaikan pendingin ruangan."
+    )
+    pdf.chapter_body(text_services)
 
-## Features
+    # --- HALAMAN 5: PAKET ---
+    pdf.add_page()
+    pdf.chapter_title('04. PILIHAN PAKET FRANCHISE')
+    
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 8, 'A. PAKET "MOBILE UNIT" (STARTER) - Rp 75.000.000,-', 0, 1)
+    pdf.set_font('Arial', '', 11)
+    pdf.multi_cell(0, 6, "Konsep: Unit reaksi cepat menggunakan motor roda tiga/motor box.\nFasilitas: Branding Kendaraan, 1 Set Alat Kerja Lengkap, Seragam, Training, Sistem Booking Online.\n")
+    
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 8, 'B. PAKET "WORKSHOP HUB" (MEDIUM) - Rp 125.000.000,-', 0, 1)
+    pdf.set_font('Arial', '', 11)
+    pdf.multi_cell(0, 6, "Konsep: Ruko kecil/Posko sebagai basecamp peralatan & material.\nFasilitas: Renovasi & Branding Kantor (Neon Box), 3 Set Alat Kerja Tim, Komputer Admin, Stok Material Awal, Training Manajemen.\n")
+    
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 8, 'C. PAKET "CONTRACTOR CENTER" (PREMIUM) - Rp 250.000.000,-', 0, 1)
+    pdf.set_font('Arial', '', 11)
+    pdf.multi_cell(0, 6, "Konsep: Kantor konsultan renovasi lengkap dengan display material.\nFasilitas: Interior Kantor Premium, Alat Konstruksi Berat, 5 Set Alat Kerja, Sistem Kasir Lengkap, Dukungan Arsitek Pusat.\n")
 
- * Handles most CSS 2.1 and a few CSS3 properties, including @import, @media &
-   @page rules
- * Supports most presentational HTML 4.0 attributes
- * Supports external stylesheets, either local or through http/ftp (via
-   fopen-wrappers)
- * Supports complex tables, including row & column spans, separate & collapsed
-   border models, individual cell styling
- * Image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
- * No dependencies on external PDF libraries, thanks to the R&OS PDF class
- * Inline PHP support
- * Basic SVG support (see "Limitations" below)
- 
-## Requirements
+    # --- HALAMAN 6: RINCIAN TABEL ---
+    pdf.add_page()
+    pdf.chapter_title('05. RINCIAN FASILITAS (CONTOH PAKET 75 JUTA)')
+    
+    # Table Header
+    pdf.set_fill_color(220, 220, 220)
+    pdf.set_font('Arial', 'B', 10)
+    pdf.cell(40, 10, 'KATEGORI', 1, 0, 'C', 1)
+    pdf.cell(100, 10, 'ITEM FASILITAS', 1, 0, 'C', 1)
+    pdf.cell(50, 10, 'ESTIMASI NILAI', 1, 1, 'C', 1)
+    
+    # Table Body
+    pdf.set_font('Arial', '', 10)
+    data_invest = [
+        ("Aset Alat Kerja", "2 Bor, 2 Gerinda, Las, Toolset, Tangga, Safety Gear", "Rp 30.000.000"),
+        ("Setup Outlet", "Neon Box, Meja, Kursi, Branding Dinding, Seragam", "Rp 20.000.000"),
+        ("Legal & Sistem", "Franchise Fee 5 Thn, Aplikasi, SOP, Training", "Rp 15.000.000"),
+        ("Stok Awal", "Kabel, Kran, Pipa, Semen, Cat, Material fast moving", "Rp 10.000.000"),
+        ("TOTAL", "PAKET WORKSHOP HUB", "Rp 75.000.000")
+    ]
+    
+    for row in data_invest:
+        if row[0] == "TOTAL":
+            pdf.set_font('Arial', 'B', 10)
+        pdf.cell(40, 10, row[0], 1)
+        pdf.cell(100, 10, row[1], 1)
+        pdf.cell(50, 10, row[2], 1, 1, 'R')
 
- * PHP version 7.1 or higher
- * DOM extension
- * MBString extension
- * php-font-lib
- * php-svg-lib
- 
-Note that some required dependencies may have further dependencies 
-(notably php-svg-lib requires sabberworm/php-css-parser).
+    pdf.ln(10)
+    
+    # --- HALAMAN 7: AUTOPILOT ---
+    pdf.chapter_title('06. PAKET INVESTOR (AUTOPILOT)')
+    text_auto = (
+        "Solusi bagi Anda yang sibuk namun ingin memiliki Passive Income dari bisnis konstruksi.\n\n"
+        "Nilai Investasi: Rp 125.000.000,-\n"
+        "Sistem Pengelolaan: Full Operasional dijalankan oleh Manajemen Pusat.\n"
+        "Pembagian Keuntungan (Profit Sharing):\n"
+        "   - 75% untuk Mitra (Investor)\n"
+        "   - 25% untuk Manajemen (Fee Pengelolaan)\n\n"
+        "Keuntungan: Anda tidak perlu pusing memikirkan operasional harian, cukup menerima laporan keuangan dan transfer profit setiap bulan."
+    )
+    pdf.chapter_body(text_auto)
 
-### Recommendations
+    # --- HALAMAN 8: PROYEKSI ---
+    pdf.add_page()
+    pdf.chapter_title('07. SKENARIO KEUNTUNGAN BULANAN')
+    pdf.set_font('Arial', 'I', 10)
+    pdf.cell(0, 10, '(Simulasi Paket Workshop - Estimasi Kinerja Rata-rata)', 0, 1)
 
- * GD (for image processing)
-   * Additionally, the IMagick or GMagick extension improves image processing performance for certain image types
- * OPcache (OPcache, XCache, APC, etc.): improves performance
+    # Table Header
+    pdf.set_fill_color(220, 220, 220)
+    pdf.set_font('Arial', 'B', 10)
+    pdf.cell(70, 10, 'KOMPONEN', 1, 0, 'C', 1)
+    pdf.cell(60, 10, 'SKENARIO MEDIUM', 1, 0, 'C', 1)
+    pdf.cell(60, 10, 'SKENARIO TINGGI', 1, 1, 'C', 1)
+    
+    # Table Body
+    pdf.set_font('Arial', '', 10)
+    data_proj = [
+        ("Order Per Hari", "6 Order", "10 Order"),
+        ("Omzet Sebulan (26 Hari)", "Rp 46.800.000", "Rp 78.000.000"),
+        ("", "", ""), # Empty row separator
+        ("BIAYA OPERASIONAL", "", ""),
+        ("Upah Tukang (Bagi Hasil)", "Rp 18.720.000", "Rp 31.200.000"),
+        ("Bahan & Operasional", "Rp 3.500.000", "Rp 5.000.000"),
+        ("Gaji Admin & Sewa", "Rp 5.000.000", "Rp 5.000.000"),
+        ("Royalti Fee 5%", "Rp 2.340.000", "Rp 3.900.000"),
+        ("", "", ""),
+        ("PROFIT BERSIH", "Rp 17.240.000", "Rp 32.900.000"),
+        ("Estimasi BEP", "4-5 Bulan", "2-3 Bulan"),
+    ]
 
-Visit the wiki for more information:
-https://github.com/dompdf/dompdf/wiki/Requirements
+    for row in data_proj:
+        if row[0] == "PROFIT BERSIH" or row[0] == "BIAYA OPERASIONAL":
+             pdf.set_font('Arial', 'B', 10)
+        else:
+             pdf.set_font('Arial', '', 10)
+             
+        pdf.cell(70, 8, row[0], 1)
+        pdf.cell(60, 8, row[1], 1, 0, 'R')
+        pdf.cell(60, 8, row[2], 1, 1, 'R')
 
-## About Fonts & Character Encoding
+    # --- HALAMAN 9: SYARAT ALUR ---
+    pdf.add_page()
+    pdf.chapter_title('08. SYARAT & ALUR KEMITRAAN')
+    text_syarat = (
+        "SYARAT BERMITRA:\n"
+        "1. Siap menjadi entrepreneur sukses dan memiliki modal yang cukup.\n"
+        "2. Memiliki lokasi usaha (Ruko/Garasi) yang strategis.\n"
+        "3. Bersedia mematuhi SOP dan standar harga Master Tukang.\n"
+        "4. Wajib membeli branding dan peralatan utama dari Pusat.\n\n"
+        "ALUR KEMITRAAN:\n"
+        "1. Mengisi Formulir Kemitraan.\n"
+        "2. Persetujuan Lokasi & Survey.\n"
+        "3. Pembayaran Paket Kemitraan.\n"
+        "4. Penandatanganan Kerjasama (MOU).\n"
+        "5. Setup Outlet & Pengiriman Alat.\n"
+        "6. Training Pegawai (Teknis & Admin).\n"
+        "7. Grand Opening Master Tukang."
+    )
+    pdf.chapter_body(text_syarat)
 
-PDF documents internally support the following fonts: Helvetica, Times-Roman,
-Courier, Zapf-Dingbats, & Symbol. These fonts only support Windows ANSI
-encoding. In order for a PDF to display characters that are not available in
-Windows ANSI, you must supply an external font. Dompdf will embed any referenced
-font in the PDF so long as it has been pre-loaded or is accessible to dompdf and
-reference in CSS @font-face rules. See the
-[font overview](https://github.com/dompdf/dompdf/wiki/About-Fonts-and-Character-Encoding)
-for more information on how to use fonts.
+    # --- HALAMAN 10: KONTAK ---
+    pdf.add_page()
+    pdf.chapter_title('KONTAK KAMI')
+    
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(0, 10, 'SIAP MENJADI JURAGAN KONSTRUKSI?', 0, 1, 'C')
+    
+    pdf.set_font('Arial', '', 12)
+    pdf.multi_cell(0, 8, "Jangan lewatkan kesempatan menguasai pasar jasa perbaikan rumah di kota Anda. Hubungi kami sekarang untuk konsultasi lokasi.\n\n"
+                   "Alamat Kantor Pusat: [Jalan Catur B 05 Mojoroto Kota Kediri]\n"
+                   "Hotline Kemitraan: [081331478423]\n"
+                   "Instagram: @mastertukang.id\n"
+                   "Email: franchise@mastertukang.com\n", 0, 'C')
 
-The [DejaVu TrueType fonts](https://dejavu-fonts.github.io/) have been pre-installed
-to give dompdf decent Unicode character coverage by default. To use the DejaVu
-fonts reference the font in your stylesheet, e.g. `body { font-family: DejaVu
-Sans; }` (for DejaVu Sans). The following DejaVu 2.34 fonts are available:
-DejaVu Sans, DejaVu Serif, and DejaVu Sans Mono.
+    # --- HALAMAN 11: LAMPIRAN ---
+    pdf.add_page()
+    pdf.chapter_title('LAMPIRAN: FORMULIR')
+    
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, 'FORMULIR PENDAFTARAN MITRA', 0, 1)
+    pdf.cell(0, 10, 'Nama: _______________________________________', 0, 1)
+    pdf.cell(0, 10, 'No. Telp/WA: __________________________________', 0, 1)
+    pdf.cell(0, 10, 'Rencana Lokasi: ______________________________', 0, 1)
+    pdf.cell(0, 10, 'Pilihan Paket: [ ] 75 Juta [ ] 125 Juta [ ] 250 Juta [ ] Autopilot', 0, 1)
+    
+    pdf.ln(10)
+    pdf.cell(0, 10, 'RINGKASAN PERJANJIAN (MOU)', 0, 1, 'B')
+    pdf.multi_cell(0, 8, "- Lisensi: Hak penggunaan merek selama 5 tahun.\n"
+                   "- Royalti: Wajib membayar Royalti Fee 5% dari omzet kotor setiap bulan.\n"
+                   "- Radius: Mitra mendapatkan proteksi wilayah usaha radius 3-5 KM.\n"
+                   "- Kewajiban: Mitra wajib menjaga nama baik brand dan mengikuti SOP Pusat.")
+    
+    pdf.ln(20)
+    pdf.cell(0, 10, '(Tanda Tangan Pemohon)', 0, 1, 'R')
 
-## Easy Installation
+    file_path = "Proposal_Franchise_Master_Tukang_2026.pdf"
+    pdf.output(file_path)
+    return file_path
 
-### Install with composer
-
-To install with [Composer](https://getcomposer.org/), simply require the
-latest version of this package.
-
-```bash
-composer require dompdf/dompdf
-```
-
-Make sure that the autoload file from Composer is loaded.
-
-```php
-// somewhere early in your project's loading, require the Composer autoloader
-// see: http://getcomposer.org/doc/00-intro.md
-require 'vendor/autoload.php';
-```
-
-### Download and install
-
-Download a packaged archive of dompdf and extract it into the 
-directory where dompdf will reside
-
- * You can download stable copies of dompdf from
-   https://github.com/dompdf/dompdf/releases
- * Or download a nightly (the latest, unreleased code) from
-   http://eclecticgeek.com/dompdf
-
-Use the packaged release autoloader to load dompdf, libraries,
-and helper functions in your PHP:
-
-```php
-// include autoloader
-require_once 'dompdf/autoload.inc.php';
-```
-
-Note: packaged releases are named according using semantic
-versioning (_dompdf_MAJOR-MINOR-PATCH.zip_). So the 1.0.0 
-release would be dompdf_1-0-0.zip. This is the only download
-that includes the autoloader for Dompdf and all its dependencies.
-
-### Install with git
-
-From the command line, switch to the directory where dompdf will
-reside and run the following commands:
-
-```sh
-git clone https://github.com/dompdf/dompdf.git
-cd dompdf/lib
-
-git clone https://github.com/PhenX/php-font-lib.git php-font-lib
-cd php-font-lib
-git checkout 0.5.1
-cd ..
-
-git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
-cd php-svg-lib
-git checkout v0.3.2
-cd ..
-
-git clone https://github.com/sabberworm/PHP-CSS-Parser.git php-css-parser
-cd php-css-parser
-git checkout 8.1.0
-```
-
-Require dompdf and it's dependencies in your PHP.
-For details see the [autoloader in the utils project](https://github.com/dompdf/utils/blob/master/autoload.inc.php).
-
-## Framework Integration
-
-* For Symfony: [nucleos/dompdf-bundle](https://github.com/nucleos/NucleosDompdfBundle)
-* For Laravel: [barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf)
-* For Redaxo: [PdfOut](https://github.com/FriendsOfREDAXO/pdfout)
-
-## Quick Start
-
-Just pass your HTML in to dompdf and stream the output:
-
-```php
-// reference the Dompdf namespace
-use Dompdf\Dompdf;
-
-// instantiate and use the dompdf class
-$dompdf = new Dompdf();
-$dompdf->loadHtml('hello world');
-
-// (Optional) Setup the paper size and orientation
-$dompdf->setPaper('A4', 'landscape');
-
-// Render the HTML as PDF
-$dompdf->render();
-
-// Output the generated PDF to Browser
-$dompdf->stream();
-```
-
-### Setting Options
-
-Set options during dompdf instantiation:
-
-```php
-use Dompdf\Dompdf;
-use Dompdf\Options;
-
-$options = new Options();
-$options->set('defaultFont', 'Courier');
-$dompdf = new Dompdf($options);
-```
-
-or at run time
-
-```php
-use Dompdf\Dompdf;
-
-$dompdf = new Dompdf();
-$options = $dompdf->getOptions();
-$options->setDefaultFont('Courier');
-$dompdf->setOptions($options);
-```
-
-See [Dompdf\Options](src/Options.php) for a list of available options.
-
-### Resource Reference Requirements
-
-In order to protect potentially sensitive information Dompdf imposes 
-restrictions on files referenced from the local file system or the web. 
-
-Files accessed through web-based protocols have the following requirements:
- * The Dompdf option "isRemoteEnabled" must be set to "true"
- * PHP must either have the curl extension enabled or the 
-   allow_url_fopen setting set to true
-   
-Files accessed through the local file system have the following requirement:
- * The file must fall within the path(s) specified for the Dompdf "chroot" option
-
-## Limitations (Known Issues)
-
- * Table cells are not pageable, meaning a table row must fit on a single page: See https://github.com/dompdf/dompdf/issues/98
- * Elements are rendered on the active page when they are parsed.
- * Embedding "raw" SVG's (`<svg><path...></svg>`) isn't working yet: See https://github.com/dompdf/dompdf/issues/320  
-   Workaround: Either link to an external SVG file, or use a DataURI like this:
-     ```php
-     $html = '<img src="data:image/svg+xml;base64,' . base64_encode($svg) . '">';
-     ```
- * Does not support CSS flexbox: See https://github.com/dompdf/dompdf/issues/971
- * Does not support CSS Grid: See https://github.com/dompdf/dompdf/issues/2988
- * A single Dompdf instance should not be used to render more than one HTML document
-   because persisted parsing and rendering artifacts can impact future renders.
----
-
-[![Donate button](https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif)](http://goo.gl/DSvWf)
-
-*If you find this project useful, please consider making a donation.
-Any funds donated will be used to help further development on this project.)*
+# Execute
+pdf_path = create_pdf()
+print(f"File created at: {pdf_path}")
