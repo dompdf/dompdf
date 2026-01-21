@@ -130,7 +130,7 @@ class Cache
 
             list($width, $height, $type) = Helpers::dompdf_getimagesize($resolved_url, $options->getHttpContext());
 
-            if (($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg","webp"], true)) === false) {
+            if (($width && $height && in_array($type, ["gif", "png", "jpeg", "bmp", "svg", "webp", "avif"], true)) === false) {
                 throw new ImageException("Image type unknown", E_WARNING);
             }
 

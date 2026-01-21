@@ -657,6 +657,8 @@ class CPDF implements Canvas
 
             case "webp":
             /** @noinspection PhpMissingBreakStatementInspection */
+            case "avif":
+            /** @noinspection PhpMissingBreakStatementInspection */
             case "gif":
             /** @noinspection PhpMissingBreakStatementInspection */
             case "bmp":
