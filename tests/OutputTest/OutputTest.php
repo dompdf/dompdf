@@ -6,6 +6,7 @@ use Dompdf\Tests\TestCase;
 use FilesystemIterator;
 use Iterator;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\IncompleteTestError;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -80,6 +81,8 @@ final class OutputTest extends TestCase
 
         try {
             $this->assertOutputMatches($referenceFile, $actualOutputFile);
+        } catch (IncompleteTestError $e) {
+            throw $e;
         } catch (AssertionFailedError $e) {
             $path = $this->saveFailedOutput($dataset);
             throw new AssertionFailedError(
@@ -113,6 +116,9 @@ final class OutputTest extends TestCase
             // STDERR. Since we only expect image data, consider any other
             // output a failure
             if ($error !== "") {
+                if (str_contains($error, "Fontconfig error: No writable cache directories")) {
+                    $this->markTestIncomplete('Ghostscript error: Fontconfig error: No writable cache directories');
+                }
                 throw new RuntimeException("Unexpected Ghostscript output: `$error`");
             }
         }
