@@ -1238,4 +1238,42 @@ class Frame
 
         return $str;
     }
+
+    /**
+     * Check last child for break when break not allowed for current frame.
+     *
+     * Determines if the page break logic should follow the last child to
+     * check for an allowable page break if a page break is needed but is
+     * not allowed before the current frame.
+     *
+     * For most element frame types this will be true.
+     *
+     * @return bool
+     *
+     * @see \Dompdf\FrameDecorator\Page::check_page_break()
+     * @see \Dompdf\FrameDecorator\Page::_page_break_allowed()
+     */
+    public function checkPageBreakBeforeLastChild(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Check prev sibling for break when break not allowed for current frame.
+     *
+     * Determines if the page break logic should follow the previous sibling
+     * to check for an allowable page break if a page break is needed but
+     * is not allowed before the current frame.
+     *
+     * For most element frame types this will be true.
+     *
+     * @return bool
+     *
+     * @see \Dompdf\FrameDecorator\Page::check_page_break()
+     * @see \Dompdf\FrameDecorator\Page::_page_break_allowed()
+     */
+    public function checkPageBreakBeforePreviousSibling(): bool
+    {
+        return true;
+    }
 }
