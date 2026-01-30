@@ -60,6 +60,7 @@ class Image extends Block
                 $this->_canvas->clipping_roundrectangle($x, $y, $w, $h, $tl, $tr, $br, $bl);
             }
 
+            $this->_canvas->get_struct_tree()->render($frame->get_node());
             $this->_canvas->image($src, $x, $y, $w, $h, $style->image_resolution);
 
             if ($style->has_border_radius()) {

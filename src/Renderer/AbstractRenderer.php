@@ -63,6 +63,7 @@ abstract class AbstractRenderer
      */
     protected function _render_background(Frame $frame, array $border_box): void
     {
+        $this->_canvas->get_struct_tree()->inArtifact();
         $style = $frame->get_style();
         $color = $style->background_color;
         $image = $style->background_image;
@@ -97,6 +98,7 @@ abstract class AbstractRenderer
      */
     protected function _render_border(Frame $frame, array $border_box, string $corner_style = "bevel"): void
     {
+        $this->_canvas->get_struct_tree()->inArtifact();
         $style = $frame->get_style();
         $bp = $style->get_border_properties();
         [$x, $y, $w, $h] = $border_box;
@@ -183,6 +185,7 @@ abstract class AbstractRenderer
      */
     protected function _render_outline(Frame $frame, array $border_box, string $corner_style = "bevel"): void
     {
+        $this->_canvas->get_struct_tree()->inArtifact();
         $style = $frame->get_style();
 
         $width = $style->outline_width;
