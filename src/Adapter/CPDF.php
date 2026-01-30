@@ -15,6 +15,9 @@ use Dompdf\FontMetrics;
 use Dompdf\Helpers;
 use Dompdf\Image\Cache;
 use FontLib\Exception\FontNotFoundException;
+use Dompdf\StructTree;
+use Dompdf\StructTree\CPDFStructTree;
+use Dompdf\StructTree\DummyStructTree;
 
 /**
  * PDF rendering interface
@@ -155,6 +158,9 @@ class CPDF implements Canvas
      */
     protected $_current_opacity = 1;
 
+    /** @var StructTree */
+    protected $struct_tree;
+
     public function __construct($paper = "letter", string $orientation = "portrait", ?Dompdf $dompdf = null)
     {
         if (is_array($paper)) {
@@ -189,6 +195,12 @@ class CPDF implements Canvas
         if ($this->_dompdf->getOptions()->isPdfAEnabled()) {
             $this->_pdf->enablePdfACompliance();
         }
+        if ($this->_dompdf->getOptions()->isPdfUAEnabled()) {
+            if ($this->_dompdf->getOptions()->isPdfAEnabled()) {
+                throw new Exception('Cannot enable PDF/A AND PDF/UA complicance');
+            }
+            $this->_pdf->enablePdfUAComplicance();
+        }
 
         $this->_width = $size[2] - $size[0];
         $this->_height = $size[3] - $size[1];
@@ -196,6 +208,7 @@ class CPDF implements Canvas
         $this->_page_number = $this->_page_count = 1;
 
         $this->_pages = [$this->_pdf->getFirstPageId()];
+        $this->struct_tree = $this->_dompdf->getOptions()->isPdfUAEnabled() ? new CPDFStructTree($this) : new DummyStructTree();
     }
 
     public function get_dompdf()
@@ -1001,5 +1014,52 @@ class CPDF implements Canvas
     public function get_messages()
     {
         return $this->_pdf->messages;
+    }
+
+    public function set_language(string $language): void
+    {
+        $this->_pdf->setLanguage($language);
+    }
+
+    public function inArtifact(): void
+    {
+        if ($this->_dompdf->getOptions()->isPdfUAEnabled()) {
+            $this->_pdf->inArtifact();
+        }
+    }
+
+    public function inMarkedStructureContent(string $tag, ?int $parent, array $props = []): void
+    {
+        $this->_pdf->inMarkedStructureContent($tag, $parent, $props);
+    }
+
+    public function addAttribute(?int $structElementId, array $attributes): void
+    {
+        $this->_pdf->addAttribute($structElementId, $attributes);
+    }
+
+    public function addStructElement(string $structType, ?int $parent): int
+    {
+        return $this->_pdf->addStructElement($structType, $parent);
+    }
+
+    public function addStructTreeRoot(): int
+    {
+        return $this->_pdf->addStructTreeRoot();
+    }
+
+    public function addOutlineRoot(): int
+    {
+        return $this->_pdf->addOutlineRoot();
+    }
+
+    public function addOutline(string $title, ?int $parent): int
+    {
+        return $this->_pdf->addOutline($title, $parent);
+    }
+
+    public function get_struct_tree(): StructTree
+    {
+        return $this->struct_tree;
     }
 }
