@@ -92,6 +92,11 @@ class LineBox
     public $inline = false;
 
     /**
+     * @var int
+     */
+    public static $max_float_reflows = 10000;
+
+    /**
      * FIXME smelly hack, used by the get_float_offsets method.
      *
      * @var int
@@ -164,7 +169,7 @@ class LineBox
      */
     public static function reset_float_reflow_limit(): void
     {
-        self::$float_offset_anti_infinite_loop = 10000;
+        self::$float_offset_anti_infinite_loop = self::$max_float_reflows;
     }
 
     public function get_float_offsets(): void
