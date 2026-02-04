@@ -772,6 +772,8 @@ class Dompdf
 
         $canvas = $this->canvas;
 
+        LineBox::reset_float_reflow_limit(); // FIXME smelly hack
+
         $root_frame = $this->tree->get_root();
         $root = Factory::decorate_root($root_frame, $this);
         foreach ($this->tree as $frame) {
