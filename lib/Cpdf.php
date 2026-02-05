@@ -81,6 +81,9 @@ class Cpdf
      */
     public $pdfa = false;
 
+    /** @var bool */
+    private $pdfua = false;
+
     /**
      * @var array Array carrying information about the fonts that the system currently knows about
      * Used to ensure that a font is not loaded twice, among other things
@@ -137,6 +140,13 @@ class Cpdf
      * @var array Number of graphic state resources used
      */
     private $gstates = [];
+
+    /**
+     * ID of the element with the StructTreeRoot Type. All StructElement's must be a child or descendant of this ID.
+     */
+    private $structTreeRootId = null;
+
+    private $outlineRootId = null;
 
     /**
      * @var array|null Current color for fill operations, defaults to inactive value,
@@ -625,7 +635,16 @@ class Cpdf
             case 'pages':
             case 'openHere':
             case 'names':
+            case 'language':
+            case 'markInfo':
                 $o['info'][$action] = $options;
+                break;
+            case 'structTreeRoot':
+                if (!isset($o['info']['structTreeRoot'])) {
+                    $this->numObj++;
+                    $this->o_structTreeRoot($this->numObj, 'new');
+                    $o['info']['structTreeRoot'] = $this->numObj;
+                }
                 break;
 
             case 'viewerPreferences':
@@ -731,6 +750,17 @@ class Cpdf
                                 $res .= "\n $ref";
                             }
                             $res .= "\n]";
+                            break;
+                        case 'structTreeRoot':
+                            $res .= "\n/StructTreeRoot $v 0 R";
+                            break;
+                        case 'markInfo':
+                            $bool = var_export((bool) $v, true);
+                            $res .= "\n/MarkInfo <</Marked $bool>>";
+                            break;
+                        case 'language':
+                            $v = $this->filterText($v, false, false);
+                            $res .= "\n/Lang ($v)";
                             break;
                     }
                 }
@@ -883,48 +913,6 @@ class Cpdf
                     $res .= "\n >>\nendobj";
                 } else {
                     $res = "\n$id 0 obj\n<< /Type /Pages\n/Count 0\n>>\nendobj";
-                }
-
-                return $res;
-        }
-
-        return null;
-    }
-
-    /**
-     * define the outlines in the doc, empty for now
-     *
-     * @param $id
-     * @param $action
-     * @param string $options
-     * @return string|null
-     */
-    protected function o_outlines($id, $action, $options = '')
-    {
-        if ($action !== 'new') {
-            $o = &$this->objects[$id];
-        }
-
-        switch ($action) {
-            case 'new':
-                $this->objects[$id] = ['t' => 'outlines', 'info' => ['outlines' => []]];
-                $this->o_catalog($this->catalogId, 'outlines', $id);
-                break;
-
-            case 'outline':
-                $o['info']['outlines'][] = $options;
-                break;
-
-            case 'out':
-                if (count($o['info']['outlines'])) {
-                    $res = "\n$id 0 obj\n<< /Type /Outlines /Kids [";
-                    foreach ($o['info']['outlines'] as $v) {
-                        $res .= "$v 0 R ";
-                    }
-
-                    $res .= "] /Count " . count($o['info']['outlines']) . " >>\nendobj";
-                } else {
-                    $res = "\n$id 0 obj\n<< /Type /Outlines /Count 0 >>\nendobj";
                 }
 
                 return $res;
@@ -1140,8 +1128,8 @@ class Cpdf
 
         $this->addMessage('selectFont: checking for - ' . $fbfile);
 
-        if ($this->pdfa && !file_exists($fbfile)) {
-            throw new \Exception("A fully embeddable font must be used when generating a document in PDF/A mode");
+        if (($this->pdfa || $this->pdfua) && !file_exists($fbfile)) {
+            throw new \Exception("A fully embeddable font must be used when generating a document in PDF/A or PDF/UA mode");
         } elseif (!$fileSuffix) {
             $this->addMessage(
                 'selectFont: pfb or ttf file not found, ok if this is one of the 14 standard fonts'
@@ -2064,6 +2052,9 @@ EOT;
                 }
                 break;
 
+            case 'add':
+                $o['info'] = array_merge($o['info'], $options);
+                break;
             case 'content':
                 $o['info']['contents'][] = $options;
                 break;
@@ -2118,7 +2109,7 @@ EOT;
                 }
 
                 // PDF/A does not allow inheriting Resources, we must explicitly define them on each page
-                if ($this->pdfa) {
+                if ($this->pdfa || $this->pdfua) {
                     $pagesInfo = $this->objects[$this->currentNode]['info'];
 
                     if ((isset($pagesInfo['fonts']) && count($pagesInfo['fonts'])) ||
@@ -2157,6 +2148,10 @@ EOT;
 
                         $res .= "\n>>";
                     }
+                }
+
+                if (isset($o['info']['structParent'])) {
+                    $res .= "\n/StructParents " . $o['info']['structParent'];
                 }
 
                 $res .= "\n>>\nendobj";
@@ -2202,6 +2197,7 @@ EOT;
                 }
 
             case 'out':
+                $this->endMarkedContent($id);
                 $tmp = $o['c'];
                 $res = "\n$id 0 obj\n";
 
@@ -2345,8 +2341,8 @@ EOT;
                     }
 
                     if ($info['ColorSpace'] === '/DeviceCMYK') {
-                        if ($this->pdfa) {
-                            throw new \Exception("CMYK images are not supported when generating a document in PDF/A mode");
+                        if ($this->pdfa || $this->pdfua) {
+                            throw new \Exception("CMYK images are not supported when generating a document in PDF/A or PDF/UA mode");
                         }
                         $info['Decode'] = '[1 0 1 0 1 0 1 0]';
                     }
@@ -3129,8 +3125,24 @@ EOT;
      */
     public function enablePdfACompliance()
     {
+        if ($this->pdfua) {
+            throw new \Exception('Cannot enable PDF/A when PDF/UA is already enabled');
+        }
         $this->pdfa = true;
+        $this->addOutputIntents();
+    }
 
+    public function enablePdfUAComplicance(): void
+    {
+        if ($this->pdfa) {
+            throw new \Exception('Cannot enable PDF/UA when PDF/A is already enabled');
+        }
+        $this->pdfua = true;
+        $this->addOutputIntents();
+    }
+
+    private function addOutputIntents(): void
+    {
         $iccProfilePath = __DIR__ . '/res/sRGB2014.icc';
         $this->o_catalog($this->catalogId, 'outputIntents', [
             'iccProfileData' => file_get_contents($iccProfilePath),
@@ -3146,20 +3158,36 @@ EOT;
 
     /**
      * Generate the Metadata XMP XML for PDF/A
-     *
-     * @return string
      */
-    function getXmpMetadata()
+    public function getXmpMetadata(): string
+    {
+        return $this->getXmpMetadataOf(<<<EOT
+<rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">
+<pdfaid:part>3</pdfaid:part>
+<pdfaid:conformance>B</pdfaid:conformance>
+</rdf:Description>
+EOT
+        );
+    }
+
+    public function getXmpUAMetadata(): string
+    {
+        return $this->getXmpMetadataOf(<<<EOT
+<rdf:Description xmlns:pdfuaid="http://www.aiim.org/pdfua/ns/id/" rdf:about="">
+    <pdfuaid:part>2</pdfuaid:part>
+</rdf:Description>
+EOT
+        );
+    }
+
+    private function getXmpMetadataOf(string $ofWhat): string
     {
         $md = <<<EOT
 <?xpacket begin="\xEF\xBB\xBF" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
-<rdf:Description xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/" rdf:about="">
-<pdfaid:part>3</pdfaid:part>
-<pdfaid:conformance>B</pdfaid:conformance>
-</rdf:Description>
+$ofWhat
 
 <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
 EOT;
@@ -3475,6 +3503,8 @@ EOT;
 
         if ($this->pdfa) {
             $this->o_catalog($this->catalogId, 'metadata', $this->getXmpMetadata());
+        } elseif ($this->pdfua) {
+            $this->o_catalog($this->catalogId, 'metadata', $this->getXmpUAMetadata());
         }
 
         if ($this->fileIdentifier === '') {
@@ -3492,7 +3522,7 @@ EOT;
         $xref = [];
         $content = '%PDF-' . self::PDF_VERSION;
 
-        if ($this->pdfa) {
+        if ($this->pdfa || $this->pdfua) {
             // Force binary mode with 4 random bytes above 127
             $content .= "\n%" . chr(rand(128, 255)) . chr(rand(128, 255)) . chr(rand(128, 255)) . chr(rand(128, 255));
         }
@@ -3564,13 +3594,10 @@ EOT;
         $this->o_catalog($this->numObj, 'new');
 
         $this->numObj++;
-        $this->o_outlines($this->numObj, 'new');
-
-        $this->numObj++;
         $this->o_pages($this->numObj, 'new');
 
         $this->o_pages($this->numObj, 'mediaBox', $pageSize);
-        $this->currentNode = 3;
+        $this->currentNode = $this->numObj;
 
         $this->numObj++;
         $this->o_procset($this->numObj, 'new');
@@ -3961,9 +3988,9 @@ EOT;
      *
      * @param $content
      */
-    private function addContent($content)
+    private function addContent($content, $contentId = null)
     {
-        $this->objects[$this->currentContents]['c'] .= $content;
+        $this->objects[$contentId ?? $this->currentContents]['c'] .= $content;
     }
 
     /**
@@ -3982,8 +4009,8 @@ EOT;
         }
 
         if (isset($new_color[3])) {
-            if ($this->pdfa) {
-                throw new \Exception("CMYK colors are not supported when generating a document in PDF/A mode");
+            if ($this->pdfa || $this->pdfua) {
+                throw new \Exception("CMYK colors are not supported when generating a document in PDF/A or PDF/UA mode");
             }
             $this->currentColor = $new_color;
             $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F k", $this->currentColor));
@@ -4025,8 +4052,8 @@ EOT;
         }
 
         if (isset($new_color[3])) {
-            if ($this->pdfa) {
-                throw new \Exception("CMYK colors are not supported when generating a document in PDF/A mode");
+            if ($this->pdfa || $this->pdfua) {
+                throw new \Exception("CMYK colors are not supported when generating a document in PDF/A or PDF/UA mode");
             }
             $this->currentStrokeColor = $new_color;
             $this->addContent(vsprintf("\n%.3F %.3F %.3F %.3F K", $this->currentStrokeColor));
@@ -6900,5 +6927,323 @@ EOT;
                 }
                 break;
         }
+    }
+
+    public function addStructTreeRoot(): int
+    {
+        if ($this->structTreeRootId === null) {
+            $this->o_catalog($this->catalogId, 'structTreeRoot');
+            $this->structTreeRootId = $this->numObj;
+            $this->o_catalog($this->catalogId, 'markInfo', true);
+            $this->o_catalog($this->catalogId, 'viewerPreferences', ['DisplayDocTitle' => true]);
+        }
+
+        return $this->structTreeRootId;
+    }
+
+    public function setLanguage(string $language): void
+    {
+        $this->o_catalog($this->catalogId, 'language', $language);
+    }
+
+    public function addStructElement(string $structType, int $parent): int
+    {
+        $this->ensureStructNode($parent);
+
+        $this->numObj++;
+        $this->o_structElement($this->numObj, 'new', ['structType' => $structType, 'parent' => $parent]);
+        $this->o_structElement($parent, 'add', ['kid' => [$this->numObj]]);
+
+        return $this->numObj;
+    }
+
+    /**
+     * @param array<string, string> $attributes
+     */
+    public function addAttribute(int $structId, array $attributes): void
+    {
+        $this->ensureStructNode($structId);
+        $this->o_structElement($structId, 'add', ['attributes' => $attributes]);
+    }
+
+    /**
+     * Begins a marked content of $tagName.
+     * If another marked content is currently open it is closed beforehand.
+     */
+    public function inMarkedContent(string $tagName): void
+    {
+        $this->endMarkedContent();
+        $this->beginSaveWith("\n/" . $tagName . " BMC", $this->currentContents);
+        $this->objects[$this->currentContents]['markedContentId'] = $tagName;
+    }
+
+    /**
+     * Begins a structured marked content of $tagName.
+     * If another marked content is currently open it is closed beforehand.
+     * The MCID of the structured marked content is added as a child to $parent.
+     *
+     * @param array<string, string> $props Props to be added to the marked content (like Alt text).
+     */
+    public function inMarkedStructureContent(string $tagName, int $parent, array $props = []): void
+    {
+        $this->ensureStructNode($parent);
+
+        $this->endMarkedContent();
+
+        $currentPage = $this->objects[$this->currentContents]['onPage'];
+        $numMCIDs = $this->objects[$currentPage]['info']['numMCIDs'] ?? 0;
+        $propsStr = $this->asTextEntries($props);
+        $this->beginSaveWith("\n/$tagName <</MCID $numMCIDs $propsStr>> BDC", $this->currentContents);
+        $this->objects[$this->currentContents]['markedContentId'] = $parent;
+        $this->objects[$currentPage]['info']['numMCIDs'] = $numMCIDs + 1;
+
+        $this->o_structElement($parent, 'add', ['kid' => $numMCIDs, 'page' => $currentPage]);
+        $this->o_structTreeRoot($this->structTreeRootId, 'add', ['num' => $parent]);
+    }
+
+    public function addOutlineRoot(): int
+    {
+        if ($this->outlineRootId === null) {
+            $this->numObj++;
+            $this->outlineRootId = $this->numObj;
+            $this->o_outlines($this->outlineRootId, 'new');
+            $this->o_catalog($this->catalogId, 'outlines', $this->outlineRootId);
+        }
+
+        return $this->outlineRootId;
+    }
+
+    public function addOutline(string $title, int $parentId): int
+    {
+        $this->ensureOutlineNode($parentId);
+        $parent = $this->objects[$parentId];
+        $currentPage = $this->objects[$this->currentContents]['onPage'];
+        $outlineId = ++$this->numObj;
+        $this->o_outlines($outlineId, 'new');
+        $this->o_outlines($outlineId, 'add', ['title' => $title, 'dest' => $currentPage]);
+        if (isset($parent['info']['last'])) {
+            $this->o_outlines($parent['info']['last'], 'add', ['next' => $outlineId]);
+        } else {
+            $this->o_outlines($parentId, 'add', ['first' => $outlineId]);
+        }
+        $this->o_outlines($parentId, 'add', ['last' => $outlineId]);
+
+        return $outlineId;
+    }
+
+    public function endMarkedContent(?int $contentId = null): void
+    {
+        $contentId = $contentId ?? $this->currentContents;
+        if (isset($this->objects[$contentId]['markedContentId'])) {
+           $this->endSavedWith("\nEMC", $contentId ?? $this->currentContents);
+        }
+    }
+
+    protected function o_outlines(int $id, string $action, array $options = []): ?string
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'outlines', 'info' => []];
+                break;
+
+            case 'add':
+                $this->objects[$id]['info'] = array_merge($this->objects[$id]['info'], $options);
+                break;
+
+            case 'out':
+                $asText = function($s){
+                    return $this->filterText($s, false, false);
+                };
+                $entries = join(' ', array_filter([
+                    $this->formatIfExists($id, 'parent', '/Parent %d 0 R'),
+                    $this->formatIfExists($id, 'title', '/Title (%s)', $asText),
+                    $this->formatIfExists($id, 'dest', '/Dest [%d 0 R /Fit]'),
+                    $this->formatIfExists($id, 'first', '/First %d 0 R'),
+                    $this->formatIfExists($id, 'last', '/Last %d 0 R'),
+                    $this->formatIfExists($id, 'next', '/Next %d 0 R'),
+                ]));
+
+                return "\n$id 0 obj\n<<$entries>>\nendobj";
+        }
+
+        return null;
+    }
+
+    protected function o_structTreeRoot(int $id, string $action, array $options = []): ?string
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'structTreeRoot', 'kids' => [], 'nums' => []];
+                break;
+            case 'add':
+                if (isset($options['num'])) {
+                    $pageRef = $options['page'] ?? $this->objects[$this->currentContents]['onPage'];
+                    $pageStructParentIndex = $this->objects[$pageRef]['info']['structParent'] ?? null;
+                    if ($pageStructParentIndex === null) {
+                        $pageStructParentIndex = count($this->objects[$id]['nums']);
+                        $this->o_page($pageRef, 'add', ['structParent' => $pageStructParentIndex]);
+                    }
+                    $this->objects[$id]['nums'][$pageStructParentIndex][] = $options['num'];
+                }
+                break;
+
+            case 'out':
+                $refAsString = function ($ref) {
+                    return $ref . ' 0 R';
+                };
+                $nextIndex = count($this->objects[$id]['nums']);
+
+                $kids = join(' ', array_map([$this, 'refOrMcidAsString'], $this->objects[$id]['kids']));
+
+                $nums = join(' ', array_map(function($array, $i) use ($refAsString) {
+                    return "$i [" . join(' ', array_map($refAsString, $array)) . ']';
+                }, $this->objects[$id]['nums'], $nextIndex > 0 ? range(0, $nextIndex -1) : []));
+
+                $res = "\n$id 0 obj\n<< /Type /StructTreeRoot /ParentTree << /Nums [$nums] >> /ParentTreeNextKey $nextIndex /K [$kids]";
+                $res .= "\n>>\nendobj";
+                return $res;
+        }
+
+        return null;
+    }
+
+    protected function o_structElement(int $id, string $action, array $options = []): ?string
+    {
+        switch($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'structElement', 'structType' => $options['structType'], 'parent' => $options['parent'], 'kids' => []];
+                break;
+            case 'add':
+                if (isset($options['kid'])) {
+                    $this->objects[$id]['kids'][] = $options['kid'];
+                    unset($options['kid']);
+                }
+                $this->objects[$id]['info'] = array_merge($this->objects[$id]['info'] ?? [], $options);
+                break;
+            case 'out':
+                $structType = $this->objects[$id]['structType'];
+                $parent = $this->objects[$id]['parent'];
+                $kids = join(' ', array_map([$this, 'refOrMcidAsString'], $this->objects[$id]['kids']));
+                $additional = join(' ', array_filter([
+                    $this->formatIfExists($id, 'page', '/Pg %d 0 R'),
+                    $this->formatIfExists($id, 'attributes', '/A << %s >>', [$this, 'asNameEntries']),
+                ]));
+                return "\n$id 0 obj\n<< /S /$structType /P $parent 0 R /K [$kids] $additional>>\nendobj";
+        }
+
+        return null;
+    }
+
+    public function inArtifact(): void
+    {
+        $this->inMarkedContent('Artifact');
+    }
+
+    /**
+     * @param array<string, string> $map
+     */
+    private function asTextEntries(array $map): string
+    {
+        return $this->asMapEntries($map, '(%s)', function($s){
+            return $this->filterText($s, false, false);
+        });
+    }
+
+    /**
+     * @param array<string, string> $map
+     */
+    private function asNameEntries(array $map): string
+    {
+        return $this->asMapEntries($map, '/%s', [$this, 'filterName']);
+    }
+
+    /**
+     * @param array<string, string> $map
+     * @param callable(string): string $filterValue
+     */
+    private function asMapEntries(array $map, string $formatValue, callable $filterValue): string
+    {
+        return join(' ', array_map(
+            function($k, $v) use ($formatValue, $filterValue) {
+                return sprintf('/%s ' . $formatValue, $this->filterName($k), $filterValue($v));
+            },
+            array_keys($map),
+            array_values($map)
+        ));
+    }
+
+    /**
+     * Save all content that is added to the current object. This must be followed by a call to endSaveWith(...) some time
+     * or the old content is lost.
+     * This method is to prevent empty marked content blocks.
+     * The $header and $footer (of endSavedWith(...)) are only added if the content in between the 2 calls is not empty.
+     *
+     * @Example
+     * $this->addContent('Huhu'); // Object content: 'Huhu'
+     * $this->beginSaveWith('Start ', $this->currentContents); // Object content: '' (broken until endSavedWith)
+     * $this->endSavedWith(' End', $this->currentContents); // Object content: 'Huhu' (no content added so Start and End are omitted)
+     *
+     * $this->addContent('Huhu '); // Object content: 'Huhu'
+     * $this->beginSaveWith('Start ', $this->currentContents); // Object content: '' (broken until endSavedWith)
+     * $this->addContent('Body'); // Object content: 'Body'
+     * $this->endSavedWith(' End', $this->currentContents); // Object content: 'Huhu Start Body End'
+     */
+    private function beginSaveWith(string $header, int $id): void
+    {
+        $this->objects[$id]['savedContent'] = $this->objects[$id]['c'];
+        $this->objects[$id]['c'] = '';
+        $this->objects[$id]['savedHeader'] = $header;
+    }
+
+    /**
+     * @see beginSaveWith
+     */
+    private function endSavedWith(string $footer, int $id): void
+    {
+        $body = $this->objects[$id]['c'];
+
+        $this->objects[$id]['c'] = $this->objects[$id]['savedContent'];
+
+        if ($body !== '') {
+            $this->addContent($this->objects[$id]['savedHeader'], $id);
+            $this->addContent($body, $id);
+            $this->addContent($footer, $id);
+        }
+        $this->objects[$id]['savedContent'] = null;
+        $this->objects[$id]['savedHeader'] = null;
+    }
+
+    private function ensureStructNode(int $objId): void
+    {
+        if (!in_array($this->objects[$objId]['t'] ?? null, ['structElement', 'structTreeRoot'], true)) {
+            throw new \Exception('obj id must be a struct tree element: ' . $objId);
+        }
+    }
+
+    private function ensureOutlineNode(int $objId): void
+    {
+        if (!in_array($this->objects[$objId]['t'] ?? null, ['outlines'], true)) {
+            throw new \Exception('obj id must be a outline element: ' . $objId);
+        }
+    }
+
+    private function formatIfExists(int $id, string $key, string $format, ?callable $filter = null): string
+    {
+        $filter = $filter ?? function($s){return $s;};
+        return isset($this->objects[$id]['info'][$key]) ?
+            sprintf($format, $filter($this->objects[$id]['info'][$key])) :
+            '';
+    }
+
+    /**
+     * Struct tree elements can contain ref's to other struct elements or refs to marked content MCID's.
+     * To distinguish them [$id] is used for struct element refs (rendered as "$id 0 R")
+     * and $id is used for MCIDs (rendered as "$id").
+     *
+     * @param array{0: int}|int $refOrMcid
+     */
+    private function refOrMcidAsString($refOrMcid): string
+    {
+        return is_array($refOrMcid) ? $refOrMcid[0] . ' 0 R' : (string) $refOrMcid;
     }
 }
