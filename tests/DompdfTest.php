@@ -243,6 +243,32 @@ class DompdfTest extends TestCase
         $this->assertSame(2, $called);
     }
 
+    public function testRenderProgressCallback(): void
+    {
+        $called = 0;
+
+        $dompdf = new Dompdf();
+        $dompdf->setCallbacks([
+            [
+                "event" => "render_progress",
+                "f" => function ($percentage, $framesRendered, $framesTotal, $frame, $canvas, $fontMetrics) use (&$called) {
+                    $called++;
+                    $this->assertIsNumeric($percentage);
+                    $this->assertIsInt($framesRendered);
+                    $this->assertIsInt($framesTotal);
+                    $this->assertInstanceOf(Frame::class, $frame);
+                    $this->assertInstanceOf(Canvas::class, $canvas);
+                    $this->assertInstanceOf(FontMetrics::class, $fontMetrics);
+                }
+            ]
+        ]);
+
+        $dompdf->loadHtml("<html><body><p>Page 1</p><p style='page-break-before: always;'>Page 2</p></body></html>");
+        $dompdf->render();
+
+        $this->assertGreaterThanOrEqual(1, $called);
+    }
+
     public static function customCanvasProvider(): array
     {
         return [
