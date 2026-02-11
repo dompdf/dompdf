@@ -706,6 +706,18 @@ class Stylesheet
                             $query .= "[" . implode(" or ", $elements) . "]";
                             break;
 
+                        case "not":
+                            $p = $i + 1;
+                            $length = strpos($selector, ")", $i) - $p;
+                            $i += $length + 1;
+                            $matchList = trim(mb_substr($selector, $p, $length));
+                            $subquery = $this->selectorToXpath($matchList, true)['query'];
+                            if(substr($subquery, 0, 4) != '//*[') {
+                                return null;		//not supported
+                            }
+                            $query .= "[not(".substr($subquery, 4, -1).")]";
+                            break;
+
                         // https://www.w3.org/TR/selectors-3/#UIstates
                         case "disabled":
                         case "checked":
