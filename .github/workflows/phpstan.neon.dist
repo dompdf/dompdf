@@ -1,0 +1,15 @@
+includes:
+  - phpstan-baseline.neon
+parameters:
+  level: 6
+  tmpDir: .cache/phpstan
+  paths:
+    - ../../src
+  scanDirectories:
+    - ../../vendor
+
+  excludePaths:
+    analyse:
+      - ../../vendor
+    analyseAndScan: []
+  ignoreErrors: []
