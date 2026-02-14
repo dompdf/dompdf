@@ -809,10 +809,13 @@ class Helpers
             IMAGETYPE_GIF  => "gif",
             IMAGETYPE_BMP  => "bmp",
             IMAGETYPE_PNG  => "png",
-            IMAGETYPE_WEBP => "webp"
+            IMAGETYPE_WEBP => "webp",
         ];
         if (defined('IMAGETYPE_SVG')) {
             $types[IMAGETYPE_SVG] = "svg";
+        }
+        if (defined('IMAGETYPE_AVIF')) {
+            $types[IMAGETYPE_AVIF] = "avif";
         }
 
         if (isset($cache[$filename])) {
