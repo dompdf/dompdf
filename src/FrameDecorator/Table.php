@@ -31,6 +31,14 @@ class Table extends AbstractFrameDecorator
     ];
 
     /**
+     * List of row-group display types that replicate across pages.
+     */
+    public const STATIC_ROW_GROUPS = [
+        "table-header-group"
+        /* "table-footer-group" */
+    ];
+
+    /**
      * The Cellmap object for this table.  The cellmap maps table cells
      * to rows and columns, and aids in calculating column widths.
      *
@@ -81,6 +89,10 @@ class Table extends AbstractFrameDecorator
         $this->_headers = [];
         $this->_footers = [];
         $this->_reflower->reset();
+    }
+
+    public function has_headers() {
+        return count($this->_headers) > 0;
     }
 
     //........................................................................
