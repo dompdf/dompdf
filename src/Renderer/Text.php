@@ -72,6 +72,8 @@ class Text extends AbstractRenderer
           $text
         );*/
 
+        $this->_canvas->get_struct_tree()->render($frame->get_node());
+
         $this->_canvas->text($x, $y, $text,
             $font, $size,
             $style->color, $word_spacing, $letter_spacing);
