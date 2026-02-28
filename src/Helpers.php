@@ -837,6 +837,9 @@ class Helpers
                     $type = "bmp";
                 } elseif (strpos($data, "<svg") !== false) {
                     $doc = new \Svg\Document();
+                    if (property_exists($doc, 'allowExternalReferences')) {
+                        $doc->allowExternalReferences = true;
+                    }
                     $doc->loadFile($filename);
 
                     [$width, $height] = $doc->getDimensions();

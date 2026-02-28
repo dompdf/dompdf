@@ -6294,6 +6294,9 @@ EOT;
     function addSvgFromFile($file, $x, $y, $w = 0, $h = 0)
     {
         $doc = new \Svg\Document();
+        if (property_exists($doc, 'allowExternalReferences')) {
+            $doc->allowExternalReferences = true;
+        }
         $doc->loadFile($file);
         $dimensions = $doc->getDimensions();
 
