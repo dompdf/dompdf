@@ -187,8 +187,15 @@ class Page extends AbstractFrameDecorator
         if (($frame->is_block_level() || $style->display === "table-row")
             && in_array($style->page_break_before, $page_breaks, true)
         ) {
-            // Prevent cascading splits
             $frame->split(null, true, true);
+            if (
+                ($style->page_break_before === "left" && $this->_dompdf->getCanvas()->get_page_number() % 2 === 1)
+                || ($style->page_break_before === "right" && $this->_dompdf->getCanvas()->get_page_number() % 2 === 0)
+            ) {
+                $frame->split(null, true, true);
+            }
+
+            // Prevent cascading splits
             $style->page_break_before = "auto";
             $this->_page_full = true;
             $frame->_already_pushed = true;
@@ -208,8 +215,15 @@ class Page extends AbstractFrameDecorator
 
         if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "table-row") && !$prev->get_style()->is_absolute()) {
             if (in_array($prev->get_style()->page_break_after, $page_breaks, true)) {
-                // Prevent cascading splits
                 $frame->split(null, true, true);
+                if (
+                    ($prev->get_style()->page_break_after === "left" && $this->_dompdf->getCanvas()->get_page_number() % 2 === 1)
+                    || ($prev->get_style()->page_break_after === "right" && $this->_dompdf->getCanvas()->get_page_number() % 2 === 0)
+                ) {
+                    $frame->split(null, true, true);
+                }
+
+                // Prevent cascading splits
                 $prev->get_style()->page_break_after = "auto";
                 $this->_page_full = true;
                 $frame->_already_pushed = true;
@@ -229,6 +243,14 @@ class Page extends AbstractFrameDecorator
                 && in_array($prev_last_child->get_style()->page_break_after, $page_breaks, true)
             ) {
                 $frame->split(null, true, true);
+                if (
+                    ($prev_last_child->get_style()->page_break_after === "left" && $this->_dompdf->getCanvas()->get_page_number() % 2 === 1)
+                    || ($prev_last_child->get_style()->page_break_after === "right" && $this->_dompdf->getCanvas()->get_page_number() % 2 === 0)
+                ) {
+                    $frame->split(null, true, true);
+                }
+
+                // Prevent cascading splits
                 $prev_last_child->get_style()->page_break_after = "auto";
                 $this->_page_full = true;
                 $frame->_already_pushed = true;
