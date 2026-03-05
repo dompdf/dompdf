@@ -231,6 +231,46 @@ Files accessed through the local file system have the following requirement:
  * Does not support CSS Grid: See https://github.com/dompdf/dompdf/issues/2988
  * A single Dompdf instance should not be used to render more than one HTML document
    because persisted parsing and rendering artifacts can impact future renders.
+
+## Tips
+
+### Use it in Symfony, without bundle
+
+A simple way to implements the feature in Symfony, without installing the NucleosDompdfBundle is to use the following code in your Controllers.
+
+```php
+<?php
+
+namespace App\Controller;
+
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+// ...
+
+class MyPdfController extends AbstractController
+{
+    public function getPdf(): Response
+    {
+        $html = $this->renderView(/* ... */);
+
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        $pdfFilename = "myfile.pdf";
+
+        // Preventing the ControllerDoesNotReturnResponseException
+        $response = new StreamedResponse();
+        $response->setCallback(function () use ($dompdf, $pdfFilename): void {
+            $dompdf->stream($pdfFilename, ['Attachment' => true]);
+        });
+
+        return $response;
+    }
+}
+```
+
 ---
 
 [![Donate button](https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif)](http://goo.gl/DSvWf)
