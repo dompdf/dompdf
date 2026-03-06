@@ -12,6 +12,8 @@ use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Helpers;
 use Dompdf\Image\Cache;
+use Dompdf\StructTree;
+use Dompdf\StructTree\DummyStructTree;
 
 /**
  * PDF rendering interface
@@ -1478,6 +1480,15 @@ class PDFLib implements Canvas
         }
 
         return $data;
+    }
+
+    public function set_language(string $language): void
+    {
+    }
+
+    public function get_struct_tree(): StructTree
+    {
+        return new DummyStructTree();
     }
 
     /**

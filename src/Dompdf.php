@@ -789,6 +789,11 @@ class Dompdf
             $canvas->add_info("Title", trim($title->item(0)->nodeValue));
         }
 
+        $language = $this->dom->getElementsByTagName('html');
+        if ($language->length && $language[0]->getAttribute('lang')) {
+            $canvas->set_language($language[0]->getAttribute('lang'));
+        }
+
         $metas = $this->dom->getElementsByTagName("meta");
         $labels = [
             "author" => "Author",
