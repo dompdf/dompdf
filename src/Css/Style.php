@@ -3396,34 +3396,6 @@ class Style
     }
 
     /**
-     * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-before
-     */
-    protected function _compute_page_break_before(string $val)
-    {
-        $break = strtolower($val);
-
-        if ($break === "left" || $break === "right") {
-            $break = "always";
-        }
-
-        return $break;
-    }
-
-    /**
-     * @link https://www.w3.org/TR/CSS21/page.html#propdef-page-break-after
-     */
-    protected function _compute_page_break_after(string $val)
-    {
-        $break = strtolower($val);
-
-        if ($break === "left" || $break === "right") {
-            $break = "always";
-        }
-
-        return $break;
-    }
-
-    /**
      * @link https://www.w3.org/TR/CSS21/visudet.html#propdef-width
      */
     protected function _compute_width(string $val)
