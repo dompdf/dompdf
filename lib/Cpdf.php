@@ -367,6 +367,23 @@ class Cpdf
     protected $stringSubsets = [];
 
     /**
+     * @var array SIP (Supplementary Ideographic Plane) to PUA (Private Use Area) mapping
+     * Maps fontName => [sipCodepoint => puaCode] for characters above U+FFFF
+     */
+    protected $sipPuaMap = [];
+
+    /**
+     * @var array Reverse PUA to SIP mapping
+     * Maps fontName => [puaCode => sipCodepoint]
+     */
+    protected $puaSipMap = [];
+
+    /**
+     * @var int Next available PUA code for SIP remapping
+     */
+    protected $nextPuaCode = 0xE000;
+
+    /**
      * @var string The target internal encoding
      */
     protected static $targetEncoding = 'Windows-1252';
@@ -1271,13 +1288,21 @@ class Cpdf
                 // Parse the new font to get cid2gid and widths
                 $font_obj = Font::load($tmp_name);
 
-                // Find Unicode char map table
+                // Find Unicode char map table (prefer Format 12 for SIP support)
                 $subtable = null;
+                $subtableFmt12 = null;
                 foreach ($font_obj->getData("cmap", "subtables") as $_subtable) {
-                    if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
-                        $subtable = $_subtable;
-                        break;
+                    if (isset($_subtable["format"]) && $_subtable["format"] == 12 &&
+                        ($_subtable["platformID"] == 0 || ($_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 10))) {
+                        $subtableFmt12 = $_subtable;
                     }
+                    if ($subtable === null && ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1)) {
+                        $subtable = $_subtable;
+                    }
+                }
+                // Use Format 12 if available (supports SIP characters U+10000+)
+                if ($subtableFmt12) {
+                    $subtable = $subtableFmt12;
                 }
 
                 if ($subtable) {
@@ -1286,16 +1311,45 @@ class Cpdf
 
                     unset($glyphIndexArray[0xFFFF]);
 
-                    $cidtogid = str_pad('', max(array_keys($glyphIndexArray)) * 2 + 1, "\x00");
+                    // Get PUA mapping for SIP chars in this font
+                    $sipMap = $this->sipPuaMap[$fontFileName] ?? [];
+
+                    // Calculate buffer size: max of BMP cids and PUA codes used
+                    $maxCid = 0;
+                    foreach ($glyphIndexArray as $cid => $gid) {
+                        if ($cid <= 0xFFFF && $cid > $maxCid) {
+                            $maxCid = $cid;
+                        }
+                    }
+                    foreach ($sipMap as $puaCode) {
+                        if ($puaCode > $maxCid) {
+                            $maxCid = $puaCode;
+                        }
+                    }
+
+                    $cidtogid = str_pad('', ($maxCid + 1) * 2, "\x00");
                     $font['CIDWidths'] = [];
                     foreach ($glyphIndexArray as $cid => $gid) {
-                        if ($cid >= 0 && $cid < 0xFFFF && $gid) {
+                        if ($cid >= 0 && $cid <= 0xFFFF && $gid) {
+                            // BMP characters: CID = Unicode codepoint
                             $cidtogid[$cid * 2] = chr($gid >> 8);
                             $cidtogid[$cid * 2 + 1] = chr($gid & 0xFF);
                         }
 
+                        // SIP characters: map PUA code -> GID
+                        if ($cid > 0xFFFF && isset($sipMap[$cid]) && $gid) {
+                            $puaCode = $sipMap[$cid];
+                            $cidtogid[$puaCode * 2] = chr($gid >> 8);
+                            $cidtogid[$puaCode * 2 + 1] = chr($gid & 0xFF);
+                        }
+
                         $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
                         $font['CIDWidths'][$cid] = $width;
+
+                        // Also store width under PUA code for correct text width calculation
+                        if ($cid > 0xFFFF && isset($sipMap[$cid])) {
+                            $font['CIDWidths'][$sipMap[$cid]] = $width;
+                        }
                     }
 
                     $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
@@ -1447,6 +1501,27 @@ endcodespacerange
 1 beginbfrange
 <0000> <FFFF> <0000>
 endbfrange
+EOT;
+
+                // Add PUA-to-SIP bfchar entries for supplementary plane characters
+                $bfcharEntries = '';
+                foreach ($this->puaSipMap as $fontName => $puaToSip) {
+                    foreach ($puaToSip as $puaCode => $sipCodepoint) {
+                        $cp0 = $sipCodepoint - 0x10000;
+                        $hi = 0xD800 | ($cp0 >> 10);
+                        $lo = 0xDC00 | ($cp0 & 0x3FF);
+                        $bfcharEntries .= sprintf("<%04X> <%04X%04X>\n", $puaCode, $hi, $lo);
+                    }
+                }
+
+                if ($bfcharEntries !== '') {
+                    $uniqueEntries = array_unique(explode("\n", trim($bfcharEntries)));
+                    $numEntries = count($uniqueEntries);
+                    $stream .= "\n$numEntries beginbfchar\n" . implode("\n", $uniqueEntries) . "\nendbfchar";
+                }
+
+                $stream .= <<<EOT
+
 endcmap
 CMapName currentdict /CMap defineresource pop
 end
@@ -3772,6 +3847,14 @@ EOT;
                                     $data['codeToName'][$c] = $n;
                                 }
                                 $data['C'][$c] = $width;
+
+                                // For SIP chars: store in sipGlyphCache for later PUA mapping
+                                if ($c >= 0x10000 && $glyph) {
+                                    if (!isset($data['sipGlyphCache'])) {
+                                        $data['sipGlyphCache'] = [];
+                                    }
+                                    $data['sipGlyphCache'][$c] = $glyph;
+                                }
                             } elseif (isset($n)) {
                                 $data['C'][$n] = $width;
                             }
@@ -5195,6 +5278,8 @@ EOT;
         if ($convert_encoding) {
             $cf = $this->currentFont;
             if (isset($this->fonts[$cf]) && $this->fonts[$cf]['isUnicode']) {
+                // Remap SIP characters to PUA codes before UTF-16BE encoding
+                $text = $this->remapSipToPua($text, $cf);
                 $text = $this->utf8toUtf16BE($text, $bom);
             } else {
                 //$text = html_entity_decode($text, ENT_QUOTES);
@@ -5206,6 +5291,36 @@ EOT;
 
         // the chr(13) substitution fixes a bug seen in TCPDF (bug #1421290)
         return strtr($text, [')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r']);
+    }
+
+    /**
+     * Remap SIP (Supplementary Ideographic Plane) characters to PUA codes.
+     * This is necessary because PDF CID-keyed fonts use 16-bit CIDs which
+     * cannot address codepoints above U+FFFF directly.
+     *
+     * @param string $text UTF-8 text
+     * @param string $font Current font name
+     * @return string UTF-8 text with SIP chars replaced by PUA equivalents
+     */
+    protected function remapSipToPua($text, $font)
+    {
+        if (empty($this->sipPuaMap[$font])) {
+            return $text;
+        }
+
+        $sipMap = $this->sipPuaMap[$font];
+        $result = '';
+        $codepoints = $this->utf8toCodePointsArray($text);
+
+        foreach ($codepoints as $cp) {
+            if ($cp >= 0x10000 && isset($sipMap[$cp])) {
+                $result .= mb_chr($sipMap[$cp], 'UTF-8');
+            } else {
+                $result .= mb_chr($cp, 'UTF-8');
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -5375,8 +5490,21 @@ EOT;
             $this->stringSubsets[$font] = $this->utf8toCodePointsArray($base_subset);
         }
 
+        $codepoints = $this->utf8toCodePointsArray($text);
+
+        // Create PUA mappings for SIP characters (U+10000+)
+        foreach ($codepoints as $cp) {
+            if ($cp >= 0x10000 && $cp < 0x10FFFF) {
+                if (!isset($this->sipPuaMap[$font][$cp])) {
+                    $puaCode = $this->nextPuaCode++;
+                    $this->sipPuaMap[$font][$cp] = $puaCode;
+                    $this->puaSipMap[$font][$puaCode] = $cp;
+                }
+            }
+        }
+
         $this->stringSubsets[$font] = array_unique(
-            array_merge($this->stringSubsets[$font], $this->utf8toCodePointsArray($text))
+            array_merge($this->stringSubsets[$font], $codepoints)
         );
     }
 
@@ -5450,6 +5578,20 @@ EOT;
         }
 
         if (strlen($text) > 0) {
+            // Ensure SIP PUA mappings exist before filtering text
+            if ($this->fonts[$this->currentFont]['isUnicode']) {
+                $codepoints = $this->utf8toCodePointsArray($text);
+                foreach ($codepoints as $cp) {
+                    if ($cp >= 0x10000 && $cp < 0x10FFFF) {
+                        $cf = $this->currentFont;
+                        if (!isset($this->sipPuaMap[$cf][$cp])) {
+                            $puaCode = $this->nextPuaCode++;
+                            $this->sipPuaMap[$cf][$cp] = $puaCode;
+                            $this->puaSipMap[$cf][$puaCode] = $cp;
+                        }
+                    }
+                }
+            }
             $part = $text;
             $place_text = $this->filterText($part, false);
             // modify unicode text so that extra word spacing is manually implemented (bug #)
@@ -5541,8 +5683,16 @@ EOT;
                     $char = $current_font['differences'][$char];
                 }
 
+                // For SIP chars, also look up width by PUA code
+                $lookupChar = $char;
+                if ($char >= 0x10000 && isset($this->sipPuaMap[$cf][$char])) {
+                    $lookupChar = $this->sipPuaMap[$cf][$char];
+                }
+
                 if (isset($current_font['C'][$char])) {
                     $char_width = $current_font['C'][$char];
+                } elseif (isset($current_font['C'][$lookupChar])) {
+                    $char_width = $current_font['C'][$lookupChar];
                 } elseif (isset($current_font['C'][0xFFFD])) {
                     // fffd => replacement character
                     $char_width = $current_font['C'][0xFFFD];
