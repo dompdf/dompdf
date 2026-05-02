@@ -1086,6 +1086,7 @@ class Helpers
 
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl, CURLOPT_HEADER, true);
+                curl_setopt($curl, CURLOPT_ENCODING, '');
                 if ($offset > 0) {
                     curl_setopt($curl, CURLOPT_RESUME_FROM, $offset);
                 }
