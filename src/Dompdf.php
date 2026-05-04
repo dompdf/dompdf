@@ -66,6 +66,9 @@ use Masterminds\HTML5;
  */
 class Dompdf
 {
+    public const ORIENTATION_PORTRAIT = 'portrait';
+    public const ORIENTATION_LANDSCAPE = 'landscape';
+
     /**
      * Version string for dompdf
      *
@@ -1021,7 +1024,7 @@ class Dompdf
      * @param string $orientation 'portrait' or 'landscape'
      * @return $this
      */
-    public function setPaper($size, string $orientation = "portrait"): self
+    public function setPaper($size, string $orientation = self::ORIENTATION_PORTRAIT): self
     {
         $current_size = $this->getPaperSize();
         $this->paperSize = $size;
