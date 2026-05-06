@@ -6,6 +6,8 @@
  */
 namespace Dompdf;
 
+use PageOrientation;
+
 class Options
 {
     /**
@@ -120,9 +122,9 @@ class Options
      *
      * The orientation of the page (portrait or landscape).
      *
-     * @var string
+     * @var PageOrientation
      */
-    private $defaultPaperOrientation = "portrait";
+    private $defaultPaperOrientation = PageOrientation::Portrait;
 
     /**
      * The default font family

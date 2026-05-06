@@ -6,6 +6,8 @@
  */
 namespace Dompdf;
 
+use PageOrientation;
+
 /**
  * Create canvas instances
  *
@@ -31,7 +33,7 @@ class CanvasFactory
      *
      * @return Canvas
      */
-    static function get_instance(Dompdf $dompdf, $paper, string $orientation, ?string $class = null)
+    static function get_instance(Dompdf $dompdf, $paper, PageOrientation $orientation, ?string $class = null)
     {
         $backend = strtolower($dompdf->getOptions()->getPdfBackend());
 
