@@ -16,6 +16,7 @@ use Dompdf\Image\Cache;
 use Dompdf\Css\Stylesheet;
 use Dompdf\Helpers;
 use Masterminds\HTML5;
+use PageOrientation;
 
 /**
  * Dompdf - PHP5 HTML to PDF renderer
@@ -66,9 +67,6 @@ use Masterminds\HTML5;
  */
 class Dompdf
 {
-    public const ORIENTATION_PORTRAIT = 'portrait';
-    public const ORIENTATION_LANDSCAPE = 'landscape';
-
     /**
      * Version string for dompdf
      *
@@ -112,11 +110,11 @@ class Dompdf
     private $paperSize;
 
     /**
-     * Paper orientation ('portrait' or 'landscape')
+     * Paper orientation (portrait or landscape)
      *
-     * @var string
+     * @var PageOrientation
      */
-    private $paperOrientation = "portrait";
+    private $paperOrientation = PageOrientation::Portrait;
 
     /**
      * Callbacks on new page and new element
@@ -1024,7 +1022,7 @@ class Dompdf
      * @param string $orientation 'portrait' or 'landscape'
      * @return $this
      */
-    public function setPaper($size, string $orientation = self::ORIENTATION_PORTRAIT): self
+    public function setPaper($size, PageOrientation $orientation = PageOrientation::Portrait): self
     {
         $current_size = $this->getPaperSize();
         $this->paperSize = $size;
