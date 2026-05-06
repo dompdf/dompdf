@@ -10,6 +10,7 @@ use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Image\Cache;
+use Dompdf\PageOrientation;
 
 /**
  * Image rendering interface
@@ -135,7 +136,7 @@ class GD implements Canvas
      * @param float          $aa_factor   Anti-aliasing factor, 1 for no AA
      * @param array          $bg_color    Image background color: array(r,g,b,a), 0 <= r,g,b,a <= 1
      */
-    public function __construct($paper = "letter", string $orientation = "portrait", ?Dompdf $dompdf = null, float $aa_factor = 1.0, array $bg_color = [1, 1, 1, 0])
+    public function __construct($paper = "letter", PageOrientation $orientation = PageOrientation::Portrait, ?Dompdf $dompdf = null, float $aa_factor = 1.0, array $bg_color = [1, 1, 1, 0])
     {
         if (is_array($paper)) {
             $size = array_map("floatval", $paper);
@@ -144,7 +145,7 @@ class GD implements Canvas
             $size = CPDF::$PAPER_SIZES[$paper] ?? CPDF::$PAPER_SIZES["letter"];
         }
 
-        if (strtolower($orientation) === "landscape") {
+        if (PageOrientation::Landscape === $orientation) {
             [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 

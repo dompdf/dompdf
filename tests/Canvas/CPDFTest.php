@@ -6,6 +6,7 @@ use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\FontMetrics;
 use Dompdf\Tests\TestCase;
+use Dompdf\PageOrientation;
 use DateTime;
 
 class CPDFTest extends TestCase
@@ -16,7 +17,7 @@ class CPDFTest extends TestCase
         $imagePath = "$basePath/_files/red-dot.png";
 
         $dompdf = new Dompdf();
-        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas = new CPDF([0, 0, 200, 200], PageOrientation::Portrait, $dompdf);
         $canvas->new_page();
         $canvas->image($imagePath, 0, 0, 5, 5);
         $output = $canvas->output();
@@ -29,7 +30,7 @@ class CPDFTest extends TestCase
         $called = 0;
 
         $dompdf = new Dompdf();
-        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas = new CPDF([0, 0, 200, 200], PageOrientation::Portrait, $dompdf);
         $canvas->new_page();
 
         $canvas->page_script(function (
@@ -59,7 +60,7 @@ class CPDFTest extends TestCase
     public function testPageText(): void
     {
         $dompdf = new Dompdf();
-        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas = new CPDF([0, 0, 200, 200], PageOrientation::Portrait, $dompdf);
         $canvas->new_page();
 
         $font = $dompdf->getFontMetrics()->getFont("Helvetica");
@@ -72,7 +73,7 @@ class CPDFTest extends TestCase
     public function testPageLine(): void
     {
         $dompdf = new Dompdf();
-        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas = new CPDF([0, 0, 200, 200], PageOrientation::Portrait, $dompdf);
         $canvas->new_page();
 
         $canvas->page_line(0, 0, 200, 200, [0, 0, 0], 1);
@@ -147,7 +148,7 @@ class CPDFTest extends TestCase
     public function testFontSupportsChar(string $font, string $char, bool $expected): void
     {
         $dompdf = new Dompdf();
-        $canvas = new CPDF("letter", "portrait", $dompdf);
+        $canvas = new CPDF("letter", PageOrientation::Portrait, $dompdf);
         $fontFile = $dompdf->getFontMetrics()->getFont($font);
 
         $this->assertSame($expected, $canvas->font_supports_char($fontFile, $char));
@@ -156,7 +157,7 @@ class CPDFTest extends TestCase
     public function testGetXmpMetadata(): void
     {
         $dompdf = new Dompdf();
-        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas = new CPDF([0, 0, 200, 200], PageOrientation::Portrait, $dompdf);
 
         $canvas->get_cpdf()->addInfo('CreationDate', 'aa20250208195048');
         $canvas->get_cpdf()->addInfo('ModDate', 'aa20250208195048Z');
@@ -192,7 +193,7 @@ class CPDFTest extends TestCase
     public function testSetAdditionalXmpRdf(): void
     {
         $dompdf = new Dompdf();
-        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas = new CPDF([0, 0, 200, 200], PageOrientation::Portrait, $dompdf);
 
         $canvas->get_cpdf()->addInfo('CreationDate', 'aa20250208195048');
         $canvas->get_cpdf()->addInfo('ModDate', 'aa20250208195048Z');

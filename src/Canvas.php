@@ -6,7 +6,7 @@
  */
 namespace Dompdf;
 
-use PageOrientation;
+use Dompdf\PageOrientation;
 
 /**
  * Main rendering interface

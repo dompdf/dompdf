@@ -170,7 +170,7 @@ $dompdf = new Dompdf();
 $dompdf->loadHtml('hello world');
 
 // (Optional) Setup the paper size and orientation
-$dompdf->setPaper('A4', 'landscape');
+$dompdf->setPaper('A4', PageOrientation::Landscape);
 
 // Render the HTML as PDF
 $dompdf->render();

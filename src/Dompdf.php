@@ -16,7 +16,7 @@ use Dompdf\Image\Cache;
 use Dompdf\Css\Stylesheet;
 use Dompdf\Helpers;
 use Masterminds\HTML5;
-use PageOrientation;
+use Dompdf\PageOrientation;
 
 /**
  * Dompdf - PHP5 HTML to PDF renderer
@@ -1007,10 +1007,10 @@ class Dompdf
 
     /**
      * @param string $size
-     * @param string $orientation
+     * @param PageOrientation $orientation
      * @deprecated
      */
-    public function set_paper($size, $orientation = "portrait")
+    public function set_paper($size, $orientation = PageOrientation::Portrait)
     {
         $this->setPaper($size, $orientation);
     }
@@ -1019,7 +1019,7 @@ class Dompdf
      * Sets the paper size & orientation
      *
      * @param string|float[] $size 'letter', 'legal', 'A4', etc. {@link Dompdf\Adapter\CPDF::$PAPER_SIZES}
-     * @param string $orientation 'portrait' or 'landscape'
+     * @param PageOrientation $orientation portrait or landscape
      * @return $this
      */
     public function setPaper($size, PageOrientation $orientation = PageOrientation::Portrait): self
@@ -1054,7 +1054,7 @@ class Dompdf
             $size = CPDF::$PAPER_SIZES[$paper] ?? CPDF::$PAPER_SIZES["letter"];
         }
 
-        if (strtolower($orientation) === "landscape") {
+        if (PageOrientation::Landscape === $orientation) {
             [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 
@@ -1064,9 +1064,9 @@ class Dompdf
     /**
      * Gets the paper orientation
      *
-     * @return string Either "portrait" or "landscape"
+     * @return PageOrientation Either portrait or landscape
      */
-    public function getPaperOrientation(): string
+    public function getPaperOrientation(): PageOrientation
     {
         return $this->paperOrientation;
     }
@@ -1305,7 +1305,7 @@ class Dompdf
         $canvasWidth = $this->canvas->get_width();
         $canvasHeight = $this->canvas->get_height();
         $this->paperSize = [0, 0, $canvasWidth, $canvasHeight];
-        $this->paperOrientation = "portrait";
+        $this->paperOrientation = PageOrientation::Portrait;
         return $this;
     }
 

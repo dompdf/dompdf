@@ -14,6 +14,7 @@ use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\Helpers;
 use Dompdf\Image\Cache;
+use Dompdf\PageOrientation;
 use FontLib\Exception\FontNotFoundException;
 
 /**
@@ -155,7 +156,7 @@ class CPDF implements Canvas
      */
     protected $_current_opacity = 1;
 
-    public function __construct($paper = "letter", string $orientation = "portrait", ?Dompdf $dompdf = null)
+    public function __construct($paper = "letter", PageOrientation $orientation = PageOrientation::Portrait, ?Dompdf $dompdf = null)
     {
         if (is_array($paper)) {
             $size = array_map("floatval", $paper);
@@ -164,7 +165,7 @@ class CPDF implements Canvas
             $size = self::$PAPER_SIZES[$paper] ?? self::$PAPER_SIZES["letter"];
         }
 
-        if (strtolower($orientation) === "landscape") {
+        if (PageOrientation::Landscape === $orientation) {
             [$size[2], $size[3]] = [$size[3], $size[2]];
         }
 

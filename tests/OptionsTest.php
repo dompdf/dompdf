@@ -3,6 +3,7 @@ namespace Dompdf\Tests;
 
 use Dompdf\Options;
 use Dompdf\Tests\TestCase;
+use Dompdf\PageOrientation;
 
 class OptionsTest extends TestCase
 {
@@ -50,7 +51,7 @@ class OptionsTest extends TestCase
             'logOutputFile' => 'test5',
             'defaultMediaType' => 'test6',
             'defaultPaperSize' => 'test7',
-            'defaultPaperOrientation' => 'landscape',
+            'defaultPaperOrientation' => PageOrientation::Landscape,
             'defaultFont' => 'test8',
             'dpi' => 300,
             'fontHeightRatio' => 1.2,
@@ -80,7 +81,7 @@ class OptionsTest extends TestCase
         $this->assertEquals('test5', $option->getLogOutputFile());
         $this->assertEquals('test6', $option->getDefaultMediaType());
         $this->assertEquals('test7', $option->getDefaultPaperSize());
-        $this->assertEquals('landscape', $option->getDefaultPaperOrientation());
+        $this->assertEquals(PageOrientation::Landscape, $option->getDefaultPaperOrientation());
         $this->assertEquals('test8', $option->getDefaultFont());
         $this->assertEquals(300, $option->getDpi());
         $this->assertEquals(1.2, $option->getFontHeightRatio());
@@ -119,7 +120,7 @@ class OptionsTest extends TestCase
             'log_output_file' => 'test5',
             'default_media_type' => 'test6',
             'default_paper_size' => 'test7',
-            'default_paper_orientation' => 'landscape',
+            'default_paper_orientation' => PageOrientation::Landscape,
             'default_font' => 'test8',
             'dpi' => 300,
             'font_height_ratio' => 1.2,
@@ -149,7 +150,7 @@ class OptionsTest extends TestCase
         $this->assertEquals('test5', $option->getLogOutputFile());
         $this->assertEquals('test6', $option->getDefaultMediaType());
         $this->assertEquals('test7', $option->getDefaultPaperSize());
-        $this->assertEquals('landscape', $option->getDefaultPaperOrientation());
+        $this->assertEquals(PageOrientation::Landscape, $option->getDefaultPaperOrientation());
         $this->assertEquals('test8', $option->getDefaultFont());
         $this->assertEquals(300, $option->getDpi());
         $this->assertEquals(1.2, $option->getFontHeightRatio());
@@ -183,7 +184,7 @@ class OptionsTest extends TestCase
             'logOutputFile' => 'test5',
             'defaultMediaType' => 'test6',
             'defaultPaperSize' => 'test7',
-            'defaultPaperOrientation' => 'landscape',
+            'defaultPaperOrientation' => PageOrientation::Landscape,
             'defaultFont' => 'test8',
             'dpi' => 300,
             'fontHeightRatio' => 1.2,
@@ -214,7 +215,7 @@ class OptionsTest extends TestCase
         $this->assertEquals('test5', $option->get('logOutputFile'));
         $this->assertEquals('test6', $option->get('defaultMediaType'));
         $this->assertEquals('test7', $option->get('defaultPaperSize'));
-        $this->assertEquals('landscape', $option->get('defaultPaperOrientation'));
+        $this->assertEquals(PageOrientation::Landscape, $option->get('defaultPaperOrientation'));
         $this->assertEquals('test8', $option->get('defaultFont'));
         $this->assertEquals(300, $option->get('dpi'));
         $this->assertEquals(1.2, $option->get('fontHeightRatio'));
@@ -248,7 +249,7 @@ class OptionsTest extends TestCase
             'log_output_file' => 'test5',
             'default_media_type' => 'test6',
             'default_paper_size' => 'test7',
-            'default_paper_orientation' => 'landscape',
+            'default_paper_orientation' => PageOrientation::Landscape,
             'default_font' => 'test8',
             'dpi' => 300,
             'font_height_ratio' => 1.2,
@@ -279,7 +280,7 @@ class OptionsTest extends TestCase
         $this->assertEquals('test5', $option->get('log_output_file'));
         $this->assertEquals('test6', $option->get('default_media_type'));
         $this->assertEquals('test7', $option->get('default_paper_size'));
-        $this->assertEquals('landscape', $option->get('default_paper_orientation'));
+        $this->assertEquals(PageOrientation::Landscape, $option->get('default_paper_orientation'));
         $this->assertEquals('test8', $option->get('default_font'));
         $this->assertEquals(300, $option->get('dpi'));
         $this->assertEquals(1.2, $option->get('font_height_ratio'));

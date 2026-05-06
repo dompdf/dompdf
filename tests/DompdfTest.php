@@ -11,6 +11,7 @@ use Dompdf\Frame;
 use Dompdf\Frame\FrameTree;
 use Dompdf\Options;
 use Dompdf\Tests\TestCase;
+use Dompdf\PageOrientation;
 
 class DompdfTest extends TestCase
 {
@@ -246,10 +247,10 @@ class DompdfTest extends TestCase
     public static function customCanvasProvider(): array
     {
         return [
-            ["A4", "portrait", true, "auto"],
-            ["A5", "landscape", true, "A5 landscape"],
-            ["A5", "landscape", false, "A5 landscape"],
-            [[0, 0, 300, 400], "portrait", true, "300pt 400pt"]
+            ["A4", PageOrientation::Portrait, true, "auto"],
+            ["A5", PageOrientation::Landscape, true, "A5 landscape"],
+            ["A5", PageOrientation::Portrait::Landscape, false, "A5 landscape"],
+            [[0, 0, 300, 400], PageOrientation::Portrait, true, "300pt 400pt"]
         ];
     }
 
@@ -262,7 +263,7 @@ class DompdfTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('customCanvasProvider')]
     public function testCustomCanvas(
         $size,
-        string $orientation,
+        PageOrientation $orientation,
         bool $setPaper,
         string $cssSize
     ): void {

@@ -35,6 +35,7 @@
         "ext-gd": "*",
         "ext-json": "*",
         "ext-zip": "*",
+        "phpstan/phpstan": "*",
         "phpunit/phpunit": "^7.5 || ^8 || ^9 || ^10 || ^11",
         "squizlabs/php_codesniffer": "^3.5",
         "mockery/mockery": "^1.3",

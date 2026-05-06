@@ -6,7 +6,7 @@
  */
 namespace Dompdf;
 
-use PageOrientation;
+use Dompdf\PageOrientation;
 
 class Options
 {
@@ -791,7 +791,7 @@ class Options
      * @param string $defaultPaperOrientation
      * @return $this
      */
-    public function setDefaultPaperOrientation(string $defaultPaperOrientation): self
+    public function setDefaultPaperOrientation(PageOrientation $defaultPaperOrientation): self
     {
         $this->defaultPaperOrientation = $defaultPaperOrientation;
         return $this;
@@ -808,7 +808,7 @@ class Options
     /**
      * @return string
      */
-    public function getDefaultPaperOrientation(): string
+    public function getDefaultPaperOrientation(): PageOrientation
     {
         return $this->defaultPaperOrientation;
     }
