@@ -1133,7 +1133,7 @@ class Helpers
      * @param string         $body     raw bytes to POST
      * @param string[]       $headers  e.g. ['Content-Type: application/timestamp-query']
      * @param resource|null  $context  stream context, same shape as getFileContent
-     * @return array{0: ?string, 1: ?array} [content, headers]
+     * @return array{0: string|null, 1: array|null} [content, headers]
      */
     public static function postFileContent($uri, $body, array $headers = [], $context = null)
     {
@@ -1168,7 +1168,7 @@ class Helpers
      *
      * @param \CurlHandle|resource $curl
      * @param callable             $acceptHttpCode  function(int $code): bool
-     * @return array{0: ?string, 1: ?string[]}
+     * @return array{0: string|null, 1: string[]|null}
      */
     private static function curlExecAndParse($curl, callable $acceptHttpCode)
     {

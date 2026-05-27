@@ -2771,11 +2771,15 @@ EOT;
      *
      * options:
      *   TsaUrl     RFC 3161 endpoint (POST DER TimeStampReq)
-     *   TsaClient  ?callable function($tsq, $url, $opts): string
+     *   TsaClient  callable|null  function($tsq, $url, $opts): string
      *              custom HTTP roundtrip; defaults to
      *              Helpers::postFileContent via tsaHttpRoundtrip.
      *   HashAlg    'sha256' (only)
-     *   UserAgent  ?string  custom UA on the default transport.
+     *   Nonce      string|null  raw bytes used as the request nonce
+     *              for replay-protection (RFC 3161 sec. 2.4.1);
+     *              null = random_bytes(8). Inject a fixed string
+     *              for deterministic test output.
+     *   UserAgent  string|null  custom UA on the default transport.
      *              The closure also receives $opts so custom
      *              transports can apply UA / any other knob.
      *
@@ -2788,6 +2792,7 @@ EOT;
      * @phpstan-param array{
      *     TsaUrl: string,
      *     HashAlg?: string,
+     *     Nonce?: string|null,
      *     TsaClient?: (callable(string, string, array<string, mixed>): string)|null,
      *     UserAgent?: string|null
      * }|array{content: string} $options
@@ -2815,7 +2820,8 @@ EOT;
                     true
                 );
 
-                $tsq    = self::tsaBuildRequest($hash, $hashAlg);
+                $nonce = isset($o['info']['Nonce']) ? $o['info']['Nonce'] : null;
+                $tsq   = self::tsaBuildRequest($hash, $hashAlg, $nonce);
                 $client = isset($o['info']['TsaClient']) && $o['info']['TsaClient'] !== null
                     ? $o['info']['TsaClient']
                     : [self::class, 'tsaHttpRoundtrip'];
@@ -2910,17 +2916,24 @@ EOT;
      * verifiers can build the trust chain without an out-of-band
      * lookup.
      *
+     * The nonce (RFC 3161 sec. 2.4.1) is included as an 8-byte
+     * random INTEGER for replay-protection: a TSA cannot replay
+     * an earlier response because the nonce would mismatch. Pass
+     * a fixed string in $nonce to make output deterministic
+     * (tests + byte-for-byte cross-impl comparisons).
+     *
      * Only sha256 is wired today - every public TSA supports it,
      * and the NIST hash OID family is a one-byte trailer swap to
      * extend (2.16.840.1.101.3.4.2.1 / .2 / .3 for SHA-256 /
      * SHA-384 / SHA-512). Open a follow-up if a TSA requires .2 /
      * .3.
      *
-     * @param string $digest    raw binary hash of the bytes to stamp
-     * @param string $hashAlg   currently 'sha256' (only)
+     * @param string      $digest    raw binary hash of the bytes to stamp
+     * @param string      $hashAlg   currently 'sha256' (only)
+     * @param string|null $nonce     raw bytes; null = random_bytes(8)
      * @return string DER bytes ready to POST to a TSA
      */
-    private static function tsaBuildRequest($digest, $hashAlg = 'sha256')
+    private static function tsaBuildRequest($digest, $hashAlg = 'sha256', $nonce = null)
     {
         // NIST SHA-256 OID 2.16.840.1.101.3.4.2.1, pre-DER-encoded.
         //   06 09           OID, 9 length bytes
@@ -2941,8 +2954,19 @@ EOT;
         // version = 1 (INTEGER tag 02), certReq = TRUE (BOOLEAN tag 01, 0xFF = true)
         $version = "\x02\x01\x01";
         $certReq = "\x01\x01\xFF";
+        // Nonce INTEGER. DER integers are signed two's complement,
+        // so a leading 0x00 must precede a value whose first byte
+        // has the high bit set (otherwise the value reads as
+        // negative). Leading zero bytes are stripped to keep the
+        // encoding minimal per DER strict canonical form.
+        $nonceBytes = $nonce !== null ? $nonce : random_bytes(8);
+        $nonceBytes = ltrim($nonceBytes, "\x00");
+        if ($nonceBytes === '' || (ord($nonceBytes[0]) & 0x80) !== 0) {
+            $nonceBytes = "\x00" . $nonceBytes;
+        }
+        $nonceInt = self::derTLV("\x02", $nonceBytes);
         // Outer wrapper: SEQUENCE tag 30.
-        return self::derTLV("\x30", $version . $msgImprint . $certReq);
+        return self::derTLV("\x30", $version . $msgImprint . $nonceInt . $certReq);
     }
 
     /**
@@ -4980,11 +5004,13 @@ EOT;
      *   }]);
      *
      * @param string $tsaUrl   RFC 3161 endpoint
-     * @param array  $options  hashAlg (sha256), tsaClient (callable), userAgent (string)
+     * @param array  $options  hashAlg (sha256), nonce (raw bytes),
+     *                         tsaClient (callable), userAgent (string)
      * @return int the new object id
      *
      * @phpstan-param array{
      *     hashAlg?: string,
+     *     nonce?: string|null,
      *     tsaClient?: (callable(string $tsq, string $tsaUrl, array<string, mixed> $opts): string)|null,
      *     userAgent?: string|null
      * } $options
@@ -4995,6 +5021,7 @@ EOT;
         $this->o_tsa($sigId, 'new', [
           'TsaUrl'    => $tsaUrl,
           'HashAlg'   => isset($options['hashAlg']) ? $options['hashAlg'] : 'sha256',
+          'Nonce'     => isset($options['nonce']) ? $options['nonce'] : null,
           'TsaClient' => isset($options['tsaClient']) ? $options['tsaClient'] : null,
           'UserAgent' => isset($options['userAgent']) ? $options['userAgent'] : null,
         ]);

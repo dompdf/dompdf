@@ -141,6 +141,65 @@ class CpdfTimestampTest extends TestCase
     }
 
     /**
+     * Pins the wire shape of the TimeStampReq we POST to a TSA.
+     * Forces a fixed nonce so the output is deterministic, then
+     * sends a request through addTimestamp() with a closure that
+     * captures the DER bytes instead of POSTing them.
+     *
+     * The expected hex is the same SEQUENCE as TCPDF #842's
+     * x509::tsa_query() emits for SHA-256 + an 8-byte nonce: see
+     * the byte-for-byte cross-impl comparison in the PR
+     * description. Any drift here is a wire-format regression that
+     * would break compatibility with any TSA we already validated
+     * against.
+     */
+    public function testTimeStampReqWireShapeIsRfc3161Canonical(): void
+    {
+        $cpdf = new Cpdf([0, 0, 200, 200]);
+        $cpdf->newPage();
+        $cpdf->addText(20, 100, 12, 'wire shape');
+
+        $captured = null;
+        $cpdf->addTimestamp('https://tsa.example.test/ts', [
+            'nonce'     => "\x12\x34\x56\x78\x9a\xbc\xde\xf0",
+            'tsaClient' => function ($tsq, $url, $opts) use (&$captured) {
+                $captured = $tsq;
+                return $this->fakeTimestampResp();
+            },
+        ]);
+        $cpdf->output();
+
+        $this->assertNotNull($captured, 'TsaClient closure must have received the DER request');
+
+        // Expected DER for a SHA-256 TimeStampReq with the fixed
+        // nonce above. Matches TCPDF #842's x509::tsa_query() shape
+        // byte-for-byte (with the nonce slot pinned). Hash bytes
+        // are SHA-256 of the rewritten ByteRange, which varies per
+        // PDF render - so we anchor on the structural prefix +
+        // nonce trailer rather than the full hex string.
+        $expectedPrefix = bin2hex(
+            // outer SEQUENCE length introducer + version INTEGER
+            "\x02\x01\x01"
+            // MessageImprint SEQUENCE
+            . "\x30\x31"
+            . "\x30\x0d"
+            // OID 2.16.840.1.101.3.4.2.1 (SHA-256) + NULL params
+            . "\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00"
+            // OCTET STRING tag + 32-byte length introducer
+            . "\x04\x20"
+        );
+        $expectedNonceTrailer = bin2hex(
+            // INTEGER tag, 8-byte length, fixed nonce, certReq TRUE
+            "\x02\x08\x12\x34\x56\x78\x9a\xbc\xde\xf0"
+            . "\x01\x01\xff"
+        );
+        $derHex = bin2hex($captured);
+
+        $this->assertStringContainsString($expectedPrefix, $derHex, 'TimeStampReq prefix (version + MessageImprint header) drifted');
+        $this->assertStringContainsString($expectedNonceTrailer, $derHex, 'TimeStampReq trailer (nonce + certReq) drifted');
+    }
+
+    /**
      * assertNotRegExp / assertDoesNotMatchRegularExpression /
      * assertMatchesRegularExpression all drifted between PHPUnit
      * majors. preg_match + assertGreaterThanOrEqual is portable
