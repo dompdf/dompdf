@@ -4999,6 +4999,37 @@ EOT;
           'UserAgent' => isset($options['userAgent']) ? $options['userAgent'] : null,
         ]);
 
+        // PAdES-aware readers (Adobe, EU DSS, etc.) locate
+        // signatures + document timestamps via the catalog's
+        // /AcroForm/Fields array - not by scanning the byte
+        // stream. Without this wiring the /Sig object is
+        // orphaned and validators report "no signature found".
+        // Bundle the AcroForm setup here so callers don't need
+        // to know about it (unlike addSignature(), a document
+        // timestamp is always invisible so there's no widget /
+        // appearance for the caller to configure).
+        if (! isset($this->acroFormId)) {
+            // SigFlags = 3 (bit 0 SignaturesExist + bit 1
+            // AppendOnly) per PDF 32000-1 sec. 12.7.4.5.
+            $this->addForm(3, false);
+        }
+        // Build the Sig field directly (not via addFormField()):
+        // a hidden DocTimeStamp widget needs no font or default-
+        // appearance string, and addFormField() pulls
+        // currentFontNum which can trigger an "access offset on
+        // null" warning when the document's font state isn't
+        // populated yet.
+        $fieldId = ++$this->numObj;
+        $this->o_field($fieldId, 'new', [
+            'rect'    => [0, 0, 0, 0],
+            'F'       => 4,            // hidden annotation flag
+            'FT'      => '/Sig',
+            'T'       => 'DocTimeStamp' . $sigId,
+            'Ff'      => 0,
+            'pageid'  => $this->currentPage,
+        ]);
+        $this->setFormFieldRefValue($fieldId, $sigId);
+
         return $sigId;
     }
 

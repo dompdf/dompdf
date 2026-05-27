@@ -91,6 +91,67 @@ class CpdfTimestampTest extends TestCase
         $this->assertSame('unit-test-ua', $captured['opts']['UserAgent']);
     }
 
+    /**
+     * Regression: PAdES validators (Adobe Reader, EU DSS, etc.)
+     * locate document timestamps through /Catalog/AcroForm/Fields,
+     * not by scanning the byte stream. addTimestamp() must wire the
+     * /Sig object into that array; without it the timestamp lands
+     * in the PDF but every validator reports "no signature found"
+     * (DSS regression observed before the wiring landed).
+     *
+     * Pin the four structural markers that have to be present:
+     *
+     *   /Type/Catalog ... /AcroForm <ref> 0 R
+     *   /SigFlags 3                  (bit 0 SignaturesExist + bit 1 AppendOnly)
+     *   /FT /Sig                     (the sig field's field type)
+     *   /V <sigId> 0 R               (the sig field points at the TST object)
+     */
+    public function testAcroFormWiringIsPresentSoPAdesValidatorsFindTheTimestamp(): void
+    {
+        $cpdf = new Cpdf([0, 0, 200, 200]);
+        $cpdf->newPage();
+        $cpdf->addText(20, 100, 12, 'AcroForm wiring');
+
+        $tsaResp = $this->fakeTimestampResp();
+        $sigId = $cpdf->addTimestamp('https://tsa.example.test/ts', [
+            'tsaClient' => function () use ($tsaResp) {
+                return $tsaResp;
+            },
+        ]);
+        $pdf = $cpdf->output();
+
+        // AcroForm is referenced from the catalog (any object id).
+        $this->assertMatchesPdfPattern('@/AcroForm\s+\d+\s+0\s+R@', $pdf, 'Catalog must reference /AcroForm');
+
+        // SigFlags = 3: signatures-exist + append-only.
+        $this->assertStringContainsString('/SigFlags 3', $pdf);
+
+        // A Sig form field exists.
+        $this->assertStringContainsString('/FT /Sig', $pdf);
+
+        // The Sig field's /V points at the sig object id we just
+        // got back from addTimestamp() (object-reference form, not
+        // string form - a "/V (1234 0 R)" string would not be a
+        // real reference and DSS would refuse it).
+        $this->assertMatchesPdfPattern(
+            '@/V\s+' . $sigId . '\s+0\s+R@',
+            $pdf,
+            'Sig field /V must be a real object reference to the TST'
+        );
+    }
+
+    /**
+     * assertNotRegExp / assertDoesNotMatchRegularExpression /
+     * assertMatchesRegularExpression all drifted between PHPUnit
+     * majors. preg_match + assertGreaterThanOrEqual is portable
+     * across PHPUnit 7.5+ (which is the lowest version dompdf's
+     * composer.json allows).
+     */
+    private function assertMatchesPdfPattern(string $regex, string $pdf, string $message = ''): void
+    {
+        $this->assertSame(1, preg_match($regex, $pdf), $message);
+    }
+
     public function testTsaRefusalThrows(): void
     {
         $cpdf = new Cpdf([0, 0, 200, 200]);
