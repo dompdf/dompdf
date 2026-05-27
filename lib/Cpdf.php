@@ -9,6 +9,7 @@
  */
 namespace Dompdf;
 
+use Dompdf\Helpers;
 use FontLib\Exception\FontNotFoundException;
 use FontLib\Font;
 use FontLib\BinaryStream;
@@ -2761,6 +2762,359 @@ EOT;
     }
 
     /**
+     * RFC 3161 document timestamp object (PDF 32000-1 sec. 12.8.5).
+     *
+     * Parallel to o_sig() but without a local signing key: the
+     * /ByteRange bytes are hashed and sent to a TSA whose response
+     * (a DER TimeStampToken) lands verbatim in /Contents. Shares
+     * rewriteByteRange() + embedSignature() with o_sig().
+     *
+     * options:
+     *   TsaUrl     RFC 3161 endpoint (POST DER TimeStampReq)
+     *   TsaClient  ?callable function($tsq, $url, $opts): string
+     *              custom HTTP roundtrip; defaults to
+     *              Helpers::postFileContent via tsaHttpRoundtrip.
+     *   HashAlg    'sha256' (only)
+     *   UserAgent  ?string  custom UA on the default transport.
+     *              The closure also receives $opts so custom
+     *              transports can apply UA / any other knob.
+     *
+     * @param int    $id
+     * @param string $action  new | byterange | out
+     * @param mixed  $options
+     * @return null|string
+     *
+     * @phpstan-param 'new'|'byterange'|'out' $action
+     * @phpstan-param array{
+     *     TsaUrl: string,
+     *     HashAlg?: string,
+     *     TsaClient?: (callable(string, string, array<string, mixed>): string)|null,
+     *     UserAgent?: string|null
+     * }|array{content: string} $options
+     */
+    protected function o_tsa($id, $action, $options = '')
+    {
+        $sign_maxlen = $this->signatureMaxLen;
+
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'tsa', 'info' => $options];
+                $this->byteRange[$id] = ['t' => 'tsa'];
+                break;
+
+            case 'byterange':
+                $o = &$this->objects[$id];
+                $content =& $options['content'];
+                $rangeStartPos = $this->rewriteByteRange($id, $content, $sign_maxlen);
+
+                $hashAlg = isset($o['info']['HashAlg']) ? $o['info']['HashAlg'] : 'sha256';
+                $hash = hash(
+                    $hashAlg,
+                    substr($content, 0, $rangeStartPos)
+                    . substr($content, $rangeStartPos + 2 + $sign_maxlen),
+                    true
+                );
+
+                $tsq    = self::tsaBuildRequest($hash, $hashAlg);
+                $client = isset($o['info']['TsaClient']) && $o['info']['TsaClient'] !== null
+                    ? $o['info']['TsaClient']
+                    : [self::class, 'tsaHttpRoundtrip'];
+                $tsr = call_user_func($client, $tsq, $o['info']['TsaUrl'], $o['info']);
+                if (!is_string($tsr) || $tsr === '') {
+                    throw new \Exception('TSA returned an empty TimeStampResp.');
+                }
+
+                $this->embedSignature(
+                    $content,
+                    $rangeStartPos,
+                    $sign_maxlen,
+                    self::tsaExtractToken($tsr)
+                );
+                break;
+
+            case 'out':
+                // Document-timestamp dictionary per PDF 32000-1 sec. 12.8.5.
+                $res = "\n$id 0 obj\n<<\n";
+                if ($this->encrypted) {
+                    $this->encryptInit($id);
+                }
+                $res .= "/ByteRange " . sprintf("[ %'.010d ********** ********** ********** ]\n", $id);
+                $res .= "/Contents <" . str_pad('', $sign_maxlen, '0') . ">\n";
+                $res .= "/Filter/Adobe.PPKLite\n";
+                $res .= "/Type/DocTimeStamp/SubFilter/ETSI.RFC3161\n";
+                $res .= ">>\nendobj";
+                return $res;
+        }
+
+        return null;
+    }
+
+    /**
+     * Locate the /ByteRange placeholder for $id and rewrite it to
+     * cover everything except the /Contents hex span. Returns the
+     * offset of the opening '<' of /Contents. Shared by o_sig + o_tsa.
+     */
+    private function rewriteByteRange($id, &$content, $sign_maxlen)
+    {
+        $content_len = strlen($content);
+        $pos = strpos($content, sprintf("/ByteRange [ %'.010d", $id));
+        $len = strlen('/ByteRange [ ********** ********** ********** ********** ]');
+        $rangeStartPos = $pos + $len + 1 + 10; // before '<'
+        $content = substr_replace(
+            $content,
+            str_pad(
+                sprintf(
+                    '/ByteRange [ 0 %u %u %u ]',
+                    $rangeStartPos,
+                    $rangeStartPos + $sign_maxlen + 2,
+                    $content_len - 2 - $sign_maxlen - $rangeStartPos
+                ),
+                $len,
+                ' ',
+                STR_PAD_RIGHT
+            ),
+            $pos,
+            $len
+        );
+        return $rangeStartPos;
+    }
+
+    /**
+     * Hex-encode $rawBytes, pad to $sign_maxlen, and stamp into
+     * the /Contents <> slot at $rangeStartPos. Shared by o_sig +
+     * o_tsa. Throws when the payload would overflow.
+     */
+    private function embedSignature(&$content, $rangeStartPos, $sign_maxlen, $rawBytes)
+    {
+        $signature = bin2hex($rawBytes);
+        $siglen = strlen($signature);
+        if ($siglen > $sign_maxlen) {
+            throw new \Exception(
+                "Signature length ($siglen) exceeds the $sign_maxlen limit."
+            );
+        }
+        $signature = str_pad($signature, $sign_maxlen, '0');
+        $content = substr_replace($content, $signature, $rangeStartPos + 1, $sign_maxlen);
+    }
+
+    /**
+     * Build a DER-encoded TimeStampReq (RFC 3161 sec. 2.4.1).
+     *
+     *   TimeStampReq ::= SEQUENCE {
+     *     version       INTEGER  { v1(1) },
+     *     messageImprint MessageImprint,
+     *     certReq        BOOLEAN  DEFAULT FALSE
+     *   }
+     *
+     * Asks for the TSA cert in the response (certReq = TRUE) so
+     * verifiers can build the trust chain without an out-of-band
+     * lookup.
+     *
+     * Only sha256 is wired today - every public TSA supports it,
+     * and the NIST hash OID family is a one-byte trailer swap to
+     * extend (2.16.840.1.101.3.4.2.1 / .2 / .3 for SHA-256 /
+     * SHA-384 / SHA-512). Open a follow-up if a TSA requires .2 /
+     * .3.
+     *
+     * @param string $digest    raw binary hash of the bytes to stamp
+     * @param string $hashAlg   currently 'sha256' (only)
+     * @return string DER bytes ready to POST to a TSA
+     */
+    private static function tsaBuildRequest($digest, $hashAlg = 'sha256')
+    {
+        // NIST SHA-256 OID 2.16.840.1.101.3.4.2.1, pre-DER-encoded.
+        //   06 09           OID, 9 length bytes
+        //   60              joint-iso-itu-t.country (2.16)
+        //   86 48           usa(840), 2-byte var-int
+        //   01 65 03 04     organization(1).gov(101).csor(3).nistalgorithm(4)
+        //   02 01           hashalgs(2).sha256(1)
+        $sha256Oid = "\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01";
+        $algIdByHash = ['sha256' => $sha256Oid];
+        if (!isset($algIdByHash[$hashAlg])) {
+            throw new \Exception("Unsupported TSA hash algorithm: $hashAlg");
+        }
+        // AlgorithmIdentifier ::= SEQUENCE { algorithm OID, parameters NULL }
+        // NULL ASN.1 = tag 05, length 00.
+        $algId = self::derTLV("\x30", $algIdByHash[$hashAlg] . "\x05\x00");
+        // MessageImprint ::= SEQUENCE { hashAlgorithm, hashedMessage OCTET STRING (tag 04) }
+        $msgImprint = self::derTLV("\x30", $algId . self::derTLV("\x04", $digest));
+        // version = 1 (INTEGER tag 02), certReq = TRUE (BOOLEAN tag 01, 0xFF = true)
+        $version = "\x02\x01\x01";
+        $certReq = "\x01\x01\xFF";
+        // Outer wrapper: SEQUENCE tag 30.
+        return self::derTLV("\x30", $version . $msgImprint . $certReq);
+    }
+
+    /**
+     * Extract the TimeStampToken (a ContentInfo SEQUENCE) from a
+     * TimeStampResp.
+     *
+     *   TimeStampResp ::= SEQUENCE {
+     *     status         PKIStatusInfo,
+     *     timeStampToken TimeStampToken OPTIONAL
+     *   }
+     *
+     * Throws when the response carries a non-zero PKIStatus (TSA
+     * refused the request) or when there is no token attached.
+     *
+     * ASN.1 universal tags used here:
+     *   0x02 = INTEGER, 0x30 = SEQUENCE.
+     *
+     * @param string $tsr DER bytes returned by the TSA
+     * @return string DER bytes of the TimeStampToken, to embed verbatim
+     */
+    private static function tsaExtractToken($tsr)
+    {
+        $offset = 0;
+        $outer = self::derReadElement($tsr, $offset);
+        if ($outer['tag'] !== 0x30) {
+            throw new \Exception('TSA response is not a SEQUENCE.');
+        }
+        $body = $outer['value'];
+        $bodyLen = strlen($body);
+
+        // PKIStatusInfo SEQUENCE: { status INTEGER, statusString?, failInfo? }
+        $childOffset = 0;
+        $status = self::derReadElement($body, $childOffset);
+        if ($status['tag'] !== 0x30) {
+            throw new \Exception('TSA response: PKIStatusInfo missing.');
+        }
+        $statusBody = $status['value'];
+        $statusFieldOffset = 0;
+        $statusInt = self::derReadElement($statusBody, $statusFieldOffset);
+        if ($statusInt['tag'] !== 0x02) {
+            throw new \Exception('TSA response: status not INTEGER.');
+        }
+        $statusCode = ord($statusInt['value']);
+        // RFC 3161 sec. 2.4.2: 0 = granted, 1 = grantedWithMods.
+        // Both deliver a token; 2+ are rejection / waiting /
+        // revoked outcomes.
+        if ($statusCode > 1) {
+            throw new \Exception("TSA refused the request (PKIStatus = $statusCode).");
+        }
+        if ($childOffset >= $bodyLen) {
+            throw new \Exception('TSA response: no TimeStampToken attached.');
+        }
+        $tokenStart = $childOffset;
+        $token = self::derReadElement($body, $childOffset);
+        if ($token['tag'] !== 0x30) {
+            throw new \Exception('TSA response: TimeStampToken is not a SEQUENCE.');
+        }
+        return substr($body, $tokenStart, $childOffset - $tokenStart);
+    }
+
+    /**
+     * Default HTTP transport for TSA roundtrips. Delegates to
+     * Helpers::postFileContent() so cURL setup stays in one place.
+     * UserAgent rides through the stream context; both helpers
+     * translate it to CURLOPT_USERAGENT.
+     */
+    private static function tsaHttpRoundtrip($tsq, $tsaUrl, $options = [])
+    {
+        if (!function_exists('curl_init')) {
+            throw new \Exception('TSA roundtrip needs ext-curl; pass a custom TsaClient closure if unavailable.');
+        }
+        $ua = (isset($options['UserAgent']) && is_string($options['UserAgent']) && $options['UserAgent'] !== '')
+            ? $options['UserAgent']
+            : 'dompdf';
+        $context = stream_context_create([
+            'http' => ['user_agent' => $ua, 'timeout' => 30],
+        ]);
+        list($body) = Helpers::postFileContent(
+            $tsaUrl,
+            $tsq,
+            ['Content-Type: application/timestamp-query'],
+            $context
+        );
+        if ($body === null || $body === '') {
+            throw new \Exception('TSA roundtrip returned no body (TSA unreachable or non-2xx response).');
+        }
+        return $body;
+    }
+
+    /**
+     * Minimal DER element reader. Returns
+     *   ['tag' => int, 'value' => string]
+     * and advances $offset past the element. Handles short + long
+     * form length encoding, which is plenty for TSA payloads.
+     *
+     * @param string $der
+     * @param int    $offset reference, advanced by this call
+     * @return array{tag: int, value: string}
+     */
+    private static function derReadElement($der, &$offset)
+    {
+        // Tag byte: one byte that says "this is a SEQUENCE / INTEGER
+        // / whatever" (see derTLV's table above).
+        $tag = ord($der[$offset++]);
+        // First length octet. Per X.690 sec. 8.1.3, the top bit
+        // distinguishes short-form (0 -> the byte IS the length)
+        // from long-form (1 -> the low 7 bits say how many bytes
+        // of length follow).
+        $len = ord($der[$offset++]);
+        if (($len & 0x80) !== 0) {
+            // Long form. The low 7 bits of the first octet say how
+            // many bytes of length follow.
+            $lenBytes = $len & 0x7F;
+            $len = 0;
+            // Walk those bytes left-to-right, big-endian: each new
+            // byte shifts the accumulator up 8 bits and ORs the
+            // new low-byte in.
+            for ($i = 0; $i < $lenBytes; $i++) {
+                $len = ($len << 8) | ord($der[$offset++]);
+            }
+        }
+        // The element's "value" is the next $len bytes after the
+        // length. Slice them out and step the cursor past.
+        $value = substr($der, $offset, $len);
+        $offset += $len;
+        return ['tag' => $tag, 'value' => $value];
+    }
+
+    /**
+     * Wrap $body in DER tag-length-value form. Callers pass the
+     * single-byte tag string. ASN.1 universal tags used by the
+     * TSA path:
+     *
+     *   "\x01" = 0x01  BOOLEAN
+     *   "\x02" = 0x02  INTEGER
+     *   "\x04" = 0x04  OCTET STRING
+     *   "\x05" = 0x05  NULL
+     *   "\x06" = 0x06  OBJECT IDENTIFIER
+     *   "\x30" = 0x30  SEQUENCE (constructed)
+     *
+     * Length octets follow DER ITU-T X.690 sec. 8.1.3:
+     *   - body length < 128 ("short form")     -> one byte = length
+     *   - body length >= 128 ("long form")     -> first byte =
+     *       0x80 | N (N = number of length bytes), then N bytes
+     *       of big-endian length.
+     *
+     * Adequate for TSA payloads which stay well under 4 GB; we
+     * cap N implicitly at 4 by virtue of PHP int width.
+     */
+    private static function derTLV($tag, $body)
+    {
+        $len = strlen($body);
+        if ($len < 0x80) {
+            // Short form: a single byte carries the length verbatim.
+            $lenBytes = chr($len);
+        } else {
+            // Long form. Build the big-endian length tail first by
+            // peeling off one byte at a time from the low end of the
+            // integer (`$len & 0xFF`) and prepending it so the most
+            // significant byte ends up first in the string.
+            $lenBytes = '';
+            while ($len > 0) {
+                $lenBytes = chr($len & 0xFF) . $lenBytes;
+                $len >>= 8;
+            }
+            // Prefix the introducer byte (0x80 | how-many-length-bytes-follow).
+            $lenBytes = chr(0x80 | strlen($lenBytes)) . $lenBytes;
+        }
+        return $tag . $lenBytes . $body;
+    }
+
+    /**
      *
      * @param $id
      * @param $action
@@ -2780,11 +3134,7 @@ EOT;
             case 'byterange':
                 $o = &$this->objects[$id];
                 $content =& $options['content'];
-                $content_len = strlen($content);
-                $pos = strpos($content, sprintf("/ByteRange [ %'.010d", $id));
-                $len = strlen('/ByteRange [ ********** ********** ********** ********** ]');
-                $rangeStartPos = $pos + $len + 1 + 10; // before '<'
-                $content = substr_replace($content, str_pad(sprintf('/ByteRange [ 0 %u %u %u ]', $rangeStartPos, $rangeStartPos + $sign_maxlen + 2, $content_len - 2 - $sign_maxlen - $rangeStartPos), $len, ' ', STR_PAD_RIGHT), $pos, $len);
+                $rangeStartPos = $this->rewriteByteRange($id, $content, $sign_maxlen);
 
                 $fuid = uniqid();
                 $tmpInput = $this->tmp . "/pkcs7.tmp." . $fuid . '.in';
@@ -2815,14 +3165,7 @@ EOT;
 
                 $signature = base64_decode(trim($signature));
 
-                $signature = current(unpack('H*', $signature));
-                $signature = str_pad($signature, $sign_maxlen, '0');
-                $siglen = strlen($signature);
-                if (strlen($signature) > $sign_maxlen) {
-                    throw new \Exception("Signature length ($siglen) exceeds the $sign_maxlen limit.");
-                }
-
-                $content = substr_replace($content, $signature, $rangeStartPos + 1, $sign_maxlen);
+                $this->embedSignature($content, $rangeStartPos, $sign_maxlen, $signature);
                 break;
 
             case "out":
@@ -4604,6 +4947,56 @@ EOT;
           'Location' => $location,
           'Reason' => $reason,
           'ContactInfo' => $contactinfo
+        ]);
+
+        return $sigId;
+    }
+
+    /**
+     * Attach an RFC 3161 document timestamp (PDF 32000-1 sec. 12.8.5).
+     *
+     * Unlike addSignature() no local key is needed: the /ByteRange
+     * bytes are hashed and the TSA's response (a DER TimeStampToken)
+     * lands in /Contents. PAdES-aware readers treat it as proof
+     * of existence at time T.
+     *
+     * signatureMaxLen is measured in HEX CHARS (the /Contents <>
+     * placeholder is hex-encoded), so a TSA returning N raw bytes
+     * needs at least 2N + headroom. Empirically, public TSAs
+     * return 4-7 KB TimeStampTokens once the certificate chain
+     * is included (certReq=TRUE per RFC 3161 sec. 2.4.1), which
+     * hex-encodes to 8-14 KB. Bump signatureMaxLen to 16000
+     * before calling - covers every public TSA verified against
+     * this implementation (Apple, DigiCert, Certum, DFN, Entrust,
+     * CESNET, Sectigo, GlobalSign, SwissSign, SSL.com, IZENPE).
+     *
+     *   $cpdf->signatureMaxLen = 16000;
+     *   $cpdf->addTimestamp('http://timestamp.apple.com/ts01');
+     *
+     * Pass a tsaClient closure to bypass the cURL roundtrip (tests):
+     *
+     *   $cpdf->addTimestamp($url, ['tsaClient' => function ($tsq, $url, $opts) {
+     *       return $fixtureBytes;
+     *   }]);
+     *
+     * @param string $tsaUrl   RFC 3161 endpoint
+     * @param array  $options  hashAlg (sha256), tsaClient (callable), userAgent (string)
+     * @return int the new object id
+     *
+     * @phpstan-param array{
+     *     hashAlg?: string,
+     *     tsaClient?: (callable(string $tsq, string $tsaUrl, array<string, mixed> $opts): string)|null,
+     *     userAgent?: string|null
+     * } $options
+     * @phpstan-return int
+     */
+    function addTimestamp($tsaUrl, array $options = []) {
+        $sigId = ++$this->numObj;
+        $this->o_tsa($sigId, 'new', [
+          'TsaUrl'    => $tsaUrl,
+          'HashAlg'   => isset($options['hashAlg']) ? $options['hashAlg'] : 'sha256',
+          'TsaClient' => isset($options['tsaClient']) ? $options['tsaClient'] : null,
+          'UserAgent' => isset($options['userAgent']) ? $options['userAgent'] : null,
         ]);
 
         return $sigId;

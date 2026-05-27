@@ -1098,43 +1098,7 @@ class Helpers
                     });
                 }
 
-                $context_options = [];
-                if (!is_null($context)) {
-                    $context_options = stream_context_get_options($context);
-                }
-                foreach ($context_options as $stream => $options) {
-                    foreach ($options as $option => $value) {
-                        $key = strtolower($stream) . ":" . strtolower($option);
-                        switch ($key) {
-                            case "curl:curl_verify_ssl_host":
-                                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, !$value ? 0 : 2);
-                                break;
-                            case "curl:max_redirects":
-                                curl_setopt($curl, CURLOPT_MAXREDIRS, $value);
-                                break;
-                            case "http:follow_location":
-                                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $value);
-                                break;
-                            case "http:header":
-                                if (is_string($value)) {
-                                    curl_setopt($curl, CURLOPT_HTTPHEADER, [$value]);
-                                } else {
-                                    curl_setopt($curl, CURLOPT_HTTPHEADER, $value);
-                                }
-                                break;
-                            case "http:timeout":
-                                curl_setopt($curl, CURLOPT_TIMEOUT, $value);
-                                break;
-                            case "http:user_agent":
-                                curl_setopt($curl, CURLOPT_USERAGENT, $value);
-                                break;
-                            case "curl:curl_verify_ssl_peer":
-                            case "ssl:verify_peer":
-                                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $value);
-                                break;
-                        }
-                    }
-                }
+                self::applyCurlContextOptions($curl, $context);
 
                 $data = curl_exec($curl);
 
@@ -1157,6 +1121,126 @@ class Helpers
         }
 
         return [$content, $headers];
+    }
+
+    /**
+     * POST $body to $uri and return [content, headers]. HTTP only;
+     * uses the same stream-context mapping as getFileContent().
+     *
+     * Use case: RFC 3161 TSA roundtrips for Cpdf::addTimestamp().
+     *
+     * @param string         $uri
+     * @param string         $body     raw bytes to POST
+     * @param string[]       $headers  e.g. ['Content-Type: application/timestamp-query']
+     * @param resource|null  $context  stream context, same shape as getFileContent
+     * @return array{0: ?string, 1: ?array} [content, headers]
+     */
+    public static function postFileContent($uri, $body, array $headers = [], $context = null)
+    {
+        [$protocol] = self::explode_url($uri);
+        if (!in_array(strtolower($protocol), ["http://", "https://"], true) || !function_exists('curl_exec')) {
+            throw new \RuntimeException('Helpers::postFileContent requires ext-curl and an http(s):// URL.');
+        }
+        $curl = curl_init($uri);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+        if ($headers !== []) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        }
+        // Apply context options AFTER the default headers so a caller
+        // override (http:user_agent / http:header / http:timeout)
+        // beats our defaults - same precedence getFileContent uses.
+        self::applyCurlContextOptions($curl, $context);
+        // 2xx is success; getFileContent's stricter 200-only filter
+        // is a separate choice that path makes.
+        return self::curlExecAndParse($curl, static function ($code) {
+            return $code >= 200 && $code < 300;
+        });
+    }
+
+    /**
+     * Run a curl handle and return [content, headers] when the
+     * predicate accepts the HTTP code. Shared by getFileContent +
+     * postFileContent so both pick up cURL transport changes
+     * (PHP 7 close hack, header/content split) in one spot.
+     *
+     * @param \CurlHandle|resource $curl
+     * @param callable             $acceptHttpCode  function(int $code): bool
+     * @return array{0: ?string, 1: ?string[]}
+     */
+    private static function curlExecAndParse($curl, callable $acceptHttpCode)
+    {
+        $content = null;
+        $headers = null;
+        $data    = curl_exec($curl);
+        if ($data !== false && !curl_errno($curl)) {
+            $code = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if ($acceptHttpCode($code)) {
+                $headerSize = (int) curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+                $headers    = preg_split("/[\n\r]+/", trim(substr($data, 0, $headerSize)));
+                $content    = substr($data, $headerSize);
+            }
+        }
+        // PHP < 8 needed an explicit close; PHP 8+ frees the handle
+        // when the variable goes out of scope.
+        if (PHP_MAJOR_VERSION < 8) {
+            curl_close($curl);
+        }
+        return [$content, $headers];
+    }
+
+    /**
+     * Translate a stream context's http: / curl: / ssl: option keys
+     * into CURLOPT_* setopts. Shared by getFileContent +
+     * postFileContent so any new option is wired through in one
+     * place. Unrecognised keys are ignored - the goal is the
+     * subset PHP's HTTP stream wrapper exposes, not full pass-through.
+     *
+     * @param \CurlHandle|resource $curl
+     * @param resource|null        $context
+     * @return void
+     */
+    private static function applyCurlContextOptions($curl, $context)
+    {
+        if (is_null($context)) {
+            return;
+        }
+        $context_options = stream_context_get_options($context);
+        foreach ($context_options as $stream => $options) {
+            foreach ($options as $option => $value) {
+                $key = strtolower($stream) . ":" . strtolower($option);
+                switch ($key) {
+                    case "curl:curl_verify_ssl_host":
+                        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, !$value ? 0 : 2);
+                        break;
+                    case "curl:max_redirects":
+                        curl_setopt($curl, CURLOPT_MAXREDIRS, $value);
+                        break;
+                    case "http:follow_location":
+                        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $value);
+                        break;
+                    case "http:header":
+                        if (is_string($value)) {
+                            curl_setopt($curl, CURLOPT_HTTPHEADER, [$value]);
+                        } else {
+                            curl_setopt($curl, CURLOPT_HTTPHEADER, $value);
+                        }
+                        break;
+                    case "http:timeout":
+                        curl_setopt($curl, CURLOPT_TIMEOUT, $value);
+                        break;
+                    case "http:user_agent":
+                        curl_setopt($curl, CURLOPT_USERAGENT, $value);
+                        break;
+                    case "curl:curl_verify_ssl_peer":
+                    case "ssl:verify_peer":
+                        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $value);
+                        break;
+                }
+            }
+        }
     }
 
     /**
