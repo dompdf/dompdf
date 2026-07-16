@@ -36,7 +36,11 @@ final class Dataset
 
     public function render(string $backend = "cpdf"): Dompdf
     {
-        $options = new Options();
+        $options = new Options([
+            'chroot' => realpath(__DIR__ . '/../_files'),
+            'imageByteSizeLimit' => '50M',
+            'isRemoteEnabled' => true
+        ]);
         $options->setPdfBackend($backend);
 
         $pdf = new Dompdf($options);

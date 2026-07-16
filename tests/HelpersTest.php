@@ -21,7 +21,12 @@ class HelpersTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('imageUrlProvider')]
     public function testUrlResolution(string $url, array $expected): void
     {
-        $this->assertEquals($expected, Helpers::dompdf_getimagesize($url));
+        // Some systems will return image/x-bmp or image/x-ms-bmp for BMP files, so we need to normalize the actual value
+        $imginfo = Helpers::dompdf_getimagesize($url);
+        if ($imginfo[3] === IMAGETYPE_BMP) {
+            $imginfo[4] = 'image/bmp';
+        }
+        $this->assertEquals($expected, $imginfo);
     }
 
     public static function uriEncodingProvider(): array
