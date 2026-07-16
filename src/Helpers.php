@@ -907,7 +907,7 @@ class Helpers
             return false;
         }
 
-        if (function_exists("imagecreatefrombmp") && ($im = imagecreatefrombmp($filename)) !== false) {
+        if (function_exists("imagecreatefrombmp") && ($im = @imagecreatefrombmp($filename)) !== false) {
             return $im;
         }
 

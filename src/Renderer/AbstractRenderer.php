@@ -489,28 +489,30 @@ abstract class AbstractRenderer
             $bg = imagecreatetruecolor($bg_width, $bg_height);
             $cpdfFromGd = true;
 
+            $func_name = "imagecreatefrom$type";
+            if (method_exists(Helpers::class, $func_name)) {
+                $func_name = [Helpers::class, $func_name];
+            } elseif (!function_exists($func_name)) {
+                if (isset($bg) && PHP_MAJOR_VERSION < 8) {
+                    imagedestroy($bg);
+                }
+                return;
+            }
+
             switch (strtolower($type)) {
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case "png":
                     $cpdfFromGd = false;
                     imagesavealpha($bg, true);
                     imagealphablending($bg, false);
-                    $src = @imagecreatefrompng($img);
-                    break;
-
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case "jpeg":
-                    $src = @imagecreatefromjpeg($img);
-                    break;
-
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case "webp":
-                    $src = @imagecreatefromwebp($img);
-                    break;
-
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case "gif":
-                    $src = @imagecreatefromgif($img);
-                    break;
-
                 case "bmp":
-                    $src = @Helpers::imagecreatefrombmp($img);
+                    $src = @call_user_func($func_name, $img);
                     break;
 
                 default:
