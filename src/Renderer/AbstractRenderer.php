@@ -527,7 +527,7 @@ abstract class AbstractRenderer
             }
 
             if ($img_w != $org_img_w || $img_h != $org_img_h) {
-                $imgBytes = $img_h * $img_h * 4 * 4; // 4 channels with 4 bytes per channel (e.g. truecolor with alpha)
+                $imgBytes = $img_w * $img_h * 4 * 4; // 4 channels with 4 bytes per channel (e.g. truecolor with alpha)
                 if ($maxImageBytes > 0 && ($imgBytes === null || $imgBytes > $maxImageBytes)) {
                     Helpers::record_warnings(E_USER_WARNING, "Background image is too large to be rendered (calculated size: " . round($imgBytes / 1048576, 2) . " MB).", __FILE__, __LINE__);
                     if (PHP_MAJOR_VERSION < 8) {
