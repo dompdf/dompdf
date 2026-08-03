@@ -10,6 +10,8 @@ use Dompdf\Canvas;
 use Dompdf\Dompdf;
 use Dompdf\Helpers;
 use Dompdf\Image\Cache;
+use Dompdf\StructTree;
+use Dompdf\StructTree\DummyStructTree;
 
 /**
  * Image rendering interface
@@ -1009,6 +1011,10 @@ class GD implements Canvas
         return ob_get_clean();
     }
 
+    public function set_language(string $language): void
+    {
+    }
+
     /**
      * Outputs the image stream directly.
      *
@@ -1057,5 +1063,10 @@ class GD implements Canvas
         if ($this->_aa_factor != 1 && PHP_MAJOR_VERSION < 8) {
             imagedestroy($dst);
         }
+    }
+
+    public function get_struct_tree(): StructTree
+    {
+        return new DummyStructTree();
     }
 }

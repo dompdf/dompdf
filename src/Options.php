@@ -242,6 +242,12 @@ class Options
     private $isPdfAEnabled = false;
 
     /**
+     * Same as $isPdfAEnabled but for PDF/UA.
+     * @var bool
+     */
+    private $isPdfUAEnabled = false;
+
+    /**
      * Enable inline JavaScript
      *
      * If this setting is set to true then DOMPDF will automatically insert
@@ -410,6 +416,8 @@ class Options
                 $methodForCall = "setIsRemoteEnabled";
             } elseif ($methodForMatch === 'enablePdfA') {
                 $methodForCall = "setIsPdfAEnabled";
+            } elseif ($methodForMatch === 'enablePdfUA') {
+                $methodForCall = "setIsPdfUAEnabled";
             } elseif ($methodForMatch === 'enableJavascript') {
                 $methodForCall = "setIsJavascriptEnabled";
             } elseif ($methodForMatch === 'enableHtml5Parser') {
@@ -441,6 +449,8 @@ class Options
             $methodForCall = "getIsRemoteEnabled";
         } elseif ($methodForMatch === 'enablePdfA') {
             $methodForCall = "getIsPdfAEnabled";
+        } elseif ($methodForMatch === 'enablePdfUA') {
+            $methodForCall = "getIsPdfUAEnabled";
         } elseif ($methodForMatch === 'enableJavascript') {
             $methodForCall = "getIsJavascriptEnabled";
         } elseif ($methodForMatch === 'enableHtml5Parser') {
@@ -1112,6 +1122,22 @@ class Options
     public function isPdfAEnabled()
     {
         return $this->getIsPdfAEnabled();
+    }
+
+    public function setIsPdfUAEnabled(bool $isPdfUAEnabled): self
+    {
+        $this->isPdfUAEnabled = $isPdfUAEnabled;
+        return $this;
+    }
+
+    public function getIsPdfUAEnabled(): bool
+    {
+        return $this->isPdfUAEnabled;
+    }
+
+    public function isPdfUAEnabled(): bool
+    {
+        return $this->getIsPdfUAEnabled();
     }
 
     /**

@@ -484,4 +484,8 @@ interface Canvas
      * @return string
      */
     function output($options = []);
+
+    public function set_language(string $language): void;
+
+    public function get_struct_tree(): StructTree;
 }
