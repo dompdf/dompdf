@@ -1785,6 +1785,30 @@ class Style
     }
 
     /**
+     * Check whether a value was specified for a style property, either in a
+     * declaration for the element itself, or via inheritance from an
+     * ancestor.
+     *
+     * @param string $prop
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function has_specified(string $prop): bool
+    {
+        // Legacy property aliases
+        if (isset(self::$_props_alias[$prop])) {
+            $prop = self::$_props_alias[$prop];
+        }
+
+        if (!isset(self::$_defaults[$prop]) && !$this->is_custom_property($prop)) {
+            throw new Exception("'$prop' is not a recognized CSS property.");
+        }
+
+        return isset($this->_props[$prop]);
+    }
+
+    /**
      * Set a style property to its final value.
      *
      * This sets the specified and used value of the style property to the given
