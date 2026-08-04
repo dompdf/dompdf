@@ -113,6 +113,13 @@ abstract class AbstractFrameDecorator extends Frame
     public $is_split_off = false;
 
     /**
+     * Reentrancy guard to prevent recursive/looped splits.
+     *
+     * @var bool
+     */
+    protected bool $_splitting = false;
+
+    /**
      * Class constructor
      *
      * @param Frame $frame   The decoration target
@@ -693,33 +700,53 @@ abstract class AbstractFrameDecorator extends Frame
      */
     public function split(?Frame $child = null, bool $page_break = false, bool $forced = false): void
     {
-        if (is_null($child)) {
-            $this->get_parent()->split($this, $page_break, $forced);
+        // Prevent redundant calls.
+        // Don't re-split the same node unless forced
+        if ($this->is_split && !$forced) {
+            return;
+        }
+
+        // Prevent re-entrant / recursive call loops during bubbling
+        if ($this->_splitting ?? false) {
+            return;
+        }
+        $this->_splitting = true;
+
+        // Normal logic.
+        if ($child === null) {
+            // Pass the split upward
+            $parent = $this->get_parent();
+            $this->_splitting = false;
+            $parent->split($this, $page_break, $forced);
             return;
         }
 
         if ($child->get_parent() !== $this) {
+            $this->_splitting = false;
             throw new Exception("Unable to split: frame is not a child of this one.");
         }
 
         $this->revert_counter_increment();
 
-        $node = $this->_frame->get_node();
-        $split = $this->copy($node->cloneNode());
+        $frame = $this->_frame;
+        $node = $frame->get_node();
+        $style = $frame->get_style();
 
-        $style = $this->_frame->get_style();
+        // Clone and create $split frame
+        $split = $this->copy($node->cloneNode());
         $split_style = $split->get_style();
 
-        // Truncate the box decoration at the split, except for the body
+        // Truncate decoration (except <body>)
         if ($node->nodeName !== "body") {
-            // Clear bottom decoration of original frame
+
+            // Clear bottom decoration.
             $style->margin_bottom = 0.0;
             $style->padding_bottom = 0.0;
             $style->border_bottom_width = 0.0;
             $style->border_bottom_left_radius = 0.0;
             $style->border_bottom_right_radius = 0.0;
 
-            // Clear top decoration of split frame
+            // Clear top decoration of the split frame
             $split_style->margin_top = 0.0;
             $split_style->padding_top = 0.0;
             $split_style->border_top_width = 0.0;
@@ -728,6 +755,7 @@ abstract class AbstractFrameDecorator extends Frame
             $split_style->page_break_before = "auto";
         }
 
+        // Text & counter resets
         $split_style->text_indent = 0.0;
         $split_style->counter_reset = "none";
 
@@ -735,39 +763,42 @@ abstract class AbstractFrameDecorator extends Frame
         $split->is_split_off = true;
         $split->_already_pushed = true;
 
-        $this->get_parent()->insert_child_after($split, $this);
+        $parent = $this->get_parent();
+        $parent->insert_child_after($split, $this);
 
+        // Block specific cleanup.
         if ($this instanceof Block) {
-            // Remove the frames that will be moved to the new split node from
-            // the line boxes
             $this->remove_frames_from_line($child);
 
-            // recalculate the float offsets after paging
             foreach ($this->get_line_boxes() as $line_box) {
                 $line_box->get_float_offsets();
             }
         }
 
         if (!$forced) {
-            // Reset top margin in case of an unforced page break
-            // https://www.w3.org/TR/CSS21/page.html#allowed-page-breaks
+            // Reset margin on unforced page break.
             $child->get_style()->margin_top = 0.0;
         }
 
-        // Add $child and all following siblings to the new split node
-        $iter = $child;
-        while ($iter) {
-            $frame = $iter;
-            $iter = $iter->get_next_sibling();
-            $frame->reset();
-            $split->append_child($frame);
+        // Batch move chidren (reduces multiple split calls)
+        $batch = [];
+        for ($iter = $child; $iter !== null; $iter = $iter->get_next_sibling()) {
+            $batch[] = $iter;
         }
 
-        $this->get_parent()->split($split, $page_break, $forced);
+        foreach ($batch as $frameToMove) {
+            $frameToMove->reset();
+            $split->append_child($frameToMove);
+        }
 
-        // Preserve the current counter values. This must be done after the
-        // parent split, as counters get reset on frame reset
+        // Split the parent only once.
+        $parent->split($split, $page_break, $forced);
+
+        // Preserve counters.
         $split->_counters = $this->_counters;
+
+        // Unlock re-entrancy guard.
+        $this->_splitting = false;
     }
 
     /**
