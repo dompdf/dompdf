@@ -56,6 +56,23 @@ class Page extends AbstractFrameDecorator
      */
     protected $_floating_frames = [];
 
+    /**
+     * Block frames currently being reflowed, keyed by object id. The line
+     * boxes of these frames are not final yet.
+     *
+     * @var array
+     */
+    protected $_reflowing_blocks = [];
+
+    /**
+     * An allowed page break between the line boxes of a block box, deferred
+     * until the line boxes of the block have been laid out, so that the
+     * widows constraint can be checked.
+     *
+     * @var array|null
+     */
+    protected $_deferred_widow_break = null;
+
     //........................................................................
 
     /**
@@ -152,6 +169,67 @@ class Page extends AbstractFrameDecorator
     }
 
     /**
+     * Indicate to the page that the given block frame is currently being
+     * reflowed.
+     *
+     * @param Block $block
+     */
+    function block_reflow_start(Block $block)
+    {
+        $this->_reflowing_blocks[spl_object_id($block)] = true;
+    }
+
+    /**
+     * Indicate to the page that reflow of the given block frame is finished.
+     * Resolves a page break that has been deferred until the line boxes of
+     * the block are laid out.
+     *
+     * @param Block $block
+     */
+    function block_reflow_end(Block $block)
+    {
+        unset($this->_reflowing_blocks[spl_object_id($block)]);
+
+        if ($this->_deferred_widow_break !== null
+            && $this->_deferred_widow_break["block"] === $block
+        ) {
+            $this->resolve_deferred_widow_break();
+        }
+    }
+
+    /**
+     * Return whether the given block frame is currently being reflowed, in
+     * which case its line boxes are not final yet.
+     *
+     * @param Block $block
+     * @return bool
+     */
+    protected function is_block_reflow_active(Block $block)
+    {
+        return isset($this->_reflowing_blocks[spl_object_id($block)]);
+    }
+
+    /**
+     * Determine the index of the line box of $block that $frame is part of.
+     *
+     * @param Frame $frame
+     * @param Block $block
+     * @return int|null
+     */
+    protected function get_line_index(Frame $frame, Block $block)
+    {
+        $line = $frame->get_containing_line();
+
+        if ($line === null) {
+            return null;
+        }
+
+        $index = array_search($line, $block->get_line_boxes(), true);
+
+        return $index === false ? null : $index;
+    }
+
+    /**
      * Check if a forced page break is required before $frame.  This uses the
      * frame's page_break_before property as well as the preceding frame's
      * page_break_after property.
@@ -187,6 +265,15 @@ class Page extends AbstractFrameDecorator
         if (($frame->is_block_level() || $style->display === "table-row")
             && in_array($style->page_break_before, $page_breaks, true)
         ) {
+            // A deferred break precedes the forced break in the document, so
+            // it takes place instead. The forced break applies again on the
+            // next page
+            if ($this->_deferred_widow_break !== null) {
+                $this->resolve_deferred_widow_break();
+
+                return true;
+            }
+
             // Prevent cascading splits
             $frame->split(null, true, true);
             $style->page_break_before = "auto";
@@ -208,6 +295,12 @@ class Page extends AbstractFrameDecorator
 
         if ($prev && ($prev->is_block_level() || $prev->get_style()->display === "table-row") && !$prev->get_style()->is_absolute()) {
             if (in_array($prev->get_style()->page_break_after, $page_breaks, true)) {
+                if ($this->_deferred_widow_break !== null) {
+                    $this->resolve_deferred_widow_break();
+
+                    return true;
+                }
+
                 // Prevent cascading splits
                 $frame->split(null, true, true);
                 $prev->get_style()->page_break_after = "auto";
@@ -228,6 +321,12 @@ class Page extends AbstractFrameDecorator
                 && $prev_last_child->is_block_level()
                 && in_array($prev_last_child->get_style()->page_break_after, $page_breaks, true)
             ) {
+                if ($this->_deferred_widow_break !== null) {
+                    $this->resolve_deferred_widow_break();
+
+                    return true;
+                }
+
                 $frame->split(null, true, true);
                 $prev_last_child->get_style()->page_break_after = "auto";
                 $this->_page_full = true;
@@ -414,17 +513,44 @@ class Page extends AbstractFrameDecorator
                     : $line_count;
 
                 // The line number of the frame can be less than the current
-                // number of line boxes, in case we are backtracking. As long as
-                // we are not checking for widows yet, just checking against the
-                // number of line boxes is sufficient in most cases, though.
+                // number of line boxes, in case we are backtracking. Just
+                // checking against the number of line boxes is sufficient in
+                // most cases, though.
                 if ($line_number <= $parent_style->orphans) {
                     Helpers::dompdf_debug("page-break", "orphans");
 
                     return false;
                 }
 
-                // FIXME: Checking widows is tricky without having laid out the
-                // remaining line boxes.  Just ignore it for now...
+                // Checking widows is not possible while the enclosing block
+                // box is still being laid out, as the remaining line boxes do
+                // not exist yet. In that case the break is deferred until the
+                // line boxes of the block are final; see `check_page_break`
+                // and `resolve_deferred_widow_break`. Otherwise the number of
+                // line boxes between the break and the end of the box is
+                // known and can be checked here
+                $widows = $parent_style->widows;
+
+                if ($widows >= 2 && $parent_style->has_specified("widows")
+                    && !$this->is_block_reflow_active($block_parent)
+                ) {
+                    $line_index = $this->get_line_index($frame, $block_parent);
+                    $total_lines = empty($line->get_frames()) ? $line_count - 1 : $line_count;
+
+                    // The orphans check above compares against the final
+                    // number of line boxes, which does not decrease while
+                    // backtracking, so recheck orphans using the actual line
+                    // index here. Otherwise backtracking to an earlier line
+                    // could satisfy widows by violating orphans
+                    if ($line_index !== null
+                        && ($line_index < $parent_style->orphans
+                            || $total_lines - $line_index < $widows)
+                    ) {
+                        Helpers::dompdf_debug("page-break", "widows");
+
+                        return false;
+                    }
+                }
 
                 // Rule D
                 $p = $block_parent;
@@ -549,6 +675,13 @@ class Page extends AbstractFrameDecorator
      */
     function check_page_break(Frame $frame)
     {
+        // Never check for further breaks while a break is pending. All
+        // content laid out in the meantime follows the pending break in the
+        // document and moves to the next page with it
+        if ($this->_deferred_widow_break !== null) {
+            return false;
+        }
+
         if ($this->_page_full || $frame->_already_pushed
             // Never check for breaks on empty text nodes
             || ($frame->is_text_node() && $frame->get_node()->nodeValue === "")
@@ -614,6 +747,13 @@ class Page extends AbstractFrameDecorator
             if ($iter->_already_pushed) {
                 $pushed_flg = true;
             } elseif ($this->_page_break_allowed($iter)) {
+                if ($this->defer_widow_break($iter)) {
+                    Helpers::dompdf_debug("page-break", "break allowed, deferred for widows.");
+                    $this->_in_table = $in_table;
+
+                    return false;
+                }
+
                 Helpers::dompdf_debug("page-break", "break allowed, splitting.");
                 $iter->split(null, true);
                 $this->_page_full = true;
@@ -702,6 +842,123 @@ class Page extends AbstractFrameDecorator
         $frame->_already_pushed = true;
 
         return true;
+    }
+
+    /**
+     * Defer an allowed page break before $frame in case the widows
+     * constraint applies, but cannot be checked yet because the line boxes
+     * following the break have not been laid out.
+     *
+     * The break is recorded and performed once the enclosing block box has
+     * finished layout; see `resolve_deferred_widow_break`.
+     *
+     * @param Frame $frame the frame before which a break is allowed
+     *
+     * @return bool true if the break has been deferred
+     */
+    protected function defer_widow_break(Frame $frame)
+    {
+        if (!$frame->is_inline_level()) {
+            return false;
+        }
+
+        $block_parent = $frame->find_block_parent();
+        $style = $block_parent->get_style();
+
+        if ($style->widows < 2 || !$style->has_specified("widows")
+            || !$this->is_block_reflow_active($block_parent)
+        ) {
+            return false;
+        }
+
+        $line_index = $this->get_line_index($frame, $block_parent);
+
+        if ($line_index === null) {
+            return false;
+        }
+
+        $this->_deferred_widow_break = [
+            "block" => $block_parent,
+            "frame" => $frame,
+            "line_index" => $line_index,
+            "floating_frames" => $this->_floating_frames,
+        ];
+
+        return true;
+    }
+
+    /**
+     * Resolve a deferred page break, enforcing the widows constraint now
+     * that the line boxes of the enclosing block box are laid out.
+     *
+     * The break is moved up by the number of missing line boxes. If that
+     * would violate the orphans constraint, the entire block is pushed to
+     * the next page instead, if a break before it is allowed. Otherwise the
+     * break happens at the originally determined position.
+     */
+    protected function resolve_deferred_widow_break()
+    {
+        $block = $this->_deferred_widow_break["block"];
+        $split_frame = $this->_deferred_widow_break["frame"];
+        $break_index = $this->_deferred_widow_break["line_index"];
+        $floating_frames = $this->_deferred_widow_break["floating_frames"];
+        $this->_deferred_widow_break = null;
+
+        // Drop floating frames registered after the break was deferred. They
+        // follow the break in the document and move to the next page with it,
+        // so they must not offset the line boxes kept on this page. Also
+        // revert any float state determined during the speculative layout, so
+        // the frames reflow from clean state on the next page
+        foreach ($this->_floating_frames as $key => $floating_frame) {
+            if (!in_array($floating_frame, $floating_frames, true)) {
+                $floating_frame->_float_next_line = false;
+                $this->remove_floating_frame($key);
+            }
+        }
+
+        $lines = $block->get_line_boxes();
+        $line_count = count($lines);
+
+        // Ignore a trailing empty line box
+        if ($line_count > 0 && $lines[$line_count - 1]->is_empty()) {
+            $line_count--;
+        }
+
+        $style = $block->get_style();
+        $shortfall = $style->widows - ($line_count - $break_index);
+
+        if ($shortfall > 0) {
+            $min_index = max($style->orphans, 1);
+            $target_index = $break_index - $shortfall;
+            $target = null;
+
+            // Skip over empty line boxes, which contain no frame to split at
+            while ($target_index >= $min_index) {
+                $target_frames = $lines[$target_index]->get_frames();
+
+                if (isset($target_frames[0])) {
+                    $target = $target_frames[0];
+                    break;
+                }
+
+                $target_index--;
+            }
+
+            if ($target !== null) {
+                $split_frame = $target;
+            } elseif (!$block->_already_pushed && $this->_page_break_allowed($block)) {
+                // Orphans and widows cannot both be satisfied; push the
+                // entire block to the next page. A block that has already
+                // been pushed breaks at the original position instead, so
+                // that content cannot be pushed forward indefinitely
+                $split_frame = $block;
+            }
+        }
+
+        Helpers::dompdf_debug("page-break", "resolving deferred break, splitting.");
+        $split_frame->split(null, true);
+        $this->_page_full = true;
+        $split_frame->_already_pushed = true;
     }
 
     //........................................................................
