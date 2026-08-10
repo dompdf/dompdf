@@ -20,6 +20,11 @@ class TableRowGroup extends AbstractFrameDecorator
 {
 
     /**
+     * Table Header row-group display type.
+     */
+    public const TABLE_HEADER_GROUP = "table-header-group";
+
+    /**
      * Class constructor
      *
      * @param Frame $frame   Frame to decorate

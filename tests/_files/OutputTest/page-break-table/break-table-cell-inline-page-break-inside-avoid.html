@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 400pt;
+    margin: 10pt;
+}
+body {
+    background-color: lightgray;
+}
+table {
+    border-collapse: collapse;
+}
+th,
+td {
+    border: 1pt solid black;
+    width: 33%;
+    background-color: white;
+    page-break-inside: avoid;
+}
+.block {
+    width: 100%;
+    height: 330pt;
+    background-color: lightblue;
+}
+</style>
+</head>
+<body>
+    <div class="block">Inline text in column 2 row 1 does not fit in page causing page break. Inline text passes orphan requirement therefore page break would typically occur in Row 1 after 2 lines of text in Col 2, however, td page-break-inside avoid is respected. Given the row is the first table row the entire table is moved to the next page.</div>
+    <table>
+        <thead>
+        <tr>
+            <th>Col1 Heading</th>
+            <th>Col2 Heading</th>
+            <th>Col3 Heading</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="vertical-align:top;">
+                Row1 Col1 Line1
+            </td>
+            <td style="vertical-align:top;">
+                Row1 Col2 Line1 Long text that meets the orphans 2 line minimum
+            </td>
+            <td style="vertical-align:top;">
+                Row1 Col3 Line1
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;">
+                Row2 Col1 Line1
+            </td>
+            <td style="vertical-align:top;">
+                Row2 Col2 Line1
+            </td>
+            <td style="vertical-align:top;">
+                Row2 Col3 Line1
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;">
+                Row3 Col1 Line1
+            </td>
+            <td style="vertical-align:top;">
+                Row3 Col2 Line1
+            </td>
+            <td style="vertical-align:top;">
+                Row3 Col3 Line1
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>
