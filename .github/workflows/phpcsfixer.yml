@@ -1,0 +1,110 @@
+---
+on: [pull_request, push]
+name: PHP_CS_FIXER
+jobs:
+  phpcs:
+    name: Run php-cs-fixer on modified or added files & check with phpcs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Default checkout
+        with:
+          fetch-depth: 50
+      - name: Show variables
+        # if: false
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+          echo "BASE_REF=$GITHUB_BASE_REF  HEAD_REF=$GITHUB_HEAD_REF GITHUB_REF=$GITHUB_REF GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          env
+      - name: Fetch up to merge-base on push
+        uses: BioData/fetch-through-merge-base@v0
+        timeout-minutes: 3
+        if: github.event_name == 'push'
+        with:
+          base_ref: master
+          head_ref: ${{ github.sha }}
+      - name: Sync upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        if: github.event_name == 'push'
+        with:
+          target_sync_branch: master
+          # REQUIRED 'target_repo_token' exactly like this!
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          upstream_sync_branch: master
+          upstream_sync_repo: dompdf/dompdf
+          upstream_repo_access_token: ${{ secrets.UPSTREAM_REPO_SECRET }}
+      - name: Fetch up to merge-base on pull
+        uses: BioData/fetch-through-merge-base@v0
+        timeout-minutes: 3
+        if: ${{ github.event_name == 'pull_request' && github.ref_name != 'master' }}
+        with:
+          base_ref: ${{ github.base_ref }}
+          head_ref: ${{ github.sha }}
+      - name: Find parent branch
+        id: parent_branch
+        run: |-
+          PARENT_BRANCH=$(git show-branch -a 2>/dev/null | grep '\*' | grep -v $(git rev-parse --abbrev-ref $GITHUB_REF_NAME) | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//') >> $GITHUB_OUTPUT
+          echo "PARENT_BRANCH=$PARENT_BRANCH" | tee -a $GITHUB_OUTPUT
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none  # disable xdebug, pcov
+          tools: cs2pr,phpcs,phpcbf,php-cs-fixer
+      - name: Run phpcs analysis
+        env:
+          ACTIONS_STEP_DEBUG: true
+        run: |
+          # Get base branch if PR
+          echo "BASE_REF=$GITHUB_BASE_REF  HEAD_REF=$GITHUB_HEAD_REF GITHUB_REF=$GITHUB_REF GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          PARENT_TARGET=$GITHUB_BASE_REF
+          echo "PARENT_TARGET='${PARENT_TARGET}'"
+          HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "HEAD_BRANCH='${HEAD_BRANCH}'"
+          [ "$HEAD_BRANCH" == "HEAD" ] && HEAD_BRANCH=$GITHUB_REF_NAME
+          echo "HEAD_BRANCH='${HEAD_BRANCH}'"
+          [ "$PARENT_TARGET" == "" ] && PARENT_TARGET=${{steps.parent_branch.outputs.PARENT_BRANCH}}
+          echo "PARENT_TARGET='${PARENT_TARGET}'"
+          DIFF_TARGET=$(git merge-base --fork-point $PARENT_TARGET)
+          TMPFILE=$(mktemp)
+          echo "git diff --diff-filter=MA --name-only ${DIFF_TARGET} -- '***.php' > ${TMPFILE}"
+          git diff --diff-filter=MA --name-only "${DIFF_TARGET}" -- '***.php' > "${TMPFILE}"
+          RULESET_OPT="--standard=dev/setup/codesniffer/ruleset.xml"
+          # ls -l ${TMPFILE} && cat ${TMPFILE}
+          # STOP WHEN NO FILES CHANGED
+          [ ! -s ${TMPFILE} ] && echo "No changed php files" && exit 0
+          # EXECUTE PHP-CS FIXING WITH CHANGED FILES
+          xargs -a ${TMPFILE} -P $(nproc) -L 50 echo php-cs-fixer fix --config=.php-cs-fixer.dist.php --path-mode intersection
+          echo run php-cs-fixer
+          while read f; do php-cs-fixer fix "$f" ; done < ${TMPFILE}
+          xargs -a ${TMPFILE} -P $(nproc) -L 50 php-cs-fixer fix --config=.php-cs-fixer.dist.php --path-mode intersection
+          echo run phpcbf
+          phpcbf --file-list=${TMPFILE} -s -p -d memory_limit=-1 --extensions=php --tab-width=4 ${RULESET_OPT}
+          echo run phpcs
+          phpcs --file-list=${TMPFILE} -s -p --report=checkstyle --report-file=_phpcs.xml -d memory_limit=-1 --extensions=php --tab-width=4 ${RULESET_OPT}
+      - name: Add results to PR
+        if: ${{ always() }}
+        run: |
+          ls -l
+          [ ! -r _phpcs.xml ] || [ ! -s _phpcs.xml ] || cs2pr _phpcs.xml
+      - name: Provide phpcs log as artifact
+        uses: actions/upload-artifact@v3
+        # if: ${{ always() }}
+        if: false
+        with:
+          name: phpcs-srcrt
+          path: |
+            ${{ github.workspace }}/_phpcs.xml
+          retention-days: 2
+      - name: Commit changes
+        run: |-
+          for r in $(git remote) ; do git remote get-url --all $r ; done
+          git diff --exit-code && exit 0
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add "*.php"
+          git commit -m "qual: PHP CS FIXER Github Action"
+          git push
