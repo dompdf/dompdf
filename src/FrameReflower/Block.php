@@ -785,8 +785,7 @@ class Block extends AbstractFrameReflower
         $page = $this->_frame->get_root();
         $page->check_forced_page_break($this->_frame);
 
-        // Bail if the page is full
-        if ($page->is_full()) {
+        if ($this->_frame->find_pageable_context()->is_full()) {
             return;
         }
 
@@ -870,7 +869,7 @@ class Block extends AbstractFrameReflower
             // Don't add the child to the line if a page break has occurred
             // before it (possibly via a descendant), in which case it has been
             // reset, including its position
-            if ($page->is_full() && $child->get_position("x") === null) {
+            if ($this->_frame->find_pageable_context()->is_full() && $child->get_position("x") === null) {
                 break;
             }
 
@@ -879,7 +878,7 @@ class Block extends AbstractFrameReflower
 
         // Stop reflow if a page break has occurred before the frame, in which
         // case it has been reset, including its position
-        if ($page->is_full() && $this->_frame->get_position("x") === null) {
+        if ($this->_frame->find_pageable_context()->is_full() && $this->_frame->get_position("x") === null) {
             return;
         }
 
