@@ -1124,6 +1124,7 @@ class Helpers
                 }
 
             } elseif ($can_use_curl) {
+                $uri = self::encodeURI($uri);
                 $curl = curl_init($uri);
 
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
