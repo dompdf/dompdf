@@ -40,6 +40,9 @@
         "mockery/mockery": "^1.3",
         "symfony/process": "^4.4 || ^5.4 || ^6.2 || ^7.0"
     },
+    "bin": [
+      "bin/phpunit"
+    ],
     "suggest": {
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
