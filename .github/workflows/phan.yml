@@ -1,0 +1,35 @@
+---
+on: [pull_request, push]
+name: phan
+jobs:
+  phan:
+    name: Run phan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          coverage: none  # disable xdebug, pcov
+          tools: cs2pr,phan, zip, gz, exif, dom, openssl, phar, xml, xmlwriter, simplexml, curl
+
+      - name: Run Phan analysis
+        run: |
+          phan -k .github/workflows/phan_config.php -B .github/workflows/phan_baseline.txt --analyze-twice --minimum-target-php-version 5.6 --output-mode=checkstyle -o _phan.xml
+
+      - name: Add results to PR
+        if: ${{ always() }}
+        run: |
+          cs2pr --prepend-filename --prepend-source --notices-as-warnings _phan.xml
+
+      - name: Provide phan log as artifact
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: phan-report
+          path: ${{ github.workspace }}/_phan.xml
+          retention-days: 5
+

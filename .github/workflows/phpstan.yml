@@ -1,0 +1,28 @@
+---
+name: phpstan
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          tools: phpstan, cs2pr
+          # Can't load imagick and gmagick at the same time - use stub?
+          extensions: imagick, gd, zip, dom, exif, json, mbstring, gmagick, xml
+
+      - uses: actions/checkout@main
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          dependency-versions: dist
+
+      - name: Run phpstan
+        run: |-
+          phpstan analyse --error-format=checkstyle -c .github/workflows/phpstan.neon.dist | cs2pr --graceful-warnings
