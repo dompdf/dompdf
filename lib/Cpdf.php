@@ -3103,7 +3103,7 @@ EOT;
                     $file_content = $this->ARC4($file_content);
                     $file_content_size = mb_strlen($file_content, '8bit');
                     $checksum = $this->filterText($this->ARC4($checksum), false, false);
-                    $creation = $this->filterText($this->ARC4($creation), false, false);
+                    $created = $this->filterText($this->ARC4($created), false, false);
                     $modified = $this->filterText($this->ARC4($modified), false, false);
                 }
 
