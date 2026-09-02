@@ -19,8 +19,22 @@ class CPDFEmbeddedFileTest extends TestCase
         $cpdf->setEncryption("user", "owner");
         $cpdf->addEmbeddedFile($filePath, "red-dot.png", "Encrypted attachment", "image/png");
 
-        $output = $canvas->output();
+        $warnings = [];
+        set_error_handler(static function (int $severity, string $message) use (&$warnings): bool {
+            if ($severity === E_WARNING) {
+                $warnings[] = $message;
+            }
+
+            return false;
+        });
+
+        try {
+            $output = $canvas->output();
+        } finally {
+            restore_error_handler();
+        }
 
         $this->assertNotSame("", $output);
+        $this->assertNotContains('Undefined variable $creation', $warnings);
     }
 }
