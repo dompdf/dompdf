@@ -1,0 +1,38 @@
+name: Apply encrypted embedded file fix
+
+on:
+  push:
+    branches:
+      - fix-encrypted-embedded-file-creation-date
+    paths:
+      - .github/workflows/apply-encrypted-embedded-file-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-encrypted-embedded-file-creation-date
+      - name: Apply minimal fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('lib/Cpdf.php')
+          text = path.read_text()
+          old = '$creation = $this->filterText($this->ARC4($creation), false, false);'
+          new = '$created = $this->filterText($this->ARC4($created), false, false);'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one target line, found {text.count(old)}')
+          path.write_text(text.replace(old, new))
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/Cpdf.php
+          git commit -m "Fix encrypted embedded file creation date"
+          git push origin HEAD:fix-encrypted-embedded-file-creation-date
