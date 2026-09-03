@@ -432,7 +432,7 @@ class Stylesheet
             $good_mime_type = true;
             if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
-                    if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
+                    if (preg_match("@Content-Type:\s*([\w/]+)@i", $header = $_header, $matches) &&
                         ($matches[1] !== "text/css")
                     ) {
                         $good_mime_type = false;
@@ -470,7 +470,8 @@ class Stylesheet
         $c = min(mb_substr_count($selector, ".") +
             mb_substr_count($selector, "[") +
             mb_substr_count($selector, ":") -
-            2 * mb_substr_count($selector, "::"), 255);
+            2 * mb_substr_count($selector, "::") -
+            mb_substr_count(strtolower($selector), ":has("), 255);
 
         $d = min(mb_substr_count($selector, " ") +
             mb_substr_count($selector, ">") +
@@ -499,6 +500,156 @@ class Stylesheet
         }
 
         return self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d));
+    }
+
+    /**
+     * Extract the argument and closing parenthesis position of a functional
+     * pseudo-class starting at the given opening parenthesis.
+     *
+     * @return array{0: string, 1: int}|null
+     */
+    private function functionalPseudoArgument(string $selector, int $openParen): ?array
+    {
+        if (!isset($selector[$openParen]) || $selector[$openParen] !== "(") {
+            return null;
+        }
+
+        $depth = 0;
+        $quote = null;
+        $escaped = false;
+        $length = strlen($selector);
+
+        for ($pos = $openParen; $pos < $length; ++$pos) {
+            $char = $selector[$pos];
+
+            if ($escaped) {
+                $escaped = false;
+                continue;
+            }
+
+            if ($char === "\\") {
+                $escaped = true;
+                continue;
+            }
+
+            if ($quote !== null) {
+                if ($char === $quote) {
+                    $quote = null;
+                }
+                continue;
+            }
+
+            if ($char === "\"" || $char === "'") {
+                $quote = $char;
+                continue;
+            }
+
+            if ($char === "(") {
+                ++$depth;
+                continue;
+            }
+
+            if ($char === ")") {
+                --$depth;
+                if ($depth === 0) {
+                    return [substr($selector, $openParen + 1, $pos - $openParen - 1), $pos];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Split a selector list on top-level commas.
+     *
+     * @return string[]
+     */
+    private function splitSelectorList(string $selectorList): array
+    {
+        $selectors = [];
+        $start = 0;
+        $parenDepth = 0;
+        $bracketDepth = 0;
+        $quote = null;
+        $escaped = false;
+        $length = strlen($selectorList);
+
+        for ($pos = 0; $pos < $length; ++$pos) {
+            $char = $selectorList[$pos];
+
+            if ($escaped) {
+                $escaped = false;
+                continue;
+            }
+
+            if ($char === "\\") {
+                $escaped = true;
+                continue;
+            }
+
+            if ($quote !== null) {
+                if ($char === $quote) {
+                    $quote = null;
+                }
+                continue;
+            }
+
+            if ($char === "\"" || $char === "'") {
+                $quote = $char;
+                continue;
+            }
+
+            if ($char === "(") {
+                ++$parenDepth;
+            } elseif ($char === ")") {
+                --$parenDepth;
+            } elseif ($char === "[") {
+                ++$bracketDepth;
+            } elseif ($char === "]") {
+                --$bracketDepth;
+            } elseif ($char === "," && $parenDepth === 0 && $bracketDepth === 0) {
+                $selectors[] = trim(substr($selectorList, $start, $pos - $start));
+                $start = $pos + 1;
+            }
+        }
+
+        $selectors[] = trim(substr($selectorList, $start));
+
+        return array_values(array_filter($selectors, static function (string $selector): bool {
+            return $selector !== "";
+        }));
+    }
+
+    /**
+     * Convert a selector relative to the :has() anchor into an XPath expression
+     * evaluated from the candidate element.
+     */
+    private function relativeSelectorToXpath(string $selector): ?string
+    {
+        $selector = trim($selector);
+        if ($selector === "" || stripos($selector, ":has(") !== false) {
+            // Nested :has() is not allowed by Selectors Level 4.
+            return null;
+        }
+
+        $anchor = "dompdf_has_scope";
+        $first = $selector[0];
+        $anchoredSelector = in_array($first, [">", "+", "~"], true)
+            ? $anchor . $selector
+            : $anchor . " " . $selector;
+
+        $result = $this->selectorToXpath($anchoredSelector);
+        if ($result === null || $result["pseudo_elements"] !== []) {
+            return null;
+        }
+
+        $prefix = "/descendant::$anchor";
+        if (strpos($result["query"], $prefix) !== 0) {
+            return null;
+        }
+
+        return ltrim(substr($result["query"], strlen($prefix)), "/");
     }
 
     /**
@@ -546,7 +697,7 @@ class Stylesheet
             $tok = "";
             $escape = false;
             $in_attr = false;
-            $in_func = false;
+            $in_func_depth = 0;
 
             while ($i < $len) {
                 $c = $selector[$i];
@@ -558,15 +709,15 @@ class Stylesheet
                     $escape = false;
                 }
 
-                if (!$escape && !$in_func && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
+                if (!$escape && $in_func_depth === 0 && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
                     break;
                 }
 
                 if ($c_prev === "[") {
                     $in_attr = true;
                 }
-                if ($c_prev === "(") {
-                    $in_func = true;
+                if (!$escape && $c_prev === "(") {
+                    ++$in_func_depth;
                 }
 
                 $tok .= $selector[$i++];
@@ -575,9 +726,11 @@ class Stylesheet
                     $in_attr = false;
                     break;
                 }
-                if (!$escape && $in_func && $c === ")") {
-                    $in_func = false;
-                    break;
+                if (!$escape && $in_func_depth > 0 && $c === ")") {
+                    --$in_func_depth;
+                    if ($in_func_depth === 0) {
+                        break;
+                    }
                 }
             }
             $tok = $this->parse_string($tok);
@@ -724,6 +877,29 @@ class Stylesheet
                         // https://www.w3.org/TR/selectors-4/#empty-pseudo
                         case "empty":
                             $query .= "[not(*) and not(normalize-space())]";
+                            break;
+
+                        // https://www.w3.org/TR/selectors-4/#relational
+                        case "has":
+                            $function = $this->functionalPseudoArgument($selector, $i);
+                            if ($function === null) {
+                                return null;
+                            }
+
+                            [$relativeSelectorList] = $function;
+                            $conditions = [];
+                            foreach ($this->splitSelectorList($relativeSelectorList) as $relativeSelector) {
+                                $relativeQuery = $this->relativeSelectorToXpath($relativeSelector);
+                                if ($relativeQuery !== null && $relativeQuery !== "") {
+                                    $conditions[] = $relativeQuery;
+                                }
+                            }
+
+                            if ($conditions === []) {
+                                return null;
+                            }
+
+                            $query .= "[" . implode(" or ", $conditions) . "]";
                             break;
 
                         // TODO: bit of a hack attempt at matches support, currently only matches against elements
@@ -1267,7 +1443,6 @@ class Stylesheet
             if ($DEBUGCSS) {
                 print "  DomElementStyle [\n";
                 $style->debug_print();
-                print "  ]\n";
                 print "]\n</pre>";
             }
 
@@ -1698,7 +1873,7 @@ EOL;
             }
         }
 
-        // Restore the current base url
+        // Restore our current base url properties in case the new url was elsewhere
         $this->_protocol = $protocol;
         $this->_base_host = $host;
         $this->_base_path = $path;
