@@ -138,6 +138,61 @@ class ListBullet extends AbstractRenderer
     }
 
     /**
+     * Resolve the automatic list-item counter chain for counters(list-item).
+     *
+     * Each list-item owns a generated bullet frame carrying the counter value
+     * assigned by Frame\Factory. Walking ancestor list-items therefore gives
+     * us the complete outer-to-inner counter chain without introducing a
+     * separate CSS counter implementation for list-item.
+     *
+     * @return string[]
+     */
+    private function get_list_item_counter_values(Frame $frame, string $style): array
+    {
+        $values = [];
+        $current = $frame->get_parent();
+
+        while ($current) {
+            $node = $current->get_node();
+
+            if ($node->nodeName === "li") {
+                $bullet = $current->get_first_child();
+
+                if ($bullet) {
+                    $bullet_node = $bullet->get_node();
+
+                    if ($bullet_node->nodeName === "bullet" && $bullet_node->hasAttribute("dompdf-counter")) {
+                        $pad = null;
+
+                        if ($style === "decimal-leading-zero") {
+                            $list = $current->get_parent();
+                            if ($list) {
+                                $count = $list->get_node()->getAttribute("dompdf-children-count");
+                                if ($count !== "") {
+                                    $pad = strlen($count);
+                                }
+                            }
+                        }
+
+                        array_unshift(
+                            $values,
+                            $this->make_counter_value(
+                                (int) $bullet_node->getAttribute("dompdf-counter"),
+                                $style,
+                                $pad
+                            )
+                        );
+                    }
+                }
+            }
+
+            $current = $current->get_parent();
+        }
+
+        return $values;
+    }
+
+    /**
      * Resolve explicit `content` on the ::marker pseudo-element.
      *
      * `counter(list-item)` is backed by dompdf's existing list counter, which
@@ -210,9 +265,15 @@ class ListBullet extends AbstractRenderer
 
             elseif ($val instanceof Counters) {
                 if ($val->name === "list-item") {
-                    // The automatic list-item counter is maintained separately
-                    // from CSS counters. For now expose the current list item.
-                    $text .= $this->make_counter_value($index, $val->style);
+                    $values = $this->get_list_item_counter_values($frame, $val->style);
+
+                    // Keep the current marker usable even if the frame tree is
+                    // incomplete (for example during a split/reflow edge case).
+                    if ($values === []) {
+                        $values[] = $this->make_counter_value($index, $val->style);
+                    }
+
+                    $text .= implode($val->string, $values);
                 } else {
                     $p = $frame->lookup_counter_frame($val->name, true);
                     $tmp = [];
