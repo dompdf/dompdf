@@ -127,6 +127,15 @@ class Stylesheet
     private $_styles;
 
     /**
+     * Styles matched against ::marker pseudo-elements, indexed by originating
+     * frame id and specificity. The actual marker frame is created after the
+     * stylesheet cascade has run, so these styles are applied later by Factory.
+     *
+     * @var array
+     */
+    private $_marker_styles = [];
+
+    /**
      * Array of embedded files (dataURIs) found in the parsed CSS
      *
      * @var array<string>
@@ -261,7 +270,7 @@ class Stylesheet
     }
 
     /**
-     * Return the base protocol for this stylesheet
+     * Return the base protocol
      *
      * @return string
      */
@@ -271,7 +280,7 @@ class Stylesheet
     }
 
     /**
-     * Return the base host for this stylesheet
+     * Return the base host
      *
      * @return string
      */
@@ -281,7 +290,7 @@ class Stylesheet
     }
 
     /**
-     * Return the base path for this stylesheet
+     * Return the base path
      *
      * @return string
      */
@@ -298,6 +307,31 @@ class Stylesheet
     public function get_styles(): array
     {
         return $this->_styles;
+    }
+
+    /**
+     * Return ::marker styles for a frame in cascade order.
+     *
+     * @param mixed $frame_id
+     * @return Style[]
+     */
+    public function get_marker_styles($frame_id): array
+    {
+        if (!isset($this->_marker_styles[$frame_id])) {
+            return [];
+        }
+
+        $styles = $this->_marker_styles[$frame_id];
+        ksort($styles);
+
+        $result = [];
+        foreach ($styles as $specificity_styles) {
+            foreach ($specificity_styles as $style) {
+                $result[] = $style;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -423,7 +457,7 @@ class Stylesheet
      * @param int    $origin
      *    - Stylesheet::ORIG_UA: user agent style sheet
      *    - Stylesheet::ORIG_USER: user style sheet
-     *    - Stylesheet::ORIG_AUTHOR: author style sheet
+     *    - Stylesheet::ORIG_AUTHOR: author normal style sheet
      *
      * @return int
      */
@@ -485,7 +519,7 @@ class Stylesheet
         // Initial query, always expanded to // below (non-absolute)
         $query = "/";
 
-        // Will contain :before and :after
+        // Will contain supported pseudo-elements
         $pseudo_elements = [];
 
         // Parse the selector
@@ -756,6 +790,14 @@ class Stylesheet
                             }
                             break;
 
+                        // https://www.w3.org/TR/css-pseudo-4/#marker-pseudo
+                        // The actual marker frame is created after CSS has been
+                        // applied, so keep the XPath on the originating element.
+                        case "marker":
+                        case ":marker":
+                            $pseudo_elements["marker"] = true;
+                            break;
+
                         // Invalid or unsupported pseudo-class or pseudo-element
                         default:
                             return null;
@@ -961,6 +1003,7 @@ class Stylesheet
         // FIXME: this is not particularly robust...
 
         $styles = [];
+        $this->_marker_styles = [];
         $xp = new DOMXPath($tree->get_dom());
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
 
@@ -1050,6 +1093,8 @@ class Stylesheet
                 continue;
             }
 
+            $is_marker = isset($query["pseudo_elements"]["marker"]);
+
             foreach ($selector_styles as $style) {
                 $spec = $this->specificity($selector, $style->get_origin());
 
@@ -1061,8 +1106,14 @@ class Stylesheet
 
                     $id = $node->getAttribute("frame_id");
 
-                    // Assign the current style to the scratch array
-                    $styles[$id][$spec][] = $style;
+                    // Marker frames are created later by Frame\Factory. Keep
+                    // these declarations separate so they do not style the li.
+                    if ($is_marker) {
+                        $this->_marker_styles[$id][$spec][] = $style;
+                    } else {
+                        // Assign the current style to the scratch array
+                        $styles[$id][$spec][] = $style;
+                    }
                 }
             }
         }
@@ -1484,7 +1535,7 @@ EOL;
         if ($val === null || $val === "" || strcasecmp($val, "none") === 0) {
             $path = "none";
         } elseif (preg_match($pattern, $val, $matches)) {
-            // Resolve the url now in the context of the current stylesheet
+            // Resolve the url now in the context of the stylesheet.
             $url = $matches["CSS_URL_FN_VALUE"];
             switch ($matches["CSS_URL_FN_QUOTE"]) {
                 case "\"":
@@ -1545,7 +1596,7 @@ EOL;
     /**
      * parse @import at-rule
      *
-     * @param string $url the url of the imported CSS file
+     * @param string $url the imported CSS file
      */
     private function _parse_import($url, $import_media_query)
     {
