@@ -432,7 +432,7 @@ class Stylesheet
             $good_mime_type = true;
             if (isset($http_response_header) && !$this->_dompdf->getQuirksmode()) {
                 foreach ($http_response_header as $_header) {
-                    if (preg_match("@Content-Type:\s*([\w/]+)@i", $header = $_header, $matches) &&
+                    if (preg_match("@Content-Type:\s*([\w/]+)@i", $_header, $matches) &&
                         ($matches[1] !== "text/css")
                     ) {
                         $good_mime_type = false;
@@ -697,7 +697,7 @@ class Stylesheet
             $tok = "";
             $escape = false;
             $in_attr = false;
-            $in_func_depth = 0;
+            $in_func = false;
 
             while ($i < $len) {
                 $c = $selector[$i];
@@ -709,15 +709,15 @@ class Stylesheet
                     $escape = false;
                 }
 
-                if (!$escape && $in_func_depth === 0 && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
+                if (!$escape && !$in_func && !$in_attr && in_array($c, $delimiters, true) && !($c === $c_prev && $c === ":")) {
                     break;
                 }
 
                 if ($c_prev === "[") {
                     $in_attr = true;
                 }
-                if (!$escape && $c_prev === "(") {
-                    ++$in_func_depth;
+                if ($c_prev === "(") {
+                    $in_func = true;
                 }
 
                 $tok .= $selector[$i++];
@@ -726,11 +726,9 @@ class Stylesheet
                     $in_attr = false;
                     break;
                 }
-                if (!$escape && $in_func_depth > 0 && $c === ")") {
-                    --$in_func_depth;
-                    if ($in_func_depth === 0) {
-                        break;
-                    }
+                if (!$escape && $in_func && $c === ")") {
+                    $in_func = false;
+                    break;
                 }
             }
             $tok = $this->parse_string($tok);
@@ -886,7 +884,7 @@ class Stylesheet
                                 return null;
                             }
 
-                            [$relativeSelectorList] = $function;
+                            [$relativeSelectorList, $closeParen] = $function;
                             $conditions = [];
                             foreach ($this->splitSelectorList($relativeSelectorList) as $relativeSelector) {
                                 $relativeQuery = $this->relativeSelectorToXpath($relativeSelector);
@@ -900,6 +898,7 @@ class Stylesheet
                             }
 
                             $query .= "[" . implode(" or ", $conditions) . "]";
+                            $i = $closeParen + 1;
                             break;
 
                         // TODO: bit of a hack attempt at matches support, currently only matches against elements
@@ -1443,6 +1442,7 @@ class Stylesheet
             if ($DEBUGCSS) {
                 print "  DomElementStyle [\n";
                 $style->debug_print();
+                print "  ]\n";
                 print "]\n</pre>";
             }
 
@@ -1873,7 +1873,7 @@ EOL;
             }
         }
 
-        // Restore our current base url properties in case the new url was elsewhere
+        // Restore the current base url
         $this->_protocol = $protocol;
         $this->_base_host = $host;
         $this->_base_path = $path;
