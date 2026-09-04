@@ -59,7 +59,7 @@ class Stylesheet
      *
      * @var string
      */
-    const PATTERN_CSS_STRING = '(?<CSS_STRING>(?<CSS_STRING_QUOTE>[\'"])(?<CSS_STRING_VALUE>.*?)(?<!\\\\)\g{CSS_STRING_QUOTE})';
+    const PATTERN_CSS_STRING = '(?<CSS_STRING>(?<CSS_STRING_QUOTE>[\'\"])(?<CSS_STRING_VALUE>.*?)(?<!\\\\)\g{CSS_STRING_QUOTE})';
 
     /**
      * RegEx pattern representing the CSS var() function
@@ -73,14 +73,14 @@ class Stylesheet
      *
      * @var string
      */
-    const PATTERN_CSS_URL_FN = '(?<CSS_URL_FN>url\(\s*(?<CSS_URL_FN_QUOTE>[\'"]?)(?<CSS_URL_FN_VALUE>.*?)(?(CSS_URL_FN_QUOTE)(?<!\\\\)\g{CSS_URL_FN_QUOTE})\s*\))';
+    const PATTERN_CSS_URL_FN = '(?<CSS_URL_FN>url\(\s*(?<CSS_URL_FN_QUOTE>[\'\"]?)(?<CSS_URL_FN_VALUE>.*?)(?(CSS_URL_FN_QUOTE)(?<!\\\\)\g{CSS_URL_FN_QUOTE})\s*\))';
 
     /**
      * RegEx pattern representing the CSS local() function
      *
      * @var string
      */
-    const PATTERN_CSS_LOCAL_FN = '(?<CSS_LOCAL_FN>local\(\s*(?<CSS_LOCAL_FN_QUOTE>[\'"]?)(?<CSS_LOCAL_FN_VALUE>.*?)(?(CSS_LOCAL_FN_QUOTE)(?<!\\\\)\g{CSS_LOCAL_FN_QUOTE})\s*\))';
+    const PATTERN_CSS_LOCAL_FN = '(?<CSS_LOCAL_FN>local\(\s*(?<CSS_LOCAL_FN_QUOTE>[\'\"]?)(?<CSS_LOCAL_FN_VALUE>.*?)(?(CSS_LOCAL_FN_QUOTE)(?<!\\\\)\g{CSS_LOCAL_FN_QUOTE})\s*\))';
 
     /**
      * RegEx pattern representing a CSS media query
@@ -436,7 +436,8 @@ class Stylesheet
         $c = min(mb_substr_count($selector, ".") +
             mb_substr_count($selector, "[") +
             mb_substr_count($selector, ":") -
-            2 * mb_substr_count($selector, "::"), 255);
+            2 * mb_substr_count($selector, "::") -
+            mb_substr_count(strtolower($selector), ":has("), 255);
 
         $d = min(mb_substr_count($selector, " ") +
             mb_substr_count($selector, ">") +
@@ -465,6 +466,156 @@ class Stylesheet
         }
 
         return self::$_stylesheet_origins[$origin] + (($a << 24) | ($b << 16) | ($c << 8) | ($d));
+    }
+
+    /**
+     * Extract the argument and closing parenthesis position of a functional
+     * pseudo-class starting at the given opening parenthesis.
+     *
+     * @return array{0: string, 1: int}|null
+     */
+    private function functionalPseudoArgument(string $selector, int $openParen): ?array
+    {
+        if (!isset($selector[$openParen]) || $selector[$openParen] !== "(") {
+            return null;
+        }
+
+        $depth = 0;
+        $quote = null;
+        $escaped = false;
+        $length = strlen($selector);
+
+        for ($pos = $openParen; $pos < $length; ++$pos) {
+            $char = $selector[$pos];
+
+            if ($escaped) {
+                $escaped = false;
+                continue;
+            }
+
+            if ($char === "\\") {
+                $escaped = true;
+                continue;
+            }
+
+            if ($quote !== null) {
+                if ($char === $quote) {
+                    $quote = null;
+                }
+                continue;
+            }
+
+            if ($char === "\"" || $char === "'") {
+                $quote = $char;
+                continue;
+            }
+
+            if ($char === "(") {
+                ++$depth;
+                continue;
+            }
+
+            if ($char === ")") {
+                --$depth;
+                if ($depth === 0) {
+                    return [substr($selector, $openParen + 1, $pos - $openParen - 1), $pos];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Split a selector list on top-level commas.
+     *
+     * @return string[]
+     */
+    private function splitSelectorList(string $selectorList): array
+    {
+        $selectors = [];
+        $start = 0;
+        $parenDepth = 0;
+        $bracketDepth = 0;
+        $quote = null;
+        $escaped = false;
+        $length = strlen($selectorList);
+
+        for ($pos = 0; $pos < $length; ++$pos) {
+            $char = $selectorList[$pos];
+
+            if ($escaped) {
+                $escaped = false;
+                continue;
+            }
+
+            if ($char === "\\") {
+                $escaped = true;
+                continue;
+            }
+
+            if ($quote !== null) {
+                if ($char === $quote) {
+                    $quote = null;
+                }
+                continue;
+            }
+
+            if ($char === "\"" || $char === "'") {
+                $quote = $char;
+                continue;
+            }
+
+            if ($char === "(") {
+                ++$parenDepth;
+            } elseif ($char === ")") {
+                --$parenDepth;
+            } elseif ($char === "[") {
+                ++$bracketDepth;
+            } elseif ($char === "]") {
+                --$bracketDepth;
+            } elseif ($char === "," && $parenDepth === 0 && $bracketDepth === 0) {
+                $selectors[] = trim(substr($selectorList, $start, $pos - $start));
+                $start = $pos + 1;
+            }
+        }
+
+        $selectors[] = trim(substr($selectorList, $start));
+
+        return array_values(array_filter($selectors, static function (string $selector): bool {
+            return $selector !== "";
+        }));
+    }
+
+    /**
+     * Convert a selector relative to the :has() anchor into an XPath expression
+     * evaluated from the candidate element.
+     */
+    private function relativeSelectorToXpath(string $selector): ?string
+    {
+        $selector = trim($selector);
+        if ($selector === "" || stripos($selector, ":has(") !== false) {
+            // Nested :has() is not allowed by Selectors Level 4.
+            return null;
+        }
+
+        $anchor = "dompdf_has_scope";
+        $first = $selector[0];
+        $anchoredSelector = in_array($first, [">", "+", "~"], true)
+            ? $anchor . $first . ltrim(substr($selector, 1))
+            : $anchor . " " . $selector;
+
+        $result = $this->selectorToXpath($anchoredSelector);
+        if ($result === null || $result["pseudo_elements"] !== []) {
+            return null;
+        }
+
+        $prefix = "//descendant::$anchor";
+        if (strpos($result["query"], $prefix) !== 0) {
+            return null;
+        }
+
+        return ltrim(substr($result["query"], strlen($prefix)), "/");
     }
 
     /**
@@ -690,6 +841,30 @@ class Stylesheet
                         // https://www.w3.org/TR/selectors-4/#empty-pseudo
                         case "empty":
                             $query .= "[not(*) and not(normalize-space())]";
+                            break;
+
+                        // https://www.w3.org/TR/selectors-4/#relational
+                        case "has":
+                            $function = $this->functionalPseudoArgument($selector, $i);
+                            if ($function === null) {
+                                return null;
+                            }
+
+                            [$relativeSelectorList, $closeParen] = $function;
+                            $conditions = [];
+                            foreach ($this->splitSelectorList($relativeSelectorList) as $relativeSelector) {
+                                $relativeQuery = $this->relativeSelectorToXpath($relativeSelector);
+                                if ($relativeQuery !== null && $relativeQuery !== "") {
+                                    $conditions[] = $relativeQuery;
+                                }
+                            }
+
+                            if ($conditions === []) {
+                                return null;
+                            }
+
+                            $query .= "[" . implode(" or ", $conditions) . "]";
+                            $i = $closeParen + 1;
                             break;
 
                         // TODO: bit of a hack attempt at matches support, currently only matches against elements
