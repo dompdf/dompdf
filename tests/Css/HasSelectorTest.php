@@ -41,10 +41,10 @@ final class HasSelectorTest extends TestCase
                 </ol></body>'
             ],
             "descendant" => [
-                "article:has(.target)",
+                "div.wrapper:has(.target)",
                 '<body>
-                    <article data-match><div><span class="target"></span></div></article>
-                    <article><div><span></span></div></article>
+                    <div class="wrapper" data-match><div><span class="target"></span></div></div>
+                    <div class="wrapper"><div><span></span></div></div>
                 </body>'
             ],
             "adjacent sibling" => [
@@ -57,16 +57,16 @@ final class HasSelectorTest extends TestCase
             "subsequent sibling" => [
                 "h2:has(~ p.note)",
                 '<body>
-                    <section><h2 data-match></h2><div></div><p class="note"></p></section>
-                    <section><h2></h2><div></div></section>
+                    <div><h2 data-match></h2><div></div><p class="note"></p></div>
+                    <div><h2></h2><div></div></div>
                 </body>'
             ],
             "selector list" => [
-                "section:has(> img.hero, > table.featured)",
+                "div.wrapper:has(> img.hero, > table.featured)",
                 '<body>
-                    <section data-match><img class="hero"></section>
-                    <section data-match><table class="featured"></table></section>
-                    <section><img></section>
+                    <div class="wrapper" data-match><img class="hero"></div>
+                    <div class="wrapper" data-match><table class="featured"></table></div>
+                    <div class="wrapper"><img></div>
                 </body>'
             ],
             "nested functional pseudo-class" => [
