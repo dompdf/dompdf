@@ -62,10 +62,10 @@ final class HasSelectorTest extends TestCase
                 </body>'
             ],
             "selector list" => [
-                "div.wrapper:has(> img.hero, > table.featured)",
+                "div.wrapper:has(> img.hero, > p.featured)",
                 '<body>
                     <div class="wrapper" data-match><img class="hero"></div>
-                    <div class="wrapper" data-match><table class="featured"></table></div>
+                    <div class="wrapper" data-match><p class="featured"></p></div>
                     <div class="wrapper"><img></div>
                 </body>'
             ],
