@@ -636,7 +636,7 @@ class Stylesheet
         $anchor = "dompdf_has_scope";
         $first = $selector[0];
         $anchoredSelector = in_array($first, [">", "+", "~"], true)
-            ? $anchor . $selector
+            ? $anchor . $first . ltrim(substr($selector, 1))
             : $anchor . " " . $selector;
 
         $result = $this->selectorToXpath($anchoredSelector);
@@ -644,7 +644,7 @@ class Stylesheet
             return null;
         }
 
-        $prefix = "/descendant::$anchor";
+        $prefix = "//descendant::$anchor";
         if (strpos($result["query"], $prefix) !== 0) {
             return null;
         }
@@ -1668,7 +1668,7 @@ EOL;
                                 break 2;
                         }
 
-                        // Store the style for later...
+                        // Store our current base url properties in case the new url was elsewhere
                         if (empty($this->_page_styles[$key])) {
                             $this->_page_styles[$key] = $this->_parse_properties($match["CSS_ATPAGE_BODY"]);
                         } else {
@@ -1783,7 +1783,7 @@ EOL;
             return;
         }
 
-        // Store our current base url properties in case the new url is elsewhere
+        // Store our current base url properties in case the new url was elsewhere
         $protocol = $this->_protocol;
         $host = $this->_base_host;
         $path = $this->_base_path;
@@ -1883,7 +1883,7 @@ EOL;
      * parse @font-face{} sections
      * http://www.w3.org/TR/css3-fonts/#the-font-face-rule
      *
-     * @param string $str CSS @font-face rules
+     * @param string $str CSS rules
      */
     private function _parse_font_face($str)
     {
@@ -2127,8 +2127,6 @@ EOL;
      *
      * Generates a string of each selector and associated style in the
      * Stylesheet.  Useful for debugging.
-     *
-     * @return string
      */
     function __toString()
     {
