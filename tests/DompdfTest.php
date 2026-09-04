@@ -181,6 +181,26 @@ class DompdfTest extends TestCase
         $this->assertEquals('', $dompdf->getDom()->textContent);
     }
 
+    public function testProcessingInstructionsAreNotRendered(): void
+    {
+        $nodeTypes = [];
+
+        $dompdf = new Dompdf();
+        $dompdf->setCallbacks([
+            [
+                "event" => "begin_frame",
+                "f" => function ($frame) use (&$nodeTypes) {
+                    $nodeTypes[] = $frame->get_node()->nodeType;
+                }
+            ]
+        ]);
+
+        $dompdf->loadHtml('<html><body><p>before</p><?php echo "x";?><p>after</p></body></html>');
+        $dompdf->render();
+
+        $this->assertNotContains(XML_PI_NODE, $nodeTypes);
+    }
+
     public static function callbacksProvider(): array
     {
         return [
