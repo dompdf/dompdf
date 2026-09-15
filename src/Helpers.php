@@ -1174,6 +1174,19 @@ class Helpers
                             case "ssl:verify_peer":
                                 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $value);
                                 break;
+                            case "curl:proxy":
+                            case "http:proxy":
+                                curl_setopt($curl, CURLOPT_PROXY, $value);
+                                break;
+                            case "curl:proxy_type":
+                            case "http:proxy_type":
+                                curl_setopt($curl, CURLOPT_PROXYTYPE, $value);
+                                break;
+                            case "curl:proxy_userpwd":
+                            case "http:proxy_userpwd":
+                                curl_setopt($curl, CURLOPT_PROXYUSERPWD, $value);
+                                break;
+
                         }
                     }
                 }
