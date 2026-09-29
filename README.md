@@ -109,26 +109,6 @@ form dompdf_2-0-3.zip). Packaged releases include
 the dependency releases available at the time of release
 and are not necessarily updated to include updated dependencies.
 
-### Install with git
-
-From the command line, switch to the directory where dompdf will
-reside and run the following commands:
-
-```sh
-git clone https://github.com/dompdf/dompdf.git
-cd dompdf
-composer install --no-dev
-```
-
-A git checkout does not include dompdf's dependencies or an
-autoloader. `composer install` downloads the dependencies listed
-in `composer.json` and generates `vendor/autoload.php`, which you
-require in your PHP:
-
-```php
-require_once 'dompdf/vendor/autoload.php';
-```
-
 ## Framework Integration
 
 * For Symfony: [nucleos/dompdf-bundle](https://github.com/nucleos/NucleosDompdfBundle)
