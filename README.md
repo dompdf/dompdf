@@ -102,38 +102,12 @@ and helper functions in your PHP:
 require_once 'dompdf/autoload.inc.php';
 ```
 
-Note: packaged releases are named according using semantic
-versioning (_dompdf_MAJOR-MINOR-PATCH.zip_). So the 1.0.0 
-release would be dompdf_1-0-0.zip. Packaged releases include
+Note: packaged releases are named according to semantic
+versioning (_dompdf-MAJOR.MINOR.PATCH.zip_). So the 3.1.6
+release is dompdf-3.1.6.zip (releases before 2.0.4 used the
+form dompdf_2-0-3.zip). Packaged releases include
 the dependency releases available at the time of release
 and are not necessarily updated to include updated dependencies.
-
-### Install with git
-
-From the command line, switch to the directory where dompdf will
-reside and run the following commands:
-
-```sh
-git clone https://github.com/dompdf/dompdf.git
-cd dompdf/lib
-
-git clone https://github.com/PhenX/php-font-lib.git php-font-lib
-cd php-font-lib
-git checkout 0.5.1
-cd ..
-
-git clone https://github.com/PhenX/php-svg-lib.git php-svg-lib
-cd php-svg-lib
-git checkout v0.3.2
-cd ..
-
-git clone https://github.com/sabberworm/PHP-CSS-Parser.git php-css-parser
-cd php-css-parser
-git checkout 8.1.0
-```
-
-Require dompdf and it's dependencies in your PHP.
-For details see the [autoloader in the utils project](https://github.com/dompdf/utils/blob/master/autoload.inc.php).
 
 ## Framework Integration
 
