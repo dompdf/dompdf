@@ -36,12 +36,13 @@ class Text extends AbstractFrameReflower
 
     /**
      * The regex splits on everything that's a separator (^\S double negative)
-     * plus dashes, excluding the following non-breaking space characters:
+     * plus dashes and zero width spaces (\x{200B}), excluding the following
+     * non-breaking space characters:
      * * nbsp (\xA0)
      * * narrow nbsp (\x{202F})
      * * figure space (\x{2007})
      */
-    public static $_wordbreak_pattern = '/([^\S\xA0\x{202F}\x{2007}\n]+|\R|\-+|\xAD+)/u';
+    public static $_wordbreak_pattern = '/([^\S\xA0\x{202F}\x{2007}\n]+|\R|\-+|\xAD+|\x{200B}+)/u';
 
     /**
      * Frame for this reflower
