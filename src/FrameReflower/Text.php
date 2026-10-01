@@ -221,11 +221,15 @@ class Text extends AbstractFrameReflower
             $break_word = $wrap === "anywhere" || $wrap === "break-word";
 
             if ($break_word) {
+                // Break between grapheme clusters, so that combining marks
+                // stay with their base character
                 $s = "";
-                $len = mb_strlen($word, "UTF-8");
+                preg_match_all('/\X/u', $word, $graphemes);
+                $graphemes = $graphemes[0];
+                $len = count($graphemes);
 
                 for ($j = 0; $j < $len; $j++) {
-                    $c = mb_substr($word, $j, 1, "UTF-8");
+                    $c = $graphemes[$j];
                     $w = $fontMetrics->getTextWidth($s . $c, $font, $size, $word_spacing, $letter_spacing);
 
                     if (Helpers::lengthGreater($w, $available_width)) {
@@ -503,12 +507,12 @@ class Text extends AbstractFrameReflower
             case "pre-line":
             case "pre-wrap":
                 // The min width is the longest word or, if breaking words is
-                // allowed with the `anywhere` keyword, the widest character.
-                // For performance reasons, we only check the first character in
-                // the latter case.
+                // allowed with the `anywhere` keyword, the widest grapheme
+                // cluster. For performance reasons, we only check the first
+                // grapheme cluster in the latter case.
                 // https://www.w3.org/TR/css-text-3/#overflow-wrap-property
                 if ($style->overflow_wrap === "anywhere") {
-                    $char = mb_substr($visible_text, 0, 1, "UTF-8");
+                    $char = preg_match('/\X/u', $visible_text, $match) ? $match[0] : "";
                     $min = $fontMetrics->getTextWidth($char, $font, $size, $word_spacing, $letter_spacing);
                 } else {
                     // Find the longest word
