@@ -88,7 +88,7 @@ class TextOverflowWrapTest extends TestCase
 
         $this->assertGreaterThan(1, count($lines));
         foreach ($lines as $line) {
-            $this->assertDoesNotMatchRegularExpression('/^[\x{0E31}\x{0E33}-\x{0E3A}\x{0E47}-\x{0E4E}]/u', $line);
+            $this->assertSame(0, preg_match('/^[\x{0E31}\x{0E33}-\x{0E3A}\x{0E47}-\x{0E4E}]/u', $line), $line);
         }
     }
 
