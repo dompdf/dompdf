@@ -1548,9 +1548,9 @@ class StyleTest extends TestCase
             ], "border_top_color", "#ff0000FF"],
 
             'var_value_twice' => [[
-                "border" => "2px solid var(--bg)",
-                "--bg" => "#ff0000FF",
-                "--bg" => "#0000ffFF",
+                ["border", "2px solid var(--bg)"],
+                ["--bg", "#ff0000FF"],
+                ["--bg", "#0000ffFF"],
             ], "border_top_color", "#0000ffFF"],
 
             'multi_var_value_color' => [[
@@ -1627,6 +1627,10 @@ class StyleTest extends TestCase
 
         // Set all properties and values.
         foreach ($properties as $property => $value) {
+            if (is_int($property)) {
+                [$property, $value] = $value;
+            }
+
             $style->set_prop($property, $value);
         }
 
