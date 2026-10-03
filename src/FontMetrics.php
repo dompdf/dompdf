@@ -110,7 +110,7 @@ class FontMetrics
      */
     public function loadFontFamilies()
     {
-        $file = $this->options->getRootDir() . "/lib/fonts/installed-fonts.dist.json";
+        $file = $this->options->getFontDir() . "/installed-fonts.dist.json";
         $this->bundledFonts = json_decode(file_get_contents($file), true);
 
         if (is_readable($this->getUserFontsFilePath())) {
