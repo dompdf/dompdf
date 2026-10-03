@@ -4740,12 +4740,21 @@ EOT;
     {
         // Reset color and transparency caches, as any changes to the graphics
         // state since saving will be discarded
+        $this->resetGraphicsStateCache();
+        $this->addContent("\nQ");
+    }
+
+    /**
+     * reset the cached color, line style, and transparency values, so that
+     * they are written to the content stream again on next use
+     */
+    protected function resetGraphicsStateCache(): void
+    {
         $this->currentColor = null;
         $this->currentStrokeColor = null;
         $this->currentLineStyle = '';
         $this->currentLineTransparency = null;
         $this->currentFillTransparency = null;
-        $this->addContent("\nQ");
     }
 
     /**
@@ -5694,6 +5703,10 @@ EOT;
         $this->nStack++;
         $this->stack[$this->nStack] = ['c' => $this->currentContents, 'p' => $this->currentPage];
         $this->currentContents = $id;
+
+        // The cached graphics state reflects the previously active content
+        // stream, not the end of the reopened one
+        $this->resetGraphicsStateCache();
 
         // also if this object is the primary contents for a page, then set the current page to its parent
         if (isset($this->objects[$id]['onPage'])) {
