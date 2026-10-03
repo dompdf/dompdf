@@ -100,11 +100,18 @@ class TableCell extends Block
             $child->set_containing_block($content_x, $content_y, $cb_w, $h);
             $this->process_clear($child);
             $child->reflow($frame);
-            $this->process_float($child, $content_x, $cb_w);
 
-            if ($page->is_full()) {
+            // Check for a page break before the child
+            $page->check_page_break($child);
+
+            // Don't add the child to the line if a page break has occurred
+            // before it (possibly via a descendant), in which case it has been
+            // reset, including its position
+            if ($frame->is_full() && $child->get_position("x") === null) {
                 break;
             }
+
+            $this->process_float($child, $content_x, $cb_w);
         }
 
         // Determine our height

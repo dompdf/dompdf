@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: 500pt 600pt;
+            margin: 10pt;
+            font-size: 10pt;
+        }
+
+        body {
+            background-color: lightgray;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1pt solid black;
+            background-color: white;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .block {
+            width: 100%;
+            height: 140pt;
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+<div class="block">Ensure page breaks are correctly handled when a table cell's content does not fit on page and page
+    break is not allowed within the table cell or before the parent table row or before the previous table row. If a page
+    break is not allowed in the table cell or before the parent table row, then each previous table row should be
+    checked until a page break is allowed. Page breaks within tables cells of previous rows are not allowed.
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Lorem</th>
+        <th>Exists<br>(Y or N)</th>
+        <th>Ipsum</th>
+        <th>Morbi</th>
+        <th>Curabitur</th>
+        <th>Vivamus</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td colspan="6" class="hazard-heading"><span class="is-bold">2. Lorem Ipsum</span><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor?</td>
+    </tr>
+    <tr style="page-break-before: avoid;">
+        <td style="page-break-inside: avoid;">
+            <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit? Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas?</li>
+            </ul>
+        </td>
+        <td class="align-center">Y</td>
+        <td><p>Vivamus porta mi nec lorem interdum, at placerat enim luctus.</p></td>
+        <td class="align-center">1</td>
+        <td>
+            <ul>
+                <li>Suspendisse potenti. Nunc commodo nibh id sapien tempor, at efficitur ante sodales.</li>
+                <li>Morbi pulvinar lectus id arcu aliquet, non cursus neque ultricies.</li>
+            </ul>
+        </td>
+        <td class="align-center">2</td>
+    </tr>
+    <tr>
+        <td colspan="6" class="hazard-heading"><span class="is-bold">3. Dolor Sit</span><br>Phasellus quis augue at neque auctor pharetra:</td>
+    </tr>
+    <tr style="page-break-before: avoid;">
+        <td style="page-break-inside: avoid;">
+            <ul>
+                <li>Quisque imperdiet lorem at sapien vestibulum, sed dictum erat ultrices, etiam pharetra sem vitae justo gravida?</li>
+            </ul>
+        </td>
+        <td class="align-center">N</td>
+        <td></td>
+        <td class="align-center"></td>
+        <td></td>
+        <td class="align-center"></td>
+    </tr>
+    <tr>
+        <td colspan="6" class="hazard-heading"><span class="is-bold">5. Consectetur</span><br>Integer non risus sed sapien porttitor consequat:</td>
+    </tr>
+    <tr style="page-break-before: avoid;">
+        <td style="page-break-inside: avoid;">
+            <ul>
+                <li>Praesent bibendum, lacus id luctus luctus, metus leo gravida justo, nec molestie elit massa vitae tortor?</li>
+            </ul>
+        </td>
+        <td class="align-center">Y</td>
+        <td><p>Explosio ficta - Fuelis.</p></td>
+        <td class="align-center">1</td>
+        <td>
+            <ul>
+                <li>Curabitur laoreet dui in orci pretium, eget dictum massa commodo.</li>
+                <li>Donec pharetra tellus sed purus tincidunt, ut tristique sem porta.</li>
+                <li>Extintor ignis praesto in vehiculo.</li>
+            </ul>
+        </td>
+        <td class="align-center">2<br>2<br>2</td>
+    </tr>
+    <tr style="page-break-before: avoid;">
+        <td style="page-break-inside: avoid;"></td>
+        <td class="align-center"></td>
+        <td><p>Lorem Batteries</p></td>
+        <td class="align-center">2</td>
+        <td>
+            <ul>
+                <li>Proin dictum nisi at arcu convallis, sed pharetra magna lacinia, vivamus cursus sapien nec nisi gravida, sed dignissim magna aliquam.</li>
+                <li>Phasellus gravida lorem non libero cursus, id aliquam urna tincidunt.</li>
+                <li>Capsulae robustae ad spiritum sinendum aptatae sunt.</li>
+            </ul>
+        </td>
+        <td class="align-center">3</td>
+    </tr>
+    <tr>
+        <td colspan="6" class="hazard-heading"><span class="is-bold">6. Amet Elit</span><br>Nam sit amet nibh ut massa consequat vulputate:</td>
+    </tr>
+    <tr style="page-break-before: avoid;">
+        <td style="page-break-inside: avoid;">
+            <ul>
+                <li>Etiam sodales augue vitae mi sodales? Mauris fringilla orci ut justo porttitor, sed tincidunt dui sagittis? Aenean venenatis leo non blandit bibendum?</li>
+            </ul>
+        </td>
+        <td class="align-center">Y</td>
+        <td><p>Superficie lubricans.</p></td>
+        <td class="align-center">2</td>
+        <td>
+            <ul>
+                <li>Aliquam erat volutpat, class aptent taciti sociosqu ad litora torquent per conubia nostra.</li>
+                <li>Si conscendendum in alveo est, omnis cura adhibetur.</li>
+                <li>Statim effusiones chemicae vel combustibilis purgantur.</li>
+            </ul>
+        </td>
+        <td class="align-center">3</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

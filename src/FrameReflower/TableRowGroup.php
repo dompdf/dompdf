@@ -52,12 +52,12 @@ class TableRowGroup extends AbstractFrameReflower
             // Check if a split has occurred
             $page->check_page_break($child);
 
-            if ($page->is_full()) {
+            if ($frame->find_pageable_context()->is_full()) {
                 break;
             }
         }
 
-        if ($page->is_full() && $dompdf_generated && $frame->get_parent() === null) {
+        if ($frame->find_pageable_context()->is_full() && $dompdf_generated && $frame->get_parent() === null) {
             return;
         }
 
@@ -69,7 +69,7 @@ class TableRowGroup extends AbstractFrameReflower
 
         // Stop reflow if a page break has occurred before the frame, in which
         // case it is not part of its parent table's cell map yet
-        if ($page->is_full() && !$cellmap->frame_exists_in_cellmap($frame)) {
+        if ($frame->find_pageable_context()->is_full() && !$cellmap->frame_exists_in_cellmap($frame)) {
             return;
         }
 

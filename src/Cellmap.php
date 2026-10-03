@@ -9,6 +9,7 @@ namespace Dompdf;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Table as TableFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
+use Dompdf\FrameDecorator\TableRow as TableRowFrameDecorator;
 
 /**
  * Maps table cells to the table grid.
@@ -59,6 +60,11 @@ class Cellmap
     /**
      * 2D array mapping <row,column> to frames
      *
+     * The first dimension is the row index, the second dimension is the
+     * column index, and the value is the frame populating that cell.
+     *
+     * E.g., $_cells[0][0] is the frame in the first row and first column.
+     *
      * @var Frame[][]
      */
     protected $_cells;
@@ -86,6 +92,9 @@ class Cellmap
 
     /**
      * 1D Array mapping frames to (multiple) <row, col> pairs, keyed on frame_id.
+     *
+     * The first dimension is the frame ID and the rows and columns
+     * keys reference the cell indices the frame populates.
      *
      * @var array[]
      */
@@ -326,6 +335,30 @@ class Cellmap
     }
 
     /**
+     * Returns the frames in the row. The returned array indices
+     * indicate the column occupied by the frame.
+     *
+     * @param Frame $frame
+     *
+     * @return Frame[]
+     */
+    public function get_frames_in_row(Frame $frame)
+    {
+        if (!($frame instanceof TableRowFrameDecorator)) {
+            throw new Exception("Frame is not a row.");
+        }
+
+        $row_key = $frame->get_id();
+
+        if (!isset($this->_frames[$row_key])) {
+            return null;
+        }
+
+        $row_id = $this->_frames[$row_key]["rows"][0];
+        return $this->_cells[$row_id];
+    }
+
+    /**
      * @param Frame $frame
      *
      * @return array
@@ -479,6 +512,33 @@ class Cellmap
                 && self::BORDER_STYLE_SCORE[$n_style] > self::BORDER_STYLE_SCORE[$o_style])
         ) {
             $this->_borders[$i][$j][$h_v] = $border_spec;
+        }
+    }
+
+    /**
+     * Resolves the border for a frame
+     *
+     * @param AbstractFrameDecorator $frame
+     */
+    public function resolve_frame_border(AbstractFrameDecorator $frame)
+    {
+        $key = $frame->get_id();
+        $style = $frame->get_style();
+        $bp = $style->get_border_properties();
+
+        $rows = $this->_frames[$key]["rows"];
+        $columns = $this->_frames[$key]["columns"];
+
+        foreach ($rows as $row) {
+            // Resolve vertical borders
+            $this->resolve_border($row, min($columns), "vertical", $bp["left"]);
+            $this->resolve_border($row, max($columns)+1, "vertical", $bp["right"]);
+        }
+
+        foreach ($columns as $column) {
+            // Resolve horizontal borders
+            $this->resolve_border(min($rows), $column, "horizontal", $bp["top"]);
+            $this->resolve_border(max($rows)+1, $column, "horizontal", $bp["bottom"]);
         }
     }
 
