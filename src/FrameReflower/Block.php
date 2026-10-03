@@ -859,6 +859,8 @@ class Block extends AbstractFrameReflower
         $line_box->get_float_offsets();
 
         // Set the containing blocks and reflow each child
+        $page->block_reflow_start($this->_frame);
+
         foreach ($this->_frame->get_children() as $child) {
             $child->set_containing_block($cb_x, $cb_y, $width, $height);
             $this->process_clear($child);
@@ -876,6 +878,10 @@ class Block extends AbstractFrameReflower
 
             $this->process_float($child, $cb_x, $width);
         }
+
+        // The line boxes of this frame are final now. This might perform a
+        // page break that has been deferred to check the widows constraint
+        $page->block_reflow_end($this->_frame);
 
         // Stop reflow if a page break has occurred before the frame, in which
         // case it has been reset, including its position
