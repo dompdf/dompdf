@@ -44,6 +44,7 @@
         "ext-gd": "Needed to process images",
         "ext-imagick": "Improves image processing performance",
         "ext-gmagick": "Improves image processing performance",
-        "ext-zlib": "Needed for pdf stream compression"
+        "ext-zlib": "Needed for pdf stream compression",
+        "ext-openssl": "Needed for digital signature"
     }
 }
