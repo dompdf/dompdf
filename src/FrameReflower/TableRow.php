@@ -56,8 +56,24 @@ class TableRow extends AbstractFrameReflower
             $child->reflow();
 
             if ($page->is_full()) {
-                break;
+                // If the current page is full, and either the current or
+                // previous table cells have been split, temporarily set the
+                // page to not full while the remaining table cells are
+                // processed in case  their content can fit on the current page.
+                if ($frame->_split_child_cell) {
+                    $page->set_full(false);
+                } else {
+                    break;
+                }
             }
+        }
+
+        // Split the row if one of the children was split.
+        if ($frame->_split_child_cell) {
+            // Given the page was temporarily set to not full above, set it to full
+            // again.
+            $page->set_full(true);
+            $frame->split(null, true, false);
         }
 
         if ($page->is_full()) {
