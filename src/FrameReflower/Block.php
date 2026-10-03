@@ -805,7 +805,12 @@ class Block extends AbstractFrameReflower
 
         $style = $this->_frame->get_style();
         $cb = $this->_frame->get_containing_block();
-
+        
+        // Null guard — skip layout if containing block is unavailable
+        if ( $cb === null ) {
+            return;
+        }
+        
         // Determine the constraints imposed by this frame: calculate the width
         // of the content area:
         [$width, $margin_left, $margin_right, $left, $right] = $this->_calculate_restricted_width();
