@@ -259,6 +259,12 @@ class FrameTree implements IteratorAggregate
             $child = $children[$index];
             $nodeName = strtolower($child->nodeName);
 
+            // Skip processing instructions
+            if ($child->nodeType === XML_PI_NODE) {
+                $this->_remove_node($node, $children, $index);
+                continue;
+            }
+
             // Skip non-displaying nodes
             if (in_array($nodeName, self::$HIDDEN_TAGS)) {
                 if ($nodeName !== "head" && $nodeName !== "style") {
