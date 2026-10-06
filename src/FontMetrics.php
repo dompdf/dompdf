@@ -296,6 +296,10 @@ class FontMetrics
         // @todo Make sure this cache is efficient before enabling it
         static $cache = [];
 
+        // U+200B has no width, but fonts without a glyph for it would
+        // otherwise be measured with the width of a replacement character
+        $text = str_replace("\u{200B}", "", $text);
+
         if ($text === "") {
             return 0;
         }

@@ -45,6 +45,9 @@ class Text extends AbstractRenderer
         $style = $frame->get_style();
         $text = $frame->get_text();
 
+        // Do not paint U+200B, fonts might not have a glyph for it
+        $text = str_replace("\u{200B}", "", $text);
+
         if ($text === "") {
             return;
         }
