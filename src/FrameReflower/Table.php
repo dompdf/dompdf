@@ -263,7 +263,6 @@ class Table extends AbstractFrameReflower
         $height = $style->length_in_pt($style->height, $cb["h"]);
 
         $cellmap = $frame->get_cellmap();
-        $cellmap->assign_frame_heights();
         $rows = $cellmap->get_rows();
 
         // Determine our content height
@@ -282,15 +281,51 @@ class Table extends AbstractFrameReflower
         $max_height = $this->resolve_max_height($cb["h"]);
         $height = Helpers::clamp($height, $min_height, $max_height);
 
-        // Use the content height or the height value, whichever is greater
-        if ($height <= $content_height) {
+        // Use the content height or the height value, whichever is greater. A
+        // table split across pages keeps the content height of its fragments.
+        // Rows cannot be split across pages, so the rows of a table which would
+        // run off the page once stretched are left as they are
+        if ($height <= $content_height || $frame->is_split || $frame->is_split_off) {
             $height = $content_height;
-        } else {
-            // FIXME: Borders and row positions are not properly updated by this
-            // $cellmap->set_frame_heights($height, $content_height);
+        } elseif ($this->_fits_on_page($height)) {
+            $cellmap->distribute_height($height - $content_height);
         }
 
+        $cellmap->assign_frame_heights();
+
         return $height;
+    }
+
+    /**
+     * Whether the table, with the given height, ends above the bottom edge of
+     * the page area it starts on.
+     *
+     * @param float $height The height of the table
+     *
+     * @return bool
+     */
+    protected function _fits_on_page(float $height): bool
+    {
+        $frame = $this->_frame;
+        $style = $frame->get_style();
+        $cbw = $frame->get_containing_block("w");
+        $bottom_page_edge = $frame->get_root()->get_bottom_page_edge();
+
+        if ($bottom_page_edge === null) {
+            return true;
+        }
+
+        $bottom = (float) $frame->get_position("y")
+            + (float) $style->length_in_pt($style->margin_top, $cbw)
+            + (float) $style->length_in_pt([
+                $style->border_top_width,
+                $style->padding_top,
+                $style->padding_bottom,
+                $style->border_bottom_width
+            ], $cbw)
+            + $height;
+
+        return Helpers::lengthLessOrEqual($bottom, $bottom_page_edge);
     }
 
     /**

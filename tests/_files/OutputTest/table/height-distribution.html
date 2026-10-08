@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="description"
+    content="The extra height of a table goes to the rows with a percentage height, up to their share of the table height, then equally to the auto rows">
+<style>
+@page {
+    size: 400pt 460pt;
+    margin: 20pt;
+}
+
+body {
+    font-family: DejaVu Sans;
+    font-size: 10pt;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10pt;
+}
+
+td {
+    padding: 2pt;
+    border: 1pt solid black;
+    vertical-align: top;
+}
+
+.rest {
+    height: 100%;
+}
+
+.pink {
+    background-color: pink;
+}
+
+.blue {
+    background-color: lightblue;
+}
+</style>
+</head>
+
+<body>
+    <table style="height: 100pt">
+        <tr><td colspan="2">auto row</td></tr>
+        <tr class="rest"><td class="pink">100% row</td><td class="pink" style="vertical-align: bottom">bottom</td></tr>
+    </table>
+    <table style="height: 60pt">
+        <tr><td>one</td></tr>
+        <tr><td>two</td></tr>
+        <tr><td>three</td></tr>
+    </table>
+    <table style="height: 80pt">
+        <tr style="height: 25%"><td class="blue">25%</td></tr>
+        <tr style="height: 75%"><td class="pink">75%</td></tr>
+    </table>
+    <table style="height: 80pt">
+        <tr><td rowspan="2" class="blue">rowspan 2</td><td>a</td></tr>
+        <tr class="rest"><td class="pink">rest</td></tr>
+        <tr><td>b</td><td>c</td></tr>
+    </table>
+</body>
+
+</html>

@@ -106,6 +106,17 @@ class Page extends AbstractFrameDecorator
     }
 
     /**
+     * Get the bottom edge of the page area after margins have been applied
+     * for the current page.
+     *
+     * @return float|null
+     */
+    public function get_bottom_page_edge(): ?float
+    {
+        return $this->bottom_page_edge;
+    }
+
+    /**
      * Returns true if the page is full and is no longer accepting frames.
      *
      * @return bool

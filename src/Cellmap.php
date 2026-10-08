@@ -445,6 +445,125 @@ class Cellmap
     }
 
     /**
+     * Distribute extra height over rows.
+     *
+     * Rows with a percentage height get their share of the reference height
+     * first. The remainder goes to the rows with an automatic height in equal
+     * parts or, if there are none, to all the rows in equal parts. The row
+     * groups and rows already laid out below the ones that grow are moved down
+     * accordingly, along with their cells.
+     *
+     * https://www.w3.org/TR/css-tables-3/#distributing-height-to-rows
+     *
+     * @param float $extra The height to distribute, in addition to the height of the rows
+     */
+    public function distribute_height(float $extra): void
+    {
+        if ($extra <= 0) {
+            return;
+        }
+
+        $indexes = [];
+        $percentages = [];
+        $fixed = [];
+        $reference = $extra;
+
+        foreach ($this->_frames as $arr) {
+            $frame = $arr["frame"];
+            $display = $frame->get_style()->display;
+
+            if (count($arr["rows"]) !== 1 || ($display !== "table-row" && $display !== "table-cell")) {
+                continue;
+            }
+
+            $index = reset($arr["rows"]);
+
+            if (!isset($this->_rows[$index])) {
+                continue;
+            }
+
+            if ($display === "table-row" && !isset($indexes[$index])) {
+                $indexes[$index] = true;
+                $reference += $this->_rows[$index]["height"] ?? 0;
+            }
+
+            $specified = $frame->get_style()->get_specified("height");
+
+            if (Helpers::is_percent($specified)) {
+                $percentages[$index] = max($percentages[$index] ?? 0, (float) $specified);
+            } elseif ($specified !== "auto") {
+                $fixed[$index] = true;
+            }
+        }
+
+        if ($indexes === []) {
+            return;
+        }
+
+        $grants = [];
+
+        foreach ($percentages as $index => $percentage) {
+            $grants[$index] = max(0.0, $reference * $percentage / 100 - ($this->_rows[$index]["height"] ?? 0));
+        }
+
+        $granted = array_sum($grants);
+
+        if ($granted > $extra) {
+            foreach ($grants as $index => $grant) {
+                $grants[$index] = $grant * $extra / $granted;
+            }
+
+            $granted = $extra;
+        }
+
+        // The remainder goes to the auto rows in equal parts, or to every
+        // row when there is none
+        $remaining = $extra - $granted;
+        $auto = array_diff_key($indexes, $percentages, $fixed);
+        $receivers = $auto !== [] ? $auto : $indexes;
+
+        foreach (array_keys($indexes) as $index) {
+            $share = isset($receivers[$index]) ? 1 / count($receivers) : 0;
+            $grants[$index] = ($grants[$index] ?? 0) + $remaining * $share;
+            $this->_rows[$index]["height"] = ($this->_rows[$index]["height"] ?? 0) + $grants[$index];
+        }
+
+        // Position the rows below the ones that grew
+        $first = min(array_keys($indexes));
+        $y = $this->_rows[$first]["y"];
+
+        ksort($this->_rows);
+
+        foreach ($this->_rows as $index => &$row) {
+            if ($index >= $first) {
+                $row["y"] = $y;
+                $y += $row["height"] ?? 0;
+            }
+        }
+
+        unset($row);
+
+        // Move the row groups and rows already laid out there, along with
+        // their cells: the groups first, so that the rows only move by what
+        // their group did not
+        foreach (["table-row-group", "table-header-group", "table-footer-group", "table-row"] as $display) {
+            foreach ($this->_frames as $arr) {
+                $frame = $arr["frame"];
+
+                if ($frame->get_style()->display !== $display || $frame->get_position("y") === null) {
+                    continue;
+                }
+
+                $offset = $this->get_frame_position($frame)["y"] - $frame->get_position("y");
+
+                if ($offset > 0) {
+                    $frame->move(0, $offset);
+                }
+            }
+        }
+    }
+
+    /**
      * https://www.w3.org/TR/CSS21/tables.html#border-conflict-resolution
      *
      * @param int    $i
@@ -947,6 +1066,8 @@ class Cellmap
 
     /**
      * Re-adjust frame height if the table height is larger than its content
+     *
+     * @deprecated Unused, superseded by `distribute_height()`
      */
     public function set_frame_heights(float $table_height, float $content_height): void
     {

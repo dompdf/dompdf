@@ -107,8 +107,15 @@ class TableCell extends Block
             }
         }
 
-        // Determine our height
-        $style_height = (float) $style->length_in_pt($style->height, $h);
+        // Determine our height. The percentage heights of the cells of a
+        // table with a definite height are resolved by distributing the
+        // height of the table over its rows
+        if (Helpers::is_percent($style->height) && $table->get_style()->height !== "auto") {
+            $style_height = 0.0;
+        } else {
+            $style_height = (float) $style->length_in_pt($style->height, $h);
+        }
+
         $content_height = $this->_calculate_content_height();
         $height = max($style_height, $content_height);
 
