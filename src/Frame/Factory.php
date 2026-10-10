@@ -138,7 +138,8 @@ class Factory
                     $positioner = "ListBullet";
                 }
 
-                if ($style->list_style_image !== "none") {
+                // Explicit ::marker content replaces list-style-image.
+                if ($style->list_style_image !== "none" && $style->content === "normal") {
                     $decorator = "ListBulletImage";
                 } else {
                     $decorator = "ListBullet";
@@ -234,8 +235,11 @@ class Factory
             }
 
             $new_style = $dompdf->getCss()->create_style();
-            $new_style->set_prop("display", "-dompdf-list-bullet");
+            foreach ($dompdf->getCss()->get_marker_styles($frame->get_id()) as $marker_style) {
+                $new_style->merge($marker_style);
+            }
             $new_style->inherit($style);
+            $new_style->set_prop("display", "-dompdf-list-bullet");
             $b_f->set_style($new_style);
 
             $deco->prepend_child(Factory::decorate_frame($b_f, $dompdf, $root));
@@ -247,7 +251,7 @@ class Factory
     /**
      * Creates Positioners
      *
-     * @param string $type Type of positioner to use
+     * @param string $type Type of positioner
      *
      * @return AbstractPositioner
      */

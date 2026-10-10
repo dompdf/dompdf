@@ -48,6 +48,21 @@ class ListBullet extends AbstractFrameDecorator
     }
 
     /**
+     * Whether the marker generates visible content.
+     */
+    private function is_marker_visible(): bool
+    {
+        $style = $this->get_style();
+        $content = $style->content;
+
+        if ($content === "none") {
+            return false;
+        }
+
+        return $content !== "normal" || $style->list_style_type !== "none";
+    }
+
+    /**
      * Get the width of the bullet symbol.
      *
      * @return float
@@ -56,7 +71,7 @@ class ListBullet extends AbstractFrameDecorator
     {
         $style = $this->_frame->get_style();
 
-        if ($style->list_style_type === "none") {
+        if (!$this->is_marker_visible()) {
             return 0.0;
         }
 
@@ -72,7 +87,7 @@ class ListBullet extends AbstractFrameDecorator
     {
         $style = $this->_frame->get_style();
 
-        if ($style->list_style_type === "none") {
+        if (!$this->is_marker_visible()) {
             return 0.0;
         }
 
@@ -86,7 +101,7 @@ class ListBullet extends AbstractFrameDecorator
     {
         $style = $this->get_style();
 
-        if ($style->list_style_type === "none") {
+        if (!$this->is_marker_visible()) {
             return 0.0;
         }
 
@@ -102,7 +117,7 @@ class ListBullet extends AbstractFrameDecorator
     {
         $style = $this->get_style();
 
-        if ($style->list_style_type === "none") {
+        if (!$this->is_marker_visible()) {
             return 0.0;
         }
 
