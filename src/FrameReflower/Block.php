@@ -11,6 +11,7 @@ use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\FrameDecorator\TableCell as TableCellFrameDecorator;
 use Dompdf\FrameDecorator\Text as TextFrameDecorator;
 use Dompdf\Exception;
+use Dompdf\Css\LineHeight;
 use Dompdf\Css\Style;
 use Dompdf\Helpers;
 
@@ -559,9 +560,14 @@ class Block extends AbstractFrameReflower
     function vertical_align()
     {
         $fontMetrics = $this->get_dompdf()->getFontMetrics();
+        $cssLineHeight = LineHeight::enabled($this->get_dompdf());
 
         foreach ($this->_frame->get_line_boxes() as $line) {
             $height = $line->h;
+
+            // Distance from the top of the line box to the baseline. The "legacy"
+            // mode uses an arbitrary ratio of the line height
+            $baselinePos = $cssLineHeight ? $line->above : $line->h * 0.8;
 
             // Move all markers to the top of the line box
             foreach ($line->get_list_markers() as $marker) {
@@ -575,6 +581,10 @@ class Block extends AbstractFrameReflower
                     && $style->display !== "-dompdf-list-bullet";
 
                 $baseline = $fontMetrics->getFontBaseline($style->font_family, $style->font_size);
+                if ($cssLineHeight && ($metrics = LineHeight::metrics($frame)) !== null) {
+                    // Where the canvas draws the baseline of the text, from the top of the frame
+                    $baseline = $metrics["offset"];
+                }
                 $y_offset = 0;
 
                 //FIXME: The 0.8 ratio applied to the height is arbitrary (used to accommodate descenders?)
@@ -600,7 +610,7 @@ class Block extends AbstractFrameReflower
                     }
 
                     $marginHeight = $frame->get_margin_height();
-                    $imageHeightDiff = $height * 0.8 - $marginHeight;
+                    $imageHeightDiff = $baselinePos - $marginHeight;
 
                     $align = $frame->get_style()->vertical_align;
                     if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
@@ -626,7 +636,9 @@ class Block extends AbstractFrameReflower
 
                             case "text-bottom": // FIXME: align bottom of image with the descender?
                             case "bottom":
-                                $y_offset = 0.3 * $height + $imageHeightDiff;
+                                $y_offset = $cssLineHeight && $align === "bottom"
+                                    ? $height - $marginHeight
+                                    : 0.3 * $height + $imageHeightDiff;
                                 break;
 
                             case "baseline":
@@ -647,15 +659,15 @@ class Block extends AbstractFrameReflower
                     if (in_array($align, Style::VERTICAL_ALIGN_KEYWORDS, true)) {
                         switch ($align) {
                             case "middle":
-                                $y_offset = ($height * 0.8 - $baseline) / 2;
+                                $y_offset = ($baselinePos - $baseline) / 2;
                                 break;
 
                             case "sub":
-                                $y_offset = $height * 0.8 - $baseline * 0.5;
+                                $y_offset = $baselinePos - $baseline * 0.5;
                                 break;
 
                             case "super":
-                                $y_offset = $height * 0.8 - $baseline * 1.4;
+                                $y_offset = $baselinePos - $baseline * 1.4;
                                 break;
 
                             case "text-top":
@@ -664,16 +676,16 @@ class Block extends AbstractFrameReflower
 
                             case "text-bottom":
                             case "bottom":
-                                $y_offset = $height * 0.8 - $baseline;
+                                $y_offset = $baselinePos - $baseline;
                                 break;
 
                             case "baseline":
                             default:
-                                $y_offset = $height * 0.8 - $baseline;
+                                $y_offset = $baselinePos - $baseline;
                                 break;
                         }
                     } else {
-                        $y_offset = $height * 0.8 - $baseline - (float)$style->length_in_pt($align, $style->font_size);
+                        $y_offset = $baselinePos - $baseline - (float)$style->length_in_pt($align, $style->font_size);
                     }
                 }
 

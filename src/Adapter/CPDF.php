@@ -882,6 +882,45 @@ class CPDF implements Canvas
     }
 
     /**
+     * Distance from the baseline to the top of the font (a positive number).
+     *
+     * @throws FontNotFoundException
+     */
+    public function get_font_ascent($font, $size)
+    {
+        $options = $this->_dompdf->getOptions();
+        $this->_pdf->selectFont($font, '', true, $options->getIsFontSubsettingEnabled());
+
+        return $this->_pdf->getFontHeight($size) + $this->_pdf->getFontDescender($size);
+    }
+
+    /**
+     * Distance from the baseline to the bottom of the font (a positive number).
+     *
+     * @throws FontNotFoundException
+     */
+    public function get_font_descent($font, $size)
+    {
+        $options = $this->_dompdf->getOptions();
+        $this->_pdf->selectFont($font, '', true, $options->getIsFontSubsettingEnabled());
+
+        return -$this->_pdf->getFontDescender($size);
+    }
+
+    /**
+     * Distance from the position passed to `text()` to the baseline of the text.
+     *
+     * @throws FontNotFoundException
+     */
+    public function get_font_text_offset($font, $size)
+    {
+        $options = $this->_dompdf->getOptions();
+        $this->_pdf->selectFont($font, '', true, $options->getIsFontSubsettingEnabled());
+
+        return $this->_pdf->getFontHeight($size);
+    }
+
+    /**
      * Processes a callback or script on every page.
      *
      * The callback function receives the four parameters `int $pageNumber`,
