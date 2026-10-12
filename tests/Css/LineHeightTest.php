@@ -18,8 +18,9 @@ class LineHeightTest extends TestCase
      */
     private function textLines(string $html, string $mode, ?Dompdf &$dompdf = null, string $backend = "CPDF"): array
     {
-        if ($backend === "GD" && !extension_loaded("gd")) {
-            $this->markTestSkipped("The GD extension is not available.");
+        // The GD adapter measures fonts with FreeType, which GD may be built without
+        if ($backend === "GD" && !function_exists("imagettfbbox")) {
+            $this->markTestSkipped("The GD extension with FreeType support is not available.");
         }
 
         $options = new Options();
