@@ -432,6 +432,60 @@ class FontMetrics
     }
 
     /**
+     * Calculates the ascent of the font (distance from the baseline to the top
+     * of the font), in points
+     *
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
+     *
+     * @return float|null Null if the canvas cannot provide it
+     */
+    public function getFontAscent($font, float $size): ?float
+    {
+        if (!method_exists($this->canvas, "get_font_ascent")) {
+            return null;
+        }
+
+        return max($this->canvas->get_font_ascent($font, $size), 0.0);
+    }
+
+    /**
+     * Calculates the descent of the font (distance from the baseline to the
+     * bottom of the font), in points
+     *
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
+     *
+     * @return float|null Null if the canvas cannot provide it
+     */
+    public function getFontDescent($font, float $size): ?float
+    {
+        if (!method_exists($this->canvas, "get_font_descent")) {
+            return null;
+        }
+
+        return max($this->canvas->get_font_descent($font, $size), 0.0);
+    }
+
+    /**
+     * Calculates the distance from the position a text is drawn at to its
+     * baseline, in points
+     *
+     * @param string $font The font file to use
+     * @param float  $size The font size, in points
+     *
+     * @return float|null Null if the canvas cannot provide it
+     */
+    public function getFontTextOffset($font, float $size): ?float
+    {
+        if (!method_exists($this->canvas, "get_font_text_offset")) {
+            return null;
+        }
+
+        return $this->canvas->get_font_text_offset($font, $size);
+    }
+
+    /**
      * @param $family_raw
      * @param string $subtype_raw
      * @return string

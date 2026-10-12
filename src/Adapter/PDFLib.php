@@ -1302,6 +1302,46 @@ class PDFLib implements Canvas
     }
 
     /**
+     * Distance from the baseline to the top of the font (a positive number).
+     */
+    public function get_font_ascent($font, $size)
+    {
+        if ($size == 0) {
+            return 0.0;
+        }
+
+        $fh = $this->_load_font($font);
+
+        $this->_pdf->setfont($fh, $size);
+
+        return abs($this->_pdf->info_font($fh, "ascender", "fontsize=$size"));
+    }
+
+    /**
+     * Distance from the baseline to the bottom of the font (a positive number).
+     */
+    public function get_font_descent($font, $size)
+    {
+        if ($size == 0) {
+            return 0.0;
+        }
+
+        $fh = $this->_load_font($font);
+
+        $this->_pdf->setfont($fh, $size);
+
+        return abs($this->_pdf->info_font($fh, "descender", "fontsize=$size"));
+    }
+
+    /**
+     * Distance from the position passed to `text()` to the baseline of the text.
+     */
+    public function get_font_text_offset($font, $size)
+    {
+        return $this->get_font_height($font, $size);
+    }
+
+    /**
      * Processes a callback or script on every page.
      *
      * The callback function receives the four parameters `int $pageNumber`,

@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameReflower;
 
+use Dompdf\Css\LineHeight;
 use Dompdf\Exception;
 use Dompdf\FontMetrics;
 use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
@@ -396,6 +397,10 @@ class Text extends AbstractFrameReflower
         $size = $style->font_size;
         $font = $style->font_family;
         $font_height = $this->getFontMetrics()->getFontHeight($font, $size);
+        if (LineHeight::enabled($this->_frame->get_dompdf()) && ($metrics = LineHeight::metrics($this->_frame)) !== null) {
+            // The content area of the font, without the font height ratio
+            $font_height = $metrics["ascent"] + $metrics["descent"];
+        }
         $style->set_used("height", $font_height);
 
         if ($block === null) {

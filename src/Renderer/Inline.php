@@ -6,6 +6,7 @@
  */
 namespace Dompdf\Renderer;
 
+use Dompdf\Css\LineHeight;
 use Dompdf\Frame;
 
 /**
@@ -50,7 +51,15 @@ class Inline extends AbstractRenderer
         // FIXME: Using a small vertical offset of a fraction of the height here
         // to work around the vertical position being slightly off in general
         $x += $margin_left;
-        $y -= $style->border_top_width + $pt - ($h * 0.1);
+
+        // The "css" line height mode starts the box at the top of the content
+        // area of the font
+        $offset = $h * 0.1;
+        if (LineHeight::enabled($this->_dompdf) && ($metrics = LineHeight::metrics($child)) !== null) {
+            $offset = $metrics["offset"] - $metrics["ascent"];
+        }
+
+        $y -= $style->border_top_width + $pt - $offset;
         $h += $style->border_top_width + $pt + $style->border_bottom_width + $pb;
 
         $border_box = [$x, $y, $w, $h];

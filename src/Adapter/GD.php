@@ -908,6 +908,70 @@ class GD implements Canvas
         return $this->get_font_height($font, $size) / $ratio;
     }
 
+    /**
+     * Converts a length in pixels of the canvas to points, without rounding it.
+     *
+     * @param float $length
+     *
+     * @return float
+     */
+    protected function _to_points($length)
+    {
+        return $length / $this->dpi * 72 / $this->_aa_factor;
+    }
+
+    /**
+     * Distance from the baseline to the top of the font (a positive number).
+     *
+     * @param string $font
+     * @param float  $size
+     *
+     * @return float
+     */
+    public function get_font_ascent($font, $size)
+    {
+        $font = $this->get_ttf_file($font);
+        $size = $this->_upscale($size) * self::FONT_SCALE;
+
+        // Same test string as `get_font_height_actual()`
+        list(, , , , , $y1) = imagettfbbox($size, 0, $font, "MXjpqytfhl");
+
+        return $this->_to_points(-$y1);
+    }
+
+    /**
+     * Distance from the baseline to the bottom of the font (a positive number).
+     *
+     * @param string $font
+     * @param float  $size
+     *
+     * @return float
+     */
+    public function get_font_descent($font, $size)
+    {
+        $font = $this->get_ttf_file($font);
+        $size = $this->_upscale($size) * self::FONT_SCALE;
+
+        list(, $y2) = imagettfbbox($size, 0, $font, "MXjpqytfhl");
+
+        return $this->_to_points($y2);
+    }
+
+    /**
+     * Distance from the position passed to `text()` to the baseline of the text.
+     *
+     * @param string $font
+     * @param float  $size
+     *
+     * @return float
+     */
+    public function get_font_text_offset($font, $size)
+    {
+        $size = $this->_upscale($size) * self::FONT_SCALE;
+
+        return $this->_to_points(round($this->get_font_height_actual($font, $size)));
+    }
+
     public function new_page()
     {
         $this->_page_number++;

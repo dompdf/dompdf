@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameDecorator;
 
+use Dompdf\Css\LineHeight;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\Exception;
@@ -135,6 +136,10 @@ class Text extends AbstractFrameDecorator
     {
         // This function is also called in add_frame_to_line() and is used to
         // determine the line height
+        if (LineHeight::enabled($this->_dompdf) && ($metrics = LineHeight::metrics($this)) !== null) {
+            return $metrics["line_height"];
+        }
+
         $style = $this->get_style();
         $font = $style->font_family;
         $size = $style->font_size;
@@ -148,6 +153,12 @@ class Text extends AbstractFrameDecorator
         $style = $this->_frame->get_style();
         $pb = $this->_frame->get_padding_box();
         $pb[3] = $pb["h"] = (float) $style->length_in_pt($style->height);
+
+        // The content area of the font starts at the ascent above the baseline
+        if (LineHeight::enabled($this->_dompdf) && ($metrics = LineHeight::metrics($this)) !== null) {
+            $pb[1] = $pb["y"] += $metrics["offset"] - $metrics["ascent"];
+        }
+
         return $pb;
     }
 
