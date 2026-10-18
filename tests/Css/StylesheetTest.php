@@ -112,4 +112,19 @@ CSS
         $this->assertSame("blob://", substr($sheet->resolve_url($styles["div"][0]->get_specified("background_image")), 0, 7));
         $this->assertSame($dataUri, $styles["div"][0]->background_image);
     }
+
+    public function testFontFaceWithoutFamilyIsIgnored(): void
+    {
+        $fontPath = realpath(__DIR__ . "/../../lib/fonts/DejaVuSans.ttf");
+        $css = "@font-face { src: url(\"$fontPath\"); }";
+
+        $dompdf = new Dompdf();
+        $fontMetrics = $dompdf->getFontMetrics();
+        $families = $fontMetrics->getFontFamilies();
+
+        $sheet = new Stylesheet($dompdf);
+        $sheet->load_css($css);
+
+        $this->assertSame($families, $fontMetrics->getFontFamilies());
+    }
 }
