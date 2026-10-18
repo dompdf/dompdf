@@ -1688,8 +1688,13 @@ EOL;
             return;
         }
 
+        $family = $descriptors->get_font_family_raw();
+        if ($family === "") {
+            return;
+        }
+
         $style = [
-            "family" => $descriptors->get_font_family_raw(),
+            "family" => $family,
             "weight" => $descriptors->font_weight,
             "style" => $descriptors->font_style,
         ];
