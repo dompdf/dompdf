@@ -208,7 +208,7 @@ class PDFLib implements Canvas
         } else {
             $this->_dompdf = $dompdf;
         }
-        $options = $dompdf->getOptions();
+        $options = $this->_dompdf->getOptions();
 
         $this->_pdf = new \PDFLib();
 
@@ -234,7 +234,7 @@ class PDFLib implements Canvas
         }
 
         // fetch PDFLib version information for the producer field
-        $this->_pdf->set_info("Producer Addendum", sprintf("%s + PDFLib %s", $dompdf->version, $this->getPDFLibMajorVersion()));
+        $this->_pdf->set_info("Producer Addendum", sprintf("%s + PDFLib %s", $this->_dompdf->version, $this->getPDFLibMajorVersion()));
 
         // Silence pedantic warnings about missing TZ settings
         $tz = @date_default_timezone_get();
