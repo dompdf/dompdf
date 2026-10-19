@@ -66,11 +66,18 @@ class Renderer extends AbstractRenderer
 
         $style = $frame->get_style();
 
-        if (in_array($style->visibility, ["hidden", "collapse"], true)) {
+        // Keep the existing collapsed-subtree behavior separate from hidden.
+        if ($style->visibility === "collapse") {
             return;
         }
 
+        $visible = $style->visibility !== "hidden";
         $display = $style->display;
+
+        // display:none remains a subtree boundary, including hidden scripts.
+        if (!$visible && $display === "none") {
+            return;
+        }
         $transformList = $style->transform;
         $hasTransform = $transformList !== [];
 
@@ -100,69 +107,77 @@ class Renderer extends AbstractRenderer
             }
         }
 
-        switch ($display) {
+        // Visibility suppresses this frame's paint, not descendant traversal.
+        if ($visible) {
+            switch ($display) {
 
-            case "block":
-            case "list-item":
-            case "inline-block":
-            case "table":
-            case "inline-table":
-                $this->_render_frame("block", $frame);
-                break;
+                case "block":
+                case "list-item":
+                case "inline-block":
+                case "table":
+                case "inline-table":
+                    $this->_render_frame("block", $frame);
+                    break;
 
-            case "inline":
-                if ($frame->is_text_node()) {
-                    $this->_render_frame("text", $frame);
-                } else {
-                    $this->_render_frame("inline", $frame);
-                }
-                break;
-
-            case "table-cell":
-                $this->_render_frame("table-cell", $frame);
-                break;
-
-            case "table-row":
-                $this->_render_frame("table-row", $frame);
-                break;
-
-            case "table-row-group":
-            case "table-header-group":
-            case "table-footer-group":
-                $this->_render_frame("table-row-group", $frame);
-                break;
-
-            case "-dompdf-list-bullet":
-                $this->_render_frame("list-bullet", $frame);
-                break;
-
-            case "-dompdf-image":
-                $this->_render_frame("image", $frame);
-                break;
-
-            case "none":
-                $node = $frame->get_node();
-
-                if ($node->nodeName === "script") {
-                    if ($node->getAttribute("type") === "text/php" ||
-                        $node->getAttribute("language") === "php"
-                    ) {
-                        // Evaluate embedded php scripts
-                        $this->_render_frame("php", $frame);
-                    } elseif ($node->getAttribute("type") === "text/javascript" ||
-                        $node->getAttribute("language") === "javascript"
-                    ) {
-                        // Insert JavaScript
-                        $this->_render_frame("javascript", $frame);
+                case "inline":
+                    if ($frame->is_text_node()) {
+                        $this->_render_frame("text", $frame);
+                    } else {
+                        $this->_render_frame("inline", $frame);
                     }
-                }
+                    break;
 
-                // Don't render children, so skip to next iter
-                return;
+                case "table-cell":
+                    $this->_render_frame("table-cell", $frame);
+                    break;
 
-            default:
-                break;
+                case "table-row":
+                    $this->_render_frame("table-row", $frame);
+                    break;
 
+                case "table-row-group":
+                case "table-header-group":
+                case "table-footer-group":
+                    $this->_render_frame("table-row-group", $frame);
+                    break;
+
+                case "-dompdf-list-bullet":
+                    $this->_render_frame("list-bullet", $frame);
+                    break;
+
+                case "-dompdf-image":
+                    $this->_render_frame("image", $frame);
+                    break;
+
+                case "none":
+                    $node = $frame->get_node();
+
+                    if ($node->nodeName === "script") {
+                        if ($node->getAttribute("type") === "text/php" ||
+                            $node->getAttribute("language") === "php"
+                        ) {
+                            // Evaluate embedded php scripts
+                            $this->_render_frame("php", $frame);
+                        } elseif ($node->getAttribute("type") === "text/javascript" ||
+                            $node->getAttribute("language") === "javascript"
+                        ) {
+                            // Insert JavaScript
+                            $this->_render_frame("javascript", $frame);
+                        }
+                    }
+
+                    // Don't render children, so skip to next iter
+                    return;
+
+                default:
+                    break;
+
+            }
+        }
+
+        if (!$visible) {
+            // Descendants still inherit the hidden ancestor's opacity.
+            $frame->set_opacity($style->opacity);
         }
 
         // Starts the overflow: hidden box
