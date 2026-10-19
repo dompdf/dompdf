@@ -25,17 +25,32 @@ class TableCell extends Block
         $style = $frame->get_style();
         $node = $frame->get_node();
 
-        if (trim($node->nodeValue) === "" && $style->empty_cells === "hide") {
-            return;
+        $table = Table::find_parent_table($frame);
+        if ($table === null) {
+            throw new Exception("Parent table not found for table cell");
+        }
+
+        if ($table->get_style()->border_collapse !== "collapse" && $style->empty_cells === "hide") {
+            $has_content = false;
+            foreach ($frame->get_children() as $child) {
+                // CSS 2.1 includes empty in-flow elements and floats, but not
+                // absolutely positioned content or collapsed-away whitespace.
+                if ($child->is_absolute() || $child->get_style()->display === "none") {
+                    continue;
+                }
+                if (!$child->is_text_node() || $child->get_node()->nodeValue !== "") {
+                    $has_content = true;
+                    break;
+                }
+            }
+            if (!$has_content) {
+                return;
+            }
         }
 
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         $border_box = $frame->get_border_box();
-        $table = Table::find_parent_table($frame);
-        if ($table === null) {
-            throw new Exception("Parent table not found for table cell");
-        }
 
         if ($table->get_style()->border_collapse !== "collapse") {
             $this->_render_background($frame, $border_box);
