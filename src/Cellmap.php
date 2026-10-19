@@ -619,6 +619,16 @@ class Cellmap
         $colspan = max((int) $node->getAttribute("colspan"), 1);
         $rowspan = max((int) $node->getAttribute("rowspan"), 1);
 
+        // A parsed zero spans the remaining rows of this normalized row group.
+        // Missing or invalid values retain the ordinary one-row default.
+        if (preg_match('/^[\t\n\f\r ]*\+?0+(?![0-9])/', $node->getAttribute("rowspan"))) {
+            $row = $frame->get_parent();
+            $rowspan = 1;
+            while (($row = $row->get_next_sibling()) !== null) {
+                $rowspan++;
+            }
+        }
+
         // Find the next available column (fix by Ciro Mondueri)
         $ac = $this->__col;
         while (isset($this->_cells[$this->__row][$ac])) {
