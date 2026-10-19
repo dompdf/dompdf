@@ -539,7 +539,7 @@ class Frame
                     $style->margin_top,
                     $style->border_top_width
                 ],
-                $cb["h"]
+                $cb["w"]
             );
 
         $w = (float)$style->length_in_pt(
