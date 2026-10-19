@@ -2421,26 +2421,18 @@ class Style
                 $bl = max($bl + ($b_offset + $l_offset) / 2, 0);
             }
 
-            if ($tl + $bl > $rh) {
-                $f = $rh / ($tl + $bl);
-                $tl = $f * $tl;
-                $bl = $f * $bl;
+            // All corners use the same overlap reduction factor.
+            $f = 1.0;
+            foreach ([[$rh, $tl + $bl], [$rh, $tr + $br],
+                [$rw, $tl + $tr], [$rw, $bl + $br]] as [$length, $sum]) {
+                if ($sum > $length) {
+                    $f = min($f, $length / $sum);
+                }
             }
-            if ($tr + $br > $rh) {
-                $f = $rh / ($tr + $br);
-                $tr = $f * $tr;
-                $br = $f * $br;
-            }
-            if ($tl + $tr > $rw) {
-                $f = $rw / ($tl + $tr);
-                $tl = $f * $tl;
-                $tr = $f * $tr;
-            }
-            if ($bl + $br > $rw) {
-                $f = $rw / ($bl + $br);
-                $bl = $f * $bl;
-                $br = $f * $br;
-            }
+            $tl *= $f;
+            $tr *= $f;
+            $br *= $f;
+            $bl *= $f;
         }
 
         $values = [$tl, $tr, $br, $bl];
