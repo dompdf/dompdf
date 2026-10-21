@@ -150,6 +150,134 @@ HTML
                 2,
                 ["a" => 1, "b" => 2, "c" => 2]
             ],
+            "bottom padding of a parent is not reserved before a break" => [
+                <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: 400pt 400pt;
+        margin: 0;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .wrap {
+        padding-bottom: 100pt;
+    }
+
+    .a {
+        height: 200pt;
+    }
+
+    .b {
+        height: 150pt;
+    }
+
+    .c {
+        height: 100pt;
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="a"></div>
+    <div class="b"></div>
+    <div class="c"></div>
+</div>
+</body>
+</html>
+HTML
+,
+                2,
+                ["a" => 1, "b" => 1, "c" => 2]
+            ],
+            "bottom padding of a parent has to fit at the end" => [
+                <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: 400pt 400pt;
+        margin: 0;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .wrap {
+        padding-bottom: 100pt;
+    }
+
+    .a {
+        height: 200pt;
+    }
+
+    .b {
+        height: 150pt;
+    }
+
+    .c {
+        height: 100pt;
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="a"></div>
+    <div class="b"></div>
+</div>
+</body>
+</html>
+HTML
+,
+                2,
+                ["a" => 1, "b" => 2]
+            ],
+            "paragraph with a large bottom margin is not moved as a whole" => [
+                <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: 400pt 400pt;
+        margin: 0;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .p {
+        margin: 0 0 300pt 0;
+        font-size: 12pt;
+        line-height: 120pt;
+    }
+
+    .c {
+        height: 10pt;
+    }
+</style>
+</head>
+<body>
+<p class="p">A<br>B<br>C</p>
+<div class="c"></div>
+</body>
+</html>
+HTML
+,
+                2,
+                ["p" => 1, "c" => 2]
+            ],
         ];
     }
 
