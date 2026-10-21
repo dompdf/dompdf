@@ -572,10 +572,21 @@ class Page extends AbstractFrameDecorator
             }
         } while ($p = $p->get_parent());
 
+        $style = $frame->get_style();
         $margin_height = $frame->get_margin_height();
 
+        // The bottom margin of a frame does not have to fit on the page: margins
+        // adjoining a page break are truncated (CSS Fragmentation Level 3, 5.2).
+        // If the content following the frame does not fit, the break occurs
+        // after the frame and the margin is dropped; if it does fit, that
+        // content is checked on its own, taking the margin into account.
+        $margin_bottom = (float)$style->length_in_pt(
+            $style->margin_bottom,
+            $frame->get_containing_block("w")
+        );
+
         // Determine the frame's maximum y value
-        $max_y = (float)$frame->get_position("y") + $margin_height;
+        $max_y = (float)$frame->get_position("y") + $margin_height - $margin_bottom;
 
         // If a split is to occur here, then the bottom margins & paddings of all
         // parents of $frame must fit on the page as well:

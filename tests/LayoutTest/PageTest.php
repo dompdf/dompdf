@@ -76,6 +76,80 @@ HTML
                 2,
                 ["box" => 2]
             ],
+            "bottom margin does not have to fit" => [
+                <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: 400pt 400pt;
+        margin: 0;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .a {
+        height: 200pt;
+    }
+
+    .b {
+        height: 150pt;
+        margin-bottom: 100pt;
+    }
+
+    .c {
+        height: 10pt;
+    }
+</style>
+</head>
+<body><div class="a"></div><div class="b"></div><div class="c"></div></body>
+</html>
+HTML
+,
+                2,
+                ["a" => 1, "b" => 1, "c" => 2]
+            ],
+            "bottom margin does not hide overflow" => [
+                <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: 400pt 400pt;
+        margin: 0;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .a {
+        height: 200pt;
+    }
+
+    .b {
+        height: 250pt;
+        margin-bottom: 100pt;
+    }
+
+    .c {
+        height: 10pt;
+    }
+</style>
+</head>
+<body><div class="a"></div><div class="b"></div><div class="c"></div></body>
+</html>
+HTML
+,
+                2,
+                ["a" => 1, "b" => 2, "c" => 2]
+            ],
         ];
     }
 
