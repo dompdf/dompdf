@@ -539,6 +539,34 @@ class Page extends AbstractFrameDecorator
     }
 
     /**
+     * Whether $frame is followed by rendered in-flow content within its parent.
+     * Out-of-flow frames (absolute, fixed, floated) and collapsible whitespace
+     * between or after blocks do not count.
+     *
+     * @param Frame $frame
+     * @return bool
+     */
+    protected function is_followed_by_content(Frame $frame): bool
+    {
+        $next = $frame->get_next_sibling();
+
+        while ($next) {
+            if ($next->is_in_flow()) {
+                if (!$next->is_text_node()
+                    || trim($next->get_node()->nodeValue) !== ""
+                    || in_array($next->get_style()->white_space, ["pre", "pre-wrap", "pre-line"], true)
+                ) {
+                    return true;
+                }
+            }
+
+            $next = $next->get_next_sibling();
+        }
+
+        return false;
+    }
+
+    /**
      * Check if $frame will fit on the page.  If the frame does not fit,
      * the frame tree is modified so that a page break occurs in the
      * correct location.
@@ -572,17 +600,43 @@ class Page extends AbstractFrameDecorator
             }
         } while ($p = $p->get_parent());
 
+        $style = $frame->get_style();
         $margin_height = $frame->get_margin_height();
 
-        // Determine the frame's maximum y value
-        $max_y = (float)$frame->get_position("y") + $margin_height;
+        // The bottom margin of a frame does not have to fit on the page: margins
+        // adjoining a page break are truncated (CSS Fragmentation Level 3, 5.2).
+        // If the content following the frame does not fit, the break occurs
+        // after the frame and the margin is dropped; if it does fit, that
+        // content is checked on its own, taking the margin into account.
+        $margin_bottom = (float)$style->length_in_pt(
+            $style->margin_bottom,
+            $frame->get_containing_block("w")
+        );
 
-        // If a split is to occur here, then the bottom margins & paddings of all
-        // parents of $frame must fit on the page as well:
+        // Determine the frame's maximum y value
+        $max_y = (float)$frame->get_position("y") + $margin_height - $margin_bottom;
+
+        // The bottom border & padding of a parent only apply to the last
+        // fragment of the parent (box-decoration-break: slice, CSS
+        // Fragmentation Level 3, 5.4). So they have to fit on the page only
+        // if $frame is the last in-flow content of that parent, which is
+        // then also the case for all of the parent's ancestors up to the
+        // first one that is followed by more content. Bottom margins never
+        // have to fit, see above.
+        $child = $frame;
         $p = $frame->get_parent();
         while ($p && $p !== $this) {
-            $cbw = $p->get_containing_block("w");
-            $max_y += (float) $p->get_style()->computed_bottom_spacing($cbw);
+            if ($this->is_followed_by_content($child)) {
+                break;
+            }
+
+            $style = $p->get_style();
+            $max_y += (float) $style->length_in_pt(
+                [$style->border_bottom_width, $style->padding_bottom],
+                $p->get_containing_block("w")
+            );
+
+            $child = $p;
             $p = $p->get_parent();
         }
 
