@@ -5450,12 +5450,18 @@ EOT;
         }
 
         if (strlen($text) > 0) {
-            $part = $text;
-            $place_text = $this->filterText($part, false);
             // modify unicode text so that extra word spacing is manually implemented (bug #)
             if ($this->fonts[$this->currentFont]['isUnicode'] && $wordSpaceAdjust != 0) {
+                // split the words before encoding them, as the encoded space
+                // can also match the bytes of two adjacent characters
                 $space_scale = 1000 / $size;
-                $place_text = str_replace("\x00\x20", "\x00\x20)\x00\x20" . (-round($space_scale * $wordSpaceAdjust)) . "\x00\x20(", $place_text);
+                $adjust = $this->filterText(" ", false) . ") " . (-round($space_scale * $wordSpaceAdjust)) . " (";
+                $words = array_map(function ($word) {
+                    return $this->filterText($word, false);
+                }, explode(" ", $text));
+                $place_text = implode($adjust, $words);
+            } else {
+                $place_text = $this->filterText($text, false);
             }
             $this->addContent(" /F$this->currentFontNum " . sprintf('%.1F Tf ', $size));
             $this->addContent(" [($place_text)] TJ");
