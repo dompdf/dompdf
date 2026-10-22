@@ -81,6 +81,37 @@ class CPDFTest extends TestCase
         $this->assertNotSame("", $output);
     }
 
+    public static function textWordSpacingUnicodeProvider(): array
+    {
+        return [
+            // The adjustment between the strings is a plain number, without
+            // the NUL bytes of the UTF-16 encoding
+            ["A B", "[(\x00A\x00 ) -200 (\x00B)] TJ"],
+
+            // U+0100 followed by U+2013 is encoded as 01 00 20 13, which
+            // contains the bytes of an encoded space
+            ["Ā–A B", "[(\x01\x00\x20\x13\x00A\x00 ) -200 (\x00B)] TJ"],
+        ];
+    }
+
+    /**
+     * @dataProvider textWordSpacingUnicodeProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('textWordSpacingUnicodeProvider')]
+    public function testTextWordSpacingUnicode(string $text, string $expected): void
+    {
+        $dompdf = new Dompdf();
+        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas->new_page();
+
+        $font = $dompdf->getFontMetrics()->getFont("DejaVu Sans");
+        $canvas->text(10, 10, $text, $font, 10, [0, 0, 0], 2.0);
+
+        $output = $canvas->output(["compress" => false]);
+        $this->assertSame(1, preg_match("/\[\(.*\)\] TJ/s", $output, $matches));
+        $this->assertSame($expected, $matches[0]);
+    }
+
     public static function fontSupportsCharProvider(): array
     {
         return [
