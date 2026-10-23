@@ -113,6 +113,28 @@ abstract class AbstractFrameDecorator extends Frame
     public $is_split_off = false;
 
     /**
+     * Whether this frame or any of its descendants may hold layout state
+     * (positions, containing block, used style values, line boxes, counters,
+     * min/max caches, parent lookup caches). A frame that was never touched
+     * by layout is "pristine": resetting its descendants is a no-op, so
+     * `reset()` does not recurse into them. Without this, every page break
+     * walks the whole not-yet-laid-out remainder of the document, which
+     * makes pagination cost grow with pages × nodes (see dompdf/dompdf#3756,
+     * #3738).
+     *
+     * @var bool
+     */
+    protected $_dirty = false;
+
+    /**
+     * When enabled, a subtree skipped by `reset()` is verified to really
+     * hold no layout state. Meant for tests only; throws on violation.
+     *
+     * @var bool
+     */
+    public static $validate_pristine = false;
+
+    /**
      * Class constructor
      *
      * @param Frame $frame   The decoration target
@@ -177,6 +199,11 @@ abstract class AbstractFrameDecorator extends Frame
 
         if ($this instanceof Text) {
             $deco->trailingWs = $this->trailingWs;
+
+            if ($deco->trailingWs !== null) {
+                // The copy carries trimmed white space that a reset restores
+                $deco->mark_dirty();
+            }
         }
 
         return $deco;
@@ -205,6 +232,11 @@ abstract class AbstractFrameDecorator extends Frame
 
         if ($this instanceof Text) {
             $deco->trailingWs = $this->trailingWs;
+
+            if ($deco->trailingWs !== null) {
+                // The copy carries trimmed white space that a reset restores
+                $deco->mark_dirty();
+            }
         }
 
         foreach ($this->get_children() as $child) {
@@ -251,9 +283,123 @@ abstract class AbstractFrameDecorator extends Frame
         $this->_block_parent = null;
         $this->_positioned_parent = null;
 
-        // Reset all children
+        if ($this->_dirty) {
+            // Reset all children
+            foreach ($this->get_children() as $child) {
+                $child->reset();
+            }
+
+            $this->_dirty = false;
+        } elseif (self::$validate_pristine) {
+            // The subtree was never touched by layout, so the children are
+            // in their initial state and there is nothing to reset
+            foreach ($this->get_children() as $child) {
+                if ($child instanceof AbstractFrameDecorator) {
+                    $child->assert_pristine();
+                }
+            }
+        }
+    }
+
+    /**
+     * Mark this frame and all its ancestors as holding layout state, so that
+     * a later `reset()` does not skip them.
+     */
+    public function mark_dirty(): void
+    {
+        $frame = $this;
+        while ($frame instanceof AbstractFrameDecorator && !$frame->_dirty) {
+            $frame->_dirty = true;
+            $frame = $frame->get_parent();
+        }
+    }
+
+    /**
+     * A frame holding layout state that gets attached below this frame makes
+     * this frame (and its ancestors) dirty as well.
+     */
+    protected function inherit_dirty(Frame $child): void
+    {
+        if ($child instanceof AbstractFrameDecorator && $child->_dirty) {
+            $this->mark_dirty();
+        }
+    }
+
+    /**
+     * Test helper: verify that a frame whose reset is being skipped really
+     * holds no layout state.
+     *
+     * @throws Exception
+     */
+    protected function assert_pristine(): void
+    {
+        $fail = function (string $what) {
+            throw new Exception("Pristine check failed on frame " . $this->_frame->get_id()
+                . " (" . $this->_frame->get_node()->nodeName . "): " . $what);
+        };
+
+        $pos = $this->_frame->get_position();
+        if ($pos["x"] !== null || $pos["y"] !== null) {
+            $fail("position is set");
+        }
+        $cb = $this->_frame->get_containing_block();
+        if ($cb["x"] !== null || $cb["y"] !== null || $cb["w"] !== null || $cb["h"] !== null) {
+            $fail("containing block is set");
+        }
+        if ($this->_dirty) {
+            $fail("frame is dirty");
+        }
+        $style = $this->_frame->get_style();
+        $nonFinal = (function () {
+            return $this->non_final_used;
+        })->call($style);
+        if ($nonFinal !== []) {
+            $fail("style has non-final used values: " . implode(", ", array_keys($nonFinal)));
+        }
+        $minMax = (function () {
+            return [$this->_min_max_cache, $this->_min_max_child_cache];
+        })->call($this->_reflower);
+        if ($minMax[0] !== null || $minMax[1] !== null) {
+            $fail("reflower min/max cache is set");
+        }
+        if ($this->content_set || $this->_counters !== []) {
+            $fail("content_set or counters are set");
+        }
+        if ($this->_block_parent !== null || $this->_positioned_parent !== null) {
+            $fail("block/positioned parent cache is set");
+        }
+        if ($this instanceof Block) {
+            $lines = $this->get_line_boxes();
+            $lineFrames = (function () {
+                return $this->_frames;
+            })->call($lines[0]);
+            if (count($lines) !== 1 || $lineFrames !== [] || $this->get_current_line_number() !== 0) {
+                $fail("block has line boxes");
+            }
+        }
+        if ($this instanceof Block) {
+            $markers = (function () {
+                return $this->dangling_markers;
+            })->call($this);
+            if ($markers !== [] && $markers !== null) {
+                $fail("block has dangling markers");
+            }
+        }
+        if ($this instanceof TableCell && $this->get_content_height() !== 0.0) {
+            $fail("table cell has content height");
+        }
+        if ($this instanceof Text) {
+            $textState = (function () {
+                return [$this->mapped_font, $this->trailingWs, $this->text_spacing];
+            })->call($this);
+            if ($textState[0] !== null || $textState[1] !== null || $textState[2] != 0) {
+                $fail("text has mapped font, trailing white space or spacing");
+            }
+        }
         foreach ($this->get_children() as $child) {
-            $child->reset();
+            if ($child instanceof AbstractFrameDecorator) {
+                $child->assert_pristine();
+            }
         }
     }
 
@@ -379,11 +525,13 @@ abstract class AbstractFrameDecorator extends Frame
 
     function set_containing_block($x = null, $y = null, $w = null, $h = null)
     {
+        $this->mark_dirty();
         $this->_frame->set_containing_block($x, $y, $w, $h);
     }
 
     function set_position($x = null, $y = null)
     {
+        $this->mark_dirty();
         $this->_frame->set_position($x, $y);
     }
 
@@ -404,6 +552,8 @@ abstract class AbstractFrameDecorator extends Frame
 
     function prepend_child(Frame $child, $update_node = true)
     {
+        $this->inherit_dirty($child);
+
         while ($child instanceof AbstractFrameDecorator) {
             $child = $child->_frame;
         }
@@ -413,6 +563,8 @@ abstract class AbstractFrameDecorator extends Frame
 
     function append_child(Frame $child, $update_node = true)
     {
+        $this->inherit_dirty($child);
+
         while ($child instanceof AbstractFrameDecorator) {
             $child = $child->_frame;
         }
@@ -422,6 +574,8 @@ abstract class AbstractFrameDecorator extends Frame
 
     function insert_child_before(Frame $new_child, Frame $ref, $update_node = true)
     {
+        $this->inherit_dirty($new_child);
+
         while ($new_child instanceof AbstractFrameDecorator) {
             $new_child = $new_child->_frame;
         }
@@ -435,6 +589,8 @@ abstract class AbstractFrameDecorator extends Frame
 
     function insert_child_after(Frame $new_child, Frame $ref, $update_node = true)
     {
+        $this->inherit_dirty($new_child);
+
         $insert_frame = $new_child;
         while ($insert_frame instanceof AbstractFrameDecorator) {
             $insert_frame = $insert_frame->_frame;
@@ -768,6 +924,10 @@ abstract class AbstractFrameDecorator extends Frame
         // Preserve the current counter values. This must be done after the
         // parent split, as counters get reset on frame reset
         $split->_counters = $this->_counters;
+
+        if ($split->_counters !== []) {
+            $split->mark_dirty();
+        }
     }
 
     /**
@@ -909,6 +1069,7 @@ abstract class AbstractFrameDecorator extends Frame
      */
     final function reflow(?Block $block = null)
     {
+        $this->mark_dirty();
         // Uncomment this to see the frames before they're laid out, instead of
         // during rendering.
         //echo $this->_frame; flush();
@@ -920,6 +1081,7 @@ abstract class AbstractFrameDecorator extends Frame
      */
     final public function get_min_max_width(): array
     {
+        $this->mark_dirty();
         return $this->_reflower->get_min_max_width();
     }
 }
