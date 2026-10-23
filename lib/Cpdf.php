@@ -1249,9 +1249,13 @@ class Cpdf
                 $data = file_get_contents($fbfile);
             } else {
                 $adobeFontName = $this->getFontSubsettingTag($font) . '+' . $adobeFontName;
-                $this->stringSubsets[$fontFileName][] = 32; // Force space if not in yet
 
-                $subset = $this->stringSubsets[$fontFileName];
+                // Force space if not in yet, but only if the font provides it
+                if (isset($font['C'][32])) {
+                    $this->stringSubsets[$fontFileName][] = 32;
+                }
+
+                $subset = $this->stringSubsets[$fontFileName] ?? [];
                 sort($subset);
 
                 // Load font
@@ -5546,8 +5550,10 @@ EOT;
                 } elseif (isset($current_font['C'][0xFFFD])) {
                     // fffd => replacement character
                     $char_width = $current_font['C'][0xFFFD];
-                } else {
+                } elseif (isset($current_font['C'][0x0020])) {
                     $char_width = $current_font['C'][0x0020];
+                } else {
+                    $char_width = $current_font['MissingWidth'] ?? 500;
                 }
 
                 // add the character width
