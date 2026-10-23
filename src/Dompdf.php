@@ -550,6 +550,9 @@ class Dompdf
             return;
         }
 
+        // Elements the HTML parser keeps in an implied head. Most of them are
+        // allowed in the body too, so everything from the first other element
+        // on is moved, in document order
         $headTags = ["base", "link", "meta", "noscript", "script", "style", "template", "title"];
         $misplaced = [];
 
