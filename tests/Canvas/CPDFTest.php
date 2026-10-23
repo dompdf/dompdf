@@ -241,4 +241,72 @@ class CPDFTest extends TestCase
 
         $this->assertSame($data, $canvas->get_cpdf()->getXmpMetadata());
     }
+
+    /**
+     * Copy DejaVu Sans to a new temporary directory and return the path of
+     * the font (without extension).
+     */
+    private function copyFont(string $dir): string
+    {
+        $fontDir = realpath(__DIR__ . "/../../lib/fonts");
+        copy("$fontDir/DejaVuSans.ttf", "$dir/font.ttf");
+        copy("$fontDir/DejaVuSans.ufm", "$dir/font.ufm");
+
+        return "$dir/font";
+    }
+
+    private function removeDirectory(string $dir): void
+    {
+        array_map("unlink", glob("$dir/*"));
+        rmdir($dir);
+    }
+
+    public function testTruncatedMetricsFileIsNotCached(): void
+    {
+        $dir = sys_get_temp_dir() . "/dompdf_test_" . uniqid();
+        mkdir($dir);
+
+        try {
+            $font = $this->copyFont($dir);
+            $metrics = file_get_contents("$font.ufm");
+            $header = substr($metrics, 0, strpos($metrics, "StartCharMetrics"));
+            file_put_contents("$font.ufm", $header);
+
+            $options = ["fontDir" => $dir, "fontCache" => $dir];
+            $canvas = new CPDF([0, 0, 200, 200], "portrait", new Dompdf($options));
+            $this->assertFalse($canvas->font_supports_char($font, "a"));
+
+            // Once the metrics file is restored the font must be usable
+            file_put_contents("$font.ufm", $metrics);
+
+            $canvas = new CPDF([0, 0, 200, 200], "portrait", new Dompdf($options));
+            $this->assertTrue($canvas->font_supports_char($font, "a"));
+        } finally {
+            $this->removeDirectory($dir);
+        }
+    }
+
+    public function testIncompleteMetricsCacheIsRegenerated(): void
+    {
+        $dir = sys_get_temp_dir() . "/dompdf_test_" . uniqid();
+        mkdir($dir);
+
+        try {
+            $font = $this->copyFont($dir);
+            $options = ["fontDir" => $dir, "fontCache" => $dir];
+            $canvas = new CPDF([0, 0, 200, 200], "portrait", new Dompdf($options));
+            $this->assertTrue($canvas->font_supports_char($font, "a"));
+
+            // Strip the glyph metrics from the cache entry, but keep the version
+            $cacheFile = "$font.ufm.json";
+            $cache = json_decode(file_get_contents($cacheFile), true);
+            unset($cache["C"]);
+            file_put_contents($cacheFile, json_encode($cache));
+
+            $canvas = new CPDF([0, 0, 200, 200], "portrait", new Dompdf($options));
+            $this->assertTrue($canvas->font_supports_char($font, "a"));
+        } finally {
+            $this->removeDirectory($dir);
+        }
+    }
 }
