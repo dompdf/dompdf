@@ -112,4 +112,22 @@ CSS
         $this->assertSame("blob://", substr($sheet->resolve_url($styles["div"][0]->get_specified("background_image")), 0, 7));
         $this->assertSame($dataUri, $styles["div"][0]->background_image);
     }
+
+    public function testResolveUrlWithDisallowedProtocolDoesNotWarn(): void
+    {
+        $dompdf = new Dompdf(["allowedProtocols" => ["data://" => ["rules" => []]]]);
+        $sheet = new Stylesheet($dompdf);
+
+        set_error_handler(function (int $errno, string $errstr): bool {
+            throw new \ErrorException($errstr, 0, $errno);
+        }, E_WARNING);
+
+        try {
+            $resolved = $sheet->resolve_url("url('file:///tmp/x.png')");
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame("none", $resolved);
+    }
 }

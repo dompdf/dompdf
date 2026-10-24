@@ -1515,13 +1515,13 @@ EOL;
                 if (!array_key_exists($protocol, $allowed_protocols)) {
                     Helpers::record_warnings(E_USER_WARNING, "Permission denied on $path. The communication protocol is not supported.", __FILE__, __LINE__);
                     $path = null;
-                }
-        
-                foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
-                    [$result, $message] = $rule($path);
-                    if ($result !== true) {
-                        Helpers::record_warnings(E_USER_WARNING, "Error loading $path: $message", __FILE__, __LINE__);
-                        $path = null;
+                } else {
+                    foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+                        [$result, $message] = $rule($path);
+                        if ($result !== true) {
+                            Helpers::record_warnings(E_USER_WARNING, "Error loading $path: $message", __FILE__, __LINE__);
+                            $path = null;
+                        }
                     }
                 }
             }
