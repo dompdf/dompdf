@@ -7,6 +7,8 @@ use Dompdf\Dompdf;
 use Dompdf\FontMetrics;
 use Dompdf\Tests\TestCase;
 use DateTime;
+use FontLib\BinaryStream;
+use FontLib\Font;
 
 class CPDFTest extends TestCase
 {
@@ -240,5 +242,47 @@ class CPDFTest extends TestCase
         ]);
 
         $this->assertSame($data, $canvas->get_cpdf()->getXmpMetadata());
+    }
+
+    public function testFontWithoutSpaceGlyph(): void
+    {
+        $dir = sys_get_temp_dir() . "/dompdf_test_" . uniqid();
+        mkdir($dir);
+
+        // Create a font that only provides the glyphs A to F
+        $fontPath = "$dir/nospace.ttf";
+        touch($fontPath);
+        $font = Font::load(realpath(__DIR__ . "/../../lib/fonts/DejaVuSans.ttf"));
+        $font->parse();
+        $font->setSubset(range(65, 70));
+        $font->reduce();
+        $font->open($fontPath, BinaryStream::modeReadWrite);
+        $font->encode(["OS/2"]);
+        $font->close();
+
+        $dompdf = new Dompdf([
+            "fontDir" => $dir,
+            "fontCache" => $dir,
+            "chroot" => $dir,
+        ]);
+        $dompdf->loadHtml('
+            <style>@font-face { font-family: "nospace"; src: url("file://' . $fontPath . '"); }</style>
+            <p style="font-family: nospace">ABC DEF</p>
+        ');
+
+        set_error_handler(function (int $severity, string $message, string $file, int $line) {
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            $dompdf->render();
+            $output = $dompdf->output();
+        } finally {
+            restore_error_handler();
+            array_map("unlink", glob("$dir/*"));
+            rmdir($dir);
+        }
+
+        $this->assertNotSame("", $output);
     }
 }
