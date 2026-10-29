@@ -3628,6 +3628,8 @@ EOT;
             $cached_font_info = json_decode(file_get_contents($fontcache . '/' . $cache_name), true);
             if (!isset($cached_font_info['_version_']) || $cached_font_info['_version_'] != $this->fontcacheVersion) {
                 $this->addMessage('openFont: font cache is out of date, regenerating');
+            } elseif (!isset($cached_font_info['C'])) {
+                $this->addMessage('openFont: font cache is incomplete, regenerating');
             } else {
                 $this->fonts[$font] = $cached_font_info;
             }
@@ -3790,6 +3792,12 @@ EOT;
                             break;*/
                     }
                 }
+            }
+
+            if (!isset($data['C'])) {
+                // The metrics file is empty or truncated, so there is nothing worth caching
+                $this->addMessage("openFont: no glyph metrics found in $dir/$metrics_name");
+                return;
             }
 
             if ($this->compressionReady && $this->options['compression']) {
