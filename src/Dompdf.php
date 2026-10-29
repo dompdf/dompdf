@@ -7,6 +7,7 @@
 namespace Dompdf;
 
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use Dompdf\Adapter\CPDF;
 use DOMXPath;
@@ -522,11 +523,58 @@ class Dompdf
             $doc = new DOMDocument("1.0", "UTF-8");
             $doc->preserveWhiteSpace = true;
             $doc->loadHTML($html5->saveHTML($dom), LIBXML_NOWARNING | LIBXML_NOERROR);
+            self::moveMisplacedHeadChildren($doc);
 
             $this->loadDOM($doc, $quirksmode);
         } finally {
             restore_error_handler();
             $this->restorePhpConfig();
+        }
+    }
+
+    /**
+     * Move elements that are not allowed in `<head>` to `<body>`.
+     *
+     * The HTML5 parser does not create `<head>` and `<body>` for documents
+     * where they are omitted, so that is left to the libxml HTML parser. As it
+     * does not know about HTML5 elements like `<figure>` or `<section>`, it
+     * does not end an implied `<head>` when it encounters them, and the
+     * content would be lost.
+     *
+     * @param DOMDocument $doc
+     */
+    private static function moveMisplacedHeadChildren(DOMDocument $doc): void
+    {
+        $head = $doc->getElementsByTagName("head")->item(0);
+        if ($head === null) {
+            return;
+        }
+
+        // Elements the HTML parser keeps in an implied head. Most of them are
+        // allowed in the body too, so everything from the first other element
+        // on is moved, in document order
+        $headTags = ["base", "link", "meta", "noscript", "script", "style", "template", "title"];
+        $misplaced = [];
+
+        foreach ($head->childNodes as $child) {
+            if ($misplaced !== [] || ($child instanceof DOMElement && !in_array($child->nodeName, $headTags, true))) {
+                $misplaced[] = $child;
+            }
+        }
+
+        if ($misplaced === []) {
+            return;
+        }
+
+        $body = $doc->getElementsByTagName("body")->item(0);
+        if ($body === null) {
+            $body = $doc->createElement("body");
+            $head->parentNode->appendChild($body);
+        }
+
+        $first = $body->firstChild;
+        foreach ($misplaced as $child) {
+            $body->insertBefore($child, $first);
         }
     }
 

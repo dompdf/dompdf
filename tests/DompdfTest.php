@@ -172,6 +172,37 @@ class DompdfTest extends TestCase
         $this->assertSame($expectedText, $dompdf->getDom()->textContent);
     }
 
+    public static function loadHtmlHtml5ElementsProvider(): array
+    {
+        return [
+            "figure" => ["<figure>x</figure>", "figure"],
+            "section" => ["<section>x</section>", "section"],
+            "header" => ["<header>x</header>", "header"],
+            "after style" => ["<style>p { color: red; }</style><section>x</section>", "section"],
+            "after title" => ["<title>Title</title><section>x</section>", "section"],
+            "after head" => ["<html><head><title>Title</title></head><section>x</section></html>", "section"],
+        ];
+    }
+
+    /**
+     * @dataProvider loadHtmlHtml5ElementsProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('loadHtmlHtml5ElementsProvider')]
+    public function testLoadHtmlHtml5ElementWithoutBody(string $html, string $tagName): void
+    {
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+
+        $dom = $dompdf->getDom();
+        $head = $dom->getElementsByTagName("head")->item(0);
+        $body = $dom->getElementsByTagName("body")->item(0);
+
+        $this->assertSame(0, $head->getElementsByTagName($tagName)->length);
+        $this->assertNotNull($body);
+        $this->assertSame(1, $body->getElementsByTagName($tagName)->length);
+        $this->assertSame("x", $body->textContent);
+    }
+
     public function testRender()
     {
         $dompdf = new Dompdf();
