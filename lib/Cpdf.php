@@ -6163,7 +6163,7 @@ EOT;
                         // without gamma correction
                         $pixel = (127 - $alpha) * 2;
 
-                        $key = $col['red'] . $col['green'] . $col['blue'];
+                        $key = $col['red'] . ',' . $col['green'] . ',' . $col['blue'];
 
                         if (!isset($allocated_colors[$key])) {
                             $pixel_img = imagecolorallocate($img, $col['red'], $col['green'], $col['blue']);
