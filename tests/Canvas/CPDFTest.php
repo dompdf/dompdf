@@ -69,6 +69,34 @@ class CPDFTest extends TestCase
         $this->assertNotSame("", $output);
     }
 
+    /**
+     * The graphics state at the end of a page is not known when the page is
+     * reopened, so the fill color must always be set
+     *
+     * https://github.com/dompdf/dompdf/issues/3767
+     */
+    public function testPageTextSetsColorOnEveryPage(): void
+    {
+        $dompdf = new Dompdf();
+        $canvas = new CPDF([0, 0, 200, 200], "portrait", $dompdf);
+        $canvas->filled_rectangle(0, 0, 10, 10, [1, 0, 0]);
+        $canvas->new_page();
+        $canvas->filled_rectangle(0, 0, 10, 10, [0, 0, 1]);
+
+        $font = $dompdf->getFontMetrics()->getFont("Helvetica");
+        $canvas->page_text(60, 40, "Page {PAGE_NUM} of {PAGE_COUNT}", $font, 12, [0, 0, 1]);
+
+        $output = $canvas->output(["compress" => false]);
+
+        foreach ([1, 2] as $pageNumber) {
+            $this->assertSame(
+                1,
+                preg_match("/\nq\n0\.000 0\.000 1\.000 rg\n[^q]*\(Page $pageNumber of 2\)/", $output),
+                "Fill color not set for page text on page $pageNumber"
+            );
+        }
+    }
+
     public function testPageLine(): void
     {
         $dompdf = new Dompdf();
