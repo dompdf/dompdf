@@ -17,6 +17,12 @@ class Cpdf
 {
     const PDF_VERSION = '1.7';
 
+    /**
+     * Maximum number of repetitions of a gradient. The size of the shading
+     * grows with each repetition, more are filled with the average color
+     */
+    const MAX_GRADIENT_REPETITIONS = 500;
+
     const ACROFORM_SIG_SIGNATURESEXISTS = 0x0001;
     const ACROFORM_SIG_APPENDONLY =       0x0002;
 
@@ -137,6 +143,11 @@ class Cpdf
      * @var array Number of graphic state resources used
      */
     private $gstates = [];
+
+    /**
+     * @var integer Number of shading resources used
+     */
+    private $numShadings = 0;
 
     /**
      * @var array|null Current color for fill operations, defaults to inactive value,
@@ -824,6 +835,10 @@ class Cpdf
                 $o['info']['xObjects'][] = ['objNum' => $options['objNum'], 'label' => $options['label']];
                 break;
 
+            case 'shading':
+                $o['info']['shadings'][] = ['objNum' => $options['objNum'], 'label' => $options['label']];
+                break;
+
             case 'out':
                 if (count($o['info']['pages'])) {
                     $res = "\n$id 0 obj\n<< /Type /Pages\n/Kids [";
@@ -863,6 +878,14 @@ class Cpdf
                             $res .= "\n/ExtGState << ";
                             foreach ($o['info']['extGStates'] as $gstate) {
                                 $res .= "\n/GS" . $gstate['stateNum'] . " " . $gstate['objNum'] . " 0 R";
+                            }
+                            $res .= "\n>>";
+                        }
+
+                        if (isset($o['info']['shadings']) && count($o['info']['shadings'])) {
+                            $res .= "\n/Shading << ";
+                            foreach ($o['info']['shadings'] as $shading) {
+                                $res .= "\n/" . $shading['label'] . " " . $shading['objNum'] . " 0 R";
                             }
                             $res .= "\n>>";
                         }
@@ -2155,6 +2178,14 @@ EOT;
                             $res .= "\n>>";
                         }
 
+                        if (isset($pagesInfo['shadings']) && count($pagesInfo['shadings'])) {
+                            $res .= "\n/Shading << ";
+                            foreach ($pagesInfo['shadings'] as $shading) {
+                                $res .= "\n/" . $shading['label'] . " " . $shading['objNum'] . " 0 R";
+                            }
+                            $res .= "\n>>";
+                        }
+
                         $res .= "\n>>";
                     }
                 }
@@ -2514,6 +2545,67 @@ EOT;
     }
 
     /**
+     * Axial or radial shading object, see `gradient()`
+     *
+     * @param int    $id
+     * @param string $action
+     * @param array  $options `type`, `colorSpace`, `coords` and `stops`
+     * @return string|null
+     */
+    protected function o_shading($id, $action, $options = [])
+    {
+        switch ($action) {
+            case 'new':
+                $this->objects[$id] = ['t' => 'shading', 'info' => $options];
+                break;
+
+            case 'out':
+                $o = $this->objects[$id]['info'];
+                $numbers = function (array $values): string {
+                    return implode(' ', array_map(function ($v) {
+                        return sprintf('%.4F', $v);
+                    }, $values));
+                };
+
+                // Pad the stops to cover the whole domain, so that the color
+                // of the first and last stop extends to the ends
+                $stops = $o['stops'];
+                array_unshift($stops, [0, $stops[0][1]]);
+                $stops[] = [1, $stops[count($stops) - 1][1]];
+
+                // Interpolate between each pair of stops, stitched together
+                // at the stop offsets. Pairs at the same offset are skipped,
+                // so that the color changes abruptly at that point
+                $functions = [];
+                $bounds = [];
+                $offset = 0;
+                for ($i = 1; $i < count($stops); $i++) {
+                    $next = min(1, max($offset, $stops[$i][0]));
+                    if ($next > $offset) {
+                        if (count($functions) > 0) {
+                            $bounds[] = $offset;
+                        }
+                        $c0 = $numbers($stops[$i - 1][1]);
+                        $c1 = $numbers($stops[$i][1]);
+                        $functions[] = "<< /FunctionType 2 /Domain [0 1] /C0 [$c0] /C1 [$c1] /N 1 >>";
+                        $offset = $next;
+                    }
+                }
+
+                $res = "\n$id 0 obj\n<< /ShadingType {$o['type']} /ColorSpace /{$o['colorSpace']}";
+                $res .= "\n/Coords [" . $numbers($o['coords']) . "] /Extend [true true]";
+                $res .= "\n/Function << /FunctionType 3 /Domain [0 1] /Bounds [" . $numbers($bounds) . "]";
+                $res .= " /Encode [" . rtrim(str_repeat("0 1 ", count($functions))) . "]";
+                $res .= "\n/Functions [\n" . implode("\n", $functions) . "\n] >>";
+                $res .= "\n>>\nendobj";
+
+                return $res;
+        }
+
+        return null;
+    }
+
+    /**
      * @param integer $id
      * @param string $action
      * @param mixed $options
@@ -2539,6 +2631,10 @@ EOT;
 
             case 'xObject':
                 $this->objects[$id]['xObjects'][] = ['objNum' => $options['objNum'], 'label' => $options['label']];
+                break;
+
+            case 'shading':
+                $this->objects[$id]['shadings'][] = ['objNum' => $options['objNum'], 'label' => $options['label']];
                 break;
 
             case 'out':
@@ -2581,6 +2677,13 @@ EOT;
                     $res .= "\n/XObject << ";
                     foreach ($o['xObjects'] as $finfo) {
                         $res .= "\n/" . $finfo['label'] . " " . $finfo['objNum'] . " 0 R";
+                    }
+                    $res .= "\n>>";
+                }
+                if (isset($o['shadings']) && count($o['shadings'])) {
+                    $res .= "\n/Shading << ";
+                    foreach ($o['shadings'] as $shading) {
+                        $res .= "\n/" . $shading['label'] . " " . $shading['objNum'] . " 0 R";
                     }
                     $res .= "\n>>";
                 }
@@ -4543,6 +4646,212 @@ EOT;
     }
 
     /**
+     * Paint a linear or radial gradient over the current clipping area
+     *
+     * Colors are interpolated in RGB space. If any stop is not fully opaque,
+     * the stop alpha values are applied via a soft mask covering `$bbox`.
+     *
+     * @param int        $type   2 for an axial (linear), 3 for a radial gradient
+     * @param float[]    $coords The gradient geometry as `[x0, y0, x1, y1]` (axial)
+     *                           or `[x0, y0, r0, x1, y1, r1]` (radial)
+     * @param array      $stops  A list of `[offset, [r, g, b], alpha]` with
+     *                           increasing offsets, all values in the range 0 to 1
+     * @param float[]    $bbox   The area to cover as `[x1, y1, x2, y2]` in user space
+     * @param float[]|null $matrix Transformation from gradient space to user space
+     * @param string     $spread How to fill the area outside of the gradient:
+     *                           `pad`, `repeat`, or `reflect`
+     */
+    public function gradient(int $type, array $coords, array $stops, array $bbox, ?array $matrix = null, string $spread = "pad"): void
+    {
+        if (count($stops) === 0) {
+            return;
+        }
+
+        if ($spread === "repeat" || $spread === "reflect") {
+            [$coords, $stops] = $this->repeatGradient($type, $coords, $stops, $bbox, $matrix, $spread === "reflect");
+        }
+
+        // Radii can not be negative, the gradient starts at radius 0 with the color there
+        if ($type === 3 && $coords[2] < 0 && $coords[5] > 0) {
+            $cut = -$coords[2] / ($coords[5] - $coords[2]);
+            $coords = array_merge(self::lerp(array_slice($coords, 0, 2), array_slice($coords, 3, 2), $cut), [0], array_slice($coords, 3));
+            $stops = self::cutStops($stops, $cut);
+        }
+
+        $cm = $matrix ? vsprintf("\n%.6F %.6F %.6F %.6F %.6F %.6F cm", $matrix) : "";
+        $colors = [];
+        $alphas = [];
+        foreach ($stops as [$offset, $color, $alpha]) {
+            $colors[] = [$offset, $color];
+            $alphas[] = [$offset, [$alpha]];
+        }
+
+        $this->save();
+
+        if (min(array_column($stops, 2)) < 1) {
+            $maskId = ++$this->numObj;
+            $this->o_shading($maskId, 'new', ['type' => $type, 'colorSpace' => 'DeviceGray', 'coords' => $coords, 'stops' => $alphas]);
+
+            $formId = ++$this->numObj;
+            $this->o_xobject($formId, 'new', [
+                'Subtype' => 'Form',
+                'bbox' => $bbox,
+                'Group' => '<< /S /Transparency /CS /DeviceGray >>'
+            ]);
+            $this->o_xobject($formId, 'shading', ['objNum' => $maskId, 'label' => 'Sh1']);
+            $this->objects[$formId]['c'] = "$cm\n/Sh1 sh";
+
+            $this->setGraphicsState(['SMask' => "<< /Type /Mask /S /Luminosity /G $formId 0 R >>"]);
+        }
+
+        $id = ++$this->numObj;
+        $label = 'Sh' . ++$this->numShadings;
+        $this->o_shading($id, 'new', ['type' => $type, 'colorSpace' => 'DeviceRGB', 'coords' => $coords, 'stops' => $colors]);
+        $this->o_pages($this->currentNode, 'shading', ['objNum' => $id, 'label' => $label]);
+
+        $this->addContent("$cm\n/$label sh");
+        $this->restore();
+    }
+
+    /**
+     * Repeat the stops of a gradient as often as needed to cover an area
+     *
+     * @param int          $type
+     * @param float[]      $coords
+     * @param array        $stops
+     * @param float[]      $bbox
+     * @param float[]|null $matrix
+     * @param bool         $reflect Whether every other repetition is mirrored
+     * @return array The new coords and stops
+     */
+    private function repeatGradient(int $type, array $coords, array $stops, array $bbox, ?array $matrix, bool $reflect): array
+    {
+        [$a, $b, $c, $d, $e, $f] = $matrix ?? [1, 0, 0, 1, 0, 0];
+        $det = $a * $d - $b * $c;
+        if ($det == 0) {
+            return [$coords, $stops];
+        }
+
+        // Find the gradient positions of the area corners, by mapping them to
+        // gradient space and projecting them onto the gradient line, or
+        // finding the circle that passes through them
+        $ts = [];
+        foreach ([[$bbox[0], $bbox[1]], [$bbox[2], $bbox[1]], [$bbox[0], $bbox[3]], [$bbox[2], $bbox[3]]] as [$x, $y]) {
+            $px = ($d * ($x - $e) - $c * ($y - $f)) / $det;
+            $py = ($a * ($y - $f) - $b * ($x - $e)) / $det;
+
+            if ($type === 2) {
+                [$x0, $y0, $x1, $y1] = $coords;
+                $dx = $x1 - $x0;
+                $dy = $y1 - $y0;
+                $ts[] = (($px - $x0) * $dx + ($py - $y0) * $dy) / (($dx * $dx + $dy * $dy) ?: 1);
+            } else {
+                [$x0, $y0, $r0, $x1, $y1, $r1] = $coords;
+                $dx = $x1 - $x0;
+                $dy = $y1 - $y0;
+                $dr = $r1 - $r0;
+                $qx = $px - $x0;
+                $qy = $py - $y0;
+                $qa = $dx * $dx + $dy * $dy - $dr * $dr;
+                $qb = -2 * ($qx * $dx + $qy * $dy + $r0 * $dr);
+                $qc = $qx * $qx + $qy * $qy - $r0 * $r0;
+                $root = sqrt(max(0, $qb * $qb - 4 * $qa * $qc));
+                $ts[] = abs($qa) < 1e-9
+                    ? -$qc / ($qb ?: 1)
+                    : max((-$qb + $root) / (2 * $qa), (-$qb - $root) / (2 * $qa));
+            }
+        }
+
+        // Radial gradients start where the radius is 0
+        $first = $type === 2 ? min($ts) : ($coords[5] > $coords[2] ? -$coords[2] / ($coords[5] - $coords[2]) : 0);
+        $from = (int) floor($first);
+        $to = (int) max($from + 1, ceil(max($ts)));
+        $count = $to - $from;
+
+        // Too many repetitions to render are filled with the average color
+        if ($count > self::MAX_GRADIENT_REPETITIONS) {
+            $color = [0, 0, 0];
+            $alpha = 0;
+            for ($i = 1; $i < count($stops); $i++) {
+                [$o0, $c0, $a0] = $stops[$i - 1];
+                [$o1, $c1, $a1] = $stops[$i];
+                $alpha += ($o1 - $o0) * ($a0 + $a1) / 2;
+                foreach ($color as $k => $v) {
+                    $color[$k] += ($o1 - $o0) * ($c0[$k] * $a0 + $c1[$k] * $a1) / 2;
+                }
+            }
+            $span = $stops[count($stops) - 1][0] - $stops[0][0];
+            $average = $alpha > 0 ? array_map(function ($v) use ($alpha) {
+                return $v / $alpha;
+            }, $color) : $stops[0][1];
+            return [$coords, [[0, $average, $span > 0 ? $alpha / $span : $stops[0][2]]]];
+        }
+
+        // Pad the stops to cover a whole period
+        if ($stops[0][0] > 0) {
+            array_unshift($stops, [0, $stops[0][1], $stops[0][2]]);
+        }
+        if ($stops[count($stops) - 1][0] < 1) {
+            $stops[] = [1, $stops[count($stops) - 1][1], $stops[count($stops) - 1][2]];
+        }
+
+        $repeated = [];
+        for ($k = $from; $k < $to; $k++) {
+            $mirror = $reflect && $k % 2 !== 0;
+            foreach ($mirror ? array_reverse($stops) : $stops as [$offset, $color, $alpha]) {
+                $offset = $mirror ? 1 - $offset : $offset;
+                $repeated[] = [($k - $from + $offset) / $count, $color, $alpha];
+            }
+        }
+
+        $half = count($coords) / 2;
+        $start = array_slice($coords, 0, $half);
+        $end = array_slice($coords, $half);
+        $coords = array_merge(self::lerp($start, $end, $from), self::lerp($start, $end, $to));
+
+        return [$coords, $repeated];
+    }
+
+    /**
+     * Remove the gradient stops before an offset, interpolating the color
+     * there, and map the remaining range to 0 to 1
+     *
+     * @param array $stops
+     * @param float $offset
+     * @return array
+     */
+    private static function cutStops(array $stops, float $offset): array
+    {
+        $i = 0;
+        while ($i < count($stops) - 1 && $stops[$i][0] < $offset) {
+            $i++;
+        }
+        [$o0, $c0, $a0] = $stops[max(0, $i - 1)];
+        [$o1, $c1, $a1] = $stops[$i];
+        $w = $o1 > $o0 ? min(1, max(0, ($offset - $o0) / ($o1 - $o0))) : 1;
+
+        $result = [[0, self::lerp($c0, $c1, $w), $a0 + ($a1 - $a0) * $w]];
+        foreach (array_slice($stops, $i) as [$o, $c, $a]) {
+            $result[] = [max(0, ($o - $offset) / (1 - $offset)), $c, $a];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param float[] $a
+     * @param float[] $b
+     * @param float   $t
+     * @return float[] The linear interpolation between two lists of values
+     */
+    private static function lerp(array $a, array $b, float $t): array
+    {
+        return array_map(function ($u, $v) use ($t) {
+            return $u + ($v - $u) * $t;
+        }, $a, $b);
+    }
+
+    /**
      * @param string $subtype
      * @param integer $x
      * @param integer $y
@@ -4844,10 +5153,12 @@ EOT;
 
     /**
      * uses the previously drawn path for clipping, all the elements added after this will be clipped
+     *
+     * @param string $rule The clipping rule, `nonzero` or `evenodd`
      */
-    function clip()
+    function clip(string $rule = "nonzero")
     {
-        $this->addContent("\nW n");
+        $this->addContent("\n" . ($rule === "evenodd" ? "W*" : "W") . " n");
     }
 
     /**
