@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 300pt 200pt;
+    margin: 10pt;
+}
+
+div {
+    height: 40pt;
+}
+
+.linear {
+    background-image: linear-gradient(to right, red, rgb(0 0 255 / 0.3));
+}
+
+.radial {
+    background-image: radial-gradient(circle, rgb(255 255 0 / 0.8), transparent);
+    border: 2pt solid black;
+    border-radius: 10pt;
+}
+
+.solid {
+    background-color: #0a0;
+    height: 20pt;
+}
+
+.page {
+    page-break-before: always;
+}
+</style>
+</head>
+
+<body>
+    <!-- Opaque content after transparent gradients must stay opaque,
+         also on the next page with the same gradients -->
+    <div class="linear"></div>
+    <div class="solid"></div>
+    <div class="radial"></div>
+    <div class="solid"></div>
+
+    <div class="page linear"></div>
+    <div class="solid"></div>
+    <div class="radial"></div>
+    <div class="solid"></div>
+</body>
+
+</html>

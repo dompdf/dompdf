@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 10pt;
+}
+
+body {
+    font-size: 0;
+}
+
+div {
+    display: inline-block;
+    vertical-align: top;
+    width: 80pt;
+    height: 50pt;
+    margin: 0 10pt 10pt 0;
+}
+</style>
+</head>
+
+<body>
+    <!-- Direction -->
+    <div style="background-image: linear-gradient(red, blue);"></div>
+    <div style="background-image: linear-gradient(to left, red, blue);"></div>
+    <div style="background-image: linear-gradient(45deg, red, blue);"></div>
+    <div style="background-image: linear-gradient(to top right, red, white, blue);"></div>
+
+    <!-- Units -->
+    <div style="background-image: linear-gradient(0.25turn, red, blue);"></div>
+    <div style="background-image: linear-gradient(-1.5rad, red, blue);"></div>
+    <div style="background-image: LINEAR-GRADIENT(TO BOTTOM RIGHT, RED, BLUE);"></div>
+    <div style="background-image: linear-gradient(to right, red 20pt, blue 60pt);"></div>
+
+    <!-- Stop positions -->
+    <div style="background-image: linear-gradient(to right, red 0%, yellow 20%, green, blue 100%);"></div>
+    <div style="background-image: linear-gradient(to right, red 30%, blue 30%);"></div>
+    <div style="background-image: linear-gradient(to right, red 20% 40%, blue 60% 80%);"></div>
+    <div style="background-image: linear-gradient(to right, red, yellow 50%, blue 20%);"></div>
+
+    <!-- Stops outside of the gradient line, box styles -->
+    <div style="background-image: linear-gradient(to right, red -50%, blue 150%);"></div>
+    <div style="background-image: linear-gradient(170deg, #f00 10%, #0f0 50%, #00f 90%);"></div>
+    <div style="background-image: linear-gradient(to right, red, blue); border-radius: 15pt;"></div>
+    <div style="background: #ccc linear-gradient(to bottom, red, blue) no-repeat; border: 5pt solid #000; width: 70pt; height: 40pt;"></div>
+</body>
+
+</html>

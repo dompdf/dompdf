@@ -2210,6 +2210,9 @@ class Style
      */
     protected function _get_background_image($computed): string
     {
+        if (Gradient::isGradient($computed)) {
+            return $computed;
+        }
         return $this->_stylesheet->resolve_url($computed, true);
     }
 
@@ -2947,6 +2950,9 @@ class Style
      */
     protected function _compute_background_image(string $val)
     {
+        if (Gradient::isGradient($val)) {
+            return Gradient::parse($val) ? $val : null;
+        }
         $parsed_val = $this->_stylesheet->resolve_url($val);
 
         if ($parsed_val === "none") {
@@ -3056,7 +3062,7 @@ class Style
 
             if ($lower === "none") {
                 $props["background_image"] = $lower;
-            } elseif (strncmp($lower, "url(", 4) === 0) {
+            } elseif (strncmp($lower, "url(", 4) === 0 || Gradient::isGradient($lower)) {
                 $props["background_image"] = $val;
             } elseif ($lower === "scroll" || $lower === "fixed") {
                 $props["background_attachment"] = $lower;

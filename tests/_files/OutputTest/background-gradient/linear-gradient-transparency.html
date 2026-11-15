@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 10pt;
+}
+
+body {
+    font-size: 0;
+}
+
+section {
+    display: inline-block;
+    vertical-align: top;
+    width: 175pt;
+    height: 80pt;
+    margin: 0 10pt 10pt 0;
+    background: #fc0;
+}
+
+div {
+    height: 40pt;
+}
+</style>
+</head>
+
+<body>
+    <section>
+        <div style="background-image: linear-gradient(to right, red, transparent);"></div>
+        <div style="background-image: linear-gradient(to right, transparent, blue, transparent);"></div>
+    </section>
+    <section>
+        <div style="background-image: linear-gradient(to right, rgb(30 87 153) 0%, rgb(219 10 91) 30%, rgb(88 147 201 / 0) 30%, rgb(125 185 232 / 0) 100%);"></div>
+        <div style="background-image: linear-gradient(to right, rgba(0, 0, 255, 0.8), rgba(255, 0, 0, 0.2));"></div>
+    </section>
+    <section>
+        <div style="background-image: linear-gradient(to right, red, blue); opacity: 0.5;"></div>
+        <div style="background-color: #0f0; background-image: linear-gradient(to right, #00f0, #00f);"></div>
+    </section>
+    <section>
+        <div style="background-image: linear-gradient(to bottom right, red, transparent); border-radius: 20pt;"></div>
+        <div style="background-image: linear-gradient(to right, red, transparent 50%, blue);"></div>
+    </section>
+</body>
+
+</html>

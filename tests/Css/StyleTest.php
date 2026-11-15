@@ -244,6 +244,10 @@ class StyleTest extends TestCase
             "quoted parens" => ["url(\"http://example.com/Test(1).png\")", "http://example.com/Test(1).png"],
             "escaped parens" => ["url(http://example.com/Test\(1\).png)", "http://example.com/Test(1).png"],
             "quotes" => ["url(http://example.com/Test\"1\".png)", "http://example.com/Test\"1\".png"],
+            "linear gradient" => ["linear-gradient(to right, red, blue)", "linear-gradient(to right, red, blue)"],
+            "linear gradient case" => ["Linear-Gradient(45deg, rgb(0 0 0 / 50%) 10%, BLUE)", "Linear-Gradient(45deg, rgb(0 0 0 / 50%) 10%, BLUE)"],
+            "radial gradient" => ["radial-gradient(circle at 20% 30%, red, blue)", "radial-gradient(circle at 20% 30%, red, blue)"],
+            "repeating gradient" => ["repeating-linear-gradient(red 0 10px, blue 10px 20px)", "repeating-linear-gradient(red 0 10px, blue 10px 20px)"],
             "escaped quotes" => ["url(\"http://example.com/Test\\\"1\\\".png\")", "http://example.com/Test\"1\".png"]
         ];
     }

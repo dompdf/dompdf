@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 10pt;
+}
+
+body {
+    font-size: 0;
+}
+
+div {
+    display: inline-block;
+    vertical-align: top;
+    width: 80pt;
+    height: 50pt;
+    margin: 0 10pt 10pt 0;
+}
+</style>
+</head>
+
+<body>
+    <!-- Repeating linear gradients -->
+    <div style="background-image: repeating-linear-gradient(45deg, red 0 8pt, blue 8pt 16pt);"></div>
+    <div style="background-image: repeating-linear-gradient(to right, red, yellow 15pt, red 30pt);"></div>
+    <div style="background-image: repeating-linear-gradient(to bottom, red 10%, blue 30%);"></div>
+    <div style="background: #fc0 repeating-linear-gradient(-45deg, transparent 0 8pt, rgb(0 0 255 / 0.5) 8pt 16pt);"></div>
+
+    <!-- Repeating radial gradients -->
+    <div style="background-image: repeating-radial-gradient(circle, red 0 8pt, blue 8pt 16pt);"></div>
+    <div style="background-image: repeating-radial-gradient(red 20%, yellow 30%, red 40%);"></div>
+    <div style="background-image: repeating-radial-gradient(circle at 20% 20%, red, blue 10pt, red 20pt);"></div>
+    <div style="background-image: repeating-linear-gradient(to right, red 5pt, blue 5pt), linear-gradient(red, blue);"></div>
+
+    <!-- Color hints -->
+    <div style="background-image: linear-gradient(to right, red, 20%, blue);"></div>
+    <div style="background-image: linear-gradient(to right, red, 80%, blue);"></div>
+    <div style="background-image: linear-gradient(to right, red 20%, 30%, blue 80%);"></div>
+    <div style="background-image: radial-gradient(red, 10%, blue);"></div>
+</body>
+
+</html>
