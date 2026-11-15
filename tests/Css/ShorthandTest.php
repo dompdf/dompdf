@@ -307,6 +307,8 @@ class ShorthandTest extends TestCase
             ["url(non-existing.png) top center no-repeat red fixed", "url(non-existing.png)", "top center", ["auto", "auto"], "no-repeat", "fixed", "red"],
             ["url($imagePath) LEFT/200PT 30% RGB( 123 16 69/0.8 )no-REPEAT", "url($imagePath)", "left", "200pt 30%", "no-repeat", "scroll", "rgb( 123 16 69/0.8 )"],
             ["url($imagePath) 10pt 10pt/200PT 30%", "url($imagePath)", "10pt 10pt", "200pt 30%"],
+            ["linear-gradient(to right, red 10%, rgba(0, 0, 255, 0.5)) no-repeat #eee", "linear-gradient(to right, red 10%, rgba(0, 0, 255, 0.5))", [0.0, 0.0], ["auto", "auto"], "no-repeat", "scroll", "#eee"],
+            ["#eee Repeating-Radial-Gradient(circle, red, blue 10px)", "Repeating-Radial-Gradient(circle, red, blue 10px)", [0.0, 0.0], ["auto", "auto"], "repeat", "scroll", "#eee"],
 
             // Calc for position and size
             ["url($imagePath) calc(100% - 20pt)/ calc(10% + 20pt)CALC(100%/3)", "url($imagePath)", "calc(100% - 20pt)", "calc(10% + 20pt) calc(100%/3)"],

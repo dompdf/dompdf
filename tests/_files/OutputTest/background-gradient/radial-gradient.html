@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: 400pt 300pt;
+    margin: 10pt;
+}
+
+body {
+    font-size: 0;
+}
+
+div {
+    display: inline-block;
+    vertical-align: top;
+    width: 80pt;
+    height: 50pt;
+    margin: 0 10pt 10pt 0;
+}
+</style>
+</head>
+
+<body>
+    <!-- Shape and size -->
+    <div style="background-image: radial-gradient(red, blue);"></div>
+    <div style="background-image: radial-gradient(circle, red, yellow, blue);"></div>
+    <div style="background-image: radial-gradient(closest-side, red, blue);"></div>
+    <div style="background-image: radial-gradient(circle farthest-side, red, blue);"></div>
+
+    <div style="background-image: radial-gradient(circle closest-corner at 30% 40%, red, blue);"></div>
+    <div style="background-image: radial-gradient(30pt 15pt, red, blue);"></div>
+    <div style="background-image: radial-gradient(20pt, red 50%, blue 50%);"></div>
+    <div style="background-image: RADIAL-GRADIENT(CIRCLE AT 20% 30%, WHITE, BLUE);"></div>
+
+    <!-- Position -->
+    <div style="background-image: radial-gradient(at top left, red, blue);"></div>
+    <div style="background-image: radial-gradient(circle at bottom, red, blue);"></div>
+    <div style="background-image: radial-gradient(ellipse at 60pt 10pt, red, blue);"></div>
+    <div style="background-image: radial-gradient(at right, red, blue);"></div>
+
+    <!-- Transparency, box styles -->
+    <div style="background: #fc0 radial-gradient(circle, red, transparent 70%);"></div>
+    <div style="background-image: radial-gradient(red, rgb(0 0 255 / 0.2));"></div>
+    <div style="background-image: radial-gradient(red, blue); border-radius: 25pt;"></div>
+    <div style="background-image: radial-gradient(red, blue); opacity: 0.5;"></div>
+</body>
+
+</html>

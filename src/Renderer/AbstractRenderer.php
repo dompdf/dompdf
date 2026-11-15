@@ -9,6 +9,7 @@ namespace Dompdf\Renderer;
 use DOMElement;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Css\Color;
+use Dompdf\Css\Gradient;
 use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
@@ -88,6 +89,22 @@ abstract class AbstractRenderer
         if ($style->has_border_radius()) {
             $this->_canvas->clipping_end();
         }
+    }
+
+    /**
+     * Render a gradient background image over the given area
+     *
+     * @see Gradient
+     */
+    protected function _background_gradient(string $value, float $x, float $y, float $w, float $h, Style $style): void
+    {
+        $gradient = Gradient::parse($value);
+        if ($gradient === null || !method_exists($this->_canvas, "gradient") || $w == 0 || $h == 0) {
+            return;
+        }
+
+        [$type, $coords, $matrix, $stops, $repeat] = $gradient->resolve($x, $y, $w, $h, $style);
+        $this->_canvas->gradient($x, $y, $w, $h, $type, $coords, $matrix, $stops, $repeat);
     }
 
     /**
@@ -281,6 +298,11 @@ abstract class AbstractRenderer
      */
     protected function _background_image(string $url, float $x, float $y, float $width, float $height, Style $style): void
     {
+        if (Gradient::isGradient($url)) {
+            $this->_background_gradient($url, $x, $y, $width, $height, $style);
+            return;
+        }
+
         if (!function_exists("imagecreatetruecolor")) {
             throw new \Exception("The PHP GD extension is required, but is not installed.");
         }
