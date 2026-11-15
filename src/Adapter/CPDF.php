@@ -487,6 +487,41 @@ class CPDF implements Canvas
         $this->_set_fill_transparency("Normal", $this->_current_opacity);
     }
 
+    /**
+     * Fill a rectangle with a gradient
+     *
+     * @param float   $x1
+     * @param float   $y1
+     * @param float   $w
+     * @param float   $h
+     * @param int     $type   2 for a linear, 3 for a radial gradient
+     * @param float[] $coords The gradient geometry, see {@link Cpdf::gradient()}
+     * @param float[] $matrix Transformation from gradient space to page space as `[a, b, c, d, e, f]`
+     * @param array   $stops  A list of `[offset, [r, g, b], alpha]`, see {@link Cpdf::gradient()}
+     * @param bool    $repeat Whether to repeat the gradient
+     */
+    public function gradient(
+        float $x1,
+        float $y1,
+        float $w,
+        float $h,
+        int $type,
+        array $coords,
+        array $matrix,
+        array $stops,
+        bool $repeat = false
+    ): void {
+        $this->_set_fill_transparency("Normal", $this->_current_opacity);
+        $this->clipping_rectangle($x1, $y1, $w, $h);
+
+        [$a, $b, $c, $d, $e, $f] = $matrix;
+        $bbox = [$x1, $this->y($y1) - $h, $x1 + $w, $this->y($y1)];
+        $matrix = [$a, -$b, $c, -$d, $e, $this->y($f)];
+        $this->_pdf->gradient($type, $coords, $stops, $bbox, $matrix, $repeat ? "repeat" : "pad");
+
+        $this->clipping_end();
+    }
+
     public function clipping_rectangle($x1, $y1, $w, $h)
     {
         $this->_pdf->clippingRectangle($x1, $this->y($y1) - $h, $w, $h);
