@@ -1111,6 +1111,7 @@ class Stylesheet
             // Handle HTML 4.0 attributes
             AttributeTranslator::translate_attributes($frame);
             if (($str = $frame->get_node()->getAttribute(AttributeTranslator::$_style_attr)) !== "") {
+                $str = $this->_replace_data_uris($str);
                 $styles[$id][self::SPEC_NON_CSS][] = $this->_parse_properties($str);
             }
 
@@ -1118,6 +1119,7 @@ class Stylesheet
             if (($str = $frame->get_node()->getAttribute("style")) !== "") {
                 // Destroy CSS comments
                 $str = preg_replace("'/\*.*?\*/'si", "", $str);
+                $str = $this->_replace_data_uris($str);
 
                 $spec = $this->specificity("!attr", self::ORIG_AUTHOR);
                 $styles[$id][$spec][] = $this->_parse_properties($str);
@@ -1245,6 +1247,54 @@ class Stylesheet
     }
 
     /**
+     * Replace the data URIs in a CSS string with blob URIs
+     *
+     * Long data URIs can exceed the PCRE limits of the regular expressions
+     * used to parse CSS, so they are stored in the blob registry and
+     * resolved again by {@link Stylesheet::resolve_url()}.
+     *
+     * @param string $css
+     * @return string
+     */
+    private function _replace_data_uris(string $css): string
+    {
+        $offset = 0;
+        while ($offset < strlen($css) && ($start = strpos($css, "data:", $offset)) !== false) {
+            $len = 0;
+            $prev = $css[$start - 1];
+            $pattern = "/(?<!\\\\)['\")]/";
+            switch ($prev) {
+                case "'":
+                    $pattern = "/(?<!\\\\)'/";
+                    break;
+                case "\"":
+                    $pattern = "/(?<!\\\\)\"/";
+                    break;
+                case "(":
+                    $pattern = "/(?<!\\\\)\\)/";
+                    break;
+                default:
+                    $offset = $start + 5;
+                    continue (2);
+            }
+            if (preg_match($pattern, $css, $matches, PREG_OFFSET_CAPTURE, $start)) {
+                $len = $matches[0][1] - $start;
+            }
+            if ($len <= 0) {
+                $offset = $start + 5;
+                continue;
+            }
+            $data_uri = substr($css, $start, $len);
+            $data_uri_hash = md5($data_uri);
+            $this->_blobs[$data_uri_hash] = $data_uri;
+            $css = substr($css, 0, $start) . "blob://" . $data_uri_hash . ($len > 0 ? substr($css, $start + $len) : "");
+            $offset = $start + 7 + strlen($data_uri_hash);
+        }
+
+        return $css;
+    }
+
+    /**
      * parse a CSS string using a regex parser
      * Called by {@link Stylesheet::parse_css()}
      *
@@ -1303,38 +1353,7 @@ class Stylesheet
 EOL;
 
         // replace data URIs with blob URIs
-        $offset = 0;
-        while ($offset < strlen($css) && ($start = strpos($css, "data:", $offset)) !== false) {
-            $len = 0;
-            $prev = $css[$start - 1];
-            $pattern = "/(?<!\\\\)['\")]/";
-            switch ($prev) {
-                case "'":
-                    $pattern = "/(?<!\\\\)'/";
-                    break;
-                case "\"":
-                    $pattern = "/(?<!\\\\)\"/";
-                    break;
-                case "(":
-                    $pattern = "/(?<!\\\\)\\)/";
-                    break;
-                default:
-                    $offset = $start + 5;
-                    continue (2);
-            }
-            if (preg_match($pattern, $css, $matches, PREG_OFFSET_CAPTURE, $start)) {
-                $len = $matches[0][1] - $start;
-            }
-            if ($len <= 0) {
-                $offset = $start + 5;
-                continue;
-            }
-            $data_uri = substr($css, $start, $len);
-            $data_uri_hash = md5($data_uri);
-            $this->_blobs[$data_uri_hash] = $data_uri;
-            $css = substr($css, 0, $start) . "blob://" . $data_uri_hash . ($len > 0 ? substr($css, $start + $len) : "");
-            $offset = $start + 7 + strlen($data_uri_hash);
-        }
+        $css = $this->_replace_data_uris($css);
 
         $matches = [];
         if (preg_match_all($re, $css, $matches, PREG_SET_ORDER) === false || count($matches) === 0) {

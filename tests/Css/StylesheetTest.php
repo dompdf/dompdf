@@ -112,4 +112,35 @@ CSS
         $this->assertSame("blob://", substr($sheet->resolve_url($styles["div"][0]->get_specified("background_image")), 0, 7));
         $this->assertSame($dataUri, $styles["div"][0]->background_image);
     }
+
+    /**
+     * Confirms that data URIs in style attributes are also parsed internally
+     * as blob URIs, so that long data URIs are not lost to the PCRE limits.
+     */
+    public function testInlineStyleDataUriHandling(): void
+    {
+        $basePath = realpath(__DIR__ . "/..");
+        $imagePath = "$basePath/_files/jamaica.jpg";
+        $imageEncoded = base64_encode(file_get_contents($imagePath));
+        $dataUri = "data:image/jpeg;base64," . $imageEncoded;
+        $html = "<html><body>"
+            . "<div style=\"background-image: url($dataUri)\"></div>"
+            . "<p style=\"background: #000 url('$dataUri') no-repeat\"></p>"
+            . "</body></html>";
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $tree = $dompdf->getTree();
+        $tree->build_tree();
+        $dompdf->getCss()->apply_styles($tree);
+
+        $styles = [];
+        foreach ($tree as $frame) {
+            $styles[$frame->get_node()->nodeName] = $frame->get_style();
+        }
+
+        $this->assertSame($dataUri, $styles["div"]->background_image);
+        $this->assertSame("#000", $styles["p"]->get_specified("background_color"));
+        $this->assertSame($dataUri, $styles["p"]->background_image);
+    }
 }
