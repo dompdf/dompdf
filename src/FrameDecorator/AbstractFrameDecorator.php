@@ -117,7 +117,7 @@ abstract class AbstractFrameDecorator extends Frame
      *
      * @var bool
      */
-    protected bool $_splitting = false;
+    protected $_splitting = false;
 
     /**
      * Class constructor
