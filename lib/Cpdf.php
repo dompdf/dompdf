@@ -6050,6 +6050,10 @@ EOT;
             imagecolorallocate($imgalpha, $c, $c, $c);
         }
 
+        // Imagick and Gmagick are shortcuts: when one of them fails, the GD code below makes the same images
+        $alphaFile = $tempfile_alpha;
+        $imgplain = false;
+
         // Use PECL gmagick + Graphics Magic to process transparent PNG images
         if (extension_loaded("gmagick")) {
             $gmagick = new \Gmagick($file);
@@ -6101,50 +6105,61 @@ EOT;
                 }
             }
 
-            $imagick = new \Imagick();
-            $imagick->setRegistry('temporary-path', $this->tmp);
-            $imagick->setFormat('PNG');
-            $imagick->readImage($file);
+            try {
+                $imagick = new \Imagick();
+                $imagick->setRegistry('temporary-path', $this->tmp);
+                $imagick->setFormat('PNG');
+                $imagick->readImage($file);
 
-            // Get opacity channel (negative of alpha channel)
-            if ($imagick->getImageAlphaChannel()) {
-                $alpha_channel = $imagickClonable ? clone $imagick : $imagick->clone();
-                $alpha_channel->separateImageChannel(\Imagick::CHANNEL_ALPHA);
-                // Since ImageMagick7 negate invert transparency as default
-                if (\Imagick::getVersion()['versionNumber'] < 1800) {
-                    $alpha_channel->negateImage(true);
+                // Get opacity channel (negative of alpha channel)
+                if ($imagick->getImageAlphaChannel()) {
+                    $alpha_channel = $imagickClonable ? clone $imagick : $imagick->clone();
+                    $alpha_channel->separateImageChannel(\Imagick::CHANNEL_ALPHA);
+                    // Since ImageMagick7 negate invert transparency as default
+                    if (\Imagick::getVersion()['versionNumber'] < 1800) {
+                        $alpha_channel->negateImage(true);
+                    }
+
+                    try {
+                        $alpha_channel->writeImage($tempfile_alpha);
+                    } catch (\ImagickException $th) {
+                        // Backwards compatible retry attempt in case the IMagick policy is still configured in lowercase
+                        $alpha_channel->setFormat('png');
+                        $alpha_channel->writeImage($tempfile_alpha);
+                    }
+
+                    // Cast to 8bit+palette
+                    $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
+                    if ($imgalpha_ === false) {
+                        throw new \ImagickException("The alpha channel could not be read back");
+                    }
+                    imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
+                    if (PHP_MAJOR_VERSION < 8) {
+                        imagedestroy($imgalpha_);
+                    }
+                    imagepng($imgalpha, $tempfile_alpha);
+                } else {
+                    $tempfile_alpha = null;
                 }
 
-                try {
-                    $alpha_channel->writeImage($tempfile_alpha);
-                } catch (\ImagickException $th) {
-                    // Backwards compatible retry attempt in case the IMagick policy is still configured in lowercase
-                    $alpha_channel->setFormat('png');
-                    $alpha_channel->writeImage($tempfile_alpha);
-                }
+                // Make opaque image
+                $color_channels = new \Imagick();
+                $color_channels->setRegistry('temporary-path', $this->tmp);
+                $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
+                $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYRED, 0, 0);
+                $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYGREEN, 0, 0);
+                $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYBLUE, 0, 0);
+                $color_channels->writeImage($tempfile_plain);
 
-                // Cast to 8bit+palette
-                $imgalpha_ = @imagecreatefrompng($tempfile_alpha);
-                imagecopy($imgalpha, $imgalpha_, 0, 0, 0, 0, $wpx, $hpx);
-                if (PHP_MAJOR_VERSION < 8) {
-                    imagedestroy($imgalpha_);
-                }
-                imagepng($imgalpha, $tempfile_alpha);
-            } else {
-                $tempfile_alpha = null;
+                $imgplain = @imagecreatefrompng($tempfile_plain);
+            } catch (\ImagickException $th) {
+                $imgplain = false;
             }
+        }
 
-            // Make opaque image
-            $color_channels = new \Imagick();
-            $color_channels->setRegistry('temporary-path', $this->tmp);
-            $color_channels->newImage($wpx, $hpx, "#FFFFFF", "png");
-            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYRED, 0, 0);
-            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYGREEN, 0, 0);
-            $color_channels->compositeImage($imagick, \Imagick::COMPOSITE_COPYBLUE, 0, 0);
-            $color_channels->writeImage($tempfile_plain);
+        if ($imgplain === false) {
+            $tempfile_alpha = $alphaFile;
 
-            $imgplain = @imagecreatefrompng($tempfile_plain);
-        } else {
             // allocated colors cache
             $allocated_colors = [];
 
