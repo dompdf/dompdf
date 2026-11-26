@@ -8,6 +8,9 @@ use Dompdf\Tests\TestCase;
  * the temporary files are made by ImageMagick and read back with GD; when
  * ImageMagick cannot do that (a security policy, a resource limit, a full disk)
  * the image must still be made by the GD code instead of failing the render.
+ *
+ * The test is not skipped without Imagick: the policy then has no effect and the
+ * image is made by the GD code, which has to work as well.
  */
 class CPDFTransparentImageTest extends TestCase
 {
@@ -17,10 +20,6 @@ class CPDFTransparentImageTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        if (!extension_loaded("imagick") || extension_loaded("gmagick")) {
-            $this->markTestSkipped("Only the Imagick path of transparent PNG images is tested here.");
-        }
 
         $this->directory = sys_get_temp_dir() . "/dompdf-alpha-" . bin2hex(random_bytes(4));
         mkdir($this->directory);
