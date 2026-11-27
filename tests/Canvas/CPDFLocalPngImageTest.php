@@ -52,11 +52,12 @@ class CPDFLocalPngImageTest extends TestCase
             $dompdf->render();
             echo substr($dompdf->output(), 0, 5);
         ';
-        $command = [
+        // A string, not an array: proc_open() takes an array only from PHP 7.4 on
+        $command = implode(" ", array_map("escapeshellarg", [
             PHP_BINARY, "-r", $script, "--",
             realpath(__DIR__ . "/../.."),
             realpath(__DIR__ . "/../_files/red-dot.png"),
-        ];
+        ]));
         $process = proc_open(
             $command,
             [1 => ["pipe", "w"], 2 => ["pipe", "w"]],
