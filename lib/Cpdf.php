@@ -6050,9 +6050,14 @@ EOT;
             imagecolorallocate($imgalpha, $c, $c, $c);
         }
 
+        // Imagick and Gmagick get the plain path of a local image, as in the PDFLib adapter.
+        // With the format set before readImage(), ImageMagick takes a file:// URL as a literal
+        // file name, and a security policy that disables the URL module rejects it as well.
+        $path = substr($file, 0, 7) === "file://" ? substr($file, 7) : $file;
+
         // Use PECL gmagick + Graphics Magic to process transparent PNG images
         if (extension_loaded("gmagick")) {
-            $gmagick = new \Gmagick($file);
+            $gmagick = new \Gmagick($path);
             $gmagick->setimageformat('png');
 
             // Get opacity channel (negative of alpha channel)
@@ -6104,7 +6109,7 @@ EOT;
             $imagick = new \Imagick();
             $imagick->setRegistry('temporary-path', $this->tmp);
             $imagick->setFormat('PNG');
-            $imagick->readImage($file);
+            $imagick->readImage($path);
 
             // Get opacity channel (negative of alpha channel)
             if ($imagick->getImageAlphaChannel()) {
