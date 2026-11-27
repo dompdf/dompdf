@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameDecorator;
 
+use Dompdf\Css\LineHeight;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\LineBox;
@@ -212,9 +213,25 @@ class Block extends AbstractFrameDecorator
      */
     public function maximize_line_height(float $val, Frame $frame): void
     {
-        if ($val > $this->_line_boxes[$this->_cl]->h) {
-            $this->_line_boxes[$this->_cl]->tallest_frame = $frame;
-            $this->_line_boxes[$this->_cl]->h = $val;
+        $line = $this->_line_boxes[$this->_cl];
+
+        if (LineHeight::enabled($this->_dompdf)) {
+            // The height of the line box is the distance between the highest
+            // and the lowest point of the frames, relative to the baseline
+            if (LineHeight::is_line_aligned($frame)) {
+                $line->min_height = max($line->min_height, $val);
+            } else {
+                [$above, $below] = LineHeight::extents($frame, $val);
+                $line->above = max($line->above, $above);
+                $line->below = max($line->below, $below);
+            }
+
+            $val = max($line->above + $line->below, $line->min_height);
+        }
+
+        if ($val > $line->h) {
+            $line->tallest_frame = $frame;
+            $line->h = $val;
         }
     }
 

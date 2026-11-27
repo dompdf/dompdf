@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameDecorator;
 
+use Dompdf\Css\LineHeight;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 
@@ -104,6 +105,10 @@ class ListBullet extends AbstractFrameDecorator
 
         if ($style->list_style_type === "none") {
             return 0.0;
+        }
+
+        if (LineHeight::enabled($this->_dompdf) && ($metrics = LineHeight::metrics($this)) !== null) {
+            return $metrics["line_height"];
         }
 
         // TODO: This is a copy of `FrameDecorator\Text::get_margin_height()`

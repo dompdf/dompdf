@@ -6,6 +6,7 @@
  */
 namespace Dompdf\FrameDecorator;
 
+use Dompdf\Css\LineHeight;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\Exception;
@@ -43,6 +44,10 @@ class Inline extends AbstractFrameDecorator
      */
     public function get_margin_height(): float
     {
+        if (LineHeight::enabled($this->_dompdf) && ($metrics = LineHeight::metrics($this)) !== null) {
+            return $metrics["line_height"];
+        }
+
         $style = $this->get_style();
         $font = $style->font_family;
         $size = $style->font_size;

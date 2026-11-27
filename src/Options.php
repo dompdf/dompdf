@@ -164,6 +164,22 @@ class Options
     private $fontHeightRatio = 1.1;
 
     /**
+     * How the `line-height` property is calculated.
+     *
+     * - "legacy": the line height is the line-height factor multiplied by the
+     *   height of the font (ascender - descender) and by `fontHeightRatio`, and
+     *   the baseline is placed at 80% of the line height.
+     * - "css": as defined by CSS 2.1 (section 10.8): the height of a line box is
+     *   `line-height` (a number is multiplied by the font size) and the content
+     *   area of the font is centered in it (half-leading). `line-height: normal`
+     *   uses the height of the font. Supported by the CPDF, PDFLib and GD
+     *   adapters; other adapters keep the legacy behavior.
+     *
+     * @var string
+     */
+    private $lineHeightMode = "legacy";
+
+    /**
      * The maximum estimated in-memory size of an image allowed to be rendered, in bytes.
      *
      * @var int
@@ -896,6 +912,28 @@ class Options
     public function getFontHeightRatio()
     {
         return $this->fontHeightRatio;
+    }
+
+    /**
+     * @param string $lineHeightMode "legacy" (default) or "css"
+     * @return $this
+     */
+    public function setLineHeightMode($lineHeightMode)
+    {
+        if (!in_array($lineHeightMode, ["legacy", "css"], true)) {
+            throw new \InvalidArgumentException("Invalid line height mode: $lineHeightMode");
+        }
+
+        $this->lineHeightMode = $lineHeightMode;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLineHeightMode()
+    {
+        return $this->lineHeightMode;
     }
 
     /**

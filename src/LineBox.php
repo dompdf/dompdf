@@ -60,6 +60,27 @@ class LineBox
     public $h = 0.0;
 
     /**
+     * Distance from the top of the line box to its baseline, and distance from
+     * the baseline to the bottom (only used with the "css" line height mode)
+     *
+     * @var float
+     */
+    public $above = 0.0;
+
+    /**
+     * @var float
+     */
+    public $below = 0.0;
+
+    /**
+     * Minimum height of the line box required by frames aligned to its top or
+     * bottom (only used with the "css" line height mode)
+     *
+     * @var float
+     */
+    public $min_height = 0.0;
+
+    /**
      * @var float
      */
     public $left = 0.0;
