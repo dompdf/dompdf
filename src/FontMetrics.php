@@ -384,6 +384,10 @@ class FontMetrics
             }
         }
 
+        if ($char_mapping !== []) {
+            $char_mapping[$start_index]["length"] = $char_index - $start_index;
+        }
+
         if ($returnSubstring) {
             // build the string for each mapping
             foreach ($char_mapping as $start_index => &$info) {

@@ -266,7 +266,7 @@ class Text extends AbstractFrameDecorator
         $charMapping = $fontMetrics->mapTextToFonts($this->get_text(), $families, $subtype, 1);
 
         if (isset($charMapping[0])) {
-            if ($charMapping[0]["length"] !== 0) {
+            if ($charMapping[0]["length"] < mb_strlen($this->get_text(), "UTF-8")) {
                 $this->split_text($charMapping[0]["length"], false);
             }
             $mapped_font = $charMapping[0]["font"];
