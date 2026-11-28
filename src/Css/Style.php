@@ -2021,7 +2021,7 @@ class Style
      */
     public function get_font_family_raw(): string
     {
-        return trim($this->_props["font_family"], " \t\n\r\x0B\"'");
+        return trim($this->_props["font_family"] ?? "", " \t\n\r\x0B\"'");
     }
 
     /**
