@@ -5115,12 +5115,11 @@ EOT;
 
         // for the current font, and the given size, what is the height of the font in user units
         if (isset($font['XHeight'])) {
-            $xh = $font['Ascender'] - $font['Descender'];
-        } else {
-            $xh = $this->getFontHeight($size) / 2;
+            return $size * $font['XHeight'] / 1000;
         }
 
-        return $size * $xh / 1000;
+        // getFontHeight already returns points at the requested size.
+        return $this->getFontHeight($size) / 2;
     }
 
     /**
