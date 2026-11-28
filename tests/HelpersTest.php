@@ -62,6 +62,36 @@ AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
         );
     }
 
+    public function testParseDataUriWithDefaultMediaType(): void
+    {
+        $this->assertSame(
+            ['charset' => 'US-ASCII', 'mime' => 'text/plain', 'data' => 'A brief note'],
+            Helpers::parse_data_uri('data:,A%20brief%20note')
+        );
+        $this->assertSame(
+            ['charset' => 'UTF-8', 'mime' => 'text/plain', 'data' => 'A,B'],
+            Helpers::parse_data_uri('data:;charset=UTF-8,A%2CB')
+        );
+        $this->assertSame(
+            ['charset' => 'US-ASCII', 'mime' => 'text/plain', 'data' => 'A,B'],
+            Helpers::parse_data_uri('data:,A,B')
+        );
+        $this->assertSame(
+            ['charset' => 'US-ASCII', 'mime' => 'text/plain', 'data' => 'ABC'],
+            Helpers::parse_data_uri('data:;base64,QUJD')
+        );
+        $this->assertSame(
+            ['charset' => 'US-ASCII', 'mime' => 'text/plain', 'data' => ''],
+            Helpers::parse_data_uri('data:,')
+        );
+        $this->assertSame(
+            ['charset' => 'UTF-8', 'mime' => 'text/plain', 'data' => 'ABC'],
+            Helpers::parse_data_uri('data:text/plain;charset=UTF-8;base64,QUJD')
+        );
+        $this->assertFalse(Helpers::parse_data_uri('data:;charset=UTF-8'));
+        $this->assertFalse(Helpers::parse_data_uri('not-a-data-uri'));
+    }
+
     public static function dec2RomanProvider(): array
     {
         return [

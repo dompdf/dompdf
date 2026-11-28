@@ -317,11 +317,11 @@ class Helpers
      */
     public static function parse_data_uri($data_uri)
     {
-        $expression = '/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/is';
+        $expression = '/^data:(?P<mime>[a-z0-9\/+.-]*)(;charset=(?P<charset>[a-z0-9-]+))?(?P<base64>;base64)?\,(?P<data>.*)/is';
         if (!preg_match($expression, $data_uri, $match)) {
             $parts = explode(",", $data_uri);
             $parts[0] = preg_replace('/\\s/', '', $parts[0]);
-            if (preg_match('/\\s/', $data_uri) && !preg_match($expression, implode(",", $parts), $match)) {
+            if (!preg_match('/\\s/', $data_uri) || !preg_match($expression, implode(",", $parts), $match)) {
                 return false;
             }
         }
