@@ -4061,7 +4061,7 @@ EOT;
      * Valid blend modes are:
      *
      * Normal, Multiply, Screen, Overlay, Darken, Lighten,
-     * ColorDogde, ColorBurn, HardLight, SoftLight, Difference,
+     * ColorDodge, ColorBurn, HardLight, SoftLight, Difference,
      * Exclusion
      *
      * @param string $mode    The blend mode to use
@@ -4076,7 +4076,7 @@ EOT;
             "Overlay",
             "Darken",
             "Lighten",
-            "ColorDogde",
+            "ColorDodge",
             "ColorBurn",
             "HardLight",
             "SoftLight",
@@ -4113,7 +4113,7 @@ EOT;
      * Valid blend modes are:
      *
      * Normal, Multiply, Screen, Overlay, Darken, Lighten,
-     * ColorDogde, ColorBurn, HardLight, SoftLight, Difference,
+     * ColorDodge, ColorBurn, HardLight, SoftLight, Difference,
      * Exclusion
      *
      * @param string $mode    The blend mode to use
@@ -4128,7 +4128,7 @@ EOT;
             "Overlay",
             "Darken",
             "Lighten",
-            "ColorDogde",
+            "ColorDodge",
             "ColorBurn",
             "HardLight",
             "SoftLight",
