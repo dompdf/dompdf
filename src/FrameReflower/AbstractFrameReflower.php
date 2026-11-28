@@ -575,6 +575,11 @@ abstract class AbstractFrameReflower
             return;
         }
 
+        // Counters and generated content are layout state that needs a reset
+        // later on. This may be called before the frame is reflowed (from
+        // min/max width calculation)
+        $frame->mark_dirty();
+
         $style = $frame->get_style();
 
         if (($reset = $style->counter_reset) !== "none") {

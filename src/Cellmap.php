@@ -537,6 +537,11 @@ class Cellmap
      */
     public function add_frame(Frame $frame): void
     {
+        if ($frame instanceof AbstractFrameDecorator) {
+            // The cellmap assigns used style values to rows and cells
+            $frame->mark_dirty();
+        }
+
         $style = $frame->get_style();
         $display = $style->display;
 
