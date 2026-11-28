@@ -346,47 +346,49 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        if (!$this->protocol && !$this->baseHost && !$this->basePath) {
-            [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
-        }
-        $protocol = strtolower($this->protocol);
-        $uri = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $file, $this->options->getChroot());
-
-        $allowed_protocols = $this->options->getAllowedProtocols();
-        if (!array_key_exists($protocol, $allowed_protocols)) {
-            throw new Exception("Permission denied on $file. The communication protocol is not supported.");
-        }
-
-        if ($protocol === "file://") {
-            $ext = strtolower(pathinfo($uri, PATHINFO_EXTENSION));
-            if (!in_array($ext, $this->allowedLocalFileExtensions)) {
-                throw new Exception("Permission denied on $file: The file extension is forbidden.");
+        try {
+            if (!$this->protocol && !$this->baseHost && !$this->basePath) {
+                [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
             }
-        }
+            $protocol = strtolower($this->protocol);
+            $uri = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $file, $this->options->getChroot());
 
-        foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
-            [$result, $message] = $rule($uri);
-            if (!$result) {
-                throw new Exception("Error loading $file: $message");
+            $allowed_protocols = $this->options->getAllowedProtocols();
+            if (!array_key_exists($protocol, $allowed_protocols)) {
+                throw new Exception("Permission denied on $file. The communication protocol is not supported.");
             }
-        }
 
-        [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->options->getHttpContext());
-        if ($contents === null) {
-            throw new Exception("File '$file' not found.");
-        }
-
-        // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
-        if (isset($http_response_header)) {
-            foreach ($http_response_header as $_header) {
-                if (preg_match("@Content-Type:\s*[\w/]+;\s*?charset=([^\s]+)@i", $_header, $matches)) {
-                    $encoding = strtoupper($matches[1]);
-                    break;
+            if ($protocol === "file://") {
+                $ext = strtolower(pathinfo($uri, PATHINFO_EXTENSION));
+                if (!in_array($ext, $this->allowedLocalFileExtensions)) {
+                    throw new Exception("Permission denied on $file: The file extension is forbidden.");
                 }
             }
-        }
 
-        $this->restorePhpConfig();
+            foreach ($allowed_protocols[$protocol]["rules"] as $rule) {
+                [$result, $message] = $rule($uri);
+                if (!$result) {
+                    throw new Exception("Error loading $file: $message");
+                }
+            }
+
+            [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->options->getHttpContext());
+            if ($contents === null) {
+                throw new Exception("File '$file' not found.");
+            }
+
+            // See http://the-stickman.com/web-development/php/getting-http-response-headers-when-using-file_get_contents/
+            if (isset($http_response_header)) {
+                foreach ($http_response_header as $_header) {
+                    if (preg_match("@Content-Type:\s*[\w/]+;\s*?charset=([^\s]+)@i", $_header, $matches)) {
+                        $encoding = strtoupper($matches[1]);
+                        break;
+                    }
+                }
+            }
+        } finally {
+            $this->restorePhpConfig();
+        }
 
         $this->loadHtml($contents, $encoding);
     }
@@ -720,135 +722,137 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        $logOutputFile = $this->options->getLogOutputFile();
-        if ($logOutputFile) {
-            if (!file_exists($logOutputFile) && is_writable(dirname($logOutputFile))) {
-                touch($logOutputFile);
+        try {
+            $logOutputFile = $this->options->getLogOutputFile();
+            if ($logOutputFile) {
+                if (!file_exists($logOutputFile) && is_writable(dirname($logOutputFile))) {
+                    touch($logOutputFile);
+                }
+
+                $startTime = microtime(true);
+                if (is_writable($logOutputFile)) {
+                    ob_start();
+                }
             }
 
-            $startTime = microtime(true);
-            if (is_writable($logOutputFile)) {
-                ob_start();
-            }
-        }
+            $this->processHtml();
 
-        $this->processHtml();
+            $this->css->apply_styles($this->tree);
 
-        $this->css->apply_styles($this->tree);
+            // @page style rules : size, margins
+            $pageStyles = $this->css->get_page_styles();
+            $basePageStyle = $pageStyles["base"];
+            unset($pageStyles["base"]);
 
-        // @page style rules : size, margins
-        $pageStyles = $this->css->get_page_styles();
-        $basePageStyle = $pageStyles["base"];
-        unset($pageStyles["base"]);
-
-        foreach ($pageStyles as $pageStyle) {
-            $pageStyle->inherit($basePageStyle);
-        }
-
-        // Set paper size if defined via CSS
-        if (is_array($basePageStyle->size)) {
-            // Orientation is already applied when reading the computed CSS
-            // `size` value. The `Canvas` back ends, however, unconditionally
-            // swap with an orientation of `landscape` and leave the defined
-            // size as-is with `portrait`; so passing `portrait` as orientation
-            // here (via the default value) is correct
-            [$width, $height] = $basePageStyle->size;
-            $this->setPaper([0, 0, $width, $height]);
-        }
-
-        // Create a new canvas instance if the current one does not match the
-        // desired paper size
-        $canvasWidth = $this->canvas->get_width();
-        $canvasHeight = $this->canvas->get_height();
-        $size = $this->getPaperSize();
-
-        if (
-            \Dompdf\Helpers::lengthEqual($canvasWidth, $size[2]) === false ||
-            \Dompdf\Helpers::lengthEqual($canvasHeight, $size[3]) === false
-        ) {
-            $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
-            $this->fontMetrics->setCanvas($this->canvas);
-        }
-
-        $canvas = $this->canvas;
-
-        LineBox::reset_float_reflow_limit(); // FIXME smelly hack
-
-        $root_frame = $this->tree->get_root();
-        $root = Factory::decorate_root($root_frame, $this);
-        foreach ($this->tree as $frame) {
-            if ($frame === $root_frame) {
-                continue;
-            }
-            Factory::decorate_frame($frame, $this, $root);
-        }
-
-        // Add meta information
-        $title = $this->dom->getElementsByTagName("title");
-        if ($title->length) {
-            $canvas->add_info("Title", trim($title->item(0)->nodeValue));
-        }
-
-        $metas = $this->dom->getElementsByTagName("meta");
-        $labels = [
-            "author" => "Author",
-            "keywords" => "Keywords",
-            "description" => "Subject",
-        ];
-        /** @var \DOMElement $meta */
-        foreach ($metas as $meta) {
-            $name = mb_strtolower($meta->getAttribute("name"));
-            $value = trim($meta->getAttribute("content"));
-
-            if (isset($labels[$name])) {
-                $canvas->add_info($labels[$name], $value);
-                continue;
+            foreach ($pageStyles as $pageStyle) {
+                $pageStyle->inherit($basePageStyle);
             }
 
-            if ($name === "dompdf.view" && $this->parseDefaultView($value)) {
-                $canvas->set_default_view($this->defaultView, $this->defaultViewOptions);
-            }
-        }
-
-        $root->set_containing_block(0, 0, $canvas->get_width(), $canvas->get_height());
-        $root->set_renderer(new Renderer($this));
-
-        // This is where the magic happens:
-        $root->reflow();
-
-        if (isset($this->callbacks["end_document"])) {
-            $fs = $this->callbacks["end_document"];
-
-            foreach ($fs as $f) {
-                $canvas->page_script($f);
-            }
-        }
-
-        // Clean up cached images
-        if (!$this->options->getDebugKeepTemp()) {
-            Cache::clear($this->options->getDebugPng());
-        }
-
-        global $_dompdf_warnings, $_dompdf_show_warnings;
-        if ($_dompdf_show_warnings && isset($_dompdf_warnings)) {
-            echo '<b>Dompdf Warnings</b><br><pre>';
-            foreach ($_dompdf_warnings as $msg) {
-                echo $msg . "\n";
+            // Set paper size if defined via CSS
+            if (is_array($basePageStyle->size)) {
+                // Orientation is already applied when reading the computed CSS
+                // `size` value. The `Canvas` back ends, however, unconditionally
+                // swap with an orientation of `landscape` and leave the defined
+                // size as-is with `portrait`; so passing `portrait` as orientation
+                // here (via the default value) is correct
+                [$width, $height] = $basePageStyle->size;
+                $this->setPaper([0, 0, $width, $height]);
             }
 
-            if ($canvas instanceof CPDF) {
-                echo $canvas->get_cpdf()->messages;
+            // Create a new canvas instance if the current one does not match the
+            // desired paper size
+            $canvasWidth = $this->canvas->get_width();
+            $canvasHeight = $this->canvas->get_height();
+            $size = $this->getPaperSize();
+
+            if (
+                \Dompdf\Helpers::lengthEqual($canvasWidth, $size[2]) === false ||
+                \Dompdf\Helpers::lengthEqual($canvasHeight, $size[3]) === false
+            ) {
+                $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
+                $this->fontMetrics->setCanvas($this->canvas);
             }
-            echo '</pre>';
-            flush();
-        }
 
-        if ($logOutputFile && is_writable($logOutputFile)) {
-            $this->writeLog($logOutputFile, $startTime);
-            ob_end_clean();
-        }
+            $canvas = $this->canvas;
 
-        $this->restorePhpConfig();
+            LineBox::reset_float_reflow_limit(); // FIXME smelly hack
+
+            $root_frame = $this->tree->get_root();
+            $root = Factory::decorate_root($root_frame, $this);
+            foreach ($this->tree as $frame) {
+                if ($frame === $root_frame) {
+                    continue;
+                }
+                Factory::decorate_frame($frame, $this, $root);
+            }
+
+            // Add meta information
+            $title = $this->dom->getElementsByTagName("title");
+            if ($title->length) {
+                $canvas->add_info("Title", trim($title->item(0)->nodeValue));
+            }
+
+            $metas = $this->dom->getElementsByTagName("meta");
+            $labels = [
+                "author" => "Author",
+                "keywords" => "Keywords",
+                "description" => "Subject",
+            ];
+            /** @var \DOMElement $meta */
+            foreach ($metas as $meta) {
+                $name = mb_strtolower($meta->getAttribute("name"));
+                $value = trim($meta->getAttribute("content"));
+
+                if (isset($labels[$name])) {
+                    $canvas->add_info($labels[$name], $value);
+                    continue;
+                }
+
+                if ($name === "dompdf.view" && $this->parseDefaultView($value)) {
+                    $canvas->set_default_view($this->defaultView, $this->defaultViewOptions);
+                }
+            }
+
+            $root->set_containing_block(0, 0, $canvas->get_width(), $canvas->get_height());
+            $root->set_renderer(new Renderer($this));
+
+            // This is where the magic happens:
+            $root->reflow();
+
+            if (isset($this->callbacks["end_document"])) {
+                $fs = $this->callbacks["end_document"];
+
+                foreach ($fs as $f) {
+                    $canvas->page_script($f);
+                }
+            }
+
+            // Clean up cached images
+            if (!$this->options->getDebugKeepTemp()) {
+                Cache::clear($this->options->getDebugPng());
+            }
+
+            global $_dompdf_warnings, $_dompdf_show_warnings;
+            if ($_dompdf_show_warnings && isset($_dompdf_warnings)) {
+                echo '<b>Dompdf Warnings</b><br><pre>';
+                foreach ($_dompdf_warnings as $msg) {
+                    echo $msg . "\n";
+                }
+
+                if ($canvas instanceof CPDF) {
+                    echo $canvas->get_cpdf()->messages;
+                }
+                echo '</pre>';
+                flush();
+            }
+
+            if ($logOutputFile && is_writable($logOutputFile)) {
+                $this->writeLog($logOutputFile, $startTime);
+                ob_end_clean();
+            }
+        } finally {
+            $this->restorePhpConfig();
+        }
     }
 
     /**
@@ -918,9 +922,11 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        $this->canvas->stream($filename, $options);
-
-        $this->restorePhpConfig();
+        try {
+            $this->canvas->stream($filename, $options);
+        } finally {
+            $this->restorePhpConfig();
+        }
     }
 
     /**
@@ -939,11 +945,11 @@ class Dompdf
     {
         $this->setPhpConfig();
 
-        $output = $this->canvas->output($options);
-
-        $this->restorePhpConfig();
-
-        return $output;
+        try {
+            return $this->canvas->output($options);
+        } finally {
+            $this->restorePhpConfig();
+        }
     }
 
     /**
