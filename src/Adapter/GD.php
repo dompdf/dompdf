@@ -346,7 +346,7 @@ class GD implements Canvas
         // Account for the fact that round and square caps are expected to
         // extend outwards
         if ($cap === "round" || $cap === "square") {
-            // Shift line by half width
+            // Extend each endpoint outwards by half the width
             $w = $width / 2;
             $a = $x2 - $x1;
             $b = $y2 - $y1;
@@ -355,9 +355,9 @@ class GD implements Canvas
             $dy = $b * $w / $c;
 
             $x1 -= $dx;
-            $x2 -= $dx;
+            $x2 += $dx;
             $y1 -= $dy;
-            $y2 -= $dy;
+            $y2 += $dy;
 
             // Adapt dash pattern
             if (is_array($style)) {
